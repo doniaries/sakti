@@ -2,15 +2,15 @@
 
 namespace App\Filament\Pages;
 
-use Filament\Pages\Page;
-
 use BackedEnum;
-use UnitEnum;
+
+use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use UnitEnum;
 
 class LhkEvidence extends Page implements HasForms
 {
@@ -22,6 +22,8 @@ class LhkEvidence extends Page implements HasForms
     protected static UnitEnum|string|null $navigationGroup = 'Laporan';
     protected static ?int $navigationSort = 1;
 
+    protected string $view = 'filament.pages.lhk-evidence';
+
     public ?array $data = [];
 
     public function mount(): void
@@ -29,13 +31,13 @@ class LhkEvidence extends Page implements HasForms
         $this->form->fill();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make('Pilih Bulan Pembuatan LHK (EVIDENCE)')
                     ->schema([
-                        Select::make('tahun')
+                        Forms\Components\Select::make('tahun')
                             ->label('Tahun')
                             ->options([
                                 '2026' => '2026',
@@ -43,7 +45,7 @@ class LhkEvidence extends Page implements HasForms
                             ])
                             ->default(now()->year)
                             ->required(),
-                        Select::make('bulan')
+                        Forms\Components\Select::make('bulan')
                             ->label('Bulan')
                             ->options([
                                 '01' => 'Januari',
@@ -71,6 +73,4 @@ class LhkEvidence extends Page implements HasForms
         $data = $this->form->getState();
         // Nanti kita tambahkan logika untuk memuat data tabel berdasarkan $data['tahun'] dan $data['bulan']
     }
-
-    protected static string $view = 'filament.pages.lhk-evidence';
 }

@@ -2,46 +2,47 @@
 
 namespace App\Filament\Resources\Lhks;
 
+use App\Filament\Resources\Lhks\Pages;
 use App\Filament\Resources\Lhks\Pages\CreateLhk;
 use App\Filament\Resources\Lhks\Pages\EditLhk;
 use App\Filament\Resources\Lhks\Pages\ListLhks;
 use App\Filament\Resources\Lhks\Schemas\LhkForm;
-use App\Filament\Resources\Lhks\Tables\LhksTable;
 use App\Models\Lhk;
 use BackedEnum;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
+use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables;
 use Filament\Tables\Table;
 
 class LhkResource extends Resource
 {
     protected static ?string $model = Lhk::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Informasi Kehadiran')
+        return $schema
+            ->components([
+                Section::make('Informasi Kehadiran')
                     ->schema([
-                        DatePicker::make('tanggal')
+                        Forms\Components\DatePicker::make('tanggal')
                             ->required()
                             ->default(now()),
-                        Select::make('user_id')
+                        Forms\Components\Select::make('user_id')
                             ->relationship('user', 'name')
                             ->required()
                             ->searchable(),
-                        Select::make('log_absensi_masuk_id')
-                            ->relationship('logAbsensiMasuk', 'waktu')
+                        Forms\Components\Select::make('log_absensi_masuk_id')
+                            ->relationship('logAbsensiMasuk', 'waktu_absensi')
                             ->label('Absensi Masuk'),
-                        Select::make('log_absensi_pulang_id')
-                            ->relationship('logAbsensiPulang', 'waktu')
+                        Forms\Components\Select::make('log_absensi_pulang_id')
+                            ->relationship('logAbsensiPulang', 'waktu_absensi')
                             ->label('Absensi Pulang'),
-                        Select::make('status')
+                        Forms\Components\Select::make('status')
                             ->options([
                                 'Hadir' => 'Hadir',
                                 'Sakit' => 'Sakit',
@@ -50,7 +51,7 @@ class LhkResource extends Resource
                             ])->default('Hadir'),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Rincian Pekerjaan')
+                Section::make('Rincian Pekerjaan')
                     ->schema([
                         Forms\Components\Repeater::make('pekerjaans')
                             ->relationship('pekerjaans')
@@ -94,10 +95,10 @@ class LhkResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('logAbsensiMasuk.waktu')
+                Tables\Columns\TextColumn::make('logAbsensiMasuk.waktu_absensi')
                     ->label('Masuk')
                     ->time(),
-                Tables\Columns\TextColumn::make('logAbsensiPulang.waktu')
+                Tables\Columns\TextColumn::make('logAbsensiPulang.waktu_absensi')
                     ->label('Pulang')
                     ->time(),
                 Tables\Columns\TextColumn::make('status')
@@ -126,9 +127,9 @@ class LhkResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListLhks::route('/'),
-            'create' => CreateLhk::route('/create'),
-            'edit' => EditLhk::route('/{record}/edit'),
+            'index' => Pages\ListLhks::route('/'),
+            'create' => Pages\CreateLhk::route('/create'),
+            'edit' => Pages\EditLhk::route('/{record}/edit'),
         ];
     }
 }
