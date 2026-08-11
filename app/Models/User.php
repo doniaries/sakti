@@ -10,7 +10,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Support\Facades\Storage;
+
+class User extends Authenticatable implements HasAvatar
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -37,6 +40,7 @@ class User extends Authenticatable
         'jenis_kelamin',
         'eselon',
         'atasan_id',
+        'avatar_url',
     ];
 
     /**
@@ -98,5 +102,10 @@ class User extends Authenticatable
     public function bawahan()
     {
         return $this->hasMany(User::class, 'atasan_id');
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->avatar_url ? Storage::url($this->avatar_url) : null;
     }
 }

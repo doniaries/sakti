@@ -20,7 +20,7 @@ class AbsensiMobileResource extends Resource
 {
     protected static ?string $model = AbsensiMobile::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
     protected static ?string $modelLabel = 'Absensi Mobile';
     protected static ?string $pluralModelLabel = 'Data Absensi Mobile';
 

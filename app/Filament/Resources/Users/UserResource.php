@@ -20,7 +20,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Manajemen Pengguna';
+    protected static string|\UnitEnum|null $navigationGroup = 'Pengaturan';
     protected static ?string $modelLabel = 'Pegawai';
     protected static ?string $pluralModelLabel = 'Data Pegawai';
 
@@ -43,11 +43,11 @@ class UserResource extends Resource
         return UsersTable::configure($table);
     }
 
-    
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         /** @var \App\Models\User|null $user */
         $user = auth()->user();
         if ($user && !$user->hasRole('super_admin')) {
@@ -55,7 +55,7 @@ class UserResource extends Resource
                 $q->where('name', 'super_admin');
             });
         }
-        
+
         return $query;
     }
 

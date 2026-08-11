@@ -22,9 +22,9 @@ class JabatanResource extends Resource
 
     protected static ?string $modelLabel = 'Jabatan';
 
-    protected static ?string $pluralModelLabel = 'Data Jabatan';
+    protected static ?string $pluralModelLabel = 'Jabatan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Pengaturan';
 
     public static function form(Schema $schema): Schema
     {
