@@ -27,24 +27,16 @@ class ListAbsensiHarians extends ListRecords
             'semua' => Tab::make('Semua Data'),
 
             'hadir' => Tab::make('Hadir')
-                ->modifyQueryUsing(fn($query) => $query->where('status', 'hadir'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'hadir')->count())
-                ->badgeColor('success'),
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'hadir')),
 
             'sakit' => Tab::make('Sakit')
-                ->modifyQueryUsing(fn($query) => $query->where('status', 'sakit'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'sakit')->count())
-                ->badgeColor('warning'),
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'sakit')),
 
             'izin' => Tab::make('Izin')
-                ->modifyQueryUsing(fn($query) => $query->where('status', 'izin'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'izin')->count())
-                ->badgeColor('warning'),
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'izin')),
 
             'tidak_hadir' => Tab::make('Tanpa Keterangan')
-                ->modifyQueryUsing(fn($query) => $query->where('status', 'tidak_hadir'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'tidak_hadir')->count())
-                ->badgeColor('danger'),
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'tidak_hadir')),
         ];
     }
 
