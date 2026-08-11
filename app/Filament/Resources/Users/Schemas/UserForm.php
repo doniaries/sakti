@@ -17,15 +17,7 @@ class UserForm
                         Section::make('Profil Pegawai')
                             ->icon('heroicon-o-user')
                     ->schema([
-                        \Filament\Forms\Components\FileUpload::make('avatar_url')
-                            ->label('Foto Profil (Avatar)')
-                            ->avatar()
-                            ->image()
-                            ->disk('public')
-                            ->directory('avatars')
-                            ->maxSize(2048)
-                            ->columnSpanFull()
-                            ->alignCenter(),
+
                         \Filament\Forms\Components\TextInput::make('name')
                             ->label('Nama Lengkap')
                             ->required()
@@ -88,6 +80,18 @@ class UserForm
 
                 \Filament\Schemas\Components\Group::make()
                     ->schema([
+                        Section::make('Foto Profil')
+                            ->schema([
+                                \Filament\Forms\Components\FileUpload::make('avatar_url')
+                                    ->label('Foto Profil (Avatar)')
+                                    ->avatar()
+                                    ->image()
+                                    ->disk('public')
+                                    ->directory('avatars')
+                                    ->maxSize(2048)
+                                    ->columnSpanFull()
+                                    ->alignCenter(),
+                            ]),
                         Section::make('Informasi Tambahan')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
