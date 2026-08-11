@@ -91,7 +91,7 @@ class DataPegawaiSeeder extends Seeder
                 'name' => 'ZULFITRI, S. Ag',
                 'nip' => '19770825 200701 2 006',
                 'jabatan' => 'Kasubbag Umum dan Kepegawaian',
-                'pendidikan' => 'S1 SYARI'AH',
+                'pendidikan' => 'S1 SYARI\'AH',
                 'jenis_kelamin' => 'P',
                 'eselon' => 'IV.a',
                 'tempat_lahir' => 'Lubuk Tarab',
@@ -977,7 +977,28 @@ class DataPegawaiSeeder extends Seeder
             ],
         ];
 
+        $bulanIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        $bulanEng = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
         foreach ($data as $item) {
+            $jabatanName = $item['jabatan'] ?? null;
+            unset($item['jabatan']);
+            if ($jabatanName) {
+                $jabatan = \App\Models\Jabatan::where('nama', $jabatanName)->first();
+                if ($jabatan) {
+                    $item['jabatan_id'] = $jabatan->id;
+                }
+            }
+
+            if (!empty($item['tanggal_lahir'])) {
+                $tanggalString = str_replace($bulanIndo, $bulanEng, $item['tanggal_lahir']);
+                try {
+                    $item['tanggal_lahir'] = \Carbon\Carbon::parse($tanggalString)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $item['tanggal_lahir'] = null;
+                }
+            }
+
             $user = User::firstOrCreate(
                 ['nip' => $item['nip']],
                 $item
