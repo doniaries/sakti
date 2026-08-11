@@ -18,10 +18,21 @@ class AbsensiHarian extends Model
         'log_pulang_id',
         'status',
         'keterangan',
+        'is_absen_mesin',
+        'is_absen_mobile',
+        'status_apel',
+        'latitude_masuk',
+        'longitude_masuk',
+        'foto_masuk',
+        'latitude_pulang',
+        'longitude_pulang',
+        'foto_pulang',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
+        'is_absen_mesin' => 'boolean',
+        'is_absen_mobile' => 'boolean',
     ];
 
     public function user(): BelongsTo

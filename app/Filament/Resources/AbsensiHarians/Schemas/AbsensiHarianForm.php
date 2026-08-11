@@ -14,41 +14,61 @@ class AbsensiHarianForm
     {
         return $schema
             ->components([
-                Select::make('user_id')
-                    ->relationship('user', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                DatePicker::make('tanggal')->displayFormat('d/m/Y')
-                    ->displayFormat('d/m/Y')
-                    ->required(),
-                TimePicker::make('jam_masuk')
-                    ->displayFormat('H:i'),
-                TimePicker::make('jam_pulang')
-                    ->displayFormat('H:i'),
-                Select::make('log_masuk_id')
-                    ->relationship('logMasuk', 'nomor_absensi')
-                    ->searchable()
-                    ->preload(),
-                Select::make('log_pulang_id')
-                    ->relationship('logPulang', 'nomor_absensi')
-                    ->searchable()
-                    ->preload(),
-                Select::make('status')
-                    ->options([
-                        'hadir' => 'Hadir',
-                        'terlambat' => 'Terlambat',
-                        'tidak_hadir' => 'Tidak Hadir',
-                        'dinas_luar' => 'Dinas Luar',
-                        'cuti' => 'Cuti',
-                        'izin' => 'Izin',
-                        'sakit' => 'Sakit',
-                        'libur' => 'Libur',
-                    ])
-                    ->default('hadir')
-                    ->required(),
-                Textarea::make('keterangan')
-                    ->columnSpanFull(),
+                \Filament\Schemas\Components\Section::make('Informasi Absensi Harian')
+                    ->schema([
+                        Select::make('user_id')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        DatePicker::make('tanggal')->displayFormat('d/m/Y')
+                            ->required(),
+                        TimePicker::make('jam_masuk')
+                            ->displayFormat('H:i:s'),
+                        TimePicker::make('jam_pulang')
+                            ->displayFormat('H:i:s'),
+                        Select::make('status')
+                            ->options([
+                                'hadir' => 'Hadir',
+                                'terlambat' => 'Terlambat',
+                                'tidak_hadir' => 'Tidak Hadir',
+                                'dinas_luar' => 'Dinas Luar',
+                                'cuti' => 'Cuti',
+                                'izin' => 'Izin',
+                                'sakit' => 'Sakit',
+                                'libur' => 'Libur',
+                            ])
+                            ->default('hadir')
+                            ->required(),
+                        Select::make('status_apel')
+                            ->label('Status Apel')
+                            ->options([
+                                'apel' => 'Apel',
+                                'tidak_apel' => 'Tidak Apel',
+                            ]),
+                        Textarea::make('keterangan')
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
+                \Filament\Schemas\Components\Section::make('Sumber Absensi')
+                    ->schema([
+                        \Filament\Forms\Components\Toggle::make('is_absen_mesin')
+                            ->label('Dari Mesin'),
+                        \Filament\Forms\Components\Toggle::make('is_absen_mobile')
+                            ->label('Dari Mobile'),
+                    ])->columns(2),
+
+                \Filament\Schemas\Components\Section::make('Bukti Mobile')
+                    ->schema([
+                        \Filament\Forms\Components\FileUpload::make('foto_masuk')
+                            ->label('Foto Masuk')
+                            ->image()
+                            ->directory('absensi-mobile'),
+                        \Filament\Forms\Components\FileUpload::make('foto_pulang')
+                            ->label('Foto Pulang')
+                            ->image()
+                            ->directory('absensi-mobile'),
+                    ])->columns(2),
             ]);
     }
 }

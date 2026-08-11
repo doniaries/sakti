@@ -34,7 +34,7 @@ class DataPegawaiSeeder extends Seeder
                 'tempat_lahir' => $row['tempat_lahir'] ?? null,
                 'tanggal_lahir' => $row['tanggal_lahir'] ?? null,
                 'nomor_absensi' => $row['nomor_absensi'] ?? null,
-                'email' => strtolower(str_replace([' ', ',', '.'], '', $row['nama'] ?? '')) . '@example.com',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', $row['nama'] ?? '')) . '@sijunjung.go.id',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
             ];
         }
@@ -89,6 +89,54 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
             ]);
             $zulfitri->syncRoles(['admin', 'pegawai']);
+        }
+
+        // Akun Kepala Dinas (Mock / Cari yang jabatannya Kepala Dinas)
+        $kadis = User::whereHas('jabatan', function($q) {
+            $q->where('nama', 'like', '%kepala dinas%');
+        })->first();
+        
+        if ($kadis) {
+            $kadis->update([
+                'email' => 'kepaladinas@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+            ]);
+        } else {
+            // Buat jika tidak ada
+            $jabatanKadis = \App\Models\Jabatan::firstOrCreate(['nama' => 'Kepala Dinas Lingkungan Hidup']);
+            $kadis = User::create([
+                'name' => 'Kepala Dinas',
+                'email' => 'kepaladinas@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'jabatan_id' => $jabatanKadis->id,
+            ]);
+            $kadis->assignRole('pegawai');
+        }
+
+        // Akun Sekretaris
+        $sekretaris = User::whereHas('jabatan', function($q) {
+            $q->where('nama', 'like', '%sekretaris%');
+        })->first();
+        
+        if ($sekretaris) {
+            $sekretaris->update([
+                'email' => 'sekretaris@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+            ]);
+        } else {
+            // Buat jika tidak ada
+            $jabatanSekretaris = \App\Models\Jabatan::firstOrCreate(['nama' => 'Sekretaris Dinas']);
+            $sekretaris = User::create([
+                'name' => 'Sekretaris',
+                'email' => 'sekretaris@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'jabatan_id' => $jabatanSekretaris->id,
+            ]);
+            $sekretaris->assignRole('pegawai');
         }
     }
 }

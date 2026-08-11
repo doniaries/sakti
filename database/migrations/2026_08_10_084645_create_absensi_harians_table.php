@@ -44,6 +44,18 @@ return new class extends Migration
                 'libur',
             ])->default('hadir');
 
+            $table->boolean('is_absen_mesin')->default(false);
+            $table->boolean('is_absen_mobile')->default(false);
+            $table->enum('status_apel', ['apel', 'tidak_apel'])->nullable();
+
+            $table->decimal('latitude_masuk', 10, 7)->nullable();
+            $table->decimal('longitude_masuk', 10, 7)->nullable();
+            $table->string('foto_masuk')->nullable();
+
+            $table->decimal('latitude_pulang', 10, 7)->nullable();
+            $table->decimal('longitude_pulang', 10, 7)->nullable();
+            $table->string('foto_pulang')->nullable();
+
             $table->text('keterangan')->nullable();
 
             $table->timestamps();
