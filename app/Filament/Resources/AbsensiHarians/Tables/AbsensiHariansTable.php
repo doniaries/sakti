@@ -278,7 +278,7 @@ class AbsensiHariansTable
                                     ->columnSpan(1),
 
                                 TextEntry::make('info_jam_pulang')
-                                    ->label('Jam Pulang')
+                                    ->label('Jam Keluar')
                                     ->state(function () use ($record) {
                                         $log = $record->logAbsensiPulang;
                                         return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
