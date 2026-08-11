@@ -7,10 +7,11 @@ use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 
 class PegawaiAbsensiBulanStatsWidget extends BaseWidget
 {
-    use HasWidgetShield;
+    use HasWidgetShield, InteractsWithPageFilters;
 
     protected static ?int $sort = 2;
 
@@ -19,17 +20,19 @@ class PegawaiAbsensiBulanStatsWidget extends BaseWidget
         /** @var \App\Models\User|null $user */
         $user = auth()->user();
         $userId = $user ? $user->id : null;
-        $date = Carbon::now();
+        
+        $tahun = $this->filters['tahun'] ?? Carbon::now()->year;
+        $bulan = $this->filters['bulan'] ?? Carbon::now()->month;
         
         $absensi = AbsensiHarian::where('user_id', $userId)
-            ->whereMonth('tanggal', $date->month)
-            ->whereYear('tanggal', $date->year)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
             ->get();
 
-        $hadir = $absensi->where('status', 'Hadir')->count();
-        $sakit = $absensi->where('status', 'Sakit')->count();
-        $izin = $absensi->where('status', 'Izin')->count();
-        $tanpaKeterangan = $absensi->where('status', 'Tanpa Keterangan')->count();
+        $hadir = $absensi->where('status', 'hadir')->count();
+        $sakit = $absensi->where('status', 'sakit')->count();
+        $izin = $absensi->where('status', 'izin')->count();
+        $tanpaKeterangan = $absensi->where('status', 'tidak_hadir')->count();
 
         $userName = $user ? explode(' ', trim($user->name))[0] : 'Pribadi';
 
