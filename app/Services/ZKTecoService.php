@@ -48,6 +48,18 @@ class ZKTecoService
     }
 
     /**
+     * Set user to machine
+     */
+    public function setUser($uid, $userid, $name, $password = '', $role = 0, $cardno = 0)
+    {
+        $this->connect();
+        $result = $this->zk->setUser($uid, $userid, $name, $password, $role, $cardno);
+        $this->disconnect();
+
+        return $result;
+    }
+
+    /**
      * Get attendance logs from machine
      * Returns array of attendance with structure:
      * [uid, id (PIN), state, timestamp, type]
