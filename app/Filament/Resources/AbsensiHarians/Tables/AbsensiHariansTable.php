@@ -35,8 +35,6 @@ class AbsensiHariansTable
         $currentUser = \Illuminate\Support\Facades\Auth::user();
 
         return $table
-            ->filtersLayout(FiltersLayout::AboveContent)
-            ->filtersFormColumns(4)
             ->modifyQueryUsing(fn($query) => $query->with(['user', 'logMasuk', 'logPulang']))
             ->columns([
                 TextColumn::make('user.name')
@@ -179,7 +177,6 @@ class AbsensiHariansTable
                             ->options(
                                 collect(range(1, 31))->mapWithKeys(fn($d) => [$d => $d])->toArray()
                             )
-                            ->default(Carbon::now()->day)
                             ->placeholder('Semua Tanggal'),
                     ])
                     ->query(

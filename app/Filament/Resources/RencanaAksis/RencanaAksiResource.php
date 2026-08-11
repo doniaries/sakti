@@ -22,6 +22,11 @@ class RencanaAksiResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'rencana_aksi';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static ?string $modelLabel = 'Rencana Aksi';
+    protected static ?string $pluralModelLabel = 'Data Rencana Aksi';
+    protected static ?int    $navigationSort     = 5;
+
     public static function form(Schema $schema): Schema
     {
         return RencanaAksiForm::configure($schema);
