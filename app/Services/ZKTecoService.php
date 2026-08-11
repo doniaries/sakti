@@ -22,7 +22,13 @@ class ZKTecoService
      */
     public function connect()
     {
-        return $this->zk->connect();
+        try {
+            return $this->zk->connect();
+        } catch (\Throwable $e) {
+            // Error koneksi seperti "unpack(): Type H: not enough input values"
+            // terjadi ketika IP/Port tidak bisa dijangkau atau salah merespon
+            return false;
+        }
     }
 
     /**
