@@ -18,12 +18,27 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class LhkResource extends Resource
 {
     protected static ?string $model = Lhk::class;
 
     protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        
+        if ($user && $user->hasRole('Pegawai')) {
+            $query->where('user_id', $user->id);
+        }
+        
+        return $query;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -33,16 +48,19 @@ class LhkResource extends Resource
                     ->schema([
                         DatePicker::make('tanggal')
                             ->required()
-                            ->default(now()),
+                            ->default(request()->query('tanggal', now())),
                         Select::make('user_id')
                             ->relationship('user', 'name')
                             ->required()
+                            ->default(request()->query('user_id', auth()->id()))
                             ->searchable(),
                         Select::make('log_absensi_masuk_id')
                             ->relationship('logAbsensiMasuk', 'waktu_absensi')
+                            ->default(request()->query('log_absensi_masuk_id'))
                             ->label('Absensi Masuk'),
                         Select::make('log_absensi_pulang_id')
                             ->relationship('logAbsensiPulang', 'waktu_absensi')
+                            ->default(request()->query('log_absensi_pulang_id'))
                             ->label('Absensi Pulang'),
                         Select::make('status')
                             ->options([
@@ -50,7 +68,7 @@ class LhkResource extends Resource
                                 'Sakit' => 'Sakit',
                                 'Izin' => 'Izin',
                                 'Dinas Luar' => 'Dinas Luar'
-                            ])->default('Hadir'),
+                            ])->default(request()->query('status', 'Hadir')),
                     ])->columns(2),
 
                 Section::make('Rincian Pekerjaan')

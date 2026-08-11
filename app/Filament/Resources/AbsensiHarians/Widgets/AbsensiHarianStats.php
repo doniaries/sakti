@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AbsensiHarians\Widgets;
 
 use App\Models\AbsensiHarian;
+use App\Filament\Resources\AbsensiHarians\AbsensiHarianResource;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -13,10 +14,12 @@ class AbsensiHarianStats extends BaseWidget
     {
         $today = Carbon::today();
         
-        $hadir = AbsensiHarian::whereDate('tanggal', $today)->where('status', 'hadir')->count();
-        $izin = AbsensiHarian::whereDate('tanggal', $today)->where('status', 'izin')->count();
-        $sakit = AbsensiHarian::whereDate('tanggal', $today)->where('status', 'sakit')->count();
-        $tanpaKeterangan = AbsensiHarian::whereDate('tanggal', $today)->where('status', 'tidak_hadir')->count();
+        $baseQuery = clone AbsensiHarianResource::getEloquentQuery()->whereDate('tanggal', $today);
+        
+        $hadir = (clone $baseQuery)->where('status', 'hadir')->count();
+        $izin = (clone $baseQuery)->where('status', 'izin')->count();
+        $sakit = (clone $baseQuery)->where('status', 'sakit')->count();
+        $tanpaKeterangan = (clone $baseQuery)->where('status', 'tidak_hadir')->count();
 
         return [
             Stat::make('Hadir', $hadir)

@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Table;
@@ -60,8 +61,25 @@ class AbsensiHariansTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                \Filament\Tables\Actions\ViewAction::make(),
+                \Filament\Tables\Actions\EditAction::make(),
+                \Filament\Tables\Actions\Action::make('buat_lhk')
+                    ->label('Buat LHK')
+                    ->icon('heroicon-m-document-plus')
+                    ->color('info')
+                    ->url(fn ($record) => \App\Filament\Resources\Lhks\LhkResource::getUrl('create', [
+                        'tanggal' => $record->tanggal,
+                        'user_id' => $record->user_id,
+                        'log_absensi_masuk_id' => $record->log_absensi_masuk_id,
+                        'log_absensi_pulang_id' => $record->log_absensi_pulang_id,
+                        'status' => match ($record->status) {
+                            'hadir', 'terlambat' => 'Hadir',
+                            'sakit' => 'Sakit',
+                            'izin', 'cuti' => 'Izin',
+                            'dinas_luar' => 'Dinas Luar',
+                            default => 'Hadir',
+                        }
+                    ]))
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

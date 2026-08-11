@@ -29,6 +29,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             // ->topNavigation()
             ->path('admin')
+            ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('16rem')
             ->login()
             ->profile(\App\Filament\Pages\EditProfile::class)
             ->colors([

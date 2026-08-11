@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class LogAbsensiResource extends Resource
 {
@@ -27,6 +28,20 @@ class LogAbsensiResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
     protected static ?string $recordTitleAttribute = 'nomor_absensi';
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        
+        if ($user && $user->hasRole('Pegawai')) {
+            $query->where('user_id', $user->id);
+        }
+        
+        return $query;
+    }
 
     public static function form(Schema $schema): Schema
     {
