@@ -15,6 +15,7 @@ class UsersTable
         return $table
             ->columns([
                 \Filament\Tables\Columns\ImageColumn::make('avatar_url')
+                    ->disk('public')
                     ->label('Avatar')
                     ->circular(),
                 \Filament\Tables\Columns\TextColumn::make('name')

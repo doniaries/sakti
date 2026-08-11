@@ -10,6 +10,14 @@ class UserForm
     {
         return $schema
             ->components([
+                \Filament\Forms\Components\FileUpload::make('avatar_url')
+                    ->label('Avatar')
+                    ->avatar()
+                    ->image()
+                    ->disk('public')
+                    ->directory('avatars')
+                    ->maxSize(2048)
+                    ->columnSpanFull(),
                 \Filament\Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255),
