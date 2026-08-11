@@ -2,737 +2,987 @@
 
 namespace Database\Seeders;
 
-use App\Models\Bidang;
-use App\Models\Jabatan;
-use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DataPegawaiSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $data = array (
-  0 => 
-  array (
-    'nama' => 'AFRINELDI, SH',
-    'nip' => '19720407 199202 1 002',
-    'jabatan' => 'KEPALA DINAS',
-    'pendidikan' => 'S1 HUKUM',
-    'jk' => 'L',
-    'eselon' => 'II.b',
-    'tempat_lahir' => 'Padang',
-    'tanggal_lahir' => '7 April 1972',
-  ),
-  1 => 
-  array (
-    'nama' => 'DESMAWATI, SE. M.Si',
-    'nip' => '19691224 199503 2 002',
-    'jabatan' => 'SEKRETARIS',
-    'pendidikan' => 'S2 KEU DAERAH',
-    'jk' => 'P',
-    'eselon' => 'III.a',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '24 Desember 1969',
-  ),
-  2 => 
-  array (
-    'nama' => 'WILDA ARDES N, ST',
-    'nip' => '19730108 200604 2 010',
-    'jabatan' => 'KABID PPENGEMBANGAN',
-    'pendidikan' => 'S1 TEKNIK SIPIL',
-    'jk' => 'P',
-    'eselon' => 'III.b',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
-  4 => 
-  array (
-    'nama' => 'INDRAWADI. R, SP',
-    'nip' => '19800710 200701 1 004',
-    'jabatan' => 'KABID PEMUDA DAN',
-    'pendidikan' => 'S1 PERTANIAN',
-    'jk' => 'P',
-    'eselon' => 'III.b',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
-  6 => 
-  array (
-    'nama' => 'RAHMAD AZANDI FAJAR, S.STP',
-    'nip' => '19890116 201507 1 001',
-    'jabatan' => 'Pj.KABID PEMASARAN',
-    'pendidikan' => 'D IV PENCATATAN',
-    'jk' => 'L',
-    'eselon' => 'III.b',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
-  8 => 
-  array (
-    'nama' => 'DIKI ZULFIKAR,SS',
-    'nip' => '19741230 200604 1 009',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator  Promosi Kepemudaan dan KepemanduanBidang Pemuda dan Olahraga  pada Dinas Pariwisata',
-    'pendidikan' => 'S1  S. INGGRIS',
-    'jk' => 'L',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
-  9 => 
-  array (
-    'nama' => 'SUPARTA, SE. M. Si',
-    'nip' => '19780103 200701 1 003',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator  Pengembangan Sumber Daya Pariwisata Bidang Pengembangan Destinasi Pariwisata   pada Dinas Pariwisata',
-    'pendidikan' => 'S2 PWD',
-    'jk' => 'L',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Sawahlunto',
-    'tanggal_lahir' => '03 Januari 1978',
-  ),
-  10 => 
-  array (
-    'nama' => 'ZULFITRI, S. Ag',
-    'nip' => '19770825 200701 2 006',
-    'jabatan' => 'KASUBBAG UMUM DAN',
-    'pendidikan' => 'S1 SYARI\'AH',
-    'jk' => 'P',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
-  12 => 
-  array (
-    'nama' => 'NOFRIZALM, SE',
-    'nip' => '19761129 200901 1 002',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator  Promosi Pariwisata Bidang Pemasaran Pariwisata  pada Dinas Pariwisata',
-    'pendidikan' => 'S1 EKONOMI',
-    'jk' => 'L',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '29-11-1976',
-  ),
-  13 => 
-  array (
-    'nama' => 'MIRA APRIYANTI, ME',
-    'nip' => '19840426 200902 2 010',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator  Pengembangan Kerjasama dan Investasi Pariwisata Bidang Pengembangan Destinasi Pariwisata pada Dinas Pariwisata',
-    'pendidikan' => 'S2 EKONOMI',
-    'jk' => 'P',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Jambun',
-    'tanggal_lahir' => '26 April 1984',
-  ),
-  14 => 
-  array (
-    'nama' => 'WIRA GUSTI MUSTIKA, S, Sn',
-    'nip' => '19830824 201001 2 021',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator Pembinaan dan Pegelaran Seni Bidang  Pemasaran Dinas Pariwisata',
-    'pendidikan' => 'S1 SASTRA TARI',
-    'jk' => 'P',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Muaro',
-    'tanggal_lahir' => '08 Agustus 1983',
-  ),
-  15 => 
-  array (
-    'nama' => 'JULHARDIANTO, S. Pt. M. Si',
-    'nip' => '19841023 200501 1 003',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator Keuangan dan Perencaan pada Sekretariat  Dinas Pariwisata',
-    'pendidikan' => 'S2 SAINS',
-    'jk' => 'L',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Batu Manjulur',
-    'tanggal_lahir' => '23oktober 1984',
-  ),
-  16 => 
-  array (
-    'nama' => 'HENDRA PERMANA, SE',
-    'nip' => '19780527 201001 1 006',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator Pengembangan Destinasi Pariwisata  Bidang Pengembangan Destinasi Pariwisata',
-    'pendidikan' => 'S1 EKONOMI',
-    'jk' => 'L',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Pematang Panjang',
-    'tanggal_lahir' => '27 Mei 1978',
-  ),
-  17 => 
-  array (
-    'nama' => 'RONA YUNITA, S.ST',
-    'nip' => '19840616 201101 2 007',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator Ekonomi Kreatif Bidang Ekonomi Pemasaran Pariwisata',
-    'pendidikan' => 'D IV PARIWISATA',
-    'jk' => 'P',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Payakumbuh',
-    'tanggal_lahir' => '16-06-1984',
-  ),
-  18 => 
-  array (
-    'nama' => 'LIDEFRIYON, SH',
-    'nip' => '19760625 200701 1 005',
-    'jabatan' => 'Analis Kebijakan Ahli Muda Sub Koordinator Sarana dan Prasarana Pemuda dan Olahraga Bidang Pemuda dan Olahraga pada Dinas Pariwisata',
-    'pendidikan' => 'S1 ILMU HUKUM',
-    'jk' => 'L',
-    'eselon' => 'IV.a',
-    'tempat_lahir' => 'Muaro Gambok',
-    'tanggal_lahir' => '25 Juni 1976',
-  ),
-  19 => 
-  array (
-    'nama' => 'IMELDA SANGGETA, A.Md',
-    'nip' => '19751009 200501 2 002',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'DIII PARIWISATA',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Tanjung Ampalu',
-    'tanggal_lahir' => '09-10-1975',
-  ),
-  20 => 
-  array (
-    'nama' => 'INDRA JUNAIDI, S.A.P',
-    'nip' => '19740604 201001 1 008',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'S1 Adm Publik',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '04-06-1974',
-  ),
-  21 => 
-  array (
-    'nama' => 'MEVI FEBRIANTI',
-    'nip' => '19830210 201212 2 004',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'S1 Adm Publik',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '10 Februari 1983',
-  ),
-  22 => 
-  array (
-    'nama' => 'RONI RIVANDRA',
-    'nip' => '19780224 201001 1 003',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'SMA',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Batu Gandang',
-    'tanggal_lahir' => '24 Februari 1978',
-  ),
-  23 => 
-  array (
-    'nama' => 'MAIYOLA INDRA, A.Md.A.B',
-    'nip' => '19990512 202203 2 013',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'D3 Administrasi Bisnis',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Padang',
-    'tanggal_lahir' => '12 Mei 1999',
-  ),
-  24 => 
-  array (
-    'nama' => 'WIWIRNA',
-    'nip' => '19850723 200901 2 007',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'SMA',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Padang Laweh',
-    'tanggal_lahir' => '23 Juli 1985',
-  ),
-  25 => 
-  array (
-    'nama' => 'ROSNI',
-    'nip' => '19850622 201001 2 003',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'SMA',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro',
-    'tanggal_lahir' => '22 Juni 1985',
-  ),
-  26 => 
-  array (
-    'nama' => 'NASIB',
-    'nip' => '19740408 201001 1 006',
-    'jabatan' => 'STAF',
-    'pendidikan' => 'SD',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro',
-    'tanggal_lahir' => '8 April 1974',
-  ),
-  27 => 
-  array (
-    'nama' => 'ARMAN, SP',
-    'nip' => '19840515 202321 1 025',
-    'jabatan' => 'AHLI PERTAMA-ANALIS KEBIJAKAN',
-    'pendidikan' => 'S1 AGROTEKNOLOGI',
-    'jk' => 'L',
-    'eselon' => '-',
-    'tempat_lahir' => 'Kab. Sijunjung',
-    'tanggal_lahir' => '15 Mei 1984',
-  ),
-  28 => 
-  array (
-    'nama' => 'MUSAIRIL HADI, SE',
-    'nip' => '19930117 202321 1 022',
-    'jabatan' => 'AHLI PERTAMA-PERENCANA',
-    'pendidikan' => 'S2 MANAJEMEN',
-    'jk' => 'L',
-    'eselon' => '-',
-    'tempat_lahir' => 'Kab. Sijunjung',
-    'tanggal_lahir' => '17 Januari 1993',
-  ),
-  29 => 
-  array (
-    'nama' => 'GUSMAINI, SP',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1 PPERTANIAN',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro Sijunjung',
-    'tanggal_lahir' => '10-08-1974',
-  ),
-  30 => 
-  array (
-    'nama' => 'DITA TRISIA, SP',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1 PPERTANIAN',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '13 Maret 1986',
-  ),
-  31 => 
-  array (
-    'nama' => 'RIKA PUSPA MERI, SP',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1 PERTANIAN',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Unggan',
-    'tanggal_lahir' => '10 Oktober 1985',
-  ),
-  32 => 
-  array (
-    'nama' => 'DIAN KURNIA SARI, S. Pd',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1 PENDIDIKAN',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '6 Januari 1991',
-  ),
-  33 => 
-  array (
-    'nama' => 'ROBBY PITHALOCA, A. Md',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'D III PERHOTELAN',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Jakarta',
-    'tanggal_lahir' => '08 Juni 1981',
-  ),
-  34 => 
-  array (
-    'nama' => 'SARIMAH MUHKTAR',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'STM',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Gambok',
-    'tanggal_lahir' => '8 November 1970',
-  ),
-  35 => 
-  array (
-    'nama' => 'INDRA GUSTI',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'MAN',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '17 Agustus 1974',
-  ),
-  36 => 
-  array (
-    'nama' => 'RORI FRAND UTAMA',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SMA',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Tikalak',
-    'tanggal_lahir' => '27 Mei 1982',
-  ),
-  37 => 
-  array (
-    'nama' => 'GUSNEDI ARIANTO',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SMA',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro',
-    'tanggal_lahir' => '05 Agustus 1989',
-  ),
-  38 => 
-  array (
-    'nama' => 'YULHENDRI',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SMA',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Swl Sijunjung',
-    'tanggal_lahir' => '22 Juli 1990',
-  ),
-  39 => 
-  array (
-    'nama' => 'TRIJONI ANDESPI',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SMA',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Taratak',
-    'tanggal_lahir' => '13 April 1991',
-  ),
-  40 => 
-  array (
-    'nama' => 'ROBBY DARWIS',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'PAKET B',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro',
-    'tanggal_lahir' => '12 November 1974',
-  ),
-  41 => 
-  array (
-    'nama' => 'ANI SUSI SUSANTI, SP',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1 PETERNAKAN',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro',
-    'tanggal_lahir' => '4 September 1988',
-  ),
-  42 => 
-  array (
-    'nama' => 'BUDI SETIA ROMANDO, S. Si',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1 KEOLAHRAGAAN',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Swl Sijunjung',
-    'tanggal_lahir' => '28 Maret 1990',
-  ),
-  43 => 
-  array (
-    'nama' => 'EKO SAPUTRA',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'PAKET C',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Silokek',
-    'tanggal_lahir' => '21 Juli 1989',
-  ),
-  44 => 
-  array (
-    'nama' => 'NOVA YUSNITA',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'PAKET C',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Solok',
-    'tanggal_lahir' => '01 November 1995',
-  ),
-  45 => 
-  array (
-    'nama' => 'FAUZI',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SMK',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '30 Maret 1980',
-  ),
-  46 => 
-  array (
-    'nama' => 'ERNI GUSRITA',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SLTA',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Silokek',
-    'tanggal_lahir' => '10 Januari 1991',
-  ),
-  47 => 
-  array (
-    'nama' => 'MANTAPRIL',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SLTA',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Silokek',
-    'tanggal_lahir' => '04 Mei 1977',
-  ),
-  48 => 
-  array (
-    'nama' => 'PRADIUTAMA JULIYANSA, SH',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1 HUKUM',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Sawahlunto',
-    'tanggal_lahir' => '22 Juli 1994',
-  ),
-  49 => 
-  array (
-    'nama' => 'FEBRIWAHYUDI',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SLTA',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Bangkinang',
-    'tanggal_lahir' => '18 Februari 1990',
-  ),
-  50 => 
-  array (
-    'nama' => 'NONI WILDA SARI, M.Si',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S2',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Solok',
-    'tanggal_lahir' => '23 Juni 1994',
-  ),
-  51 => 
-  array (
-    'nama' => 'RAHMA DONI, S.Pd',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SI',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '03 Maret 1991',
-  ),
-  52 => 
-  array (
-    'nama' => 'NINI RIGI, S.P',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SI',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Sijunjung',
-    'tanggal_lahir' => '29 Mei 1996',
-  ),
-  53 => 
-  array (
-    'nama' => 'FEBRI HERLINA, SM',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SI',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Guguak Nenas',
-    'tanggal_lahir' => '18 Februari 1998',
-  ),
-  54 => 
-  array (
-    'nama' => 'SEPTIA JUMAIDAR',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SLTA',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro',
-    'tanggal_lahir' => '27 September 1996',
-  ),
-  55 => 
-  array (
-    'nama' => 'RAHMA DEWI',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SLTA',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Muaro Sijunjung',
-    'tanggal_lahir' => '15 Januari 2002',
-  ),
-  56 => 
-  array (
-    'nama' => 'RAHMA KENI',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SLTA',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Pasaman',
-    'tanggal_lahir' => '04 April 1999',
-  ),
-  57 => 
-  array (
-    'nama' => 'SIZIAH JUANDRI, S.Pd',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'SI',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Durian Gadang',
-    'tanggal_lahir' => '02 Juli 1997',
-  ),
-  58 => 
-  array (
-    'nama' => 'FENDRA WINATA, A.Ma',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'DIII',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Mundam Sakti',
-    'tanggal_lahir' => '02 Februari 1993',
-  ),
-  59 => 
-  array (
-    'nama' => 'ANDRA PEBTALIYUS, S. Sn',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1',
-    'jk' => 'L',
-    'eselon' => '',
-    'tempat_lahir' => 'Tanjung Gadang',
-    'tanggal_lahir' => '13 Februari 1992',
-  ),
-  60 => 
-  array (
-    'nama' => 'FORTUNA ANGGINI ADVI, S.M.,Par',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'S1',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Solok',
-    'tanggal_lahir' => '26 Maret 1999',
-  ),
-  61 => 
-  array (
-    'nama' => 'DINDA PUTRI WENY, S.ST',
-    'nip' => '-',
-    'jabatan' => 'THL',
-    'pendidikan' => 'D4',
-    'jk' => 'P',
-    'eselon' => '',
-    'tempat_lahir' => 'Lintau',
-    'tanggal_lahir' => '14 Juli 1998',
-  ),
-);
-
-        foreach ($data as $row) {
-            // NIP extraction or generation if empty
-            $nip = trim(str_replace('NIP.', '', $row['nip']));
-            $nip = trim(str_replace(' ', '', $nip));
-            
-            // Nama parsing
-            $nama = $row['nama'];
-
-            // Jabatan creation/assignment
-            $jabatanStr = $row['jabatan'];
-            $jabatanId = null;
-            if (!empty($jabatanStr)) {
-                $jabatan = Jabatan::firstOrCreate(
-                    ['nama' => $jabatanStr],
-                    ['slug' => Str::slug($jabatanStr)]
-                );
-                $jabatanId = $jabatan->id;
-            }
-
-            $email = strtolower(Str::slug($nama)) . '@gmail.com';
-            
-            // create unique email/NIP if exist
-            if (empty($nip) || $nip == '-') {
-                $nip = 'THL' . rand(100000, 999999);
-            }
-
-            // Ensure unique email
-            $count = User::query()->where('email', $email)->count();
-            if ($count > 0) {
-                $email = strtolower(Str::slug($nama)) . $count . '@gmail.com';
-            }
-
-            $user = User::firstOrCreate(
-                ['nip' => $nip],
-                [
-                    'name' => $nama,
-                    'email' => $email,
-                    'password' => Hash::make('password'), // default password
-                    'jabatan_id' => $jabatanId,
-                    'tempat_lahir' => !empty($row['tempat_lahir']) ? $row['tempat_lahir'] : null,
-                    'tanggal_lahir' => $this->parseDate($row['tanggal_lahir'] ?? ''),
-                    'pendidikan' => !empty($row['pendidikan']) ? $row['pendidikan'] : null,
-                    'jenis_kelamin' => !empty($row['jk']) ? $row['jk'] : null,
-                    'eselon' => !empty($row['eselon']) ? $row['eselon'] : null,
-                    'aktif' => true,
-                ]
-            );
-            
-            // Assign role pegawai
-            if (!$user->hasRole('pegawai')) {
-                $user->assignRole('pegawai');
-            }
-        }
-        
-        $this->command->info('Data pegawai berhasil di-seed.');
-    }
-
-    private function parseDate(string $dateStr)
-    {
-        // Simple mapping from indonesian month to date format or return null
-        if (empty($dateStr)) return null;
-        
-        $months = [
-            'Januari' => '01', 'Februari' => '02', 'Maret' => '03',
-            'April' => '04', 'Mei' => '05', 'Juni' => '06',
-            'Juli' => '07', 'Agustus' => '08', 'September' => '09',
-            'Oktober' => '10', 'November' => '11', 'Desember' => '12'
+        $data = [
+            [
+                'name' => 'AFRINELDI, SH',
+                'nip' => '19720407 199202 1 002',
+                'jabatan' => 'KEPALA DINAS',
+                'pendidikan' => 'S1 HUKUM',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'II.b',
+                'tempat_lahir' => 'Padang',
+                'tanggal_lahir' => '7 April 1972',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'AFRINELDI, SH')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DESMAWATI, SE. M.Si',
+                'nip' => '19691224 199503 2 002',
+                'jabatan' => 'SEKRETARIS',
+                'pendidikan' => 'S2 KEU DAERAH',
+                'jenis_kelamin' => 'P',
+                'eselon' => 'III.a',
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '24 Desember 1969',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DESMAWATI, SE. M.Si')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'WILDA ARDES N, MT',
+                'nip' => '19730108 200604 2 010',
+                'jabatan' => 'KABID PPENGEMBANGAN DESTINASI PARIWISATA',
+                'pendidikan' => 'S2 MAGISTER TEKNIK SIPIL',
+                'jenis_kelamin' => 'P',
+                'eselon' => 'III.b',
+                'tempat_lahir' => 'Sisawah',
+                'tanggal_lahir' => '08 Januari 1973',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'WILDA ARDES N, MT')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'INDRAWADI. R, SP',
+                'nip' => '19800710 200701 1 004',
+                'jabatan' => 'KABID PEMUDA DAN OLAHRAGA',
+                'pendidikan' => 'S1 PERTANIAN',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'III.b',
+                'tempat_lahir' => 'Ampang Kuranji',
+                'tanggal_lahir' => '10-07-1980',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'INDRAWADI. R, SP')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DONI ARIES, S.IP, M.CIO',
+                'nip' => '19820414 200212 1 003',
+                'jabatan' => 'KABID PEMASARAN PARIWISATA',
+                'pendidikan' => 'S2 CHIEF INFORMATION OFFICER',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'III.b',
+                'tempat_lahir' => 'Muaro Sijunjung',
+                'tanggal_lahir' => '14 April 1982',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DONI ARIES, S.IP, M.CIO')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DIKI ZULFIKAR,SS',
+                'nip' => '19741230 200604 1 009',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'S1 S. INGGRIS',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Tanjung Ampalu',
+                'tanggal_lahir' => '30-12-1974',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DIKI ZULFIKAR,SS')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ZULFITRI, S. Ag',
+                'nip' => '19770825 200701 2 006',
+                'jabatan' => 'Kasubbag Umum dan Kepegawaian',
+                'pendidikan' => 'S1 SYARI'AH',
+                'jenis_kelamin' => 'P',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Lubuk Tarab',
+                'tanggal_lahir' => '25 Agustus 1977',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ZULFITRI, S. Ag')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'NOFRIZALM, SE',
+                'nip' => '19761129 200901 1 002',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'S1 EKONOMI',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '29-11-1976',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'NOFRIZALM, SE')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'MIRA APRIYANTI, ME',
+                'nip' => '19840426 200902 2 010',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'S2 EKONOMI',
+                'jenis_kelamin' => 'P',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Jambun',
+                'tanggal_lahir' => '26 April 1984',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'MIRA APRIYANTI, ME')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'WIRA GUSTI MUSTIKA, S, Sn',
+                'nip' => '19830824 201001 2 021',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'S1 SASTRA TARI',
+                'jenis_kelamin' => 'P',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Muaro',
+                'tanggal_lahir' => '08 Agustus 1983',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'WIRA GUSTI MUSTIKA, S, Sn')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'JULHARDIANTO, S. Pt. M. Si',
+                'nip' => '19841023 200501 1 003',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'S2 SAINS',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Batu Manjulur',
+                'tanggal_lahir' => '23oktober 1984',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'JULHARDIANTO, S. Pt. M. Si')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'HENDRA PERMANA, SE',
+                'nip' => '19780527 201001 1 006',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'S1 EKONOMI PEMBANGUNAN',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Pematang Panjang',
+                'tanggal_lahir' => '27 Mei 1978',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'HENDRA PERMANA, SE')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RONA YUNITA, S.ST',
+                'nip' => '19840616 201101 2 007',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'D IV PARIWISATA',
+                'jenis_kelamin' => 'P',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Payakumbuh',
+                'tanggal_lahir' => '16-06-1984',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RONA YUNITA, S.ST')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'LIDEFRIYON, SH',
+                'nip' => '19760625 200701 1 005',
+                'jabatan' => 'Analis Kebijakan Ahli Muda',
+                'pendidikan' => 'S1 ILMU HUKUM',
+                'jenis_kelamin' => 'L',
+                'eselon' => 'IV.a',
+                'tempat_lahir' => 'Muaro Gambok',
+                'tanggal_lahir' => '25 Juni 1976',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'LIDEFRIYON, SH')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'IMELDA SANGGETA, A.Md',
+                'nip' => '19751009 200501 2 002',
+                'jabatan' => 'Pengelola Layanan Operasional',
+                'pendidikan' => 'DIII PARIWISATA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Tanjung Ampalu',
+                'tanggal_lahir' => '09-10-1975',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'IMELDA SANGGETA, A.Md')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'INDRA JUNAIDI, S.A.P',
+                'nip' => '19740604 201001 1 008',
+                'jabatan' => 'Penelaah Teknis Kebijakan',
+                'pendidikan' => 'S1 Adm Publik',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '04-06-1974',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'INDRA JUNAIDI, S.A.P')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'MEVI FEBRIANTI',
+                'nip' => '19830210 201212 2 004',
+                'jabatan' => 'Penelaah Teknis Kebijakan',
+                'pendidikan' => 'S1 Adm Publik',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '10 Februari 1983',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'MEVI FEBRIANTI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RONI RIVANDRA',
+                'nip' => '19780224 201001 1 003',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Batu Gandang',
+                'tanggal_lahir' => '24 Februari 1978',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RONI RIVANDRA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'MAIYOLA INDRA, A.Md.A.B',
+                'nip' => '19990512 202203 2 013',
+                'jabatan' => 'Pengelola Layanan Operasional',
+                'pendidikan' => 'D3 Administrasi Bisnis',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Padang',
+                'tanggal_lahir' => '12 Mei 1999',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'MAIYOLA INDRA, A.Md.A.B')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'WIWIRNA',
+                'nip' => '19850723 200901 2 007',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Padang Laweh',
+                'tanggal_lahir' => '23 Juli 1985',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'WIWIRNA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ROSNI',
+                'nip' => '19850622 201001 2 003',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro',
+                'tanggal_lahir' => '22 Juni 1985',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ROSNI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'NASIB',
+                'nip' => '19740408 201001 1 006',
+                'jabatan' => 'Operator Layanan Operasional',
+                'pendidikan' => 'PAKET C',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro',
+                'tanggal_lahir' => '8 April 1974',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'NASIB')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'FITRI AMELIA, S. Pd',
+                'nip' => '19910217 202506 2 002',
+                'jabatan' => 'Penerjemah Ahli Pertama',
+                'pendidikan' => 'S1 PDKK BAHASA INGGRIS',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Padang Panjang',
+                'tanggal_lahir' => '17-02-1991',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'FITRI AMELIA, S. Pd')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ROSY WITRIN, SST',
+                'nip' => '19920106 202506 2 003',
+                'jabatan' => 'Analis Kebijakan Ahli Pertama',
+                'pendidikan' => 'DIV MANAJEMEN PERHOTELAN',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Padang',
+                'tanggal_lahir' => '06-01-1992',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ROSY WITRIN, SST')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'AGUSMEDI ARIF, S.Kom',
+                'nip' => '19930825 202506 1 001',
+                'jabatan' => 'Penata Kelola Sistem dan Teknologi',
+                'pendidikan' => 'S1 SISTEM INFORMASI',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab.Sijunjung',
+                'tanggal_lahir' => '25-08-1993',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'AGUSMEDI ARIF, S.Kom')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'MELGASARI, S.Pd',
+                'nip' => '19950108 202506 2 007',
+                'jabatan' => 'Penerjemah Ahli Pertama',
+                'pendidikan' => 'S1 PDDK BAHASA INGGRIS',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Padang',
+                'tanggal_lahir' => '06-01-1992',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'MELGASARI, S.Pd')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'AKBAR MALIK, S.AB',
+                'nip' => '19950306 202506 1 002',
+                'jabatan' => 'Analis Kebijakan Ahli Pertama',
+                'pendidikan' => 'S1 ILMU ADMINISTRASI BISNIS',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Tanah Datar',
+                'tanggal_lahir' => '06-03-1995',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'AKBAR MALIK, S.AB')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RICO ANGGALA, S.Or',
+                'nip' => '19951111 202506 1 004',
+                'jabatan' => 'Pelatih Olahraga Ahli Pertama',
+                'pendidikan' => 'S1 ILMU KEOLAHRAGAAN',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Solok',
+                'tanggal_lahir' => '11-11-1995',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RICO ANGGALA, S.Or')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DIO TRI ANANDA PUTRA, S.T',
+                'nip' => '19960704 202506 1 002',
+                'jabatan' => 'Pranata Komputer Ahli Pertama',
+                'pendidikan' => 'S1 TEKNIK KOMPUTER',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Solok',
+                'tanggal_lahir' => '04-07-1996',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DIO TRI ANANDA PUTRA, S.T')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'MAULANA IBRAHIM, S.T',
+                'nip' => '19990331 202506 1 005',
+                'jabatan' => 'Konservator',
+                'pendidikan' => 'S1 TEKNIK SIPIL',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Sawah Lunto',
+                'tanggal_lahir' => '31-03-1999',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'MAULANA IBRAHIM, S.T')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'HADI ALFADJRI, S.T',
+                'nip' => '19990809 202506 1 004',
+                'jabatan' => 'Konservator',
+                'pendidikan' => 'S1 TEKNIK SIPIL',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Pesisir Selatan',
+                'tanggal_lahir' => '09-08-1999',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'HADI ALFADJRI, S.T')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'FARHANUL HUDA, S.Par',
+                'nip' => '19991227 202506 1 003',
+                'jabatan' => 'Analis Kebijakan Ahli Pertama',
+                'pendidikan' => 'S1 INDUSTRI PERJALANAN WISATA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Padang Panjang',
+                'tanggal_lahir' => '27-12-1999',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'FARHANUL HUDA, S.Par')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'NAZHIRUL RIFQI ALNEV, S.Tr.Par',
+                'nip' => '20000905 202506 1 006',
+                'jabatan' => 'Analis Kebijakan Ahli Pertama',
+                'pendidikan' => 'DIV USAHA PERJALANAN WISATA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Solok',
+                'tanggal_lahir' => '05-09-2000',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'NAZHIRUL RIFQI ALNEV, S.Tr.Par')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'AQILLA FADIA HAYA, S.Ak',
+                'nip' => '20020628 202506 2 013',
+                'jabatan' => 'Analis Kebijakan Ahli Pertama',
+                'pendidikan' => 'S1 AKUNTANSI',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '28-06-2002',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'AQILLA FADIA HAYA, S.Ak')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'JENI ZULMARLY KAMIL',
+                'nip' => '19900112 202506 1 001',
+                'jabatan' => 'Asisten Pelatih Olahraga Pemula',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Pesisir Selatan',
+                'tanggal_lahir' => '26-11-1990',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'JENI ZULMARLY KAMIL')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RANES MUHAMMAD FIQRI',
+                'nip' => '19960531 202506 1 007',
+                'jabatan' => 'Asisten Pelatih Olahraga Pemula',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Solok',
+                'tanggal_lahir' => '31-05-1996',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RANES MUHAMMAD FIQRI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'SYAFRIWAL AM',
+                'nip' => '19990603 202506 1 001',
+                'jabatan' => 'Asisten Pelatih Olahraga Pemula',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '03-06-1999',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'SYAFRIWAL AM')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'SALSABILA MUKHSIS',
+                'nip' => '20011021 202506 2 003',
+                'jabatan' => 'Asisten Pelatih Olahraga Pemula',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Bukittinggi',
+                'tanggal_lahir' => '21-10-2001',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'SALSABILA MUKHSIS')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'FADILAH SAPUTRA',
+                'nip' => '20011127 202506 1 004',
+                'jabatan' => 'Asisten Pelatih Olahraga Pemula',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Kampar',
+                'tanggal_lahir' => '27-11-2001',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'FADILAH SAPUTRA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RAGANDHI TANLIN',
+                'nip' => '20030206 202506 1 001',
+                'jabatan' => 'Asisten Pelatih Olahraga Pemula',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Padang',
+                'tanggal_lahir' => '06-02-2003',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RAGANDHI TANLIN')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'SYIFA SALSABILA',
+                'nip' => '20050222 202506 2 001',
+                'jabatan' => 'Asisten Pelatih Olahraga Pemula',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Sawahlunto',
+                'tanggal_lahir' => '22-02-2005',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'SYIFA SALSABILA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ARMAN, SP',
+                'nip' => '19840515 202321 1 025',
+                'jabatan' => 'Ahli Pertama-Analis Kebijakan',
+                'pendidikan' => 'S1 PERTANIAN',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '15 Mei 1984',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ARMAN, SP')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'MUSAIRIL HADI, SE',
+                'nip' => '19930117 202321 1 022',
+                'jabatan' => 'Ahli Pertama-Perencana',
+                'pendidikan' => 'S1 EKONOMI',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '17 Januari 1993',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'MUSAIRIL HADI, SE')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'GUSMAINI, SP',
+                'nip' => '19740810 202521 2 013',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 PPERTANIAN',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro Sijunjung',
+                'tanggal_lahir' => '10-08-1974',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'GUSMAINI, SP')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DITA TRISIA, SP',
+                'nip' => '19860313 202521 2 035',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 PPERTANIAN',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '13 Maret 1986',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DITA TRISIA, SP')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RIKA PUSPA MERI, SP',
+                'nip' => '19851011 202521 2 022',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 AGRIBISNIS',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Unggan',
+                'tanggal_lahir' => '10 Oktober 1985',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RIKA PUSPA MERI, SP')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DIAN KURNIA SARI, S. Pd',
+                'nip' => '19910106 202521 2 039',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S1 PENDIDIKAN JASMANI KESEHATAN & REKREASI',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '6 Januari 1991',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DIAN KURNIA SARI, S. Pd')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ANI SUSI SUSANTI, SP',
+                'nip' => '19880904 202521 2 043',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 PETERNAKAN',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro',
+                'tanggal_lahir' => '4 September 1988',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ANI SUSI SUSANTI, SP')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'BUDI SETIA ROMANDO, S. Si',
+                'nip' => '19900328 202521 1 032',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 ILMU KEOLAHRAGAAN',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Swl Sijunjung',
+                'tanggal_lahir' => '28 Maret 1990',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'BUDI SETIA ROMANDO, S. Si')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'NONI WILDA SARI, S.Kom.I',
+                'nip' => '19940623 202521 2 038',
+                'jabatan' => 'Pranata Hubungan Msyarakat Ahli Pertama',
+                'pendidikan' => 'S-1 KOMUNIKASI DAN PENYIARAN ISLAM',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Solok',
+                'tanggal_lahir' => '23 Juni 1994',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'NONI WILDA SARI, S.Kom.I')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'PRADIUTAMA JULIYANSA, SH',
+                'nip' => '19940722 202521 2 026',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 ILMU HUKUM',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Sawahlunto',
+                'tanggal_lahir' => '22 Juli 1994',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'PRADIUTAMA JULIYANSA, SH')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RAHMA DONI, S.Pd',
+                'nip' => '19910303 202521 1 044',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 PENDIDIKAN GEOGRAFI',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '03 Maret 1991',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RAHMA DONI, S.Pd')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'NINI RIGI, S.P',
+                'nip' => '19960529 202521 2 038',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 AGRIBISNIS',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '29 Mei 1996',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'NINI RIGI, S.P')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'FEBRI HERLINA, SM',
+                'nip' => '19980218 202521 2 019',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 MANAJEMEN',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Guguak Nenas',
+                'tanggal_lahir' => '18 Februari 1998',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'FEBRI HERLINA, SM')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ANDRA PEBTALIYUS, S. Sn',
+                'nip' => '19920213 202521 1 034',
+                'jabatan' => 'Adyatama Kepariwisataan dan Ekonomi Kreatif Ahli Pertama',
+                'pendidikan' => 'S-1 SENI KERAWITAN',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Tanjung Gadang',
+                'tanggal_lahir' => '13 Februari 1992',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ANDRA PEBTALIYUS, S. Sn')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'WIRDATUR AINI, SP',
+                'nip' => '19980727 202521 2 036',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 AGROTEKNOLOGI',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '27 Juli 1988',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'WIRDATUR AINI, SP')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'AULIA PUTRI BINTANI, S.Pt',
+                'nip' => '19980319 202521 2 019',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 PETERNAKAN',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kota Tanjung Pinang',
+                'tanggal_lahir' => '19 Maret 1998',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'AULIA PUTRI BINTANI, S.Pt')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ROBBY PITHALOCA, A. Md',
+                'nip' => '19810608 202521 1 025',
+                'jabatan' => 'Pengelola Layanan Operasional',
+                'pendidikan' => 'D III PERHOTELAN',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Jakarta',
+                'tanggal_lahir' => '08 Juni 1981',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ROBBY PITHALOCA, A. Md')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'SARIMAH MUHKTAR',
+                'nip' => '19701108 202521 2 006',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Gambok',
+                'tanggal_lahir' => '8 November 1970',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'SARIMAH MUHKTAR')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'INDRA GUSTI',
+                'nip' => '19740817 202521 2 014',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '17 Agustus 1974',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'INDRA GUSTI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RORI FRAND UTAMA',
+                'nip' => '19820527 202521 1 027',
+                'jabatan' => 'Operator Layanan Operasional',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Tikalak',
+                'tanggal_lahir' => '27 Mei 1982',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RORI FRAND UTAMA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'GUSNEDI ARIANTO',
+                'nip' => '19890805 202521 1 044',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro',
+                'tanggal_lahir' => '05 Agustus 1989',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'GUSNEDI ARIANTO')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'YULHENDRI',
+                'nip' => '19900722 202521 1 026',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Swl Sijunjung',
+                'tanggal_lahir' => '22 Juli 1990',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'YULHENDRI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'TRIJONI ANDESPI',
+                'nip' => '19910413 202521 1 035',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Taratak',
+                'tanggal_lahir' => '13 April 1991',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'TRIJONI ANDESPI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'EKO SAPUTRA',
+                'nip' => '19890721 202521 1 033',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Silokek',
+                'tanggal_lahir' => '21 Juli 1989',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'EKO SAPUTRA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'NOVA YUSNITA',
+                'nip' => '19951101 202521 2 041',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Solok',
+                'tanggal_lahir' => '01 November 1995',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'NOVA YUSNITA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'FAUZI',
+                'nip' => '19800330 202521 1 024',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Sijunjung',
+                'tanggal_lahir' => '30 Maret 1980',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'FAUZI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'MANTAPRIL',
+                'nip' => '19770504 202521 1 022',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Silokek',
+                'tanggal_lahir' => '04 Mei 1977',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'MANTAPRIL')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'FEBRIWAHYUDI',
+                'nip' => '19900218 202521 1 030',
+                'jabatan' => 'Operator Layanan Operasional',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Bangkinang',
+                'tanggal_lahir' => '18 Februari 1990',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'FEBRIWAHYUDI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'SEPTIA JUMAIDAR',
+                'nip' => '19960927 202521 2 032',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro',
+                'tanggal_lahir' => '27 September 1996',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'SEPTIA JUMAIDAR')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RAHMA KENI',
+                'nip' => '19990404 202521 2 018',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Pasaman',
+                'tanggal_lahir' => '04 April 1999',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RAHMA KENI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'RAHMA DEWI',
+                'nip' => '20020115 202521 2 003',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SMA IPS',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro Sijunjung',
+                'tanggal_lahir' => '15 Januari 2002',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'RAHMA DEWI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'METRI',
+                'nip' => '19920610 202521 2 063',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'SLTA',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '10 Juni 1992',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'METRI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ROBBY DARWIS',
+                'nip' => '19910413 202521 1 035',
+                'jabatan' => 'Pengadministrasi Perkantoran',
+                'pendidikan' => 'PAKET C',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Muaro',
+                'tanggal_lahir' => '12 November 1974',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ROBBY DARWIS')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ASRINA',
+                'nip' => '19940714 202521 1 049',
+                'jabatan' => 'Pengelola Umum Operasional',
+                'pendidikan' => 'MADRASAH TSANAWIYAH',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab.Sijunjung',
+                'tanggal_lahir' => '14 Juli 1994',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ASRINA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DEWI FEBRIANI',
+                'nip' => '19970228 202521 1 031',
+                'jabatan' => 'Pengelola Umum Operasional',
+                'pendidikan' => 'SLTP',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab.Sijunjung',
+                'tanggal_lahir' => '14 Juli 1994',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DEWI FEBRIANI')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'SIZIAH JUANDRI, S.Pd',
+                'nip' => '19970702 202521 2 093',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'S-1 PDDK BAHASA INGGRIS',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '02 Juli 1997',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'SIZIAH JUANDRI, S.Pd')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'DINDA PUTRI WENY, S.ST',
+                'nip' => '19910110 202521 2 130',
+                'jabatan' => 'Penata Layanan Operasional',
+                'pendidikan' => 'D4 MANAJEMEN PERHOTELAN',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Lintau',
+                'tanggal_lahir' => '14 Juli 1998',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'DINDA PUTRI WENY, S.ST')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'FENDRA WINATA, A.Ma',
+                'nip' => '19930202 202521 1 126',
+                'jabatan' => 'Operator Layanan Operasional',
+                'pendidikan' => 'SMK MULTIMEDIA',
+                'jenis_kelamin' => 'L',
+                'eselon' => null,
+                'tempat_lahir' => 'Kab. Sijunjung',
+                'tanggal_lahir' => '02 Februari 1993',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'FENDRA WINATA, A.Ma')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
+            [
+                'name' => 'ERNI GUSRITA',
+                'nip' => '19910110 202521 2 130',
+                'jabatan' => 'Operator Layanan Operasional',
+                'pendidikan' => 'SLTA Madrasah Aliyah IPS',
+                'jenis_kelamin' => 'P',
+                'eselon' => null,
+                'tempat_lahir' => 'Silokek',
+                'tanggal_lahir' => '10 Januari 1991',
+                'email' => strtolower(str_replace([' ', ',', '.'], '', 'ERNI GUSRITA')) . '@example.com',
+                'password' => Hash::make('password'), // Password default
+            ],
         ];
 
-        foreach ($months as $name => $num) {
-            $dateStr = str_ireplace($name, $num, $dateStr);
+        foreach ($data as $item) {
+            $user = User::firstOrCreate(
+                ['nip' => $item['nip']],
+                $item
+            );
+            $user->assignRole('pegawai');
         }
-        
-        $parts = explode(' ', trim($dateStr));
-        if (count($parts) == 3) {
-            // Assume format: dd mm yyyy
-            return $parts[2] . '-' . $parts[1] . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
-        }
-        
-        return null;
     }
 }

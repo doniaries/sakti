@@ -31,6 +31,13 @@ class UserForm
                     ->multiple()
                     ->preload()
                     ->searchable(),
+                \Filament\Schemas\Components\Select::make('jenis_kelamin')
+                    ->options(\App\Enums\JenisKelamin::class),
+                \Filament\Schemas\Components\Select::make('pangkat_golongan')
+                    ->options(\App\Enums\GolonganRuang::class)
+                    ->searchable(),
+                \Filament\Schemas\Components\Select::make('eselon')
+                    ->options(\App\Enums\Eselon::class),
                 \Filament\Schemas\Components\Toggle::make('aktif')
                     ->default(true),
             ]);

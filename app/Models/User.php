@@ -58,6 +58,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'pangkat_golongan' => \App\Enums\GolonganRuang::class,
+            'jenis_kelamin' => \App\Enums\JenisKelamin::class,
+            'eselon' => \App\Enums\Eselon::class,
         ];
     }
 
