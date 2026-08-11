@@ -46,7 +46,7 @@ return new class extends Migration
 
             $table->boolean('is_absen_mesin')->default(false);
             $table->boolean('is_absen_mobile')->default(false);
-            $table->enum('status_apel', ['apel', 'tidak_apel'])->nullable();
+            $table->enum('status_apel', ['ikut apel', 'tidak ikut apel'])->nullable();
 
             $table->decimal('latitude_masuk', 10, 7)->nullable();
             $table->decimal('longitude_masuk', 10, 7)->nullable();
