@@ -120,10 +120,12 @@ class LhkForm
 
                                 // 2. Rencana Aksi
                                 Select::make('rencana_aksi_id')
-                                    ->relationship('rencanaAksi', 'rencana_aksi')
-                                    ->getOptionLabelFromRecordUsing(
-                                        fn($record) => $record->rencana_aksi
-                                    )
+                                    ->label('Rencana Aksi')
+                                    ->options([
+                                        1 => 'Sasaran',
+                                        2 => 'Diluar Sasaran Kinerja',
+                                        3 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
+                                    ])
                                     ->searchable()
                                     ->required()
                                     ->preload()

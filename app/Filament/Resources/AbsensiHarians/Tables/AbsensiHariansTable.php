@@ -225,6 +225,7 @@ class AbsensiHariansTable
                     ->label('Buat LHK')
                     ->icon('heroicon-m-document-plus')
                     ->color('info')
+                    ->modalWidth('7xl')
                     ->visible(fn($record) => ! in_array($record->status, ['izin', 'sakit', 'tidak_hadir']))
                     // ->slideOver()
                     ->closeModalByClickingAway(false)
@@ -269,19 +270,22 @@ class AbsensiHariansTable
 
                                 TextEntry::make('info_jam_masuk')
                                     ->label('Jam Masuk')
-                                    ->state(function () use ($record) {
-                                        $log = $record->logAbsensiMasuk;
-                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
+                                    ->state(function ($record) {
+                                        $log = $record->logMasuk;
+                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : ($record->jam_masuk ? \Carbon\Carbon::parse($record->jam_masuk)->format('H:i') : '-');
                                     })
                                     ->badge()
-                                    ->color('info')
+                                    ->color(function ($record) {
+                                        $log = $record->logMasuk;
+                                        return $log ? 'primary' : 'gray';
+                                    })
                                     ->columnSpan(1),
 
                                 TextEntry::make('info_jam_pulang')
-                                    ->label('Jam Keluar')
-                                    ->state(function () use ($record) {
-                                        $log = $record->logAbsensiPulang;
-                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
+                                    ->label('Jam Pulang')
+                                    ->state(function ($record) {
+                                        $log = $record->logPulang;
+                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : ($record->jam_pulang ? \Carbon\Carbon::parse($record->jam_pulang)->format('H:i') : '-');
                                     })
                                     ->badge()
                                     ->color('success')
@@ -327,11 +331,13 @@ class AbsensiHariansTable
 
                                         // 2. Rencana Aksi
                                         Select::make('rencana_aksi_id')
-                                            ->options(
-                                                \App\Models\RencanaAksi::pluck('rencana_aksi', 'id')->toArray()
-                                            )
-                                            ->searchable()
                                             ->label('Rencana Aksi')
+                                            ->options([
+                                                1 => 'Sasaran',
+                                                2 => 'Diluar Sasaran Kinerja',
+                                                3 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
+                                            ])
+                                            ->searchable()
                                             ->columnSpan(1),
 
                                         // 3. Lama menit (auto, readonly)
