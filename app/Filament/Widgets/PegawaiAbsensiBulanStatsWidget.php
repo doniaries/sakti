@@ -31,7 +31,7 @@ class PegawaiAbsensiBulanStatsWidget extends BaseWidget
         $izin = $absensi->where('status', 'Izin')->count();
         $tanpaKeterangan = $absensi->where('status', 'Tanpa Keterangan')->count();
 
-        $userName = $user ? $user->name : 'Pribadi';
+        $userName = $user ? explode(' ', trim($user->name))[0] : 'Pribadi';
 
         return [
             Stat::make('Hadir', $hadir)

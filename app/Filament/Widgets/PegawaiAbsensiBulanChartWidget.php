@@ -15,7 +15,7 @@ class PegawaiAbsensiBulanChartWidget extends ChartWidget
     {
         /** @var \App\Models\User|null $user */
         $user = auth()->user();
-        $userName = $user ? $user->name : 'Pribadi';
+        $userName = $user ? explode(' ', trim($user->name))[0] : 'Pribadi';
         return "Rekap Absensi Bulanan ({$userName})";
     }
     protected static ?int $sort = 3;
