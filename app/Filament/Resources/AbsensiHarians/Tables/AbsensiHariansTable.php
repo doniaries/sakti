@@ -7,23 +7,40 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class AbsensiHariansTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->filtersLayout(FiltersLayout::Hidden)
             ->modifyQueryUsing(fn($query) => $query->with(['user', 'logMasuk', 'logPulang']))
             ->columns([
                 TextColumn::make('user.name')
-                    ->numeric()
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('tanggal')
-                    ->date('d/m/Y')
+                    ->label('Nama Pegawai')
+                    ->searchable()
                     ->sortable(),
+                TextColumn::make('tanggal')
+                    ->date()
+                    ->sortable()
+                    ->headerFilter(
+                        Filter::make('tanggal_range')
+                            ->columns(2)
+                            ->schema([
+                                DatePicker::make('from')->placeholder('Dari Tanggal')->native(false),
+                                DatePicker::make('until')->placeholder('Sampai Tanggal')->native(false),
+                            ])
+                            ->query(fn (Builder $query, array $data): Builder => $query
+                                ->when($data['from'] ?? null, fn (Builder $q, $v): Builder => $q->whereDate('tanggal', '>=', $v))
+                                ->when($data['until'] ?? null, fn (Builder $q, $v): Builder => $q->whereDate('tanggal', '<=', $v))
+                            )
+                    ),
                 TextColumn::make('jam_masuk')
                     ->time('H:i')
                     ->sortable()

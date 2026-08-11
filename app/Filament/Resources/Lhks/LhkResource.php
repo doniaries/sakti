@@ -28,8 +28,8 @@ class LhkResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'LHK';
     protected static ?string $model = Lhk::class;
-    protected static ?string $modelLabel = 'LHK';
-    protected static ?string $pluralModelLabel = 'Data LHK';
+    protected static ?string $modelLabel = 'Laporan LHK';
+    protected static ?string $pluralModelLabel = 'Laporan LHK';
 
     public static function getEloquentQuery(): Builder
     {
@@ -138,6 +138,9 @@ class LhkResource extends Resource
                     ->label('Approved?'),
             ])
             ->filters([
+                //
+            ])
+            ->emptyStateActions([
                 //
             ]);
     }

@@ -36,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
             ->profile(\App\Filament\Pages\EditProfile::class)
             ->userMenuItems([
                 MenuItem::make()
-                    ->label(fn () => auth()->user()?->name ?? 'User')
+                    ->label(fn () => \Illuminate\Support\Facades\Auth::user()?->name ?? 'User')
                     ->icon('heroicon-m-user-circle')
                     ->url(fn (): string => \App\Filament\Pages\EditProfile::getUrl()),
                 'profile' => MenuItem::make()
@@ -46,6 +46,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([

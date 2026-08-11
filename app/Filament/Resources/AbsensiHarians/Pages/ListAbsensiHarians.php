@@ -6,9 +6,12 @@ use App\Filament\Resources\AbsensiHarians\AbsensiHarianResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Leek\FilamentHeaderFilters\Concerns\HasHeaderFilters;
 
 class ListAbsensiHarians extends ListRecords
 {
+    use HasHeaderFilters;
+
     protected static string $resource = AbsensiHarianResource::class;
 
     protected function getHeaderWidgets(): array
