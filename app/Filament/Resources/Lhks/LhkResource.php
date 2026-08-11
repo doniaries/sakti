@@ -63,12 +63,14 @@ class LhkResource extends Resource
                             ->searchable()
                             ->columnSpan(1),
                         Select::make('log_absensi_masuk_id')
-                            ->relationship('logAbsensiMasuk', 'waktu_absensi')
+                            ->relationship('logAbsensiMasuk', 'waktu_absensi', fn ($query) => $query->orderBy('waktu_absensi'))
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->waktu_absensi?->format('H:i') . ' (' . $record->sumber . ')')
                             ->default(request()->query('log_absensi_masuk_id'))
                             ->label('Absensi Masuk')
                             ->columnSpan(1),
                         Select::make('log_absensi_pulang_id')
-                            ->relationship('logAbsensiPulang', 'waktu_absensi')
+                            ->relationship('logAbsensiPulang', 'waktu_absensi', fn ($query) => $query->orderBy('waktu_absensi'))
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->waktu_absensi?->format('H:i') . ' (' . $record->sumber . ')')
                             ->default(request()->query('log_absensi_pulang_id'))
                             ->label('Absensi Pulang')
                             ->columnSpan(1),
@@ -77,10 +79,11 @@ class LhkResource extends Resource
                                 'Hadir' => 'Hadir',
                                 'Sakit' => 'Sakit',
                                 'Izin' => 'Izin',
-                                'Dinas Luar' => 'Dinas Luar'
+                                'Dinas Luar' => 'Dinas Luar',
                             ])
                             ->default(request()->query('status', 'Hadir'))
-                            ->columnSpanFull(),
+                            ->extraAttributes(['class' => 'text-xs'])
+                            ->columnSpan(1),
                     ])
                     ->columns(4)
                     ->columnSpanFull(),
@@ -90,34 +93,80 @@ class LhkResource extends Resource
                         Forms\Components\Repeater::make('pekerjaans')
                             ->relationship('pekerjaans')
                             ->schema([
-                                Forms\Components\TimePicker::make('jam_mulai')
-                                    ->required()
+                                // 1. Aktivitas (menentukan lama menit & jam selesai)
+                                Forms\Components\Select::make('aktivitas_id')
+                                    ->relationship('aktivitas', 'nama')
+                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->nama . ' (' . $record->menit . ' menit)')
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        if ($state) {
+                                            $aktivitas = \App\Models\Aktivitas::find((int) $state);
+                                            $menit = $aktivitas?->menit ?? 0;
+                                            $set('lama_menit', $menit);
+                                            $jamMulai = $get('jam_mulai');
+                                            if ($jamMulai && $menit > 0) {
+                                                $set('jam_selesai', \Carbon\Carbon::createFromFormat('H:i', substr($jamMulai, 0, 5))->addMinutes((int)$menit)->format('H:i'));
+                                            }
+                                        } else {
+                                            $set('lama_menit', 0);
+                                        }
+                                    })
+                                    ->label('Aktivitas')
                                     ->columnSpan(1),
-                                Forms\Components\TimePicker::make('jam_selesai')
-                                    ->required()
-                                    ->columnSpan(1),
-                                Forms\Components\TextInput::make('lama_menit')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->columnSpan(1),
+
+                                // 2. Rencana Aksi
                                 Forms\Components\Select::make('rencana_aksi_id')
                                     ->relationship('rencanaAksi', 'nama')
                                     ->searchable()
+                                    ->preload()
+                                    ->label('Rencana Aksi')
                                     ->columnSpan(1),
-                                Forms\Components\Select::make('aktivitas_id')
-                                    ->relationship('aktivitas', 'nama')
-                                    ->searchable()
-                                    ->columnSpanFull(),
+
+                                // 3. Lama menit (auto dari aktivitas)
+                                Forms\Components\TextInput::make('lama_menit')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->suffix('menit')
+                                    ->readOnly()
+                                    ->label('Lama (menit)')
+                                    ->columnSpan(1),
+
+                                // 4. Jam mulai (H:i tanpa detik)
+                                Forms\Components\TimePicker::make('jam_mulai')
+                                    ->required()
+                                    ->seconds(false)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        $lamaMenit = (int) ($get('lama_menit') ?? 0);
+                                        if ($state && $lamaMenit > 0) {
+                                            $set('jam_selesai', \Carbon\Carbon::createFromFormat('H:i', substr($state, 0, 5))->addMinutes($lamaMenit)->format('H:i'));
+                                        }
+                                    })
+                                    ->label('Jam Mulai')
+                                    ->columnSpan(1),
+
+                                // 5. Jam selesai (auto)
+                                Forms\Components\TimePicker::make('jam_selesai')
+                                    ->required()
+                                    ->seconds(false)
+                                    ->label('Jam Selesai')
+                                    ->columnSpan(1),
+
+                                // 6. Hasil & Bukti (full width)
                                 Forms\Components\Textarea::make('hasil_pekerjaan')
+                                    ->rows(2)
                                     ->columnSpanFull(),
                                 Forms\Components\TextInput::make('bukti_url')
                                     ->url()
                                     ->label('Link Bukti')
                                     ->columnSpanFull(),
                             ])
-                            ->columns(4)
+                            ->columns(3)
                             ->collapsible()
                             ->defaultItems(1)
+                            ->addActionLabel('+ Tambah Pekerjaan')
                     ])
                     ->columnSpanFull(),
             ]);
