@@ -91,9 +91,10 @@ class LhkForm
                                 Select::make('aktivitas_id')
                                     ->relationship('aktivitas', 'nama_aktivitas')
                                     ->getOptionLabelFromRecordUsing(
-                                        fn ($record) => $record->nama_aktivitas . ' (' . ($record->menit ?? 0) . ' menit)'
+                                        fn($record) => $record->nama_aktivitas . ' (' . ($record->menit ?? 0) . ' menit)'
                                     )
                                     ->searchable()
+                                    ->required()
                                     ->preload()
                                     ->live()
                                     ->afterStateUpdated(function ($state, $set, $get) {
@@ -107,7 +108,8 @@ class LhkForm
                                                     $set('jam_selesai', Carbon::parse($jamMulai)
                                                         ->addMinutes((int) $menit)
                                                         ->format('H:i'));
-                                                } catch (\Exception $e) {}
+                                                } catch (\Exception $e) {
+                                                }
                                             }
                                         } else {
                                             $set('lama_menit', 0);
@@ -120,9 +122,10 @@ class LhkForm
                                 Select::make('rencana_aksi_id')
                                     ->relationship('rencanaAksi', 'rencana_aksi')
                                     ->getOptionLabelFromRecordUsing(
-                                        fn ($record) => $record->rencana_aksi
+                                        fn($record) => $record->rencana_aksi
                                     )
                                     ->searchable()
+                                    ->required()
                                     ->preload()
                                     ->label('Rencana Aksi')
                                     ->columnSpan(1),
@@ -139,7 +142,8 @@ class LhkForm
                                                 $set('jam_selesai', Carbon::parse($state)
                                                     ->addMinutes($lamaMenit)
                                                     ->format('H:i'));
-                                            } catch (\Exception $e) {}
+                                            } catch (\Exception $e) {
+                                            }
                                         }
                                     })
                                     ->label('Jam Mulai')
@@ -151,7 +155,7 @@ class LhkForm
                                     ->seconds(false)
                                     ->label('Jam Selesai')
                                     ->columnSpan(1),
-                                    
+
                                 // 3. Lama menit (auto dari aktivitas, read-only)
                                 Forms\Components\TextInput::make('lama_menit')
                                     ->numeric()
@@ -173,7 +177,8 @@ class LhkForm
                                                 $set('jam_selesai', Carbon::parse($state)
                                                     ->addMinutes($lamaMenit)
                                                     ->format('H:i'));
-                                            } catch (\Exception $e) {}
+                                            } catch (\Exception $e) {
+                                            }
                                         }
                                     })
                                     ->label('Jam Mulai')

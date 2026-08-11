@@ -14,7 +14,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -34,16 +34,17 @@ class AbsensiHariansTable
         /** @var \App\Models\User|null $currentUser */
         $currentUser = \Illuminate\Support\Facades\Auth::user();
 
+        $table->modifyQueryUsing(function ($query) use ($currentUser) {
+            $query->with(['user', 'logMasuk', 'logPulang']);
+
+            if ($currentUser && ! $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan'])) {
+                $query->where('user_id', $currentUser->id);
+            }
+
+            return $query;
+        });
+
         return $table
-            ->modifyQueryUsing(function ($query) use ($currentUser) {
-                $query->with(['user', 'logMasuk', 'logPulang']);
-
-                if ($currentUser && ! $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan'])) {
-                    $query->where('user_id', $currentUser->id);
-                }
-
-                return $query;
-            })
             ->heading(new \Illuminate\Support\HtmlString('
                 <style>
                     @media (min-width: 768px) {
@@ -256,38 +257,34 @@ class AbsensiHariansTable
                         // ── Tampilkan jam masuk/pulang (read-only) ────────────
                         Section::make('Informasi Kehadiran')
                             ->schema([
-                                Placeholder::make('info_pegawai')
+                                TextEntry::make('info_pegawai')
                                     ->label('Pegawai')
-                                    ->content($record->user?->name)
+                                    ->state($record->user?->name)
                                     ->columnSpan(1),
 
-                                Placeholder::make('info_tanggal')
+                                TextEntry::make('info_tanggal')
                                     ->label('Tanggal')
-                                    ->content($record->tanggal?->format('d M Y'))
+                                    ->state($record->tanggal?->format('d M Y'))
                                     ->columnSpan(1),
 
-                                Placeholder::make('info_jam_masuk')
+                                TextEntry::make('info_jam_masuk')
                                     ->label('Jam Masuk')
-                                    ->content(function () use ($record) {
-                                        $jam = $record->jam_masuk
-                                            ? Carbon::createFromFormat('H:i:s', $record->jam_masuk)->format('H:i')
-                                            : '-';
-                                        $sumber = $record->logMasuk?->sumber ?? '';
-                                        $text = $jam . ($sumber ? " ($sumber)" : '');
-                                        return new \Illuminate\Support\HtmlString('<span class="fi-badge flex items-center justify-center gap-x-1 whitespace-nowrap rounded-md text-sm font-medium ring-1 ring-inset px-2 py-1 fi-color-custom bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30 fi-color-success" style="width: fit-content;">' . e($text) . '</span>');
+                                    ->state(function () use ($record) {
+                                        $log = $record->logAbsensiMasuk;
+                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
                                     })
+                                    ->badge()
+                                    ->color('info')
                                     ->columnSpan(1),
 
-                                Placeholder::make('info_jam_pulang')
+                                TextEntry::make('info_jam_pulang')
                                     ->label('Jam Pulang')
-                                    ->content(function () use ($record) {
-                                        $jam = $record->jam_pulang
-                                            ? Carbon::createFromFormat('H:i:s', $record->jam_pulang)->format('H:i')
-                                            : '-';
-                                        $sumber = $record->logPulang?->sumber ?? '';
-                                        $text = $jam . ($sumber ? " ($sumber)" : '');
-                                        return new \Illuminate\Support\HtmlString('<span class="fi-badge flex items-center justify-center gap-x-1 whitespace-nowrap rounded-md text-sm font-medium ring-1 ring-inset px-2 py-1 fi-color-custom bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30 fi-color-info" style="width: fit-content;">' . e($text) . '</span>');
+                                    ->state(function () use ($record) {
+                                        $log = $record->logAbsensiPulang;
+                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
                                     })
+                                    ->badge()
+                                    ->color('success')
                                     ->columnSpan(1),
                             ])
                             ->columns(4),

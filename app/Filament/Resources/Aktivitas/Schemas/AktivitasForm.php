@@ -13,7 +13,7 @@ class AktivitasForm
         return $schema
             ->components([
                 Select::make('jabatan_id')
-                    ->relationship('jabatan', 'nama_jabatan')
+                    ->relationship('jabatan', 'nama')
                     ->required(),
                 Select::make('bidang_id')
                     ->relationship('bidang', 'nama_bidang')

@@ -14,7 +14,7 @@ class RencanaAksiForm
         return $schema
             ->components([
                 Select::make('jabatan_id')
-                    ->relationship('jabatan', 'nama_jabatan'),
+                    ->relationship('jabatan', 'nama'),
                 Select::make('bidang_id')
                     ->relationship('bidang', 'nama_bidang'),
                 TextInput::make('tahun')
