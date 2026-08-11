@@ -38,7 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label(fn() => auth()->user()->name)
-                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle')
             ])
 
@@ -79,20 +79,20 @@ class AdminPanelProvider extends PanelProvider
                 FilamentEditProfilePlugin::make()
                     ->shouldShowAvatarForm(
                         value: true,
-                        directory: 'avatars', 
+                        directory: 'avatars',
                         rules: 'mimes:jpeg,png|max:1024'
                     ),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
-                // FilamentDeveloperLoginsPlugin::make()
-                //     ->enabled(app()->environment('local'))
-                //     ->users([
-                //         'SuperAdmin (Doni)' => 'superadmin@gmail.com',
-                //         'Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
-                //         'Sekretaris (Desmiwarti)' => 'sekretaris@gmail.com',
-                //         'Kasubag Umum (Zulfitri)' => 'admin@gmail.com',
-                //         'Kabid (Indrawadi)' => 'kabid@gmail.com',
-                //         'Pegawai (Wilda)' => 'wilda@gmail.com',
-                //     ])
+                FilamentDeveloperLoginsPlugin::make()
+                    ->enabled(app()->environment('local'))
+                    ->users([
+                        'SuperAdmin (Doni)' => 'superadmin@gmail.com',
+                        'Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
+                        'Sekretaris (Desmiwarti)' => 'sekretaris@gmail.com',
+                        'Kasubag Umum (Zulfitri)' => 'admin@gmail.com',
+                        'Kabid (Indrawadi)' => 'kabid@gmail.com',
+                        'Pegawai (Wilda)' => 'wilda@gmail.com',
+                    ])
             ]);
     }
 }
