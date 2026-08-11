@@ -23,8 +23,8 @@ class LogAbsensiResource extends Resource
     protected static ?string $model = LogAbsensi::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
-    protected static ?string $modelLabel = 'Ambil Absensi Mesin';
-    protected static ?string $pluralModelLabel = 'Ambil Absensi Mesin';
+    protected static ?string $modelLabel = 'Log Absensi';
+    protected static ?string $pluralModelLabel = 'Log Absensi';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
@@ -33,14 +33,14 @@ class LogAbsensiResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        
+
         if ($user && $user->hasRole('Pegawai')) {
             $query->where('user_id', $user->id);
         }
-        
+
         return $query;
     }
 

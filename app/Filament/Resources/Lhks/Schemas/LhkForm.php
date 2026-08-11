@@ -103,9 +103,11 @@ class LhkForm
                                             $set('lama_menit', $menit);
                                             $jamMulai = $get('jam_mulai');
                                             if ($jamMulai && $menit > 0) {
-                                                $set('jam_selesai', Carbon::createFromFormat('H:i', substr($jamMulai, 0, 5))
-                                                    ->addMinutes((int) $menit)
-                                                    ->format('H:i'));
+                                                try {
+                                                    $set('jam_selesai', Carbon::parse($jamMulai)
+                                                        ->addMinutes((int) $menit)
+                                                        ->format('H:i'));
+                                                } catch (\Exception $e) {}
                                             }
                                         } else {
                                             $set('lama_menit', 0);
@@ -142,9 +144,11 @@ class LhkForm
                                     ->afterStateUpdated(function ($state, $set, $get) {
                                         $lamaMenit = (int) ($get('lama_menit') ?? 0);
                                         if ($state && $lamaMenit > 0) {
-                                            $set('jam_selesai', Carbon::createFromFormat('H:i', substr($state, 0, 5))
-                                                ->addMinutes($lamaMenit)
-                                                ->format('H:i'));
+                                            try {
+                                                $set('jam_selesai', Carbon::parse($state)
+                                                    ->addMinutes($lamaMenit)
+                                                    ->format('H:i'));
+                                            } catch (\Exception $e) {}
                                         }
                                     })
                                     ->label('Jam Mulai')
