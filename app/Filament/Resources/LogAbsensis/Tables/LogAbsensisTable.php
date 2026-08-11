@@ -27,7 +27,7 @@ class LogAbsensisTable
                 TextColumn::make('nomor_absensi')
                     ->searchable(),
                 TextColumn::make('waktu_absensi')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('sumber')
                     ->searchable(),

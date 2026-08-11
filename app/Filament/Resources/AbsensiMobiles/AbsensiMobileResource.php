@@ -20,6 +20,10 @@ class AbsensiMobileResource extends Resource
 {
     protected static ?string $model = AbsensiMobile::class;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Data Absensi';
+    protected static ?string $modelLabel = 'Absensi Mobile';
+    protected static ?string $pluralModelLabel = 'Absensi Mobile';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

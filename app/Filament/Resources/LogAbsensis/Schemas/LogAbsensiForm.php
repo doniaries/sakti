@@ -25,6 +25,7 @@ class LogAbsensiForm
                     ->required()
                     ->maxLength(50),
                 DateTimePicker::make('waktu_absensi')
+                    ->displayFormat('d/m/Y H:i')
                     ->required(),
                 Select::make('sumber')
                     ->options([

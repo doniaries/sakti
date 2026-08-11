@@ -22,13 +22,13 @@ class AbsensiHariansTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('tanggal')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('jam_masuk')
-                    ->time()
+                    ->time('H:i')
                     ->sortable(),
                 TextColumn::make('jam_pulang')
-                    ->time()
+                    ->time('H:i')
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()

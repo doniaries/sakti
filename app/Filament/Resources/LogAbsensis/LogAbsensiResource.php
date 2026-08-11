@@ -20,6 +20,10 @@ class LogAbsensiResource extends Resource
 {
     protected static ?string $model = LogAbsensi::class;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Data Absensi';
+    protected static ?string $modelLabel = 'Log Absensi';
+    protected static ?string $pluralModelLabel = 'Log Absensi';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'nomor_absensi';

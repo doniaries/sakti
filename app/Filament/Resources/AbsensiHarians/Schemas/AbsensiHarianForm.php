@@ -20,9 +20,12 @@ class AbsensiHarianForm
                     ->preload()
                     ->required(),
                 DatePicker::make('tanggal')
+                    ->displayFormat('d/m/Y')
                     ->required(),
-                TimePicker::make('jam_masuk'),
-                TimePicker::make('jam_pulang'),
+                TimePicker::make('jam_masuk')
+                    ->displayFormat('H:i'),
+                TimePicker::make('jam_pulang')
+                    ->displayFormat('H:i'),
                 Select::make('log_masuk_id')
                     ->relationship('logMasuk', 'nomor_absensi')
                     ->searchable()

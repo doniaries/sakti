@@ -20,6 +20,10 @@ class MesinAbsensiResource extends Resource
 {
     protected static ?string $model = MesinAbsensi::class;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static ?string $modelLabel = 'Mesin Absensi';
+    protected static ?string $pluralModelLabel = 'Mesin Absensi';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $recordTitleAttribute = 'nama';

@@ -22,7 +22,7 @@ class AbsensiMobilesTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('waktu_absensi')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('jenis')
                     ->searchable(),
