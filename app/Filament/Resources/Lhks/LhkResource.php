@@ -30,7 +30,7 @@ class LhkResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if ($user && $user->hasRole('Pegawai')) {
+        if ($user && $user->hasRole('pegawai')) {
             $query->where('user_id', $user->id);
         }
 

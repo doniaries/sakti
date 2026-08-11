@@ -85,7 +85,7 @@ class AbsensiHariansTable
             ->filters([
                 Filter::make('pegawai')
                     ->label('Pegawai')
-                    ->visible(fn() => \Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['Super Admin', 'Admin', 'Pimpinan']))
+                    ->visible(fn() => \Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'pimpinan']))
                     ->form([
                         Select::make('user_id')
                             ->label('Nama Pegawai')
@@ -189,7 +189,8 @@ class AbsensiHariansTable
                     ->indicateUsing(fn(array $data): ?string => $data['tanggal'] ? 'Tanggal: ' . $data['tanggal'] : null),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->visible(fn($record) => in_array($record->status, ['izin', 'sakit'])),
                 EditAction::make(),
 
                 // ─── Buat LHK → Modal Slide-Over ──────────────────────────────
