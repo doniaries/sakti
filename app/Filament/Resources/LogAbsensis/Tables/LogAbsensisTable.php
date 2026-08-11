@@ -31,9 +31,24 @@ class LogAbsensisTable
                 $mesin = \App\Models\MesinAbsensi::where('aktif', true)->first();
                 if ($mesin && $mesin->sinkronisasi_terakhir) {
                     $tanggal = \Carbon\Carbon::parse($mesin->sinkronisasi_terakhir)->translatedFormat('d F Y H:i:s');
-                    return new \Illuminate\Support\HtmlString("Sinkronisasi terakhir dari mesin <strong>{$mesin->nama}</strong>: <span class='text-primary-600 font-medium'>{$tanggal}</span>");
+                    
+                    return new \Illuminate\Support\HtmlString(\Illuminate\Support\Facades\Blade::render('
+                        <div class="p-4 mt-2 bg-white border border-gray-200 shadow-sm dark:bg-gray-900 dark:border-white/10 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 rounded-lg bg-primary-50 dark:bg-primary-900/50">
+                                    <x-filament::icon icon="heroicon-o-arrow-path" class="w-5 h-5 text-primary-500" />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-950 dark:text-white">Informasi Sinkronisasi</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        Data terakhir ditarik dari <strong>{{ $mesin_nama }}</strong> pada <span class="font-semibold text-primary-600">{{ $tanggal }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ', ['mesin_nama' => $mesin->nama, 'tanggal' => $tanggal]));
                 }
-                return 'Belum ada data sinkronisasi dari mesin absensi.';
+                return null;
             })
             ->columns([
                 TextColumn::make('user.name')
@@ -50,12 +65,6 @@ class LogAbsensisTable
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('sumber')
-                    ->searchable(),
-                TextColumn::make('metode_verifikasi')
-                    ->searchable(),
-                TextColumn::make('kode_kerja')
-                    ->searchable(),
-                TextColumn::make('kode_log_asli')
                     ->searchable(),
             ])
             ->filters([
