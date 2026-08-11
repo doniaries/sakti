@@ -16,4 +16,11 @@ class ListUsers extends ListRecords
             CreateAction::make(),
         ];
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\Users\Widgets\UserStatsWidget::class,
+        ];
+    }
 }

@@ -21,8 +21,8 @@ class UserResource extends Resource
     protected static ?string $model = User::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Manajemen Pengguna';
-    protected static ?string $modelLabel = 'Pengguna';
-    protected static ?string $pluralModelLabel = 'Data Pengguna';
+    protected static ?string $modelLabel = 'Pegawai';
+    protected static ?string $pluralModelLabel = 'Data Pegawai';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
@@ -43,10 +43,33 @@ class UserResource extends Resource
         return UsersTable::configure($table);
     }
 
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        if ($user && !$user->hasRole('super_admin')) {
+            $query->whereDoesntHave('roles', function ($q) {
+                $q->where('name', 'super_admin');
+            });
+        }
+        
+        return $query;
+    }
+
     public static function getRelations(): array
     {
         return [
             //
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\Users\Widgets\UserStatsWidget::class,
         ];
     }
 
