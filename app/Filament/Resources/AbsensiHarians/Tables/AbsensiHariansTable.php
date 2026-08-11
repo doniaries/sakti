@@ -35,7 +35,15 @@ class AbsensiHariansTable
         $currentUser = \Illuminate\Support\Facades\Auth::user();
 
         return $table
-            ->modifyQueryUsing(fn($query) => $query->with(['user', 'logMasuk', 'logPulang']))
+            ->modifyQueryUsing(function ($query) use ($currentUser) {
+                $query->with(['user', 'logMasuk', 'logPulang']);
+                
+                if ($currentUser && ! $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan'])) {
+                    $query->where('user_id', $currentUser->id);
+                }
+                
+                return $query;
+            })
             ->columns([
                 TextColumn::make('user.name')
                     ->label('Nama Pegawai')
@@ -92,10 +100,10 @@ class AbsensiHariansTable
                             ->options(
                                 User::orderBy('name', 'asc')->pluck('name', 'id')->toArray()
                             )
-                            ->default($currentUser?->id)
                             ->searchable()
                             ->placeholder('Semua Pegawai'),
                     ])
+                    ->default(['user_id' => $currentUser?->id])
                     ->query(
                         fn(Builder $query, array $data): Builder =>
                         $query->when($data['user_id'] ?? null, fn(Builder $q, $v) => $q->where('user_id', $v))
