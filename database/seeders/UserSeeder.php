@@ -22,14 +22,25 @@ class UserSeeder extends Seeder
 
         // 3.5. Beri Permission ke Role Admin (Semua kecuali Role)
         $adminPermissions = $allPermissions->filter(function ($permission) {
-            return !str_contains($permission->name, 'role') && !str_contains($permission->name, 'permission');
+            $name = strtolower($permission->name);
+            return !str_contains($name, 'role') && !str_contains($name, 'permission');
         });
         $adminRole->syncPermissions($adminPermissions);
 
-        // 4. Beri Permission ke Role Pegawai (Hanya Tertentu)
+        // 4. Beri Permission ke Role Pegawai (Hanya Melihat Data Sendiri)
         $pegawaiPermissions = $allPermissions->filter(function ($permission) {
-            // Pegawai hanya bisa melihat dan membuat absensi harian/mobile
-            return str_contains($permission->name, 'absensi_harian') || str_contains($permission->name, 'absensi_mobile');
+            // Pegawai hanya butuh izin "view" atau "view_any" pada menu User dan Absensi
+            return in_array($permission->name, [
+                'View:User',
+                'ViewAny:User',
+                'View:AbsensiHarian',
+                'ViewAny:AbsensiHarian',
+                'View:LogAbsensi',
+                'ViewAny:LogAbsensi',
+                'View:AbsensiMobile',
+                'ViewAny:AbsensiMobile',
+                'View:DashboardStatsWidget',
+            ]);
         });
         $pegawaiRole->syncPermissions($pegawaiPermissions);
 
