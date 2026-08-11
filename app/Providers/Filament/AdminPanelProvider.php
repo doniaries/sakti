@@ -76,18 +76,23 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-                FilamentEditProfilePlugin::make(),
+                FilamentEditProfilePlugin::make()
+                    ->shouldShowAvatarForm(
+                        value: true,
+                        directory: 'avatars', 
+                        rules: 'mimes:jpeg,png|max:1024'
+                    ),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
-                FilamentDeveloperLoginsPlugin::make()
-                    ->enabled(app()->environment('local'))
-                    ->users([
-                        'SuperAdmin (Doni)' => 'superadmin@gmail.com',
-                        'Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
-                        'Sekretaris (Desmiwarti)' => 'sekretaris@gmail.com',
-                        'Kasubag Umum (Zulfitri)' => 'admin@gmail.com',
-                        'Kabid (Indrawadi)' => 'kabid@gmail.com',
-                        'Pegawai (Wilda)' => 'wilda@gmail.com',
-                    ])
+                // FilamentDeveloperLoginsPlugin::make()
+                //     ->enabled(app()->environment('local'))
+                //     ->users([
+                //         'SuperAdmin (Doni)' => 'superadmin@gmail.com',
+                //         'Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
+                //         'Sekretaris (Desmiwarti)' => 'sekretaris@gmail.com',
+                //         'Kasubag Umum (Zulfitri)' => 'admin@gmail.com',
+                //         'Kabid (Indrawadi)' => 'kabid@gmail.com',
+                //         'Pegawai (Wilda)' => 'wilda@gmail.com',
+                //     ])
             ]);
     }
 }
