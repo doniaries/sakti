@@ -3,14 +3,14 @@
 namespace App\Filament\Pages;
 
 use Filament\Forms\Components\FileUpload;
-use Filament\Schemas\Schema;
+use Filament\Forms\Form;
 use Filament\Auth\Pages\EditProfile as BaseEditProfile;
 
 class EditProfile extends BaseEditProfile
 {
-    public function form(Schema $schema): Schema
+    public function form(Form $form): Form
     {
-        return $schema
+        return $form
             ->components([
                 FileUpload::make('avatar_url')
                     ->label('Avatar')
