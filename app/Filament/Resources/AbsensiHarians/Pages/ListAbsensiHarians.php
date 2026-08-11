@@ -21,6 +21,17 @@ class ListAbsensiHarians extends ListRecords
         ];
     }
 
+    public function getWidgetData(): array
+    {
+        $data = parent::getWidgetData();
+        
+        $data['tableColumnSearches'] = $data['tableColumnSearches'] ?? [];
+        $data['tableFilters'] = $data['tableFilters'] ?? [];
+        $data['tableSearch'] = $data['tableSearch'] ?? '';
+        
+        return $data;
+    }
+
     public function getTabs(): array
     {
         $currentUser = \Illuminate\Support\Facades\Auth::user();

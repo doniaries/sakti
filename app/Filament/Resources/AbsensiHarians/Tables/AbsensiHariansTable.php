@@ -89,6 +89,7 @@ class AbsensiHariansTable
             ])
             ->defaultSort('tanggal', 'desc')
             ->filtersLayout(FiltersLayout::AboveContent)
+            ->deferFilters()
             ->filtersFormColumns(4)
             ->filters([
                 Filter::make('pegawai')
