@@ -6,9 +6,9 @@ use Rats\Zkteco\Lib\ZKTeco;
 
 class ZKTecoService
 {
-    protected $ip;
-    protected $port;
-    protected $zk;
+    protected string $ip;
+    protected int $port;
+    protected ZKTeco $zk;
 
     public function __construct(string $ip, int $port = 4370)
     {
@@ -63,7 +63,7 @@ class ZKTecoService
     /**
      * Set user to machine
      */
-    public function setUser($uid, $userid, $name, $password = '', $role = 0, $cardno = 0)
+    public function setUser(string|int $uid, string|int $userid, string $name, string $password = '', int $role = 0, int $cardno = 0)
     {
         try {
             $this->connect();
