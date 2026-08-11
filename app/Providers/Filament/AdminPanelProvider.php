@@ -62,10 +62,12 @@ class AdminPanelProvider extends PanelProvider
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))
                     ->users([
-                        'SuperAdmin' => 'superadmin@gmail.com',
-                        'User' => 'user@example.com',
-                        'Kepala Dinas' => 'kepaladinas@gmail.com',
-                        'Sekretaris' => 'sekretaris@gmail.com',
+                        'SuperAdmin (Doni)' => 'superadmin@gmail.com',
+                        'Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
+                        'Sekretaris (Desmiwarti)' => 'sekretaris@gmail.com',
+                        'Kasubag Umum (Zulfitri)' => 'admin@gmail.com',
+                        'Kabid (Indrawadi)' => 'kabid@gmail.com',
+                        'Pegawai (Wilda)' => 'wilda@gmail.com',
                     ])
             ]);
     }

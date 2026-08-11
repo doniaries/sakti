@@ -71,6 +71,7 @@ class DataPegawaiSeeder extends Seeder
         }
 
         // --- Atur Akun Khusus ---
+        // 1. Superadmin (DONI ARIES)
         $doni = User::query()->where('name', 'LIKE', '%DONI ARIES%', 'and')->first();
         if ($doni) {
             $doni->update([
@@ -81,6 +82,7 @@ class DataPegawaiSeeder extends Seeder
             $doni->syncRoles(['super_admin', 'pegawai']);
         }
 
+        // 2. Admin / Kasubag Umum (ZULFITRI)
         $zulfitri = User::query()->where('name', 'LIKE', '%ZULFITRI%', 'and')->first();
         if ($zulfitri) {
             $zulfitri->update([
@@ -91,52 +93,48 @@ class DataPegawaiSeeder extends Seeder
             $zulfitri->syncRoles(['admin', 'pegawai']);
         }
 
-        // Akun Kepala Dinas (Mock / Cari yang jabatannya Kepala Dinas)
-        $kadis = User::whereHas('jabatan', function($q) {
-            $q->where('nama', 'like', '%kepala dinas%');
-        })->first();
-        
-        if ($kadis) {
-            $kadis->update([
+        // 3. Kepala Dinas (AFRINELDI)
+        $afrineldi = User::query()->where('name', 'LIKE', '%AFRINELDI%', 'and')->first();
+        if ($afrineldi) {
+            $afrineldi->update([
                 'email' => 'kepaladinas@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'aktif' => true,
             ]);
-        } else {
-            // Buat jika tidak ada
-            $jabatanKadis = \App\Models\Jabatan::firstOrCreate(['nama' => 'Kepala Dinas Lingkungan Hidup']);
-            $kadis = User::create([
-                'name' => 'Kepala Dinas',
-                'email' => 'kepaladinas@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'jabatan_id' => $jabatanKadis->id,
-            ]);
-            $kadis->assignRole('pegawai');
+            $afrineldi->syncRoles(['pegawai']);
         }
 
-        // Akun Sekretaris
-        $sekretaris = User::whereHas('jabatan', function($q) {
-            $q->where('nama', 'like', '%sekretaris%');
-        })->first();
-        
-        if ($sekretaris) {
-            $sekretaris->update([
+        // 4. Sekretaris (DESMIWARTI)
+        $desmiwarti = User::query()->where('name', 'LIKE', '%DESMIWARTI%', 'and')->first();
+        if ($desmiwarti) {
+            $desmiwarti->update([
                 'email' => 'sekretaris@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'aktif' => true,
             ]);
-        } else {
-            // Buat jika tidak ada
-            $jabatanSekretaris = \App\Models\Jabatan::firstOrCreate(['nama' => 'Sekretaris Dinas']);
-            $sekretaris = User::create([
-                'name' => 'Sekretaris',
-                'email' => 'sekretaris@gmail.com',
+            $desmiwarti->syncRoles(['pegawai']);
+        }
+
+        // 5. Kepala Bidang (INDRAWADI)
+        $indrawadi = User::query()->where('name', 'LIKE', '%INDRAWADI%', 'and')->first();
+        if ($indrawadi) {
+            $indrawadi->update([
+                'email' => 'kabid@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'aktif' => true,
-                'jabatan_id' => $jabatanSekretaris->id,
             ]);
-            $sekretaris->assignRole('pegawai');
+            $indrawadi->syncRoles(['pegawai']);
+        }
+
+        // 6. Pegawai (WILDA ARDES)
+        $wilda = User::query()->where('name', 'LIKE', '%WILDA ARDES%', 'and')->first();
+        if ($wilda) {
+            $wilda->update([
+                'email' => 'wilda@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+            ]);
+            $wilda->syncRoles(['pegawai']);
         }
     }
 }
