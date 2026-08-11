@@ -15,6 +15,11 @@ class BidangForm
                     ->required(),
                 TextInput::make('slug')
                     ->required(),
+                \Filament\Forms\Components\Select::make('kepala_id')
+                    ->label('Kepala Bidang/Sekretaris')
+                    ->relationship('kepala', 'name')
+                    ->searchable()
+                    ->preload(),
             ]);
     }
 }

@@ -15,10 +15,14 @@ class InstansiForm
             ->components([
                 TextInput::make('nama_dinas')
                     ->required(),
-                \Filament\Forms\Components\Select::make('nama_kepala_dinas')
-                    ->options(fn() => \App\Models\User::role('pegawai')->pluck('name', 'name')->toArray())
+                \Filament\Forms\Components\Select::make('kepala_id')
+                    ->label('Akun Kepala Dinas')
+                    ->relationship('kepala', 'name')
                     ->searchable()
-                    ->placeholder('Pilih Nama Pegawai'),
+                    ->preload()
+                    ->placeholder('Pilih Akun Kepala Dinas (Pegawai)'),
+                TextInput::make('nama_kepala_dinas')
+                    ->placeholder('Nama Lengkap (Otomatis/Manual)'),
                 Textarea::make('alamat')
                     ->columnSpanFull(),
                 \Filament\Forms\Components\FileUpload::make('logo')

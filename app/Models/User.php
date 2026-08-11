@@ -36,6 +36,7 @@ class User extends Authenticatable
         'pendidikan',
         'jenis_kelamin',
         'eselon',
+        'atasan_id',
     ];
 
     /**
@@ -87,5 +88,15 @@ class User extends Authenticatable
     public function bidang()
     {
         return $this->belongsTo(Bidang::class);
+    }
+
+    public function atasan()
+    {
+        return $this->belongsTo(User::class, 'atasan_id');
+    }
+
+    public function bawahan()
+    {
+        return $this->hasMany(User::class, 'atasan_id');
     }
 }
