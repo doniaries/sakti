@@ -24,5 +24,13 @@ class DatabaseSeeder extends Seeder
             JabatanSeeder::class,
             MesinAbsensiSeeder::class,
         ]);
+
+        // 3. Generate ulang permission secara dinamis berdasarkan model & panel terkini
+        \Illuminate\Support\Facades\Artisan::call('shield:generate', [
+            '--all' => true,
+            '--panel' => 'admin',
+        ]);
+        
+        $this->command->info('Shield permissions generated successfully.');
     }
 }
