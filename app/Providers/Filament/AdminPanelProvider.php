@@ -20,6 +20,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
+use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -33,15 +35,11 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('16rem')
             ->login()
-            ->profile(\App\Filament\Pages\EditProfile::class)
             ->userMenuItems([
-                MenuItem::make()
-                    ->label(fn() => \Illuminate\Support\Facades\Auth::user()?->name ?? 'User')
-                    ->icon('heroicon-m-user-circle')
-                    ->url(fn(): string => \App\Filament\Pages\EditProfile::getUrl()),
                 'profile' => MenuItem::make()
-                    ->label('Edit Profil')
-                    ->icon('heroicon-m-pencil-square'),
+                    ->label(fn() => auth()->user()->name)
+                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->icon('heroicon-m-user-circle')
             ])
 
             ->navigationGroups([
@@ -78,6 +76,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
+                FilamentEditProfilePlugin::make(),
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))

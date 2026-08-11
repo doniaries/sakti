@@ -10,6 +10,8 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 use Illuminate\Database\Eloquent\Builder;
 
 class LhksTable
@@ -17,8 +19,34 @@ class LhksTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'pekerjaans', 'logAbsensiMasuk', 'logAbsensiPulang']))
             ->columns([
-                //
+                TextColumn::make('tanggal')
+                    ->date()
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('user.name')
+                    ->label('Pegawai')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('logAbsensiMasuk.waktu_absensi')
+                    ->label('Masuk')
+                    ->time('H:i'),
+                TextColumn::make('logAbsensiPulang.waktu_absensi')
+                    ->label('Pulang')
+                    ->time('H:i'),
+                TextColumn::make('status_kehadiran')
+                    ->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'Hadir'      => 'success',
+                        'Sakit'      => 'warning',
+                        'Izin'       => 'danger',
+                        'Dinas Luar' => 'info',
+                        default      => 'gray',
+                    }),
+                IconColumn::make('is_approved')
+                    ->boolean()
+                    ->label('Approved?'),
             ])
             ->filters([
                 SelectFilter::make('bulan')

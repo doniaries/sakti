@@ -44,42 +44,7 @@ class LhkResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'pekerjaans', 'logAbsensiMasuk', 'logAbsensiPulang']))
-            ->columns([
-                Tables\Columns\TextColumn::make('tanggal')
-                    ->date()
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Pegawai')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('logAbsensiMasuk.waktu_absensi')
-                    ->label('Masuk')
-                    ->time('H:i'),
-                Tables\Columns\TextColumn::make('logAbsensiPulang.waktu_absensi')
-                    ->label('Pulang')
-                    ->time('H:i'),
-                Tables\Columns\TextColumn::make('status')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'Hadir'      => 'success',
-                        'Sakit'      => 'warning',
-                        'Izin'       => 'danger',
-                        'Dinas Luar' => 'info',
-                        default      => 'gray',
-                    }),
-                Tables\Columns\IconColumn::make('is_approved')
-                    ->boolean()
-                    ->label('Approved?'),
-            ])
-            ->filters([
-                //
-            ])
-            ->emptyStateActions([
-                //
-            ]);
+        return Tables\LhksTable::configure($table);
     }
 
     public static function getRelations(): array
