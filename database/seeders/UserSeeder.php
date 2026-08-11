@@ -53,16 +53,6 @@ class UserSeeder extends Seeder
         ]);
         $admin->assignRole($adminRole);
 
-        // 7. Buat Akun Pegawai 1 - 4
-        for ($i = 1; $i <= 4; $i++) {
-            $pegawai = User::firstOrCreate([
-                'email' => "pegawai{$i}@gmail.com",
-            ], [
-                'name' => "Pegawai {$i}",
-                'password' => bcrypt('pegawai'),
-                'aktif' => true,
-            ]);
-            $pegawai->assignRole($pegawaiRole);
-        }
+
     }
 }

@@ -47,17 +47,6 @@ class DataPegawaiSeeder extends Seeder
     'tempat_lahir' => '',
     'tanggal_lahir' => '',
   ),
-  3 => 
-  array (
-    'nama' => 'Sisawah, 08 Januari 1973',
-    'nip' => '',
-    'jabatan' => 'DESTINASI PARIWISATA',
-    'pendidikan' => '',
-    'jk' => '',
-    'eselon' => '',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
   4 => 
   array (
     'nama' => 'INDRAWADI. R, SP',
@@ -69,17 +58,6 @@ class DataPegawaiSeeder extends Seeder
     'tempat_lahir' => '',
     'tanggal_lahir' => '',
   ),
-  5 => 
-  array (
-    'nama' => 'Ampang Kuranji, 10-07-1980',
-    'nip' => '',
-    'jabatan' => 'OLAHRAGA',
-    'pendidikan' => '2007',
-    'jk' => '',
-    'eselon' => '',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
   6 => 
   array (
     'nama' => 'RAHMAD AZANDI FAJAR, S.STP',
@@ -88,17 +66,6 @@ class DataPegawaiSeeder extends Seeder
     'pendidikan' => 'D IV PENCATATAN',
     'jk' => 'L',
     'eselon' => 'III.b',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
-  7 => 
-  array (
-    'nama' => 'Solok, 16 Januari 1989',
-    'nip' => '',
-    'jabatan' => 'PARIWISATA',
-    'pendidikan' => 'SIPIL 2015',
-    'jk' => '',
-    'eselon' => '',
     'tempat_lahir' => '',
     'tanggal_lahir' => '',
   ),
@@ -132,17 +99,6 @@ class DataPegawaiSeeder extends Seeder
     'pendidikan' => 'S1 SYARI\'AH',
     'jk' => 'P',
     'eselon' => 'IV.a',
-    'tempat_lahir' => '',
-    'tanggal_lahir' => '',
-  ),
-  11 => 
-  array (
-    'nama' => 'Lubuk Tarab, 25 Agustus 1977',
-    'nip' => '',
-    'jabatan' => 'KEPEGAWAIAN',
-    'pendidikan' => '2000',
-    'jk' => '',
-    'eselon' => '',
     'tempat_lahir' => '',
     'tanggal_lahir' => '',
   ),
