@@ -19,7 +19,7 @@ class LhksTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'pekerjaans', 'logAbsensiMasuk', 'logAbsensiPulang']))
+            ->modifyQueryUsing(fn($query) => $query->with(['user', 'pekerjaans', 'logAbsensiMasuk', 'logAbsensiPulang']))
             ->columns([
                 TextColumn::make('tanggal')
                     ->date()
@@ -37,7 +37,7 @@ class LhksTable
                     ->time('H:i'),
                 TextColumn::make('status_kehadiran')
                     ->badge()
-                    ->color(fn (?string $state): string => match ($state) {
+                    ->color(fn(?string $state): string => match ($state) {
                         'Hadir'      => 'success',
                         'Sakit'      => 'warning',
                         'Izin'       => 'danger',
@@ -68,10 +68,10 @@ class LhksTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $value): Builder => $query->whereMonth('tanggal', $value)
+                            fn(Builder $query, $value): Builder => $query->whereMonth('tanggal', $value)
                         );
                     }),
-                
+
                 SelectFilter::make('tahun')
                     ->label('Filter Tahun')
                     ->options(function () {
@@ -85,7 +85,7 @@ class LhksTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $value): Builder => $query->whereYear('tanggal', $value)
+                            fn(Builder $query, $value): Builder => $query->whereYear('tanggal', $value)
                         );
                     }),
 
@@ -102,11 +102,11 @@ class LhksTable
                         return $query
                             ->when(
                                 $data['dari_tanggal'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('tanggal', '>=', $date),
                             )
                             ->when(
                                 $data['sampai_tanggal'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('tanggal', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('tanggal', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
@@ -123,7 +123,8 @@ class LhksTable
             ], layout: FiltersLayout::AboveContent)
             ->filtersFormColumns(4)
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->closeModalByClickingAway(true),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

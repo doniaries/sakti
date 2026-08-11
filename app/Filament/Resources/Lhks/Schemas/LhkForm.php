@@ -127,6 +127,31 @@ class LhkForm
                                     ->label('Rencana Aksi')
                                     ->columnSpan(1),
 
+                                // 4. Jam mulai H:i — update jam selesai otomatis
+                                Forms\Components\TimePicker::make('jam_mulai')
+                                    ->required()
+                                    ->seconds(false)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, $set, $get) {
+                                        $lamaMenit = (int) ($get('lama_menit') ?? 0);
+                                        if ($state && $lamaMenit > 0) {
+                                            try {
+                                                $set('jam_selesai', Carbon::parse($state)
+                                                    ->addMinutes($lamaMenit)
+                                                    ->format('H:i'));
+                                            } catch (\Exception $e) {}
+                                        }
+                                    })
+                                    ->label('Jam Mulai')
+                                    ->columnSpan(1),
+
+                                // 5. Jam selesai (auto)
+                                Forms\Components\TimePicker::make('jam_selesai')
+                                    ->required()
+                                    ->seconds(false)
+                                    ->label('Jam Selesai')
+                                    ->columnSpan(1),
+                                    
                                 // 3. Lama menit (auto dari aktivitas, read-only)
                                 Forms\Components\TextInput::make('lama_menit')
                                     ->numeric()
@@ -134,7 +159,7 @@ class LhkForm
                                     ->suffix('menit')
                                     ->readOnly()
                                     ->label('Lama (menit)')
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
 
                                 // 4. Jam mulai H:i — update jam selesai otomatis
                                 Forms\Components\TimePicker::make('jam_mulai')
@@ -171,7 +196,7 @@ class LhkForm
                                     ->label('Link Bukti')
                                     ->columnSpanFull(),
                             ])
-                            ->columns(3)
+                            ->columns(2)
                             ->collapsible()
                             ->defaultItems(1)
                             ->addActionLabel('+ Tambah Pekerjaan'),
