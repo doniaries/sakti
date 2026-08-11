@@ -26,26 +26,14 @@ class AbsensiHariansTable
                     ->sortable(),
                 TextColumn::make('jam_masuk')
                     ->time('H:i')
-                    ->sortable(),
-                TextColumn::make('logMasuk.sumber')
-                    ->label('Sumber Masuk')
-                    ->badge()
-                    ->color(fn (?string $state): string => match ($state) {
-                        'mesin' => 'info',
-                        'mobile' => 'success',
-                        default => 'gray',
-                    }),
+                    ->sortable()
+                    ->icon(fn ($record) => $record->logMasuk?->sumber === 'mesin' ? 'heroicon-m-finger-print' : ($record->logMasuk?->sumber === 'mobile' ? 'heroicon-m-device-phone-mobile' : null))
+                    ->iconColor(fn ($record) => $record->logMasuk?->sumber === 'mesin' ? 'info' : 'success'),
                 TextColumn::make('jam_pulang')
                     ->time('H:i')
-                    ->sortable(),
-                TextColumn::make('logPulang.sumber')
-                    ->label('Sumber Pulang')
-                    ->badge()
-                    ->color(fn (?string $state): string => match ($state) {
-                        'mesin' => 'info',
-                        'mobile' => 'success',
-                        default => 'gray',
-                    }),
+                    ->sortable()
+                    ->icon(fn ($record) => $record->logPulang?->sumber === 'mesin' ? 'heroicon-m-finger-print' : ($record->logPulang?->sumber === 'mobile' ? 'heroicon-m-device-phone-mobile' : null))
+                    ->iconColor(fn ($record) => $record->logPulang?->sumber === 'mesin' ? 'info' : 'success'),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {

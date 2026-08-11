@@ -78,7 +78,7 @@ class LogAbsensiSeeder extends Seeder
                     'keterangan' => 'Hadir Tepat Waktu',
                     'is_absen_mesin' => true,
                     'is_absen_mobile' => true,
-                    'status_apel' => 'hadir',
+                    'status_apel' => 'apel',
                 ]);
             }
         }
