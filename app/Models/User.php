@@ -79,10 +79,6 @@ class User extends Authenticatable implements HasAvatar
         return $this->hasMany(AbsensiHarian::class);
     }
 
-    public function absensiMobile(): HasMany
-    {
-        return $this->hasMany(AbsensiMobile::class);
-    }
 
     public function jabatan()
     {
