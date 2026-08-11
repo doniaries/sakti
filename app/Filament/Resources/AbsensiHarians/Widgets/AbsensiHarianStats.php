@@ -7,35 +7,42 @@ use App\Filament\Resources\AbsensiHarians\AbsensiHarianResource;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Filament\Widgets\Concerns\InteractsWithPageTable;
+use App\Filament\Resources\AbsensiHarians\Pages\ListAbsensiHarians;
 
 class AbsensiHarianStats extends BaseWidget
 {
+    use InteractsWithPageTable;
+
+    protected function getTablePage(): string
+    {
+        return ListAbsensiHarians::class;
+    }
+
     protected function getStats(): array
     {
-        $today = Carbon::today();
+        $query = clone $this->getPageTableQuery();
         
-        $baseQuery = clone AbsensiHarianResource::getEloquentQuery()->whereDate('tanggal', $today);
-        
-        $hadir = (clone $baseQuery)->where('status', 'hadir')->count();
-        $izin = (clone $baseQuery)->where('status', 'izin')->count();
-        $sakit = (clone $baseQuery)->where('status', 'sakit')->count();
-        $tanpaKeterangan = (clone $baseQuery)->where('status', 'tidak_hadir')->count();
+        $hadir = (clone $query)->where('status', 'hadir')->count();
+        $izin = (clone $query)->where('status', 'izin')->count();
+        $sakit = (clone $query)->where('status', 'sakit')->count();
+        $tanpaKeterangan = (clone $query)->where('status', 'tidak_hadir')->count();
 
         return [
             Stat::make('Hadir', $hadir)
-                ->description('Hadir hari ini')
+                ->description('Total Hadir')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
             Stat::make('Sakit', $sakit)
-                ->description('Sakit hari ini')
+                ->description('Total Sakit')
                 ->descriptionIcon('heroicon-m-plus-circle')
                 ->color('warning'),
             Stat::make('Izin', $izin)
-                ->description('Izin hari ini')
+                ->description('Total Izin')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
-                ->description('Tanpa keterangan hari ini')
+                ->description('Total Tanpa Keterangan')
                 ->descriptionIcon('heroicon-m-x-circle')
                 ->color('danger'),
         ];
