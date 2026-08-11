@@ -89,7 +89,7 @@ class AbsensiHariansTable
                         Select::make('user_id')
                             ->label('Nama Pegawai')
                             ->options(
-                                User::orderBy('name')->pluck('name', 'id')->toArray()
+                                User::orderBy('name', 'asc')->pluck('name', 'id')->toArray()
                             )
                             ->default($currentUser?->id)
                             ->searchable()
@@ -276,7 +276,6 @@ class AbsensiHariansTable
                                                 })->toArray()
                                             )
                                             ->searchable()
-                                            ->preload()
                                             ->live()
                                             ->afterStateUpdated(function ($state, $set, $get) {
                                                 if ($state) {
@@ -302,7 +301,6 @@ class AbsensiHariansTable
                                                 \App\Models\RencanaAksi::pluck('rencana_aksi', 'id')->toArray()
                                             )
                                             ->searchable()
-                                            ->preload()
                                             ->label('Rencana Aksi')
                                             ->columnSpan(1),
 

@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAktivitas extends CreateRecord
 {
     protected static string $resource = AktivitasResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

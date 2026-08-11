@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\AbsensiHarians\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -9,6 +10,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class AbsensiHarianForm
 {
@@ -19,10 +21,15 @@ class AbsensiHarianForm
                 \Filament\Schemas\Components\Section::make('Informasi Absensi Harian')
                     ->schema([
                         Select::make('user_id')
-                            ->relationship('user', 'name')
+                            ->label('Nama Pegawai')
+                            ->options(
+                                User::orderBy('name', 'asc')
+                                    ->pluck('name', 'id')
+                                    ->toArray()
+                            )
+                            ->default(fn() => Auth::id())
                             ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->placeholder('Semua Pegawai'),
                         DatePicker::make('tanggal')->displayFormat('d/m/Y')
                             ->required(),
                         TimePicker::make('jam_masuk')
