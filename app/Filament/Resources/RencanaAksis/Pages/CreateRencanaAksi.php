@@ -1,0 +1,11 @@
+<?php
+
+namespace App\Filament\Resources\RencanaAksis\Pages;
+
+use App\Filament\Resources\RencanaAksis\RencanaAksiResource;
+use Filament\Resources\Pages\CreateRecord;
+
+class CreateRencanaAksi extends CreateRecord
+{
+    protected static string $resource = RencanaAksiResource::class;
+}

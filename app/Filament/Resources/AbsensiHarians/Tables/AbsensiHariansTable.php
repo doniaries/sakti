@@ -89,7 +89,7 @@ class AbsensiHariansTable
                         Select::make('user_id')
                             ->label('Nama Pegawai')
                             ->options(
-                                User::orderBy('name')->get(['id', 'name'])->pluck('name', 'id')->toArray()
+                                User::orderBy('name')->pluck('name', 'id')->toArray()
                             )
                             ->default($currentUser?->id)
                             ->searchable()
