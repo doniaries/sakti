@@ -27,6 +27,14 @@ class LogAbsensisTable
     {
         return $table
             ->modifyQueryUsing(fn($query) => $query->with(['user', 'mesinAbsensi']))
+            ->description(function () {
+                $mesin = \App\Models\MesinAbsensi::where('aktif', true)->first();
+                if ($mesin && $mesin->sinkronisasi_terakhir) {
+                    $tanggal = \Carbon\Carbon::parse($mesin->sinkronisasi_terakhir)->translatedFormat('d F Y H:i:s');
+                    return new \Illuminate\Support\HtmlString("Sinkronisasi terakhir dari mesin <strong>{$mesin->nama}</strong>: <span class='text-primary-600 font-medium'>{$tanggal}</span>");
+                }
+                return 'Belum ada data sinkronisasi dari mesin absensi.';
+            })
             ->columns([
                 TextColumn::make('user.name')
                     ->label('Pegawai')
