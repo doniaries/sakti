@@ -15,7 +15,7 @@
         
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-lg font-bold text-gray-800 dark:text-gray-100">
-                Absensi Bulan {{ isset($data['bulan']) ? \Carbon\Carbon::create()->month($data['bulan'])->translatedFormat('F') : '...' }} 
+                Absensi Bulan {{ isset($data['bulan']) ? \Carbon\Carbon::create()->month((int) $data['bulan'])->translatedFormat('F') : '...' }} 
                 Tahun {{ $data['tahun'] ?? '...' }} (EVIDENCE)
             </h2>
             <x-filament::button color="info">
