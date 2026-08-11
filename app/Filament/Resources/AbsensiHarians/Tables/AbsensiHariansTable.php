@@ -44,6 +44,23 @@ class AbsensiHariansTable
 
                 return $query;
             })
+            ->heading(new \Illuminate\Support\HtmlString('
+                <style>
+                    @media (min-width: 768px) {
+                        .fi-ta-filters .fi-ta-filters-wrapper form {
+                            display: flex;
+                            align-items: flex-end;
+                            gap: 1rem;
+                        }
+                        .fi-ta-filters .fi-ta-filters-wrapper form > .grid {
+                            flex: 1;
+                        }
+                        .fi-ta-filters .fi-ta-filters-wrapper form > .flex.items-center {
+                            margin-bottom: 0.25rem;
+                        }
+                    }
+                </style>
+            '))
             ->columns([
                 TextColumn::make('user.name')
                     ->label('Nama Pegawai')
