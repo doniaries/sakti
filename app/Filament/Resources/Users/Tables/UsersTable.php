@@ -81,7 +81,7 @@ class UsersTable
                                 try {
                                     $service = new \App\Services\ZKTecoService($mesin->alamat_ip, $mesin->port);
                                     $users = $service->getUsers();
-                                    $existingPins = \App\Models\User::where('nomor_absensi', '!=', null)->pluck('nomor_absensi')->toArray();
+                                    $existingPins = \App\Models\User::query()->where('nomor_absensi', '!=', null, 'and')->pluck('nomor_absensi')->toArray();
 
                                     $options = [];
                                     foreach ($users as $u) {

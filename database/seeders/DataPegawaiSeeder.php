@@ -71,7 +71,7 @@ class DataPegawaiSeeder extends Seeder
         }
 
         // --- Atur Akun Khusus ---
-        $doni = User::where('name', 'LIKE', '%DONI ARIES%')->first();
+        $doni = User::query()->where('name', 'LIKE', '%DONI ARIES%', 'and')->first();
         if ($doni) {
             $doni->update([
                 'email' => 'superadmin@gmail.com',
@@ -81,7 +81,7 @@ class DataPegawaiSeeder extends Seeder
             $doni->syncRoles(['super_admin', 'pegawai']);
         }
 
-        $zulfitri = User::where('name', 'LIKE', '%ZULFITRI%')->first();
+        $zulfitri = User::query()->where('name', 'LIKE', '%ZULFITRI%', 'and')->first();
         if ($zulfitri) {
             $zulfitri->update([
                 'email' => 'admin@gmail.com',

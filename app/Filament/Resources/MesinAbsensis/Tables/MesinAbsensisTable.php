@@ -61,29 +61,23 @@ class MesinAbsensisTable
 
                             if ($connected) {
                                 $serverIp = getHostByName(getHostName());
-                                $ipInfo = ($serverIp === '127.0.0.1' || $serverIp === '::1' || $serverIp === false)
-                                    ? '⚠️ IP Komputer (Server) belum diset / masih Localhost.'
-                                    : '💻 IP Komputer (Server): <strong>' . $serverIp . '</strong>';
-
+                                
                                 Notification::make()
                                     ->title('✅ Koneksi LAN ke ' . $record->nama . ' berhasil!')
-                                    ->body('IP: ' . $record->alamat_ip . ' | Port: ' . $record->port . '<br><br>' . $ipInfo)
+                                    ->body('IP Mesin: ' . $record->alamat_ip . ' · Port: ' . $record->port . '<br>💻 IP Komputer Server: ' . $serverIp)
                                     ->success()
-                                    ->persistent()
                                     ->send();
                             } else {
                                 Notification::make()
                                     ->title('❌ Gagal terhubung ke ' . $record->nama)
-                                    ->body('Pastikan mesin menyala, kabel LAN terpasang, dan IP sudah benar.')
+                                    ->body('Pastikan mesin menyala, kabel LAN terpasang, dan IP sesuai.')
                                     ->danger()
-                                    ->persistent()
                                     ->send();
                             }
                         } catch (\Exception $e) {
                             Notification::make()
-                                ->title('❌ Error: ' . $e->getMessage())
+                                ->title('❌ Error koneksi: ' . $e->getMessage())
                                 ->danger()
-                                ->persistent()
                                 ->send();
                         }
                     }),
