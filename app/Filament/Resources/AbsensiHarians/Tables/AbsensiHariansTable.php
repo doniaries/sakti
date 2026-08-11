@@ -209,6 +209,7 @@ class AbsensiHariansTable
                     ->color('info')
                     ->visible(fn($record) => ! in_array($record->status, ['izin', 'sakit', 'tidak_hadir']))
                     // ->slideOver()
+                    ->closeModalByClickingAway(false)
                     ->modalHeading(fn($record) => 'Buat LHK — ' . $record->user?->name . ' (' . $record->tanggal?->format('d/m/Y') . ')')
                     ->modalSubmitActionLabel('Simpan LHK')
                     ->form(fn($record) => [
@@ -255,7 +256,8 @@ class AbsensiHariansTable
                                             ? Carbon::createFromFormat('H:i:s', $record->jam_masuk)->format('H:i')
                                             : '-';
                                         $sumber = $record->logMasuk?->sumber ?? '';
-                                        return $jam . ($sumber ? " ($sumber)" : '');
+                                        $text = $jam . ($sumber ? " ($sumber)" : '');
+                                        return new \Illuminate\Support\HtmlString('<span class="fi-badge flex items-center justify-center gap-x-1 whitespace-nowrap rounded-md text-sm font-medium ring-1 ring-inset px-2 py-1 fi-color-custom bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30 fi-color-success" style="width: fit-content;">' . e($text) . '</span>');
                                     })
                                     ->columnSpan(1),
 
@@ -266,7 +268,8 @@ class AbsensiHariansTable
                                             ? Carbon::createFromFormat('H:i:s', $record->jam_pulang)->format('H:i')
                                             : '-';
                                         $sumber = $record->logPulang?->sumber ?? '';
-                                        return $jam . ($sumber ? " ($sumber)" : '');
+                                        $text = $jam . ($sumber ? " ($sumber)" : '');
+                                        return new \Illuminate\Support\HtmlString('<span class="fi-badge flex items-center justify-center gap-x-1 whitespace-nowrap rounded-md text-sm font-medium ring-1 ring-inset px-2 py-1 fi-color-custom bg-custom-50 text-custom-600 ring-custom-600/10 dark:bg-custom-400/10 dark:text-custom-400 dark:ring-custom-400/30 fi-color-info" style="width: fit-content;">' . e($text) . '</span>');
                                     })
                                     ->columnSpan(1),
                             ])

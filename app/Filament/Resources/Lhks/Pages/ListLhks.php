@@ -13,8 +13,7 @@ class ListLhks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
-                ->closeModalByClickingAway(false),
+            CreateAction::make(),
         ];
     }
 }

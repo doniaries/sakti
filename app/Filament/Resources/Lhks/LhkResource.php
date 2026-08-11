@@ -9,8 +9,8 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
 use Filament\Tables\Table;
+use App\Filament\Resources\Lhks\Tables\LhksTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +44,7 @@ class LhkResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return Tables\LhksTable::configure($table);
+        return LhksTable::configure($table);
     }
 
     public static function getRelations(): array

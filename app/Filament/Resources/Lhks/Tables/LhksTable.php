@@ -124,7 +124,7 @@ class LhksTable
             ->filtersFormColumns(4)
             ->recordActions([
                 EditAction::make()
-                    ->closeModalByClickingAway(true),
+
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
