@@ -24,29 +24,26 @@ class ListAbsensiHarians extends ListRecords
     public function getTabs(): array
     {
         return [
-            'jumlah_pegawai' => Tab::make('Jumlah Pegawai')
-                ->modifyQueryUsing(fn($query) => $query->whereDate('tanggal', \Carbon\Carbon::today()))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->whereDate('tanggal', \Carbon\Carbon::today())->count())
-                ->badgeColor('info'),
+            'semua' => Tab::make('Semua Data'),
 
             'hadir' => Tab::make('Hadir')
-                ->modifyQueryUsing(fn($query) => $query->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'hadir'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'hadir')->count())
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'hadir'))
+                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'hadir')->count())
                 ->badgeColor('success'),
 
             'sakit' => Tab::make('Sakit')
-                ->modifyQueryUsing(fn($query) => $query->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'sakit'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'sakit')->count())
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'sakit'))
+                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'sakit')->count())
                 ->badgeColor('warning'),
 
             'izin' => Tab::make('Izin')
-                ->modifyQueryUsing(fn($query) => $query->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'izin'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'izin')->count())
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'izin'))
+                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'izin')->count())
                 ->badgeColor('warning'),
 
             'tidak_hadir' => Tab::make('Tanpa Keterangan')
-                ->modifyQueryUsing(fn($query) => $query->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'tidak_hadir'))
-                ->badge(AbsensiHarianResource::getEloquentQuery()->whereDate('tanggal', \Carbon\Carbon::today())->where('status', 'tidak_hadir')->count())
+                ->modifyQueryUsing(fn($query) => $query->where('status', 'tidak_hadir'))
+                ->badge(AbsensiHarianResource::getEloquentQuery()->where('status', 'tidak_hadir')->count())
                 ->badgeColor('danger'),
         ];
     }

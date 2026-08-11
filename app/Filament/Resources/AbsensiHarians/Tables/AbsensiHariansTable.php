@@ -85,6 +85,7 @@ class AbsensiHariansTable
             ->filters([
                 Filter::make('pegawai')
                     ->label('Pegawai')
+                    ->visible(fn() => \Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['Super Admin', 'Admin', 'Pimpinan']))
                     ->form([
                         Select::make('user_id')
                             ->label('Nama Pegawai')
@@ -197,7 +198,7 @@ class AbsensiHariansTable
                     ->icon('heroicon-m-document-plus')
                     ->color('info')
                     ->visible(fn($record) => ! in_array($record->status, ['izin', 'sakit', 'tidak_hadir']))
-                    ->slideOver()
+                    // ->slideOver()
                     ->modalHeading(fn($record) => 'Buat LHK — ' . $record->user?->name . ' (' . $record->tanggal?->format('d/m/Y') . ')')
                     ->modalSubmitActionLabel('Simpan LHK')
                     ->form(fn($record) => [
@@ -287,7 +288,8 @@ class AbsensiHariansTable
                                                             $set('jam_selesai', Carbon::parse($jamMulai)
                                                                 ->addMinutes((int) $menit)
                                                                 ->format('H:i'));
-                                                        } catch (\Exception $e) {}
+                                                        } catch (\Exception $e) {
+                                                        }
                                                     }
                                                 } else {
                                                     $set('lama_menit', 0);
@@ -326,7 +328,8 @@ class AbsensiHariansTable
                                                         $set('jam_selesai', Carbon::parse($state)
                                                             ->addMinutes($lamaMenit)
                                                             ->format('H:i'));
-                                                    } catch (\Exception $e) {}
+                                                    } catch (\Exception $e) {
+                                                    }
                                                 }
                                             })
                                             ->label('Jam Mulai')
