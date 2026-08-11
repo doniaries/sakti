@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             BidangSeeder::class,
             JabatanSeeder::class,
             MesinAbsensiSeeder::class,
+            LogAbsensiSeeder::class,
             LhkSeeder::class,
         ]);
 

@@ -27,9 +27,25 @@ class AbsensiHariansTable
                 TextColumn::make('jam_masuk')
                     ->time('H:i')
                     ->sortable(),
+                TextColumn::make('logMasuk.sumber')
+                    ->label('Sumber Masuk')
+                    ->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'mesin' => 'info',
+                        'mobile' => 'success',
+                        default => 'gray',
+                    }),
                 TextColumn::make('jam_pulang')
                     ->time('H:i')
                     ->sortable(),
+                TextColumn::make('logPulang.sumber')
+                    ->label('Sumber Pulang')
+                    ->badge()
+                    ->color(fn (?string $state): string => match ($state) {
+                        'mesin' => 'info',
+                        'mobile' => 'success',
+                        default => 'gray',
+                    }),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
