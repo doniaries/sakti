@@ -10,7 +10,7 @@ use Leek\FilamentHeaderFilters\Concerns\HasHeaderFilters;
 
 class ListAbsensiHarians extends ListRecords
 {
-    use HasHeaderFilters;
+    // HasHeaderFilters tidak diperlukan karena filter sudah menggunakan AboveContent layout
 
     protected static string $resource = AbsensiHarianResource::class;
 

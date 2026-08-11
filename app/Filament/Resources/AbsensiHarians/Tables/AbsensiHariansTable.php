@@ -2,12 +2,14 @@
 
 namespace App\Filament\Resources\AbsensiHarians\Tables;
 
+use App\Models\User;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -18,8 +20,12 @@ class AbsensiHariansTable
 {
     public static function configure(Table $table): Table
     {
+        /** @var \App\Models\User|null $currentUser */
+        $currentUser = auth()->user();
+
         return $table
-            ->filtersLayout(FiltersLayout::Hidden)
+            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersFormColumns(4)
             ->modifyQueryUsing(fn($query) => $query->with(['user', 'logMasuk', 'logPulang']))
             ->columns([
                 TextColumn::make('user.name')
@@ -28,19 +34,7 @@ class AbsensiHariansTable
                     ->sortable(),
                 TextColumn::make('tanggal')
                     ->date()
-                    ->sortable()
-                    ->headerFilter(
-                        Filter::make('tanggal_range')
-                            ->columns(2)
-                            ->schema([
-                                DatePicker::make('from')->placeholder('Dari Tanggal')->native(false),
-                                DatePicker::make('until')->placeholder('Sampai Tanggal')->native(false),
-                            ])
-                            ->query(fn (Builder $query, array $data): Builder => $query
-                                ->when($data['from'] ?? null, fn (Builder $q, $v): Builder => $q->whereDate('tanggal', '>=', $v))
-                                ->when($data['until'] ?? null, fn (Builder $q, $v): Builder => $q->whereDate('tanggal', '<=', $v))
-                            )
-                    ),
+                    ->sortable(),
                 TextColumn::make('jam_masuk')
                     ->time('H:i')
                     ->sortable()
@@ -72,9 +66,91 @@ class AbsensiHariansTable
                     })
                     ->searchable(),
             ])
-            ->defaultSort('updated_at', 'desc')
+            ->defaultSort('tanggal', 'desc')
             ->filters([
-                //
+                Filter::make('pegawai')
+                    ->label('Pegawai')
+                    ->form([
+                        Select::make('user_id')
+                            ->label('Nama Pegawai')
+                            ->options(
+                                User::orderBy('name')->pluck('name', 'id')->toArray()
+                            )
+                            ->default($currentUser?->id)
+                            ->searchable()
+                            ->placeholder('Semua Pegawai'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder =>
+                        $query->when($data['user_id'] ?? null, fn (Builder $q, $v) => $q->where('user_id', $v))
+                    )
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['user_id']) return null;
+                        return 'Pegawai: ' . (User::find($data['user_id'])?->name ?? '-');
+                    }),
+
+                Filter::make('tahun')
+                    ->label('Tahun')
+                    ->form([
+                        Select::make('tahun')
+                            ->label('Tahun')
+                            ->options(function () {
+                                $years = [];
+                                for ($y = Carbon::now()->year; $y >= Carbon::now()->year - 5; $y--) {
+                                    $years[$y] = $y;
+                                }
+                                return $years;
+                            })
+                            ->default(Carbon::now()->year)
+                            ->placeholder('Semua Tahun'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder =>
+                        $query->when($data['tahun'] ?? null, fn (Builder $q, $v) => $q->whereYear('tanggal', $v))
+                    )
+                    ->indicateUsing(fn (array $data): ?string => $data['tahun'] ? 'Tahun: ' . $data['tahun'] : null),
+
+                Filter::make('bulan')
+                    ->label('Bulan')
+                    ->form([
+                        Select::make('bulan')
+                            ->label('Bulan')
+                            ->options([
+                                1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
+                                4 => 'April', 5 => 'Mei', 6 => 'Juni',
+                                7 => 'Juli', 8 => 'Agustus', 9 => 'September',
+                                10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+                            ])
+                            ->default(Carbon::now()->month)
+                            ->placeholder('Semua Bulan'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder =>
+                        $query->when($data['bulan'] ?? null, fn (Builder $q, $v) => $q->whereMonth('tanggal', $v))
+                    )
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['bulan']) return null;
+                        $namaBulan = [
+                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
+                            4 => 'April', 5 => 'Mei', 6 => 'Juni',
+                            7 => 'Juli', 8 => 'Agustus', 9 => 'September',
+                            10 => 'Oktober', 11 => 'November', 12 => 'Desember',
+                        ];
+                        return 'Bulan: ' . ($namaBulan[$data['bulan']] ?? '-');
+                    }),
+
+                Filter::make('tanggal')
+                    ->label('Tanggal')
+                    ->form([
+                        Select::make('tanggal')
+                            ->label('Tanggal')
+                            ->options(
+                                collect(range(1, 31))->mapWithKeys(fn ($d) => [$d => $d])->toArray()
+                            )
+                            ->default(Carbon::now()->day)
+                            ->placeholder('Semua Tanggal'),
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder =>
+                        $query->when($data['tanggal'] ?? null, fn (Builder $q, $v) => $q->whereDay('tanggal', $v))
+                    )
+                    ->indicateUsing(fn (array $data): ?string => $data['tanggal'] ? 'Tanggal: ' . $data['tanggal'] : null),
             ])
             ->recordActions([
                 ViewAction::make(),
