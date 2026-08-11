@@ -37,11 +37,11 @@ class AbsensiHariansTable
         return $table
             ->modifyQueryUsing(function ($query) use ($currentUser) {
                 $query->with(['user', 'logMasuk', 'logPulang']);
-                
+
                 if ($currentUser && ! $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan'])) {
                     $query->where('user_id', $currentUser->id);
                 }
-                
+
                 return $query;
             })
             ->columns([
@@ -50,7 +50,7 @@ class AbsensiHariansTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('tanggal')
-                    ->date()
+                    ->date('d-M-Y')
                     ->sortable(),
                 TextColumn::make('jam_masuk')
                     ->time('H:i:s')
