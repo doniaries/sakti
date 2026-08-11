@@ -999,7 +999,7 @@ class DataPegawaiSeeder extends Seeder
                 }
             }
 
-            $user = User::firstOrCreate(
+            $user = User::updateOrCreate(
                 ['nip' => $item['nip']],
                 $item
             );
