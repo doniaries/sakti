@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 
 class AbsensiHarian extends Model
 {
@@ -35,6 +36,29 @@ class AbsensiHarian extends Model
         'is_absen_mesin' => 'boolean',
         'is_absen_mobile' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($model) {
+            $files = ['foto_masuk', 'foto_pulang', 'bukti'];
+            foreach ($files as $file) {
+                if ($model->isDirty($file) && ($oldFile = $model->getOriginal($file))) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+            }
+        });
+
+        static::deleting(function ($model) {
+            $files = ['foto_masuk', 'foto_pulang', 'bukti'];
+            foreach ($files as $file) {
+                if ($model->$file) {
+                    Storage::disk('public')->delete($model->$file);
+                }
+            }
+        });
+    }
 
     public function user(): BelongsTo
     {
