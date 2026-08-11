@@ -48,33 +48,42 @@ class LhkResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Informasi Kehadiran')
                     ->schema([
                         DatePicker::make('tanggal')
                             ->required()
-                            ->default(request()->query('tanggal', now())),
+                            ->default(request()->query('tanggal', now()))
+                            ->columnSpan(1),
                         Select::make('user_id')
                             ->relationship('user', 'name')
                             ->required()
                             ->default(request()->query('user_id', Auth::id()))
-                            ->searchable(),
+                            ->searchable()
+                            ->columnSpan(1),
                         Select::make('log_absensi_masuk_id')
                             ->relationship('logAbsensiMasuk', 'waktu_absensi')
                             ->default(request()->query('log_absensi_masuk_id'))
-                            ->label('Absensi Masuk'),
+                            ->label('Absensi Masuk')
+                            ->columnSpan(1),
                         Select::make('log_absensi_pulang_id')
                             ->relationship('logAbsensiPulang', 'waktu_absensi')
                             ->default(request()->query('log_absensi_pulang_id'))
-                            ->label('Absensi Pulang'),
+                            ->label('Absensi Pulang')
+                            ->columnSpan(1),
                         Select::make('status')
                             ->options([
                                 'Hadir' => 'Hadir',
                                 'Sakit' => 'Sakit',
                                 'Izin' => 'Izin',
                                 'Dinas Luar' => 'Dinas Luar'
-                            ])->default(request()->query('status', 'Hadir')),
-                    ])->columns(2),
+                            ])
+                            ->default(request()->query('status', 'Hadir'))
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull(),
 
                 Section::make('Rincian Pekerjaan')
                     ->schema([
@@ -82,18 +91,23 @@ class LhkResource extends Resource
                             ->relationship('pekerjaans')
                             ->schema([
                                 Forms\Components\TimePicker::make('jam_mulai')
-                                    ->required(),
+                                    ->required()
+                                    ->columnSpan(1),
                                 Forms\Components\TimePicker::make('jam_selesai')
-                                    ->required(),
+                                    ->required()
+                                    ->columnSpan(1),
                                 Forms\Components\TextInput::make('lama_menit')
                                     ->numeric()
-                                    ->default(0),
+                                    ->default(0)
+                                    ->columnSpan(1),
                                 Forms\Components\Select::make('rencana_aksi_id')
                                     ->relationship('rencanaAksi', 'nama')
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->columnSpan(1),
                                 Forms\Components\Select::make('aktivitas_id')
                                     ->relationship('aktivitas', 'nama')
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->columnSpanFull(),
                                 Forms\Components\Textarea::make('hasil_pekerjaan')
                                     ->columnSpanFull(),
                                 Forms\Components\TextInput::make('bukti_url')
@@ -101,10 +115,11 @@ class LhkResource extends Resource
                                     ->label('Link Bukti')
                                     ->columnSpanFull(),
                             ])
-                            ->columns(2)
+                            ->columns(4)
                             ->collapsible()
                             ->defaultItems(1)
                     ])
+                    ->columnSpanFull(),
             ]);
     }
 

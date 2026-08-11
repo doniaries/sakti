@@ -21,7 +21,7 @@ class AbsensiHariansTable
     public static function configure(Table $table): Table
     {
         /** @var \App\Models\User|null $currentUser */
-        $currentUser = auth()->user();
+        $currentUser = \Illuminate\Support\Facades\Auth::user();
 
         return $table
             ->filtersLayout(FiltersLayout::AboveContent)
@@ -74,7 +74,7 @@ class AbsensiHariansTable
                         Select::make('user_id')
                             ->label('Nama Pegawai')
                             ->options(
-                                User::orderBy('name')->pluck('name', 'id')->toArray()
+                                User::orderBy('name')->pluck('name', 'id')->all()
                             )
                             ->default($currentUser?->id)
                             ->searchable()
@@ -85,7 +85,7 @@ class AbsensiHariansTable
                     )
                     ->indicateUsing(function (array $data): ?string {
                         if (! $data['user_id']) return null;
-                        return 'Pegawai: ' . (User::find($data['user_id'])?->name ?? '-');
+                        return 'Pegawai: ' . (User::find((int) $data['user_id'])?->name ?? '-');
                     }),
 
                 Filter::make('tahun')
