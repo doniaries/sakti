@@ -20,13 +20,20 @@ class MesinAbsensiResource extends Resource
 {
     protected static ?string $model = MesinAbsensi::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Pengaturan Sistem';
     protected static ?string $modelLabel = 'Mesin Absensi';
-    protected static ?string $pluralModelLabel = 'Mesin Absensi';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $pluralModelLabel = 'Pengaturan Mesin';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Pengaturan';
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedComputerDesktop;
 
     protected static ?string $recordTitleAttribute = 'nama';
+
+    public static function canCreate(): bool
+    {
+        return MesinAbsensi::count() === 0;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -57,10 +64,5 @@ class MesinAbsensiResource extends Resource
             'create' => CreateMesinAbsensi::route('/create'),
             'view' => ViewMesinAbsensi::route('/{record}'),
         ];
-    }
-
-    public static function canCreate(): bool
-    {
-        return static::getModel()::count() === 0;
     }
 }

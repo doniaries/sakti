@@ -38,7 +38,7 @@ class MesinAbsensisTable
                 ToggleColumn::make('aktif')
                     ->sortable(),
                 TextColumn::make('sinkronisasi_terakhir')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])
             ->filters([

@@ -20,7 +20,7 @@ class AbsensiMobileForm
                     ->searchable()
                     ->preload()
                     ->required(),
-                DateTimePicker::make('waktu_absensi')
+                DateTimePicker::make('waktu_absensi')->displayFormat('d/m/Y H:i')
                     ->displayFormat('d/m/Y H:i')
                     ->required(),
                 Select::make('jenis')

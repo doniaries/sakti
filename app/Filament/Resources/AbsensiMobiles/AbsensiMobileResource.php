@@ -20,11 +20,11 @@ class AbsensiMobileResource extends Resource
 {
     protected static ?string $model = AbsensiMobile::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Data Absensi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
     protected static ?string $modelLabel = 'Absensi Mobile';
-    protected static ?string $pluralModelLabel = 'Absensi Mobile';
+    protected static ?string $pluralModelLabel = 'Data Absensi Mobile';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDevicePhoneMobile;
 
     public static function form(Schema $schema): Schema
     {

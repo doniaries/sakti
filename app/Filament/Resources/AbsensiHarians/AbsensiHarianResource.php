@@ -20,11 +20,11 @@ class AbsensiHarianResource extends Resource
 {
     protected static ?string $model = AbsensiHarian::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Data Absensi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
     protected static ?string $modelLabel = 'Absensi Harian';
-    protected static ?string $pluralModelLabel = 'Absensi Harian';
+    protected static ?string $pluralModelLabel = 'Data Absensi Harian';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     public static function form(Schema $schema): Schema
     {

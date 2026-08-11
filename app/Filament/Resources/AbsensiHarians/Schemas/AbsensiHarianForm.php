@@ -19,7 +19,7 @@ class AbsensiHarianForm
                     ->searchable()
                     ->preload()
                     ->required(),
-                DatePicker::make('tanggal')
+                DatePicker::make('tanggal')->displayFormat('d/m/Y')
                     ->displayFormat('d/m/Y')
                     ->required(),
                 TimePicker::make('jam_masuk')

@@ -24,6 +24,18 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'nip',
+        'nomor_absensi',
+        'aktif',
+        'jabatan_id',
+        'bidang_id',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'pangkat_golongan',
+        'tmt_pangkat',
+        'pendidikan',
+        'jenis_kelamin',
+        'eselon',
     ];
 
     /**
@@ -62,5 +74,15 @@ class User extends Authenticatable
     public function absensiMobile(): HasMany
     {
         return $this->hasMany(AbsensiMobile::class);
+    }
+
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class);
+    }
+
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class);
     }
 }

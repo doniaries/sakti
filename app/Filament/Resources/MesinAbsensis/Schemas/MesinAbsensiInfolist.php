@@ -23,11 +23,11 @@ class MesinAbsensiInfolist
                 IconEntry::make('aktif')
                     ->boolean(),
                 TextEntry::make('sinkronisasi_terakhir')
-                    ->dateTime(),
+                    ->dateTime('d/m/Y H:i'),
                 TextEntry::make('created_at')
-                    ->dateTime(),
+                    ->dateTime('d/m/Y H:i'),
                 TextEntry::make('updated_at')
-                    ->dateTime(),
+                    ->dateTime('d/m/Y H:i'),
             ]);
     }
 }
