@@ -36,12 +36,18 @@ class AdminPanelProvider extends PanelProvider
             ->profile(\App\Filament\Pages\EditProfile::class)
             ->userMenuItems([
                 MenuItem::make()
-                    ->label(fn () => \Illuminate\Support\Facades\Auth::user()?->name ?? 'User')
+                    ->label(fn() => \Illuminate\Support\Facades\Auth::user()?->name ?? 'User')
                     ->icon('heroicon-m-user-circle')
-                    ->url(fn (): string => \App\Filament\Pages\EditProfile::getUrl()),
+                    ->url(fn(): string => \App\Filament\Pages\EditProfile::getUrl()),
                 'profile' => MenuItem::make()
                     ->label('Edit Profil')
                     ->icon('heroicon-m-pencil-square'),
+            ])
+
+            ->navigationGroups([
+                'Master Data',
+                'LHK',
+                'Pengaturan',
             ])
             ->colors([
                 'primary' => Color::Amber,
