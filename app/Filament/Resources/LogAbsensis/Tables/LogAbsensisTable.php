@@ -32,23 +32,24 @@ class LogAbsensisTable
                     ->label('Pegawai')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('mesinAbsensi.nama')
+                /*   TextColumn::make('mesinAbsensi.nama')
                     ->label('Mesin')
                     ->sortable()
-                    ->searchable(),
-                TextColumn::make('nomor_absensi')
-                    ->searchable(),
+                    ->searchable(), */
+                /* TextColumn::make('nomor_absensi')
+                    ->searchable(), */
                 TextColumn::make('waktu_absensi')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
-                TextColumn::make('sumber')
-                    ->searchable(),
+                /* TextColumn::make('perangkat')
+                    ->searchable(), */
                 TextColumn::make('metode_verifikasi')
                     ->searchable(),
-                TextColumn::make('kode_kerja')
+                TextColumn::make('jenis')
                     ->searchable(),
                 TextColumn::make('kode_log_asli')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('bulan_tahun')
@@ -84,11 +85,11 @@ class LogAbsensisTable
                         return $query
                             ->when(
                                 $data['bulan'] ?? null,
-                                fn (Builder $query, $bulan): Builder => $query->whereMonth('waktu_absensi', $bulan)
+                                fn(Builder $query, $bulan): Builder => $query->whereMonth('waktu_absensi', $bulan)
                             )
                             ->when(
                                 $data['tahun'] ?? null,
-                                fn (Builder $query, $tahun): Builder => $query->whereYear('waktu_absensi', $tahun)
+                                fn(Builder $query, $tahun): Builder => $query->whereYear('waktu_absensi', $tahun)
                             );
                     })
             ])
@@ -172,9 +173,9 @@ class LogAbsensisTable
                                         'mesin_absensi_id'  => $mesin->id,
                                         'nomor_absensi'     => $pin,
                                         'waktu_absensi'     => $waktu,
-                                        'sumber'            => 'mesin',
+                                        'perangkat'         => 'mesin',
                                         'metode_verifikasi' => $log['type'] ?? null,
-                                        'kode_kerja'        => $log['state'] ?? null,
+                                        'jenis'             => $log['state'] ?? null,
                                         'kode_log_asli'     => $log['uid'] ?? null,
                                         'created_at'        => now(),
                                         'updated_at'        => now(),
@@ -219,7 +220,6 @@ class LogAbsensisTable
                                 ->success()
                                 ->persistent()
                                 ->send();
-
                         } catch (\Exception $e) {
                             Notification::make()
                                 ->title('Gagal terhubung ke mesin: ' . $e->getMessage())

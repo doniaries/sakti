@@ -28,14 +28,14 @@ return new class extends Migration
 
             $table->dateTime('waktu_absensi');
 
-            $table->enum('sumber', [
+            $table->enum('perangkat', [
                 'mesin',
                 'mobile',
             ])->default('mesin');
 
             $table->string('metode_verifikasi')->nullable();
 
-            $table->string('kode_kerja')->nullable();
+            $table->string('jenis')->nullable();
 
             // ID log dari mesin, jika tersedia.
             $table->string('kode_log_asli')->nullable();

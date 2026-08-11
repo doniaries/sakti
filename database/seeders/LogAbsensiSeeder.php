@@ -44,22 +44,22 @@ class LogAbsensiSeeder extends Seeder
 
                     // Seeder Masuk (Apel Pagi dengan Mesin)
                     $logMasuk = LogAbsensi::updateOrCreate(
-                        ['user_id' => $user->id, 'kode_kerja' => 'masuk', 'waktu_absensi' => $jamMasuk],
+                        ['user_id' => $user->id, 'jenis' => 'masuk', 'waktu_absensi' => $jamMasuk],
                         [
                             'mesin_absensi_id' => 1,
                             'nomor_absensi' => $user->id,
-                            'sumber' => 'mesin',
+                            'perangkat' => 'mesin',
                             'metode_verifikasi' => 'fingerprint',
                         ]
                     );
 
                     // Seeder Pulang (Menggunakan Mobile App)
                     $logPulang = LogAbsensi::updateOrCreate(
-                        ['user_id' => $user->id, 'kode_kerja' => 'pulang', 'waktu_absensi' => $jamPulang],
+                        ['user_id' => $user->id, 'jenis' => 'pulang', 'waktu_absensi' => $jamPulang],
                         [
                             'mesin_absensi_id' => null,
                             'nomor_absensi' => $user->id,
-                            'sumber' => 'mobile',
+                            'perangkat' => 'mobile',
                             'metode_verifikasi' => 'gps',
                         ]
                     );

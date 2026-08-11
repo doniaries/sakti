@@ -14,9 +14,9 @@ class LogAbsensi extends Model
         'mesin_absensi_id',
         'nomor_absensi',
         'waktu_absensi',
-        'sumber',
+        'perangkat',
         'metode_verifikasi',
-        'kode_kerja',
+        'jenis',
         'kode_log_asli',
         'data_asli',
     ];

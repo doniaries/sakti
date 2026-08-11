@@ -27,7 +27,7 @@ class LogAbsensiForm
                 DateTimePicker::make('waktu_absensi')->displayFormat('d/m/Y H:i')
                     ->displayFormat('d/m/Y H:i')
                     ->required(),
-                Select::make('sumber')
+                Select::make('perangkat')
                     ->options([
                         'mesin' => 'Mesin',
                         'mobile' => 'Mobile',
@@ -36,7 +36,7 @@ class LogAbsensiForm
                     ->required(),
                 TextInput::make('metode_verifikasi')
                     ->maxLength(255),
-                TextInput::make('kode_kerja')
+                TextInput::make('jenis')
                     ->maxLength(255),
                 TextInput::make('kode_log_asli')
                     ->maxLength(255),
