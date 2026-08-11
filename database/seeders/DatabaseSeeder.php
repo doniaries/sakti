@@ -24,7 +24,11 @@ class DatabaseSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $pegawaiRole = Role::firstOrCreate(['name' => 'pegawai', 'guard_name' => 'web']);
 
-        // 3. Beri Permission ke Role Admin (Semua kecuali Role)
+        // 3. Beri Semua Permission ke Role Super Admin
+        $allPermissions = Permission::all();
+        $superAdminRole->syncPermissions($allPermissions);
+
+        // 3.5. Beri Permission ke Role Admin (Semua kecuali Role)
         $allPermissions = Permission::all();
         $adminPermissions = $allPermissions->filter(function ($permission) {
             return !str_contains($permission->name, 'role') && !str_contains($permission->name, 'permission');
