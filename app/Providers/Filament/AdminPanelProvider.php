@@ -8,6 +8,7 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
+use Filament\Navigation\MenuItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -33,6 +34,15 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('16rem')
             ->login()
             ->profile(\App\Filament\Pages\EditProfile::class)
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label(fn () => auth()->user()?->name ?? 'User')
+                    ->icon('heroicon-m-user-circle')
+                    ->url(fn (): string => \App\Filament\Pages\EditProfile::getUrl()),
+                'profile' => MenuItem::make()
+                    ->label('Edit Profil')
+                    ->icon('heroicon-m-pencil-square'),
+            ])
             ->colors([
                 'primary' => Color::Amber,
             ])
