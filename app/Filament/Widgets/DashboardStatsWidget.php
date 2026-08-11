@@ -30,11 +30,11 @@ class DashboardStatsWidget extends StatsOverviewWidget
             ->color('primary'),
 
             Stat::make('Jumlah Pegawai', \App\Models\User::role('pegawai')->count())
-                ->description('Total pengguna berstatus pegawai')
+                ->description('Total pengguna berstatus pegawai (Keseluruhan)')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary'),
             Stat::make('Jumlah Bidang', \App\Models\Bidang::count())
-                ->description('Total bidang terdaftar')
+                ->description('Total bidang terdaftar (Keseluruhan)')
                 ->descriptionIcon('heroicon-m-rectangle-group')
                 ->color('success'),
         ];

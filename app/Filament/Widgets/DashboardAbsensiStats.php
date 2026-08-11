@@ -27,19 +27,19 @@ class DashboardAbsensiStats extends BaseWidget
 
         return [
             Stat::make('Hadir', $hadir)
-                ->description('Hadir hari ini')
+                ->description('Hadir hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
             Stat::make('Sakit', $sakit)
-                ->description('Sakit hari ini')
+                ->description('Sakit hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-plus-circle')
                 ->color('warning'),
             Stat::make('Izin', $izin)
-                ->description('Izin hari ini')
+                ->description('Izin hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
-                ->description('Tanpa keterangan hari ini')
+                ->description('Tanpa keterangan hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-x-circle')
                 ->color('danger'),
         ];

@@ -17,6 +17,10 @@ class RolePermissionSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'Admin', 'guard_name' => 'web']);
         $pegawaiRole = Role::firstOrCreate(['name' => 'Pegawai', 'guard_name' => 'web']);
 
+        // Buat permissions widget jika belum ada agar seeder tidak error karena data kosong
+        Permission::firstOrCreate(['name' => 'View:PegawaiAbsensiBulanChartWidget', 'guard_name' => 'web']);
+        Permission::firstOrCreate(['name' => 'View:PegawaiAbsensiBulanStatsWidget', 'guard_name' => 'web']);
+
         // === 1. Setup Role Admin ===
         // Admin bisa melakukan semuanya kecuali mengatur Role (Management Role/Permissions)
         $adminPermissions = Permission::where('name', 'not like', '%Role%')->get();
@@ -36,8 +40,10 @@ class RolePermissionSeeder extends Seeder
             'Delete:Lhk',
             'View:User',
             'Update:User',
-            'View:DashboardStatsWidget',
-            'View:LatestAbsensiWidget'
+            // Allow them to see these widgets:
+            'View:LatestAbsensiWidget',
+            'View:PegawaiAbsensiBulanChartWidget',
+            'View:PegawaiAbsensiBulanStatsWidget'
         ])->get();
         
         $pegawaiRole->syncPermissions($pegawaiPermissions);
