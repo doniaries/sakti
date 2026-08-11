@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('aktivitas', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('kode')->nullable();
             $table->string('nama_aktivitas');
             $table->integer('menit')->default(0);

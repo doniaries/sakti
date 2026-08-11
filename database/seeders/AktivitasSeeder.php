@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Aktivitas;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -13,6 +14,8 @@ class AktivitasSeeder extends Seeder
      */
     public function run(): void
     {
+        $doni = User::where('name', 'like', '%doni aries%')->first();
+        
         $data = [
             ['kode' => '1010', 'nama_aktivitas' => 'Mengikuti Apel Pagi', 'menit' => 30],
             ['kode' => '8445626886', 'nama_aktivitas' => 'Mengikuti sosialisasi/bimtek/rapat/pelatihan/diklat secara daring (zoom/google meet)', 'menit' => 180],
@@ -41,9 +44,11 @@ class AktivitasSeeder extends Seeder
             ['kode' => '9264579876', 'nama_aktivitas' => 'Menghadiri undangan dari Nagari, Instansi,sekolah, lembaga keagamaan dan Rumah Ibadah', 'menit' => 120],
             ['kode' => '9668979227', 'nama_aktivitas' => 'Mereview draf naskah edukasi/informasi panduan wisata untuk pengunjung di lokasi objek wisata.', 'menit' => 30],
             ['kode' => '9697878543', 'nama_aktivitas' => 'Menghadiri sosialisasi dikabupaten', 'menit' => 90],
+            ['kode' => '8617833076', 'nama_aktivitas' => 'Membuat, menganalisa, menyusun narasi, mendesain dan mengunggah info grafis terkait data kunjungan wisatawan ke Sumatera Barat melalui media sosial.', 'menit' => 300],
         ];
 
         foreach ($data as $item) {
+            $item['user_id'] = $doni ? $doni->id : null;
             Aktivitas::updateOrCreate(
                 ['kode' => $item['kode']],
                 $item
