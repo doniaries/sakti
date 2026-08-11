@@ -36,7 +36,11 @@ class ZKTecoService
      */
     public function disconnect()
     {
-        return $this->zk->disconnect();
+        try {
+            return $this->zk->disconnect();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -46,11 +50,14 @@ class ZKTecoService
      */
     public function getUsers()
     {
-        $this->connect();
-        $users = $this->zk->getUser();
-        $this->disconnect();
-
-        return $users;
+        try {
+            $this->connect();
+            $users = $this->zk->getUser();
+            $this->disconnect();
+            return $users;
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**
@@ -58,11 +65,14 @@ class ZKTecoService
      */
     public function setUser($uid, $userid, $name, $password = '', $role = 0, $cardno = 0)
     {
-        $this->connect();
-        $result = $this->zk->setUser($uid, $userid, $name, $password, $role, $cardno);
-        $this->disconnect();
-
-        return $result;
+        try {
+            $this->connect();
+            $result = $this->zk->setUser($uid, $userid, $name, $password, $role, $cardno);
+            $this->disconnect();
+            return $result;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -70,11 +80,14 @@ class ZKTecoService
      */
     public function clearUsers()
     {
-        $this->connect();
-        $result = $this->zk->clearUsers();
-        $this->disconnect();
-
-        return $result;
+        try {
+            $this->connect();
+            $result = $this->zk->clearUsers();
+            $this->disconnect();
+            return $result;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 
     /**
@@ -84,11 +97,14 @@ class ZKTecoService
      */
     public function getAttendance()
     {
-        $this->connect();
-        $attendance = $this->zk->getAttendance();
-        $this->disconnect();
-
-        return $attendance;
+        try {
+            $this->connect();
+            $attendance = $this->zk->getAttendance();
+            $this->disconnect();
+            return $attendance ?: [];
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**
@@ -96,10 +112,13 @@ class ZKTecoService
      */
     public function clearAttendance()
     {
-        $this->connect();
-        $result = $this->zk->clearAttendance();
-        $this->disconnect();
-
-        return $result;
+        try {
+            $this->connect();
+            $result = $this->zk->clearAttendance();
+            $this->disconnect();
+            return $result;
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }
