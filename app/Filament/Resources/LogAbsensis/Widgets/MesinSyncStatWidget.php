@@ -15,10 +15,11 @@ class MesinSyncStatWidget extends StatsOverviewWidget
             return []; // Sembunyikan widget jika belum ada sinkronisasi
         }
 
-        $tanggal = \Carbon\Carbon::parse($mesin->sinkronisasi_terakhir)->translatedFormat('d F Y H:i:s');
+        $tanggal = \Carbon\Carbon::parse($mesin->sinkronisasi_terakhir)->locale('id')->translatedFormat('d F Y');
+        $jam = \Carbon\Carbon::parse($mesin->sinkronisasi_terakhir)->format('H:i:s');
 
         return [
-            Stat::make('Sinkronisasi Terakhir', $tanggal)
+            Stat::make('Sinkronisasi Terakhir', new \Illuminate\Support\HtmlString($tanggal . '<br><span class="text-xl">' . $jam . '</span>'))
                 ->description('Dari Mesin: ' . $mesin->nama)
                 ->descriptionIcon('heroicon-m-arrow-path')
                 ->color('success'),
