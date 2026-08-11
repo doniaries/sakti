@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum GolonganRuang: string
+use Filament\Support\Contracts\HasLabel;
+
+enum GolonganRuang: string implements HasLabel
 {
     // Golongan I (Juru)
     case I_A = 'I/a';

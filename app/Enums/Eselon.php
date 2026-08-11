@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum Eselon: string
+use Filament\Support\Contracts\HasLabel;
+
+enum Eselon: string implements HasLabel
 {
     case II_A = 'II.a';
     case II_B = 'II.b';

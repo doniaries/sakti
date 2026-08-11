@@ -54,9 +54,9 @@ class LogAbsensiResource extends Resource
     {
         return [
             'index' => ListLogAbsensis::route('/'),
-            'create' => CreateLogAbsensi::route('/create'),
-            'view' => ViewLogAbsensi::route('/{record}'),
-            'edit' => EditLogAbsensi::route('/{record}/edit'),
+            // 'create' => CreateLogAbsensi::route('/create'),
+            // 'view' => ViewLogAbsensi::route('/{record}'),
+            // 'edit' => EditLogAbsensi::route('/{record}/edit'),
         ];
     }
 }

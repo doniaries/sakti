@@ -49,7 +49,7 @@ class UserResource extends Resource
         $query = parent::getEloquentQuery();
 
         /** @var \App\Models\User|null $user */
-        $user = auth()->user();
+        $user = \Illuminate\Support\Facades\Auth::user();
         if ($user && !$user->hasRole('super_admin')) {
             $query->whereDoesntHave('roles', function ($q) {
                 $q->where('name', 'super_admin');

@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\MesinAbsensis\Tables;
 
+use App\Services\ZKTecoService;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -29,7 +32,6 @@ class MesinAbsensisTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('port')
-                    ->numeric()
                     ->sortable(),
                 TextColumn::make('nomor_seri')
                     ->searchable(),
@@ -47,6 +49,36 @@ class MesinAbsensisTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('test_koneksi')
+                    ->label('Test Koneksi')
+                    ->icon('heroicon-o-signal')
+                    ->color('info')
+                    ->action(function ($record) {
+                        try {
+                            $service = new ZKTecoService($record->alamat_ip, $record->port);
+                            $connected = $service->connect();
+                            $service->disconnect();
+
+                            if ($connected) {
+                                Notification::make()
+                                    ->title('✅ Koneksi LAN ke ' . $record->nama . ' berhasil!')
+                                    ->body('IP: ' . $record->alamat_ip . ' | Port: ' . $record->port)
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('❌ Gagal terhubung ke ' . $record->nama)
+                                    ->body('Pastikan mesin menyala, kabel LAN terpasang, dan IP sudah benar.')
+                                    ->danger()
+                                    ->send();
+                            }
+                        } catch (\Exception $e) {
+                            Notification::make()
+                                ->title('❌ Error: ' . $e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

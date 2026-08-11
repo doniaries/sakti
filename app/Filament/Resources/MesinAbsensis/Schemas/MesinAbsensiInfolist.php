@@ -16,8 +16,7 @@ class MesinAbsensiInfolist
                 TextEntry::make('merek'),
                 TextEntry::make('model'),
                 TextEntry::make('alamat_ip'),
-                TextEntry::make('port')
-                    ->numeric(),
+                TextEntry::make('port'),
                 TextEntry::make('nomor_seri'),
                 TextEntry::make('jenis_koneksi'),
                 IconEntry::make('aktif')

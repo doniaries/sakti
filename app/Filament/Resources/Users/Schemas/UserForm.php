@@ -27,10 +27,14 @@ class UserForm
                     ->maxLength(255),
                 \Filament\Forms\Components\TextInput::make('password')
                     ->password()
+                    ->placeholder('Jika Password tidak dirubah, abaikan...')
+                    ->revealable()
                     ->required(fn($operation) => $operation === 'create')
                     ->maxLength(255)
                     ->dehydrated(fn($state) => filled($state)),
                 \Filament\Forms\Components\TextInput::make('nip')
+                    ->mask('99999999 999999 9 999')
+                    ->placeholder('Contoh: 19720407 199202 1 002')
                     ->maxLength(30),
                 \Filament\Forms\Components\TextInput::make('nomor_absensi')
                     ->maxLength(50),

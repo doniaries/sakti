@@ -24,7 +24,6 @@ class MesinAbsensiForm
                     ->required()
                     ->maxLength(255),
                 TextInput::make('port')
-                    ->numeric()
                     ->default(4370),
                 TextInput::make('nomor_seri')
                     ->maxLength(255),
