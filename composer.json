@@ -12,7 +12,8 @@
         "laravel-lang/common": "^6.8",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "rats/zkteco": "^002.0"
+        "rats/zkteco": "^002.0",
+        "wikimedia/composer-merge-plugin": "^2.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -71,7 +72,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "minimum-stability": "dev",

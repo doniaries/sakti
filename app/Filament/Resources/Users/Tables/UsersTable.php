@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class UsersTable
@@ -44,7 +45,11 @@ class UsersTable
                 \Filament\Tables\Columns\ToggleColumn::make('aktif'),
             ])
             ->filters([
-                //
+                SelectFilter::make('jabatan_id')
+                    ->label('Jabatan')
+                    ->relationship('jabatan', 'nama')
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -7,14 +7,19 @@ use App\Models\MesinAbsensi;
 use App\Models\User;
 use App\Services\AbsensiHarianService;
 use App\Services\ZKTecoService;
-use Filament\Actions\Action;
+
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class LogAbsensisTable
 {
@@ -46,15 +51,56 @@ class LogAbsensisTable
                     ->searchable(),
             ])
             ->filters([
-                //
+                Filter::make('bulan_tahun')
+                    ->form([
+                        Select::make('bulan')
+                            ->label('Bulan')
+                            ->options([
+                                '01' => 'Januari',
+                                '02' => 'Februari',
+                                '03' => 'Maret',
+                                '04' => 'April',
+                                '05' => 'Mei',
+                                '06' => 'Juni',
+                                '07' => 'Juli',
+                                '08' => 'Agustus',
+                                '09' => 'September',
+                                '10' => 'Oktober',
+                                '11' => 'November',
+                                '12' => 'Desember',
+                            ]),
+                        Select::make('tahun')
+                            ->label('Tahun')
+                            ->options(function () {
+                                $years = [];
+                                $currentYear = (int) date('Y');
+                                for ($i = $currentYear - 5; $i <= $currentYear; $i++) {
+                                    $years[$i] = $i;
+                                }
+                                return $years;
+                            }),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['bulan'] ?? null,
+                                fn (Builder $query, $bulan): Builder => $query->whereMonth('waktu_absensi', $bulan)
+                            )
+                            ->when(
+                                $data['tahun'] ?? null,
+                                fn (Builder $query, $tahun): Builder => $query->whereYear('waktu_absensi', $tahun)
+                            );
+                    })
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                //
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->action(function (Collection $records) {
+                            $records->toQuery()->delete();
+                        }),
                 ]),
             ])
             ->headerActions([
@@ -62,7 +108,17 @@ class LogAbsensisTable
                     ->label('Tarik Log Absensi Mesin')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
-                    ->action(function () {
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('tanggal_awal')
+                            ->label('Dari Tanggal')
+                            ->default(now()->startOfMonth())
+                            ->required(),
+                        \Filament\Forms\Components\DatePicker::make('tanggal_akhir')
+                            ->label('Sampai Tanggal')
+                            ->default(now()->endOfMonth())
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
                         $mesin = MesinAbsensi::where('aktif', true)->first();
                         if (!$mesin) {
                             Notification::make()
@@ -79,20 +135,39 @@ class LogAbsensisTable
                             $newLogs = 0;
                             $tanggalDiproses = [];
 
+                            $tglAwal = Carbon::parse($data['tanggal_awal'])->startOfDay();
+                            $tglAkhir = Carbon::parse($data['tanggal_akhir'])->endOfDay();
+
+                            // Optimasi: Ambil semua user sekali saja
+                            $usersByPin = User::query()->whereNotNull('nomor_absensi')
+                                ->get()
+                                ->keyBy('nomor_absensi');
+
+                            // Optimasi: Ambil log yang sudah ada dalam rentang tanggal
+                            $existingLogs = LogAbsensi::whereBetween('waktu_absensi', [$tglAwal, $tglAkhir])
+                                ->get()
+                                ->map(fn($log) => $log->nomor_absensi . '|' . $log->waktu_absensi)
+                                ->flip()
+                                ->toArray();
+
+                            $inserts = [];
+
                             foreach ($attendance as $log) {
                                 $pin   = $log['id'];
-                                $waktu = date('Y-m-d H:i:s', strtotime($log['timestamp']));
+                                $waktuCarbon = Carbon::parse($log['timestamp']);
 
-                                // Cari user berdasarkan nomor_absensi (PIN)
-                                $user = User::where('nomor_absensi', $pin)->first();
+                                // Skip jika tidak berada dalam rentang tanggal yang dipilih
+                                if ($waktuCarbon->lt($tglAwal) || $waktuCarbon->gt($tglAkhir)) {
+                                    continue;
+                                }
+
+                                $waktu = $waktuCarbon->format('Y-m-d H:i:s');
+                                $user = $usersByPin->get($pin);
+                                $key = $pin . '|' . $waktu;
 
                                 // Simpan hanya jika log belum ada
-                                $exists = LogAbsensi::where('nomor_absensi', $pin)
-                                    ->where('waktu_absensi', $waktu)
-                                    ->exists();
-
-                                if (!$exists) {
-                                    LogAbsensi::create([
+                                if (!isset($existingLogs[$key]) && !isset($inserts[$key])) {
+                                    $inserts[$key] = [
                                         'user_id'           => $user?->id,
                                         'mesin_absensi_id'  => $mesin->id,
                                         'nomor_absensi'     => $pin,
@@ -101,18 +176,25 @@ class LogAbsensisTable
                                         'metode_verifikasi' => $log['type'] ?? null,
                                         'kode_kerja'        => $log['state'] ?? null,
                                         'kode_log_asli'     => $log['uid'] ?? null,
-                                    ]);
+                                        'created_at'        => now(),
+                                        'updated_at'        => now(),
+                                    ];
                                     $newLogs++;
 
                                     // Kumpulkan user_id + tanggal yang perlu diproses
                                     if ($user) {
-                                        $tanggal = date('Y-m-d', strtotime($waktu));
+                                        $tanggal = $waktuCarbon->format('Y-m-d');
                                         $tanggalDiproses[$user->id . '|' . $tanggal] = [
                                             'user_id' => $user->id,
                                             'tanggal' => $tanggal,
                                         ];
                                     }
                                 }
+                            }
+
+                            // Insert batch agar jauh lebih cepat
+                            foreach (array_chunk($inserts, 500) as $chunk) {
+                                LogAbsensi::insert($chunk);
                             }
 
                             // Perbarui sinkronisasi_terakhir mesin
@@ -125,14 +207,17 @@ class LogAbsensisTable
                                 $prosesCount += $absensiService->prosesLog($item['tanggal'], $item['user_id']);
                             }
 
-                            $message = "Berhasil menarik $newLogs log absensi baru.";
+                            $message = "✅ <strong>Berhasil menarik $newLogs log absensi baru.</strong><br>";
                             if ($prosesCount > 0) {
-                                $message .= " $prosesCount data absensi harian diperbarui.";
+                                $message .= "🔄 $prosesCount data absensi harian diperbarui.<br>";
                             }
+                            $message .= "⏱️ Waktu: " . now()->format('d/m/Y H:i:s');
 
                             Notification::make()
-                                ->title($message)
+                                ->title('Hasil Tarik Log Absensi')
+                                ->body($message)
                                 ->success()
+                                ->persistent()
                                 ->send();
 
                         } catch (\Exception $e) {
@@ -166,10 +251,12 @@ class LogAbsensisTable
                             $service->disconnect();
 
                             if ($connected) {
+                                $serverIp = getHostByName(getHostName());
                                 Notification::make()
                                     ->title('✅ Koneksi LAN berhasil!')
-                                    ->body($mesin->nama . ' · IP: ' . $mesin->alamat_ip . ' · Port: ' . $mesin->port)
+                                    ->body($mesin->nama . ' · IP Mesin: ' . $mesin->alamat_ip . ' · Port: ' . $mesin->port . '<br>💻 IP Komputer Server: ' . $serverIp)
                                     ->success()
+                                    ->persistent()
                                     ->send();
                             } else {
                                 Notification::make()
@@ -188,4 +275,3 @@ class LogAbsensisTable
             ]);
     }
 }
-
