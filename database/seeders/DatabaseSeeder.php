@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             BidangSeeder::class,
             JabatanSeeder::class,
             MesinAbsensiSeeder::class,
+            LhkSeeder::class,
         ]);
 
         // 3. Generate ulang permission secara dinamis berdasarkan model & panel terkini
