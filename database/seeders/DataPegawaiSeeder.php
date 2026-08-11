@@ -65,7 +65,30 @@ class DataPegawaiSeeder extends Seeder
                 ['nip' => $item['nip']],
                 $item
             );
+            $user->nomor_absensi = (string)$user->id;
+            $user->save();
             $user->assignRole('pegawai');
+        }
+
+        // --- Atur Akun Khusus ---
+        $doni = User::where('name', 'LIKE', '%DONI ARIES%')->first();
+        if ($doni) {
+            $doni->update([
+                'email' => 'superadmin@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
+                'aktif' => true,
+            ]);
+            $doni->syncRoles(['super_admin', 'pegawai']);
+        }
+
+        $zulfitri = User::where('name', 'LIKE', '%ZULFITRI%')->first();
+        if ($zulfitri) {
+            $zulfitri->update([
+                'email' => 'admin@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('admin'),
+                'aktif' => true,
+            ]);
+            $zulfitri->syncRoles(['admin', 'pegawai']);
         }
     }
 }

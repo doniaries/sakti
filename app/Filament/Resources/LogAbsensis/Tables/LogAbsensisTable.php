@@ -139,7 +139,7 @@ class LogAbsensisTable
                             $tglAkhir = Carbon::parse($data['tanggal_akhir'])->endOfDay();
 
                             // Optimasi: Ambil semua user sekali saja
-                            $usersByPin = User::query()->whereNotNull('nomor_absensi')
+                            $usersByPin = User::query()->where('nomor_absensi', '!=', null)
                                 ->get()
                                 ->keyBy('nomor_absensi');
 

@@ -60,6 +60,18 @@ class ZKTecoService
     }
 
     /**
+     * Clear all users from machine (DANGER)
+     */
+    public function clearUsers()
+    {
+        $this->connect();
+        $result = $this->zk->clearUsers();
+        $this->disconnect();
+
+        return $result;
+    }
+
+    /**
      * Get attendance logs from machine
      * Returns array of attendance with structure:
      * [uid, id (PIN), state, timestamp, type]

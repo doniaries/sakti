@@ -33,26 +33,5 @@ class UserSeeder extends Seeder
         });
         $pegawaiRole->syncPermissions($pegawaiPermissions);
 
-        // 5. Buat Akun Super Admin
-        $superAdmin = User::firstOrCreate([
-            'email' => 'superadmin@gmail.com',
-        ], [
-            'name' => 'Super Administrator',
-            'password' => bcrypt('@Iamsuperadmin'),
-            'aktif' => true,
-        ]);
-        $superAdmin->assignRole($superAdminRole);
-
-        // 6. Buat Akun Admin
-        $admin = User::firstOrCreate([
-            'email' => 'admin@gmail.com',
-        ], [
-            'name' => 'Admin',
-            'password' => bcrypt('admin'),
-            'aktif' => true,
-        ]);
-        $admin->assignRole($adminRole);
-
-
     }
 }

@@ -22,6 +22,11 @@ class UsersTable
                     ->disk('public')
                     ->label('Avatar')
                     ->circular(),
+                \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
+                    ->label('ID Mesin')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
                 \Filament\Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
@@ -33,17 +38,22 @@ class UsersTable
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('jabatan.nama')
                     ->label('Jabatan')
+                    ->badge()
+                    ->color(fn($state) => match (true) {
+                        str_contains($state ?? '', 'Kepala Dinas') => 'danger',
+                        str_contains($state ?? '', 'Sekretaris') => 'warning',
+                        str_contains($state ?? '', 'Kabid') => 'success',
+                        str_contains($state ?? '', 'Kasi') => 'info',
+                        str_contains($state ?? '', 'Fungsional') => 'primary',
+                        default => 'gray',
+                    })
                     ->searchable()
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->searchable()
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
-                    ->label('ID Mesin')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(),
+
                 \Filament\Tables\Columns\TextColumn::make('roles.name')->badge(),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif'),
             ])
@@ -61,7 +71,7 @@ class UsersTable
                     ->label('Hubungkan ke Mesin')
                     ->icon('heroicon-o-link')
                     ->color('warning')
-                    ->visible(fn (\App\Models\User $record) => empty($record->nomor_absensi))
+                    ->visible(fn(\App\Models\User $record) => empty($record->nomor_absensi))
                     ->form([
                         Select::make('nomor_absensi')
                             ->label('Pilih Nama dari Mesin')
@@ -71,8 +81,8 @@ class UsersTable
                                 try {
                                     $service = new \App\Services\ZKTecoService($mesin->alamat_ip, $mesin->port);
                                     $users = $service->getUsers();
-                                    $existingPins = \App\Models\User::whereNotNull('nomor_absensi')->pluck('nomor_absensi')->toArray();
-                                    
+                                    $existingPins = \App\Models\User::where('nomor_absensi', '!=', null)->pluck('nomor_absensi')->toArray();
+
                                     $options = [];
                                     foreach ($users as $u) {
                                         if (!in_array($u['userid'], $existingPins)) {
@@ -117,17 +127,17 @@ class UsersTable
 
                         try {
                             $service = new \App\Services\ZKTecoService($mesin->alamat_ip, $mesin->port);
-                            
+
                             $uid = $record->id < 65000 ? $record->id : rand(100, 65000);
                             $pin = $data['nomor_absensi'];
                             $name = substr($record->name, 0, 24); // Maksimal 24 karakter
-                            
+
                             $service->setUser($uid, $pin, $name, '', 0, 0);
-                            
+
                             if ($record->nomor_absensi != $pin) {
                                 $record->update(['nomor_absensi' => $pin]);
                             }
-                            
+
                             Notification::make()->title('Data pegawai berhasil dikirim & didaftarkan ke mesin!')->success()->send();
                         } catch (\Exception $e) {
                             Notification::make()->title('Gagal mengirim ke mesin: ' . $e->getMessage())->danger()->send();
@@ -142,7 +152,7 @@ class UsersTable
                         ->icon('heroicon-o-paper-airplane')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->modalDescription('Pastikan pegawai yang dipilih sudah memiliki Nomor Absensi (PIN) di sistem. Pegawai tanpa PIN akan dilewati. Lanjutkan?')
+                        ->modalDescription('Pegawai yang belum memiliki PIN/ID Mesin akan otomatis menggunakan ID Web-nya sebagai PIN di mesin. Lanjutkan mengirim data terpilih ke mesin?')
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
                             $mesin = \App\Models\MesinAbsensi::where('aktif', true)->first();
                             if (!$mesin) {
@@ -153,17 +163,21 @@ class UsersTable
                             try {
                                 $service = new \App\Services\ZKTecoService($mesin->alamat_ip, $mesin->port);
                                 $berhasil = 0;
-                                
+
                                 foreach ($records as $record) {
-                                    if (empty($record->nomor_absensi)) continue;
-                                    
+                                    $pin = $record->nomor_absensi;
+                                    if (empty($pin)) {
+                                        $pin = (string)$record->id;
+                                        $record->update(['nomor_absensi' => $pin]);
+                                    }
+
                                     $uid = $record->id < 65000 ? $record->id : rand(100, 65000);
                                     $name = substr($record->name, 0, 24);
-                                    
-                                    $service->setUser($uid, $record->nomor_absensi, $name, '', 0, 0);
+
+                                    $service->setUser($uid, $pin, $name, '', 0, 0);
                                     $berhasil++;
                                 }
-                                
+
                                 Notification::make()->title("Berhasil mengirim $berhasil data pegawai ke mesin!")->success()->send();
                             } catch (\Exception $e) {
                                 Notification::make()->title('Gagal mengirim ke mesin: ' . $e->getMessage())->danger()->send();
@@ -172,7 +186,7 @@ class UsersTable
                 ]),
             ])
             ->headerActions([
-                Action::make('sync_mesin')
+                /* Action::make('sync_mesin')
                     ->label('Tarik Pegawai Mesin (Buat Baru)')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
@@ -234,7 +248,6 @@ class UsersTable
                         }
                     })
                     ->modalHeading('Tarik Pegawai dari Mesin Absensi')
-                    ->modalDescription('Pilih nama-nama pegawai dari mesin yang belum ada di database untuk dibuatkan akun barunya.'),
-            ]);
+                    ->modalDescription('Pilih nama-nama pegawai dari mesin yang belum ada di database untuk dibuatkan akun barunya.'), */]);
     }
 }
