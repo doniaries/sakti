@@ -14,6 +14,12 @@ class AktivitasTable
     {
         return $table
             ->columns([
+                TextColumn::make('jabatan.nama_jabatan')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('bidang.nama_bidang')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('kode')
                     ->searchable(),
                 TextColumn::make('nama_aktivitas')

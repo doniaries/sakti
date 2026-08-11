@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('rencana_aksis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('jabatan_id')->nullable()->constrained('jabatans')->cascadeOnDelete();
+            $table->foreignId('bidang_id')->nullable()->constrained('bidangs')->cascadeOnDelete();
             $table->year('tahun')->default(date('Y'));
             $table->text('sasaran_opd')->nullable();
             $table->text('sasaran_program')->nullable();

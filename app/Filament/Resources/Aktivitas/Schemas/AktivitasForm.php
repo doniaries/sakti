@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Aktivitas\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -11,6 +12,12 @@ class AktivitasForm
     {
         return $schema
             ->components([
+                Select::make('jabatan_id')
+                    ->relationship('jabatan', 'nama_jabatan')
+                    ->required(),
+                Select::make('bidang_id')
+                    ->relationship('bidang', 'nama_bidang')
+                    ->required(),
                 TextInput::make('kode'),
                 TextInput::make('nama_aktivitas')
                     ->required(),

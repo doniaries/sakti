@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('aktivitas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('jabatan_id')->nullable()->constrained('jabatans')->cascadeOnDelete();
+            $table->foreignId('bidang_id')->nullable()->constrained('bidangs')->cascadeOnDelete();
             $table->string('kode')->nullable();
             $table->string('nama_aktivitas');
             $table->integer('menit')->default(0);
-            $table->unique(['user_id', 'nama_aktivitas']);
+            $table->unique(['jabatan_id', 'bidang_id', 'nama_aktivitas'], 'aktivitas_jabatan_bidang_nama_unique');
             $table->timestamps();
         });
     }

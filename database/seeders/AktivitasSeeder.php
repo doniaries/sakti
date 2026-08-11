@@ -62,18 +62,22 @@ class AktivitasSeeder extends Seeder
 
         foreach ($users as $user) {
             foreach ($aktivitasList as $item) {
-                Aktivitas::updateOrCreate(
-                    [
-                        'user_id' => $user->id,
+                // Determine if this activity already exists for this jabatan and bidang
+                $exists = Aktivitas::where('jabatan_id', $user->jabatan_id)
+                    ->where('bidang_id', $user->bidang_id)
+                    ->where('nama_aktivitas', $item['nama_aktivitas'])
+                    ->exists();
+                
+                if (!$exists) {
+                    Aktivitas::create([
+                        'jabatan_id' => $user->jabatan_id,
+                        'bidang_id' => $user->bidang_id,
                         'nama_aktivitas' => $item['nama_aktivitas'],
-                    ],
-                    [
                         'kode' => (string) $kodeCounter,
                         'menit' => $item['menit'],
-                    ]
-                );
-                
-                $kodeCounter++;
+                    ]);
+                    $kodeCounter++;
+                }
             }
         }
     }

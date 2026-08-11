@@ -13,8 +13,10 @@ class RencanaAksiForm
     {
         return $schema
             ->components([
-                Select::make('user_id')
-                    ->relationship('user', 'name'),
+                Select::make('jabatan_id')
+                    ->relationship('jabatan', 'nama_jabatan'),
+                Select::make('bidang_id')
+                    ->relationship('bidang', 'nama_bidang'),
                 TextInput::make('tahun')
                     ->required()
                     ->default('2026'),

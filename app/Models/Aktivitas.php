@@ -6,10 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Aktivitas extends Model
 {
-    protected $fillable = ['user_id', 'kode', 'nama_aktivitas', 'menit'];
+    protected $fillable = ['jabatan_id', 'bidang_id', 'kode', 'nama_aktivitas', 'menit'];
 
-    public function user()
+    public function jabatan()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Jabatan::class);
+    }
+
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class);
     }
 }

@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RencanaAksi extends Model
 {
     protected $fillable = [
-        'user_id',
+        'jabatan_id',
+        'bidang_id',
         'tahun',
         'sasaran_opd',
         'sasaran_program',
@@ -31,8 +32,13 @@ class RencanaAksi extends Model
         'target_des',
     ];
 
-    public function user(): BelongsTo
+    public function jabatan(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Jabatan::class);
+    }
+
+    public function bidang(): BelongsTo
+    {
+        return $this->belongsTo(Bidang::class);
     }
 }

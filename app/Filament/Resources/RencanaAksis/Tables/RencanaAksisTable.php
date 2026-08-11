@@ -14,8 +14,9 @@ class RencanaAksisTable
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')
-                    ->numeric()
+                TextColumn::make('jabatan.nama_jabatan')
+                    ->sortable(),
+                TextColumn::make('bidang.nama_bidang')
                     ->sortable(),
                 TextColumn::make('tahun'),
                 TextColumn::make('target_jan')
