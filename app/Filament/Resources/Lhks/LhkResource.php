@@ -22,21 +22,25 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LhkResource extends Resource
 {
-    protected static ?string $model = Lhk::class;
 
     protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    protected static string|\UnitEnum|null $navigationGroup = 'LHK';
+    protected static ?string $model = Lhk::class;
+    protected static ?string $modelLabel = 'LHK';
+    protected static ?string $pluralModelLabel = 'Data LHK';
 
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         /** @var \App\Models\User|null $user */
         $user = auth()->user();
-        
+
         if ($user && $user->hasRole('Pegawai')) {
             $query->where('user_id', $user->id);
         }
-        
+
         return $query;
     }
 

@@ -23,9 +23,15 @@ class DataPegawaiSeeder extends Seeder
         $dataRaw = json_decode(file_get_contents($jsonPath), true);
 
         $data = [];
+        $defaultPassword = \Illuminate\Support\Facades\Hash::make('password');
+        
         foreach ($dataRaw as $row) {
+            $nama = $row['nama'] ?? '';
+            $namaTanpaGelar = trim(explode(',', $nama)[0]);
+            $emailPrefix = strtolower(str_replace([' ', '.'], '', $namaTanpaGelar));
+            
             $data[] = [
-                'name' => $row['nama'] ?? null,
+                'name' => $nama,
                 'nip' => $row['nip'] ?? null,
                 'jabatan' => $row['jabatan'] ?? null,
                 'pendidikan' => $row['pendidikan'] ?? null,
@@ -34,8 +40,8 @@ class DataPegawaiSeeder extends Seeder
                 'tempat_lahir' => $row['tempat_lahir'] ?? null,
                 'tanggal_lahir' => $row['tanggal_lahir'] ?? null,
                 'nomor_absensi' => $row['nomor_absensi'] ?? null,
-                'email' => strtolower(str_replace([' ', ',', '.'], '', $row['nama'] ?? '')) . '@sijunjung.go.id',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'email' => $emailPrefix . '@sijunjung.go.id',
+                'password' => $defaultPassword,
             ];
         }
 
