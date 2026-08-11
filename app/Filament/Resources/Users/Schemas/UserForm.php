@@ -10,65 +10,88 @@ class UserForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\FileUpload::make('avatar_url')
-                    ->label('Avatar')
-                    ->avatar()
-                    ->image()
-                    ->disk('public')
-                    ->directory('avatars')
-                    ->maxSize(2048)
-                    ->columnSpanFull(),
-                \Filament\Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                \Filament\Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
-                \Filament\Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->placeholder('Jika Password tidak dirubah, abaikan...')
-                    ->revealable()
-                    ->required(fn($operation) => $operation === 'create')
-                    ->maxLength(255)
-                    ->dehydrated(fn($state) => filled($state)),
-                \Filament\Forms\Components\TextInput::make('nip')
-                    ->mask('99999999 999999 9 999')
-                    ->placeholder('Contoh: 19720407 199202 1 002')
-                    ->maxLength(30),
-                \Filament\Forms\Components\TextInput::make('nomor_absensi')
-                    ->maxLength(50),
-                \Filament\Forms\Components\Select::make('bidang_id')
-                    ->relationship('bidang', 'nama')
-                    ->searchable()
-                    ->preload(),
-                \Filament\Forms\Components\Select::make('jabatan_id')
-                    ->relationship('jabatan', 'nama')
-                    ->searchable()
-                    ->preload(),
-                \Filament\Forms\Components\Select::make('atasan_id')
-                    ->label('Atasan Langsung')
-                    ->relationship('atasan', 'name')
-                    ->searchable()
-                    ->preload(),
-                \Filament\Forms\Components\Select::make('roles')
-                    ->relationship('roles', 'name', function ($query) {
-                        /** @var \App\Models\User|null $user */
-                        $user = \Illuminate\Support\Facades\Auth::user();
-                        return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
-                    })
-                    ->multiple()
-                    ->preload()
-                    ->searchable(),
-                \Filament\Forms\Components\Select::make('jenis_kelamin')
-                    ->options(\App\Enums\JenisKelamin::class),
-                \Filament\Forms\Components\Select::make('pangkat_golongan')
-                    ->options(\App\Enums\GolonganRuang::class)
-                    ->searchable(),
-                \Filament\Forms\Components\Select::make('eselon')
-                    ->options(\App\Enums\Eselon::class),
-                \Filament\Forms\Components\Toggle::make('aktif')
-                    ->default(true),
+                \Filament\Forms\Components\Section::make('Profil Pegawai')
+                    ->schema([
+                        \Filament\Forms\Components\FileUpload::make('avatar_url')
+                            ->label('Foto Profil (Avatar)')
+                            ->avatar()
+                            ->image()
+                            ->disk('public')
+                            ->directory('avatars')
+                            ->maxSize(2048)
+                            ->columnSpanFull()
+                            ->alignCenter(),
+                        \Filament\Forms\Components\TextInput::make('name')
+                            ->label('Nama Lengkap')
+                            ->required()
+                            ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('email')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                        \Filament\Forms\Components\TextInput::make('password')
+                            ->password()
+                            ->placeholder('Abaikan jika tidak ingin merubah...')
+                            ->revealable()
+                            ->required(fn($operation) => $operation === 'create')
+                            ->maxLength(255)
+                            ->dehydrated(fn($state) => filled($state)),
+                        \Filament\Forms\Components\Toggle::make('aktif')
+                            ->label('Status Akun Aktif')
+                            ->default(true)
+                            ->inline(false),
+                    ])->columns(2),
+
+                \Filament\Forms\Components\Section::make('Detail Kepegawaian & Posisi')
+                    ->schema([
+                        \Filament\Forms\Components\TextInput::make('nip')
+                            ->label('NIP')
+                            ->mask('99999999 999999 9 999')
+                            ->placeholder('Contoh: 19720407 199202 1 002')
+                            ->maxLength(30),
+                        \Filament\Forms\Components\TextInput::make('nomor_absensi')
+                            ->label('ID Mesin (PIN)')
+                            ->maxLength(50),
+                        \Filament\Forms\Components\Select::make('bidang_id')
+                            ->label('Bidang')
+                            ->relationship('bidang', 'nama')
+                            ->searchable()
+                            ->preload(),
+                        \Filament\Forms\Components\Select::make('jabatan_id')
+                            ->label('Jabatan')
+                            ->relationship('jabatan', 'nama')
+                            ->searchable()
+                            ->preload(),
+                        \Filament\Forms\Components\Select::make('atasan_id')
+                            ->label('Atasan Langsung')
+                            ->relationship('atasan', 'name')
+                            ->searchable()
+                            ->preload(),
+                        \Filament\Forms\Components\Select::make('roles')
+                            ->label('Hak Akses (Role)')
+                            ->relationship('roles', 'name', function ($query) {
+                                /** @var \App\Models\User|null $user */
+                                $user = \Illuminate\Support\Facades\Auth::user();
+                                return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
+                            })
+                            ->multiple()
+                            ->preload()
+                            ->searchable(),
+                    ])->columns(2),
+
+                \Filament\Forms\Components\Section::make('Informasi Tambahan')
+                    ->schema([
+                        \Filament\Forms\Components\Select::make('jenis_kelamin')
+                            ->label('Jenis Kelamin')
+                            ->options(\App\Enums\JenisKelamin::class),
+                        \Filament\Forms\Components\Select::make('pangkat_golongan')
+                            ->label('Pangkat / Golongan Ruang')
+                            ->options(\App\Enums\GolonganRuang::class)
+                            ->searchable(),
+                        \Filament\Forms\Components\Select::make('eselon')
+                            ->label('Eselon')
+                            ->options(\App\Enums\Eselon::class),
+                    ])->columns(3),
             ]);
     }
 }

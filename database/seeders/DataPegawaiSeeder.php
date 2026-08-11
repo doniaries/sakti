@@ -21,7 +21,7 @@ class DataPegawaiSeeder extends Seeder
         }
 
         $dataRaw = json_decode(file_get_contents($jsonPath), true);
-        
+
         $data = [];
         foreach ($dataRaw as $row) {
             $data[] = [
