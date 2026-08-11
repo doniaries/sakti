@@ -32,6 +32,9 @@ class DatabaseSeeder extends Seeder
             '--no-interaction' => true,
         ]);
         
+        // 4. Set otomatis permissions untuk Admin dan Pegawai
+        $this->call(RolePermissionSeeder::class);
+        
         $this->command->info('Shield permissions generated successfully.');
     }
 }
