@@ -20,7 +20,7 @@ class MesinAbsensiResource extends Resource
 {
     protected static ?string $model = MesinAbsensi::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Pengaturan Sistem';
     protected static ?string $modelLabel = 'Mesin Absensi';
     protected static ?string $pluralModelLabel = 'Mesin Absensi';
 
@@ -56,7 +56,11 @@ class MesinAbsensiResource extends Resource
             'index' => ListMesinAbsensis::route('/'),
             'create' => CreateMesinAbsensi::route('/create'),
             'view' => ViewMesinAbsensi::route('/{record}'),
-            'edit' => EditMesinAbsensi::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::getModel()::count() === 0;
     }
 }
