@@ -19,9 +19,9 @@ class UserForm
                     ->maxLength(255),
                 \Filament\Forms\Components\TextInput::make('password')
                     ->password()
-                    ->required(fn ($operation) => $operation === 'create')
+                    ->required(fn($operation) => $operation === 'create')
                     ->maxLength(255)
-                    ->dehydrated(fn ($state) => filled($state)),
+                    ->dehydrated(fn($state) => filled($state)),
                 \Filament\Forms\Components\TextInput::make('nip')
                     ->maxLength(30),
                 \Filament\Forms\Components\TextInput::make('nomor_absensi')
@@ -40,7 +40,11 @@ class UserForm
                     ->searchable()
                     ->preload(),
                 \Filament\Forms\Components\Select::make('roles')
-                    ->relationship('roles', 'name', fn ($query) => auth()->user()->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin'))
+                    ->relationship('roles', 'name', function ($query) {
+                        /** @var \App\Models\User|null $user */
+                        $user = auth()->user();
+                        return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
+                    })
                     ->multiple()
                     ->preload()
                     ->searchable(),

@@ -23,9 +23,18 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('nip')
                     ->searchable()
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
+                \Filament\Tables\Columns\TextColumn::make('jabatan.nama')
+                    ->label('Jabatan')
                     ->searchable()
                     ->sortable(),
+                \Filament\Tables\Columns\TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->searchable()
+                    ->sortable(),
+                \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('roles.name')->badge(),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif'),
             ])
