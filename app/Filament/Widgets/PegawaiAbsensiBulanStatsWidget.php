@@ -31,21 +31,23 @@ class PegawaiAbsensiBulanStatsWidget extends BaseWidget
         $izin = $absensi->where('status', 'Izin')->count();
         $tanpaKeterangan = $absensi->where('status', 'Tanpa Keterangan')->count();
 
+        $userName = $user ? $user->name : 'Pribadi';
+
         return [
             Stat::make('Hadir', $hadir)
-                ->description('Hadir bulan ini (Pribadi)')
+                ->description("Hadir bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
             Stat::make('Sakit', $sakit)
-                ->description('Sakit bulan ini (Pribadi)')
+                ->description("Sakit bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-plus-circle')
                 ->color('warning'),
             Stat::make('Izin', $izin)
-                ->description('Izin bulan ini (Pribadi)')
+                ->description("Izin bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
-                ->description('Tanpa keterangan bulan ini (Pribadi)')
+                ->description("Tanpa keterangan bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-x-circle')
                 ->color('danger'),
         ];

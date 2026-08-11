@@ -13,7 +13,10 @@ class PegawaiAbsensiBulanChartWidget extends ChartWidget
 
     public function getHeading(): string
     {
-        return 'Rekap Absensi Bulanan (Pribadi)';
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        $userName = $user ? $user->name : 'Pribadi';
+        return "Rekap Absensi Bulanan ({$userName})";
     }
     protected static ?int $sort = 3;
     protected ?string $maxHeight = '300px';
