@@ -15,7 +15,7 @@ class AbsensiHariansTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'logMasuk', 'logPulang']))
+            ->modifyQueryUsing(fn($query) => $query->with(['user', 'logMasuk', 'logPulang']))
             ->columns([
                 TextColumn::make('user.name')
                     ->numeric()
@@ -27,16 +27,16 @@ class AbsensiHariansTable
                 TextColumn::make('jam_masuk')
                     ->time('H:i')
                     ->sortable()
-                    ->icon(fn ($record) => $record->logMasuk?->sumber === 'mesin' ? 'heroicon-m-finger-print' : ($record->logMasuk?->sumber === 'mobile' ? 'heroicon-m-device-phone-mobile' : null))
-                    ->iconColor(fn ($record) => $record->logMasuk?->sumber === 'mesin' ? 'info' : 'success'),
+                    ->icon(fn($record) => $record->logMasuk?->sumber === 'mesin' ? 'heroicon-m-finger-print' : ($record->logMasuk?->sumber === 'mobile' ? 'heroicon-m-device-phone-mobile' : null))
+                    ->iconColor(fn($record) => $record->logMasuk?->sumber === 'mesin' ? 'info' : 'success'),
                 TextColumn::make('jam_pulang')
                     ->time('H:i')
                     ->sortable()
-                    ->icon(fn ($record) => $record->logPulang?->sumber === 'mesin' ? 'heroicon-m-finger-print' : ($record->logPulang?->sumber === 'mobile' ? 'heroicon-m-device-phone-mobile' : null))
-                    ->iconColor(fn ($record) => $record->logPulang?->sumber === 'mesin' ? 'info' : 'success'),
+                    ->icon(fn($record) => $record->logPulang?->sumber === 'mesin' ? 'heroicon-m-finger-print' : ($record->logPulang?->sumber === 'mobile' ? 'heroicon-m-device-phone-mobile' : null))
+                    ->iconColor(fn($record) => $record->logPulang?->sumber === 'mesin' ? 'info' : 'success'),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(?string $state): string => match ($state) {
                         'hadir' => 'success',
                         'terlambat' => 'warning',
                         'tidak_hadir' => 'danger',
@@ -46,7 +46,16 @@ class AbsensiHariansTable
                         default => 'gray',
                     })
                     ->searchable(),
+                TextColumn::make('status_apel')
+                    ->badge()
+                    ->color(fn(?string $state): string => match ($state) {
+                        'ikut apel' => 'success',
+                        'tidak ikut apel' => 'danger',
+                        default => 'gray',
+                    })
+                    ->searchable(),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([
                 //
             ])
