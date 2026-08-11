@@ -3,17 +3,10 @@
 namespace App\Filament\Resources\Lhks;
 
 use App\Filament\Resources\Lhks\Pages;
-use App\Filament\Resources\Lhks\Pages\CreateLhk;
-use App\Filament\Resources\Lhks\Pages\EditLhk;
-use App\Filament\Resources\Lhks\Pages\ListLhks;
 use App\Filament\Resources\Lhks\Schemas\LhkForm;
 use App\Models\Lhk;
 use BackedEnum;
-use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
@@ -23,7 +16,6 @@ use Illuminate\Support\Facades\Auth;
 
 class LhkResource extends Resource
 {
-
     protected static BackedEnum|string|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static string|\UnitEnum|null $navigationGroup = 'LHK';
@@ -47,156 +39,37 @@ class LhkResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->columns(1)
-            ->components([
-                Section::make('Informasi Kehadiran')
-                    ->schema([
-                        DatePicker::make('tanggal')
-                            ->required()
-                            ->default(request()->query('tanggal', now()))
-                            ->columnSpan(1),
-                        Select::make('user_id')
-                            ->relationship('user', 'name')
-                            ->required()
-                            ->default(request()->query('user_id', Auth::id()))
-                            ->searchable()
-                            ->columnSpan(1),
-                        Select::make('log_absensi_masuk_id')
-                            ->relationship('logAbsensiMasuk', 'waktu_absensi', fn ($query) => $query->orderBy('waktu_absensi'))
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->waktu_absensi?->format('H:i') . ' (' . $record->sumber . ')')
-                            ->default(request()->query('log_absensi_masuk_id'))
-                            ->label('Absensi Masuk')
-                            ->columnSpan(1),
-                        Select::make('log_absensi_pulang_id')
-                            ->relationship('logAbsensiPulang', 'waktu_absensi', fn ($query) => $query->orderBy('waktu_absensi'))
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->waktu_absensi?->format('H:i') . ' (' . $record->sumber . ')')
-                            ->default(request()->query('log_absensi_pulang_id'))
-                            ->label('Absensi Pulang')
-                            ->columnSpan(1),
-                        Select::make('status')
-                            ->options([
-                                'Hadir' => 'Hadir',
-                                'Sakit' => 'Sakit',
-                                'Izin' => 'Izin',
-                                'Dinas Luar' => 'Dinas Luar',
-                            ])
-                            ->default(request()->query('status', 'Hadir'))
-                            ->extraAttributes(['class' => 'text-xs'])
-                            ->columnSpan(1),
-                    ])
-                    ->columns(4)
-                    ->columnSpanFull(),
-
-                Section::make('Rincian Pekerjaan')
-                    ->schema([
-                        Forms\Components\Repeater::make('pekerjaans')
-                            ->relationship('pekerjaans')
-                            ->schema([
-                                // 1. Aktivitas (menentukan lama menit & jam selesai)
-                                Forms\Components\Select::make('aktivitas_id')
-                                    ->relationship('aktivitas', 'nama')
-                                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->nama . ' (' . $record->menit . ' menit)')
-                                    ->searchable()
-                                    ->preload()
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        if ($state) {
-                                            $aktivitas = \App\Models\Aktivitas::find((int) $state);
-                                            $menit = $aktivitas?->menit ?? 0;
-                                            $set('lama_menit', $menit);
-                                            $jamMulai = $get('jam_mulai');
-                                            if ($jamMulai && $menit > 0) {
-                                                $set('jam_selesai', \Carbon\Carbon::createFromFormat('H:i', substr($jamMulai, 0, 5))->addMinutes((int)$menit)->format('H:i'));
-                                            }
-                                        } else {
-                                            $set('lama_menit', 0);
-                                        }
-                                    })
-                                    ->label('Aktivitas')
-                                    ->columnSpan(1),
-
-                                // 2. Rencana Aksi
-                                Forms\Components\Select::make('rencana_aksi_id')
-                                    ->relationship('rencanaAksi', 'nama')
-                                    ->searchable()
-                                    ->preload()
-                                    ->label('Rencana Aksi')
-                                    ->columnSpan(1),
-
-                                // 3. Lama menit (auto dari aktivitas)
-                                Forms\Components\TextInput::make('lama_menit')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->suffix('menit')
-                                    ->readOnly()
-                                    ->label('Lama (menit)')
-                                    ->columnSpan(1),
-
-                                // 4. Jam mulai (H:i tanpa detik)
-                                Forms\Components\TimePicker::make('jam_mulai')
-                                    ->required()
-                                    ->seconds(false)
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $lamaMenit = (int) ($get('lama_menit') ?? 0);
-                                        if ($state && $lamaMenit > 0) {
-                                            $set('jam_selesai', \Carbon\Carbon::createFromFormat('H:i', substr($state, 0, 5))->addMinutes($lamaMenit)->format('H:i'));
-                                        }
-                                    })
-                                    ->label('Jam Mulai')
-                                    ->columnSpan(1),
-
-                                // 5. Jam selesai (auto)
-                                Forms\Components\TimePicker::make('jam_selesai')
-                                    ->required()
-                                    ->seconds(false)
-                                    ->label('Jam Selesai')
-                                    ->columnSpan(1),
-
-                                // 6. Hasil & Bukti (full width)
-                                Forms\Components\Textarea::make('hasil_pekerjaan')
-                                    ->rows(2)
-                                    ->columnSpanFull(),
-                                Forms\Components\TextInput::make('bukti_url')
-                                    ->url()
-                                    ->label('Link Bukti')
-                                    ->columnSpanFull(),
-                            ])
-                            ->columns(3)
-                            ->collapsible()
-                            ->defaultItems(1)
-                            ->addActionLabel('+ Tambah Pekerjaan')
-                    ])
-                    ->columnSpanFull(),
-            ]);
+        return LhkForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn($query) => $query->with(['user', 'pekerjaans', 'logAbsensiMasuk', 'logAbsensiPulang']))
+            ->modifyQueryUsing(fn ($query) => $query->with(['user', 'pekerjaans', 'logAbsensiMasuk', 'logAbsensiPulang']))
             ->columns([
                 Tables\Columns\TextColumn::make('tanggal')
                     ->date()
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Pegawai')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('logAbsensiMasuk.waktu_absensi')
                     ->label('Masuk')
-                    ->time(),
+                    ->time('H:i'),
                 Tables\Columns\TextColumn::make('logAbsensiPulang.waktu_absensi')
                     ->label('Pulang')
-                    ->time(),
+                    ->time('H:i'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
-                    ->colors([
-                        'success' => 'Hadir',
-                        'warning' => 'Sakit',
-                        'danger' => fn($state) => in_array($state, ['Izin', 'Dinas Luar']),
-                    ]),
+                    ->color(fn (string $state): string => match ($state) {
+                        'Hadir'      => 'success',
+                        'Sakit'      => 'warning',
+                        'Izin'       => 'danger',
+                        'Dinas Luar' => 'info',
+                        default      => 'gray',
+                    }),
                 Tables\Columns\IconColumn::make('is_approved')
                     ->boolean()
                     ->label('Approved?'),
@@ -219,9 +92,9 @@ class LhkResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListLhks::route('/'),
+            'index'  => Pages\ListLhks::route('/'),
             'create' => Pages\CreateLhk::route('/create'),
-            'edit' => Pages\EditLhk::route('/{record}/edit'),
+            'edit'   => Pages\EditLhk::route('/{record}/edit'),
         ];
     }
 }

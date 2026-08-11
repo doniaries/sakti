@@ -7,8 +7,6 @@ use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
@@ -87,7 +85,7 @@ class LhkForm
                                     ->searchable()
                                     ->preload()
                                     ->live()
-                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                    ->afterStateUpdated(function ($state, $set, $get) {
                                         if ($state) {
                                             $aktivitas = Aktivitas::find((int) $state);
                                             $menit = $aktivitas?->menit ?? 0;
@@ -130,7 +128,7 @@ class LhkForm
                                     ->required()
                                     ->seconds(false)
                                     ->live()
-                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                    ->afterStateUpdated(function ($state, $set, $get) {
                                         $lamaMenit = (int) ($get('lama_menit') ?? 0);
                                         if ($state && $lamaMenit > 0) {
                                             $set('jam_selesai', Carbon::createFromFormat('H:i', substr($state, 0, 5))

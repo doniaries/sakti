@@ -74,7 +74,7 @@ class AbsensiHariansTable
                         Select::make('user_id')
                             ->label('Nama Pegawai')
                             ->options(
-                                User::orderBy('name')->pluck('name', 'id')->all()
+                                User::orderBy('name')->get(['id', 'name'])->pluck('name', 'id')->toArray()
                             )
                             ->default($currentUser?->id)
                             ->searchable()
@@ -85,8 +85,9 @@ class AbsensiHariansTable
                         $query->when($data['user_id'] ?? null, fn(Builder $q, $v) => $q->where('user_id', $v))
                     )
                     ->indicateUsing(function (array $data): ?string {
-                        if (! $data['user_id']) return null;
-                        return 'Pegawai: ' . (User::find((int) $data['user_id'])?->name ?? '-');
+                        /** @var \App\Models\User|null $pegawai */
+                        $pegawai = User::query()->find((int) $data['user_id']);
+                        return $pegawai ? 'Pegawai: ' . $pegawai->name : null;
                     }),
 
                 Filter::make('tahun')
