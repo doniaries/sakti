@@ -12,7 +12,7 @@ class UserForm
         return $schema
             ->columns(3)
             ->components([
-                \Filament\Forms\Components\Group::make()
+                \Filament\Schemas\Components\Group::make()
                     ->schema([
                         Section::make('Profil Pegawai')
                             ->icon('heroicon-o-user')
@@ -86,7 +86,7 @@ class UserForm
                     ])->columns(2),
                 ])->columnSpan(2),
 
-                \Filament\Forms\Components\Group::make()
+                \Filament\Schemas\Components\Group::make()
                     ->schema([
                         Section::make('Informasi Tambahan')
                             ->icon('heroicon-o-information-circle')
