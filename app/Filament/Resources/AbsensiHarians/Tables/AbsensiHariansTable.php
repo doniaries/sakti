@@ -80,6 +80,8 @@ class AbsensiHariansTable
                     ->searchable(),
             ])
             ->defaultSort('tanggal', 'desc')
+            ->filtersLayout(FiltersLayout::AboveContent)
+            ->filtersFormColumns(4)
             ->filters([
                 Filter::make('pegawai')
                     ->label('Pegawai')
