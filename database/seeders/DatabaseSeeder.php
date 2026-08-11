@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         \Illuminate\Support\Facades\Artisan::call('shield:generate', [
             '--all' => true,
             '--panel' => 'admin',
+            '--no-interaction' => true,
         ]);
         
         $this->command->info('Shield permissions generated successfully.');
