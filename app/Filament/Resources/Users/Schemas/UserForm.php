@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class UserForm
@@ -12,16 +10,23 @@ class UserForm
     {
         return $schema
             ->components([
-                TextInput::make('name')
-                    ->required(),
-                TextInput::make('email')
-                    ->label('Email address')
+                \Filament\Schemas\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                \Filament\Schemas\Components\TextInput::make('email')
                     ->email()
-                    ->required(),
-                DateTimePicker::make('email_verified_at'),
-                TextInput::make('password')
+                    ->required()
+                    ->maxLength(255),
+                \Filament\Schemas\Components\TextInput::make('password')
                     ->password()
-                    ->required(),
+                    ->required(fn ($operation) => $operation === 'create')
+                    ->maxLength(255),
+                \Filament\Schemas\Components\TextInput::make('nip')
+                    ->maxLength(30),
+                \Filament\Schemas\Components\TextInput::make('nomor_absensi')
+                    ->maxLength(50),
+                \Filament\Schemas\Components\Toggle::make('aktif')
+                    ->default(true),
             ]);
     }
 }
