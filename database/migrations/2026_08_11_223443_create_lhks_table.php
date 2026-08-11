@@ -29,6 +29,7 @@ return new class extends Migration
             // Indexes for performance
             $table->index(['user_id', 'tanggal']);
             $table->index('tanggal');
+            $table->index('status_kehadiran');
         });
     }
 

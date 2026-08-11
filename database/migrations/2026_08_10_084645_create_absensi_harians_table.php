@@ -66,6 +66,8 @@ return new class extends Migration
                 'user_id',
                 'tanggal',
             ]);
+            $table->index('tanggal');
+            $table->index('status');
         });
     }
 

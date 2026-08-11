@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('kode')->nullable();
             $table->string('nama_aktivitas');
             $table->integer('menit')->default(0);
+            $table->unique(['user_id', 'nama_aktivitas']);
             $table->timestamps();
         });
     }

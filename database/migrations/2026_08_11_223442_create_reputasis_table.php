@@ -17,6 +17,8 @@ return new class extends Migration
             $table->date('tanggal');
             $table->integer('nilai_reputasi')->default(0);
             $table->text('keterangan')->nullable();
+            
+            $table->index('tanggal');
             $table->timestamps();
         });
     }

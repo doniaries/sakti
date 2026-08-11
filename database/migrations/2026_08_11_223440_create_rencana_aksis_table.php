@@ -37,6 +37,7 @@ return new class extends Migration
             $table->integer('target_nov')->default(0);
             $table->integer('target_des')->default(0);
             
+            $table->index('tahun');
             $table->timestamps();
         });
     }
