@@ -19,6 +19,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class LhkResource extends Resource
 {
@@ -35,7 +36,7 @@ class LhkResource extends Resource
         $query = parent::getEloquentQuery();
 
         /** @var \App\Models\User|null $user */
-        $user = auth()->user();
+        $user = Auth::user();
 
         if ($user && $user->hasRole('Pegawai')) {
             $query->where('user_id', $user->id);
@@ -56,7 +57,7 @@ class LhkResource extends Resource
                         Select::make('user_id')
                             ->relationship('user', 'name')
                             ->required()
-                            ->default(request()->query('user_id', auth()->id()))
+                            ->default(request()->query('user_id', Auth::id()))
                             ->searchable(),
                         Select::make('log_absensi_masuk_id')
                             ->relationship('logAbsensiMasuk', 'waktu_absensi')

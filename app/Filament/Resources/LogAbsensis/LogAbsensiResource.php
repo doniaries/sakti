@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class LogAbsensiResource extends Resource
 {
@@ -34,7 +35,7 @@ class LogAbsensiResource extends Resource
         $query = parent::getEloquentQuery();
         
         /** @var \App\Models\User|null $user */
-        $user = auth()->user();
+        $user = Auth::user();
         
         if ($user && $user->hasRole('Pegawai')) {
             $query->where('user_id', $user->id);
