@@ -87,6 +87,19 @@ class LhkForm
                         Forms\Components\Repeater::make('pekerjaans')
                             ->relationship('pekerjaans')
                             ->schema([
+                                // 2. Rencana Aksi
+                                Select::make('rencana_aksi_id')
+                                    ->label('Rencana Aksi')
+                                    ->options([
+                                        1 => 'Sasaran',
+                                        2 => 'Diluar Sasaran Kinerja',
+                                        3 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
+                                    ])
+                                    ->searchable()
+                                    ->required()
+                                    ->preload()
+                                    ->columnSpan(1),
+
                                 // 1. Aktivitas — menentukan lama menit & jam selesai
                                 Select::make('aktivitas_id')
                                     ->relationship('aktivitas', 'nama_aktivitas')
@@ -116,20 +129,6 @@ class LhkForm
                                         }
                                     })
                                     ->label('Aktivitas')
-                                    ->columnSpan(1),
-
-                                // 2. Rencana Aksi
-                                Select::make('rencana_aksi_id')
-                                    ->label('Rencana Aksi')
-                                    ->options([
-                                        1 => 'Sasaran',
-                                        2 => 'Diluar Sasaran Kinerja',
-                                        3 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
-                                    ])
-                                    ->searchable()
-                                    ->required()
-                                    ->preload()
-                                    ->label('Rencana Aksi')
                                     ->columnSpan(1),
 
                                 // 4. Jam mulai H:i — update jam selesai otomatis

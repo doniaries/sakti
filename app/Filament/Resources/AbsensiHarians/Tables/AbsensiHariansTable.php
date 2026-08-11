@@ -257,6 +257,7 @@ class AbsensiHariansTable
 
                         // ── Tampilkan jam masuk/pulang (read-only) ────────────
                         Section::make('Informasi Kehadiran')
+                            ->extraAttributes(['class' => 'sticky top-0 z-10'])
                             ->schema([
                                 TextEntry::make('info_pegawai')
                                     ->label('Pegawai')
@@ -272,7 +273,7 @@ class AbsensiHariansTable
                                     ->label('Jam Masuk')
                                     ->state(function ($record) {
                                         $log = $record->logMasuk;
-                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : ($record->jam_masuk ? \Carbon\Carbon::parse($record->jam_masuk)->format('H:i') : '-');
+                                        return $log ? ($log->waktu_absensi?->format('H:i:s') . (!empty($log->sumber) ? ' (' . $log->sumber . ')' : '')) : ($record->jam_masuk ? \Carbon\Carbon::parse($record->jam_masuk)->format('H:i:s') : '-');
                                     })
                                     ->badge()
                                     ->color(function ($record) {
@@ -285,7 +286,7 @@ class AbsensiHariansTable
                                     ->label('Jam Pulang')
                                     ->state(function ($record) {
                                         $log = $record->logPulang;
-                                        return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : ($record->jam_pulang ? \Carbon\Carbon::parse($record->jam_pulang)->format('H:i') : '-');
+                                        return $log ? ($log->waktu_absensi?->format('H:i:s') . (!empty($log->sumber) ? ' (' . $log->sumber . ')' : '')) : ($record->jam_pulang ? \Carbon\Carbon::parse($record->jam_pulang)->format('H:i:s') : '-');
                                     })
                                     ->badge()
                                     ->color('success')
@@ -299,7 +300,17 @@ class AbsensiHariansTable
                                 Repeater::make('pekerjaans')
                                     ->label('')
                                     ->schema([
-                                        // 1. Aktivitas
+                                        // 1. Rencana Aksi
+                                        Select::make('rencana_aksi_id')
+                                            ->label('Rencana Aksi')
+                                            ->options([
+                                                1 => 'Diluar Sasaran Kinerja',
+                                                2 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
+                                            ])
+                                            ->searchable()
+                                            ->columnSpan(1),
+
+                                        // 2. Aktivitas
                                         Select::make('aktivitas_id')
                                             ->options(
                                                 Aktivitas::all()->mapWithKeys(function ($r) {
@@ -327,17 +338,6 @@ class AbsensiHariansTable
                                                 }
                                             })
                                             ->label('Aktivitas')
-                                            ->columnSpan(1),
-
-                                        // 2. Rencana Aksi
-                                        Select::make('rencana_aksi_id')
-                                            ->label('Rencana Aksi')
-                                            ->options([
-                                                1 => 'Sasaran',
-                                                2 => 'Diluar Sasaran Kinerja',
-                                                3 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
-                                            ])
-                                            ->searchable()
                                             ->columnSpan(1),
 
                                         // 3. Lama menit (auto, readonly)
