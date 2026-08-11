@@ -14,7 +14,7 @@ class LatestAbsensiWidget extends BaseWidget
     protected static ?int $sort = 3;
 
     protected int | string | array $columnSpan = 'full';
-    
+
     protected static ?string $heading = '5 Log Absensi Terakhir';
 
     public function table(Table $table): Table
@@ -23,7 +23,7 @@ class LatestAbsensiWidget extends BaseWidget
             ->query(
                 LogAbsensi::query()
                     ->with(['user', 'mesinAbsensi'])
-                    ->when(auth()->user()->hasRole('pegawai'), fn ($query) => $query->where('user_id', auth()->id()))
+                    ->when(auth()->user()->hasRole('pegawai'), fn($query) => $query->where('user_id', auth()->id()))
                     ->latest('waktu_absensi')
                     ->limit(5)
             )
@@ -35,9 +35,9 @@ class LatestAbsensiWidget extends BaseWidget
                     ->searchable(),
                 Tables\Columns\TextColumn::make('sumber')
                     ->label('Sumber')
-                    ->getStateUsing(fn ($record) => $record->mesin_absensi_id ? 'Mesin' : 'Aplikasi')
+                    ->getStateUsing(fn($record) => $record->mesin_absensi_id ? 'Mesin' : 'Aplikasi')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Mesin' => 'success',
                         'Aplikasi' => 'info',
                         default => 'gray',
