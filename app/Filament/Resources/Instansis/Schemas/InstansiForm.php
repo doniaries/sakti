@@ -17,7 +17,7 @@ class InstansiForm
                 TextInput::make('nama_dinas')
                     ->required(),
                 Select::make('nama_kepala_dinas')
-                    ->options(\App\Models\User::role('pegawai')->pluck('name', 'name'))
+                    ->options(fn () => \App\Models\User::role('pegawai')->pluck('name', 'name')->toArray())
                     ->searchable()
                     ->placeholder('Pilih Nama Pegawai'),
                 Textarea::make('alamat')
