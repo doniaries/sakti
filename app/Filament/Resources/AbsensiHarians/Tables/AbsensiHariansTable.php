@@ -83,6 +83,7 @@ class AbsensiHariansTable
                     ->label('Buat LHK')
                     ->icon('heroicon-m-document-plus')
                     ->color('info')
+                    ->visible(fn ($record) => !in_array($record->status, ['izin', 'sakit', 'tidak_hadir']))
                     ->url(fn($record) => \App\Filament\Resources\Lhks\LhkResource::getUrl('create', [
                         'tanggal' => $record->tanggal,
                         'user_id' => $record->user_id,
