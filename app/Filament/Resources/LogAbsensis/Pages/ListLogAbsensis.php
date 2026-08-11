@@ -5,6 +5,7 @@ namespace App\Filament\Resources\LogAbsensis\Pages;
 use App\Filament\Resources\LogAbsensis\LogAbsensiResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\LogAbsensis\Widgets\MesinSyncStatWidget;
 
 class ListLogAbsensis extends ListRecords
 {
@@ -14,6 +15,13 @@ class ListLogAbsensis extends ListRecords
     {
         return [
             // CreateAction::make(),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            MesinSyncStatWidget::class,
         ];
     }
 }
