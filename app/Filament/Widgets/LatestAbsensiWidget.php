@@ -21,7 +21,7 @@ class LatestAbsensiWidget extends BaseWidget
             ->query(
                 LogAbsensi::query()
                     ->with(['user', 'mesinAbsensi'])
-                    ->latest('timestamp')
+                    ->latest('waktu_absensi')
                     ->limit(5)
             )
             ->poll('5s')
@@ -30,16 +30,15 @@ class LatestAbsensiWidget extends BaseWidget
                     ->label('Pegawai')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('status')
+                Tables\Columns\TextColumn::make('sumber')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
-                        'Hadir' => 'success',
-                        'Pulang' => 'warning',
-                        'Izin' => 'info',
-                        'Sakit' => 'danger',
+                        'Mesin' => 'success',
+                        'Manual' => 'warning',
+                        'Mobile' => 'info',
                         default => 'gray',
                     }),
-                Tables\Columns\TextColumn::make('timestamp')
+                Tables\Columns\TextColumn::make('waktu_absensi')
                     ->label('Waktu Absen')
                     ->dateTime('d M Y, H:i:s')
                     ->sortable(),
