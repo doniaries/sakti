@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\AbsensiHarians\Schemas;
 
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class AbsensiHarianInfolist
@@ -10,7 +13,60 @@ class AbsensiHarianInfolist
     {
         return $schema
             ->components([
-                //
+                Section::make('Informasi Dasar')
+                    ->schema([
+                        TextEntry::make('user.name')->label('Pegawai'),
+                        TextEntry::make('tanggal')->date('d F Y'),
+                        TextEntry::make('status')
+                            ->badge()
+                            ->color(fn(string $state): string => match ($state) {
+                                'hadir' => 'success',
+                                'terlambat' => 'warning',
+                                'tidak_hadir' => 'danger',
+                                'dinas_luar' => 'info',
+                                'cuti', 'izin', 'sakit' => 'warning',
+                                'libur' => 'gray',
+                                default => 'gray',
+                            }),
+                        TextEntry::make('status_apel')
+                            ->badge()
+                            ->color(fn(?string $state): string => match ($state) {
+                                'ikut apel' => 'success',
+                                'tidak ikut apel' => 'danger',
+                                default => 'gray',
+                            }),
+                        TextEntry::make('keterangan'),
+                    ])->columns(2),
+
+                Section::make('Detail Kehadiran')
+                    ->schema([
+                        TextEntry::make('jam_masuk')
+                            ->label('Jam Masuk')
+                            ->time('H:i')
+                            ->visible(fn($record) => in_array($record->status, ['hadir', 'terlambat', 'dinas_luar'])),
+                        ImageEntry::make('foto_masuk')
+                            ->label('Bukti Masuk (Mobile)')
+                            ->visible(fn($record) => in_array($record->status, ['hadir', 'terlambat', 'dinas_luar'])),
+
+                        TextEntry::make('jam_pulang')
+                            ->label('Jam Pulang')
+                            ->time('H:i')
+                            ->visible(fn($record) => in_array($record->status, ['hadir', 'terlambat', 'dinas_luar'])),
+                        ImageEntry::make('foto_pulang')
+                            ->label('Bukti Pulang (Mobile)')
+                            ->visible(fn($record) => in_array($record->status, ['hadir', 'terlambat', 'dinas_luar'])),
+                    ])
+                    ->columns(2)
+                    ->visible(fn($record) => in_array($record->status, ['hadir', 'terlambat', 'dinas_luar'])),
+
+                Section::make('Bukti Surat Izin / Sakit')
+                    ->schema([
+                        ImageEntry::make('bukti')
+                            ->label('Surat Keterangan')
+                            ->visible(fn($record) => in_array($record->status, ['izin', 'sakit', 'cuti']))
+                            ->defaultImageUrl(url('/images/placeholder.png')),
+                    ])
+                    ->visible(fn($record) => in_array($record->status, ['izin', 'sakit', 'cuti'])),
             ]);
     }
 }

@@ -27,6 +27,7 @@ class AbsensiHarian extends Model
         'latitude_pulang',
         'longitude_pulang',
         'foto_pulang',
+        'bukti',
     ];
 
     protected $casts = [

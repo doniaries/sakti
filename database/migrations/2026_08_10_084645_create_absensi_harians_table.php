@@ -56,6 +56,8 @@ return new class extends Migration
             $table->decimal('longitude_pulang', 10, 7)->nullable();
             $table->string('foto_pulang')->nullable();
 
+            $table->string('bukti')->nullable();
+            
             $table->text('keterangan')->nullable();
 
             $table->timestamps();

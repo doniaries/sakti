@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\AbsensiHarians\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TimePicker;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class AbsensiHarianForm
@@ -24,9 +26,11 @@ class AbsensiHarianForm
                         DatePicker::make('tanggal')->displayFormat('d/m/Y')
                             ->required(),
                         TimePicker::make('jam_masuk')
-                            ->displayFormat('H:i:s'),
+                            ->displayFormat('H:i:s')
+                            ->visible(fn(Get $get) => in_array($get('status'), ['hadir', 'terlambat', 'dinas_luar'])),
                         TimePicker::make('jam_pulang')
-                            ->displayFormat('H:i:s'),
+                            ->displayFormat('H:i:s')
+                            ->visible(fn(Get $get) => in_array($get('status'), ['hadir', 'terlambat', 'dinas_luar'])),
                         Select::make('status')
                             ->options([
                                 'hadir' => 'Hadir',
@@ -43,8 +47,8 @@ class AbsensiHarianForm
                         Select::make('status_apel')
                             ->label('Status Apel')
                             ->options([
-                                'apel' => 'Apel',
-                                'tidak_apel' => 'Tidak Apel',
+                                'ikut apel' => 'Ikut Apel',
+                                'tidak ikut apel' => 'Tidak Ikut Apel',
                             ]),
                         Textarea::make('keterangan')
                             ->columnSpanFull(),
@@ -58,16 +62,24 @@ class AbsensiHarianForm
                             ->label('Dari Mobile'),
                     ])->columns(2),
 
-                \Filament\Schemas\Components\Section::make('Bukti Mobile')
+                \Filament\Schemas\Components\Section::make('Bukti & Dokumen')
                     ->schema([
                         \Filament\Forms\Components\FileUpload::make('foto_masuk')
                             ->label('Foto Masuk')
                             ->image()
-                            ->directory('absensi-mobile'),
+                            ->directory('absensi-mobile')
+                            ->visible(fn(Get $get) => in_array($get('status'), ['hadir', 'terlambat', 'dinas_luar'])),
                         \Filament\Forms\Components\FileUpload::make('foto_pulang')
                             ->label('Foto Pulang')
                             ->image()
-                            ->directory('absensi-mobile'),
+                            ->directory('absensi-mobile')
+                            ->visible(fn(Get $get) => in_array($get('status'), ['hadir', 'terlambat', 'dinas_luar'])),
+                        FileUpload::make('bukti')
+                            ->label('Bukti Izin / Sakit')
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
+                            ->directory('absensi-bukti')
+                            ->visible(fn(Get $get) => in_array($get('status'), ['izin', 'sakit', 'cuti'])),
                     ])->columns(2),
             ]);
     }
