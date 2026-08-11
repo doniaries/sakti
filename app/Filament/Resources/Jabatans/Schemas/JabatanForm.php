@@ -12,7 +12,8 @@ class JabatanForm
         return $schema
             ->components([
                 TextInput::make('nama')
-                    ->required(),
+                    ->required()
+                    ->dehydrateStateUsing(fn ($state) => ucwords(strtolower($state))),
                 TextInput::make('slug')
                     ->required(),
             ]);

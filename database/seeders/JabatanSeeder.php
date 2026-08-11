@@ -38,10 +38,11 @@ class JabatanSeeder extends Seeder
         ];
 
         foreach ($jabatans as $nama) {
-            Jabatan::firstOrCreate([
-                'nama' => $nama,
-                'slug' => Str::slug($nama)
-            ]);
+            $formattedName = ucwords(strtolower($nama));
+            Jabatan::updateOrCreate(
+                ['slug' => Str::slug($formattedName)],
+                ['nama' => $formattedName]
+            );
         }
     }
 }
