@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateLogAbsensi extends CreateRecord
 {
     protected static string $resource = LogAbsensiResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

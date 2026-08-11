@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateMesinAbsensi extends CreateRecord
 {
     protected static string $resource = MesinAbsensiResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

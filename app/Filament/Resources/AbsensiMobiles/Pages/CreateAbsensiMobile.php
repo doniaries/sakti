@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAbsensiMobile extends CreateRecord
 {
     protected static string $resource = AbsensiMobileResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
