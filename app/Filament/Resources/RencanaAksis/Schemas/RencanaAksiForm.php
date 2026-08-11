@@ -16,7 +16,7 @@ class RencanaAksiForm
                 Select::make('jabatan_id')
                     ->relationship('jabatan', 'nama'),
                 Select::make('bidang_id')
-                    ->relationship('bidang', 'nama_bidang'),
+                    ->relationship('bidang', 'nama'),
                 TextInput::make('tahun')
                     ->required()
                     ->default('2026'),

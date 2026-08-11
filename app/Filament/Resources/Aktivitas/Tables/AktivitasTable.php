@@ -17,7 +17,7 @@ class AktivitasTable
                 TextColumn::make('jabatan.nama')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('bidang.nama_bidang')
+                TextColumn::make('bidang.nama')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('kode')

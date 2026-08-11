@@ -16,7 +16,7 @@ class RencanaAksisTable
             ->columns([
                 TextColumn::make('jabatan.nama')
                     ->sortable(),
-                TextColumn::make('bidang.nama_bidang')
+                TextColumn::make('bidang.nama')
                     ->sortable(),
                 TextColumn::make('tahun'),
                 TextColumn::make('target_jan')

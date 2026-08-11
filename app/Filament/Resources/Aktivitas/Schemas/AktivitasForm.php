@@ -16,7 +16,7 @@ class AktivitasForm
                     ->relationship('jabatan', 'nama')
                     ->required(),
                 Select::make('bidang_id')
-                    ->relationship('bidang', 'nama_bidang')
+                    ->relationship('bidang', 'nama')
                     ->required(),
                 TextInput::make('kode'),
                 TextInput::make('nama_aktivitas')
