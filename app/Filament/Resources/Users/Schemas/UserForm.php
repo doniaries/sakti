@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class UserForm
@@ -9,8 +10,12 @@ class UserForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(3)
             ->components([
-                \Filament\Forms\Components\Section::make('Profil Pegawai')
+                \Filament\Forms\Components\Group::make()
+                    ->schema([
+                        Section::make('Profil Pegawai')
+                            ->icon('heroicon-o-user')
                     ->schema([
                         \Filament\Forms\Components\FileUpload::make('avatar_url')
                             ->label('Foto Profil (Avatar)')
@@ -42,8 +47,9 @@ class UserForm
                             ->inline(false),
                     ])->columns(2),
 
-                \Filament\Forms\Components\Section::make('Detail Kepegawaian & Posisi')
-                    ->schema([
+                        Section::make('Detail Kepegawaian & Posisi')
+                            ->icon('heroicon-o-briefcase')
+                            ->schema([
                         \Filament\Forms\Components\TextInput::make('nip')
                             ->label('NIP')
                             ->mask('99999999 999999 9 999')
@@ -78,10 +84,14 @@ class UserForm
                             ->preload()
                             ->searchable(),
                     ])->columns(2),
+                ])->columnSpan(2),
 
-                \Filament\Forms\Components\Section::make('Informasi Tambahan')
+                \Filament\Forms\Components\Group::make()
                     ->schema([
-                        \Filament\Forms\Components\Select::make('jenis_kelamin')
+                        Section::make('Informasi Tambahan')
+                            ->icon('heroicon-o-information-circle')
+                            ->schema([
+                                \Filament\Forms\Components\Select::make('jenis_kelamin')
                             ->label('Jenis Kelamin')
                             ->options(\App\Enums\JenisKelamin::class),
                         \Filament\Forms\Components\Select::make('pangkat_golongan')
@@ -91,7 +101,8 @@ class UserForm
                         \Filament\Forms\Components\Select::make('eselon')
                             ->label('Eselon')
                             ->options(\App\Enums\Eselon::class),
-                    ])->columns(3),
+                    ])->columns(1),
+                    ]),
             ]);
     }
 }
