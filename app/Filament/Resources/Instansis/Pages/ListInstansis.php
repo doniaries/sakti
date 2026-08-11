@@ -13,7 +13,8 @@ class ListInstansis extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn (): bool => \App\Models\Instansi::count() === 0),
         ];
     }
 }

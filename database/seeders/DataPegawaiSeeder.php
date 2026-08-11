@@ -42,7 +42,7 @@ class DataPegawaiSeeder extends Seeder
             [
                 'name' => 'WILDA ARDES N, MT',
                 'nip' => '19730108 200604 2 010',
-                'jabatan' => 'KABID PPENGEMBANGAN DESTINASI PARIWISATA',
+                'jabatan' => 'KABID PENGEMBANGAN DESTINASI PARIWISATA',
                 'pendidikan' => 'S2 MAGISTER TEKNIK SIPIL',
                 'jenis_kelamin' => 'P',
                 'eselon' => 'III.b',

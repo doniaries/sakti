@@ -19,7 +19,7 @@ class JabatanSeeder extends Seeder
             'Asisten Pelatih Olahraga Pemula',
             'KABID PEMASARAN PARIWISATA',
             'KABID PEMUDA DAN OLAHRAGA',
-            'KABID PPENGEMBANGAN DESTINASI PARIWISATA',
+            'KABID PENGEMBANGAN DESTINASI PARIWISATA',
             'KEPALA DINAS',
             'Kasubbag Umum dan Kepegawaian',
             'Konservator',

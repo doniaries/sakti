@@ -13,7 +13,8 @@ class ListMesinAbsensis extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->visible(fn (): bool => \App\Models\MesinAbsensi::count() === 0),
         ];
     }
 }

@@ -28,6 +28,8 @@ class MesinAbsensiResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedComputerDesktop;
 
+
+
     protected static ?string $recordTitleAttribute = 'nama';
 
     public static function canCreate(): bool

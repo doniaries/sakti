@@ -20,7 +20,7 @@ class AbsensiHarianResource extends Resource
 {
     protected static ?string $model = AbsensiHarian::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
     protected static ?string $modelLabel = 'Absensi Harian';
     protected static ?string $pluralModelLabel = 'Data Absensi Harian';
 

@@ -42,7 +42,7 @@ class UserForm
                 \Filament\Forms\Components\Select::make('roles')
                     ->relationship('roles', 'name', function ($query) {
                         /** @var \App\Models\User|null $user */
-                        $user = auth()->user();
+                        $user = \Illuminate\Support\Facades\Auth::user();
                         return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
                     })
                     ->multiple()
