@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Lhks\Schemas;
 
 use App\Models\Aktivitas;
+use App\Models\LogAbsensi;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -32,30 +33,40 @@ class LhkForm
                             ->searchable()
                             ->columnSpan(1),
 
-                        Select::make('log_absensi_masuk_id')
-                            ->relationship(
-                                'logAbsensiMasuk',
-                                'waktu_absensi',
-                                fn ($query) => $query->orderBy('waktu_absensi')
-                            )
-                            ->getOptionLabelFromRecordUsing(
-                                fn ($record) => $record->waktu_absensi?->format('H:i') . ' (' . $record->sumber . ')'
-                            )
-                            ->default(request()->query('log_absensi_masuk_id'))
+                        // Absensi Masuk — tampil sebagai info, nilai dari URL param
+                        Forms\Components\Hidden::make('log_absensi_masuk_id')
+                            ->default(request()->query('log_absensi_masuk_id')),
+
+                        Forms\Components\Placeholder::make('absensi_masuk_display')
                             ->label('Absensi Masuk')
+                            ->content(function ($record, $get) {
+                                $id = $get('log_absensi_masuk_id') ?? request()->query('log_absensi_masuk_id');
+                                if ($id) {
+                                    $log = LogAbsensi::find((int) $id);
+                                    return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
+                                }
+                                return $record?->logAbsensiMasuk
+                                    ? ($record->logAbsensiMasuk->waktu_absensi?->format('H:i') . ' (' . $record->logAbsensiMasuk->sumber . ')')
+                                    : '-';
+                            })
                             ->columnSpan(1),
 
-                        Select::make('log_absensi_pulang_id')
-                            ->relationship(
-                                'logAbsensiPulang',
-                                'waktu_absensi',
-                                fn ($query) => $query->orderBy('waktu_absensi')
-                            )
-                            ->getOptionLabelFromRecordUsing(
-                                fn ($record) => $record->waktu_absensi?->format('H:i') . ' (' . $record->sumber . ')'
-                            )
-                            ->default(request()->query('log_absensi_pulang_id'))
+                        // Absensi Pulang — tampil sebagai info, nilai dari URL param
+                        Forms\Components\Hidden::make('log_absensi_pulang_id')
+                            ->default(request()->query('log_absensi_pulang_id')),
+
+                        Forms\Components\Placeholder::make('absensi_pulang_display')
                             ->label('Absensi Pulang')
+                            ->content(function ($record, $get) {
+                                $id = $get('log_absensi_pulang_id') ?? request()->query('log_absensi_pulang_id');
+                                if ($id) {
+                                    $log = LogAbsensi::find((int) $id);
+                                    return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
+                                }
+                                return $record?->logAbsensiPulang
+                                    ? ($record->logAbsensiPulang->waktu_absensi?->format('H:i') . ' (' . $record->logAbsensiPulang->sumber . ')')
+                                    : '-';
+                            })
                             ->columnSpan(1),
 
                         Select::make('status')
