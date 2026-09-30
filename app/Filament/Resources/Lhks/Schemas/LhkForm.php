@@ -9,6 +9,8 @@ use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,6 +26,10 @@ class LhkForm
                         DatePicker::make('tanggal')
                             ->required()
                             ->default(request()->query('tanggal', now()))
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                self::updateKehadiran($set, $get);
+                            })
                             ->columnSpan(1),
 
                         Select::make('user_id')
@@ -31,16 +37,20 @@ class LhkForm
                             ->required()
                             ->default(request()->query('user_id', Auth::id()))
                             ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, Get $get) {
+                                self::updateKehadiran($set, $get);
+                            })
                             ->columnSpan(1),
 
-                        // Absensi Masuk — tampil sebagai info, nilai dari URL param
+                        // Absensi Masuk — tampil sebagai info
                         Forms\Components\Hidden::make('log_absensi_masuk_id')
                             ->default(request()->query('log_absensi_masuk_id')),
 
                         Forms\Components\Placeholder::make('absensi_masuk_display')
                             ->label('Absensi Masuk')
                             ->content(function ($record, $get) {
-                                $id = $get('log_absensi_masuk_id') ?? request()->query('log_absensi_masuk_id');
+                                $id = $get('log_absensi_masuk_id');
                                 if ($id) {
                                     $log = LogAbsensi::find((int) $id);
                                     return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
@@ -51,14 +61,14 @@ class LhkForm
                             })
                             ->columnSpan(1),
 
-                        // Absensi Pulang — tampil sebagai info, nilai dari URL param
+                        // Absensi Pulang — tampil sebagai info
                         Forms\Components\Hidden::make('log_absensi_pulang_id')
                             ->default(request()->query('log_absensi_pulang_id')),
 
                         Forms\Components\Placeholder::make('absensi_pulang_display')
                             ->label('Absensi Pulang')
                             ->content(function ($record, $get) {
-                                $id = $get('log_absensi_pulang_id') ?? request()->query('log_absensi_pulang_id');
+                                $id = $get('log_absensi_pulang_id');
                                 if ($id) {
                                     $log = LogAbsensi::find((int) $id);
                                     return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
@@ -77,6 +87,8 @@ class LhkForm
                                 'Dinas Luar' => 'Dinas Luar',
                             ])
                             ->default(request()->query('status', 'Hadir'))
+                            ->disabled() // Tidak bisa diedit sesuai permintaan
+                            ->dehydrated() // Tetap simpan ke database
                             ->columnSpan(1),
                     ])
                     ->columns(4)
@@ -183,5 +195,27 @@ class LhkForm
                     ])
                     ->columnSpanFull(),
             ]);
+    }
+
+    protected static function updateKehadiran(Set $set, Get $get): void
+    {
+        $userId = $get('user_id');
+        $tanggal = $get('tanggal');
+
+        if ($userId && $tanggal) {
+            $absensi = \App\Models\AbsensiHarian::where('user_id', $userId)
+                ->whereDate('tanggal', $tanggal)
+                ->first();
+
+            if ($absensi) {
+                $set('log_absensi_masuk_id', $absensi->log_masuk_id);
+                $set('log_absensi_pulang_id', $absensi->log_pulang_id);
+                $set('status', $absensi->status ?? 'Hadir');
+            } else {
+                $set('log_absensi_masuk_id', null);
+                $set('log_absensi_pulang_id', null);
+                $set('status', 'Tanpa Keterangan'); // atau default lain
+            }
+        }
     }
 }
