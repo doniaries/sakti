@@ -87,7 +87,7 @@ class LhkForm
                         Forms\Components\Repeater::make('pekerjaans')
                             ->relationship('pekerjaans')
                             ->schema([
-                                // 2. Rencana Aksi
+                                // Baris 1: Rencana Aksi & Aktivitas
                                 Select::make('rencana_aksi_id')
                                     ->label('Rencana Aksi')
                                     ->options([
@@ -100,7 +100,6 @@ class LhkForm
                                     ->preload()
                                     ->columnSpan(1),
 
-                                // 1. Aktivitas — menentukan lama menit & jam selesai
                                 Select::make('aktivitas_id')
                                     ->relationship('aktivitas', 'nama_aktivitas')
                                     ->getOptionLabelFromRecordUsing(
@@ -131,75 +130,50 @@ class LhkForm
                                     ->label('Aktivitas')
                                     ->columnSpan(1),
 
-                                // 4. Jam mulai H:i — update jam selesai otomatis
-                                Forms\Components\TimePicker::make('jam_mulai')
-                                    ->required()
-                                    ->seconds(false)
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, $set, $get) {
-                                        $lamaMenit = (int) ($get('lama_menit') ?? 0);
-                                        if ($state && $lamaMenit > 0) {
-                                            try {
-                                                $set('jam_selesai', Carbon::parse($state)
-                                                    ->addMinutes($lamaMenit)
-                                                    ->format('H:i'));
-                                            } catch (\Exception $e) {
-                                            }
-                                        }
-                                    })
-                                    ->label('Jam Mulai')
-                                    ->columnSpan(1),
+                                // Baris 2: Waktu (Grid 3 kolom)
+                                \Filament\Schemas\Components\Grid::make(3)
+                                    ->schema([
+                                        Forms\Components\TimePicker::make('jam_mulai')
+                                            ->required()
+                                            ->seconds(false)
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, $set, $get) {
+                                                $lamaMenit = (int) ($get('lama_menit') ?? 0);
+                                                if ($state && $lamaMenit > 0) {
+                                                    try {
+                                                        $set('jam_selesai', Carbon::parse($state)
+                                                            ->addMinutes($lamaMenit)
+                                                            ->format('H:i'));
+                                                    } catch (\Exception $e) {
+                                                    }
+                                                }
+                                            })
+                                            ->label('Jam Mulai'),
 
-                                // 5. Jam selesai (auto)
-                                Forms\Components\TimePicker::make('jam_selesai')
-                                    ->required()
-                                    ->seconds(false)
-                                    ->label('Jam Selesai')
-                                    ->columnSpan(1),
+                                        Forms\Components\TimePicker::make('jam_selesai')
+                                            ->required()
+                                            ->seconds(false)
+                                            ->label('Jam Selesai'),
 
-                                // 3. Lama menit (auto dari aktivitas, read-only)
-                                Forms\Components\TextInput::make('lama_menit')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->suffix('menit')
-                                    ->readOnly()
-                                    ->label('Lama (menit)')
-                                    ->columnSpan(2),
+                                        Forms\Components\TextInput::make('lama_menit')
+                                            ->numeric()
+                                            ->default(0)
+                                            ->suffix('menit')
+                                            ->readOnly()
+                                            ->label('Lama (menit)'),
+                                    ])
+                                    ->columnSpanFull(),
 
-                                // 4. Jam mulai H:i — update jam selesai otomatis
-                                Forms\Components\TimePicker::make('jam_mulai')
-                                    ->required()
-                                    ->seconds(false)
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, $set, $get) {
-                                        $lamaMenit = (int) ($get('lama_menit') ?? 0);
-                                        if ($state && $lamaMenit > 0) {
-                                            try {
-                                                $set('jam_selesai', Carbon::parse($state)
-                                                    ->addMinutes($lamaMenit)
-                                                    ->format('H:i'));
-                                            } catch (\Exception $e) {
-                                            }
-                                        }
-                                    })
-                                    ->label('Jam Mulai')
-                                    ->columnSpan(1),
-
-                                // 5. Jam selesai (auto)
-                                Forms\Components\TimePicker::make('jam_selesai')
-                                    ->required()
-                                    ->seconds(false)
-                                    ->label('Jam Selesai')
-                                    ->columnSpan(1),
-
-                                // 6. Hasil & Bukti
+                                // Baris 3: Hasil & Bukti
                                 Forms\Components\Textarea::make('hasil_pekerjaan')
+                                    ->label('Hasil Pekerjaan')
                                     ->rows(2)
                                     ->columnSpanFull(),
 
                                 Forms\Components\TextInput::make('bukti_url')
                                     ->url()
-                                    ->label('Link Bukti')
+                                    ->label('Link Bukti (Google Drive)')
+                                    ->helperText('Pastikan link dapat diakses (Anyone with the link)')
                                     ->columnSpanFull(),
                             ])
                             ->columns(2)

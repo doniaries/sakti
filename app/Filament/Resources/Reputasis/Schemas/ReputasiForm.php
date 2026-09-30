@@ -14,7 +14,7 @@ class ReputasiForm
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Section::make('Penilaian Rekan Kerja')
+                \Filament\Schemas\Components\Section::make('Penilaian Rekan Kerja')
                     ->schema([
                         \Filament\Forms\Components\Hidden::make('penilai_id')
                             ->default(fn () => auth()->id()),
