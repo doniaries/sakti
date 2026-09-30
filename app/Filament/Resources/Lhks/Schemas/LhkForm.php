@@ -36,17 +36,17 @@ class LhkForm
                                     ->whereNotNull('log_pulang_id')
                                     ->orderBy('tanggal', 'desc')
                                     ->first();
-                                    
+
                                 return $latestLengkap ? $latestLengkap->tanggal->format('Y-m-d') : now()->format('Y-m-d');
                             })
                             ->rules([
-                                fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                fn(Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
                                     $userId = $get('user_id');
                                     if ($userId && $value) {
                                         $absensi = \App\Models\AbsensiHarian::where('user_id', $userId)
                                             ->whereDate('tanggal', $value)
                                             ->first();
-                                        
+
                                         if (!$absensi || !$absensi->log_masuk_id || !$absensi->log_pulang_id) {
                                             $fail('LHK hanya dapat dibuat jika absensi Masuk dan Pulang sudah lengkap.');
                                         }
@@ -158,9 +158,8 @@ class LhkForm
                                 Select::make('rencana_aksi_id')
                                     ->label('Rencana Aksi')
                                     ->options([
-                                        1 => 'Sasaran',
-                                        2 => 'Diluar Sasaran Kinerja',
-                                        3 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
+                                        1 => 'Diluar Sasaran Kinerja',
+                                        2 => 'Melaksanakan Tugas Lain yang diberikan Pimpinan'
                                     ])
                                     ->searchable()
                                     ->required()
