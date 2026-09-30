@@ -13,6 +13,7 @@
         "joaopaulolndev/filament-edit-profile": "^2.0",
         "laravel-lang/common": "^6.8",
         "laravel/framework": "^12.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "leek/filament-header-filters": "^2.0",
         "rats/zkteco": "^002.0",
