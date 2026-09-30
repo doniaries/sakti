@@ -9,11 +9,14 @@ use App\Livewire\Mobile\Lhk\Index as LhkIndex;
 use App\Livewire\Mobile\Lhk\Form as LhkForm;
 
 Route::get('/', function () {
-    return redirect('/mobile/login'); // Redirect to mobile login instead of admin for now
+    if (auth()->check()) {
+        return redirect()->route('mobile.dashboard');
+    }
+    return redirect()->route('mobile.login');
 });
 
 Route::prefix('mobile')->group(function () {
-    Route::get('/login', Login::class)->name('mobile.login')->middleware('guest');
+    Route::get('/login', Login::class)->name('mobile.login');
     
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', Dashboard::class)->name('mobile.dashboard');

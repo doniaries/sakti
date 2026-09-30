@@ -20,6 +20,13 @@ class Login extends Component
         'password' => 'required',
     ];
 
+    public function mount()
+    {
+        if (Auth::check()) {
+            return redirect()->route('mobile.dashboard');
+        }
+    }
+
     public function login()
     {
         $this->validate();
