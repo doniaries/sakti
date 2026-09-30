@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Reputasi extends Model
 {
-    protected $fillable = ['user_id', 'tanggal', 'nilai_reputasi', 'keterangan'];
+    protected $fillable = ['user_id', 'penilai_id', 'tanggal', 'nilai_reputasi', 'keterangan'];
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function penilai(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'penilai_id');
     }
 }
