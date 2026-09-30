@@ -17,11 +17,13 @@ class LogAbsensiSeeder extends Seeder
     {
         $users = User::all();
         
-        // Mencari 5 hari kerja terakhir dari hari ini
+        // Mencari 7 hari ke belakang (termasuk hari libur jika ingin diisi, atau bisa filter isWeekday)
         $hariKerja = [];
         $tanggalIterasi = Carbon::now()->startOfDay();
         
-        while (count($hariKerja) < 5) {
+        // Kita ambil 7 hari terakhir agar data seminggu penuh terisi
+        for ($i = 0; $i < 7; $i++) {
+            // Jika LHK hanya bisa diisi hari kerja, aktifkan kondisi isWeekday()
             if ($tanggalIterasi->isWeekday()) {
                 $hariKerja[] = $tanggalIterasi->copy();
             }
@@ -29,88 +31,52 @@ class LogAbsensiSeeder extends Seeder
         }
         $hariKerja = array_reverse($hariKerja); // Urutkan dari terlama ke terbaru
 
-        $statuses = ['hadir', 'hadir', 'hadir', 'hadir', 'hadir', 'izin', 'sakit', 'tidak_hadir']; // Probabilitas banyak hadir
-
         foreach ($users as $user) {
             foreach ($hariKerja as $tanggal) {
-                $statusHariIni = $statuses[array_rand($statuses)];
+                // Semua hari diatur menjadi HADIR agar bisa mengisi LHK (karena butuh jam datang & pulang)
+                
+                // Jam masuk random antara 07:00 - 08:00
+                $jamMasuk = $tanggal->copy()->setTime(7, rand(0, 59), rand(0, 59));
+                
+                // Jam pulang random antara 16:00 - 17:00
+                $jamPulang = $tanggal->copy()->setTime(16, rand(0, 59), rand(0, 59));
 
-                if ($statusHariIni === 'hadir') {
-                    // Jam masuk random antara 07:00 - 08:00
-                    $jamMasuk = $tanggal->copy()->setTime(7, rand(0, 59), rand(0, 59));
-                    
-                    // Jam pulang random antara 16:00 - 17:00
-                    $jamPulang = $tanggal->copy()->setTime(16, rand(0, 59), rand(0, 59));
+                // Seeder Masuk (Apel Pagi dengan Mesin)
+                $logMasuk = LogAbsensi::updateOrCreate(
+                    ['user_id' => $user->id, 'jenis' => 'masuk', 'waktu_absensi' => $jamMasuk],
+                    [
+                        'mesin_absensi_id' => 1,
+                        'nomor_absensi' => $user->id,
+                        'perangkat' => 'mesin',
+                        'metode_verifikasi' => 'fingerprint',
+                    ]
+                );
 
-                    // Seeder Masuk (Apel Pagi dengan Mesin)
-                    $logMasuk = LogAbsensi::updateOrCreate(
-                        ['user_id' => $user->id, 'jenis' => 'masuk', 'waktu_absensi' => $jamMasuk],
-                        [
-                            'mesin_absensi_id' => 1,
-                            'nomor_absensi' => $user->id,
-                            'perangkat' => 'mesin',
-                            'metode_verifikasi' => 'fingerprint',
-                        ]
-                    );
+                // Seeder Pulang (Menggunakan Mobile App)
+                $logPulang = LogAbsensi::updateOrCreate(
+                    ['user_id' => $user->id, 'jenis' => 'pulang', 'waktu_absensi' => $jamPulang],
+                    [
+                        'mesin_absensi_id' => null,
+                        'nomor_absensi' => $user->id,
+                        'perangkat' => 'mobile',
+                        'metode_verifikasi' => 'gps',
+                    ]
+                );
 
-                    // Seeder Pulang (Menggunakan Mobile App)
-                    $logPulang = LogAbsensi::updateOrCreate(
-                        ['user_id' => $user->id, 'jenis' => 'pulang', 'waktu_absensi' => $jamPulang],
-                        [
-                            'mesin_absensi_id' => null,
-                            'nomor_absensi' => $user->id,
-                            'perangkat' => 'mobile',
-                            'metode_verifikasi' => 'gps',
-                        ]
-                    );
-
-                    AbsensiHarian::updateOrCreate(
-                        ['user_id' => $user->id, 'tanggal' => $tanggal->format('Y-m-d')],
-                        [
-                            'jam_masuk' => $jamMasuk->format('H:i:s'),
-                            'jam_pulang' => $jamPulang->format('H:i:s'),
-                            'log_masuk_id' => $logMasuk->id,
-                            'log_pulang_id' => $logPulang->id,
-                            'status' => 'hadir',
-                            'keterangan' => 'Hadir Tepat Waktu',
-                            'is_absen_mesin' => true,
-                            'is_absen_mobile' => true,
-                            'status_apel' => 'ikut apel',
-                        ]
-                    );
-                } elseif ($statusHariIni === 'izin' || $statusHariIni === 'sakit') {
-                    // Izin / Sakit diisi dari mobile, tidak ada log mesin
-                    AbsensiHarian::updateOrCreate(
-                        ['user_id' => $user->id, 'tanggal' => $tanggal->format('Y-m-d')],
-                        [
-                            'jam_masuk' => null,
-                            'jam_pulang' => null,
-                            'log_masuk_id' => null,
-                            'log_pulang_id' => null,
-                            'status' => $statusHariIni,
-                            'keterangan' => ucfirst($statusHariIni) . ' alasan pribadi',
-                            'is_absen_mesin' => false,
-                            'is_absen_mobile' => true, // Diisi dari mobile
-                            'status_apel' => 'tidak ikut apel',
-                        ]
-                    );
-                } else {
-                    // Tanpa keterangan (tidak_hadir)
-                    AbsensiHarian::updateOrCreate(
-                        ['user_id' => $user->id, 'tanggal' => $tanggal->format('Y-m-d')],
-                        [
-                            'jam_masuk' => null,
-                            'jam_pulang' => null,
-                            'log_masuk_id' => null,
-                            'log_pulang_id' => null,
-                            'status' => 'tidak_hadir',
-                            'keterangan' => 'Tanpa Keterangan',
-                            'is_absen_mesin' => false,
-                            'is_absen_mobile' => false,
-                            'status_apel' => 'tidak ikut apel',
-                        ]
-                    );
-                }
+                AbsensiHarian::updateOrCreate(
+                    ['user_id' => $user->id, 'tanggal' => $tanggal->format('Y-m-d')],
+                    [
+                        'jam_masuk' => $jamMasuk->format('H:i:s'),
+                        'jam_pulang' => $jamPulang->format('H:i:s'),
+                        'log_masuk_id' => $logMasuk->id,
+                        'log_pulang_id' => $logPulang->id,
+                        'status' => 'hadir',
+                        'keterangan' => 'Hadir Tepat Waktu (Data Dummy LHK)',
+                        'is_absen_mesin' => true,
+                        'is_absen_mobile' => true,
+                        'status_apel' => 'ikut apel',
+                    ]
+                );
             }
         }
     }
