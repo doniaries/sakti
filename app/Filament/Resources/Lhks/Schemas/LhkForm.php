@@ -25,7 +25,34 @@ class LhkForm
                     ->schema([
                         DatePicker::make('tanggal')
                             ->required()
-                            ->default(request()->query('tanggal', now()))
+                            ->default(function () {
+                                if ($queryTanggal = request()->query('tanggal')) {
+                                    return $queryTanggal;
+                                }
+
+                                $userId = Auth::id();
+                                $latestLengkap = \App\Models\AbsensiHarian::where('user_id', $userId)
+                                    ->whereNotNull('log_masuk_id')
+                                    ->whereNotNull('log_pulang_id')
+                                    ->orderBy('tanggal', 'desc')
+                                    ->first();
+                                    
+                                return $latestLengkap ? $latestLengkap->tanggal->format('Y-m-d') : now()->format('Y-m-d');
+                            })
+                            ->rules([
+                                fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                    $userId = $get('user_id');
+                                    if ($userId && $value) {
+                                        $absensi = \App\Models\AbsensiHarian::where('user_id', $userId)
+                                            ->whereDate('tanggal', $value)
+                                            ->first();
+                                        
+                                        if (!$absensi || !$absensi->log_masuk_id || !$absensi->log_pulang_id) {
+                                            $fail('LHK hanya dapat dibuat jika absensi Masuk dan Pulang sudah lengkap.');
+                                        }
+                                    }
+                                },
+                            ])
                             ->live()
                             ->afterStateUpdated(function (Set $set, Get $get) {
                                 self::updateKehadiran($set, $get);
@@ -45,48 +72,76 @@ class LhkForm
 
                         // Absensi Masuk — tampil sebagai info
                         Forms\Components\Hidden::make('log_absensi_masuk_id')
-                            ->default(request()->query('log_absensi_masuk_id')),
+                            ->default(function () {
+                                if ($q = request()->query('log_absensi_masuk_id')) return $q;
+                                $latest = \App\Models\AbsensiHarian::where('user_id', Auth::id())
+                                    ->whereNotNull('log_masuk_id')->whereNotNull('log_pulang_id')
+                                    ->orderBy('tanggal', 'desc')->first();
+                                return $latest ? $latest->log_masuk_id : null;
+                            }),
 
                         Forms\Components\Placeholder::make('absensi_masuk_display')
                             ->label('Absensi Masuk')
-                            ->content(function ($record, $get) {
-                                $id = $get('log_absensi_masuk_id');
-                                if ($id) {
-                                    $log = LogAbsensi::find((int) $id);
-                                    return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
+                            ->content(function ($record, Get $get) {
+                                $tanggal = $get('tanggal');
+                                $userId = $get('user_id');
+                                if ($tanggal && $userId) {
+                                    $absensi = \App\Models\AbsensiHarian::where('user_id', $userId)
+                                        ->whereDate('tanggal', $tanggal)->first();
+                                    if ($absensi && $absensi->log_masuk_id) {
+                                        $log = \App\Models\LogAbsensi::find($absensi->log_masuk_id);
+                                        if ($log) {
+                                            $jam = $log->waktu_absensi?->format('H:i:s') ?? '-';
+                                            $sumber = !empty($log->sumber) ? " ({$log->sumber})" : '';
+                                            // Warna Amber untuk Masuk
+                                            return new \Illuminate\Support\HtmlString("<span style='display:inline-block; padding:0.25rem 0.75rem; border-radius:9999px; background-color:rgba(245, 158, 11, 0.1); color:rgb(180, 83, 9); font-weight:600; font-size:0.875rem;'>🕒 {$jam}{$sumber}</span>");
+                                        }
+                                    }
                                 }
-                                return $record?->logAbsensiMasuk
-                                    ? ($record->logAbsensiMasuk->waktu_absensi?->format('H:i') . ' (' . $record->logAbsensiMasuk->sumber . ')')
-                                    : '-';
+                                return new \Illuminate\Support\HtmlString("<span style='color:gray;'>-</span>");
                             })
                             ->columnSpan(1),
 
                         // Absensi Pulang — tampil sebagai info
                         Forms\Components\Hidden::make('log_absensi_pulang_id')
-                            ->default(request()->query('log_absensi_pulang_id')),
+                            ->default(function () {
+                                if ($q = request()->query('log_absensi_pulang_id')) return $q;
+                                $latest = \App\Models\AbsensiHarian::where('user_id', Auth::id())
+                                    ->whereNotNull('log_masuk_id')->whereNotNull('log_pulang_id')
+                                    ->orderBy('tanggal', 'desc')->first();
+                                return $latest ? $latest->log_pulang_id : null;
+                            }),
 
                         Forms\Components\Placeholder::make('absensi_pulang_display')
                             ->label('Absensi Pulang')
-                            ->content(function ($record, $get) {
-                                $id = $get('log_absensi_pulang_id');
-                                if ($id) {
-                                    $log = LogAbsensi::find((int) $id);
-                                    return $log ? ($log->waktu_absensi?->format('H:i') . ' (' . $log->sumber . ')') : '-';
+                            ->content(function ($record, Get $get) {
+                                $tanggal = $get('tanggal');
+                                $userId = $get('user_id');
+                                if ($tanggal && $userId) {
+                                    $absensi = \App\Models\AbsensiHarian::where('user_id', $userId)
+                                        ->whereDate('tanggal', $tanggal)->first();
+                                    if ($absensi && $absensi->log_pulang_id) {
+                                        $log = \App\Models\LogAbsensi::find($absensi->log_pulang_id);
+                                        if ($log) {
+                                            $jam = $log->waktu_absensi?->format('H:i:s') ?? '-';
+                                            $sumber = !empty($log->sumber) ? " ({$log->sumber})" : '';
+                                            // Warna Hijau untuk Pulang
+                                            return new \Illuminate\Support\HtmlString("<span style='display:inline-block; padding:0.25rem 0.75rem; border-radius:9999px; background-color:rgba(34, 197, 94, 0.1); color:rgb(21, 128, 61); font-weight:600; font-size:0.875rem;'>🕒 {$jam}{$sumber}</span>");
+                                        }
+                                    }
                                 }
-                                return $record?->logAbsensiPulang
-                                    ? ($record->logAbsensiPulang->waktu_absensi?->format('H:i') . ' (' . $record->logAbsensiPulang->sumber . ')')
-                                    : '-';
+                                return new \Illuminate\Support\HtmlString("<span style='color:gray;'>-</span>");
                             })
                             ->columnSpan(1),
 
-                        Select::make('status')
+                        Select::make('status_kehadiran')
                             ->options([
                                 'Hadir'     => 'Hadir',
                                 'Sakit'     => 'Sakit',
                                 'Izin'      => 'Izin',
                                 'Dinas Luar' => 'Dinas Luar',
                             ])
-                            ->default(request()->query('status', 'Hadir'))
+                            ->default(request()->query('status_kehadiran', 'Hadir'))
                             ->disabled() // Tidak bisa diedit sesuai permintaan
                             ->dehydrated() // Tetap simpan ke database
                             ->columnSpan(1),
@@ -210,11 +265,11 @@ class LhkForm
             if ($absensi) {
                 $set('log_absensi_masuk_id', $absensi->log_masuk_id);
                 $set('log_absensi_pulang_id', $absensi->log_pulang_id);
-                $set('status', $absensi->status ?? 'Hadir');
+                $set('status_kehadiran', $absensi->status ?? 'Hadir');
             } else {
                 $set('log_absensi_masuk_id', null);
                 $set('log_absensi_pulang_id', null);
-                $set('status', 'Tanpa Keterangan'); // atau default lain
+                $set('status_kehadiran', 'Tanpa Keterangan'); // atau default lain
             }
         }
     }
