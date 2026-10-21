@@ -45,5 +45,13 @@ class JadwalKerjaSeeder extends Seeder
                 $shift
             );
         }
+
+        // Terapkan Jadwal Reguler sebagai default ke seluruh pegawai yang belum memiliki jadwal khusus
+        $jadwalReguler = JadwalKerja::where('kode', 'reguler')->first();
+        if ($jadwalReguler) {
+            \App\Models\User::whereNull('jadwal_kerja_id')->update([
+                'jadwal_kerja_id' => $jadwalReguler->id,
+            ]);
+        }
     }
 }

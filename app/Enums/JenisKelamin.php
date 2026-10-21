@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum JenisKelamin: string
+use Filament\Support\Contracts\HasLabel;
+
+enum JenisKelamin: string implements HasLabel
 {
     case LAKI_LAKI = 'L';
     case PEREMPUAN = 'P';

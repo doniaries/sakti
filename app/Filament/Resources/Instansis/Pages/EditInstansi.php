@@ -37,40 +37,71 @@ class EditInstansi extends EditRecord
     protected function afterSave(): void
     {
         $data = $this->data;
+        $kadisId = $this->record->kepala_id;
 
-        // 1. Update Sekretaris Dinas
+        // 1. Update Kepala Dinas (Kadis)
+        if ($kadisId) {
+            $kadisUser = \App\Models\User::find($kadisId);
+            if ($kadisUser) {
+                // Kadis adalah pimpinan tertinggi (atasan_id null)
+                $kadisUser->update([
+                    'atasan_id' => null,
+                ]);
+            }
+        }
+
+        // 2. Update Sekretaris Dinas
         if (array_key_exists('sekretaris_id', $data)) {
             $sekretariat = \App\Models\Bidang::where('slug', 'like', '%sekretariat%')->first();
             if ($sekretariat) {
-                $sekretariat->update([
-                    'kepala_id' => $data['sekretaris_id'] ?: null,
-                ]);
+                $oldSekretarisId = $sekretariat->kepala_id;
+                $newSekretarisId = $data['sekretaris_id'] ?: null;
 
-                // Jika terpilih, pastikan bidang_id user tersebut diatur ke sekretariat
-                if (!empty($data['sekretaris_id'])) {
-                    $sekretarisUser = \App\Models\User::find($data['sekretaris_id']);
-                    if ($sekretarisUser && is_null($sekretarisUser->bidang_id)) {
-                        $sekretarisUser->update(['bidang_id' => $sekretariat->id]);
+                // Update pimpinan di tabel bidangs
+                $sekretariat->update(['kepala_id' => $newSekretarisId]);
+
+                // Jika pejabat sekretaris berubah
+                if ($newSekretarisId) {
+                    $sekretarisUser = \App\Models\User::find($newSekretarisId);
+                    if ($sekretarisUser) {
+                        $sekretarisUser->update([
+                            'bidang_id' => $sekretariat->id,
+                            'atasan_id' => $kadisId ?: null, // Atasan Sekretaris adalah Kepala Dinas
+                        ]);
                     }
+
+                    // Sinkronkan seluruh staf di sekretariat agar atasan_id nya mengarah ke Sekretaris baru
+                    \App\Models\User::where('bidang_id', $sekretariat->id)
+                        ->where('id', '!=', $newSekretarisId)
+                        ->update(['atasan_id' => $newSekretarisId]);
                 }
             }
         }
 
-        // 2. Update masing-masing Kepala Bidang
+        // 3. Update masing-masing Kepala Bidang (Kabid)
         $bidangs = \App\Models\Bidang::where('slug', 'not like', '%sekretariat%')->get();
         foreach ($bidangs as $bidang) {
             $fieldKey = 'kabid_' . $bidang->id;
             if (array_key_exists($fieldKey, $data)) {
-                $bidang->update([
-                    'kepala_id' => $data[$fieldKey] ?: null,
-                ]);
+                $oldKabidId = $bidang->kepala_id;
+                $newKabidId = $data[$fieldKey] ?: null;
 
-                // Jika terpilih, pastikan bidang_id user tersebut diatur ke bidang ini
-                if (!empty($data[$fieldKey])) {
-                    $kabidUser = \App\Models\User::find($data[$fieldKey]);
-                    if ($kabidUser && is_null($kabidUser->bidang_id)) {
-                        $kabidUser->update(['bidang_id' => $bidang->id]);
+                // Update pimpinan di tabel bidangs
+                $bidang->update(['kepala_id' => $newKabidId]);
+
+                if ($newKabidId) {
+                    $kabidUser = \App\Models\User::find($newKabidId);
+                    if ($kabidUser) {
+                        $kabidUser->update([
+                            'bidang_id' => $bidang->id,
+                            'atasan_id' => $kadisId ?: null, // Atasan Kabid adalah Kepala Dinas
+                        ]);
                     }
+
+                    // Sinkronkan seluruh pegawai di bidang ini agar atasan_id nya otomatis mengarah ke Kabid baru
+                    \App\Models\User::where('bidang_id', $bidang->id)
+                        ->where('id', '!=', $newKabidId)
+                        ->update(['atasan_id' => $newKabidId]);
                 }
             }
         }

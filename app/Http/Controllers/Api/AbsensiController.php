@@ -82,17 +82,18 @@ class AbsensiController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        // ── 1. Validasi jarak dari kantor ────────────────────────────────────
+        // ── 1. Validasi jarak dari kantor (Bebas radius jika status_kerja = 'wfh') ─────
+        $isWfh = ($user->status_kerja === 'wfh');
         $jarakMeter = $this->hitungJarak(
             $request->latitude, $request->longitude,
             config('absensi.kantor_lat', -0.9492),
             config('absensi.kantor_lng', 104.0200),
         );
 
-        if ($jarakMeter > config('absensi.radius_meter', 100)) {
+        if (!$isWfh && $jarakMeter > config('absensi.radius_meter', 100)) {
             return response()->json([
                 'success' => false,
-                'message' => "Anda berada di luar area kantor. Jarak Anda: {$jarakMeter}m dari kantor.",
+                'message' => "Anda berada di luar area kantor. Jarak Anda: {$jarakMeter}m dari kantor. (Presensi WFO wajib berada di dalam radius kantor)",
             ], 422);
         }
 
@@ -127,15 +128,24 @@ class AbsensiController extends Controller
         ]);
 
         // ── 4. Upsert AbsensiHarian ──────────────────────────────────────────
+        $kehadiranTipe = ($user->status_kerja === 'wfh') ? 'wfh' : 'wfo';
+
         if ($jenis === 'masuk') {
             $absensiHarian = AbsensiHarian::updateOrCreate(
                 ['user_id' => $user->id, 'tanggal' => today()],
-                ['log_masuk_id' => $log->id, 'jam_masuk' => now()->format('H:i:s'), 'status' => 'hadir']
+                [
+                    'log_masuk_id'    => $log->id,
+                    'jam_masuk'       => now()->format('H:i:s'),
+                    'status'          => 'hadir',
+                    'jenis_kehadiran' => $kehadiranTipe,
+                    'jadwal_kerja_id' => $user->jadwal_kerja_id,
+                ]
             );
         } else {
             $absensiHarian->update([
-                'log_pulang_id' => $log->id,
-                'jam_pulang'    => now()->format('H:i:s'),
+                'log_pulang_id'   => $log->id,
+                'jam_pulang'      => now()->format('H:i:s'),
+                'jenis_kehadiran' => $absensiHarian->jenis_kehadiran ?? $kehadiranTipe,
             ]);
         }
 

@@ -31,22 +31,26 @@ class UsersTable
                     ->toggleable(),
                 \Filament\Tables\Columns\TextColumn::make('name')
                     ->searchable()
+                    ->copyable()
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()
+                    ->copyable()
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('nip')
                     ->searchable()
+                    ->copyable()
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('nik')
                     ->label('NIK')
+                    ->copyable()
                     ->searchable()
                     ->copyable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 \Filament\Tables\Columns\TextColumn::make('no_kk')
                     ->label('No. KK')
-                    ->searchable()
                     ->copyable()
+                    ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('no_hp')
                     ->label('No. HP / WA')
