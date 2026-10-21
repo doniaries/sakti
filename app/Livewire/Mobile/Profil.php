@@ -133,16 +133,13 @@ class Profil extends Component
 
         $user->update($data);
 
-        $this->isEditing = false;
-        $this->password = '';
-        $this->password_confirmation = '';
-        $this->new_avatar = null;
-
-        $this->dispatch('notify', [
+        session()->flash('notify', [
             'type' => 'success',
             'title' => 'Tersimpan!',
             'message' => 'Data profil Anda berhasil diperbarui.',
         ]);
+
+        return redirect()->route('mobile.dashboard');
     }
 
     public function render()

@@ -220,6 +220,9 @@
             }
          }" 
          x-on:notify.window="show(Array.isArray($event.detail) ? $event.detail[0] : $event.detail)"
+         @if(session()->has('notify'))
+         x-init="show({{ json_encode(session('notify')) }})"
+         @endif
          x-cloak>
         
         <!-- Backdrop Blur -->
