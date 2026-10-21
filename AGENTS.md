@@ -91,6 +91,16 @@ protected function getRedirectUrl(): string
 1. **Master Kepegawaian & Organisasi**:
    - `Instansi`, `Bidang`, `Jabatan`, `User` (Pegawai).
    - Relasi atasan-bawahan via `atasan_id` pada model `User`.
+   - **Aturan Pimpinan / Kadis**: Kepala Dinas merupakan pimpinan tertinggi di dinas sehingga:
+     - `bidang_id` = `null` (tidak terikat bidang).
+     - `atasan_id` = `null` (tidak memiliki atasan langsung di internal dinas).
+     - Tab khusus di List Pegawai: "Pimpinan / Tanpa Bidang".
+   - **Tipe Kerja Pegawai**:
+     - `status_kerja`: `wfo` (Work From Office) atau `wfh` (Work From Home).
+     - Pegawai `wfh` dapat melakukan absensi secara fleksibel (lokasi/koordinat bebas tanpa batasan geofencing kantor).
+   - **Biodata Pegawai Lengkap**:
+     - Jenjang Pendidikan (`S3`, `S2`, `S1`, `D3`, `SLTA`, `SMP`, `SD`), Jurusan, Gelar Depan & Belakang.
+     - Nomor NPWP & Tanggal NPWP (`displayFormat('d/m/Y')`), Nomor Taspen, Agama, Alamat, No. Telp / HP, Email Pribadi.
 2. **Mesin Presensi & Log Absensi**:
    - `MesinAbsensi` (ZKTeco IP/Port) dan `LogAbsensi` (tarik log mesin via UDP/TCP socket atau input mobile).
 3. **Rekap Presensi Harian (`AbsensiHarian`)**:
@@ -105,13 +115,21 @@ protected function getRedirectUrl(): string
 
 ---
 
-## 6. Autentikasi & Type Hinting
+## 6. Autentikasi, Query, & Type Hinting (Anti Warning Intelephense)
 
-Jika menggunakan `auth()->user()`, selalu tambahkan anotasi PHPDoc agar IDE dan linter mengenali model `User`:
-```php
-/** @var \App\Models\User|null $user */
-$user = auth()->user();
-```
+1. **Autentikasi User**:
+   Gunakan `\Illuminate\Support\Facades\Auth::user()` atau sertakan anotasi PHPDoc agar IDE dan linter mengenali model `User`:
+   ```php
+   /** @var \App\Models\User|null $user */
+   $user = auth()->user();
+   ```
+2. **Query Eloquent Builder**:
+   - Hindari pemanggilan langsung method dinamis pada static Model jika Intelephense memberikan false positive "expected 1 argument".
+   - Gunakan `Model::query()->count()`, `Model::query()->where('column', '=', $value)->get()`.
+3. **Options Select Component**:
+   - Hindari mengembalikan `Collection` langsung pada closure `->options()`. Selalu sertakan `->all()` atau `->toArray()` (contoh: `Model::pluck('nama', 'id')->all()`).
+
+---
 
 ## 7. Standar Presensi, Shift Kerja, Toleransi & Pengisian LHK
 
@@ -151,7 +169,51 @@ Di Resource `AbsensiHarian`:
 
 ---
 
-## 8. Format Respon AI (MANDATORY / WAJIB)
+## 8. Widget Stat Card & Table Filter Synchronization
+
+Ketika card widget pada Filament digunakan sebagai filter instan:
+1. **URL Generator Widget**:
+   Sertakan parameter query eksplisit selain `tableFilters`:
+   ```php
+   Stat::make('Pendidikan S1', $s1Count)
+       ->url(UserResource::getUrl('index', [
+           'tableFilters' => ['jenjang_pendidikan' => ['value' => 'S1']],
+           'jenjang' => 'S1',
+       ]));
+   ```
+2. **Table Query Hook**:
+   Pastikan `configure(Table $table)` memiliki handler parameter query pada `modifyQueryUsing()`:
+   ```php
+   $table->modifyQueryUsing(function (Builder $query) {
+       if ($jenjang = request()->query('jenjang')) {
+           $query->where('jenjang_pendidikan', '=', $jenjang);
+       }
+   });
+   ```
+
+---
+
+## 9. Pedoman Refactor Livewire 3/4 & Standar Komponen
+
+Jika melakukan refactor atau membuat komponen Livewire kustom untuk sistem:
+1. **Aturan State & Properties**:
+   - Gunakan property bertipe data primitif atau DTO/Model sederhana.
+   - Hindari menyimpan instance query builder atau closure dalam property Livewire.
+   - Gunakan PHP 8.2+ Typed Properties: `public string $search = ''; public ?int $selectedId = null;`.
+2. **Livewire 3 Directive & Lifecycle**:
+   - Gunakan `wire:model.live` atau `wire:model.blur` (bukan `wire:model.lazy` dari Livewire 2).
+   - Gunakan method `mount()`, `updated($property)`, dan `render()`.
+   - Gunakan event `$this->dispatch('event-name', param: $val)` (bukan `$this->emit()` dari versi lama).
+3. **Kombinasi dengan Filament**:
+   - Jika membuat custom page Filament menggunakan Livewire, extend `Filament\Pages\Page`.
+   - Jika embed custom Livewire component di dalam Filament Form, gunakan `ViewField` atau `LivewireComponentField`.
+4. **Optimasi Re-render**:
+   - Gunakan `wire:key` pada setiap perulangan item (`@foreach ($items as $item)` -> `wire:key="item-{{ $item->id }}"`).
+   - Gunakan lazy loading untuk data berat: `#[Lazy]`.
+
+---
+
+## 10. Format Respon AI (MANDATORY / WAJIB)
 
 Setiap kali AI memberikan solusi kode kepada pengguna, AI **WAJIB** menyertakan struktur berikut secara utuh:
 

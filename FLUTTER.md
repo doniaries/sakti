@@ -117,6 +117,38 @@ Format respons error:
        ├── pages/           <-- Login, Dashboard, KameraPresensi, Riwayat, FormLhk
        └── widgets/         <-- CustomButton, CardPresensi, LocationChecker
    ```
-2. **Kamera & Deteksi Lokasi**:
-   - Selalu periksa izin `Permission.location` dan `Permission.camera` sebelum masuk ke halaman tap presensi.
-   - Deteksi *Mock Location / Fake GPS* demi integritas data absensi.
+## 7. Keamanan Presensi & Anti-Fraud (Anti Fake GPS, Mock Location & Root Detection)
+
+Demi menjaga integritas dan keaslian kehadiran pegawai, klien Flutter dan Backend Laravel menerapkan proteksi ketat anti-manipulasi lokasi:
+
+### A. Deteksi Mock Location & Fake GPS di Flutter
+1. **Pemeriksaan Mock Location Native**:
+   - Gunakan `geolocator`: periksa `Position.isMocked`. Jika `true`, sistem **WAJIB** menolak absensi seketika dengan pesan: *"Terdeteksi penggunaan Lokasi Palsu (Mock Location/Fake GPS). Mohon nonaktifkan aplikasi fake GPS!"*.
+   - Gunakan paket keamanan lokasi tambahan seperti `trust_location` atau `safe_device` untuk mendeteksi apakah *Developer Options / Mock Location App* sedang aktif.
+2. **Integritas Waktu Perangkat**:
+   - Waktu jam absen **wajib mengacu pada server backend**, bukan jam lokal HP pegawai (untuk mencegah pegawai memundurkan jam sistem di HP mereka).
+3. **Deteksi Root & Jailbreak**:
+   - Gunakan plugin `flutter_jailbreak_detection` / `safe_device`.
+   - Jika perangkat terdeteksi di-root (Magisk, KernelSU, SuperSU) atau di-jailbreak, munculkan peringatan keamanan atau blokir fitur tap presensi.
+4. **Deteksi Emulator**:
+   - Cegah presensi dijalankan melalui emulator Android di PC (seperti Nox, BlueStacks, LDPlayer) menggunakan pemeriksaan `SafeDevice.isRealDevice`. Presensi hanya diizinkan di ponsel fisik asli.
+
+### B. Parameter Payload Presensi Tambahan
+Setiap pengiriman absen (`POST /api/absensi`), Flutter wajib menyertakan verifikasi hardware:
+```json
+{
+  "tipe": "masuk",
+  "latitude": -8.123456,
+  "longitude": 115.123456,
+  "accuracy": 12.5,
+  "is_mocked": false,
+  "is_real_device": true,
+  "device_id": "ABC123XYZ",
+  "device_model": "Samsung Galaxy A54"
+}
+```
+
+### C. Verifikasi Keamanan di Backend Laravel
+1. Jika `is_mocked === true` atau akurasi GPS tidak wajar (misal `accuracy > 100` meter), tolak request dengan kode `422 Unprocessable Entity`.
+2. Pegawai dengan tipe kerja `wfo` wajib dicek jarak koordinatnya terhadap `latitude` dan `longitude` kantor pada radius toleransi `radius_meter` (Haversine Formula).
+3. Pegawai dengan status kerja `wfh` diperbolehkan absen di luar radius kantor, namun proteksi **Anti Mock / Fake GPS** tetap aktif 100%.
