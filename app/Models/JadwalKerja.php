@@ -16,10 +16,13 @@ class JadwalKerja extends Model
     protected $fillable = [
         'nama',
         'kode',
+        'buka_absen_masuk',
         'jam_masuk_senin_kamis',
         'jam_pulang_senin_kamis',
         'jam_masuk_jumat',
         'jam_pulang_jumat',
+        'tutup_absen_masuk',
+        'tutup_absen_pulang',
         'toleransi_terlambat_menit',
         'is_default',
         'is_aktif',

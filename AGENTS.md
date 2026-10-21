@@ -114,9 +114,45 @@ Jika menggunakan `auth()->user()`, selalu tambahkan anotasi PHPDoc agar IDE dan 
 $user = auth()->user();
 ```
 
+## 7. Standar Presensi, Shift Kerja, Toleransi & Pengisian LHK
+
+### A. Jendela Waktu Presensi (Attendance Windows) & Jam Kerja Fleksibel
+Parameter waktu absensi disimpan pada tabel `jadwal_kerjas` dan dapat diatur langsung oleh Admin lewat Filament:
+1. **Buka Absen Masuk**: Default `06:00:00` WIB (jam paling awal sistem/mesin menerima tap masuk).
+2. **Jam Masuk Resmi**: Default `07:30:00` WIB (Senin - Kamis & Jumat).
+3. **Toleransi Keterlambatan**: Disimpan dalam kolom `toleransi_terlambat_menit` (misal 15 menit: rentang `07:30` s.d `07:45` masih dianggap tepat waktu / hadir).
+4. **Tutup Absen Masuk**: Default `09:00:00` WIB. Di atas batas toleransi s.d pukul 09:00 dicatat sebagai status `terlambat`. Lewat pukul 09:00 jendela masuk ditutup.
+5. **Mulai Buka Absen Pulang**: Sesuai jam pulang resmi hari tersebut (Senin–Kamis `16:00:00`, Jumat `16:30:00` atau konfigurasi dinas).
+6. **Tutup Absen Pulang**: Default `21:00:00` WIB (batas akhir pengambilan absen pulang di malam hari).
+
+### B. Otomatisasi Jam Pulang Khusus Hari Jumat
+- Menggunakan `Carbon::parse($tanggal)->dayOfWeekIso === 5` (Jumat).
+- Sistem otomatis memakai `jam_masuk_jumat` dan `jam_pulang_jumat` tanpa perlu campur tangan manual admin setiap minggunya.
+
+### C. Dinas Luar (DL) & Izin Resmi
+- Pegawai berstatus **Dinas Luar** (`jenis_kehadiran = 'dinas_luar'`) otomatis dihitung **Hadir Penuh**.
+- Jam masuk dan pulang terisi otomatis mengikuti jam jadwal hari tersebut.
+- **LHK Langsung Terbuka**: Pegawai dinas luar berhak langsung membuat dan mengisi Laporan Harian Kinerja (LHK).
+
+### D. Penanganan "Lupa Absen Pulang" & Filter Monitoring Cepat (Admin)
+Di Resource `AbsensiHarian`:
+1. **Tab Filter Cepat**:
+   - **Semua Data**: Menampilkan seluruh riwayat.
+   - **Lengkap**: Pegawai yang sudah tap Masuk dan Pulang (LHK siap diverifikasi atasan).
+   - **Belum Pulang**: Pegawai yang sudah Masuk tetapi belum tap Pulang.
+   - **Dinas Luar / Izin**: Pegawai dengan surat tugas / izin resmi.
+   - **Tidak Hadir / Alpa**: Pegawai yang tidak mengambil absen masuk maupun pulang.
+2. **Bulk Action 1-Klik Sakti**:
+   - Tombol **"Set Jam Pulang Massal"** pada tab *Belum Pulang*.
+   - Admin dapat mencentang seluruh pegawai yang tertinggal absen pulang dan mengisinya dengan jam pulang resmi hari tersebut secara serentak dalam 1 detik.
+
+### E. Penentuan Otomatis Pegawai Tidak Hadir (Alpa)
+- Jika lewat batas tutup absen masuk (`09:00:00`) seorang pegawai belum tap masuk dan tidak memiliki pengajuan izin/dinas luar yang disetujui, status dicatat sebagai `tidak_hadir`.
+- Pegawai berstatus `tidak_hadir` otomatis **terkunci dari pengisian LHK** pada hari tersebut.
+
 ---
 
-## 7. Format Respon AI (MANDATORY / WAJIB)
+## 8. Format Respon AI (MANDATORY / WAJIB)
 
 Setiap kali AI memberikan solusi kode kepada pengguna, AI **WAJIB** menyertakan struktur berikut secara utuh:
 

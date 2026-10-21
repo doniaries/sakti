@@ -423,6 +423,38 @@ class AbsensiHariansTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+
+                    \Filament\Actions\BulkAction::make('set_jam_pulang_massal')
+                        ->label('Set Jam Pulang Massal (1-Klik)')
+                        ->icon('heroicon-o-arrow-right-start-on-rectangle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Set Jam Pulang Massal untuk Pegawai Terpilih')
+                        ->modalDescription('Aksi ini akan mengisi jam pulang untuk pegawai terpilih yang belum memiliki absen pulang berdasarkan jam pulang resmi jadwal kerja hari ini (Senin-Kamis atau Jumat).')
+                        ->modalSubmitActionLabel('Ya, Set Jam Pulang Sekarang')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $count = 0;
+                            foreach ($records as $absen) {
+                                if (empty($absen->jam_pulang)) {
+                                    $user = $absen->user;
+                                    $jadwal = $user?->getJadwalKerja();
+                                    $tanggal = $absen->tanggal ?? today();
+                                    $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($tanggal) : '16:00';
+
+                                    $absen->update([
+                                        'jam_pulang' => strlen($jamPulangResmi) === 5 ? $jamPulangResmi . ':00' : $jamPulangResmi,
+                                        'keterangan' => trim(($absen->keterangan ?? '') . ' (Diset Otomatis Admin)'),
+                                    ]);
+                                    $count++;
+                                }
+                            }
+
+                            \Filament\Notifications\Notification::make()
+                                ->title("Berhasil mengisi jam pulang untuk $count pegawai.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
     }

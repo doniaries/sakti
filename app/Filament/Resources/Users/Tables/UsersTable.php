@@ -244,6 +244,29 @@ class UsersTable
                         })
                         ->deselectRecordsAfterCompletion(),
 
+                    BulkAction::make('ubah_shift_massal')
+                        ->label('Ubah Shift / Jadwal Kerja (Massal)')
+                        ->icon('heroicon-o-clock')
+                        ->color('success')
+                        ->form([
+                            Select::make('jadwal_kerja_id')
+                                ->label('Pilih Shift / Jadwal Kerja')
+                                ->relationship('jadwalKerja', 'nama')
+                                ->placeholder('Gunakan Jadwal Default Instansi')
+                                ->searchable()
+                                ->preload(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $count = $records->count();
+                            $records->each(fn($user) => $user->update(['jadwal_kerja_id' => $data['jadwal_kerja_id'] ?? null]));
+
+                            Notification::make()
+                                ->title("Berhasil memperbarui shift kerja $count pegawai.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     BulkAction::make('ubah_bidang_massal')
                         ->label('Ubah Bidang (Massal)')
                         ->icon('heroicon-o-building-office')
