@@ -14,6 +14,29 @@ use Livewire\Component;
 #[Title('Dashboard - Absensi LHK Mobile')]
 class Dashboard extends Component
 {
+    public $bulan;
+    public $tahun;
+
+    public function mount()
+    {
+        $this->bulan = (int) date('m');
+        $this->tahun = (int) date('Y');
+    }
+
+    public function prevMonth()
+    {
+        $date = Carbon::createFromDate($this->tahun, $this->bulan, 1)->subMonth();
+        $this->bulan = (int) $date->format('m');
+        $this->tahun = (int) $date->format('Y');
+    }
+
+    public function nextMonth()
+    {
+        $date = Carbon::createFromDate($this->tahun, $this->bulan, 1)->addMonth();
+        $this->bulan = (int) $date->format('m');
+        $this->tahun = (int) $date->format('Y');
+    }
+
     public function logout()
     {
         Auth::logout();
@@ -35,12 +58,13 @@ class Dashboard extends Component
         $sudahMasuk = $absensiHariIni && $absensiHariIni->jam_masuk;
         $sudahPulang = $absensiHariIni && $absensiHariIni->jam_pulang;
 
-        // Statistik Bulan Ini
-        $startOfMonth = $today->copy()->startOfMonth();
-        $endOfMonth = $today->copy()->endOfMonth();
+        // Statistik Bulan dan Tahun Terpilih
+        $selectedDate = Carbon::createFromDate($this->tahun, $this->bulan, 1);
+        $startOfMonth = $selectedDate->copy()->startOfMonth();
+        $endOfMonth = $selectedDate->copy()->endOfMonth();
 
         $absensiBulanIni = AbsensiHarian::where('user_id', $user->id)
-            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->whereBetween('tanggal', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
             ->get();
 
         $jadwalDefault = $user->getJadwalKerja();
@@ -86,6 +110,9 @@ class Dashboard extends Component
                 'jam_pulang' => $absensiHariIni->jam_pulang ?? null,
             ],
             'statistik' => $statistik,
+            'bulanNama' => $selectedDate->translatedFormat('F Y'),
+            'bulan' => $this->bulan,
+            'tahun' => $this->tahun,
             'riwayat7Hari' => $riwayat7Hari,
         ]);
     }

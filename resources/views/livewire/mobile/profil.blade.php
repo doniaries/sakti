@@ -20,16 +20,24 @@
 
         <div class="flex items-center space-x-4 relative z-10">
             <div class="relative">
-                <img src="{{ $user->avatar_url ? asset('storage/'.$user->avatar_url) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0284c7&color=fff&size=160' }}" 
-                     alt="Avatar Pegawai" 
-                     class="w-16 h-16 rounded-2xl object-cover border-2 border-white/40 shadow-lg shadow-black/20">
+                @if ($new_avatar)
+                    <img src="{{ $new_avatar->temporaryUrl() }}" 
+                         alt="Preview Avatar" 
+                         class="w-16 h-16 rounded-2xl object-cover border-2 border-amber-300 shadow-lg shadow-black/20 ring-2 ring-amber-400">
+                @else
+                    <img src="{{ $user->avatar_url ? asset('storage/'.$user->avatar_url) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0284c7&color=fff&size=160' }}" 
+                         alt="Avatar Pegawai" 
+                         class="w-16 h-16 rounded-2xl object-cover border-2 border-white/40 shadow-lg shadow-black/20">
+                @endif
+
                 @if($isEditing)
-                    <label class="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 text-slate-900 rounded-full flex items-center justify-center text-[10px] cursor-pointer shadow-md font-bold hover:scale-110 transition-transform">
+                    <label class="absolute -bottom-1 -right-1 w-7 h-7 bg-amber-400 text-slate-900 rounded-full flex items-center justify-center text-xs cursor-pointer shadow-md font-bold hover:scale-110 active:scale-95 transition-transform" title="Pilih Foto Baru">
                         <i class="fa-solid fa-camera"></i>
-                        <input type="file" wire:model="new_avatar" class="hidden" accept="image/*">
+                        <input type="file" wire:model="new_avatar" class="hidden" accept="image/png, image/jpeg, image/jpg, image/webp">
                     </label>
                 @endif
             </div>
+
             <div class="flex-1 min-w-0">
                 <div class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-extrabold text-sky-200 uppercase tracking-wider mb-1">
                     {{ $user->jabatan->nama ?? 'Pegawai' }}
@@ -43,6 +51,27 @@
                 </div>
             </div>
         </div>
+
+        <!-- Upload Progress & Status Alert -->
+        <div wire:loading wire:target="new_avatar" class="mt-3 relative z-10">
+            <div class="bg-black/40 backdrop-blur-md rounded-2xl p-2.5 border border-white/15 flex items-center space-x-2.5 text-xs text-amber-200">
+                <i class="fa-solid fa-spinner fa-spin text-sm text-amber-300"></i>
+                <div class="flex-1">
+                    <div class="flex justify-between text-[11px] font-bold mb-1">
+                        <span>Mengunggah foto...</span>
+                        <span>Tunggu sebentar</span>
+                    </div>
+                    <div class="w-full bg-white/20 rounded-full h-1.5 overflow-hidden">
+                        <div class="bg-amber-400 h-1.5 rounded-full animate-pulse w-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @error('new_avatar')
+            <div class="mt-2 text-[11px] font-bold text-rose-300 bg-rose-950/40 px-3 py-1.5 rounded-xl border border-rose-500/30">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}
+            </div>
+        @enderror
     </div>
 
     <!-- MyASN Style Navigation Tabs -->
@@ -144,8 +173,14 @@
                     <input type="password" wire:model="password_confirmation" placeholder="Ulangi password baru" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                 </div>
 
-                <button type="submit" class="w-full py-3 bg-sky-600 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-600/30 active:scale-95 transition-all">
-                    Simpan Perubahan
+                <button type="submit" 
+                        wire:loading.attr="disabled"
+                        class="w-full py-3 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-600/30 active:scale-95 transition-all flex items-center justify-center space-x-2">
+                    <span wire:loading.remove wire:target="save">Simpan Perubahan</span>
+                    <span wire:loading wire:target="save" class="flex items-center space-x-2">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <span>Menyimpan...</span>
+                    </span>
                 </button>
             </div>
         </form>

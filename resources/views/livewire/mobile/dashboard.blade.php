@@ -39,7 +39,7 @@
         @endphp
 
         <div class="flex justify-between items-start relative z-10">
-            <div>
+            <div class="flex-1 pr-3">
                 <div class="flex items-center space-x-1.5 text-xs font-bold text-sky-200 tracking-wide mb-1">
                     <i class="fa-solid {{ $greetingIcon }}"></i>
                     <span>{{ $greeting }},</span>
@@ -72,6 +72,14 @@
                     </span>
                 </div>
             </div>
+
+            <!-- Foto Avatar Pegawai di Dashboard -->
+            <a href="{{ route('mobile.profil') }}" wire:navigate class="relative block shrink-0 active:scale-95 transition-transform" title="Buka Profil">
+                <img src="{{ $user->avatar_url ? asset('storage/'.$user->avatar_url) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0284c7&color=fff&size=160' }}" 
+                     alt="{{ $user->name }}" 
+                     class="w-14 h-14 rounded-2xl object-cover border-2 border-white/50 shadow-lg shadow-sky-950/40">
+                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-slate-900 shadow-xs" title="Online / Aktif"></span>
+            </a>
         </div>
         
         <div class="grid grid-cols-2 gap-2.5 mt-5 relative z-10">
@@ -98,15 +106,26 @@
         </div>
     </div>
 
-    <!-- Statistik Bulan Ini -->
+    <!-- Statistik Kehadiran dengan Filter Bulan & Tahun Interaktif -->
     <div class="flex justify-between items-center mb-3">
-        <h3 class="text-base font-extrabold text-slate-800 tracking-tight">Statistik Kehadiran Bulan Ini</h3>
-        <span class="text-[11px] font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">{{ now()->translatedFormat('F Y') }}</span>
+        <h3 class="text-base font-extrabold text-slate-800 tracking-tight">Statistik Kehadiran</h3>
+        <!-- Interactive Month & Year Navigator -->
+        <div class="flex items-center space-x-1.5 bg-white px-2 py-1 rounded-2xl shadow-xs border border-slate-200/80">
+            <button wire:click="prevMonth" class="w-6 h-6 rounded-lg bg-slate-50 hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90" title="Bulan Sebelumnya">
+                <i class="fa-solid fa-chevron-left text-[10px]"></i>
+            </button>
+            <span class="text-xs font-extrabold text-sky-700 px-1 select-none">
+                {{ $bulanNama }}
+            </span>
+            <button wire:click="nextMonth" class="w-6 h-6 rounded-lg bg-slate-50 hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90" title="Bulan Berikutnya">
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            </button>
+        </div>
     </div>
 
     <div class="grid grid-cols-4 gap-2 mb-6">
         <!-- 1. Hadir -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'hadir']) }}" wire:navigate 
+        <a href="{{ route('mobile.riwayat', ['status' => 'hadir', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
            class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
             <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-circle-check"></i>
@@ -116,7 +135,7 @@
         </a>
 
         <!-- 2. Terlambat -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'terlambat']) }}" wire:navigate 
+        <a href="{{ route('mobile.riwayat', ['status' => 'terlambat', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
            class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
             <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-clock"></i>
@@ -126,7 +145,7 @@
         </a>
 
         <!-- 3. Dinas Luar -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'dinas_luar']) }}" wire:navigate 
+        <a href="{{ route('mobile.riwayat', ['status' => 'dinas_luar', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
            class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
             <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-briefcase"></i>
@@ -136,7 +155,7 @@
         </a>
 
         <!-- 4. Pulang Cepat -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'pulang_cepat']) }}" wire:navigate 
+        <a href="{{ route('mobile.riwayat', ['status' => 'pulang_cepat', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
            class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
             <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
@@ -146,7 +165,7 @@
         </a>
 
         <!-- 5. Izin -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'izin']) }}" wire:navigate 
+        <a href="{{ route('mobile.riwayat', ['status' => 'izin', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
            class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
             <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-calendar-check"></i>
@@ -156,7 +175,7 @@
         </a>
 
         <!-- 6. Sakit -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'sakit']) }}" wire:navigate 
+        <a href="{{ route('mobile.riwayat', ['status' => 'sakit', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
            class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
             <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-notes-medical"></i>
@@ -166,7 +185,7 @@
         </a>
 
         <!-- 7. Tanpa Keterangan / Alpa -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'tidak_hadir']) }}" wire:navigate 
+        <a href="{{ route('mobile.riwayat', ['status' => 'tidak_hadir', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
            class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
             <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-user-xmark"></i>
