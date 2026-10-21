@@ -52,6 +52,16 @@ class User extends Authenticatable implements HasAvatar, HasName
         'no_kk',
         'no_hp',
         'no_bpjs',
+        'gelar_depan',
+        'gelar_belakang',
+        'agama',
+        'alamat',
+        'no_telp',
+        'email_pribadi',
+        'npwp',
+        'tanggal_npwp',
+        'no_taspen',
+        'jenjang_pendidikan',
     ];
 
     /**
@@ -74,6 +84,8 @@ class User extends Authenticatable implements HasAvatar, HasName
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tanggal_lahir' => 'date',
+            'tanggal_npwp' => 'date',
             'pangkat_golongan' => \App\Enums\GolonganRuang::class,
             'jenis_kelamin' => \App\Enums\JenisKelamin::class,
             'eselon' => \App\Enums\Eselon::class,

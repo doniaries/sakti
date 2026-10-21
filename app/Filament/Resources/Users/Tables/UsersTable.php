@@ -91,6 +91,63 @@ class UsersTable
                     ->searchable()
                     ->sortable(),
 
+                \Filament\Tables\Columns\TextColumn::make('jenjang_pendidikan')
+                    ->label('Pendidikan')
+                    ->badge()
+                    ->color(fn($state) => match ($state) {
+                        'S3' => 'purple',
+                        'S2' => 'danger',
+                        'S1' => 'success',
+                        'D3' => 'info',
+                        'SLTA' => 'warning',
+                        'SMP' => 'gray',
+                        default => 'gray',
+                    })
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                \Filament\Tables\Columns\TextColumn::make('pendidikan')
+                    ->label('Jurusan / Prodi')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('gelar_lengkap')
+                    ->label('Nama & Gelar')
+                    ->state(fn($record) => trim(($record->gelar_depan ? $record->gelar_depan . ' ' : '') . $record->name . ($record->gelar_belakang ? ', ' . $record->gelar_belakang : '')))
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('agama')
+                    ->label('Agama')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('alamat')
+                    ->label('Alamat')
+                    ->limit(30)
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('no_telp')
+                    ->label('Nomor Telepon')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('email_pribadi')
+                    ->label('Email Pribadi')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('npwp')
+                    ->label('NPWP')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('tanggal_npwp')
+                    ->label('Tanggal NPWP')
+                    ->date('d/m/Y')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('no_taspen')
+                    ->label('Nomor Taspen')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('status_kerja')
                     ->label('Tipe Kerja')
                     ->badge()
@@ -107,6 +164,17 @@ class UsersTable
                 \Filament\Tables\Columns\ToggleColumn::make('aktif'),
             ])
             ->filters([
+                SelectFilter::make('jenjang_pendidikan')
+                    ->label('Jenjang Pendidikan')
+                    ->options([
+                        'S3' => 'S3 (Doktoral)',
+                        'S2' => 'S2 (Magister)',
+                        'S1' => 'S1 / D-IV (Sarjana)',
+                        'D3' => 'D3 (Diploma)',
+                        'SLTA' => 'SLTA / SMA / SMK',
+                        'SMP' => 'SMP / MTs',
+                        'SD' => 'SD',
+                    ]),
                 SelectFilter::make('bidang_id')
                     ->label('Bidang')
                     ->relationship('bidang', 'nama')

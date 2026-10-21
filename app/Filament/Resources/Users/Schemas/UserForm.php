@@ -22,9 +22,23 @@ class UserForm
                                     ->label('Nama Lengkap')
                                     ->required()
                                     ->maxLength(255),
+                                \Filament\Forms\Components\TextInput::make('gelar_depan')
+                                    ->label('Gelar Depan')
+                                    ->placeholder('Contoh: Dr., Ir., Drs.')
+                                    ->maxLength(50),
+                                \Filament\Forms\Components\TextInput::make('gelar_belakang')
+                                    ->label('Gelar Belakang')
+                                    ->placeholder('Contoh: S.IP, M.CIO, S.Kom')
+                                    ->maxLength(100),
                                 \Filament\Forms\Components\TextInput::make('email')
+                                    ->label('Email Dinas / Akun')
                                     ->email()
                                     ->required()
+                                    ->maxLength(255),
+                                \Filament\Forms\Components\TextInput::make('email_pribadi')
+                                    ->label('Email Pribadi')
+                                    ->email()
+                                    ->placeholder('Email pribadi pegawai...')
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('password')
                                     ->label('Password')
@@ -53,7 +67,7 @@ class UserForm
                             ])->columns(2),
 
                         Section::make('Data Kependudukan & Administrasi Instansi')
-                            ->description('Kebutuhan data internal instansi (NIK, No. KK, No. HP/WA, BPJS Kesehatan) agar tidak perlu diminta berulang kali.')
+                            ->description('Kebutuhan data internal instansi (NIK, No. KK, No. HP/WA, BPJS Kesehatan, NPWP, Taspen, dll).')
                             ->icon('heroicon-o-identification')
                             ->schema([
                                 \Filament\Forms\Components\TextInput::make('nik')
@@ -73,16 +87,65 @@ class UserForm
                                     ->tel()
                                     ->placeholder('Contoh: 081234567890')
                                     ->maxLength(25),
+                                \Filament\Forms\Components\TextInput::make('no_telp')
+                                    ->label('Nomor Telepon Rumah/Kantor')
+                                    ->tel()
+                                    ->placeholder('Nomor telepon lain/rumah...')
+                                    ->maxLength(25),
+                                \Filament\Forms\Components\TextInput::make('npwp')
+                                    ->label('Nomor NPWP')
+                                    ->placeholder('Contoh: 15.988.184.6-203.000')
+                                    ->maxLength(30),
+                                \Filament\Forms\Components\DatePicker::make('tanggal_npwp')
+                                    ->label('Tanggal NPWP')
+                                    ->displayFormat('d/m/Y'),
                                 \Filament\Forms\Components\TextInput::make('no_bpjs')
                                     ->label('Nomor BPJS Kesehatan')
                                     ->placeholder('Nomor Kartu BPJS Kesehatan...')
                                     ->maxLength(30),
+                                \Filament\Forms\Components\TextInput::make('no_taspen')
+                                    ->label('Nomor Taspen')
+                                    ->placeholder('Nomor Kartu Taspen...')
+                                    ->maxLength(30),
+                                \Filament\Forms\Components\Select::make('agama')
+                                    ->label('Agama')
+                                    ->options([
+                                        'Islam' => 'Islam',
+                                        'Kristen' => 'Kristen',
+                                        'Katolik' => 'Katolik',
+                                        'Hindu' => 'Hindu',
+                                        'Buddha' => 'Buddha',
+                                        'Konghucu' => 'Konghucu',
+                                    ]),
+                                \Filament\Forms\Components\Textarea::make('alamat')
+                                    ->label('Alamat Domisili / Tempat Tinggal')
+                                    ->placeholder('Alamat lengkap...')
+                                    ->columnSpanFull(),
                             ])->columns(2),
 
                         Section::make('Detail Kepegawaian & Posisi')
                             ->icon('heroicon-o-briefcase')
                             ->schema([
                                 \Filament\Forms\Components\TextInput::make('nip')
+                                    ->label('NIP')
+                                    ->mask('99999999 999999 9 999')
+                                    ->placeholder('Contoh: 19720407 199202 1 002')
+                                    ->maxLength(30),
+                                \Filament\Forms\Components\Select::make('jenjang_pendidikan')
+                                    ->label('Jenjang Pendidikan')
+                                    ->options([
+                                        'S3' => 'S3 (Doktoral)',
+                                        'S2' => 'S2 (Magister)',
+                                        'S1' => 'S1 / D-IV (Sarjana)',
+                                        'D3' => 'D3 (Diploma)',
+                                        'SLTA' => 'SLTA / SMA / SMK',
+                                        'SMP' => 'SMP / MTs',
+                                        'SD' => 'SD',
+                                    ]),
+                                \Filament\Forms\Components\TextInput::make('pendidikan')
+                                    ->label('Jurusan / Nama Pendidikan')
+                                    ->placeholder('Contoh: S1 Ilmu Komputer, S2 Magister Teknik...')
+                                    ->maxLength(100),
                                     ->label('NIP')
                                     ->mask('99999999 999999 9 999')
                                     ->placeholder('Contoh: 19720407 199202 1 002')
