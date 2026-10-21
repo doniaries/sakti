@@ -10,12 +10,12 @@ class UserStatsWidget extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
-        $total = User::count();
-        $s3Count = User::where('jenjang_pendidikan', 'S3')->count();
-        $s2Count = User::where('jenjang_pendidikan', 'S2')->count();
-        $s1Count = User::where('jenjang_pendidikan', 'S1')->count();
-        $sltaCount = User::where('jenjang_pendidikan', 'SLTA')->count();
-        $smpCount = User::where('jenjang_pendidikan', 'SMP')->count();
+        $total = User::query()->count();
+        $s3Count = User::query()->where('jenjang_pendidikan', '=', 'S3')->count();
+        $s2Count = User::query()->where('jenjang_pendidikan', '=', 'S2')->count();
+        $s1Count = User::query()->where('jenjang_pendidikan', '=', 'S1')->count();
+        $sltaCount = User::query()->where('jenjang_pendidikan', '=', 'SLTA')->count();
+        $smpCount = User::query()->where('jenjang_pendidikan', '=', 'SMP')->count();
 
         return [
             Stat::make('Total Pegawai', $total)
@@ -30,6 +30,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ->color('purple')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
                     'tableFilters' => ['jenjang_pendidikan' => ['value' => 'S3']],
+                    'jenjang' => 'S3',
                 ])),
 
             Stat::make('Pendidikan S2', $s2Count)
@@ -38,6 +39,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ->color('danger')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
                     'tableFilters' => ['jenjang_pendidikan' => ['value' => 'S2']],
+                    'jenjang' => 'S2',
                 ])),
 
             Stat::make('Pendidikan S1', $s1Count)
@@ -46,6 +48,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ->color('success')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
                     'tableFilters' => ['jenjang_pendidikan' => ['value' => 'S1']],
+                    'jenjang' => 'S1',
                 ])),
 
             Stat::make('Pendidikan SLTA', $sltaCount)
@@ -54,6 +57,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ->color('warning')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
                     'tableFilters' => ['jenjang_pendidikan' => ['value' => 'SLTA']],
+                    'jenjang' => 'SLTA',
                 ])),
 
             Stat::make('Pendidikan SMP', $smpCount)
@@ -62,6 +66,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ->color('info')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
                     'tableFilters' => ['jenjang_pendidikan' => ['value' => 'SMP']],
+                    'jenjang' => 'SMP',
                 ])),
         ];
     }

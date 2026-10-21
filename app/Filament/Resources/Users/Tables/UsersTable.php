@@ -19,6 +19,11 @@ class UsersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (\Illuminate\Database\Eloquent\Builder $query) {
+                if ($jenjang = request()->query('jenjang')) {
+                    $query->where('jenjang_pendidikan', '=', $jenjang);
+                }
+            })
             ->columns([
                 \Filament\Tables\Columns\ImageColumn::make('avatar_url')
                     ->disk('public')
