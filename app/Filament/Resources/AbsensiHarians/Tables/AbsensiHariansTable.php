@@ -116,7 +116,7 @@ class AbsensiHariansTable
                         'dinas_luar' => 'info',
                         default => 'success',
                     })
-                    ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
+                    ->formatStateUsing(fn($state) => strtoupper(str_replace('_', ' ', $state ?? 'WFO'))),
                 TextColumn::make('status_apel')
                     ->badge()
                     ->color(fn(?string $state): string => match ($state) {
@@ -127,6 +127,7 @@ class AbsensiHariansTable
                     ->searchable(),
             ])
             ->defaultSort('tanggal', 'desc')
+            ->deferFilters(false)
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersFormColumns(2)
             ->filters([
@@ -139,7 +140,8 @@ class AbsensiHariansTable
                             ->displayFormat('d/m/Y')
                             ->maxDate(now()) // Tanggal yang belum aktif (masa depan) otomatis disabled!
                             ->native(false)
-                            ->closeOnDateSelection(),
+                            ->closeOnDateSelection()
+                            ->live(),
                     ])
                     ->query(
                         fn(Builder $query, array $data): Builder =>

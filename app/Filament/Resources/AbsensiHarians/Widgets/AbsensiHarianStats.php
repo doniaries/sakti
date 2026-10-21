@@ -12,6 +12,9 @@ class AbsensiHarianStats extends BaseWidget
 {
     use InteractsWithPageTable;
 
+    // Refresh realtime setiap 15 detik tanpa cache
+    protected ?string $pollingInterval = '15s';
+
     protected function getTablePage(): string
     {
         return ListAbsensiHarians::class;
@@ -19,8 +22,10 @@ class AbsensiHarianStats extends BaseWidget
 
     protected function getStats(): array
     {
+        // Query realtime langsung dari database sesuai filter aktif tabel
         $query = clone $this->getPageTableQuery();
 
+        $totalPegawai = (clone $query)->count();
         $hadir = (clone $query)->where('status', 'hadir')->count();
         $izin = (clone $query)->where('status', 'izin')->count();
         $sakit = (clone $query)->where('status', 'sakit')->count();
@@ -35,6 +40,10 @@ class AbsensiHarianStats extends BaseWidget
         }
 
         return [
+            Stat::make('Total Pegawai', $totalPegawai)
+                ->description('Total Pegawai pada ' . $labelPeriode)
+                ->descriptionIcon('heroicon-m-user-group')
+                ->color('primary'),
             Stat::make('Hadir', $hadir)
                 ->description('Total Hadir pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-check-circle')
