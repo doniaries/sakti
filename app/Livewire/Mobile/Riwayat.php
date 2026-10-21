@@ -71,7 +71,8 @@ class Riwayat extends Component
         // Query berdasarkan filter aktif
         $query = AbsensiHarian::where('user_id', $userId)
             ->whereMonth('tanggal', $this->bulan)
-            ->whereYear('tanggal', $this->tahun);
+            ->whereYear('tanggal', $this->tahun)
+            ->with(['logMasuk', 'logPulang']);
 
         if ($this->filterStatus && $this->filterStatus !== 'semua') {
             if ($this->filterStatus === 'hadir') {

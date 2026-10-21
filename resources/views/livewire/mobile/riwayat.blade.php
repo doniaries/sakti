@@ -127,18 +127,46 @@
                         </div>
                         
                         <div>
-                            <h4 class="font-extrabold text-slate-800 text-sm">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('l, d M Y') }}</h4>
-                            <div class="flex items-center space-x-3 text-xs text-slate-500 font-mono mt-1 font-semibold">
-                                <span class="flex items-center"><i class="fa-solid fa-circle text-amber-500 text-[6px] mr-1.5"></i>{{ $item->jam_masuk ?? '--:--' }}</span>
+                            <h4 class="font-extrabold text-slate-800 text-sm">{{ $item->tanggal ? \Carbon\Carbon::parse($item->tanggal)->translatedFormat('l, d M Y') : '-' }}</h4>
+                            <div class="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 font-mono mt-1 font-semibold">
+                                <!-- Jam Masuk & Sumber Device dari DB -->
+                                <span class="flex items-center" title="Jam Masuk">
+                                    <i class="fa-solid fa-circle text-amber-500 text-[6px] mr-1.5"></i>
+                                    {{ $item->jam_masuk ? substr($item->jam_masuk, 0, 8) : '--:--' }}
+                                    @if($item->logMasuk?->perangkat === 'mesin')
+                                        <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1" title="Mesin Fingerprint"></i>
+                                    @elseif($item->logMasuk?->perangkat === 'mobile')
+                                        <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1" title="Aplikasi Mobile"></i>
+                                    @endif
+                                </span>
                                 <span class="text-slate-300">•</span>
-                                <span class="flex items-center"><i class="fa-solid fa-circle text-emerald-500 text-[6px] mr-1.5"></i>{{ $item->jam_pulang ?? '--:--' }}</span>
+                                <!-- Jam Pulang & Sumber Device dari DB -->
+                                <span class="flex items-center" title="Jam Pulang">
+                                    <i class="fa-solid fa-circle text-emerald-500 text-[6px] mr-1.5"></i>
+                                    {{ $item->jam_pulang ? substr($item->jam_pulang, 0, 8) : '--:--' }}
+                                    @if($item->logPulang?->perangkat === 'mesin')
+                                        <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1" title="Mesin Fingerprint"></i>
+                                    @elseif($item->logPulang?->perangkat === 'mobile')
+                                        <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1" title="Aplikasi Mobile"></i>
+                                    @endif
+                                </span>
                             </div>
+                            @if(!empty($item->keterangan))
+                                <p class="text-[10px] text-slate-400 mt-1 italic">{{ $item->keterangan }}</p>
+                            @endif
                         </div>
                     </div>
                     
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
-                        {{ str_replace('_', ' ', $status) }}
-                    </span>
+                    <div class="flex flex-col items-end space-y-1">
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
+                            {{ str_replace('_', ' ', $status) }}
+                        </span>
+                        @if(!empty($item->jenis_kehadiran))
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
+                                {{ $item->jenis_kehadiran?->value ?? $item->jenis_kehadiran }}
+                            </span>
+                        @endif
+                    </div>
                 </div>
             @endforeach
         </div>
