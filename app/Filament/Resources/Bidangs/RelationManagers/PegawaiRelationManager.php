@@ -99,7 +99,7 @@ class PegawaiRelationManager extends RelationManager
             ->headerActions([
                 AssociateAction::make()
                     ->label('Hubungkan Pegawai ke Bidang Ini')
-                    ->preloadRecordVideos(),
+                    ->preloadRecordSelect(),
             ])
             ->recordActions([
                 EditAction::make(),
