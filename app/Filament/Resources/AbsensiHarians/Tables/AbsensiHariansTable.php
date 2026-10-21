@@ -98,7 +98,7 @@ class AbsensiHariansTable
             ->defaultSort('tanggal', 'desc')
             ->deferFilters(false)
             ->filtersLayout(FiltersLayout::AboveContent)
-            ->filtersFormColumns(2)
+            ->filtersFormColumns(3)
             ->filters([
                 Filter::make('tanggal')
                     ->label('Filter Tanggal')
@@ -118,6 +118,44 @@ class AbsensiHariansTable
                     )
                     ->indicateUsing(fn(array $data): ?string => !empty($data['tanggal']) ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->translatedFormat('d F Y') : null),
 
+                Filter::make('kategori_status')
+                    ->label('Kategori Presensi')
+                    ->form([
+                        Select::make('kategori')
+                            ->label('Status Kehadiran')
+                            ->options([
+                                'lengkap'      => 'Lengkap (Masuk & Pulang)',
+                                'belum_pulang' => 'Belum Pulang (Hanya Masuk)',
+                                'dinas_luar'   => 'Dinas Luar / Izin / Sakit / Cuti',
+                                'tidak_hadir'  => 'Tidak Hadir / Alpa',
+                            ])
+                            ->placeholder('Semua Status')
+                            ->live(),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $kategori = $data['kategori'] ?? null;
+                        if (!$kategori) {
+                            return $query;
+                        }
+
+                        return match ($kategori) {
+                            'lengkap' => $query->whereNotNull('jam_masuk')->whereNotNull('jam_pulang'),
+                            'belum_pulang' => $query->whereNotNull('jam_masuk')->whereNull('jam_pulang')->whereNotIn('status', ['tidak_hadir', 'izin', 'sakit']),
+                            'dinas_luar' => $query->where(fn ($q) => $q->where('jenis_kehadiran', 'dinas_luar')->orWhereIn('status', ['dinas_luar', 'izin', 'sakit', 'cuti'])),
+                            'tidak_hadir' => $query->where('status', 'tidak_hadir')->orWhere(fn ($q) => $q->whereNull('jam_masuk')->whereNull('jam_pulang')),
+                            default => $query,
+                        };
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        $labels = [
+                            'lengkap'      => 'Kategori: Lengkap',
+                            'belum_pulang' => 'Kategori: Belum Pulang',
+                            'dinas_luar'   => 'Kategori: Dinas Luar / Izin',
+                            'tidak_hadir'  => 'Kategori: Tidak Hadir / Alpa',
+                        ];
+                        return $labels[$data['kategori'] ?? ''] ?? null;
+                    }),
+
                 Filter::make('pegawai')
                     ->label('Pegawai')
                     ->visible(fn() => \Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'pimpinan']))
@@ -128,7 +166,8 @@ class AbsensiHariansTable
                                 User::orderBy('name', 'asc')->pluck('name', 'id')->toArray()
                             )
                             ->searchable()
-                            ->placeholder('Semua Pegawai'),
+                            ->placeholder('Semua Pegawai')
+                            ->live(),
                     ])
                     ->query(
                         fn(Builder $query, array $data): Builder =>

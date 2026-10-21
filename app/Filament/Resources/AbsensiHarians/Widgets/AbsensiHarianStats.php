@@ -46,19 +46,19 @@ class AbsensiHarianStats extends BaseWidget
                 ->color('primary'),
             Stat::make('Hadir', $hadir)
                 ->description('Total Hadir pada ' . $labelPeriode)
-                ->descriptionIcon('heroicon-m-check-circle')
+                ->descriptionIcon('heroicon-m-check-badge')
                 ->color('success'),
             Stat::make('Sakit', $sakit)
                 ->description('Total Sakit pada ' . $labelPeriode)
-                ->descriptionIcon('heroicon-m-plus-circle')
+                ->descriptionIcon('heroicon-m-heart')
                 ->color('warning'),
             Stat::make('Izin', $izin)
                 ->description('Total Izin pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
-                ->description('Alpa pada ' . $labelPeriode)
-                ->descriptionIcon('heroicon-m-x-circle')
+                ->description('Total Tanpa Keterangan pada ' . $labelPeriode)
+                ->descriptionIcon('heroicon-m-user-minus')
                 ->color('danger'),
         ];
     }

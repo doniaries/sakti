@@ -9,13 +9,12 @@ Dokumen ini adalah pedoman baku dan aturan wajib untuk AI Agent dan pengembang d
 Aplikasi ini dibangun menggunakan arsitektur modern:
 - **PHP**: 8.3+
 - **Laravel Framework**: 12.x / 13.x
-- **Filament**: 4.x / 5.x
-- **Livewire**: 3.x / 4.x
+- **Backend Admin & Panel**: Filament 4.x / 5.x (Full Filament Native)
 - **Database**: MySQL 8.0+
 - **Autentikasi**: Laravel Sanctum (Mobile & API), Filament Shield (RBAC Panel)
-- **Klien Mobile**: Flutter App (`absensi_flutter`) & Mobile Web PWA Livewire
+- **Klien Mobile Pegawai**: Flutter App (`absensi_flutter`)
 
-> **PENTING (WAJIB):** DILARANG menghasilkan kode berdasarkan asumsi Filament 2 atau Filament 3. Semua komponen, schema, table, dan method wajib menggunakan sintaks Filament 4/5.
+> **PENTING (WAJIB):** DILARANG menghasilkan kode berdasarkan asumsi Filament 2 atau Filament 3. Semua komponen, schema, table, dan method wajib menggunakan sintaks Filament 4/5 native. Seluruh backend admin dikelola penuh menggunakan Filament.
 
 ---
 
