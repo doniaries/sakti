@@ -36,23 +36,47 @@ class PegawaiAbsensiBulanStatsWidget extends BaseWidget
 
         $userName = $user ? explode(' ', trim($user->name))[0] : 'Pribadi';
 
+        $filterParams = [
+            'pegawai' => ['user_id' => $userId],
+        ];
+
         return [
             Stat::make('Hadir', $hadir)
                 ->description("Hadir bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-check-circle')
-                ->color('success'),
+                ->color('success')
+                ->url(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => array_merge($filterParams, [
+                        'kategori_status' => ['kategori' => 'hadir'],
+                    ]),
+                ])),
             Stat::make('Sakit', $sakit)
                 ->description("Sakit bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-plus-circle')
-                ->color('warning'),
+                ->color('warning')
+                ->url(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => array_merge($filterParams, [
+                        'kategori_status' => ['kategori' => 'sakit'],
+                    ]),
+                ])),
             Stat::make('Izin', $izin)
                 ->description("Izin bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-document-text')
-                ->color('warning'),
+                ->color('warning')
+                ->url(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => array_merge($filterParams, [
+                        'kategori_status' => ['kategori' => 'izin'],
+                    ]),
+                ])),
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
                 ->description("Tanpa keterangan bulan ini ({$userName})")
                 ->descriptionIcon('heroicon-m-x-circle')
-                ->color('danger'),
+                ->color('danger')
+                ->url(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => array_merge($filterParams, [
+                        'kategori_status' => ['kategori' => 'tidak_hadir'],
+                    ]),
+                ])),
         ];
     }
 }

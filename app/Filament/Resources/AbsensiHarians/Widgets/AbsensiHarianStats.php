@@ -50,27 +50,61 @@ class AbsensiHarianStats extends BaseWidget
         $izin = (int) ($counts->izin ?? 0);
         $tanpaKeterangan = (int) ($counts->alpa ?? 0);
 
+        // Tanggal aktif untuk parameter query URL
+        $tanggalParam = !empty($filterData)
+            ? Carbon::parse($filterData)->toDateString()
+            : Carbon::today()->toDateString();
+
         return [
             Stat::make('Total Pegawai', $totalPegawaiInstansi)
                 ->description('Total Pegawai di Instansi')
                 ->descriptionIcon('heroicon-m-user-group')
-                ->color('primary'),
+                ->color('primary')
+                ->url(\App\Filament\Resources\Users\UserResource::getUrl('index')),
+
             Stat::make('Hadir', $hadir)
                 ->description('Total Hadir pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-check-badge')
-                ->color('success'),
+                ->color('success')
+                ->url(ListAbsensiHarians::getUrl([
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $tanggalParam],
+                        'kategori_status' => ['kategori' => 'hadir'],
+                    ],
+                ])),
+
             Stat::make('Sakit', $sakit)
                 ->description('Total Sakit pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-heart')
-                ->color('warning'),
+                ->color('warning')
+                ->url(ListAbsensiHarians::getUrl([
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $tanggalParam],
+                        'kategori_status' => ['kategori' => 'sakit'],
+                    ],
+                ])),
+
             Stat::make('Izin', $izin)
                 ->description('Total Izin pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-document-text')
-                ->color('warning'),
+                ->color('warning')
+                ->url(ListAbsensiHarians::getUrl([
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $tanggalParam],
+                        'kategori_status' => ['kategori' => 'izin'],
+                    ],
+                ])),
+
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
                 ->description('Total Tanpa Keterangan pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-user-minus')
-                ->color('danger'),
+                ->color('danger')
+                ->url(ListAbsensiHarians::getUrl([
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $tanggalParam],
+                        'kategori_status' => ['kategori' => 'tidak_hadir'],
+                    ],
+                ])),
         ];
     }
 }

@@ -32,11 +32,14 @@ class DashboardStatsWidget extends StatsOverviewWidget
             Stat::make('Jumlah Pegawai', \App\Models\User::role('pegawai')->count())
                 ->description('Total pengguna berstatus pegawai (Keseluruhan)')
                 ->descriptionIcon('heroicon-m-user-group')
-                ->color('primary'),
+                ->color('primary')
+                ->url(\App\Filament\Resources\Users\UserResource::getUrl('index')),
+
             Stat::make('Jumlah Bidang', \App\Models\Bidang::count())
                 ->description('Total bidang terdaftar (Keseluruhan)')
                 ->descriptionIcon('heroicon-m-rectangle-group')
-                ->color('success'),
+                ->color('success')
+                ->url(\App\Filament\Resources\Bidangs\BidangResource::getUrl('index')),
         ];
     }
 }

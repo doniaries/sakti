@@ -25,23 +25,49 @@ class DashboardAbsensiStats extends BaseWidget
         $sakit = (clone $baseQuery)->where('status', 'sakit')->count();
         $tanpaKeterangan = (clone $baseQuery)->where('status', 'tidak_hadir')->count();
 
+        $todayStr = $today->toDateString();
+
         return [
             Stat::make('Hadir', $hadir)
                 ->description('Hadir hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-check-circle')
-                ->color('success'),
+                ->color('success')
+                ->url(AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $todayStr],
+                        'kategori_status' => ['kategori' => 'hadir'],
+                    ],
+                ])),
             Stat::make('Sakit', $sakit)
                 ->description('Sakit hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-plus-circle')
-                ->color('warning'),
+                ->color('warning')
+                ->url(AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $todayStr],
+                        'kategori_status' => ['kategori' => 'sakit'],
+                    ],
+                ])),
             Stat::make('Izin', $izin)
                 ->description('Izin hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-document-text')
-                ->color('warning'),
+                ->color('warning')
+                ->url(AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $todayStr],
+                        'kategori_status' => ['kategori' => 'izin'],
+                    ],
+                ])),
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
                 ->description('Tanpa keterangan hari ini (Seluruh Pegawai)')
                 ->descriptionIcon('heroicon-m-x-circle')
-                ->color('danger'),
+                ->color('danger')
+                ->url(AbsensiHarianResource::getUrl('index', [
+                    'tableFilters' => [
+                        'tanggal' => ['tanggal' => $todayStr],
+                        'kategori_status' => ['kategori' => 'tidak_hadir'],
+                    ],
+                ])),
         ];
     }
 }
