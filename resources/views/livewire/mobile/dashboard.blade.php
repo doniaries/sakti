@@ -1,28 +1,53 @@
 <div class="p-5 pb-20">
+    @php
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+    @endphp
+    <!-- Top Header: Logo, Nama Aplikasi & Logout -->
     <div class="flex justify-between items-center mb-5">
-        <h1 class="text-xl font-bold text-gray-800">Dashboard</h1>
-        <button wire:click="logout" class="text-gray-500 hover:text-red-500 transition">
-            <i class="fa-solid fa-right-from-bracket text-lg"></i>
+        <div class="flex items-center space-x-2.5">
+            @if(!empty($pengaturan->logo) && file_exists(public_path('storage/' . $pengaturan->logo)))
+                <img src="{{ asset('storage/' . $pengaturan->logo) }}" 
+                     alt="Logo Aplikasi" 
+                     class="w-10 h-10 rounded-xl object-contain bg-white shadow-md shadow-sky-500/15 p-1 border border-slate-200/80">
+            @else
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-sky-500 to-teal-400 text-white flex items-center justify-center shadow-md shadow-sky-500/25 border border-white/20">
+                    <i class="fa-solid fa-leaf text-lg"></i>
+                </div>
+            @endif
+            <div>
+                <h1 class="text-lg font-black text-slate-800 tracking-tight leading-tight uppercase">{{ $pengaturan->nama_aplikasi }}</h1>
+                <p class="text-[10px] font-bold text-sky-600 tracking-wider uppercase">{{ $pengaturan->sub_nama ?? 'Dinas Lingkungan Hidup' }}</p>
+            </div>
+        </div>
+        <button wire:click="logout" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition flex items-center justify-center border border-slate-200/60" title="Keluar">
+            <i class="fa-solid fa-right-from-bracket text-sm"></i>
         </button>
     </div>
 
     <!-- Greeting Card -->
-    <div class="w-full p-5 rounded-3xl bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#075985] text-white shadow-xl shadow-sky-950/15 mb-6 relative overflow-hidden border border-white/10">
-        <!-- Background Glow Accent -->
-        <div class="absolute -right-8 -top-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+    <div class="w-full p-5 rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white shadow-xl shadow-sky-950/20 mb-6 relative overflow-hidden border border-white/15">
+        <!-- Background Glow Accent & Decorative Watermark Icon -->
+        <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-sky-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -right-3 -top-3 text-white/[0.07] text-8xl pointer-events-none">
+            <i class="fa-solid fa-fingerprint"></i>
+        </div>
 
         @php
             $hour = now()->hour;
             $greeting = $hour < 12 ? 'Selamat Pagi' : ($hour < 15 ? 'Selamat Siang' : ($hour < 18 ? 'Selamat Sore' : 'Selamat Malam'));
+            $greetingIcon = $hour < 12 ? 'fa-sun text-amber-400' : ($hour < 15 ? 'fa-cloud-sun text-amber-300' : ($hour < 18 ? 'fa-cloud-sun text-orange-400' : 'fa-moon text-indigo-200'));
         @endphp
 
-        <div class="flex justify-between items-start">
+        <div class="flex justify-between items-start relative z-10">
             <div>
-                <span class="text-xs font-semibold text-sky-200 tracking-wider uppercase">Panel Pegawai</span>
-                <h2 class="text-xl font-extrabold tracking-tight mt-0.5">{{ $greeting }}, {{ explode(' ', $user->name)[0] }}!</h2>
+                <div class="flex items-center space-x-1.5 text-xs font-bold text-sky-200 tracking-wide mb-1">
+                    <i class="fa-solid {{ $greetingIcon }}"></i>
+                    <span>{{ $greeting }},</span>
+                </div>
+                <h2 class="text-xl font-extrabold tracking-tight text-white drop-shadow-xs">{{ $user->name }}</h2>
                 
                 <!-- Tanggal & Jam Aktif Server -->
-                <div class="flex items-center flex-wrap gap-2 text-xs text-white/85 mt-2" 
+                <div class="flex items-center flex-wrap gap-2 text-xs text-white/90 mt-2.5" 
                      x-data="{ 
                          hours: '--', 
                          minutes: '--', 
@@ -41,18 +66,18 @@
                     </span>
                     <span class="text-white/40">•</span>
                     <!-- Jam Aktif Server Real-Time (HH:MM WIB) -->
-                    <span class="flex items-center bg-black/25 backdrop-blur-md px-2.5 py-1 rounded-full font-mono text-[11px] font-bold text-amber-300 border border-white/10 shadow-xs">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 inline-block"></span>
+                    <span class="flex items-center bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-full font-mono text-[11px] font-bold text-amber-300 border border-white/15 shadow-inner">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 inline-block animate-pulse"></span>
                         <span x-text="hours">--</span><span class="inline-block transition-opacity duration-200" :class="colon ? 'opacity-100' : 'opacity-20'">:</span><span x-text="minutes">--</span>&nbsp;WIB
                     </span>
                 </div>
             </div>
         </div>
         
-        <div class="grid grid-cols-2 gap-2.5 mt-5">
+        <div class="grid grid-cols-2 gap-2.5 mt-5 relative z-10">
             <!-- Masuk -->
-            <div class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_masuk'] ? 'bg-white/20 backdrop-blur-sm' : 'bg-black/15' }}">
-                <div class="w-8 h-8 rounded-xl {{ $hariIni['sudah_masuk'] ? 'bg-emerald-400 text-slate-900' : 'bg-white/15 text-white/50' }} flex items-center justify-center text-sm shadow-xs">
+            <div class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_masuk'] ? 'bg-white/20 backdrop-blur-md shadow-inner' : 'bg-black/25 backdrop-blur-xs' }}">
+                <div class="w-9 h-9 rounded-xl {{ $hariIni['sudah_masuk'] ? 'bg-emerald-400 text-slate-900 shadow-md shadow-emerald-500/30' : 'bg-white/10 text-white/40' }} flex items-center justify-center text-sm shadow-xs transition-colors">
                     <i class="fa-solid fa-right-to-bracket"></i>
                 </div>
                 <div class="ml-2.5 flex flex-col">
@@ -61,8 +86,8 @@
                 </div>
             </div>
             <!-- Keluar -->
-            <div class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_pulang'] ? 'bg-white/20 backdrop-blur-sm' : 'bg-black/15' }}">
-                <div class="w-8 h-8 rounded-xl {{ $hariIni['sudah_pulang'] ? 'bg-sky-400 text-slate-900' : 'bg-white/15 text-white/50' }} flex items-center justify-center text-sm shadow-xs">
+            <div class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_pulang'] ? 'bg-white/20 backdrop-blur-md shadow-inner' : 'bg-black/25 backdrop-blur-xs' }}">
+                <div class="w-9 h-9 rounded-xl {{ $hariIni['sudah_pulang'] ? 'bg-sky-400 text-slate-900 shadow-md shadow-sky-500/30' : 'bg-white/10 text-white/40' }} flex items-center justify-center text-sm shadow-xs transition-colors">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </div>
                 <div class="ml-2.5 flex flex-col">
@@ -81,76 +106,84 @@
 
     <div class="grid grid-cols-4 gap-2 mb-6">
         <!-- 1. Hadir -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.riwayat', ['status' => 'hadir']) }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-circle-check"></i>
             </div>
             <span class="text-lg font-black text-slate-800">{{ $statistik['hadir'] }}</span>
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Hadir</span>
-        </div>
+        </a>
 
         <!-- 2. Terlambat -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.riwayat', ['status' => 'terlambat']) }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-clock"></i>
             </div>
             <span class="text-lg font-black text-slate-800">{{ $statistik['terlambat'] }}</span>
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Terlambat</span>
-        </div>
+        </a>
 
         <!-- 3. Dinas Luar -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.riwayat', ['status' => 'dinas_luar']) }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-briefcase"></i>
             </div>
             <span class="text-lg font-black text-slate-800">{{ $statistik['dinas_luar'] }}</span>
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Dinas Luar</span>
-        </div>
+        </a>
 
         <!-- 4. Pulang Cepat -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.riwayat', ['status' => 'pulang_cepat']) }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
             </div>
             <span class="text-lg font-black text-slate-800">{{ $statistik['pulang_cepat'] }}</span>
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Plg Cepat</span>
-        </div>
+        </a>
 
         <!-- 5. Izin -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.riwayat', ['status' => 'izin']) }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-calendar-check"></i>
             </div>
             <span class="text-lg font-black text-slate-800">{{ $statistik['izin'] }}</span>
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Izin</span>
-        </div>
+        </a>
 
         <!-- 6. Sakit -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.riwayat', ['status' => 'sakit']) }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-notes-medical"></i>
             </div>
             <span class="text-lg font-black text-slate-800">{{ $statistik['sakit'] }}</span>
             <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Sakit</span>
-        </div>
+        </a>
 
         <!-- 7. Tanpa Keterangan / Alpa -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.riwayat', ['status' => 'tidak_hadir']) }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-user-xmark"></i>
             </div>
             <span class="text-lg font-black text-rose-600">{{ $statistik['tanpa_keterangan'] }}</span>
             <span class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Alpa</span>
-        </div>
+        </a>
 
         <!-- 8. LHK Dibuat -->
-        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
-            <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm mb-1.5">
+        <a href="{{ route('mobile.lhk.index') }}" wire:navigate 
+           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+            <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
                 <i class="fa-solid fa-file-signature"></i>
             </div>
             <span class="text-lg font-black text-teal-700">{{ $statistik['lhk_dibuat'] }}</span>
             <span class="text-[9px] text-teal-600 font-bold uppercase tracking-wide">LHK</span>
-        </div>
+        </a>
     </div>
 
     <!-- Quick Actions Khusus LHK -->

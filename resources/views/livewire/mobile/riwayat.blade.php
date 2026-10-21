@@ -1,56 +1,144 @@
-<div class="p-5 pb-20">
-    <!-- Header with Month Picker -->
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-xl font-bold text-gray-800">Riwayat</h1>
-        <div class="flex items-center space-x-3 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-100">
-            <button wire:click="prevMonth" class="text-gray-400 hover:text-[#1B6CA8]"><i class="fa-solid fa-chevron-left text-sm"></i></button>
-            <span class="text-sm font-semibold text-gray-700 w-24 text-center">{{ $bulanNama }}</span>
-            <button wire:click="nextMonth" class="text-gray-400 hover:text-[#1B6CA8]"><i class="fa-solid fa-chevron-right text-sm"></i></button>
+<div class="p-5 pb-24">
+    <!-- Top Header: Title & Print Button -->
+    <div class="flex justify-between items-center mb-4">
+        <div>
+            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Riwayat Absensi</h1>
+            <p class="text-xs text-slate-500 font-medium">Rekapitulasi kehadiran pegawai</p>
+        </div>
+        <!-- Tombol Print PDF untuk pimpinan / arsip -->
+        <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $bulan, 'tahun' => $tahun, 'status' => $filterStatus]) }}" 
+           target="_blank"
+           class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs flex items-center shadow-md shadow-red-500/25 active:scale-95 transition-all">
+            <i class="fa-solid fa-file-pdf mr-1.5 text-sm"></i>
+            <span>Cetak PDF</span>
+        </a>
+    </div>
+
+    <!-- Month Navigator -->
+    <div class="flex items-center justify-between bg-white px-4 py-2 rounded-2xl shadow-xs border border-slate-200/80 mb-4">
+        <button wire:click="prevMonth" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+        <span class="text-sm font-bold text-slate-800 tracking-wide">{{ $bulanNama }}</span>
+        <button wire:click="nextMonth" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+    </div>
+
+    <!-- Card Hitung Jumlah Kehadiran (Rekap Ringkas) -->
+    <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white p-4 rounded-3xl shadow-xl shadow-sky-950/20 mb-5 relative overflow-hidden border border-white/15">
+        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-sky-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex items-center justify-between mb-3 relative z-10">
+            <div class="flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center text-xs text-sky-200">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <span class="text-xs font-bold text-sky-200 uppercase tracking-wider">Rekapitulasi Kehadiran</span>
+            </div>
+            <span class="text-xs font-extrabold text-amber-300 bg-black/25 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10">
+                Total: {{ $rekap['total'] }} Hari
+            </span>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2 text-center relative z-10">
+            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
+                <span class="text-lg font-black text-emerald-300 block leading-tight">{{ $rekap['hadir'] }}</span>
+                <span class="text-[9px] font-bold text-sky-100 uppercase tracking-tight">Hadir</span>
+            </div>
+            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
+                <span class="text-lg font-black text-amber-300 block leading-tight">{{ $rekap['terlambat'] }}</span>
+                <span class="text-[9px] font-bold text-sky-100 uppercase tracking-tight">Telat</span>
+            </div>
+            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
+                <span class="text-lg font-black text-cyan-300 block leading-tight">{{ $rekap['dinas_luar'] + $rekap['izin_sakit'] }}</span>
+                <span class="text-[9px] font-bold text-sky-100 uppercase tracking-tight">DL/Izin</span>
+            </div>
+            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
+                <span class="text-lg font-black text-rose-300 block leading-tight">{{ $rekap['alpa'] }}</span>
+                <span class="text-[9px] font-bold text-rose-200 uppercase tracking-tight">Alpa</span>
+            </div>
         </div>
     </div>
 
+    <!-- Filter Status Tabs (Semua, Hadir, Terlambat, DL, Izin/Sakit, Alpa) -->
+    <div class="flex space-x-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
+        <button wire:click="setFilter('semua')" 
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'semua' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+            Semua
+        </button>
+        <button wire:click="setFilter('hadir')" 
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'hadir' ? 'bg-emerald-600 text-white shadow-emerald-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+            Hadir ({{ $rekap['hadir'] }})
+        </button>
+        <button wire:click="setFilter('terlambat')" 
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'terlambat' ? 'bg-amber-500 text-white shadow-amber-500/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+            Terlambat ({{ $rekap['terlambat'] }})
+        </button>
+        <button wire:click="setFilter('dinas_luar')" 
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'dinas_luar' ? 'bg-sky-500 text-white shadow-sky-500/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+            Dinas Luar ({{ $rekap['dinas_luar'] }})
+        </button>
+        <button wire:click="setFilter('izin_sakit')" 
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'izin_sakit' ? 'bg-indigo-600 text-white shadow-indigo-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+            Izin & Sakit ({{ $rekap['izin_sakit'] }})
+        </button>
+        <button wire:click="setFilter('tidak_hadir')" 
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'tidak_hadir' ? 'bg-rose-600 text-white shadow-rose-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+            Alpa ({{ $rekap['alpa'] }})
+        </button>
+    </div>
+
+    <!-- Riwayat List Items -->
     @if($riwayat->isEmpty())
-        <div class="flex flex-col items-center justify-center h-64 text-gray-400">
-            <i class="fa-solid fa-calendar-xmark text-6xl mb-4 opacity-50"></i>
-            <p>Tidak ada data absensi bulan ini.</p>
+        <div class="bg-white rounded-3xl p-8 text-center border border-slate-100 shadow-xs flex flex-col items-center">
+            <div class="w-16 h-16 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center text-3xl mb-3">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">Tidak Ada Data Absensi</h4>
+            <p class="text-xs text-slate-400 mt-1">Tidak ditemukan log kehadiran pada filter & periode ini.</p>
         </div>
     @else
         <div class="space-y-3">
             @foreach($riwayat as $item)
                 @php
-                    $status = $item->status;
-                    $color = match($status) {
-                        'hadir' => 'text-[#2D9B4F] bg-[#2D9B4F]/10',
-                        'terlambat' => 'text-[#F59E0B] bg-[#F59E0B]/10',
-                        'izin' => 'text-[#0EA5E9] bg-[#0EA5E9]/10',
-                        'sakit' => 'text-[#8B5CF6] bg-[#8B5CF6]/10',
-                        default => 'text-red-500 bg-red-100',
+                    $status = $item->status?->value ?? $item->status;
+                    $badgeStyle = match($status) {
+                        'hadir' => 'text-emerald-700 bg-emerald-50 border-emerald-200',
+                        'terlambat' => 'text-amber-700 bg-amber-50 border-amber-200',
+                        'dinas_luar' => 'text-sky-700 bg-sky-50 border-sky-200',
+                        'izin' => 'text-blue-700 bg-blue-50 border-blue-200',
+                        'sakit' => 'text-purple-700 bg-purple-50 border-purple-200',
+                        default => 'text-rose-700 bg-rose-50 border-rose-200',
                     };
                     $iconColor = match($status) {
-                        'hadir' => 'text-[#2D9B4F]',
-                        'terlambat' => 'text-[#F59E0B]',
-                        'izin' => 'text-[#0EA5E9]',
-                        'sakit' => 'text-[#8B5CF6]',
-                        default => 'text-red-500',
+                        'hadir' => 'text-emerald-500 bg-emerald-50',
+                        'terlambat' => 'text-amber-500 bg-amber-50',
+                        'dinas_luar' => 'text-sky-500 bg-sky-50',
+                        'izin' => 'text-blue-500 bg-blue-50',
+                        'sakit' => 'text-purple-500 bg-purple-50',
+                        default => 'text-rose-500 bg-rose-50',
                     };
                 @endphp
                 
-                <div class="bg-white p-4 rounded-2xl shadow-sm flex items-center">
-                    <div class="w-12 h-12 rounded-full {{ $color }} flex justify-center items-center mr-4">
-                        <i class="fa-solid fa-calendar-day {{ $iconColor }} text-lg"></i>
-                    </div>
-                    
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-800 text-sm mb-1">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('l, d M Y') }}</h4>
-                        <div class="flex space-x-3 text-[11px] text-gray-500">
-                            <span><i class="fa-solid fa-circle text-[#F59E0B] text-[8px] mr-1"></i> Masuk: {{ $item->jam_masuk ?? '-' }}</span>
-                            <span><i class="fa-solid fa-circle text-[#2D9B4F] text-[8px] mr-1"></i> Pulang: {{ $item->jam_pulang ?? '-' }}</span>
+                <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center space-x-3.5">
+                        <div class="w-11 h-11 rounded-2xl {{ $iconColor }} flex items-center justify-center text-base shadow-xs">
+                            <i class="fa-solid fa-calendar-day"></i>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-extrabold text-slate-800 text-sm">{{ \Carbon\Carbon::parse($item->tanggal)->translatedFormat('l, d M Y') }}</h4>
+                            <div class="flex items-center space-x-3 text-xs text-slate-500 font-mono mt-1 font-semibold">
+                                <span class="flex items-center"><i class="fa-solid fa-circle text-amber-500 text-[6px] mr-1.5"></i>{{ $item->jam_masuk ?? '--:--' }}</span>
+                                <span class="text-slate-300">•</span>
+                                <span class="flex items-center"><i class="fa-solid fa-circle text-emerald-500 text-[6px] mr-1.5"></i>{{ $item->jam_pulang ?? '--:--' }}</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="px-2.5 py-1 rounded-full {{ $color }} text-[10px] font-bold uppercase">
-                        {{ $status }}
-                    </div>
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
+                        {{ str_replace('_', ' ', $status) }}
+                    </span>
                 </div>
             @endforeach
         </div>

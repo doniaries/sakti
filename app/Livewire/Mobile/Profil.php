@@ -80,7 +80,9 @@ class Profil extends Component
     public function toggleEdit()
     {
         $this->isEditing = !$this->isEditing;
-        if (!$this->isEditing) {
+        if ($this->isEditing) {
+            $this->activeTab = 'utama';
+        } else {
             $this->loadUserData(); // Cancel & reset
         }
     }

@@ -24,6 +24,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('/dashboard', Dashboard::class)->name('mobile.dashboard');
         Route::get('/absensi', Absensi::class)->name('mobile.absensi');
         Route::get('/riwayat', Riwayat::class)->name('mobile.riwayat');
+        Route::get('/riwayat/cetak-pdf', [\App\Http\Controllers\CetakLaporanController::class, 'cetakRiwayat'])->name('mobile.riwayat.cetak-pdf');
         Route::get('/lhk', LhkIndex::class)->name('mobile.lhk.index');
         Route::get('/lhk/buat', LhkForm::class)->name('mobile.lhk.create');
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');

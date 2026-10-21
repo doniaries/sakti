@@ -193,23 +193,18 @@ Ketika card widget pada Filament digunakan sebagai filter instan:
 
 ---
 
-## 9. Pedoman Refactor Livewire 3/4 & Standar Komponen
+## 9. Pedoman Antarmuka Livewire 3/4 & Mobile PWA
 
-Jika melakukan refactor atau membuat komponen Livewire kustom untuk sistem:
-1. **Aturan State & Properties**:
-   - Gunakan property bertipe data primitif atau DTO/Model sederhana.
-   - Hindari menyimpan instance query builder atau closure dalam property Livewire.
-   - Gunakan PHP 8.2+ Typed Properties: `public string $search = ''; public ?int $selectedId = null;`.
-2. **Livewire 3 Directive & Lifecycle**:
-   - Gunakan `wire:model.live` atau `wire:model.blur` (bukan `wire:model.lazy` dari Livewire 2).
-   - Gunakan method `mount()`, `updated($property)`, dan `render()`.
-   - Gunakan event `$this->dispatch('event-name', param: $val)` (bukan `$this->emit()` dari versi lama).
-3. **Kombinasi dengan Filament**:
-   - Jika membuat custom page Filament menggunakan Livewire, extend `Filament\Pages\Page`.
-   - Jika embed custom Livewire component di dalam Filament Form, gunakan `ViewField` atau `LivewireComponentField`.
-4. **Optimasi Re-render**:
-   - Gunakan `wire:key` pada setiap perulangan item (`@foreach ($items as $item)` -> `wire:key="item-{{ $item->id }}"`).
-   - Gunakan lazy loading untuk data berat: `#[Lazy]`.
+Panduan arsitektur dan standar refactor komponen Livewire telah dipisahkan ke dalam dokumen tersendiri:
+👉 **Silakan merujuk ke [`LIVEWIRE.md`](file:///c:/laragon/www/absensilhk/LIVEWIRE.md)** untuk pedoman teknis lengkap.
+
+### Ringkasan Fitur Mobile Terkini:
+1. **Navigasi Bawah Mengambang (Sticky Floating Bottom Nav)**:
+   - Terdiri dari 5 menu: Beranda, Riwayat, **Tombol ABSEN melayang di tengah (FAB)**, LHK, dan Profil.
+2. **Jam Digital Real-Time**: Format `HH:MM WIB` dengan titik dua berkedip (blinking colon) tanpa detik.
+3. **Statistik 8-Card Kehadiran**: Hadir, Terlambat, Dinas Luar, Pulang Cepat, Izin, Sakit, Alpa, dan LHK Dibuat.
+4. **Validasi Presensi**: Pegawai wajib memiliki absen masuk pagi sebelum dapat mengambil absen pulang di sore hari.
+5. **Profil Pegawai Ala MyASN**: Tab Data Utama, Golongan, Jabatan, Pendidikan, dan Keluarga dengan kemampuan edit profil mandiri.
 
 ---
 

@@ -12,27 +12,33 @@
         </button>
     </div>
 
-    <!-- Header Avatar & Nama -->
-    <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-3xl p-5 shadow-xl mb-6 relative overflow-hidden border border-white/10">
-        <div class="flex items-center space-x-4">
+    <!-- Header Avatar & Nama (Vibrant Gradient & Legible Typography) -->
+    <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-5 shadow-xl shadow-sky-950/20 mb-6 relative overflow-hidden border border-white/15">
+        <!-- Glow accents -->
+        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-400/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-32 h-32 bg-teal-400/15 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-center space-x-4 relative z-10">
             <div class="relative">
-                <img src="{{ $user->avatar_url ? asset('storage/'.$user->avatar_url) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0284c7&color=fff' }}" 
-                     alt="Avatar" 
-                     class="w-16 h-16 rounded-2xl object-cover border-2 border-white/30 shadow-md">
+                <img src="{{ $user->avatar_url ? asset('storage/'.$user->avatar_url) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0284c7&color=fff&size=160' }}" 
+                     alt="Avatar Pegawai" 
+                     class="w-16 h-16 rounded-2xl object-cover border-2 border-white/40 shadow-lg shadow-black/20">
                 @if($isEditing)
-                    <label class="absolute -bottom-1 -right-1 w-6 h-6 bg-sky-500 text-white rounded-full flex items-center justify-center text-[10px] cursor-pointer shadow-md">
+                    <label class="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 text-slate-900 rounded-full flex items-center justify-center text-[10px] cursor-pointer shadow-md font-bold hover:scale-110 transition-transform">
                         <i class="fa-solid fa-camera"></i>
                         <input type="file" wire:model="new_avatar" class="hidden" accept="image/*">
                     </label>
                 @endif
             </div>
             <div class="flex-1 min-w-0">
-                <span class="text-[10px] font-bold text-sky-400 uppercase tracking-widest">{{ $user->jabatan->nama ?? 'Pegawai' }}</span>
-                <h2 class="text-base font-extrabold truncate tracking-tight text-white mt-0.5">
+                <div class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-extrabold text-sky-200 uppercase tracking-wider mb-1">
+                    {{ $user->jabatan->nama ?? 'Pegawai' }}
+                </div>
+                <h2 class="text-base font-extrabold truncate tracking-tight text-white drop-shadow-xs">
                     {{ trim(($user->gelar_depan ? $user->gelar_depan.' ' : '').$user->name.($user->gelar_belakang ? ', '.$user->gelar_belakang : '')) }}
                 </h2>
-                <div class="flex items-center text-xs text-white/70 mt-1 font-mono">
-                    <i class="fa-solid fa-hashtag text-[10px] text-sky-400 mr-1.5"></i>
+                <div class="flex items-center text-xs text-sky-100 font-mono mt-1 font-medium">
+                    <span class="text-amber-300 font-bold mr-1.5">#</span>
                     <span>NIP: {{ $user->nip ?? '-' }}</span>
                 </div>
             </div>
@@ -45,22 +51,25 @@
                 class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'utama' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
             <i class="fa-solid fa-user text-xs mr-1.5"></i>Data Utama
         </button>
-        <button wire:click="setTab('golongan')" 
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'golongan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-            <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Golongan
-        </button>
-        <button wire:click="setTab('jabatan')" 
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'jabatan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-            <i class="fa-solid fa-briefcase text-xs mr-1.5"></i>Jabatan
-        </button>
-        <button wire:click="setTab('pendidikan')" 
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'pendidikan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-            <i class="fa-solid fa-graduation-cap text-xs mr-1.5"></i>Pendidikan
-        </button>
-        <button wire:click="setTab('keluarga')" 
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'keluarga' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-            <i class="fa-solid fa-people-roof text-xs mr-1.5"></i>Keluarga
-        </button>
+
+        @if(!$isEditing)
+            <button wire:click="setTab('golongan')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'golongan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Golongan
+            </button>
+            <button wire:click="setTab('jabatan')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'jabatan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-briefcase text-xs mr-1.5"></i>Jabatan
+            </button>
+            <button wire:click="setTab('pendidikan')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'pendidikan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-graduation-cap text-xs mr-1.5"></i>Pendidikan
+            </button>
+            <button wire:click="setTab('keluarga')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'keluarga' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-people-roof text-xs mr-1.5"></i>Keluarga
+            </button>
+        @endif
     </div>
 
     <!-- FORM EDIT / VIEW -->

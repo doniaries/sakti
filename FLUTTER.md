@@ -58,14 +58,17 @@ Backend menyediakan data jendela waktu dari `jadwal_kerjas` yang wajib dipatuhi 
    - Pegawai berstatus **Dinas Luar (DL)** yang sudah disetujui.
 2. **Pegawai Alpa/Tidak Hadir**:
    - Jika pegawai tidak memiliki jam masuk/pulang lewat batas hari, tombol pengisian LHK pada Flutter dinonaktifkan (*disabled*) dengan keterangan: *"Anda tidak memiliki presensi lengkap pada tanggal ini"*.
+3. **Validasi Wajib Absen Masuk**:
+   - Flutter wajib memvalidasi pengambilan absen keluar: jika pegawai belum memiliki catatan absen masuk pagi hari, sistem Flutter tidak mengizinkan pengiriman request absen keluar dan menampilkan pesan peringatan.
 
-### B. Endpoint LHK
+### B. Endpoint LHK & Profil Pegawai
 - **Daftar Aktivitas SKP**: `GET /api/lhk/aktivitas` (Mengambil master aktivitas, uraian tugas, dan menit acuan).
 - **Cek Status Tanggal**: `GET /api/lhk/absensi-tanggal?tanggal=YYYY-MM-DD`
 - **Kirim LHK Harian**: `POST /api/lhk`
   - Payload: Tanggal, array pekerjaan (`aktivitas_id`, `jam_mulai`, `jam_selesai`, `lama_menit`, `hasil_pekerjaan`, `bukti_url`).
 - **Daftar LHK Pegawai**: `GET /api/lhk`
 - **Detail LHK**: `GET /api/lhk/{id}`
+- **Update Profil Pegawai**: `POST /api/me/update` (Menyimpan perubahan data kontak, alamat, biodata MyASN, dan foto profil).
 
 ---
 
