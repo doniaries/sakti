@@ -111,7 +111,7 @@ class StrukturOrganisasiSeeder extends Seeder
             $kabidDispora?->id,
         ]);
 
-        $stafUsers = User::query()->whereNotIn('id', $pimpinanIds)->with('jabatan')->get();
+        $stafUsers = User::query()->whereNotIn('id', $pimpinanIds, 'and', false)->with('jabatan')->get();
 
         foreach ($stafUsers as $staf) {
             $jabatanNama = strtolower($staf->jabatan?->nama ?? '');

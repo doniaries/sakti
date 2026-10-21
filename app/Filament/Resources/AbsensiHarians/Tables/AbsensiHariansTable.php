@@ -114,7 +114,10 @@ class AbsensiHariansTable
                     ])
                     ->query(
                         fn(Builder $query, array $data): Builder =>
-                        $query->when($data['tanggal'] ?? null, fn(Builder $q, $v) => $q->whereDate('tanggal', $v))
+                        $query->when($data['tanggal'] ?? null, function (Builder $q, $v) {
+                            $cleanDate = Carbon::parse($v)->toDateString();
+                            return $q->whereDate('tanggal', $cleanDate);
+                        })
                     )
                     ->indicateUsing(fn(array $data): ?string => !empty($data['tanggal']) ? 'Tanggal: ' . Carbon::parse($data['tanggal'])->translatedFormat('d F Y') : null),
 
@@ -124,10 +127,14 @@ class AbsensiHariansTable
                         Select::make('kategori')
                             ->label('Status Kehadiran')
                             ->options([
-                                'lengkap'      => 'Lengkap (Masuk & Pulang)',
-                                'belum_pulang' => 'Belum Pulang (Hanya Masuk)',
-                                'dinas_luar'   => 'Dinas Luar / Izin / Sakit / Cuti',
-                                'tidak_hadir'  => 'Tidak Hadir / Alpa',
+                                'hadir'        => 'Hadir Tepat Waktu',
+                                'terlambat'    => 'Terlambat Masuk',
+                                'pulang_cepat' => 'Pulang Cepat (Tidak Absen Pulang)',
+                                'dinas_luar'   => 'Dinas Luar',
+                                'izin'         => 'Izin',
+                                'sakit'        => 'Sakit',
+                                'cuti'         => 'Cuti',
+                                'tidak_hadir'  => 'Tanpa Keterangan (Alpa)',
                             ])
                             ->placeholder('Semua Status')
                             ->live(),
@@ -139,19 +146,27 @@ class AbsensiHariansTable
                         }
 
                         return match ($kategori) {
-                            'lengkap' => $query->whereNotNull('jam_masuk')->whereNotNull('jam_pulang'),
-                            'belum_pulang' => $query->whereNotNull('jam_masuk')->whereNull('jam_pulang')->whereNotIn('status', ['tidak_hadir', 'izin', 'sakit']),
-                            'dinas_luar' => $query->where(fn ($q) => $q->where('jenis_kehadiran', 'dinas_luar')->orWhereIn('status', ['dinas_luar', 'izin', 'sakit', 'cuti'])),
-                            'tidak_hadir' => $query->where('status', 'tidak_hadir')->orWhere(fn ($q) => $q->whereNull('jam_masuk')->whereNull('jam_pulang')),
-                            default => $query,
+                            'hadir'        => $query->where('status', 'hadir')->whereNotNull('jam_masuk')->whereNotNull('jam_pulang'),
+                            'terlambat'    => $query->where('status', 'terlambat'),
+                            'pulang_cepat' => $query->whereNotNull('jam_masuk')->whereNull('jam_pulang')->whereNotIn('status', ['tidak_hadir', 'izin', 'sakit', 'cuti']),
+                            'dinas_luar'   => $query->where(fn ($q) => $q->where('jenis_kehadiran', 'dinas_luar')->orWhere('status', 'dinas_luar')),
+                            'izin'         => $query->where('status', 'izin'),
+                            'sakit'        => $query->where('status', 'sakit'),
+                            'cuti'         => $query->where('status', 'cuti'),
+                            'tidak_hadir'  => $query->where('status', 'tidak_hadir')->orWhere(fn ($q) => $q->whereNull('jam_masuk')->whereNull('jam_pulang')),
+                            default        => $query,
                         };
                     })
                     ->indicateUsing(function (array $data): ?string {
                         $labels = [
-                            'lengkap'      => 'Kategori: Lengkap',
-                            'belum_pulang' => 'Kategori: Belum Pulang',
-                            'dinas_luar'   => 'Kategori: Dinas Luar / Izin',
-                            'tidak_hadir'  => 'Kategori: Tidak Hadir / Alpa',
+                            'hadir'        => 'Status: Hadir Tepat Waktu',
+                            'terlambat'    => 'Status: Terlambat Masuk',
+                            'pulang_cepat' => 'Status: Pulang Cepat',
+                            'dinas_luar'   => 'Status: Dinas Luar',
+                            'izin'         => 'Status: Izin',
+                            'sakit'        => 'Status: Sakit',
+                            'cuti'         => 'Status: Cuti',
+                            'tidak_hadir'  => 'Status: Tanpa Keterangan (Alpa)',
                         ];
                         return $labels[$data['kategori'] ?? ''] ?? null;
                     }),
@@ -181,7 +196,10 @@ class AbsensiHariansTable
             ])
             ->recordActions([
                 ViewAction::make()
-                    ->visible(fn($record) => in_array($record->status, ['izin', 'sakit'])),
+                    ->visible(function ($record) {
+                        $statusVal = $record->status instanceof \BackedEnum ? $record->status->value : (string) $record->status;
+                        return in_array($statusVal, ['izin', 'sakit']);
+                    }),
                 EditAction::make(),
 
                 // ─── Buat LHK → Modal Slide-Over ──────────────────────────────
@@ -190,7 +208,10 @@ class AbsensiHariansTable
                     ->icon('heroicon-m-document-plus')
                     ->color('info')
                     ->modalWidth('7xl')
-                    ->visible(fn($record) => ! in_array($record->status, ['izin', 'sakit', 'tidak_hadir']))
+                    ->visible(function ($record) {
+                        $statusVal = $record->status instanceof \BackedEnum ? $record->status->value : (string) $record->status;
+                        return ! in_array($statusVal, ['izin', 'sakit', 'tidak_hadir']);
+                    })
                     // ->slideOver()
                     ->closeModalByClickingAway(false)
                     ->modalHeading(fn($record) => 'Buat LHK — ' . $record->user?->name . ' (' . $record->tanggal?->format('d/m/Y') . ')')
@@ -211,12 +232,15 @@ class AbsensiHariansTable
                             ->default($record->log_pulang_id),
 
                         Hidden::make('status_kehadiran')
-                            ->default(match ($record->status) {
-                                'hadir', 'terlambat' => 'Hadir',
-                                'sakit'              => 'Sakit',
-                                'izin', 'cuti'       => 'Izin',
-                                'dinas_luar'         => 'Dinas Luar',
-                                default              => 'Hadir',
+                            ->default(function ($record) {
+                                $statusVal = $record->status instanceof \BackedEnum ? $record->status->value : (string) $record->status;
+                                return match ($statusVal) {
+                                    'hadir', 'terlambat' => 'Hadir',
+                                    'sakit'              => 'Sakit',
+                                    'izin', 'cuti'       => 'Izin',
+                                    'dinas_luar'         => 'Dinas Luar',
+                                    default              => 'Hadir',
+                                };
                             }),
 
                         // ── Tampilkan jam masuk/pulang (read-only) ────────────
@@ -380,13 +404,13 @@ class AbsensiHariansTable
                     DeleteBulkAction::make(),
 
                     \Filament\Actions\BulkAction::make('set_jam_pulang_massal')
-                        ->label('Set Jam Pulang Massal (1-Klik)')
+                        ->label('Verifikasi Jam Pulang Massal')
                         ->icon('heroicon-o-arrow-right-start-on-rectangle')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->modalHeading('Set Jam Pulang Massal untuk Pegawai Terpilih')
-                        ->modalDescription('Aksi ini akan mengisi jam pulang untuk pegawai terpilih yang belum memiliki absen pulang berdasarkan jam pulang resmi jadwal kerja hari ini (Senin-Kamis atau Jumat).')
-                        ->modalSubmitActionLabel('Ya, Set Jam Pulang Sekarang')
+                        ->modalHeading('Verifikasi & Isi Jam Pulang Massal')
+                        ->modalDescription('Aksi ini diperuntukkan bagi pegawai yang telah konfirmasi ke admin namun tidak/belum sempat mengambil tap absen pulang. Sistem akan mengisi jam pulang resmi jadwal kerja hari tersebut (Senin-Kamis atau Jumat).')
+                        ->modalSubmitActionLabel('Ya, Verifikasi Jam Pulang')
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
                             $count = 0;
                             foreach ($records as $absen) {
@@ -398,14 +422,14 @@ class AbsensiHariansTable
 
                                     $absen->update([
                                         'jam_pulang' => strlen($jamPulangResmi) === 5 ? $jamPulangResmi . ':00' : $jamPulangResmi,
-                                        'keterangan' => trim(($absen->keterangan ?? '') . ' (Diset Otomatis Admin)'),
+                                        'keterangan' => trim(($absen->keterangan ?? '') . ' (Konfirmasi Pegawai - Diset Admin)'),
                                     ]);
                                     $count++;
                                 }
                             }
 
                             \Filament\Notifications\Notification::make()
-                                ->title("Berhasil mengisi jam pulang untuk $count pegawai.")
+                                ->title("Berhasil memverifikasi dan mengisi jam pulang untuk $count pegawai.")
                                 ->success()
                                 ->send();
                         })

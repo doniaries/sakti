@@ -43,7 +43,8 @@ class AbsensiHarianForm
                         Select::make('status')
                             ->options(\App\Enums\StatusKehadiran::class)
                             ->default(\App\Enums\StatusKehadiran::HADIR)
-                            ->required(),
+                            ->required()
+                            ->live(),
                         Select::make('status_apel')
                             ->label('Status Apel')
                             ->options(\App\Enums\StatusApel::class),
