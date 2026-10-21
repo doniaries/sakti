@@ -26,6 +26,7 @@ class InstansisTable
             ->columns([
                 Panel::make([
                     Stack::make([
+                        // Header Identitas Instansi
                         Split::make([
                             ImageColumn::make('logo')
                                 ->defaultImageUrl(url('/images/logo.png'))
@@ -45,51 +46,60 @@ class InstansisTable
                             ])->space(1),
                         ]),
 
+                        // Bagian Pejabat Utama & Jumlah Pegawai
                         Grid::make([
                             'default' => 1,
-                            'md' => 2,
-                            'lg' => 4,
+                            'md' => 3,
                         ])
                         ->schema([
-                            TextColumn::make('kepala_dinas')
-                                ->label('Kepala Dinas (Kadis)')
-                                ->state(fn ($record) => $record->kepala?->name ?? $record->nama_kepala_dinas ?? '-')
-                                ->icon('heroicon-m-user-circle')
-                                ->badge()
-                                ->color('primary'),
+                            Stack::make([
+                                TextColumn::make('label_kadis')
+                                    ->state('Kepala Dinas (Kadis)')
+                                    ->size(TextSize::Small)
+                                    ->color('gray'),
+                                TextColumn::make('kepala_dinas')
+                                    ->state(fn ($record) => $record->kepala?->name ?? $record->nama_kepala_dinas ?? '-')
+                                    ->weight('bold')
+                                    ->icon('heroicon-m-user-circle')
+                                    ->color('primary'),
+                            ])->space(1),
 
-                            TextColumn::make('sekretaris')
-                                ->label('Sekretaris Dinas')
-                                ->state(function () {
-                                    $sekretariat = Bidang::where('slug', 'like', '%sekretariat%')->with('kepala')->first();
-                                    return $sekretariat?->kepala?->name ?? 'Belum ditentukan';
-                                })
-                                ->icon('heroicon-m-user')
-                                ->badge()
-                                ->color('success'),
+                            Stack::make([
+                                TextColumn::make('label_sekretaris')
+                                    ->state('Sekretaris Dinas')
+                                    ->size(TextSize::Small)
+                                    ->color('gray'),
+                                TextColumn::make('sekretaris')
+                                    ->state(function () {
+                                        $sekretariat = Bidang::where('slug', 'like', '%sekretariat%')->with('kepala')->first();
+                                        return $sekretariat?->kepala?->name ?? 'Belum ditentukan';
+                                    })
+                                    ->weight('bold')
+                                    ->icon('heroicon-m-user')
+                                    ->color('success'),
+                            ])->space(1),
 
-                            TextColumn::make('total_pegawai')
-                                ->label('Jumlah Pegawai')
-                                ->state(fn () => User::role('pegawai')->count() . ' Orang Pegawai')
-                                ->icon('heroicon-m-user-group')
-                                ->badge()
-                                ->color('info'),
-
-                            TextColumn::make('total_bidang')
-                                ->label('Jumlah Bidang')
-                                ->state(fn () => Bidang::count() . ' Bidang Kerja')
-                                ->icon('heroicon-m-rectangle-group')
-                                ->badge()
-                                ->color('warning'),
+                            Stack::make([
+                                TextColumn::make('label_total_pegawai')
+                                    ->state('Jumlah Pegawai')
+                                    ->size(TextSize::Small)
+                                    ->color('gray'),
+                                TextColumn::make('total_pegawai')
+                                    ->state(fn () => User::role('pegawai')->count() . ' Orang Pegawai')
+                                    ->weight('bold')
+                                    ->icon('heroicon-m-user-group')
+                                    ->color('info'),
+                            ])->space(1),
                         ]),
 
+                        // Bagian Kepala Bidang
                         Panel::make([
                             Stack::make([
                                 TextColumn::make('daftar_kabid_header')
                                     ->state('Kepala Bidang (Kabid):')
                                     ->weight('bold')
                                     ->size(TextSize::Small)
-                                    ->color('gray'),
+                                    ->color('primary'),
 
                                 Grid::make([
                                     'default' => 1,
@@ -101,18 +111,25 @@ class InstansisTable
                                         ->get();
 
                                     return $bidangs->map(function ($bidang) {
-                                        return TextColumn::make('kabid_' . $bidang->id)
-                                            ->label($bidang->nama)
-                                            ->state($bidang->nama . ': ' . ($bidang->kepala?->name ?? 'Belum ditentukan'))
-                                            ->icon('heroicon-m-briefcase')
-                                            ->color($bidang->kepala ? 'info' : 'gray');
+                                        return Stack::make([
+                                            TextColumn::make('bidang_label_' . $bidang->id)
+                                                ->state($bidang->nama)
+                                                ->size(TextSize::Small)
+                                                ->color('gray'),
+                                            TextColumn::make('kabid_' . $bidang->id)
+                                                ->state($bidang->kepala?->name ?? 'Belum ditentukan')
+                                                ->weight('medium')
+                                                ->icon('heroicon-m-briefcase')
+                                                ->color($bidang->kepala ? 'white' : 'gray'),
+                                        ])->space(1);
                                     })->toArray();
                                 }),
-                            ]),
+                            ])->space(2),
                         ]),
-                    ])->space(3),
+                    ])->space(4),
                 ]),
             ])
+            ->paginated(false)
             ->recordActions([
                 EditAction::make()
                     ->button()
