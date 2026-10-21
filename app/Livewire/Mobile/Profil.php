@@ -94,11 +94,11 @@ class Profil extends Component
 
         $this->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'nullable|email|max:255',
             'email_pribadi' => 'nullable|email|max:255',
-            'no_hp' => 'nullable|string|max:25',
+            'no_hp' => 'nullable|string|max:30',
             'password' => 'nullable|min:6|confirmed',
-            'new_avatar' => 'nullable|image|max:2048',
+            'new_avatar' => 'nullable|image|max:3072',
         ]);
 
         $data = [

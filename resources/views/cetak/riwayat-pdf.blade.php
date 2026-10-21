@@ -7,55 +7,67 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
+    <style>
         @media print {
             .no-print { display: none !important; }
-            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            @page { margin: 12mm 15mm; size: A4 portrait; }
+            body { -webkit-print-color-adjust: exact; print-color-adjust: exact; background: white !important; padding: 0 !important; }
+            .paper-container { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; }
+            @page { margin: 10mm 12mm; size: A4 portrait; }
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans p-4 sm:p-8">
-    <!-- Action Bar for User/Admin -->
-    <div class="max-w-4xl mx-auto mb-6 flex justify-between items-center no-print bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+<body class="bg-slate-100 text-slate-800 font-sans p-2 sm:p-6 min-h-screen">
+    <!-- Action Bar for User/Admin (Mobile-Friendly & Bluetooth Printer Ready) -->
+    <div class="max-w-4xl mx-auto mb-4 no-print bg-white p-3.5 sm:p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
         <div class="flex items-center space-x-2">
             <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span class="text-xs font-bold text-slate-600">Pratinjau Cetak Laporan Kehadiran</span>
+            <div>
+                <h1 class="text-xs sm:text-sm font-extrabold text-slate-800">Pratinjau Cetak Laporan Kehadiran</h1>
+                <p class="text-[10px] text-slate-500">Dukungan Cetak PDF, Printer Kantor, & Bluetooth Thermal Mobile</p>
+            </div>
         </div>
-        <div class="flex items-center space-x-3">
-            <button onclick="window.close()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition">
-                Tutup
+        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+            <button onclick="window.close(); if(history.length > 1){ history.back(); }" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition active:scale-95">
+                <i class="fa-solid fa-arrow-left mr-1"></i> Kembali
             </button>
-            <button onclick="window.print()" class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-md shadow-sky-600/30 flex items-center transition">
-                <i class="fa-solid fa-print mr-2"></i> Cetak / Simpan PDF
+            <button onclick="window.print()" class="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 shadow-md shadow-sky-600/30 flex items-center justify-center transition active:scale-95">
+                <i class="fa-solid fa-print mr-1.5"></i> Cetak / Simpan PDF
             </button>
         </div>
     </div>
 
     <!-- Paper Container -->
-    <div class="max-w-4xl mx-auto bg-white p-8 sm:p-12 rounded-3xl shadow-lg border border-slate-200/60">
-        <!-- Kop Surat Instansi -->
-        <div class="flex items-center border-b-2 border-slate-900 pb-5 mb-6">
-            @if(!empty($pengaturan->logo) && file_exists(public_path('storage/' . $pengaturan->logo)))
-                <img src="{{ asset('storage/' . $pengaturan->logo) }}" alt="Logo" class="w-20 h-20 object-contain mr-5">
+    <div class="paper-container max-w-4xl mx-auto bg-white p-4 sm:p-10 rounded-3xl shadow-lg border border-slate-200/60 overflow-x-auto">
+        <!-- Kop Surat Instansi Resmi -->
+        <div class="flex items-center border-b-2 border-slate-900 pb-4 mb-5">
+            @php
+                $logoInstansi = $instansi->logo ?? $pengaturan->logo;
+            @endphp
+            @if(!empty($logoInstansi) && file_exists(public_path('storage/' . $logoInstansi)))
+                <img src="{{ asset('storage/' . $logoInstansi) }}" alt="Logo Instansi" class="w-16 h-16 sm:w-20 sm:h-20 object-contain mr-4 shrink-0">
             @else
-                <div class="w-16 h-16 rounded-2xl bg-sky-600 text-white flex items-center justify-center text-3xl font-black mr-5">
-                    <i class="fa-solid fa-leaf"></i>
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-sky-600 text-white flex items-center justify-center text-2xl sm:text-3xl font-black mr-4 shrink-0 shadow-md">
+                    <i class="fa-solid fa-landmark"></i>
                 </div>
             @endif
-            <div class="flex-1">
-                <h2 class="text-xl font-black text-slate-900 tracking-tight uppercase">{{ $pengaturan->nama_aplikasi }}</h2>
-                <h3 class="text-sm font-extrabold text-slate-700 tracking-wide uppercase">{{ $pengaturan->sub_nama ?? 'PEMERINTAH PROVINSI / KABUPATEN' }}</h3>
-                <p class="text-[11px] text-slate-500 mt-0.5">Sistem Monitoring Presensi Elektronik & Laporan Kinerja Pegawai</p>
+            <div class="flex-1 min-w-0">
+                <h3 class="text-xs sm:text-sm font-extrabold text-slate-600 tracking-wide uppercase">PEMERINTAH DAERAH</h3>
+                <h2 class="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase leading-snug">
+                    {{ $instansi->nama_dinas ?? $pengaturan->sub_nama ?? 'DINAS LINGKUNGAN HIDUP' }}
+                </h2>
+                <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 font-medium truncate">
+                    {{ $instansi->alamat ?? 'Gedung Bersama Lt. III' }} • Sistem Monitoring Presensi Elektronik
+                </p>
             </div>
-            <div class="text-right">
-                <span class="text-[10px] uppercase font-bold text-slate-400 block">Status Dokumen</span>
-                <span class="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase">Resmi Terverifikasi</span>
+            <div class="text-right shrink-0 hidden sm:block">
+                <span class="text-[9px] uppercase font-bold text-slate-400 block">Status Dokumen</span>
+                <span class="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 uppercase">Resmi Terverifikasi</span>
             </div>
         </div>
 
         <!-- Judul Laporan -->
-        <div class="text-center mb-6">
-            <h4 class="text-base font-black text-slate-900 uppercase tracking-wide">LAPORAN REKAPITULASI PRESENSI PEGAWAI</h4>
+        <div class="text-center mb-5">
+            <h4 class="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wide">LAPORAN REKAPITULASI PRESENSI PEGAWAI</h4>
             <p class="text-xs font-bold text-slate-600 mt-0.5">Periode Bulan: <span class="text-sky-700">{{ $periode }}</span></p>
         </div>
 

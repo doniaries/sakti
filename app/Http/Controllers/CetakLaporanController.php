@@ -57,9 +57,10 @@ class CetakLaporanController extends Controller
             'alpa' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa']))->count(),
         ];
 
+        $instansi = \App\Models\Instansi::first();
         $pengaturan = PengaturanAplikasi::getPengaturan();
         $periode = Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
 
-        return view('cetak.riwayat-pdf', compact('user', 'riwayat', 'rekap', 'pengaturan', 'periode', 'status'));
+        return view('cetak.riwayat-pdf', compact('user', 'riwayat', 'rekap', 'pengaturan', 'instansi', 'periode', 'status'));
     }
 }
