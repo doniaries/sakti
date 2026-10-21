@@ -47,18 +47,18 @@ class StrukturOrganisasiSeeder extends Seeder
                 if ($nip && $jabatanRaw) {
                     $jabatan = Jabatan::whereRaw('LOWER(nama) = ?', [strtolower($jabatanRaw)])->first();
                     if ($jabatan) {
-                        User::where('nip', $nip)->update(['jabatan_id' => $jabatan->id]);
+                        User::query()->where('nip', $nip)->update(['jabatan_id' => $jabatan->id]);
                     }
                 }
             }
         }
 
         // 3. Tentukan Pimpinan Tertinggi & Para Kepala Bidang
-        $kadis = User::where('name', 'LIKE', '%AFRINELDI%')->first();
-        $sekretaris = User::where('name', 'LIKE', '%DESMAWATI%')->first();
-        $kabidPemasaran = User::where('name', 'LIKE', '%DONI ARIES%')->first();
-        $kabidDestinasi = User::where('name', 'LIKE', '%WILDA ARDES%')->first();
-        $kabidDispora = User::where('name', 'LIKE', '%INDRAWADI%')->first();
+        $kadis = User::query()->where('name', 'LIKE', '%AFRINELDI%')->first();
+        $sekretaris = User::query()->where('name', 'LIKE', '%DESMAWATI%')->first();
+        $kabidPemasaran = User::query()->where('name', 'LIKE', '%DONI ARIES%')->first();
+        $kabidDestinasi = User::query()->where('name', 'LIKE', '%WILDA ARDES%')->first();
+        $kabidDispora = User::query()->where('name', 'LIKE', '%INDRAWADI%')->first();
 
         // 4. Update Hierarki Atasan & Kepala Bidang
         if ($kadis) {
@@ -111,7 +111,7 @@ class StrukturOrganisasiSeeder extends Seeder
             $kabidDispora?->id,
         ]);
 
-        $stafUsers = User::whereNotIn('id', $pimpinanIds)->with('jabatan')->get();
+        $stafUsers = User::query()->whereNotIn('id', $pimpinanIds)->with('jabatan')->get();
 
         foreach ($stafUsers as $staf) {
             $jabatanNama = strtolower($staf->jabatan?->nama ?? '');

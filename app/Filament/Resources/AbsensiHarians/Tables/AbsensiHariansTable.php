@@ -95,6 +95,17 @@ class AbsensiHariansTable
                         'libur'       => 'gray',
                         default       => 'gray',
                     })
+                    ->formatStateUsing(fn(?string $state): string => match ($state) {
+                        'tidak_hadir' => 'Tidak Hadir',
+                        'dinas_luar'  => 'Dinas Luar',
+                        'terlambat'   => 'Terlambat',
+                        'hadir'       => 'Hadir',
+                        'cuti'        => 'Cuti',
+                        'izin'        => 'Izin',
+                        'sakit'       => 'Sakit',
+                        'libur'       => 'Libur',
+                        default       => ucwords(str_replace('_', ' ', $state ?? '-')),
+                    })
                     ->searchable(),
                 TextColumn::make('jenis_kehadiran')
                     ->label('Tipe')
@@ -116,7 +127,6 @@ class AbsensiHariansTable
             ])
             ->defaultSort('tanggal', 'desc')
             ->filtersLayout(FiltersLayout::AboveContent)
-            ->deferFilters()
             ->filtersFormColumns(4)
             ->filters([
                 Filter::make('pegawai')
@@ -131,7 +141,6 @@ class AbsensiHariansTable
                             ->searchable()
                             ->placeholder('Semua Pegawai'),
                     ])
-                    ->default(['user_id' => $currentUser?->id])
                     ->query(
                         fn(Builder $query, array $data): Builder =>
                         $query->when($data['user_id'] ?? null, fn(Builder $q, $v) => $q->where('user_id', $v))
