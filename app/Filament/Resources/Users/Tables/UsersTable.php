@@ -52,7 +52,7 @@ class UsersTable
                     ->label('No. HP / WA')
                     ->searchable()
                     ->copyable()
-                    ->url(fn ($state) => filled($state) ? "https://wa.me/" . preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $state)) : null, shouldOpenInNewTab: true)
+                    ->url(fn($state) => filled($state) ? "https://wa.me/" . preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $state)) : null, shouldOpenInNewTab: true)
                     ->toggleable(isToggledHiddenByDefault: false),
                 \Filament\Tables\Columns\TextColumn::make('no_bpjs')
                     ->label('BPJS Kesehatan')
@@ -62,7 +62,7 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('jabatan.nama')
                     ->label('Jabatan')
                     ->badge()
-                    ->color(fn ($state) => match (true) {
+                    ->color(fn($state) => match (true) {
                         str_contains($state ?? '', 'Kepala Dinas') => 'danger',
                         str_contains($state ?? '', 'Sekretaris') => 'warning',
                         str_contains($state ?? '', 'Kabid') => 'purple',
@@ -90,15 +90,15 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('status_kerja')
                     ->label('Tipe Kerja')
                     ->badge()
-                    ->color(fn ($state) => match(strtolower($state ?? 'wfo')) {
+                    ->color(fn($state) => match (strtolower($state ?? 'wfo')) {
                         'wfh' => 'warning',
                         default => 'success',
                     })
-                    ->icon(fn ($state) => match(strtolower($state ?? 'wfo')) {
+                    ->icon(fn($state) => match (strtolower($state ?? 'wfo')) {
                         'wfh' => 'heroicon-m-home',
                         default => 'heroicon-m-building-office-2',
                     })
-                    ->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
+                    ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
                 \Filament\Tables\Columns\TextColumn::make('roles.name')->badge(),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif'),
             ])
@@ -122,6 +122,19 @@ class UsersTable
                 SelectFilter::make('jadwal_kerja_id')
                     ->label('Shift Kerja')
                     ->relationship('jadwalKerja', 'nama'),
+            ])
+            ->headerActions([
+                Action::make('buat_pegawai')
+                    ->label('Tambah Pegawai')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('primary')
+                    ->url(fn(): string => \App\Filament\Resources\Users\UserResource::getUrl('create')),
+
+                Action::make('kelola_bidang')
+                    ->label('Kelola Bidang')
+                    ->icon('heroicon-o-building-office-2')
+                    ->color('gray')
+                    ->url(fn(): string => \App\Filament\Resources\Bidangs\BidangResource::getUrl('index')),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -222,7 +235,7 @@ class UsersTable
                         ])
                         ->action(function (Collection $records, array $data) {
                             $count = $records->count();
-                            $records->each(fn ($user) => $user->update(['status_kerja' => $data['status_kerja']]));
+                            $records->each(fn($user) => $user->update(['status_kerja' => $data['status_kerja']]));
 
                             Notification::make()
                                 ->title("Berhasil mengubah tipe kerja $count pegawai menjadi " . strtoupper($data['status_kerja']))
@@ -245,7 +258,7 @@ class UsersTable
                         ])
                         ->action(function (Collection $records, array $data) {
                             $count = $records->count();
-                            $records->each(fn ($user) => $user->update(['bidang_id' => $data['bidang_id']]));
+                            $records->each(fn($user) => $user->update(['bidang_id' => $data['bidang_id']]));
 
                             Notification::make()
                                 ->title("Berhasil memindahkan $count pegawai ke bidang yang dipilih.")
@@ -294,7 +307,7 @@ class UsersTable
                         ])
                         ->action(function (Collection $records, array $data) {
                             $count = $records->count();
-                            $records->each(fn ($user) => $user->update(['jadwal_kerja_id' => $data['jadwal_kerja_id']]));
+                            $records->each(fn($user) => $user->update(['jadwal_kerja_id' => $data['jadwal_kerja_id']]));
 
                             Notification::make()
                                 ->title("Berhasil menerapkan shift kerja untuk $count pegawai.")

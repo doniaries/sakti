@@ -44,6 +44,19 @@ class BidangsTable
             ->filters([
                 //
             ])
+            ->headerActions([
+                \Filament\Actions\Action::make('buat_bidang')
+                    ->label('Tambah Bidang')
+                    ->icon('heroicon-o-plus')
+                    ->color('primary')
+                    ->url(fn(): string => \App\Filament\Resources\Bidangs\BidangResource::getUrl('create')),
+
+                \Filament\Actions\Action::make('data_pegawai')
+                    ->label('Data Pegawai')
+                    ->icon('heroicon-o-users')
+                    ->color('success')
+                    ->url(fn(): string => \App\Filament\Resources\Users\UserResource::getUrl('index')),
+            ])
             ->recordActions([
                 EditAction::make(),
             ])

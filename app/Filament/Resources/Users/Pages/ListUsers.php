@@ -2,9 +2,12 @@
 
 namespace App\Filament\Resources\Users\Pages;
 
+use App\Filament\Resources\Bidangs\BidangResource;
+use App\Filament\Resources\Jabatans\JabatanResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Bidang;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -14,10 +17,31 @@ class ListUsers extends ListRecords
 {
     protected static string $resource = UserResource::class;
 
+    /**
+     * Tombol aksi utama di halaman List Pegawai:
+     * - Tambah Pegawai Baru
+     * - Shortcut langsung menuju Kelola Bidang
+     * - Shortcut langsung menuju Kelola Jabatan
+     */
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Tambah Pegawai')
+                ->icon('heroicon-o-user-plus')
+                ->color('primary'),
+
+            Action::make('kelola_bidang')
+                ->label('Kelola Bidang')
+                ->icon('heroicon-o-building-office-2')
+                ->color('gray')
+                ->url(fn (): string => BidangResource::getUrl('index')),
+
+            Action::make('kelola_jabatan')
+                ->label('Kelola Jabatan')
+                ->icon('heroicon-o-tag')
+                ->color('gray')
+                ->url(fn (): string => JabatanResource::getUrl('index')),
         ];
     }
 
