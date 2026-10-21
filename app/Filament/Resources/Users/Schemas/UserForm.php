@@ -46,16 +46,16 @@ class UserForm
                                     ->placeholder('Abaikan jika tidak ingin merubah...')
                                     ->revealable()
                                     ->confirmed()
-                                    ->required(fn ($operation) => $operation === 'create')
+                                    ->required(fn($operation) => $operation === 'create')
                                     ->maxLength(255)
-                                    ->dehydrated(fn ($state) => filled($state)),
+                                    ->dehydrated(fn($state) => filled($state)),
 
                                 \Filament\Forms\Components\TextInput::make('password_confirmation')
                                     ->label('Konfirmasi Password')
                                     ->password()
                                     ->placeholder('Ketik ulang password baru...')
                                     ->revealable()
-                                    ->required(fn ($operation, callable $get) => $operation === 'create' || filled($get('password')))
+                                    ->required(fn($operation, callable $get) => $operation === 'create' || filled($get('password')))
                                     ->maxLength(255)
                                     ->dehydrated(false),
 
@@ -146,10 +146,6 @@ class UserForm
                                     ->label('Jurusan / Nama Pendidikan')
                                     ->placeholder('Contoh: S1 Ilmu Komputer, S2 Magister Teknik...')
                                     ->maxLength(100),
-                                    ->label('NIP')
-                                    ->mask('99999999 999999 9 999')
-                                    ->placeholder('Contoh: 19720407 199202 1 002')
-                                    ->maxLength(30),
                                 \Filament\Forms\Components\TextInput::make('nomor_absensi')
                                     ->label('ID Mesin (PIN)')
                                     ->maxLength(50)

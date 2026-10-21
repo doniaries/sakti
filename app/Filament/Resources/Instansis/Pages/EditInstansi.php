@@ -41,7 +41,7 @@ class EditInstansi extends EditRecord
 
         // 1. Update Kepala Dinas (Kadis)
         if ($kadisId) {
-            $kadisUser = \App\Models\User::find($kadisId);
+            $kadisUser = \App\Models\User::query()->find($kadisId);
             if ($kadisUser) {
                 // Kadis adalah pimpinan tertinggi (atasan_id null)
                 $kadisUser->update([
@@ -54,7 +54,6 @@ class EditInstansi extends EditRecord
         if (array_key_exists('sekretaris_id', $data)) {
             $sekretariat = \App\Models\Bidang::where('slug', 'like', '%sekretariat%')->first();
             if ($sekretariat) {
-                $oldSekretarisId = $sekretariat->kepala_id;
                 $newSekretarisId = $data['sekretaris_id'] ?: null;
 
                 // Update pimpinan di tabel bidangs
@@ -62,7 +61,7 @@ class EditInstansi extends EditRecord
 
                 // Jika pejabat sekretaris berubah
                 if ($newSekretarisId) {
-                    $sekretarisUser = \App\Models\User::find($newSekretarisId);
+                    $sekretarisUser = \App\Models\User::query()->find($newSekretarisId);
                     if ($sekretarisUser) {
                         $sekretarisUser->update([
                             'bidang_id' => $sekretariat->id,
@@ -71,7 +70,8 @@ class EditInstansi extends EditRecord
                     }
 
                     // Sinkronkan seluruh staf di sekretariat agar atasan_id nya mengarah ke Sekretaris baru
-                    \App\Models\User::where('bidang_id', $sekretariat->id)
+                    \App\Models\User::query()
+                        ->where('bidang_id', '=', $sekretariat->id)
                         ->where('id', '!=', $newSekretarisId)
                         ->update(['atasan_id' => $newSekretarisId]);
                 }
@@ -83,14 +83,13 @@ class EditInstansi extends EditRecord
         foreach ($bidangs as $bidang) {
             $fieldKey = 'kabid_' . $bidang->id;
             if (array_key_exists($fieldKey, $data)) {
-                $oldKabidId = $bidang->kepala_id;
                 $newKabidId = $data[$fieldKey] ?: null;
 
                 // Update pimpinan di tabel bidangs
                 $bidang->update(['kepala_id' => $newKabidId]);
 
                 if ($newKabidId) {
-                    $kabidUser = \App\Models\User::find($newKabidId);
+                    $kabidUser = \App\Models\User::query()->find($newKabidId);
                     if ($kabidUser) {
                         $kabidUser->update([
                             'bidang_id' => $bidang->id,
@@ -99,7 +98,8 @@ class EditInstansi extends EditRecord
                     }
 
                     // Sinkronkan seluruh pegawai di bidang ini agar atasan_id nya otomatis mengarah ke Kabid baru
-                    \App\Models\User::where('bidang_id', $bidang->id)
+                    \App\Models\User::query()
+                        ->where('bidang_id', '=', $bidang->id)
                         ->where('id', '!=', $newKabidId)
                         ->update(['atasan_id' => $newKabidId]);
                 }

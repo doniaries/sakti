@@ -15,6 +15,10 @@ use Filament\Models\Contracts\HasName;
 use Illuminate\Support\Facades\Storage;
 
 /**
+ * @method static \App\Models\User|null find(mixed $id, array $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder where(string|array|\Closure $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder whereNotNull(string $column)
+ * @method static \Illuminate\Database\Eloquent\Builder whereNull(string $column)
  * @mixin \Illuminate\Database\Eloquent\Builder
  * @mixin \Illuminate\Database\Query\Builder
  */
