@@ -91,15 +91,11 @@ class UsersTable
                     ->label('Tipe Kerja')
                     ->badge()
                     ->color(fn ($state) => match(strtolower($state ?? 'wfo')) {
-                        'wfo' => 'success',
                         'wfh' => 'warning',
-                        'fleksibel' => 'info',
-                        default => 'gray',
+                        default => 'success',
                     })
                     ->icon(fn ($state) => match(strtolower($state ?? 'wfo')) {
-                        'wfo' => 'heroicon-m-building-office-2',
                         'wfh' => 'heroicon-m-home',
-                        'fleksibel' => 'heroicon-m-arrows-pointing-out',
                         default => 'heroicon-m-building-office-2',
                     })
                     ->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
@@ -122,7 +118,6 @@ class UsersTable
                     ->options([
                         'wfo' => 'WFO (Work From Office)',
                         'wfh' => 'WFH (Work From Home)',
-                        'fleksibel' => 'Fleksibel (Hybrid)',
                     ]),
                 SelectFilter::make('jadwal_kerja_id')
                     ->label('Shift Kerja')
@@ -222,7 +217,6 @@ class UsersTable
                                 ->options([
                                     'wfo' => 'WFO (Work From Office)',
                                     'wfh' => 'WFH (Work From Home)',
-                                    'fleksibel' => 'Fleksibel (Hybrid)',
                                 ])
                                 ->required(),
                         ])
