@@ -14,6 +14,10 @@ use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasName;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ * @mixin \Illuminate\Database\Query\Builder
+ */
 class User extends Authenticatable implements HasAvatar, HasName
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */

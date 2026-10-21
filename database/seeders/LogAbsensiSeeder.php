@@ -317,8 +317,28 @@ class LogAbsensiSeeder extends Seeder
 
     /**
      * Helper untuk membuat data LHK otomatis
+     *
+     * @param \App\Models\User $user
+     * @param string $tanggalStr
+     * @param string $jamMasuk
+     * @param string $jamPulang
+     * @param int|null $logMasukId
+     * @param int|null $logPulangId
+     * @param \Illuminate\Database\Eloquent\Collection<int, \App\Models\Aktivitas> $aktivitasList
+     * @param \Illuminate\Database\Eloquent\Collection<int, \App\Models\RencanaAksi> $rencanaAksiList
+     * @param string $statusKehadiran
      */
-    private function createDummyLhk($user, $tanggalStr, $jamMasuk, $jamPulang, $logMasukId, $logPulangId, $aktivitasList, $rencanaAksiList, $statusKehadiran = 'Hadir'): void
+    private function createDummyLhk(
+        User $user,
+        string $tanggalStr,
+        string $jamMasuk,
+        string $jamPulang,
+        ?int $logMasukId,
+        ?int $logPulangId,
+        $aktivitasList,
+        $rencanaAksiList,
+        string $statusKehadiran = 'Hadir'
+    ): void
     {
         $lhk = Lhk::updateOrCreate(
             ['user_id' => $user->id, 'tanggal' => $tanggalStr],
