@@ -36,6 +36,11 @@ class InstansiResource extends Resource
         return InstansiForm::configure($schema);
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return \App\Filament\Resources\Instansis\Schemas\InstansiInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return InstansisTable::configure($table);
