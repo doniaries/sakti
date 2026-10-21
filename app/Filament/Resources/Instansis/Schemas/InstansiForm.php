@@ -70,10 +70,12 @@ class InstansiForm
                     ->description('Tentukan Sekretaris Dinas serta Kepala Bidang pada masing-masing bidang')
                     ->columns(2)
                     ->schema(function () {
+                        $userOptions = User::query()->orderBy('name')->pluck('name', 'id')->all();
+
                         $fields = [
                             Select::make('sekretaris_id')
                                 ->label('Sekretaris Dinas')
-                                ->options(fn() => User::orderBy('name')->pluck('name', 'id'))
+                                ->options($userOptions)
                                 ->searchable()
                                 ->preload()
                                 ->placeholder('Pilih Pegawai sebagai Sekretaris Dinas')
@@ -86,7 +88,7 @@ class InstansiForm
                         foreach ($bidangs as $bidang) {
                             $fields[] = Select::make('kabid_' . $bidang->id)
                                 ->label('Kabid ' . $bidang->nama)
-                                ->options(fn() => User::orderBy('name')->pluck('name', 'id'))
+                                ->options($userOptions)
                                 ->searchable()
                                 ->preload()
                                 ->placeholder('Pilih Kepala Bidang')

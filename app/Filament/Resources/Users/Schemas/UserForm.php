@@ -151,12 +151,12 @@ class UserForm
                                     ->maxLength(50)
                                     ->readOnly(function () {
                                         /** @var \App\Models\User|null $user */
-                                        $user = auth()->user();
+                                        $user = \Illuminate\Support\Facades\Auth::user();
                                         return !($user && ($user->hasRole('super_admin') || $user->hasRole('admin')));
                                     })
                                     ->helperText(function () {
                                         /** @var \App\Models\User|null $user */
-                                        $user = auth()->user();
+                                        $user = \Illuminate\Support\Facades\Auth::user();
                                         return !($user && ($user->hasRole('super_admin') || $user->hasRole('admin')))
                                             ? 'Hanya Administrator yang dapat mengubah ID Mesin Presensi.'
                                             : null;

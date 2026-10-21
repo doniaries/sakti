@@ -30,9 +30,13 @@ class UsersTable
                     ->sortable()
                     ->toggleable(),
                 \Filament\Tables\Columns\TextColumn::make('name')
+                    ->label('Nama Pegawai')
                     ->searchable()
                     ->copyable()
-                    ->sortable(),
+                    ->sortable()
+                    ->weight('bold')
+                    ->color('primary')
+                    ->url(fn ($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record])),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->copyable()
