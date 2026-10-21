@@ -43,11 +43,20 @@ class Dashboard extends Component
             ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
             ->get();
 
+        $jadwalDefault = $user->getJadwalKerja();
+
         $statistik = [
-            'hadir' => $absensiBulanIni->where('status', 'hadir')->count(),
-            'terlambat' => $absensiBulanIni->where('status', 'terlambat')->count(),
-            'izin' => $absensiBulanIni->where('status', 'izin')->count(),
-            'sakit' => $absensiBulanIni->where('status', 'sakit')->count(),
+            'hadir' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['hadir', 'terlambat']))->count(),
+            'terlambat' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
+            'dinas_luar' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'dinas_luar' || ($a->jenis_kehadiran?->value ?? $a->jenis_kehadiran) === 'dinas_luar')->count(),
+            'pulang_cepat' => $absensiBulanIni->filter(function($a) use ($jadwalDefault) {
+                if (empty($a->jam_pulang)) return false;
+                $jamPulangResmi = $jadwalDefault ? $jadwalDefault->getJamPulangHari($a->tanggal) : '16:00';
+                return $a->jam_pulang < $jamPulangResmi;
+            })->count(),
+            'tanpa_keterangan' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa']) || (empty($a->jam_masuk) && empty($a->jam_pulang) && !in_array($a->status?->value ?? $a->status, ['izin', 'sakit', 'cuti', 'libur', 'dinas_luar'])))->count(),
+            'izin' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'izin')->count(),
+            'sakit' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'sakit')->count(),
             'lhk_dibuat' => Lhk::where('user_id', $user->id)
                 ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
                 ->count(),

@@ -186,8 +186,8 @@
                     <span>LHK</span>
                 </a>
 
-                <!-- 5. Profil / Admin Link -->
-                <a href="{{ url('/admin') }}" class="nav-item" target="_blank">
+                <!-- 5. Profil (Halaman sama dengan data pegawai Filament & bisa diedit) -->
+                <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate>
                     <i class="fa-solid fa-circle-user"></i>
                     <span>Profil</span>
                 </a>

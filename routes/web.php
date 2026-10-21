@@ -26,6 +26,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('/riwayat', Riwayat::class)->name('mobile.riwayat');
         Route::get('/lhk', LhkIndex::class)->name('mobile.lhk.index');
         Route::get('/lhk/buat', LhkForm::class)->name('mobile.lhk.create');
+        Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
         // LHK detail bisa tambahkan jika perlu
     });
 });

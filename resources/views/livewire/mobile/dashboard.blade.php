@@ -7,74 +7,181 @@
     </div>
 
     <!-- Greeting Card -->
-    <div class="w-full p-5 rounded-2xl bg-gradient-to-br from-[#1B6CA8] to-[#00B4D8] text-white shadow-lg mb-6">
+    <div class="w-full p-5 rounded-3xl bg-gradient-to-br from-[#0284C7] via-[#0369A1] to-[#075985] text-white shadow-xl shadow-sky-950/15 mb-6 relative overflow-hidden border border-white/10">
+        <!-- Background Glow Accent -->
+        <div class="absolute -right-8 -top-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+
         @php
             $hour = now()->hour;
-            $greeting = $hour < 12 ? 'Selamat Pagi' : ($hour < 17 ? 'Selamat Siang' : 'Selamat Sore');
+            $greeting = $hour < 12 ? 'Selamat Pagi' : ($hour < 15 ? 'Selamat Siang' : ($hour < 18 ? 'Selamat Sore' : 'Selamat Malam'));
         @endphp
-        <h2 class="text-xl font-bold">{{ $greeting }}, {{ explode(' ', $user->name)[0] }}!</h2>
-        <p class="text-white/80 text-sm mt-1">{{ now()->translatedFormat('l, d F Y') }}</p>
+
+        <div class="flex justify-between items-start">
+            <div>
+                <span class="text-xs font-semibold text-sky-200 tracking-wider uppercase">Panel Pegawai</span>
+                <h2 class="text-xl font-extrabold tracking-tight mt-0.5">{{ $greeting }}, {{ explode(' ', $user->name)[0] }}!</h2>
+                
+                <!-- Tanggal & Jam Aktif Server -->
+                <div class="flex items-center flex-wrap gap-2 text-xs text-white/85 mt-2" 
+                     x-data="{ 
+                         hours: '--', 
+                         minutes: '--', 
+                         colon: true,
+                         updateClock() {
+                             const d = new Date();
+                             this.hours = String(d.getHours()).padStart(2, '0');
+                             this.minutes = String(d.getMinutes()).padStart(2, '0');
+                             this.colon = !this.colon;
+                         }
+                     }" 
+                     x-init="updateClock(); setInterval(() => updateClock(), 1000);">
+                    <span class="flex items-center font-medium">
+                        <i class="fa-regular fa-calendar text-sky-300 mr-1.5"></i>
+                        {{ now()->translatedFormat('l, d F Y') }}
+                    </span>
+                    <span class="text-white/40">•</span>
+                    <!-- Jam Aktif Server Real-Time (HH:MM WIB) -->
+                    <span class="flex items-center bg-black/25 backdrop-blur-md px-2.5 py-1 rounded-full font-mono text-[11px] font-bold text-amber-300 border border-white/10 shadow-xs">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 inline-block"></span>
+                        <span x-text="hours">--</span><span class="inline-block transition-opacity duration-200" :class="colon ? 'opacity-100' : 'opacity-20'">:</span><span x-text="minutes">--</span>&nbsp;WIB
+                    </span>
+                </div>
+            </div>
+        </div>
         
-        <div class="flex space-x-3 mt-4">
+        <div class="grid grid-cols-2 gap-2.5 mt-5">
             <!-- Masuk -->
-            <div class="flex items-center px-3 py-2 rounded-full border border-white/30 {{ $hariIni['sudah_masuk'] ? 'bg-white/25' : 'bg-white/10' }}">
-                <i class="fa-solid {{ $hariIni['sudah_masuk'] ? 'fa-circle-check' : 'fa-circle-xmark' }} text-white text-sm"></i>
-                <div class="ml-2 flex flex-col">
-                    <span class="text-[10px] text-white/70 uppercase tracking-wider">Masuk</span>
-                    <span class="text-sm font-semibold">{{ $hariIni['jam_masuk'] ?? '-' }}</span>
+            <div class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_masuk'] ? 'bg-white/20 backdrop-blur-sm' : 'bg-black/15' }}">
+                <div class="w-8 h-8 rounded-xl {{ $hariIni['sudah_masuk'] ? 'bg-emerald-400 text-slate-900' : 'bg-white/15 text-white/50' }} flex items-center justify-center text-sm shadow-xs">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                </div>
+                <div class="ml-2.5 flex flex-col">
+                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider">Absen Masuk</span>
+                    <span class="text-sm font-extrabold font-mono {{ $hariIni['sudah_masuk'] ? 'text-white' : 'text-white/40' }}">{{ $hariIni['jam_masuk'] ?? '--:--' }}</span>
                 </div>
             </div>
-            <!-- Pulang -->
-            <div class="flex items-center px-3 py-2 rounded-full border border-white/30 {{ $hariIni['sudah_pulang'] ? 'bg-white/25' : 'bg-white/10' }}">
-                <i class="fa-solid {{ $hariIni['sudah_pulang'] ? 'fa-circle-check' : 'fa-circle-xmark' }} text-white text-sm"></i>
-                <div class="ml-2 flex flex-col">
-                    <span class="text-[10px] text-white/70 uppercase tracking-wider">Pulang</span>
-                    <span class="text-sm font-semibold">{{ $hariIni['jam_pulang'] ?? '-' }}</span>
+            <!-- Keluar -->
+            <div class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_pulang'] ? 'bg-white/20 backdrop-blur-sm' : 'bg-black/15' }}">
+                <div class="w-8 h-8 rounded-xl {{ $hariIni['sudah_pulang'] ? 'bg-sky-400 text-slate-900' : 'bg-white/15 text-white/50' }} flex items-center justify-center text-sm shadow-xs">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </div>
+                <div class="ml-2.5 flex flex-col">
+                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider">Absen Keluar</span>
+                    <span class="text-sm font-extrabold font-mono {{ $hariIni['sudah_pulang'] ? 'text-white' : 'text-white/40' }}">{{ $hariIni['jam_pulang'] ?? '--:--' }}</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Statistik -->
-    <h3 class="text-lg font-bold text-gray-800 mb-3">Statistik Bulan Ini</h3>
-    <div class="grid grid-cols-3 gap-3 mb-6">
-        <div class="bg-white p-3 rounded-2xl shadow-sm text-center flex flex-col items-center">
-            <i class="fa-solid fa-circle-check text-[#2D9B4F] text-2xl mb-1"></i>
-            <span class="text-xl font-bold text-[#2D9B4F]">{{ $statistik['hadir'] }}</span>
-            <span class="text-[10px] text-gray-500 uppercase">Hadir</span>
+    <!-- Statistik Bulan Ini -->
+    <div class="flex justify-between items-center mb-3">
+        <h3 class="text-base font-extrabold text-slate-800 tracking-tight">Statistik Kehadiran Bulan Ini</h3>
+        <span class="text-[11px] font-bold text-sky-600 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">{{ now()->translatedFormat('F Y') }}</span>
+    </div>
+
+    <div class="grid grid-cols-4 gap-2 mb-6">
+        <!-- 1. Hadir -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <span class="text-lg font-black text-slate-800">{{ $statistik['hadir'] }}</span>
+            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Hadir</span>
         </div>
-        <div class="bg-white p-3 rounded-2xl shadow-sm text-center flex flex-col items-center">
-            <i class="fa-solid fa-clock text-[#F59E0B] text-2xl mb-1"></i>
-            <span class="text-xl font-bold text-[#F59E0B]">{{ $statistik['terlambat'] }}</span>
-            <span class="text-[10px] text-gray-500 uppercase">Terlambat</span>
+
+        <!-- 2. Terlambat -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <span class="text-lg font-black text-slate-800">{{ $statistik['terlambat'] }}</span>
+            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Terlambat</span>
         </div>
-        <div class="bg-white p-3 rounded-2xl shadow-sm text-center flex flex-col items-center">
-            <i class="fa-solid fa-calendar-check text-[#0EA5E9] text-2xl mb-1"></i>
-            <span class="text-xl font-bold text-[#0EA5E9]">{{ $statistik['izin'] }}</span>
-            <span class="text-[10px] text-gray-500 uppercase">Izin</span>
+
+        <!-- 3. Dinas Luar -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <span class="text-lg font-black text-slate-800">{{ $statistik['dinas_luar'] }}</span>
+            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Dinas Luar</span>
         </div>
-        <div class="bg-white p-3 rounded-2xl shadow-sm text-center flex flex-col items-center">
-            <i class="fa-solid fa-notes-medical text-[#8B5CF6] text-2xl mb-1"></i>
-            <span class="text-xl font-bold text-[#8B5CF6]">{{ $statistik['sakit'] }}</span>
-            <span class="text-[10px] text-gray-500 uppercase">Sakit</span>
+
+        <!-- 4. Pulang Cepat -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
+            </div>
+            <span class="text-lg font-black text-slate-800">{{ $statistik['pulang_cepat'] }}</span>
+            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Plg Cepat</span>
         </div>
-        <div class="bg-white p-3 rounded-2xl shadow-sm text-center flex flex-col items-center col-span-2">
-            <i class="fa-solid fa-file-signature text-[#1B6CA8] text-2xl mb-1"></i>
-            <span class="text-xl font-bold text-[#1B6CA8]">{{ $statistik['lhk_dibuat'] }}</span>
-            <span class="text-[10px] text-gray-500 uppercase">LHK Dibuat</span>
+
+        <!-- 5. Izin -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <span class="text-lg font-black text-slate-800">{{ $statistik['izin'] }}</span>
+            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Izin</span>
+        </div>
+
+        <!-- 6. Sakit -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-notes-medical"></i>
+            </div>
+            <span class="text-lg font-black text-slate-800">{{ $statistik['sakit'] }}</span>
+            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Sakit</span>
+        </div>
+
+        <!-- 7. Tanpa Keterangan / Alpa -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-user-xmark"></i>
+            </div>
+            <span class="text-lg font-black text-rose-600">{{ $statistik['tanpa_keterangan'] }}</span>
+            <span class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Alpa</span>
+        </div>
+
+        <!-- 8. LHK Dibuat -->
+        <div class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center">
+            <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm mb-1.5">
+                <i class="fa-solid fa-file-signature"></i>
+            </div>
+            <span class="text-lg font-black text-teal-700">{{ $statistik['lhk_dibuat'] }}</span>
+            <span class="text-[9px] text-teal-600 font-bold uppercase tracking-wide">LHK</span>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <h3 class="text-lg font-bold text-gray-800 mb-3">Aksi Cepat</h3>
-    <div class="flex space-x-3 mb-6">
-        <a href="{{ route('mobile.absensi') }}" wire:navigate class="flex-1 bg-[#1B6CA8]/10 border border-[#1B6CA8]/30 rounded-xl p-4 flex items-center transition active:bg-[#1B6CA8]/20">
-            <i class="fa-solid fa-fingerprint text-[#1B6CA8] text-xl"></i>
-            <span class="ml-3 font-semibold text-[#1B6CA8] text-sm">Absen Sekarang</span>
+    <!-- Quick Actions Khusus LHK -->
+    <h3 class="text-base font-extrabold text-slate-800 tracking-tight mb-3">Laporan Harian Kinerja (LHK)</h3>
+    <div class="grid grid-cols-2 gap-3 mb-6">
+        <!-- 1. Jumlah LHK yang Telah Dibuat -->
+        <a href="{{ route('mobile.lhk.index') }}" wire:navigate class="bg-gradient-to-br from-teal-50 to-emerald-50/60 border border-teal-200/60 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 shadow-xs">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center text-lg shadow-xs">
+                    <i class="fa-solid fa-file-signature"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] font-bold text-teal-700 uppercase tracking-wider">LHK Dibuat</span>
+                    <span class="text-xs text-slate-500 font-medium">Bulan Ini</span>
+                </div>
+            </div>
+            <span class="text-xl font-black text-teal-800 font-mono">{{ $statistik['lhk_dibuat'] }}</span>
         </a>
-        <a href="{{ route('mobile.lhk.create') }}" wire:navigate class="flex-1 bg-[#2D9B4F]/10 border border-[#2D9B4F]/30 rounded-xl p-4 flex items-center transition active:bg-[#2D9B4F]/20">
-            <i class="fa-solid fa-circle-plus text-[#2D9B4F] text-xl"></i>
-            <span class="ml-3 font-semibold text-[#2D9B4F] text-sm">Buat LHK</span>
+
+        <!-- 2. Tombol Buat LHK Baru -->
+        <a href="{{ route('mobile.lhk.create') }}" wire:navigate class="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 shadow-md shadow-emerald-700/20">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg text-white">
+                    <i class="fa-solid fa-circle-plus"></i>
+                </div>
+                <div class="flex flex-col text-left">
+                    <span class="text-xs font-black tracking-wide">Buat LHK</span>
+                    <span class="text-[10px] text-white/80 font-medium">Isi Pekerjaan</span>
+                </div>
+            </div>
+            <i class="fa-solid fa-arrow-right text-xs text-white/70"></i>
         </a>
     </div>
 
