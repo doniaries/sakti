@@ -2,13 +2,11 @@
 
 namespace App\Filament\Resources\AbsensiHarians\Widgets;
 
-use App\Models\AbsensiHarian;
-use App\Filament\Resources\AbsensiHarians\AbsensiHarianResource;
+use App\Filament\Resources\AbsensiHarians\Pages\ListAbsensiHarians;
 use Carbon\Carbon;
+use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Filament\Widgets\Concerns\InteractsWithPageTable;
-use App\Filament\Resources\AbsensiHarians\Pages\ListAbsensiHarians;
 
 class AbsensiHarianStats extends BaseWidget
 {
@@ -22,27 +20,35 @@ class AbsensiHarianStats extends BaseWidget
     protected function getStats(): array
     {
         $query = clone $this->getPageTableQuery();
-        
+
         $hadir = (clone $query)->where('status', 'hadir')->count();
         $izin = (clone $query)->where('status', 'izin')->count();
         $sakit = (clone $query)->where('status', 'sakit')->count();
         $tanpaKeterangan = (clone $query)->where('status', 'tidak_hadir')->count();
 
+        // Ambil informasi tanggal dari filter tabel (jika ada yang dipilih)
+        $filterData = $this->tableFilters['tanggal']['tanggal'] ?? null;
+        if (!empty($filterData)) {
+            $labelPeriode = Carbon::parse($filterData)->translatedFormat('d F Y');
+        } else {
+            $labelPeriode = Carbon::today()->translatedFormat('d F Y');
+        }
+
         return [
             Stat::make('Hadir', $hadir)
-                ->description('Total Hadir')
+                ->description('Total Hadir pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
             Stat::make('Sakit', $sakit)
-                ->description('Total Sakit')
+                ->description('Total Sakit pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-plus-circle')
                 ->color('warning'),
             Stat::make('Izin', $izin)
-                ->description('Total Izin')
+                ->description('Total Izin pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('warning'),
             Stat::make('Tanpa Keterangan', $tanpaKeterangan)
-                ->description('Total Tanpa Keterangan')
+                ->description('Alpa pada ' . $labelPeriode)
                 ->descriptionIcon('heroicon-m-x-circle')
                 ->color('danger'),
         ];

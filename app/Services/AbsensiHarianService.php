@@ -57,9 +57,12 @@ class AbsensiHarianService
             $user = User::with('jadwalKerja')->find((int) $uid);
             $jadwal = $user?->getJadwalKerja();
 
+            // Cek apakah tanggal ini adalah Hari Libur Resmi
+            $hariLibur = \App\Models\HariLibur::getLibur($tanggalLog);
+
             // Evaluasi Status Masuk berdasarkan jam masuk resmi hari tersebut & toleransi keterlambatan
-            $status = 'hadir';
-            $keterangan = null;
+            $status = $hariLibur ? 'libur' : 'hadir';
+            $keterangan = $hariLibur ? ('Libur: ' . $hariLibur->nama) : null;
 
             if ($jadwal) {
                 // Jam Masuk Resmi (Otomatis beda jika hari Jumat)
