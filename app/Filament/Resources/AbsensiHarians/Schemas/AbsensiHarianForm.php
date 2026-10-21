@@ -41,24 +41,12 @@ class AbsensiHarianForm
                             ->displayFormat('H:i:s')
                             ->visible(fn(Get $get) => in_array($get('status'), ['hadir', 'terlambat', 'dinas_luar'])),
                         Select::make('status')
-                            ->options([
-                                'hadir' => 'Hadir',
-                                'terlambat' => 'Terlambat',
-                                'tidak_hadir' => 'Tidak Hadir',
-                                'dinas_luar' => 'Dinas Luar',
-                                'cuti' => 'Cuti',
-                                'izin' => 'Izin',
-                                'sakit' => 'Sakit',
-                                'libur' => 'Libur',
-                            ])
-                            ->default('hadir')
+                            ->options(\App\Enums\StatusKehadiran::class)
+                            ->default(\App\Enums\StatusKehadiran::HADIR)
                             ->required(),
                         Select::make('status_apel')
                             ->label('Status Apel')
-                            ->options([
-                                'ikut apel' => 'Ikut Apel',
-                                'tidak ikut apel' => 'Tidak Ikut Apel',
-                            ]),
+                            ->options(\App\Enums\StatusApel::class),
                         Textarea::make('keterangan')
                             ->columnSpanFull(),
                     ])->columns(2),

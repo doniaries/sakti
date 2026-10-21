@@ -19,23 +19,9 @@ class AbsensiHarianInfolist
                         TextEntry::make('user.name')->label('Pegawai'),
                         TextEntry::make('tanggal')->date('d F Y'),
                         TextEntry::make('status')
-                            ->badge()
-                            ->color(fn(string $state): string => match ($state) {
-                                'hadir' => 'success',
-                                'terlambat' => 'warning',
-                                'tidak_hadir' => 'danger',
-                                'dinas_luar' => 'info',
-                                'cuti', 'izin', 'sakit' => 'warning',
-                                'libur' => 'gray',
-                                default => 'gray',
-                            }),
+                            ->badge(),
                         TextEntry::make('status_apel')
-                            ->badge()
-                            ->color(fn(?string $state): string => match ($state) {
-                                'ikut apel' => 'success',
-                                'tidak ikut apel' => 'danger',
-                                default => 'gray',
-                            }),
+                            ->badge(),
                         TextEntry::make('keterangan'),
                     ])->columns(2),
 

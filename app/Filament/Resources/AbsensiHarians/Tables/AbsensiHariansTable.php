@@ -87,43 +87,12 @@ class AbsensiHariansTable
                     ->iconColor(fn($record) => $record->logPulang?->sumber === 'mesin' ? 'info' : 'success'),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn(?string $state): string => match ($state) {
-                        'hadir'       => 'success',
-                        'terlambat'   => 'warning',
-                        'tidak_hadir' => 'danger',
-                        'dinas_luar'  => 'info',
-                        'cuti', 'izin', 'sakit' => 'warning',
-                        'libur'       => 'gray',
-                        default       => 'gray',
-                    })
-                    ->formatStateUsing(fn(?string $state): string => match ($state) {
-                        'tidak_hadir' => 'Tidak Hadir',
-                        'dinas_luar'  => 'Dinas Luar',
-                        'terlambat'   => 'Terlambat',
-                        'hadir'       => 'Hadir',
-                        'cuti'        => 'Cuti',
-                        'izin'        => 'Izin',
-                        'sakit'       => 'Sakit',
-                        'libur'       => 'Libur',
-                        default       => ucwords(str_replace('_', ' ', $state ?? '-')),
-                    })
                     ->searchable(),
                 TextColumn::make('jenis_kehadiran')
                     ->label('Tipe')
-                    ->badge()
-                    ->color(fn(?string $state): string => match ($state) {
-                        'wfh' => 'warning',
-                        'dinas_luar' => 'info',
-                        default => 'success',
-                    })
-                    ->formatStateUsing(fn($state) => strtoupper(str_replace('_', ' ', $state ?? 'WFO'))),
+                    ->badge(),
                 TextColumn::make('status_apel')
                     ->badge()
-                    ->color(fn(?string $state): string => match ($state) {
-                        'ikut apel'      => 'success',
-                        'tidak ikut apel' => 'danger',
-                        default          => 'gray',
-                    })
                     ->searchable(),
             ])
             ->defaultSort('tanggal', 'desc')

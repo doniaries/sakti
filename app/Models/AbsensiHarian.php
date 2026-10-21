@@ -38,6 +38,9 @@ class AbsensiHarian extends Model
         'tanggal' => 'date',
         'is_absen_mesin' => 'boolean',
         'is_absen_mobile' => 'boolean',
+        'status' => \App\Enums\StatusKehadiran::class,
+        'jenis_kehadiran' => \App\Enums\JenisKehadiran::class,
+        'status_apel' => \App\Enums\StatusApel::class,
     ];
 
     protected static function boot()
