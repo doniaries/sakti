@@ -43,12 +43,33 @@ class Absensi extends Component
             return;
         }
 
-        $absenHarian = AbsensiHarian::firstOrCreate(
-            ['user_id' => $user->id, 'tanggal' => $today],
-            ['status' => 'hadir']
-        );
+        $absenHarian = AbsensiHarian::where('user_id', $user->id)
+            ->where('tanggal', $today)
+            ->first();
 
-        if (!$absenHarian->log_masuk_id) {
+        // 1. Jika belum pernah absen masuk sama sekali
+        if (!$absenHarian || empty($absenHarian->jam_masuk)) {
+            // Ambil jadwal kerja untuk menentukan apakah sudah masuk jam pulang
+            $jadwal = $user->getJadwalKerja();
+            $jamMasukResmi = $jadwal ? $jadwal->getJamMasukHari($today) : '07:30';
+            $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($today) : '16:00';
+
+            // Jika pegawai mencoba absen pada jam pulang tetapi tidak ada absen masuk pagi:
+            if ($now >= $jamPulangResmi) {
+                $this->dispatch('notify', [
+                    'type' => 'error',
+                    'title' => 'Absen Pulang Ditolak!',
+                    'message' => 'Anda tidak dapat mengambil absen pulang karena tidak mengambil absen masuk pagi ini. Status Anda hari ini tercatat Tidak Hadir / Alpa.',
+                ]);
+                return;
+            }
+
+            // Ambil absen masuk
+            $absenHarian = AbsensiHarian::firstOrCreate(
+                ['user_id' => $user->id, 'tanggal' => $today],
+                ['status' => 'hadir']
+            );
+
             $log = LogAbsensi::create([
                 'user_id' => $user->id,
                 'tanggal' => $today,
@@ -62,8 +83,13 @@ class Absensi extends Component
             $absenHarian->jam_masuk = $now;
             $absenHarian->save();
             
-            $this->dispatch('notify', ['type' => 'success', 'message' => 'Absen Masuk Berhasil!']);
-        } elseif (!$absenHarian->log_pulang_id) {
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Berhasil!',
+                'message' => 'Absen Masuk Pagi Berhasil dicatat pada pukul ' . $now . ' WIB.',
+            ]);
+        } elseif (empty($absenHarian->jam_pulang)) {
+            // 2. Ambil absen pulang (karena sudah absen masuk)
             $log = LogAbsensi::create([
                 'user_id' => $user->id,
                 'tanggal' => $today,
@@ -77,9 +103,17 @@ class Absensi extends Component
             $absenHarian->jam_pulang = $now;
             $absenHarian->save();
             
-            $this->dispatch('notify', ['type' => 'success', 'message' => 'Absen Pulang Berhasil!']);
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Berhasil!',
+                'message' => 'Absen Pulang Berhasil dicatat pada pukul ' . $now . ' WIB.',
+            ]);
         } else {
-            $this->dispatch('notify', ['type' => 'info', 'message' => 'Anda sudah absen masuk dan pulang hari ini.']);
+            $this->dispatch('notify', [
+                'type' => 'info',
+                'title' => 'Lengkap',
+                'message' => 'Anda sudah menyelesaikan absensi masuk dan pulang hari ini.',
+            ]);
         }
     }
 
