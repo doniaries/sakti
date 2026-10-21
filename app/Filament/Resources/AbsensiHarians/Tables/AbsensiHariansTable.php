@@ -68,7 +68,7 @@ class AbsensiHariansTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('tanggal')
-                    ->date('d-M-Y')
+                    ->date('d/m/Y')
                     ->sortable(),
                 TextColumn::make('jam_masuk')
                     ->time('H:i:s')

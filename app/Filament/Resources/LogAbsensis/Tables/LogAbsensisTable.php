@@ -112,10 +112,14 @@ class LogAbsensisTable
                     ->form([
                         \Filament\Forms\Components\DatePicker::make('tanggal_awal')
                             ->label('Dari Tanggal')
+                            ->displayFormat('d/m/Y')
+                            ->native(false)
                             ->default(now()->startOfMonth())
                             ->required(),
                         \Filament\Forms\Components\DatePicker::make('tanggal_akhir')
                             ->label('Sampai Tanggal')
+                            ->displayFormat('d/m/Y')
+                            ->native(false)
                             ->default(now()->endOfMonth())
                             ->required(),
                     ])

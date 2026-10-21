@@ -39,7 +39,7 @@ class LhksTable
             '))
             ->columns([
                 TextColumn::make('tanggal')
-                    ->date()
+                    ->date('d/m/Y')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('user.name')
@@ -110,9 +110,11 @@ class LhksTable
                     ->form([
                         DatePicker::make('dari_tanggal')
                             ->label('Dari Tanggal')
+                            ->displayFormat('d/m/Y')
                             ->native(false),
                         DatePicker::make('sampai_tanggal')
                             ->label('Sampai Tanggal')
+                            ->displayFormat('d/m/Y')
                             ->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {

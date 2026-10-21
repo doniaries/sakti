@@ -22,23 +22,24 @@ class AbsensiHarianResource extends Resource
 {
     protected static ?string $model = AbsensiHarian::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
     protected static ?string $modelLabel = 'Absensi Harian';
     protected static ?string $pluralModelLabel = 'Data Absensi Harian';
+    protected static ?int $navigationSort = 1;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        
+
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        
+
         if ($user && $user->hasRole('Pegawai')) {
             $query->where('user_id', $user->id);
         }
-        
+
         return $query;
     }
 

@@ -29,5 +29,14 @@ class AppServiceProvider extends ServiceProvider
             'filament-tables',
             resource_path('views/vendor/filament-tables')
         );
+
+        // Format global DatePicker & DateTimePicker Filament ke format Indonesia dan non-native
+        \Filament\Forms\Components\DatePicker::configureUsing(function (\Filament\Forms\Components\DatePicker $datePicker): void {
+            $datePicker->native(false)->displayFormat('d/m/Y');
+        });
+
+        \Filament\Forms\Components\DateTimePicker::configureUsing(function (\Filament\Forms\Components\DateTimePicker $dateTimePicker): void {
+            $dateTimePicker->native(false)->displayFormat('d/m/Y H:i');
+        });
     }
 }

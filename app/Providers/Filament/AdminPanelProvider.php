@@ -47,9 +47,10 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->navigationGroups([
-                'Master Data',
+                'Absensi',
                 'LHK',
-                'Pengaturan',
+                'Master Data',
+                'Konfigurasi Sistem',
             ])
             ->colors([
                 'primary' => Color::Amber,

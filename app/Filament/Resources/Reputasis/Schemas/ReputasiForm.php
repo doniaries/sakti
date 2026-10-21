@@ -17,19 +17,21 @@ class ReputasiForm
                 \Filament\Schemas\Components\Section::make('Penilaian Rekan Kerja')
                     ->schema([
                         \Filament\Forms\Components\Hidden::make('penilai_id')
-                            ->default(fn () => auth()->id()),
-                            
+                            ->default(fn() => auth()->id()),
+
                         Select::make('user_id')
                             ->label('Nama Pegawai (Rekan Kerja)')
-                            ->relationship('user', 'name', fn ($query) => $query->where('id', '!=', auth()->id()))
+                            ->relationship('user', 'name', fn($query) => $query->where('id', '!=', auth()->id()))
                             ->searchable()
                             ->required(),
-                            
+
                         DatePicker::make('tanggal')
                             ->label('Tanggal Penilaian')
+                            ->displayFormat('d/m/Y')
                             ->default(now())
+                            ->native(false)
                             ->required(),
-                            
+
                         \Filament\Forms\Components\Radio::make('nilai_reputasi')
                             ->label('Nilai Reputasi (Bintang)')
                             ->options([
@@ -41,7 +43,7 @@ class ReputasiForm
                             ])
                             ->inline()
                             ->required(),
-                            
+
                         Textarea::make('keterangan')
                             ->label('Catatan Penilaian')
                             ->rows(3)

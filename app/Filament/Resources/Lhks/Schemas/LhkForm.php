@@ -24,6 +24,8 @@ class LhkForm
                 Section::make('Informasi Kehadiran')
                     ->schema([
                         DatePicker::make('tanggal')
+                            ->displayFormat('d/m/Y')
+                            ->native(false)
                             ->required()
                             ->default(function () {
                                 if ($queryTanggal = request()->query('tanggal')) {

@@ -30,7 +30,9 @@ class AbsensiHarianForm
                             ->default(fn() => Auth::id())
                             ->searchable()
                             ->placeholder('Semua Pegawai'),
-                        DatePicker::make('tanggal')->displayFormat('d/m/Y')
+                        DatePicker::make('tanggal')
+                            ->displayFormat('d/m/Y')
+                            ->native(false)
                             ->required(),
                         TimePicker::make('jam_masuk')
                             ->displayFormat('H:i:s')
