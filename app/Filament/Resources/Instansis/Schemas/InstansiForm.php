@@ -8,7 +8,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -40,9 +39,9 @@ class InstansiForm
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Pimpinan & Sekretaris')
+                Section::make('Kepala Dinas')
                     ->icon('heroicon-o-user-group')
-                    ->description('Tentukan Kepala Dinas dan Sekretaris Dinas')
+                    ->description('Tentukan Kepala Dinas')
                     ->columns(2)
                     ->schema([
                         Select::make('kepala_id')
@@ -64,33 +63,35 @@ class InstansiForm
                         TextInput::make('nama_kepala_dinas')
                             ->label('Nama Lengkap & Gelar Kadis')
                             ->placeholder('Nama Lengkap (Otomatis dari akun atau ketik manual)'),
-
-                        Select::make('sekretaris_id')
-                            ->label('Sekretaris Dinas')
-                            ->options(fn () => User::orderBy('name')->pluck('name', 'id'))
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Pilih Pegawai sebagai Sekretaris Dinas')
-                            ->dehydrated(true)
-                            ->columnSpanFull(),
                     ]),
 
-                Section::make('Para Kepala Bidang (Kabid)')
+                Section::make('Sekretaris & Kepala Bidang')
                     ->icon('heroicon-o-briefcase')
-                    ->description('Pilih pegawai yang menjabat sebagai Kepala Bidang pada masing-masing bidang')
+                    ->description('Tentukan Sekretaris Dinas serta Kepala Bidang pada masing-masing bidang')
                     ->columns(2)
                     ->schema(function () {
+                        $fields = [
+                            Select::make('sekretaris_id')
+                                ->label('Sekretaris Dinas')
+                                ->options(fn() => User::orderBy('name')->pluck('name', 'id'))
+                                ->searchable()
+                                ->preload()
+                                ->placeholder('Pilih Pegawai sebagai Sekretaris Dinas')
+                                ->dehydrated(true)
+                                ->columnSpan(1),
+                        ];
+
                         $bidangs = Bidang::where('slug', 'not like', '%sekretariat%')->get();
-                        $fields = [];
 
                         foreach ($bidangs as $bidang) {
                             $fields[] = Select::make('kabid_' . $bidang->id)
                                 ->label('Kabid ' . $bidang->nama)
-                                ->options(fn () => User::orderBy('name')->pluck('name', 'id'))
+                                ->options(fn() => User::orderBy('name')->pluck('name', 'id'))
                                 ->searchable()
                                 ->preload()
                                 ->placeholder('Pilih Kepala Bidang')
-                                ->dehydrated(true);
+                                ->dehydrated(true)
+                                ->columnSpan(1);
                         }
 
                         return $fields;
