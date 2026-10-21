@@ -4,8 +4,14 @@ Dokumen ini adalah **pedoman baku dan standar teknis** untuk pengembangan antarm
 
 ---
 
-## 1. Arsitektur & Peran Livewire
+## 1. Arsitektur & Peran Livewire (Terkoneksi Penuh ke Filament & API)
 
+- **Sumber Data Tunggal (Single Source of Truth)**:
+  - Seluruh data yang tampil pada klien Mobile PWA (`Dashboard`, `Absensi`, `Riwayat`, `LHK`, `Profil`) **100% bersumber dari tabel database Filament** (`absensi_harian`, `log_absensi`, `lhks`, `users`, `pengaturan_aplikasis`).
+  - Dilarang membuat data fiktif atau hardcode pada komponen mobile.
+- **Keselarasan dengan REST API**:
+  - Endpoint API (`/api/absensi`, `/api/dashboard`, `/api/lhk`, `/api/me`) mengembalikan format JSON yang sinkron dengan data Filament Admin dan PWA Mobile.
+  - Setiap perubahan status kehadiran, log jam masuk/pulang, sumber perangkat (`mesin`/`mobile`), maupun cetak PDF langsung mencerminkan data aktual yang terlihat di Panel Admin Filament.
 - **Klien Web Mobile (PWA Pegawai)**: Terletak di `app/Livewire/Mobile/` dan `resources/views/livewire/mobile/`.
 - **Target Pengguna**: Pegawai biasa dan pimpinan untuk presensi mobile berbasis web, rekapitulasi kehadiran, pengisian Laporan Harian Kinerja (LHK), dan pengelolaan profil mandiri.
 - **Layout Utama**: `resources/views/components/layouts/mobile.blade.php`.

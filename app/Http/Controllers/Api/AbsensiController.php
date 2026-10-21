@@ -20,26 +20,61 @@ class AbsensiController extends Controller
 
         $bulan  = $request->get('bulan', now()->month);
         $tahun  = $request->get('tahun', now()->year);
+        $status = $request->get('status');
 
-        $data = AbsensiHarian::where('user_id', $user->id)
+        $query = AbsensiHarian::where('user_id', $user->id)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
-            ->with(['logMasuk', 'logPulang'])
-            ->orderBy('tanggal', 'desc')
+            ->with(['logMasuk', 'logPulang']);
+
+        if ($status && $status !== 'semua') {
+            if ($status === 'hadir') {
+                $query->whereIn('status', ['hadir', 'terlambat']);
+            } elseif ($status === 'izin_sakit') {
+                $query->whereIn('status', ['izin', 'sakit']);
+            } elseif ($status === 'tidak_hadir') {
+                $query->whereIn('status', ['tidak_hadir', 'alpa']);
+            } else {
+                $query->where('status', $status);
+            }
+        }
+
+        $allBulanIni = AbsensiHarian::where('user_id', $user->id)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->get();
+
+        $rekap = [
+            'total' => $allBulanIni->count(),
+            'hadir' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['hadir', 'terlambat']))->count(),
+            'terlambat' => $allBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
+            'dinas_luar' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['dinas_luar', 'dl']))->count(),
+            'izin_sakit' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['izin', 'sakit']))->count(),
+            'alpa' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa']))->count(),
+        ];
+
+        $data = $query->orderBy('tanggal', 'desc')
             ->get()
             ->map(fn($row) => [
                 'id'             => $row->id,
                 'tanggal'        => $row->tanggal?->format('Y-m-d'),
                 'tanggal_format' => $row->tanggal?->translatedFormat('l, d F Y'),
-                'status'         => $row->status,
-                'jam_masuk'      => $row->logMasuk?->waktu_absensi?->format('H:i:s'),
-                'jam_pulang'     => $row->logPulang?->waktu_absensi?->format('H:i:s'),
-                'sudah_masuk'    => $row->log_masuk_id !== null,
-                'sudah_pulang'   => $row->log_pulang_id !== null,
-                'lhk_dibuat'     => $row->lhkExists ?? false,
+                'status'         => $row->status?->value ?? $row->status,
+                'jenis_kehadiran'=> $row->jenis_kehadiran?->value ?? $row->jenis_kehadiran,
+                'jam_masuk'      => $row->jam_masuk ?? $row->logMasuk?->waktu_absensi?->format('H:i:s'),
+                'jam_pulang'     => $row->jam_pulang ?? $row->logPulang?->waktu_absensi?->format('H:i:s'),
+                'perangkat_masuk'=> $row->logMasuk?->perangkat,
+                'perangkat_pulang'=> $row->logPulang?->perangkat,
+                'keterangan'     => $row->keterangan,
+                'sudah_masuk'    => !empty($row->jam_masuk) || $row->log_masuk_id !== null,
+                'sudah_pulang'   => !empty($row->jam_pulang) || $row->log_pulang_id !== null,
             ]);
 
-        return response()->json(['success' => true, 'data' => $data]);
+        return response()->json([
+            'success' => true, 
+            'rekap'   => $rekap,
+            'data'    => $data
+        ]);
     }
 
     /**
