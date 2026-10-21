@@ -15,10 +15,24 @@ class BidangsTable
         return $table
             ->columns([
                 TextColumn::make('nama')
+                    ->label('Nama Bidang')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('kepala.name')
+                    ->label('Pimpinan / Kepala')
+                    ->placeholder('Belum Ditentukan')
+                    ->badge()
+                    ->color('primary')
                     ->searchable(),
-                TextColumn::make('slug')
-                    ->searchable(),
+                TextColumn::make('users_count')
+                    ->label('Jml Pegawai')
+                    ->counts('users')
+                    ->badge()
+                    ->color('info')
+                    ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat Pada')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

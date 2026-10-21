@@ -96,6 +96,15 @@ class AbsensiHariansTable
                         default       => 'gray',
                     })
                     ->searchable(),
+                TextColumn::make('jenis_kehadiran')
+                    ->label('Tipe')
+                    ->badge()
+                    ->color(fn(?string $state): string => match ($state) {
+                        'wfh' => 'warning',
+                        'dinas_luar' => 'info',
+                        default => 'success',
+                    })
+                    ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
                 TextColumn::make('status_apel')
                     ->badge()
                     ->color(fn(?string $state): string => match ($state) {

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class UsersTable
 {
@@ -54,15 +56,39 @@ class UsersTable
                     ->searchable()
                     ->sortable(),
 
+                \Filament\Tables\Columns\TextColumn::make('status_kerja')
+                    ->label('Tipe Kerja')
+                    ->badge()
+                    ->color(fn ($state) => match($state) {
+                        'wfh' => 'warning',
+                        'fleksibel' => 'info',
+                        default => 'success',
+                    })
+                    ->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
                 \Filament\Tables\Columns\TextColumn::make('roles.name')->badge(),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif'),
             ])
             ->filters([
+                SelectFilter::make('bidang_id')
+                    ->label('Bidang')
+                    ->relationship('bidang', 'nama')
+                    ->searchable()
+                    ->preload(),
                 SelectFilter::make('jabatan_id')
                     ->label('Jabatan')
                     ->relationship('jabatan', 'nama')
                     ->searchable()
                     ->preload(),
+                SelectFilter::make('status_kerja')
+                    ->label('Tipe Kerja')
+                    ->options([
+                        'wfo' => 'WFO (Work From Office)',
+                        'wfh' => 'WFH (Work From Home)',
+                        'fleksibel' => 'Fleksibel (Hybrid)',
+                    ]),
+                SelectFilter::make('jadwal_kerja_id')
+                    ->label('Shift Kerja')
+                    ->relationship('jadwalKerja', 'nama'),
             ])
             ->recordActions([
                 ViewAction::make(),
@@ -147,6 +173,104 @@ class UsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+
+                    BulkAction::make('ubah_tipe_kerja_massal')
+                        ->label('Ubah Tipe Kerja (WFH/WFO)')
+                        ->icon('heroicon-o-home-modern')
+                        ->color('warning')
+                        ->form([
+                            Select::make('status_kerja')
+                                ->label('Pilih Tipe Kerja')
+                                ->options([
+                                    'wfo' => 'WFO (Work From Office)',
+                                    'wfh' => 'WFH (Work From Home)',
+                                    'fleksibel' => 'Fleksibel (Hybrid)',
+                                ])
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $count = $records->count();
+                            $records->each(fn ($user) => $user->update(['status_kerja' => $data['status_kerja']]));
+
+                            Notification::make()
+                                ->title("Berhasil mengubah tipe kerja $count pegawai menjadi " . strtoupper($data['status_kerja']))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('ubah_bidang_massal')
+                        ->label('Ubah Bidang (Massal)')
+                        ->icon('heroicon-o-building-office')
+                        ->color('info')
+                        ->form([
+                            Select::make('bidang_id')
+                                ->label('Pilih Bidang Tujuan')
+                                ->relationship('bidang', 'nama')
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $count = $records->count();
+                            $records->each(fn ($user) => $user->update(['bidang_id' => $data['bidang_id']]));
+
+                            Notification::make()
+                                ->title("Berhasil memindahkan $count pegawai ke bidang yang dipilih.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('ubah_role_massal')
+                        ->label('Ubah Hak Akses / Role (Massal)')
+                        ->icon('heroicon-o-shield-check')
+                        ->color('primary')
+                        ->form([
+                            Select::make('roles')
+                                ->label('Pilih Role Baru')
+                                ->relationship('roles', 'name')
+                                ->multiple()
+                                ->preload()
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $count = $records->count();
+                            foreach ($records as $user) {
+                                $user->syncRoles($data['roles']);
+                            }
+
+                            Notification::make()
+                                ->title("Berhasil memperbarui hak akses untuk $count pegawai.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('ubah_jadwal_kerja_massal')
+                        ->label('Ubah Shift Kerja (Massal)')
+                        ->icon('heroicon-o-clock')
+                        ->color('secondary')
+                        ->form([
+                            Select::make('jadwal_kerja_id')
+                                ->label('Pilih Jadwal / Shift Kerja')
+                                ->relationship('jadwalKerja', 'nama')
+                                ->placeholder('Gunakan Jadwal Default Sistem')
+                                ->searchable()
+                                ->preload(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $count = $records->count();
+                            $records->each(fn ($user) => $user->update(['jadwal_kerja_id' => $data['jadwal_kerja_id']]));
+
+                            Notification::make()
+                                ->title("Berhasil menerapkan shift kerja untuk $count pegawai.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     \Filament\Actions\BulkAction::make('kirim_ke_mesin_bulk')
                         ->label('Kirim ke Mesin (Massal)')
                         ->icon('heroicon-o-paper-airplane')

@@ -41,6 +41,8 @@ class User extends Authenticatable implements HasAvatar, HasName
         'jenis_kelamin',
         'eselon',
         'atasan_id',
+        'jadwal_kerja_id',
+        'status_kerja',
         'avatar_url',
     ];
 
@@ -99,6 +101,24 @@ class User extends Authenticatable implements HasAvatar, HasName
     public function bawahan()
     {
         return $this->hasMany(User::class, 'atasan_id');
+    }
+
+    public function jadwalKerja(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(JadwalKerja::class);
+    }
+
+    public function pengajuanIzins(): HasMany
+    {
+        return $this->hasMany(PengajuanIzin::class);
+    }
+
+    /**
+     * Ambil jadwal kerja yang berlaku untuk user ini (jika tidak diset, ambil default)
+     */
+    public function getJadwalKerja(): ?JadwalKerja
+    {
+        return $this->jadwalKerja ?? JadwalKerja::getDefault();
     }
 
     public function getFilamentAvatarUrl(): ?string

@@ -22,9 +22,12 @@ class DatabaseSeeder extends Seeder
             DataPegawaiSeeder::class,
             BidangSeeder::class,
             JabatanSeeder::class,
+            JadwalKerjaSeeder::class,
+            JenisIzinSeeder::class,
             MesinAbsensiSeeder::class,
             LogAbsensiSeeder::class,
             AktivitasSeeder::class,
+            StrukturOrganisasiSeeder::class,
         ]);
 
         // 3. Generate ulang permission secara dinamis berdasarkan model & panel terkini

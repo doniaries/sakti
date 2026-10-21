@@ -18,6 +18,9 @@ class AbsensiHarian extends Model
         'log_masuk_id',
         'log_pulang_id',
         'status',
+        'jenis_kehadiran',
+        'jadwal_kerja_id',
+        'pengajuan_izin_id',
         'keterangan',
         'is_absen_mesin',
         'is_absen_mobile',
@@ -73,5 +76,15 @@ class AbsensiHarian extends Model
     public function logPulang(): BelongsTo
     {
         return $this->belongsTo(LogAbsensi::class, 'log_pulang_id');
+    }
+
+    public function jadwalKerja(): BelongsTo
+    {
+        return $this->belongsTo(JadwalKerja::class);
+    }
+
+    public function pengajuanIzin(): BelongsTo
+    {
+        return $this->belongsTo(PengajuanIzin::class);
     }
 }

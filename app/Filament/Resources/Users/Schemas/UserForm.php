@@ -65,6 +65,21 @@ class UserForm
                             ->relationship('atasan', 'name')
                             ->searchable()
                             ->preload(),
+                        \Filament\Forms\Components\Select::make('jadwal_kerja_id')
+                            ->label('Jadwal / Shift Kerja')
+                            ->relationship('jadwalKerja', 'nama')
+                            ->placeholder('Ikuti Jadwal Default Sistem')
+                            ->searchable()
+                            ->preload(),
+                        \Filament\Forms\Components\Select::make('status_kerja')
+                            ->label('Status Kerja (WFH/WFO)')
+                            ->options([
+                                'wfo' => 'WFO (Work From Office)',
+                                'wfh' => 'WFH (Work From Home)',
+                                'fleksibel' => 'Fleksibel (Hybrid)',
+                            ])
+                            ->default('wfo')
+                            ->required(),
                         \Filament\Forms\Components\Select::make('roles')
                             ->label('Hak Akses (Role)')
                             ->relationship('roles', 'name', function ($query) {

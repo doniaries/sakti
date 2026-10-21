@@ -12,4 +12,14 @@ class Bidang extends Model
     {
         return $this->belongsTo(User::class, 'kepala_id');
     }
+
+    public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function pegawai(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(User::class);
+    }
 }
