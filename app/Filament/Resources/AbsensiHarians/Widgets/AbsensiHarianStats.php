@@ -22,26 +22,37 @@ class AbsensiHarianStats extends BaseWidget
 
     protected function getStats(): array
     {
-        // Query realtime langsung dari database sesuai filter aktif tabel
-        $query = clone $this->getPageTableQuery();
+        $query = $this->getPageTableQuery();
 
-        $totalPegawai = (clone $query)->count();
-        $hadir = (clone $query)->where('status', 'hadir')->count();
-        $izin = (clone $query)->where('status', 'izin')->count();
-        $sakit = (clone $query)->where('status', 'sakit')->count();
-        $tanpaKeterangan = (clone $query)->where('status', 'tidak_hadir')->count();
+        // Total pegawai yang ada di seluruh instansi
+        $totalPegawaiInstansi = \App\Models\User::count();
 
-        // Ambil informasi tanggal dari filter tabel (jika ada yang dipilih)
+        // Ambil informasi tanggal dari filter tabel (jika ada yang dipilih, jika tidak gunakan Hari Ini)
         $filterData = $this->tableFilters['tanggal']['tanggal'] ?? null;
         if (!empty($filterData)) {
             $labelPeriode = Carbon::parse($filterData)->translatedFormat('d F Y');
         } else {
             $labelPeriode = Carbon::today()->translatedFormat('d F Y');
+            // Jika filter tanggal belum dipilih, batasi query widget ke hari ini agar tidak akumulasi seluruh bulan
+            $query = (clone $query)->whereDate('tanggal', Carbon::today());
         }
 
+        // 1 Single Optimized Aggregation Query
+        $counts = (clone $query)->selectRaw('
+            COUNT(CASE WHEN status = "hadir" THEN 1 END) as hadir,
+            COUNT(CASE WHEN status = "sakit" THEN 1 END) as sakit,
+            COUNT(CASE WHEN status = "izin" THEN 1 END) as izin,
+            COUNT(CASE WHEN status = "tidak_hadir" THEN 1 END) as alpa
+        ')->first();
+
+        $hadir = $counts->hadir ?? 0;
+        $sakit = $counts->sakit ?? 0;
+        $izin = $counts->izin ?? 0;
+        $tanpaKeterangan = $counts->alpa ?? 0;
+
         return [
-            Stat::make('Total Pegawai', $totalPegawai)
-                ->description('Total Pegawai pada ' . $labelPeriode)
+            Stat::make('Total Pegawai', $totalPegawaiInstansi)
+                ->description('Total Pegawai di Instansi')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary'),
             Stat::make('Hadir', $hadir)

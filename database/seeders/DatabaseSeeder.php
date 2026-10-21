@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             LogAbsensiSeeder::class,
             AktivitasSeeder::class,
             StrukturOrganisasiSeeder::class,
+            // SatuTahunStressTestSeeder::class, // Aktifkan seeder ini jika ingin menguji 1 tahun data (~20.000 data) di server online
         ]);
 
         // 3. Generate ulang permission secara dinamis berdasarkan model & panel terkini

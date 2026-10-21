@@ -105,7 +105,7 @@ class AbsensiHariansTable
                     ->form([
                         \Filament\Forms\Components\DatePicker::make('tanggal')
                             ->label('Pilih Tanggal Presensi')
-                            ->placeholder('Semua Tanggal (Klik untuk Memilih Hari/Bulan/Tahun)')
+                            ->default(now()->format('Y-m-d'))
                             ->displayFormat('d/m/Y')
                             ->maxDate(now()) // Tanggal yang belum aktif (masa depan) otomatis disabled!
                             ->native(false)
