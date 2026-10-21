@@ -54,6 +54,18 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->colors([
                 'primary' => Color::Amber,
+                'danger' => Color::Red,
+                'warning' => Color::Orange,
+                'success' => Color::Green,
+                'info' => Color::Blue,
+                'purple' => Color::Purple,
+                'teal' => Color::Teal,
+                'rose' => Color::Rose,
+                'indigo' => Color::Indigo,
+                'cyan' => Color::Cyan,
+                'emerald' => Color::Emerald,
+                'violet' => Color::Violet,
+                'lime' => Color::Lime,
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')

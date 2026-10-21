@@ -15,9 +15,13 @@ class JabatansTable
         return $table
             ->columns([
                 TextColumn::make('nama')
-                    ->searchable(),
+                    ->label('Nama Jabatan')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
                 TextColumn::make('slug')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()

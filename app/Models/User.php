@@ -44,6 +44,10 @@ class User extends Authenticatable implements HasAvatar, HasName
         'jadwal_kerja_id',
         'status_kerja',
         'avatar_url',
+        'nik',
+        'no_kk',
+        'no_hp',
+        'no_bpjs',
     ];
 
     /**

@@ -38,31 +38,69 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('nip')
                     ->searchable()
                     ->sortable(),
+                \Filament\Tables\Columns\TextColumn::make('nik')
+                    ->label('NIK')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: false),
+                \Filament\Tables\Columns\TextColumn::make('no_kk')
+                    ->label('No. KK')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('no_hp')
+                    ->label('No. HP / WA')
+                    ->searchable()
+                    ->copyable()
+                    ->url(fn ($state) => filled($state) ? "https://wa.me/" . preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $state)) : null, shouldOpenInNewTab: true)
+                    ->toggleable(isToggledHiddenByDefault: false),
+                \Filament\Tables\Columns\TextColumn::make('no_bpjs')
+                    ->label('BPJS Kesehatan')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('jabatan.nama')
                     ->label('Jabatan')
                     ->badge()
-                    ->color(fn($state) => match (true) {
+                    ->color(fn ($state) => match (true) {
                         str_contains($state ?? '', 'Kepala Dinas') => 'danger',
                         str_contains($state ?? '', 'Sekretaris') => 'warning',
-                        str_contains($state ?? '', 'Kabid') => 'success',
-                        str_contains($state ?? '', 'Kasi') => 'info',
-                        str_contains($state ?? '', 'Fungsional') => 'primary',
+                        str_contains($state ?? '', 'Kabid') => 'purple',
+                        str_contains($state ?? '', 'Kasubbag') => 'amber',
+                        str_contains($state ?? '', 'Adyatama') => 'rose',
+                        str_contains($state ?? '', 'Pelatih') || str_contains($state ?? '', 'Olahraga') => 'teal',
+                        str_contains($state ?? '', 'Komputer') || str_contains($state ?? '', 'Sistem') => 'cyan',
+                        str_contains($state ?? '', 'Perencana') => 'indigo',
+                        str_contains($state ?? '', 'Konservator') => 'emerald',
+                        str_contains($state ?? '', 'Hubungan') || str_contains($state ?? '', 'Penerjemah') => 'violet',
+                        str_contains($state ?? '', 'Analis Kebijakan') => 'info',
+                        str_contains($state ?? '', 'Penelaah Teknis') => 'blue',
+                        str_contains($state ?? '', 'Pengelola') || str_contains($state ?? '', 'Penata') => 'lime',
                         default => 'gray',
                     })
                     ->searchable()
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('bidang.nama')
                     ->label('Bidang')
+                    ->badge()
+                    ->color('gray')
                     ->searchable()
                     ->sortable(),
 
                 \Filament\Tables\Columns\TextColumn::make('status_kerja')
                     ->label('Tipe Kerja')
                     ->badge()
-                    ->color(fn ($state) => match($state) {
+                    ->color(fn ($state) => match(strtolower($state ?? 'wfo')) {
+                        'wfo' => 'success',
                         'wfh' => 'warning',
                         'fleksibel' => 'info',
-                        default => 'success',
+                        default => 'gray',
+                    })
+                    ->icon(fn ($state) => match(strtolower($state ?? 'wfo')) {
+                        'wfo' => 'heroicon-m-building-office-2',
+                        'wfh' => 'heroicon-m-home',
+                        'fleksibel' => 'heroicon-m-arrows-pointing-out',
+                        default => 'heroicon-m-building-office-2',
                     })
                     ->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
                 \Filament\Tables\Columns\TextColumn::make('roles.name')->badge(),

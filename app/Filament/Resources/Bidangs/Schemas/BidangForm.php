@@ -2,8 +2,11 @@
 
 namespace App\Filament\Resources\Bidangs\Schemas;
 
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class BidangForm
 {
@@ -12,11 +15,17 @@ class BidangForm
         return $schema
             ->components([
                 TextInput::make('nama')
-                    ->required(),
-                TextInput::make('slug')
-                    ->required(),
-                \Filament\Forms\Components\Select::make('kepala_id')
-                    ->label('Kepala Bidang/Sekretaris')
+                    ->label('Nama Bidang')
+                    ->placeholder('Contoh: Bidang Pemasaran Pariwisata')
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn (callable $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
+
+                Hidden::make('slug')
+                    ->dehydrated(),
+
+                Select::make('kepala_id')
+                    ->label('Kepala Bidang / Sekretaris')
                     ->relationship('kepala', 'name')
                     ->searchable()
                     ->preload(),

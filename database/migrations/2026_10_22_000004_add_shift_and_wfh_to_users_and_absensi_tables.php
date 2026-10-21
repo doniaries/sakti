@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained('jadwal_kerjas')
                 ->nullOnDelete();
 
-            $table->enum('status_kerja', ['wfo', 'wfh', 'fleksibel'])
+            $table->enum('status_kerja', ['wfo', 'wfh'])
                 ->default('wfo')
                 ->after('jadwal_kerja_id');
         });
