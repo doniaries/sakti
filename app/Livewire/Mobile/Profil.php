@@ -2,7 +2,10 @@
 
 namespace App\Livewire\Mobile;
 
+use App\Models\AbsensiHarian;
+use App\Models\Lhk;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Livewire\Attributes\Layout;
@@ -16,8 +19,12 @@ class Profil extends Component
 {
     use WithFileUploads;
 
-    public $activeTab = 'utama'; // 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
+    public $activeTab = 'statistik'; // 'statistik', 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
     public $isEditing = false;
+
+    // Filter Statistik Bulan & Tahun
+    public $bulan;
+    public $tahun;
 
     // Editable Fields
     public $name = '';
@@ -38,11 +45,29 @@ class Profil extends Component
     public $gelar_belakang = '';
     public $pendidikan = '';
     public $jenjang_pendidikan = '';
+    public $password = '';
+    public $password_confirmation = '';
     public $new_avatar;
 
     public function mount()
     {
+        $this->bulan = (int) date('m');
+        $this->tahun = (int) date('Y');
         $this->loadUserData();
+    }
+
+    public function prevMonth()
+    {
+        $date = Carbon::createFromDate($this->tahun, $this->bulan, 1)->subMonth();
+        $this->bulan = (int) $date->format('m');
+        $this->tahun = (int) $date->format('Y');
+    }
+
+    public function nextMonth()
+    {
+        $date = Carbon::createFromDate($this->tahun, $this->bulan, 1)->addMonth();
+        $this->bulan = (int) $date->format('m');
+        $this->tahun = (int) $date->format('Y');
     }
 
     public function loadUserData()
@@ -68,6 +93,8 @@ class Profil extends Component
         $this->gelar_belakang = $user->gelar_belakang ?? '';
         $this->pendidikan = $user->pendidikan ?? '';
         $this->jenjang_pendidikan = $user->jenjang_pendidikan ?? '';
+        $this->password = '';
+        $this->password_confirmation = '';
     }
 
     public function setTab($tab)
@@ -111,6 +138,8 @@ class Profil extends Component
         $this->isEditing = !$this->isEditing;
         if ($this->isEditing) {
             $this->activeTab = 'utama';
+            $this->password = '';
+            $this->password_confirmation = '';
         } else {
             $this->new_avatar = null;
             $this->loadUserData(); // Cancel & reset
@@ -166,9 +195,27 @@ class Profil extends Component
             'jenjang_pendidikan' => $this->jenjang_pendidikan,
         ];
 
+        // Hanya validasi dan ubah password jika user sengaja mengisinya
+        if (!empty($this->password)) {
+            $this->validate([
+                'password' => 'min:6|same:password_confirmation',
+                'password_confirmation' => 'required',
+            ], [
+                'password.min' => 'Password minimal 6 karakter.',
+                'password.same' => 'Konfirmasi password baru tidak cocok.',
+                'password_confirmation.required' => 'Ketik ulang password baru pada konfirmasi password.',
+            ]);
+
+            $data['password'] = Hash::make($this->password);
+        }
+
         /** @var User $freshUser */
         $freshUser = User::findOrFail(Auth::id());
         $freshUser->update($data);
+
+        // Reset password state
+        $this->password = '';
+        $this->password_confirmation = '';
 
         session()->flash('notify', [
             'type' => 'success',
@@ -184,8 +231,40 @@ class Profil extends Component
         /** @var User $user */
         $user = User::with(['jabatan', 'bidang', 'atasan', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
 
+        // Statistik Bulan dan Tahun Terpilih
+        $selectedDate = Carbon::createFromDate($this->tahun, $this->bulan, 1);
+        $startOfMonth = $selectedDate->copy()->startOfMonth();
+        $endOfMonth = $selectedDate->copy()->endOfMonth();
+
+        $absensiBulanIni = AbsensiHarian::where('user_id', $user->id)
+            ->whereBetween('tanggal', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+            ->get();
+
+        $jadwalDefault = $user->getJadwalKerja();
+
+        $statistik = [
+            'hadir' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['hadir', 'terlambat']))->count(),
+            'terlambat' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
+            'dinas_luar' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'dinas_luar' || ($a->jenis_kehadiran?->value ?? $a->jenis_kehadiran) === 'dinas_luar')->count(),
+            'pulang_cepat' => $absensiBulanIni->filter(function($a) use ($jadwalDefault) {
+                if (empty($a->jam_pulang)) return false;
+                $jamPulangResmi = $jadwalDefault ? $jadwalDefault->getJamPulangHari($a->tanggal) : '16:00';
+                return $a->jam_pulang < $jamPulangResmi;
+            })->count(),
+            'tanpa_keterangan' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa']) || (empty($a->jam_masuk) && empty($a->jam_pulang) && !in_array($a->status?->value ?? $a->status, ['izin', 'sakit', 'cuti', 'libur', 'dinas_luar'])))->count(),
+            'izin' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'izin')->count(),
+            'sakit' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'sakit')->count(),
+            'lhk_dibuat' => Lhk::where('user_id', $user->id)
+                ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+                ->count(),
+        ];
+
         return view('livewire.mobile.profil', [
             'user' => $user,
+            'statistik' => $statistik,
+            'bulanNama' => $selectedDate->translatedFormat('F Y'),
+            'bulan' => $this->bulan,
+            'tahun' => $this->tahun,
         ]);
     }
 }

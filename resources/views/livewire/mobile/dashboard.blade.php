@@ -88,7 +88,7 @@
             </div>
 
             <!-- Foto Avatar Pegawai di Dashboard -->
-            <a href="{{ route('mobile.profil') }}" wire:navigate class="relative block shrink-0 active:scale-95 transition-transform" title="Buka Profil">
+            <a href="{{ route('mobile.profil') }}" wire:navigate class="relative block shrink-0 active:scale-95 transition-transform" title="Buka Profil & Statistik">
                 <img src="{{ $user->avatar_image_url }}" 
                      alt="{{ $user->name }}" 
                      class="w-14 h-14 rounded-2xl object-cover border-2 border-white/50 shadow-lg shadow-sky-950/40 aspect-square">
@@ -124,160 +124,287 @@
         </div>
     </div>
 
-    @if(!empty($user->whatsapp_url))
-        <!-- Card / Tombol WhatsApp Pegawai -->
-        <div class="mb-6 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-teal-500/10 border border-emerald-300/70 rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-sm">
-                    <i class="fa-brands fa-whatsapp"></i>
-                </div>
-                <div>
-                    <div class="text-xs font-bold text-slate-800">WhatsApp Terhubung</div>
-                    <div class="text-[11px] text-emerald-700 font-mono font-medium">{{ $user->no_hp }}</div>
-                </div>
-            </div>
-            <a href="{{ $user->whatsapp_url }}" target="_blank" rel="noopener noreferrer" 
-               class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center space-x-1.5">
-                <span>Chat WA</span>
-                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+    <!-- Menu Layanan Kepegawaian (Izin, Sakit, Cuti, WFH, Hari Libur, Reputasi) -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-extrabold text-slate-800 tracking-tight">Layanan Kepegawaian</h3>
+            <a href="{{ route('mobile.izin.index') }}" wire:navigate class="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center">
+                <span>Riwayat Izin</span>
+                <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
             </a>
         </div>
-    @endif
+        <div class="grid grid-cols-4 gap-2.5">
+            <!-- Izin -->
+            <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-sky-50/40 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Izin</span>
+                <span class="text-[9px] text-slate-400 font-medium">Pribadi</span>
+            </a>
 
-    <!-- Statistik Kehadiran dengan Filter Bulan & Tahun Interaktif -->
-    <div class="flex justify-between items-center mb-3">
-        <h3 class="text-base font-extrabold text-slate-800 tracking-tight">Statistik Kehadiran</h3>
-        <!-- Interactive Month & Year Navigator -->
-        <div class="flex items-center space-x-1.5 bg-white px-2 py-1 rounded-2xl shadow-xs border border-slate-200/80">
-            <button wire:click="prevMonth" class="w-6 h-6 rounded-lg bg-slate-50 hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90" title="Bulan Sebelumnya">
-                <i class="fa-solid fa-chevron-left text-[10px]"></i>
-            </button>
-            <span class="text-xs font-extrabold text-sky-700 px-1 select-none">
-                {{ $bulanNama }}
-            </span>
-            <button wire:click="nextMonth" class="w-6 h-6 rounded-lg bg-slate-50 hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90" title="Bulan Berikutnya">
-                <i class="fa-solid fa-chevron-right text-[10px]"></i>
-            </button>
+            <!-- Sakit -->
+            <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-rose-50/40 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-solid fa-notes-medical"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Sakit</span>
+                <span class="text-[9px] text-slate-400 font-medium">Dokter</span>
+            </a>
+
+            <!-- Cuti -->
+            <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-amber-50/40 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-solid fa-umbrella-beach"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Cuti</span>
+                <span class="text-[9px] text-slate-400 font-medium">Tahunan</span>
+            </a>
+
+            <!-- WFH -->
+            <a href="{{ route('mobile.izin.create', ['kategori' => 'wfh']) }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-teal-50/40 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-solid fa-house-laptop"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">WFH</span>
+                <span class="text-[9px] text-slate-400 font-medium">Rumah</span>
+            </a>
+
+            <!-- Kalender Libur -->
+            <a href="{{ route('mobile.hari-libur') }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-regular fa-calendar-days"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Hari Libur</span>
+                <span class="text-[9px] text-slate-400 font-medium">Kalender</span>
+            </a>
+
+            <!-- Reputasi Rekan Kerja -->
+            <a href="{{ route('mobile.reputasi') }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Reputasi</span>
+                <span class="text-[9px] text-slate-400 font-medium">Rekan Kerja</span>
+            </a>
+
+            <!-- LHK Baru -->
+            <a href="{{ route('mobile.lhk.create') }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-emerald-50/40 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-solid fa-file-circle-plus"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Buat LHK</span>
+                <span class="text-[9px] text-slate-400 font-medium">Kinerja</span>
+            </a>
+
+            <!-- Statistik & Rekap Profil -->
+            <a href="{{ route('mobile.profil') }}" wire:navigate 
+               class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-sky-50/40 active:scale-95 transition-all text-center">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">Statistik</span>
+                <span class="text-[9px] text-slate-400 font-medium">Kehadiran</span>
+            </a>
         </div>
     </div>
 
-    <div class="grid grid-cols-4 gap-2 mb-6">
-        <!-- 1. Hadir -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'hadir', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
-            <span class="text-lg font-black text-slate-800">{{ $statistik['hadir'] }}</span>
-            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Hadir</span>
-        </a>
+    <!-- DATA KEPEGAWAIAN (Tab Data Utama, Golongan, Jabatan, Pendidikan, Keluarga) -->
+    <div class="mb-6">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-extrabold text-slate-800 tracking-tight">Data Kepegawaian</h3>
+            <a href="{{ route('mobile.profil') }}" wire:navigate class="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center">
+                <span>Edit Biodata</span>
+                <i class="fa-solid fa-pen-to-square text-[10px] ml-1"></i>
+            </a>
+        </div>
 
-        <!-- 2. Terlambat -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'terlambat', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-clock"></i>
-            </div>
-            <span class="text-lg font-black text-slate-800">{{ $statistik['terlambat'] }}</span>
-            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Terlambat</span>
-        </a>
+        <!-- Tab Bar ala MyASN -->
+        <div class="flex space-x-2 overflow-x-auto pb-2 mb-3 no-scrollbar">
+            <button wire:click="setTabKepegawaian('utama')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $tabKepegawaian === 'utama' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-user text-xs mr-1.5"></i>Data Utama
+            </button>
+            <button wire:click="setTabKepegawaian('golongan')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $tabKepegawaian === 'golongan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Golongan
+            </button>
+            <button wire:click="setTabKepegawaian('jabatan')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $tabKepegawaian === 'jabatan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-briefcase text-xs mr-1.5"></i>Jabatan
+            </button>
+            <button wire:click="setTabKepegawaian('pendidikan')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $tabKepegawaian === 'pendidikan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-graduation-cap text-xs mr-1.5"></i>Pendidikan
+            </button>
+            <button wire:click="setTabKepegawaian('keluarga')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $tabKepegawaian === 'keluarga' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-people-roof text-xs mr-1.5"></i>Keluarga
+            </button>
+        </div>
 
-        <!-- 3. Dinas Luar -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'dinas_luar', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-briefcase"></i>
-            </div>
-            <span class="text-lg font-black text-slate-800">{{ $statistik['dinas_luar'] }}</span>
-            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Dinas Luar</span>
-        </a>
-
-        <!-- 4. Pulang Cepat -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'pulang_cepat', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
-            </div>
-            <span class="text-lg font-black text-slate-800">{{ $statistik['pulang_cepat'] }}</span>
-            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Plg Cepat</span>
-        </a>
-
-        <!-- 5. Izin -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'izin', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-calendar-check"></i>
-            </div>
-            <span class="text-lg font-black text-slate-800">{{ $statistik['izin'] }}</span>
-            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Izin</span>
-        </a>
-
-        <!-- 6. Sakit -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'sakit', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-notes-medical"></i>
-            </div>
-            <span class="text-lg font-black text-slate-800">{{ $statistik['sakit'] }}</span>
-            <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Sakit</span>
-        </a>
-
-        <!-- 7. Tanpa Keterangan / Alpa -->
-        <a href="{{ route('mobile.riwayat', ['status' => 'tidak_hadir', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-user-xmark"></i>
-            </div>
-            <span class="text-lg font-black text-rose-600">{{ $statistik['tanpa_keterangan'] }}</span>
-            <span class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Alpa</span>
-        </a>
-
-        <!-- 8. LHK Dibuat -->
-        <a href="{{ route('mobile.lhk.index') }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
-            <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
-                <i class="fa-solid fa-file-signature"></i>
-            </div>
-            <span class="text-lg font-black text-teal-700">{{ $statistik['lhk_dibuat'] }}</span>
-            <span class="text-[9px] text-teal-600 font-bold uppercase tracking-wide">LHK</span>
-        </a>
-    </div>
-
-    <!-- Quick Actions Khusus LHK -->
-    <h3 class="text-base font-extrabold text-slate-800 tracking-tight mb-3">Laporan Harian Kinerja (LHK)</h3>
-    <div class="grid grid-cols-2 gap-3 mb-6">
-        <!-- 1. Jumlah LHK yang Telah Dibuat -->
-        <a href="{{ route('mobile.lhk.index') }}" wire:navigate class="bg-gradient-to-br from-teal-50 to-emerald-50/60 border border-teal-200/60 rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 shadow-xs">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-teal-600 text-white flex items-center justify-center text-lg shadow-xs">
-                    <i class="fa-solid fa-file-signature"></i>
+        <!-- TAB CONTENT 1: DATA UTAMA -->
+        @if($tabKepegawaian === 'utama')
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">NIP</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->nip ?? '-' }}</span>
                 </div>
-                <div class="flex flex-col">
-                    <span class="text-[10px] font-bold text-teal-700 uppercase tracking-wider">LHK Dibuat</span>
-                    <span class="text-xs text-slate-500 font-medium">Bulan Ini</span>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">NIK</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->nik ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Jenis Kelamin</span>
+                    <span class="font-bold text-slate-800">{{ $user->jenis_kelamin?->value ?? $user->jenis_kelamin ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Tempat, Tgl Lahir</span>
+                    <span class="font-bold text-slate-800">{{ $user->tempat_lahir ?? '-' }}, {{ $user->tanggal_lahir ? $user->tanggal_lahir->format('d/m/Y') : '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Agama</span>
+                    <span class="font-bold text-slate-800">{{ $user->agama ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">No. HP / WhatsApp</span>
+                    <span class="font-bold text-sky-600">{{ $user->no_hp ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Email Dinas</span>
+                    <span class="font-bold text-slate-800 truncate max-w-[200px]">{{ $user->email }}</span>
+                </div>
+                <div class="py-1 text-xs">
+                    <span class="text-slate-400 font-medium block mb-1">Alamat Domisili</span>
+                    <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
                 </div>
             </div>
-            <span class="text-xl font-black text-teal-800 font-mono">{{ $statistik['lhk_dibuat'] }}</span>
-        </a>
+        @endif
 
-        <!-- 2. Tombol Buat LHK Baru -->
-        <a href="{{ route('mobile.lhk.create') }}" wire:navigate class="bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl p-4 flex items-center justify-between transition-all active:scale-95 shadow-md shadow-emerald-700/20">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-lg text-white">
-                    <i class="fa-solid fa-circle-plus"></i>
+        <!-- TAB CONTENT 2: GOLONGAN -->
+        @if($tabKepegawaian === 'golongan')
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Golongan Ruang</span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 font-bold border border-sky-100">{{ $user->pangkat_golongan?->value ?? $user->pangkat_golongan ?? '-' }}</span>
                 </div>
-                <div class="flex flex-col text-left">
-                    <span class="text-xs font-black tracking-wide">Buat LHK</span>
-                    <span class="text-[10px] text-white/80 font-medium">Isi Pekerjaan</span>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Pangkat Pembina</span>
+                    <span class="font-bold text-slate-800">
+                        @php
+                            $g = $user->pangkat_golongan?->value ?? $user->pangkat_golongan;
+                            $pangkat = match($g) {
+                                'IV/e' => 'Pembina Utama', 'IV/d' => 'Pembina Utama Madya', 'IV/c' => 'Pembina Utama Muda', 'IV/b' => 'Pembina Tingkat I', 'IV/a' => 'Pembina',
+                                'III/d' => 'Penata Tingkat I', 'III/c' => 'Penata', 'III/b' => 'Penata Muda Tingkat I', 'III/a' => 'Penata Muda',
+                                'II/d' => 'Pengatur Tingkat I', 'II/c' => 'Pengatur', 'II/b' => 'Pengatur Muda Tingkat I', 'II/a' => 'Pengatur Muda',
+                                default => '-'
+                            };
+                        @endphp
+                        {{ $pangkat }}
+                    </span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Eselon</span>
+                    <span class="font-bold text-slate-800">{{ $user->eselon?->value ?? $user->eselon ?? 'Non Eselon' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">NPWP</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">BPJS Kesehatan</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->no_bpjs ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Nomor Taspen</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->no_taspen ?? '-' }}</span>
                 </div>
             </div>
-            <i class="fa-solid fa-arrow-right text-xs text-white/70"></i>
-        </a>
+        @endif
+
+        <!-- TAB CONTENT 3: JABATAN -->
+        @if($tabKepegawaian === 'jabatan')
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Jabatan</span>
+                    <span class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? 'Belum Ditentukan' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Bidang Dinas</span>
+                    <span class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Pimpinan / Tanpa Bidang' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Atasan Langsung</span>
+                    <span class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Tipe Kerja</span>
+                    <span class="px-2.5 py-0.5 rounded-full font-bold uppercase {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600' }}">
+                        {{ $user->status_kerja ?? 'WFO' }}
+                    </span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Shift Kerja</span>
+                    <span class="font-bold text-slate-800">{{ $user->jadwalKerja->nama ?? 'Jadwal Default Sistem' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">ID Mesin (PIN)</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->nomor_absensi ?? 'Belum Terhubung' }}</span>
+                </div>
+            </div>
+        @endif
+
+        <!-- TAB CONTENT 4: PENDIDIKAN -->
+        @if($tabKepegawaian === 'pendidikan')
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Tingkat Pendidikan</span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">{{ $user->jenjang_pendidikan ?? '-' }}</span>
+                </div>
+                <div class="py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium block mb-1">Jurusan / Program Studi</span>
+                    <span class="font-bold text-slate-800">{{ $user->pendidikan ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Gelar Depan</span>
+                    <span class="font-bold text-slate-800">{{ $user->gelar_depan ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Gelar Belakang</span>
+                    <span class="font-bold text-slate-800">{{ $user->gelar_belakang ?? '-' }}</span>
+                </div>
+            </div>
+        @endif
+
+        <!-- TAB CONTENT 5: KELUARGA -->
+        @if($tabKepegawaian === 'keluarga')
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Nomor Kartu Keluarga (KK)</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->no_kk ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between py-1 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">NIK</span>
+                    <span class="font-bold font-mono text-slate-800">{{ $user->nik ?? '-' }}</span>
+                </div>
+                <div class="py-1 text-xs">
+                    <span class="text-slate-400 font-medium block mb-1">Alamat Keluarga</span>
+                    <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
+                </div>
+            </div>
+        @endif
     </div>
 
     <!-- Grafik Sederhana 7 Hari -->
-    <h3 class="text-lg font-bold text-gray-800 mb-3">7 Hari Terakhir</h3>
-    <div class="bg-white p-4 rounded-2xl shadow-sm h-40 flex items-end justify-between gap-1">
+    <h3 class="text-base font-extrabold text-slate-800 tracking-tight mb-3">Kehadiran 7 Hari Terakhir</h3>
+    <div class="bg-white p-4 rounded-3xl shadow-xs border border-slate-100 h-40 flex items-end justify-between gap-1">
         @foreach($riwayat7Hari as $item)
             @php
                 $h = 10;

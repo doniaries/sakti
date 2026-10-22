@@ -33,6 +33,10 @@ Route::prefix('mobile')->group(function () {
         Route::get('/lhk', LhkIndex::class)->name('mobile.lhk.index');
         Route::get('/lhk/buat', LhkForm::class)->name('mobile.lhk.create');
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
-        // LHK detail bisa tambahkan jika perlu
+        Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
+        Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
+        Route::get('/hari-libur', \App\Livewire\Mobile\HariLibur::class)->name('mobile.hari-libur');
+        Route::get('/reputasi', \App\Livewire\Mobile\Reputasi::class)->name('mobile.reputasi');
     });
 });
+

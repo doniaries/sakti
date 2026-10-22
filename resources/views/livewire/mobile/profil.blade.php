@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-5">
         <div>
             <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Profil Pegawai</h1>
-            <p class="text-xs text-slate-500 font-medium">Informasi & Biodata Kepegawaian</p>
+            <p class="text-xs text-slate-500 font-medium">Statistik & Biodata Kepegawaian</p>
         </div>
         <button wire:click="toggleEdit" 
                 class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center transition-all shadow-xs {{ $isEditing ? 'bg-slate-200 text-slate-700' : 'bg-sky-500 text-white shadow-sky-500/25 active:scale-95' }}">
@@ -67,14 +67,17 @@
         @enderror
     </div>
 
-    <!-- MyASN Style Navigation Tabs -->
+    <!-- Navigation Tabs (Termasuk Tab Statistik & Data Pegawai) -->
     <div class="flex space-x-2 overflow-x-auto pb-2 mb-5 no-scrollbar">
-        <button wire:click="setTab('utama')" 
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'utama' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-            <i class="fa-solid fa-user text-xs mr-1.5"></i>Data Utama
-        </button>
-
         @if(!$isEditing)
+            <button wire:click="setTab('statistik')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'statistik' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-chart-pie text-xs mr-1.5"></i>Statistik Kehadiran
+            </button>
+            <button wire:click="setTab('utama')" 
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'utama' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-user text-xs mr-1.5"></i>Data Utama
+            </button>
             <button wire:click="setTab('golongan')" 
                     class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'golongan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
                 <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Golongan
@@ -91,6 +94,10 @@
                     class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'keluarga' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
                 <i class="fa-solid fa-people-roof text-xs mr-1.5"></i>Keluarga
             </button>
+        @else
+            <div class="px-4 py-2 rounded-2xl text-xs font-bold bg-sky-600 text-white shadow-xs">
+                <i class="fa-solid fa-pen-to-square mr-1.5"></i>Mode Edit Profil
+            </div>
         @endif
     </div>
 
@@ -138,9 +145,9 @@
                             <span>No. WhatsApp</span>
                         </label>
                         <input type="tel" 
-                               wire:model="no_hp" 
-                               placeholder="Contoh: 081234567890" 
-                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none font-mono">
+                                wire:model="no_hp" 
+                                placeholder="Contoh: 081234567890" 
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none font-mono">
                         <p class="text-[10px] text-slate-400 mt-1">Format: 08xxxxxxxxxx</p>
                         @error('no_hp') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
                     </div>
@@ -157,9 +164,9 @@
                             <span class="text-[10px] text-amber-600 font-bold">*Wajib</span>
                         </label>
                         <input type="email" 
-                               wire:model="email" 
-                               placeholder="email@dinas.go.id" 
-                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                                wire:model="email" 
+                                placeholder="email@dinas.go.id" 
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         <p class="text-[10px] text-slate-400 mt-1">Akun login di database</p>
                         @error('email') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
                     </div>
@@ -169,9 +176,9 @@
                             <span>Email Pribadi</span>
                         </label>
                         <input type="email" 
-                               wire:model="email_pribadi" 
-                               placeholder="email@gmail.com" 
-                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                                wire:model="email_pribadi" 
+                                placeholder="email@gmail.com" 
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         <p class="text-[10px] text-slate-400 mt-1">Opsional / sekunder</p>
                         @error('email_pribadi') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
                     </div>
@@ -204,6 +211,39 @@
                     </div>
                 </div>
 
+                <!-- Keamanan & Password Akun (Hanya Diisi Ketika Mau Diganti Saja) -->
+                <div class="border-t border-slate-100 pt-3.5 space-y-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                            <span class="flex items-center text-slate-800">
+                                <i class="fa-solid fa-lock text-sky-600 mr-1.5"></i> Password Baru
+                            </span>
+                            <span class="text-[10px] text-slate-400 font-normal">Abaikan jika tidak merubah</span>
+                        </label>
+                        <input type="password" 
+                               wire:model="password" 
+                               readonly 
+                               onfocus="this.removeAttribute('readonly');" 
+                               autocomplete="new-password" 
+                               placeholder="Kosongkan jika tidak ingin merubah..." 
+                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <p class="text-[10px] text-slate-400 mt-1">Kosongkan jika password pegawai tidak ingin dirubah.</p>
+                        @error('password') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Konfirmasi Password Baru</label>
+                        <input type="password" 
+                               wire:model="password_confirmation" 
+                               readonly 
+                               onfocus="this.removeAttribute('readonly');" 
+                               autocomplete="new-password" 
+                               placeholder="Ketik ulang password baru jika ingin merubah..." 
+                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        @error('password_confirmation') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
                 <button type="submit" 
                         wire:loading.attr="disabled"
                         class="w-full py-3 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-600/30 active:scale-95 transition-all flex items-center justify-center space-x-2">
@@ -216,6 +256,131 @@
             </div>
         </form>
     @else
+        <!-- TAB 0: STATISTIK KEHADIRAN (8-CARD & NAVIGASI BULAN) -->
+        @if($activeTab === 'statistik')
+            <div class="space-y-4">
+                <div class="flex justify-between items-center bg-white p-3.5 rounded-3xl border border-slate-100 shadow-xs">
+                    <div>
+                        <h3 class="text-xs font-extrabold text-slate-800 tracking-tight uppercase">Rekap Bulan</h3>
+                        <p class="text-[11px] text-slate-500">Statistik kehadiran bulanan Anda</p>
+                    </div>
+                    <!-- Month & Year Navigator -->
+                    <div class="flex items-center space-x-1.5 bg-slate-50 px-2.5 py-1.5 rounded-2xl border border-slate-200/80 shadow-xs">
+                        <button wire:click="prevMonth" class="w-6 h-6 rounded-lg bg-white hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90" title="Bulan Sebelumnya">
+                            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                        </button>
+                        <span class="text-xs font-extrabold text-sky-700 px-1 select-none font-sans">
+                            {{ $bulanNama }}
+                        </span>
+                        <button wire:click="nextMonth" class="w-6 h-6 rounded-lg bg-white hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90" title="Bulan Berikutnya">
+                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 8 Stat Cards -->
+                <div class="grid grid-cols-4 gap-2">
+                    <!-- 1. Hadir -->
+                    <a href="{{ route('mobile.riwayat', ['status' => 'hadir', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <span class="text-lg font-black text-slate-800">{{ $statistik['hadir'] }}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Hadir</span>
+                    </a>
+
+                    <!-- 2. Terlambat -->
+                    <a href="{{ route('mobile.riwayat', ['status' => 'terlambat', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                        <span class="text-lg font-black text-slate-800">{{ $statistik['terlambat'] }}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Terlambat</span>
+                    </a>
+
+                    <!-- 3. Dinas Luar -->
+                    <a href="{{ route('mobile.riwayat', ['status' => 'dinas_luar', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                        <span class="text-lg font-black text-slate-800">{{ $statistik['dinas_luar'] }}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Dinas Luar</span>
+                    </a>
+
+                    <!-- 4. Pulang Cepat -->
+                    <a href="{{ route('mobile.riwayat', ['status' => 'pulang_cepat', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
+                        </div>
+                        <span class="text-lg font-black text-slate-800">{{ $statistik['pulang_cepat'] }}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Plg Cepat</span>
+                    </a>
+
+                    <!-- 5. Izin -->
+                    <a href="{{ route('mobile.riwayat', ['status' => 'izin', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <span class="text-lg font-black text-slate-800">{{ $statistik['izin'] }}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Izin</span>
+                    </a>
+
+                    <!-- 6. Sakit -->
+                    <a href="{{ route('mobile.riwayat', ['status' => 'sakit', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-notes-medical"></i>
+                        </div>
+                        <span class="text-lg font-black text-slate-800">{{ $statistik['sakit'] }}</span>
+                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Sakit</span>
+                    </a>
+
+                    <!-- 7. Tanpa Keterangan / Alpa -->
+                    <a href="{{ route('mobile.riwayat', ['status' => 'tidak_hadir', 'bulan' => $bulan, 'tahun' => $tahun]) }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-user-xmark"></i>
+                        </div>
+                        <span class="text-lg font-black text-rose-600">{{ $statistik['tanpa_keterangan'] }}</span>
+                        <span class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Alpa</span>
+                    </a>
+
+                    <!-- 8. LHK Dibuat -->
+                    <a href="{{ route('mobile.lhk.index') }}" wire:navigate 
+                       class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
+                        <div class="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm mb-1.5 shadow-xs">
+                            <i class="fa-solid fa-file-signature"></i>
+                        </div>
+                        <span class="text-lg font-black text-teal-700">{{ $statistik['lhk_dibuat'] }}</span>
+                        <span class="text-[9px] text-teal-600 font-bold uppercase tracking-wide">LHK</span>
+                    </a>
+                </div>
+
+                <!-- Cetak PDF Rekap Pintas -->
+                <div class="bg-gradient-to-r from-sky-50 to-teal-50/60 p-4 rounded-3xl border border-sky-100 flex items-center justify-between shadow-xs">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-2xl bg-sky-600 text-white flex items-center justify-center text-base shadow-xs">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">Cetak Rekap Presensi</h4>
+                            <p class="text-[10px] text-slate-500">Unduh PDF riwayat bulan {{ $bulanNama }}</p>
+                        </div>
+                    </div>
+                    <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" target="_blank"
+                       class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-download text-[11px]"></i>
+                        <span>Unduh PDF</span>
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <!-- TAB 1: DATA UTAMA -->
         @if($activeTab === 'utama')
             <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
