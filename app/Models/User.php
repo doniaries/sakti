@@ -10,8 +10,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
+use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasName;
+use Filament\Panel;
 use Illuminate\Support\Facades\Storage;
 
 /**
@@ -22,7 +24,7 @@ use Illuminate\Support\Facades\Storage;
  * @mixin \Illuminate\Database\Eloquent\Builder
  * @mixin \Illuminate\Database\Query\Builder
  */
-class User extends Authenticatable implements HasAvatar, HasName
+class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -194,5 +196,13 @@ class User extends Authenticatable implements HasAvatar, HasName
     public function getFilamentName(): string
     {
         return $this->name ?? 'User';
+    }
+
+    /**
+     * Hak akses Panel Admin Filament: Khusus super_admin dan admin
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->hasAnyRole(['super_admin', 'admin']);
     }
 }

@@ -15,7 +15,8 @@ Dokumen ini adalah **pedoman baku dan standar teknis** untuk pengembangan antarm
 - **Klien Web Mobile (PWA Pegawai)**: Terletak di `app/Livewire/Mobile/` dan `resources/views/livewire/mobile/`.
 - **Target Pengguna**: Pegawai biasa dan pimpinan untuk presensi mobile berbasis web, rekapitulasi kehadiran, pengisian Laporan Harian Kinerja (LHK), dan pengelolaan profil mandiri.
 - **Layout Utama**: `resources/views/components/layouts/mobile.blade.php`.
-- **Perutean**: Menggunakan full-page components yang diregistrasikan di `routes/web.php` dengan awalan `/mobile`.
+- **Perutean**: Menggunakan full-page components yang diregistrasikan di `routes/web.php` dengan awalan `/mobile`. Halaman root `/` menyajikan **Landing Portal Gerbang Masuk** (`welcome.blade.php`) dengan tombol pilihan Pegawai dan Administrator.
+- **Shortcut Admin**: Jika pengguna terautentikasi memiliki peran `admin` atau `super_admin`, antarmuka mobile dashboard menyediakan tombol pintas langsung ke panel Filament `/admin`.
 
 ---
 

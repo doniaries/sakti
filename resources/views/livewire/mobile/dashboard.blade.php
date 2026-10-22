@@ -19,9 +19,16 @@
                 <p class="text-[10px] font-bold text-sky-600 tracking-wider uppercase">{{ $pengaturan->sub_nama ?? 'Dinas Lingkungan Hidup' }}</p>
             </div>
         </div>
-        <button wire:click="logout" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition flex items-center justify-center border border-slate-200/60" title="Keluar">
-            <i class="fa-solid fa-right-from-bracket text-sm"></i>
-        </button>
+        <div class="flex items-center space-x-2">
+            @if(auth()->user() && auth()->user()->hasAnyRole(['super_admin', 'admin']))
+                <a href="{{ url('/admin') }}" class="px-2.5 py-1.5 rounded-xl bg-amber-500/15 text-amber-700 hover:bg-amber-500 hover:text-white border border-amber-300 font-bold text-[11px] flex items-center transition shadow-xs" title="Buka Panel Admin">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Admin
+                </a>
+            @endif
+            <button wire:click="logout" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition flex items-center justify-center border border-slate-200/60" title="Keluar">
+                <i class="fa-solid fa-right-from-bracket text-sm"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Greeting Card -->

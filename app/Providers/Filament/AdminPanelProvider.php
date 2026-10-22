@@ -44,7 +44,11 @@ class AdminPanelProvider extends PanelProvider
                         return $user ? $user->name : 'Profil';
                     })
                     ->url(fn (): string => EditProfilePage::getUrl())
-                    ->icon('heroicon-m-user-circle')
+                    ->icon('heroicon-m-user-circle'),
+                'mobile' => MenuItem::make()
+                    ->label('Presensi Mobile Pegawai')
+                    ->url(fn (): string => route('mobile.dashboard'))
+                    ->icon('heroicon-m-device-phone-mobile'),
             ])
 
             ->navigationGroups([

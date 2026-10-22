@@ -208,7 +208,47 @@ Panduan arsitektur dan standar refactor komponen Livewire telah dipisahkan ke da
 
 ---
 
-## 10. Format Respon AI (MANDATORY / WAJIB)
+## 10. Arsitektur Portal Masuk, Autentikasi Peran & Pemisahan Akses (Admin vs Pegawai/Flutter)
+
+Aplikasi memiliki dua ranah antarmuka utama yang dipisahkan secara tegas berdasarkan peran pengguna (*Role-Based Access Control*):
+
+### A. Halaman Depan Portal Utama (`/`)
+- Halaman root `/` menampilkan **Portal Gerbang Masuk** terpadu (`resources/views/welcome.blade.php`).
+- Menyajikan dua pilihan akses utama:
+  1. **Tombol Masuk Pegawai (Presensi & LHK Mobile PWA)**: Mengarah ke `route('mobile.login')` (atau jika sudah terautentikasi langsung ke `route('mobile.dashboard')`).
+  2. **Tombol Masuk Administrator (Panel Filament Admin)**: Mengarah ke `/admin/login` (atau jika sudah terautentikasi langsung ke `/admin`).
+- Menampilkan identitas dinas/instansi dari model `PengaturanAplikasi`, jam digital real-time, status user aktif (jika sudah login), dan tombol keluar/ganti akun.
+
+### B. Proteksi Akses Panel Filament Admin (`canAccessPanel`)
+- Model `User` mengimplementasikan interface `Filament\Models\Contracts\FilamentUser`.
+- Method `canAccessPanel(Panel $panel): bool` memvalidasi hak akses:
+  ```php
+  public function canAccessPanel(Panel $panel): bool
+  {
+      return $this->hasAnyRole(['super_admin', 'admin']);
+  }
+  ```
+- **Aturan Keamanan (PENTING)**: Pegawai biasa (hanya memiliki role `pegawai`) yang mencoba mengakses `/admin` atau login via panel admin akan ditolak otomatis oleh sistem (**HTTP 403 Forbidden**).
+
+### C. Alur Pengguna Administrator (Akses Ganda & Switcher Cepat)
+- Administrator sistem (`super_admin` dan `admin`) pada umumnya juga merupakan pegawai dinas yang wajib diabsen dan mengisi LHK.
+- Oleh karena itu, user admin juga memiliki role `pegawai`.
+- **Navigasi Bolak-Balik Terintegrasi**:
+  1. **Dari Filament ke Mobile**: Di menu avatar Filament (pojok kanan atas), terdapat menu item **"Presensi Mobile Pegawai"** (`route('mobile.dashboard')`).
+  2. **Dari Mobile ke Filament**: Pada dashboard Mobile PWA (`livewire.mobile.dashboard`), jika user memiliki role `admin`/`super_admin`, tersedia tombol pintas badge **"Admin"** (`/admin`) di samping tombol logout.
+
+### D. Pedoman Bagi Klien Mobile Flutter (`absensi_flutter`)
+Untuk pengembangan klien mobile Flutter:
+1. **Autentikasi API**: Menggunakan Laravel Sanctum melalui endpoint `POST /api/login`.
+2. **Validasi Role pada Response Login**:
+   - Endpoint login API mengembalikan data profil pengguna beserta array `roles`.
+   - Klien Flutter ditujukan **khusus untuk operasional Pegawai** (Presensi GPS/Geofencing, Log Kehadiran, Submit LHK, & Profil).
+   - Pengguna dengan role `pegawai`, `admin`, maupun `super_admin` dapat menggunakan aplikasi Flutter untuk melakukan presensi harian.
+   - Manajemen sistem (CRUD master data, tarik log mesin, manajemen user, dsb.) **TIDAK** diimplementasikan di Flutter, melainkan diarahkan untuk diakses via Filament Admin Panel di browser desktop/laptop.
+
+---
+
+## 11. Format Respon AI (MANDATORY / WAJIB)
 
 Setiap kali AI memberikan solusi kode kepada pengguna, AI **WAJIB** menyertakan struktur berikut secara utuh:
 

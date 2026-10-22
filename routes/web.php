@@ -9,11 +9,16 @@ use App\Livewire\Mobile\Lhk\Index as LhkIndex;
 use App\Livewire\Mobile\Lhk\Form as LhkForm;
 
 Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('mobile.dashboard');
-    }
-    return redirect()->route('mobile.login');
-});
+    $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+    return view('welcome', compact('pengaturan'));
+})->name('portal');
+
+Route::post('/portal/logout', function () {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect()->route('portal');
+})->name('portal.logout');
 
 Route::prefix('mobile')->group(function () {
     Route::get('/login', Login::class)->name('mobile.login');
