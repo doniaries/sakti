@@ -47,7 +47,8 @@ class Dashboard extends Component
 
     public function render()
     {
-        $user = Auth::user();
+        /** @var \App\Models\User $user */
+        $user = \App\Models\User::with(['jabatan', 'bidang'])->find(Auth::id()) ?? Auth::user();
         $today = Carbon::today();
         
         // Data hari ini

@@ -75,9 +75,9 @@
 
             <!-- Foto Avatar Pegawai di Dashboard -->
             <a href="{{ route('mobile.profil') }}" wire:navigate class="relative block shrink-0 active:scale-95 transition-transform" title="Buka Profil">
-                <img src="{{ $user->avatar_url ? asset('storage/'.$user->avatar_url) : 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&background=0284c7&color=fff&size=160' }}" 
+                <img src="{{ $user->avatar_image_url }}" 
                      alt="{{ $user->name }}" 
-                     class="w-14 h-14 rounded-2xl object-cover border-2 border-white/50 shadow-lg shadow-sky-950/40">
+                     class="w-14 h-14 rounded-2xl object-cover border-2 border-white/50 shadow-lg shadow-sky-950/40 aspect-square">
                 <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-slate-900 shadow-xs" title="Online / Aktif"></span>
             </a>
         </div>

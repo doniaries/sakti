@@ -138,6 +138,27 @@ class User extends Authenticatable implements HasAvatar, HasName
     }
 
     /**
+     * Boot model events untuk pembersihan file avatar lama secara otomatis
+     */
+    protected static function booted(): void
+    {
+        static::updating(function (User $user) {
+            if ($user->isDirty('avatar_url')) {
+                $oldAvatar = $user->getOriginal('avatar_url');
+                if (!empty($oldAvatar) && Storage::disk('public')->exists($oldAvatar)) {
+                    Storage::disk('public')->delete($oldAvatar);
+                }
+            }
+        });
+
+        static::deleting(function (User $user) {
+            if (!empty($user->avatar_url) && Storage::disk('public')->exists($user->avatar_url)) {
+                Storage::disk('public')->delete($user->avatar_url);
+            }
+        });
+    }
+
+    /**
      * Ambil jadwal kerja yang berlaku untuk user ini (jika tidak diset, ambil default)
      */
     public function getJadwalKerja(): ?JadwalKerja
@@ -145,9 +166,29 @@ class User extends Authenticatable implements HasAvatar, HasName
         return $this->jadwalKerja ?? JadwalKerja::getDefault();
     }
 
+    /**
+     * URL Foto Avatar Pegawai (dengan fallback otomatis ke UI Avatars)
+     */
+    public function getAvatarImageUrlAttribute(): string
+    {
+        if (!empty($this->avatar_url)) {
+            if (str_starts_with($this->avatar_url, 'http://') || str_starts_with($this->avatar_url, 'https://')) {
+                return $this->avatar_url;
+            }
+
+            if (Storage::disk('public')->exists($this->avatar_url)) {
+                return Storage::disk('public')->url($this->avatar_url);
+            }
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'User') . '&background=0284c7&color=fff&size=160';
+    }
+
     public function getFilamentAvatarUrl(): ?string
     {
-        return $this->avatar_url ? Storage::url($this->avatar_url) : null;
+        return (!empty($this->avatar_url) && Storage::disk('public')->exists($this->avatar_url))
+            ? Storage::disk('public')->url($this->avatar_url)
+            : null;
     }
 
     public function getFilamentName(): string

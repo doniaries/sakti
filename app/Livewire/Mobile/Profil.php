@@ -77,28 +77,42 @@ class Profil extends Component
         $this->activeTab = $tab;
     }
 
+    public function updatedNewAvatar()
+    {
+        $this->validate([
+            'new_avatar' => 'image|max:10240',
+        ], [
+            'new_avatar.image' => 'File harus berupa gambar (JPG, PNG, WEBP).',
+            'new_avatar.max' => 'Ukuran foto maksimal 10MB.',
+        ]);
+    }
+
     public function toggleEdit()
     {
         $this->isEditing = !$this->isEditing;
         if ($this->isEditing) {
             $this->activeTab = 'utama';
         } else {
+            $this->new_avatar = null;
             $this->loadUserData(); // Cancel & reset
         }
     }
 
     public function save()
     {
-        /** @var User $user */
-        $user = Auth::user();
-
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'email_pribadi' => 'nullable|email|max:255',
             'no_hp' => 'nullable|string|max:30',
             'password' => 'nullable|min:6|confirmed',
-            'new_avatar' => 'nullable|image|max:3072',
+            'new_avatar' => 'nullable|image|max:10240',
+        ], [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'new_avatar.image' => 'File avatar harus berupa gambar.',
+            'new_avatar.max' => 'Ukuran file avatar maksimal 10MB.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 6 karakter.',
         ]);
 
         $data = [
@@ -126,17 +140,29 @@ class Profil extends Component
             $data['password'] = Hash::make($this->password);
         }
 
+        /** @var User $freshUser */
+        $freshUser = User::findOrFail(Auth::id());
+
         if ($this->new_avatar) {
+            // Hapus avatar lama dari storage jika ada (fail-safe ganda selain model boot hook)
+            $oldAvatar = $freshUser->avatar_url;
+            if (!empty($oldAvatar) && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAvatar)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAvatar);
+            }
+
             $path = $this->new_avatar->store('avatars', 'public');
             $data['avatar_url'] = $path;
         }
 
-        $user->update($data);
+        $freshUser->update($data);
+
+        // Bersihkan state temporary avatar
+        $this->new_avatar = null;
 
         session()->flash('notify', [
             'type' => 'success',
             'title' => 'Tersimpan!',
-            'message' => 'Data profil Anda berhasil diperbarui.',
+            'message' => 'Data profil dan foto Anda berhasil diperbarui.',
         ]);
 
         return redirect()->route('mobile.dashboard');
@@ -145,7 +171,7 @@ class Profil extends Component
     public function render()
     {
         /** @var User $user */
-        $user = Auth::user()->load(['jabatan', 'bidang', 'atasan', 'jadwalKerja']);
+        $user = User::with(['jabatan', 'bidang', 'atasan', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
 
         return view('livewire.mobile.profil', [
             'user' => $user,
