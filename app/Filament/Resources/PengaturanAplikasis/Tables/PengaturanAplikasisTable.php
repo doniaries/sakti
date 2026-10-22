@@ -29,6 +29,17 @@ class PengaturanAplikasisTable
                     ->label('Sub-Judul / Instansi')
                     ->searchable(),
 
+                TextColumn::make('radius_meter')
+                    ->label('Radius')
+                    ->suffix(' M')
+                    ->badge()
+                    ->color('warning'),
+
+                TextColumn::make('alamat_kantor')
+                    ->label('Alamat Kantor')
+                    ->limit(30)
+                    ->toggleable(),
+
                 TextColumn::make('versi_aplikasi')
                     ->label('Versi')
                     ->badge()

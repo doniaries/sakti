@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.2",
         "bezhansalleh/filament-shield": "^4.3",
+        "dotswan/filament-map-picker": "^2.3",
         "dutchcodingcompany/filament-developer-logins": "*",
         "filament/filament": "4.0",
         "joaopaulolndev/filament-edit-profile": "^2.0",
