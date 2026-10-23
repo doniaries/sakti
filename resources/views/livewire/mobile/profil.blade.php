@@ -96,9 +96,23 @@
 
     <!-- FORM EDIT / VIEW -->
     @if($isEditing)
-        <form wire:submit.prevent="save" class="space-y-4">
+        <form wire:submit="save" class="space-y-4">
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-100 space-y-4">
                 <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Edit Biodata & Kontak</h3>
+
+                @if ($errors->any())
+                    <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold space-y-1">
+                        <div class="flex items-center text-rose-800">
+                            <i class="fa-solid fa-circle-exclamation mr-1.5 text-sm"></i>
+                            <span>Mohon periksa isian berikut:</span>
+                        </div>
+                        <ul class="list-disc list-inside text-[11px] font-medium text-rose-600 pl-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
@@ -188,12 +202,6 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1">No. BPJS</label>
                         <input type="text" wire:model="no_bpjs" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                     </div>
-                </div>
-
-                <div class="border-t border-slate-100 pt-3">
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Password Baru (Opsional)</label>
-                    <input type="password" wire:model="password" placeholder="Kosongkan jika tidak ganti" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none mb-2">
-                    <input type="password" wire:model="password_confirmation" placeholder="Ulangi password baru" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                 </div>
 
                 <button type="submit" 

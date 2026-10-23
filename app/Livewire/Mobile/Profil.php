@@ -38,8 +38,6 @@ class Profil extends Component
     public $gelar_belakang = '';
     public $pendidikan = '';
     public $jenjang_pendidikan = '';
-    public $password = '';
-    public $password_confirmation = '';
     public $new_avatar;
 
     public function mount()
@@ -122,12 +120,14 @@ class Profil extends Component
     public function save()
     {
         // Sanitize nomor WhatsApp jika diisi (bersihkan non-angka dan standardisasi awal ke 08)
-        if (!empty($this->no_hp)) {
+        if (!empty(trim((string) $this->no_hp))) {
             $cleanNoHp = preg_replace('/[^0-9]/', '', (string) $this->no_hp);
             if (str_starts_with($cleanNoHp, '62')) {
                 $cleanNoHp = '0' . substr($cleanNoHp, 2);
             }
             $this->no_hp = $cleanNoHp;
+        } else {
+            $this->no_hp = null;
         }
 
         $userId = Auth::id();
@@ -136,17 +136,13 @@ class Profil extends Component
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userId)],
             'email_pribadi' => 'nullable|email|max:255',
-            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^(08)[0-9]{8,12}$/'],
-            'password' => 'nullable|min:6|confirmed',
+            'no_hp' => ['nullable', 'string', 'max:20'],
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
             'email.required' => 'Email login akun dinas wajib diisi.',
             'email.email' => 'Format email login tidak valid.',
             'email.unique' => 'Email login ini sudah digunakan akun lain.',
             'email_pribadi.email' => 'Format email pribadi tidak valid.',
-            'no_hp.regex' => 'Format nomor WhatsApp harus valid (contoh: 081234567890).',
-            'password.confirmed' => 'Konfirmasi password tidak cocok.',
-            'password.min' => 'Password minimal 6 karakter.',
         ]);
 
         $data = [
@@ -170,10 +166,6 @@ class Profil extends Component
             'jenjang_pendidikan' => $this->jenjang_pendidikan,
         ];
 
-        if (!empty($this->password)) {
-            $data['password'] = Hash::make($this->password);
-        }
-
         /** @var User $freshUser */
         $freshUser = User::findOrFail(Auth::id());
         $freshUser->update($data);
@@ -184,7 +176,7 @@ class Profil extends Component
             'message' => 'Data profil Anda berhasil diperbarui.',
         ]);
 
-        $this->redirectRoute('mobile.dashboard', navigate: true);
+        return redirect()->route('mobile.dashboard');
     }
 
     public function render()
