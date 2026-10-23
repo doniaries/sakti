@@ -67,6 +67,16 @@ class DataPegawaiSeeder extends Seeder
                 }
             }
 
+            $rawNama = $item['nama'] ?? '';
+            if (str_contains($rawNama, ',')) {
+                $parts = explode(',', $rawNama);
+                array_shift($parts);
+                $item['gelar_belakang'] = trim(implode(', ', array_map('trim', $parts)));
+            }
+            if (preg_match('/^(Dr\.|Dra\.|Drs\.|Ir\.|Prof\.|H\.|Hj\.|Apt\.)\s+/i', $rawNama, $m)) {
+                $item['gelar_depan'] = trim($m[1]);
+            }
+
             $user = User::updateOrCreate(
                 ['nip' => $item['nip']],
                 $item

@@ -20,6 +20,13 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
+            @if(!empty($user->whatsapp_url))
+                <a href="{{ $user->whatsapp_url }}" target="_blank" rel="noopener noreferrer" 
+                   class="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500 hover:text-white border border-emerald-300 font-bold text-[11px] flex items-center transition shadow-xs active:scale-95" 
+                   title="Buka WhatsApp">
+                    <i class="fa-brands fa-whatsapp text-sm mr-1 text-emerald-600"></i> WA
+                </a>
+            @endif
             @if(auth()->user() && auth()->user()->hasAnyRole(['super_admin', 'admin']))
                 <a href="{{ url('/admin') }}" class="px-2.5 py-1.5 rounded-xl bg-amber-500/15 text-amber-700 hover:bg-amber-500 hover:text-white border border-amber-300 font-bold text-[11px] flex items-center transition shadow-xs" title="Buka Panel Admin">
                     <i class="fa-solid fa-shield-halved mr-1"></i> Admin
@@ -85,7 +92,11 @@
                 <img src="{{ $user->avatar_image_url }}" 
                      alt="{{ $user->name }}" 
                      class="w-14 h-14 rounded-2xl object-cover border-2 border-white/50 shadow-lg shadow-sky-950/40 aspect-square">
-                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-slate-900 shadow-xs" title="Online / Aktif"></span>
+                <!-- Live Pulse / Radar Blinking Status Badge -->
+                <span class="absolute -bottom-1 -right-1 flex h-4 w-4" title="Online / Aktif">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-4 w-4 bg-emerald-400 border-2 border-slate-900 shadow-xs"></span>
+                </span>
             </a>
         </div>
         
@@ -112,6 +123,26 @@
             </div>
         </div>
     </div>
+
+    @if(!empty($user->whatsapp_url))
+        <!-- Card / Tombol WhatsApp Pegawai -->
+        <div class="mb-6 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-teal-500/10 border border-emerald-300/70 rounded-2xl p-3.5 flex items-center justify-between shadow-xs">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow-sm">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-slate-800">WhatsApp Terhubung</div>
+                    <div class="text-[11px] text-emerald-700 font-mono font-medium">{{ $user->no_hp }}</div>
+                </div>
+            </div>
+            <a href="{{ $user->whatsapp_url }}" target="_blank" rel="noopener noreferrer" 
+               class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center space-x-1.5">
+                <span>Chat WA</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+        </div>
+    @endif
 
     <!-- Statistik Kehadiran dengan Filter Bulan & Tahun Interaktif -->
     <div class="flex justify-between items-center mb-3">

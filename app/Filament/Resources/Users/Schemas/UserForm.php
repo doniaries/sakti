@@ -41,21 +41,37 @@ class UserForm
                                     ->placeholder('Email pribadi pegawai...')
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('password')
-                                    ->label('Password')
+                                    ->label('Password Baru')
                                     ->password()
-                                    ->placeholder('Abaikan jika tidak ingin merubah...')
+                                    ->placeholder('Kosongkan jika tidak ingin merubah...')
                                     ->revealable()
-                                    ->confirmed()
-                                    ->required(fn($operation) => $operation === 'create')
+                                    ->formatStateUsing(fn () => '')
+                                    ->autocomplete('new-password')
+                                    ->extraInputAttributes([
+                                        'autocomplete' => 'new-password',
+                                        'data-lpignore' => 'true',
+                                    ])
+                                    ->required(fn(string $operation): bool => $operation === 'create')
+                                    ->rule(fn(string $operation) => $operation === 'create' ? 'required|min:6' : 'nullable|min:6')
                                     ->maxLength(255)
-                                    ->dehydrated(fn($state) => filled($state)),
+                                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? \Illuminate\Support\Facades\Hash::make($state) : null)
+                                    ->dehydrated(fn(?string $state) => filled($state))
+                                    ->helperText('Kosongkan jika password pegawai tidak ingin dirubah.'),
 
                                 \Filament\Forms\Components\TextInput::make('password_confirmation')
                                     ->label('Konfirmasi Password')
                                     ->password()
                                     ->placeholder('Ketik ulang password baru...')
                                     ->revealable()
-                                    ->required(fn($operation, callable $get) => $operation === 'create' || filled($get('password')))
+                                    ->formatStateUsing(fn () => '')
+                                    ->autocomplete('new-password')
+                                    ->extraInputAttributes([
+                                        'autocomplete' => 'new-password',
+                                        'data-lpignore' => 'true',
+                                    ])
+                                    ->required(fn(string $operation, callable $get): bool => $operation === 'create' || (filled($get('password')) && $get('password') !== ''))
+                                    ->same('password')
+                                    ->visible(fn(string $operation, callable $get): bool => $operation === 'create' || filled($get('password')))
                                     ->maxLength(255)
                                     ->dehydrated(false),
 

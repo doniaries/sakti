@@ -63,7 +63,8 @@ class PengajuanIzinForm
                             ->disk('public')
                             ->directory('lampiran_izin')
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
-                            ->maxSize(3072)
+                            ->maxSize(2048)
+                            ->helperText('Maksimal ukuran file 2MB (PDF, JPG, PNG).')
                             ->columnSpanFull(),
                     ])->columns(2),
 

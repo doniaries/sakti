@@ -20,22 +20,15 @@
 
         <div class="flex items-center space-x-4 relative z-10">
             <div class="relative">
-                @if ($new_avatar)
-                    <img src="{{ $new_avatar->temporaryUrl() }}" 
-                         alt="Preview Avatar" 
-                         class="w-16 h-16 rounded-2xl object-cover aspect-square border-2 border-amber-300 shadow-lg shadow-black/20 ring-2 ring-amber-400">
-                @else
-                    <img src="{{ $user->avatar_image_url }}" 
-                         alt="Avatar Pegawai" 
-                         class="w-16 h-16 rounded-2xl object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20">
-                @endif
+                <img src="{{ $user->avatar_image_url }}" 
+                     alt="Avatar Pegawai" 
+                     class="w-16 h-16 rounded-2xl object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20">
 
-                @if($isEditing)
-                    <label class="absolute -bottom-1 -right-1 w-7 h-7 bg-amber-400 text-slate-900 rounded-full flex items-center justify-center text-xs cursor-pointer shadow-md font-bold hover:scale-110 active:scale-95 transition-transform" title="Pilih Foto Baru">
-                        <i class="fa-solid fa-camera"></i>
-                        <input type="file" wire:model="new_avatar" class="hidden" accept="image/*">
-                    </label>
-                @endif
+                <label class="absolute -bottom-1 -right-1 w-7 h-7 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-full flex items-center justify-center text-xs cursor-pointer shadow-md font-bold hover:scale-110 active:scale-95 transition-transform ring-2 ring-slate-900" 
+                       title="Ganti Foto Profil Langsung (Maks. 2MB)">
+                    <i class="fa-solid fa-camera"></i>
+                    <input type="file" wire:model="new_avatar" class="hidden" accept="image/*">
+                </label>
             </div>
 
             <div class="flex-1 min-w-0">
@@ -59,7 +52,7 @@
                 <div class="flex-1">
                     <div class="flex justify-between text-[11px] font-bold mb-1">
                         <span>Mengunggah foto...</span>
-                        <span>Tunggu sebentar</span>
+                        <span>Maks. 2MB</span>
                     </div>
                     <div class="w-full bg-white/20 rounded-full h-1.5 overflow-hidden">
                         <div class="bg-amber-400 h-1.5 rounded-full animate-pulse w-full"></div>
@@ -106,33 +99,6 @@
         <form wire:submit.prevent="save" class="space-y-4">
             <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-100 space-y-4">
                 <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Edit Biodata & Kontak</h3>
-
-                <!-- Ganti Foto Profil -->
-                <div class="p-3.5 bg-sky-50/60 border border-sky-100 rounded-2xl">
-                    <label class="block text-xs font-bold text-slate-700 mb-2 flex items-center justify-between">
-                        <span class="flex items-center text-sky-800"><i class="fa-solid fa-camera mr-1.5 text-sky-600"></i>Ganti Foto Profil</span>
-                        <span class="text-[10px] text-slate-400 font-normal">Maks. 10MB</span>
-                    </label>
-                    <div class="flex items-center space-x-3">
-                        <div class="relative flex-shrink-0">
-                            @if ($new_avatar)
-                                <img src="{{ $new_avatar->temporaryUrl() }}" class="w-14 h-14 rounded-xl object-cover aspect-square border-2 border-amber-400 shadow-sm">
-                            @else
-                                <img src="{{ $user->avatar_image_url }}" class="w-14 h-14 rounded-xl object-cover aspect-square border border-slate-200 shadow-sm">
-                            @endif
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <input type="file" 
-                                   wire:model="new_avatar" 
-                                   accept="image/*"
-                                   class="block w-full text-xs text-slate-500 file:mr-2.5 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-600 file:text-white hover:file:bg-sky-700 cursor-pointer">
-                            <p class="text-[10px] text-slate-400 mt-1">Foto lama otomatis terhapus saat diganti.</p>
-                        </div>
-                    </div>
-                    @error('new_avatar')
-                        <span class="text-[11px] font-bold text-rose-500 block mt-1.5">{{ $message }}</span>
-                    @enderror
-                </div>
                 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
@@ -153,8 +119,16 @@
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">No. HP / WA</label>
-                        <input type="text" wire:model="no_hp" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 mr-1 text-sm"></i>
+                            <span>No. WhatsApp</span>
+                        </label>
+                        <input type="tel" 
+                               wire:model="no_hp" 
+                               placeholder="Contoh: 081234567890" 
+                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none font-mono">
+                        <p class="text-[10px] text-slate-400 mt-1">Format: 08xxxxxxxxxx</p>
+                        @error('no_hp') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">No. Telepon</label>
@@ -162,9 +136,31 @@
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Email Pribadi</label>
-                    <input type="email" wire:model="email_pribadi" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                            <span class="flex items-center"><i class="fa-solid fa-envelope mr-1 text-sky-600"></i> Email Login</span>
+                            <span class="text-[10px] text-amber-600 font-bold">*Wajib</span>
+                        </label>
+                        <input type="email" 
+                               wire:model="email" 
+                               placeholder="email@dinas.go.id" 
+                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                        <p class="text-[10px] text-slate-400 mt-1">Akun login di database</p>
+                        @error('email') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center">
+                            <i class="fa-regular fa-envelope mr-1 text-slate-400"></i>
+                            <span>Email Pribadi</span>
+                        </label>
+                        <input type="email" 
+                               wire:model="email_pribadi" 
+                               placeholder="email@gmail.com" 
+                               class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                        <p class="text-[10px] text-slate-400 mt-1">Opsional / sekunder</p>
+                        @error('email_pribadi') <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span> @enderror
+                    </div>
                 </div>
 
                 <div>

@@ -140,10 +140,24 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
-     * Boot model events untuk pembersihan file avatar lama secara otomatis
+     * Boot model events untuk pembersihan file avatar lama dan auto-extract gelar kepegawaian
      */
     protected static function booted(): void
     {
+        static::saving(function (User $user) {
+            // Otomatis sinkronkan gelar_belakang dari nama jika belum diisi
+            if (empty($user->gelar_belakang) && !empty($user->name) && str_contains($user->name, ',')) {
+                $parts = explode(',', $user->name);
+                array_shift($parts);
+                $user->gelar_belakang = trim(implode(', ', array_map('trim', $parts)));
+            }
+
+            // Otomatis sinkronkan gelar_depan dari nama jika belum diisi
+            if (empty($user->gelar_depan) && !empty($user->name) && preg_match('/^(Dr\.|Dra\.|Drs\.|Ir\.|Prof\.|H\.|Hj\.|Apt\.)\s+/i', $user->name, $m)) {
+                $user->gelar_depan = trim($m[1]);
+            }
+        });
+
         static::updating(function (User $user) {
             if ($user->isDirty('avatar_url')) {
                 $oldAvatar = $user->getOriginal('avatar_url');
@@ -158,6 +172,40 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
                 Storage::disk('public')->delete($user->avatar_url);
             }
         });
+    }
+
+    /**
+     * Accessor otomatis gelar belakang jika kosong di kolom namun ada pada nama
+     */
+    public function getGelarBelakangAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        if (!empty($this->attributes['name']) && str_contains($this->attributes['name'], ',')) {
+            $parts = explode(',', $this->attributes['name']);
+            array_shift($parts);
+            return trim(implode(', ', array_map('trim', $parts)));
+        }
+
+        return null;
+    }
+
+    /**
+     * Accessor otomatis gelar depan jika kosong di kolom namun ada pada nama
+     */
+    public function getGelarDepanAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        if (!empty($this->attributes['name']) && preg_match('/^(Dr\.|Dra\.|Drs\.|Ir\.|Prof\.|H\.|Hj\.|Apt\.)\s+/i', $this->attributes['name'], $m)) {
+            return trim($m[1]);
+        }
+
+        return null;
     }
 
     /**
@@ -204,5 +252,31 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->hasAnyRole(['super_admin', 'admin']);
+    }
+
+    /**
+     * Format nomor WhatsApp terstandarisasi internasional (diawali 62)
+     */
+    public function getWhatsappNumberAttribute(): ?string
+    {
+        if (empty($this->no_hp)) {
+            return null;
+        }
+
+        $clean = preg_replace('/[^0-9]/', '', (string) $this->no_hp);
+        if (str_starts_with($clean, '0')) {
+            $clean = '62' . substr($clean, 1);
+        }
+
+        return !empty($clean) ? $clean : null;
+    }
+
+    /**
+     * URL direct chat WhatsApp
+     */
+    public function getWhatsappUrlAttribute(): ?string
+    {
+        $wa = $this->whatsapp_number;
+        return $wa ? "https://wa.me/{$wa}" : null;
     }
 }

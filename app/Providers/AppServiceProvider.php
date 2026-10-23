@@ -45,5 +45,10 @@ class AppServiceProvider extends ServiceProvider
         \Filament\Forms\Components\TimePicker::configureUsing(function (\Filament\Forms\Components\TimePicker $timePicker): void {
             $timePicker->native(false)->displayFormat('H:i')->format('H:i')->seconds(false);
         });
+
+        // Batasan ukuran upload file global maksimal 2MB (2048 KB)
+        \Filament\Forms\Components\FileUpload::configureUsing(function (\Filament\Forms\Components\FileUpload $fileUpload): void {
+            $fileUpload->maxSize(2048);
+        });
     }
 }

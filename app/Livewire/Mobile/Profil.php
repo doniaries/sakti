@@ -80,10 +80,31 @@ class Profil extends Component
     public function updatedNewAvatar()
     {
         $this->validate([
-            'new_avatar' => 'image|max:10240',
+            'new_avatar' => 'required|image|max:2048',
         ], [
+            'new_avatar.required' => 'Pilih file foto terlebih dahulu.',
             'new_avatar.image' => 'File harus berupa gambar (JPG, PNG, WEBP).',
-            'new_avatar.max' => 'Ukuran foto maksimal 10MB.',
+            'new_avatar.max' => 'Ukuran foto maksimal 2MB.',
+        ]);
+
+        /** @var User $freshUser */
+        $freshUser = User::findOrFail(Auth::id());
+
+        // Hapus avatar lama dari storage jika ada
+        $oldAvatar = $freshUser->avatar_url;
+        if (!empty($oldAvatar) && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAvatar)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAvatar);
+        }
+
+        $path = $this->new_avatar->store('avatars', 'public');
+        $freshUser->update(['avatar_url' => $path]);
+
+        $this->new_avatar = null;
+
+        session()->flash('notify', [
+            'type' => 'success',
+            'title' => 'Foto Profil Berhasil Diganti!',
+            'message' => 'Foto profil terbaru Anda telah tersimpan.',
         ]);
     }
 
@@ -100,17 +121,30 @@ class Profil extends Component
 
     public function save()
     {
+        // Sanitize nomor WhatsApp jika diisi (bersihkan non-angka dan standardisasi awal ke 08)
+        if (!empty($this->no_hp)) {
+            $cleanNoHp = preg_replace('/[^0-9]/', '', (string) $this->no_hp);
+            if (str_starts_with($cleanNoHp, '62')) {
+                $cleanNoHp = '0' . substr($cleanNoHp, 2);
+            }
+            $this->no_hp = $cleanNoHp;
+        }
+
+        $userId = Auth::id();
+
         $this->validate([
             'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
+            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userId)],
             'email_pribadi' => 'nullable|email|max:255',
-            'no_hp' => 'nullable|string|max:30',
+            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^(08)[0-9]{8,12}$/'],
             'password' => 'nullable|min:6|confirmed',
-            'new_avatar' => 'nullable|image|max:10240',
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
-            'new_avatar.image' => 'File avatar harus berupa gambar.',
-            'new_avatar.max' => 'Ukuran file avatar maksimal 10MB.',
+            'email.required' => 'Email login akun dinas wajib diisi.',
+            'email.email' => 'Format email login tidak valid.',
+            'email.unique' => 'Email login ini sudah digunakan akun lain.',
+            'email_pribadi.email' => 'Format email pribadi tidak valid.',
+            'no_hp.regex' => 'Format nomor WhatsApp harus valid (contoh: 081234567890).',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'password.min' => 'Password minimal 6 karakter.',
         ]);
@@ -142,30 +176,15 @@ class Profil extends Component
 
         /** @var User $freshUser */
         $freshUser = User::findOrFail(Auth::id());
-
-        if ($this->new_avatar) {
-            // Hapus avatar lama dari storage jika ada (fail-safe ganda selain model boot hook)
-            $oldAvatar = $freshUser->avatar_url;
-            if (!empty($oldAvatar) && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAvatar)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAvatar);
-            }
-
-            $path = $this->new_avatar->store('avatars', 'public');
-            $data['avatar_url'] = $path;
-        }
-
         $freshUser->update($data);
-
-        // Bersihkan state temporary avatar
-        $this->new_avatar = null;
 
         session()->flash('notify', [
             'type' => 'success',
             'title' => 'Tersimpan!',
-            'message' => 'Data profil dan foto Anda berhasil diperbarui.',
+            'message' => 'Data profil Anda berhasil diperbarui.',
         ]);
 
-        return redirect()->route('mobile.dashboard');
+        $this->redirectRoute('mobile.dashboard', navigate: true);
     }
 
     public function render()

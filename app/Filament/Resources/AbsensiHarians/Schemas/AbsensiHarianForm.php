@@ -66,17 +66,20 @@ class AbsensiHarianForm
                             ->label('Foto Masuk')
                             ->image()
                             ->directory('absensi-mobile')
+                            ->maxSize(2048)
                             ->visible(fn(Get $get) => in_array($get('status'), ['hadir', 'terlambat', 'dinas_luar'])),
                         \Filament\Forms\Components\FileUpload::make('foto_pulang')
                             ->label('Foto Pulang')
                             ->image()
                             ->directory('absensi-mobile')
+                            ->maxSize(2048)
                             ->visible(fn(Get $get) => in_array($get('status'), ['hadir', 'terlambat', 'dinas_luar'])),
                         FileUpload::make('bukti')
                             ->label('Bukti Izin / Sakit')
                             ->image()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
                             ->directory('absensi-bukti')
+                            ->maxSize(2048)
                             ->visible(fn(Get $get) => in_array($get('status'), ['izin', 'sakit', 'cuti'])),
                     ])->columns(2),
             ]);
