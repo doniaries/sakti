@@ -44,6 +44,8 @@ class JadwalKerjaForm
                                             ->label('Buka Absen Masuk')
                                             ->helperText('Jam paling awal pegawai bisa tap masuk.')
                                             ->seconds(false)
+                                            ->format('H:i')
+                                            ->displayFormat('H:i')
                                             ->default('06:00')
                                             ->required(),
 
@@ -51,6 +53,8 @@ class JadwalKerjaForm
                                             ->label('Jam Masuk (Senin - Kamis)')
                                             ->helperText('Jam resmi mulai kerja Senin-Kamis.')
                                             ->seconds(false)
+                                            ->format('H:i')
+                                            ->displayFormat('H:i')
                                             ->default('07:30')
                                             ->required(),
 
@@ -58,6 +62,8 @@ class JadwalKerjaForm
                                             ->label('Jam Masuk (Jumat)')
                                             ->helperText('Jam resmi mulai kerja hari Jumat.')
                                             ->seconds(false)
+                                            ->format('H:i')
+                                            ->displayFormat('H:i')
                                             ->default('07:30')
                                             ->required(),
 
@@ -65,6 +71,8 @@ class JadwalKerjaForm
                                             ->label('Tutup Absen Masuk')
                                             ->helperText('Batas akhir tap masuk (lewat jam ini = alpa).')
                                             ->seconds(false)
+                                            ->format('H:i')
+                                            ->displayFormat('H:i')
                                             ->default('09:00')
                                             ->required(),
                                     ]),
@@ -87,6 +95,8 @@ class JadwalKerjaForm
                                             ->label('Jam Pulang (Senin - Kamis)')
                                             ->helperText('Mulai buka absen pulang Senin-Kamis.')
                                             ->seconds(false)
+                                            ->format('H:i')
+                                            ->displayFormat('H:i')
                                             ->default('16:00')
                                             ->required(),
 
@@ -94,6 +104,8 @@ class JadwalKerjaForm
                                             ->label('Jam Pulang (Jumat)')
                                             ->helperText('Mulai buka absen pulang hari Jumat.')
                                             ->seconds(false)
+                                            ->format('H:i')
+                                            ->displayFormat('H:i')
                                             ->default('16:30')
                                             ->required(),
 
@@ -101,7 +113,9 @@ class JadwalKerjaForm
                                             ->label('Tutup Absen Pulang')
                                             ->helperText('Batas akhir tap pulang malam hari.')
                                             ->seconds(false)
-                                            ->default('21:00')
+                                            ->format('H:i')
+                                            ->displayFormat('H:i')
+                                            ->default('23:59')
                                             ->required(),
                                     ]),
                             ]),

@@ -25,6 +25,7 @@ class InstansiResource extends Resource
     protected static ?string $pluralModelLabel = 'Instansi';
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
     protected static ?int $navigationSort = 1;
+    protected static bool $shouldRegisterNavigation = false;
 
     public static function canCreate(): bool
     {

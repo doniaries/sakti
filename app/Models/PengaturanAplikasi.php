@@ -14,6 +14,9 @@ class PengaturanAplikasi extends Model
     protected $fillable = [
         'nama_aplikasi',
         'sub_nama',
+        'nama_dinas',
+        'kepala_id',
+        'nama_kepala_dinas',
         'latitude_kantor',
         'longitude_kantor',
         'radius_meter',
@@ -24,6 +27,32 @@ class PengaturanAplikasi extends Model
         'kontak_bantuan',
         'deskripsi',
     ];
+
+    public function kepala(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'kepala_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (self $pengaturan) {
+            // Sinkronisasi data ke model Instansi demi kompatibilitas penuh
+            try {
+                \App\Models\Instansi::updateOrCreate(
+                    ['id' => 1],
+                    [
+                        'nama_dinas' => $pengaturan->nama_dinas ?: $pengaturan->sub_nama,
+                        'nama_kepala_dinas' => $pengaturan->nama_kepala_dinas,
+                        'alamat' => $pengaturan->alamat_kantor,
+                        'logo' => $pengaturan->logo,
+                        'kepala_id' => $pengaturan->kepala_id,
+                    ]
+                );
+            } catch (\Throwable $e) {
+                // Abaikan jika tabel instansis belum siap
+            }
+        });
+    }
 
     protected $casts = [
         'latitude_kantor' => 'float',

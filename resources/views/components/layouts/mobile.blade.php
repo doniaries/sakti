@@ -179,10 +179,13 @@
 
                 <!-- 3. TOMBOL ABSEN TENGAH (Selalu Muncul & Sticky) -->
                 <div class="center-absen-btn-wrapper">
-                    <a href="{{ route('mobile.absensi') }}" class="center-absen-btn group {{ request()->routeIs('mobile.absensi') ? 'ring-4 ring-sky-300' : '' }}" wire:navigate>
-                        <i class="fa-solid fa-fingerprint"></i>
-                        <span>ABSEN</span>
-                    </a>
+                    <button type="button" 
+                            id="btn-absen-navbar"
+                            onclick="handleCenterAbsenBtn()" 
+                            class="center-absen-btn group ring-4 ring-sky-300 transition-all duration-300 active:scale-95 cursor-pointer">
+                        <i id="btn-absen-icon" class="fa-solid fa-fingerprint"></i>
+                        <span id="btn-absen-text">ABSEN</span>
+                    </button>
                 </div>
 
                 <!-- 4. LHK -->
@@ -310,6 +313,26 @@
                     console.log('ServiceWorker registration failed: ', err);
                 });
             });
+        }
+
+        // Global Navbar Center ABSEN Button Handler
+        function handleCenterAbsenBtn() {
+            console.log('[NAVBAR] handleCenterAbsenBtn clicked. Path:', window.location.pathname);
+            if (window.location.pathname.includes('/mobile/absensi')) {
+                // Jika sudah berada di halaman absensi, lakukan aksi punch absensi
+                if (typeof window.triggerDoAbsen === 'function') {
+                    window.triggerDoAbsen();
+                } else {
+                    window.dispatchEvent(new CustomEvent('trigger-absen'));
+                }
+            } else {
+                // Jika berada di halaman lain (Beranda, Riwayat, LHK, Profil), navigasi ke /mobile/absensi
+                if (window.Livewire) {
+                    window.Livewire.navigate('{{ route('mobile.absensi') }}');
+                } else {
+                    window.location.href = '{{ route('mobile.absensi') }}';
+                }
+            }
         }
     </script>
 </body>

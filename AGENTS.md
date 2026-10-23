@@ -88,8 +88,9 @@ protected function getRedirectUrl(): string
 
 ## 5. Domain & Alur Bisnis Aplikasi
 
-1. **Master Kepegawaian & Organisasi**:
-   - `Instansi`, `Bidang`, `Jabatan`, `User` (Pegawai).
+1. **Master Kepegawaian & Pengaturan Instansi Terpadu**:
+   - `PengaturanAplikasi` (Identitas & Pengaturan Instansi): Menggabungkan profil instansi, logo, kepala dinas, alamat kantor, versi aplikasi, serta titik koordinat & radius geofencing peta interaktif dalam satu menu tunggal (*Single Source of Truth*). Data disinkronkan otomatis ke model `Instansi` demi kompatibilitas query lama (`Instansi::first()`).
+   - `InstansiResource`: Dinonaktifkan dari menu navigasi sidebar (`$shouldRegisterNavigation = false`) untuk menghilangkan redundansi.
    - Relasi atasan-bawahan via `atasan_id` pada model `User`.
    - **Aturan Pimpinan / Kadis**: Kepala Dinas merupakan pimpinan tertinggi di dinas sehingga:
      - `bidang_id` = `null` (tidak terikat bidang).
@@ -134,13 +135,13 @@ protected function getRedirectUrl(): string
 ## 7. Standar Presensi, Shift Kerja, Toleransi & Pengisian LHK
 
 ### A. Jendela Waktu Presensi (Attendance Windows) & Jam Kerja Fleksibel
-Parameter waktu absensi disimpan pada tabel `jadwal_kerjas` dan dapat diatur langsung oleh Admin lewat Filament:
+Parameter waktu absensi dikelola terpusat pada menu **Jadwal / Shift Kerja** (`jadwal_kerjas`) tanpa redundansi di Pengaturan Instansi:
 1. **Buka Absen Masuk**: Default `06:00:00` WIB (jam paling awal sistem/mesin menerima tap masuk).
 2. **Jam Masuk Resmi**: Default `07:30:00` WIB (Senin - Kamis & Jumat).
 3. **Toleransi Keterlambatan**: Disimpan dalam kolom `toleransi_terlambat_menit` (misal 15 menit: rentang `07:30` s.d `07:45` masih dianggap tepat waktu / hadir).
-4. **Tutup Absen Masuk**: Default `09:00:00` WIB. Di atas batas toleransi s.d pukul 09:00 dicatat sebagai status `terlambat`. Lewat pukul 09:00 jendela masuk ditutup.
+4. **Tutup Absen Masuk**: Default `09:00:00` WIB. Di atas batas toleransi s.d pukul 09:00 dicatat sebagai status `terlambat`. Lewat pukul 09:00 jendela masuk ditutup dan pegawai dicatat `tidak_hadir` (alpa), serta tombol pulang mobile dikunci.
 5. **Mulai Buka Absen Pulang**: Sesuai jam pulang resmi hari tersebut (Senin–Kamis `16:00:00`, Jumat `16:30:00` atau konfigurasi dinas).
-6. **Tutup Absen Pulang**: Default `21:00:00` WIB (batas akhir pengambilan absen pulang di malam hari).
+6. **Tutup Absen Pulang**: Default `23:59:00` WIB (batas akhir pengambilan absen pulang di malam hari).
 
 ### B. Otomatisasi Jam Pulang Khusus Hari Jumat
 - Menggunakan `Carbon::parse($tanggal)->dayOfWeekIso === 5` (Jumat).

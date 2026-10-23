@@ -17,6 +17,11 @@ class EditPengaturanAplikasi extends EditRecord
         ];
     }
 
+    public function getMaxContentWidth(): \Filament\Support\Enums\Width|string|null
+    {
+        return \Filament\Support\Enums\Width::Full;
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
