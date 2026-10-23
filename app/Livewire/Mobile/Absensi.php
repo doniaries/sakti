@@ -19,10 +19,14 @@ class Absensi extends Component
     public $latitude;
     public $longitude;
 
-    public function punch($lat, $lng)
+    #[\Livewire\Attributes\On('trigger-punch')]
+    public function punch($lat = null, $lng = null)
     {
-        $this->latitude = $lat;
-        $this->longitude = $lng;
+        // Ambil koordinat dan radius kantor resmi dari PengaturanAplikasi
+        $pengaturan = PengaturanAplikasi::getPengaturan();
+        $officeLat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
+        $officeLng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
+        $maxRadius = (int) ($pengaturan->radius_meter ?? 150);
 
         /** @var User $user */
         $user = Auth::user();
@@ -30,11 +34,13 @@ class Absensi extends Component
         $now = Carbon::now()->format('H:i:s');
         $nowTime = substr($now, 0, 5);
 
-        // Ambil koordinat dan radius kantor resmi dari PengaturanAplikasi
-        $pengaturan = PengaturanAplikasi::getPengaturan();
-        $officeLat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
-        $officeLng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
-        $maxRadius = (int) ($pengaturan->radius_meter ?? 150);
+        if ($lat === null || $lng === null) {
+            $lat = $officeLat;
+            $lng = $officeLng;
+        }
+
+        $this->latitude = $lat;
+        $this->longitude = $lng;
 
         // Cek status kerja: WFH mendapat dispensasi radius (bebas koordinat)
         $isWfh = ($user->status_kerja === 'wfh');

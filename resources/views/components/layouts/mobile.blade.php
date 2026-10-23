@@ -319,9 +319,16 @@
         function handleCenterAbsenBtn() {
             console.log('[NAVBAR] handleCenterAbsenBtn clicked. Path:', window.location.pathname);
             if (window.location.pathname.includes('/mobile/absensi')) {
-                // Jika sudah berada di halaman absensi, lakukan aksi punch absensi
+                // Ubah visual tombol menjadi memproses
+                const btnText = document.getElementById('btn-absen-text');
+                const btnIcon = document.getElementById('btn-absen-icon');
+                if (btnText) btnText.innerText = 'PROSES';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-circle-notch fa-spin';
+
                 if (typeof window.triggerDoAbsen === 'function') {
                     window.triggerDoAbsen();
+                } else if (window.Livewire) {
+                    window.Livewire.dispatch('trigger-punch');
                 } else {
                     window.dispatchEvent(new CustomEvent('trigger-absen'));
                 }

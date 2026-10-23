@@ -1,4 +1,4 @@
-<div class="p-5 pb-24 flex flex-col min-h-[calc(100vh-100px)]" x-data="absensiApp()" @trigger-absen.window="doAbsen()">
+<div class="p-5 pb-24 flex flex-col min-h-[calc(100vh-100px)]" x-data="typeof absensiApp === 'function' ? absensiApp() : {}" @trigger-absen.window="typeof triggerDoAbsen === 'function' ? triggerDoAbsen() : null">
     <!-- Header -->
     <div class="flex items-center justify-between mb-4 pt-1">
         <div>
@@ -178,7 +178,7 @@
             </p>
 
         @elseif($siapAbsenPulang)
-            <div onclick="if(window.triggerDoAbsen) window.triggerDoAbsen()" 
+            <div wire:click="punch" 
                  class="w-full flex flex-col items-center cursor-pointer active:scale-95 transition-transform">
                 <div class="w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-3xl mb-3 animate-pulse shadow-md">
                     <i class="fa-solid fa-fingerprint text-4xl"></i>
@@ -194,7 +194,7 @@
             </div>
 
         @elseif($siapAbsenMasuk)
-            <div onclick="if(window.triggerDoAbsen) window.triggerDoAbsen()" 
+            <div wire:click="punch" 
                  class="w-full flex flex-col items-center cursor-pointer active:scale-95 transition-transform">
                 <div class="w-20 h-20 rounded-full bg-sky-500/10 text-sky-600 flex items-center justify-center text-3xl mb-3 animate-pulse shadow-md">
                     <i class="fa-solid fa-fingerprint text-4xl"></i>
