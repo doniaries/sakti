@@ -24,7 +24,7 @@ class MasterTokoResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Data Toko / Rekanan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
     protected static ?int $navigationSort = 5;
 

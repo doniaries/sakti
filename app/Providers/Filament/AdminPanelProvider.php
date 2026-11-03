@@ -57,9 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->navigationGroups([
-                NavigationGroup::make('Keuangan & SPJ')
-                    ->collapsed(false),
-                NavigationGroup::make('keuangan')
+                NavigationGroup::make('Keuangan')
                     ->collapsed(),
                 NavigationGroup::make('Absensi')
                     ->collapsed(),

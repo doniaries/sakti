@@ -24,7 +24,7 @@ class MasterBarangResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Barang Persediaan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
     protected static ?int $navigationSort = 4;
 
