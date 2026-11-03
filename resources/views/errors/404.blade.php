@@ -38,3 +38,4 @@
         <circle cx="144.5" cy="126" r="2.3" fill="#fbbf24"/>
     </svg>
 @endsection
+
