@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MasterKegiatan extends Model
@@ -13,9 +14,15 @@ class MasterKegiatan extends Model
     protected $table = 'master_kegiatan';
 
     protected $fillable = [
+        'bidang_id',
         'kode_kegiatan',
         'nama_kegiatan',
     ];
+
+    public function bidang(): BelongsTo
+    {
+        return $this->belongsTo(Bidang::class, 'bidang_id');
+    }
 
     public function subKegiatans(): HasMany
     {
@@ -32,4 +39,3 @@ class MasterKegiatan extends Model
         return "{$this->kode_kegiatan} - {$this->nama_kegiatan}";
     }
 }
-

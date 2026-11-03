@@ -22,24 +22,29 @@ class StokBarangSeeder extends Seeder
         $bidangs = Bidang::all();
         if ($bidangs->isEmpty()) {
             $this->command->error('Data bidang belum ada di SAKTI.');
+
             return;
         }
 
         $masterBarangs = MasterBarang::all();
         if ($masterBarangs->isEmpty()) {
             $this->command->error('Data master barang belum ada.');
+
             return;
         }
 
         $stokData = [];
         $count = 0;
 
-        foreach ($bidangs as $bidang) {
-            foreach ($masterBarangs as $barang) {
+        foreach ($bidangs as $bIndex => $bidang) {
+            foreach ($masterBarangs as $mIndex => $barang) {
+                // Variasikan stok per bidang (termasuk contoh barang stok 0 / kosong pada bidang tertentu)
+                $stokTersedia = (($bIndex + $mIndex) % 4 === 3) ? 0 : (($bIndex + 1) * 5 + ($mIndex % 3) * 2);
+
                 $stokData[] = [
                     'bidang_id' => $bidang->id,
                     'master_barang_id' => $barang->id,
-                    'stok_tersedia' => 10, // Stok awal sampel
+                    'stok_tersedia' => $stokTersedia,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -52,4 +57,3 @@ class StokBarangSeeder extends Seeder
         $this->command->info("Data stok barang berhasil dibuat: {$count} data untuk {$bidangs->count()} bidang x {$masterBarangs->count()} barang.");
     }
 }
-

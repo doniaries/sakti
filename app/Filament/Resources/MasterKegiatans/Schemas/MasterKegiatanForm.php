@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\MasterKegiatans\Schemas;
 
+use App\Models\Bidang;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
@@ -11,6 +13,12 @@ class MasterKegiatanForm
     {
         return $schema
             ->components([
+                Select::make('bidang_id')
+                    ->label('Bidang Pengampu Kegiatan')
+                    ->options(fn () => Bidang::pluck('nama', 'id')->all())
+                    ->searchable()
+                    ->required(),
+
                 TextInput::make('kode_kegiatan')
                     ->label('Kode Kegiatan')
                     ->placeholder('Contoh: 1.01.02.1.01')
@@ -25,4 +33,3 @@ class MasterKegiatanForm
             ]);
     }
 }
-

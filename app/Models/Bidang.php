@@ -37,6 +37,16 @@ class Bidang extends Model
         return $this->hasMany(PengajuanSpj::class, 'bidang_id');
     }
 
+    public function masterKegiatans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(MasterKegiatan::class, 'bidang_id');
+    }
+
+    public function stokBarangs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(StokBarang::class, 'bidang_id');
+    }
+
     /**
      * Mendapatkan daftar jabatan yang relevan khusus untuk bidang ini.
      *

@@ -34,6 +34,13 @@ class PengajuanSpjForm
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
+        // Helper closure: Ambil bidang_id secara akurat dari level root maupun dari dalam Wizard/Section/Repeater
+        $resolveBidangId = function (callable $get): ?int {
+            $id = $get('/data.bidang_id') ?: $get('bidang_id') ?: $get('../../bidang_id');
+
+            return filled($id) ? (int) $id : null;
+        };
+
         // Helper closure: Apakah Surat Pesanan sudah disetujui & di-TTD oleh Kabid (PPTK)?
         $isPesananDisetujui = fn (?PengajuanSpj $record): bool => $record !== null
             && ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true);
@@ -50,10 +57,10 @@ class PengajuanSpjForm
                     // =========================================================================
                     Step::make('1. Pengajuan Nota Pesanan')
                         ->icon('heroicon-o-document-text')
-                        ->description('Ajukan Surat / Nota Pesanan ke Kabid (PPTK) dari barang yang memiliki stok tersedia')
+                        ->description('Ajukan Surat / Nota Pesanan ke Kabid (PPTK) sesuai Kegiatan & Stok Barang Bidang')
                         ->schema([
                             Section::make('Identitas Surat / Nota Pesanan')
-                                ->description('Staf menyusun Surat Pesanan untuk diajukan dan ditandatangani (TTD) oleh Kepala Bidang selaku PPTK sebelum pembelian barang.')
+                                ->description('Pilih Bidang Pengusul terlebih dahulu agar Kegiatan DPA dan Stok Barang otomatis menyesuaikan dengan Bidang terkait.')
                                 ->columns(2)
                                 ->schema([
                                     TextInput::make('nomor_pengajuan')
@@ -72,14 +79,42 @@ class PengajuanSpjForm
                                     Select::make('bidang_id')
                                         ->label('Bidang Pengusul (PPTK: Kepala Bidang)')
                                         ->options(fn () => Bidang::pluck('nama', 'id')->all())
-                                        ->default(fn () => $user?->bidang_id)
+                                        ->default(fn () => $user?->bidang_id ?: Bidang::query()->value('id'))
                                         ->searchable()
                                         ->live()
+                                        ->afterStateUpdated(function (callable $set, callable $get) {
+                                            // Reset Kegiatan & Sub Kegiatan ketika Bidang berubah
+                                            $set('kegiatan_id', null);
+                                            $set('sub_kegiatan_id', null);
+
+                                            // Reset pilihan barang pada repeater agar selaras dengan stok Bidang baru
+                                            $details = $get('details') ?? [];
+                                            foreach (array_keys($details) as $uuid) {
+                                                $set("details.{$uuid}.master_barang_id", null);
+                                                $set("details.{$uuid}.stok_tersedia", 0);
+                                                $set("details.{$uuid}.harga_satuan", 0);
+                                                $set("details.{$uuid}.subtotal", 0);
+                                            }
+                                        })
                                         ->required(),
 
                                     Select::make('kegiatan_id')
-                                        ->label('Kegiatan DPA')
-                                        ->options(fn () => MasterKegiatan::all()->pluck('label', 'id')->all())
+                                        ->label('Kegiatan DPA (Sesuai Bidang)')
+                                        ->placeholder(fn (callable $get): string => $resolveBidangId($get)
+                                            ? 'Pilih Kegiatan DPA Bidang'
+                                            : 'Pilih Bidang Pengusul terlebih dahulu')
+                                        ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null)
+                                        ->options(function (callable $get) use ($resolveBidangId): array {
+                                            $bidangId = $resolveBidangId($get);
+                                            if (! $bidangId) {
+                                                return [];
+                                            }
+
+                                            return MasterKegiatan::where('bidang_id', $bidangId)
+                                                ->get()
+                                                ->pluck('label', 'id')
+                                                ->all();
+                                        })
                                         ->searchable()
                                         ->live()
                                         ->afterStateUpdated(fn (callable $set) => $set('sub_kegiatan_id', null))
@@ -88,7 +123,11 @@ class PengajuanSpjForm
 
                                     Select::make('sub_kegiatan_id')
                                         ->label('Sub Kegiatan DPA')
-                                        ->options(function (callable $get) {
+                                        ->placeholder(fn (callable $get): string => filled($get('kegiatan_id'))
+                                            ? 'Pilih Sub Kegiatan DPA'
+                                            : 'Pilih Kegiatan DPA terlebih dahulu')
+                                        ->disabled(fn (callable $get): bool => blank($get('kegiatan_id')))
+                                        ->options(function (callable $get): array {
                                             $kegiatanId = $get('kegiatan_id');
                                             if (! $kegiatanId) {
                                                 return [];
@@ -118,8 +157,8 @@ class PengajuanSpjForm
                                         ->default(fn () => Auth::id()),
                                 ]),
 
-                            Section::make('Rincian Barang Nota Pesanan (Khusus Barang Stok Tersedia > 0)')
-                                ->description('Hanya barang yang memiliki stok tersedia (> 0) pada Bidang Pengusul yang dapat dipilih dan diajukan dalam Surat Pesanan.')
+                            Section::make('Rincian Barang Nota Pesanan (Terkoneksi dengan Stok Bidang)')
+                                ->description('Daftar barang terhubung langsung dengan data stok Bidang Pengusul. Barang yang stoknya kosong (0) pada Bidang tersebut dikunci dan tidak dapat dipilih.')
                                 ->schema([
                                     Repeater::make('details')
                                         ->relationship()
@@ -127,15 +166,17 @@ class PengajuanSpjForm
                                         ->schema([
                                             Select::make('kode_rekening_id')
                                                 ->label('Rekening Belanja')
-                                                ->options(function (callable $get) {
-                                                    $bidangId = $get('../../bidang_id');
+                                                ->placeholder(fn (callable $get): string => $resolveBidangId($get)
+                                                    ? 'Pilih Rekening Belanja'
+                                                    : 'Pilih Bidang Pengusul terlebih dahulu')
+                                                ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null)
+                                                ->options(function (callable $get) use ($resolveBidangId): array {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    if (! $bidangId) {
+                                                        return [];
+                                                    }
 
-                                                    return KodeRekening::whereHas('masterBarangs.stokBarangs', function ($query) use ($bidangId) {
-                                                        $query->where('stok_tersedia', '>', 0);
-                                                        if ($bidangId) {
-                                                            $query->where('bidang_id', $bidangId);
-                                                        }
-                                                    })
+                                                    return KodeRekening::whereHas('masterBarangs')
                                                         ->get()
                                                         ->pluck('label', 'id')
                                                         ->all();
@@ -152,66 +193,89 @@ class PengajuanSpjForm
                                                 ->columnSpan(3),
 
                                             Select::make('master_barang_id')
-                                                ->label('Pilih Barang (Stok > 0)')
-                                                ->options(function (callable $get) {
-                                                    $bidangId = $get('../../bidang_id');
-                                                    $kodeRekeningId = $get('kode_rekening_id');
-                                                    $currentBarangId = $get('master_barang_id');
-
-                                                    $query = MasterBarang::with(['satuan', 'stokBarangs' => function ($q) use ($bidangId) {
-                                                        if ($bidangId) {
-                                                            $q->where('bidang_id', $bidangId);
-                                                        }
-                                                    }]);
-
-                                                    if ($kodeRekeningId) {
-                                                        $query->where('kode_rekening_id', $kodeRekeningId);
+                                                ->label('Pilih Barang Persediaan Bidang')
+                                                ->placeholder(function (callable $get) use ($resolveBidangId): string {
+                                                    if (! $resolveBidangId($get)) {
+                                                        return 'Pilih Bidang Pengusul terlebih dahulu';
+                                                    }
+                                                    if (blank($get('kode_rekening_id'))) {
+                                                        return 'Pilih Rekening Belanja terlebih dahulu';
                                                     }
 
-                                                    $query->where(function ($q) use ($bidangId, $currentBarangId) {
-                                                        $q->whereHas('stokBarangs', function ($sq) use ($bidangId) {
-                                                            $sq->where('stok_tersedia', '>', 0);
-                                                            if ($bidangId) {
-                                                                $sq->where('bidang_id', $bidangId);
-                                                            }
-                                                        });
+                                                    return 'Pilih Barang (Barang stok 0 tidak dapat dipilih)';
+                                                })
+                                                ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null || blank($get('kode_rekening_id')))
+                                                ->options(function (callable $get) use ($resolveBidangId): array {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    $kodeRekeningId = $get('kode_rekening_id');
 
-                                                        if ($currentBarangId) {
-                                                            $q->orWhere('id', $currentBarangId);
-                                                        }
-                                                    });
+                                                    if (! $bidangId || ! $kodeRekeningId) {
+                                                        return [];
+                                                    }
 
-                                                    return $query->get()->mapWithKeys(function (MasterBarang $barang) use ($bidangId) {
-                                                        $stok = $bidangId
-                                                            ? (int) $barang->stokBarangs->where('bidang_id', (int) $bidangId)->sum('stok_tersedia')
-                                                            : (int) $barang->stokBarangs->sum('stok_tersedia');
+                                                    $bidangNama = Bidang::whereKey($bidangId)->value('nama') ?? 'Bidang';
+
+                                                    $barangs = MasterBarang::with([
+                                                        'satuan',
+                                                        'stokBarangs' => fn ($q) => $q->where('bidang_id', $bidangId),
+                                                    ])
+                                                        ->where('kode_rekening_id', $kodeRekeningId)
+                                                        ->get();
+
+                                                    return $barangs->mapWithKeys(function (MasterBarang $barang) use ($bidangNama) {
+                                                        $stok = (int) $barang->stokBarangs->sum('stok_tersedia');
                                                         $satuan = $barang->satuan?->nama ?? 'Unit';
                                                         $harga = number_format((float) $barang->harga_satuan, 0, ',', '.');
 
+                                                        if ($stok <= 0) {
+                                                            return [
+                                                                $barang->id => "🚫 {$barang->nama_barang} ({$satuan}) — [{$bidangNama} | STOK KOSONG: 0]",
+                                                            ];
+                                                        }
+
                                                         return [
-                                                            $barang->id => "{$barang->nama_barang} ({$satuan}) — [Stok: {$stok}] — Rp {$harga}",
+                                                            $barang->id => "{$barang->nama_barang} ({$satuan}) — [{$bidangNama} | Stok: {$stok}] — Rp {$harga}",
                                                         ];
                                                     })->all();
                                                 })
+                                                ->disableOptionWhen(function (string $value, callable $get) use ($resolveBidangId): bool {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    if (! $bidangId) {
+                                                        return true;
+                                                    }
+
+                                                    $stok = (int) StokBarang::where('bidang_id', $bidangId)
+                                                        ->where('master_barang_id', (int) $value)
+                                                        ->sum('stok_tersedia');
+
+                                                    return $stok <= 0;
+                                                })
                                                 ->searchable()
                                                 ->live()
-                                                ->afterStateUpdated(function (callable $set, callable $get, ?string $state) {
+                                                ->afterStateUpdated(function (callable $set, callable $get, ?string $state) use ($resolveBidangId) {
                                                     if ($state) {
-                                                        $bidangId = $get('../../bidang_id');
+                                                        $bidangId = $resolveBidangId($get);
                                                         $barang = MasterBarang::with('satuan')->find($state);
-                                                        if ($barang) {
-                                                            $stokQuery = StokBarang::where('master_barang_id', $state);
-                                                            if ($bidangId) {
-                                                                $stokQuery->where('bidang_id', $bidangId);
+                                                        if ($barang && $bidangId) {
+                                                            $stokTersedia = (int) StokBarang::where('bidang_id', $bidangId)
+                                                                ->where('master_barang_id', (int) $state)
+                                                                ->sum('stok_tersedia');
+
+                                                            if ($stokTersedia <= 0) {
+                                                                $set('master_barang_id', null);
+                                                                $set('stok_tersedia', 0);
+
+                                                                Notification::make()
+                                                                    ->danger()
+                                                                    ->title('Stok Barang Kosong')
+                                                                    ->body('Barang ini memiliki stok 0 pada Bidang terpilih sehingga tidak dapat diajukan.')
+                                                                    ->send();
+
+                                                                return;
                                                             }
-                                                            $stokTersedia = (int) $stokQuery->sum('stok_tersedia');
 
                                                             $harga = (float) $barang->harga_satuan;
-                                                            $qty = min((int) ($get('kuantitas') ?: 1), max(1, $stokTersedia));
-
-                                                            if (! $get('kode_rekening_id') && $barang->kode_rekening_id) {
-                                                                $set('kode_rekening_id', $barang->kode_rekening_id);
-                                                            }
+                                                            $qty = min((int) ($get('kuantitas') ?: 1), $stokTersedia);
 
                                                             $set('stok_tersedia', $stokTersedia);
                                                             $set('kuantitas', $qty);
@@ -235,18 +299,16 @@ class PengajuanSpjForm
                                                 ->disabled()
                                                 ->dehydrated(false)
                                                 ->default(0)
-                                                ->formatStateUsing(function (callable $get): int {
+                                                ->formatStateUsing(function (callable $get) use ($resolveBidangId): int {
                                                     $barangId = $get('master_barang_id');
-                                                    if (! $barangId) {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    if (! $barangId || ! $bidangId) {
                                                         return 0;
                                                     }
-                                                    $bidangId = $get('../../bidang_id');
-                                                    $stokQuery = StokBarang::where('master_barang_id', $barangId);
-                                                    if ($bidangId) {
-                                                        $stokQuery->where('bidang_id', $bidangId);
-                                                    }
 
-                                                    return (int) $stokQuery->sum('stok_tersedia');
+                                                    return (int) StokBarang::where('bidang_id', $bidangId)
+                                                        ->where('master_barang_id', (int) $barangId)
+                                                        ->sum('stok_tersedia');
                                                 })
                                                 ->columnSpan(1),
 
@@ -263,7 +325,7 @@ class PengajuanSpjForm
                                                 ->live(onBlur: true)
                                                 ->afterStateUpdated(function (callable $set, callable $get, $state) {
                                                     $stokTersedia = (int) ($get('stok_tersedia') ?: 0);
-                                                    $qty = (int) ($state ?: 0);
+                                                    $qty = max(1, (int) ($state ?: 1));
 
                                                     if ($stokTersedia > 0 && $qty > $stokTersedia) {
                                                         $qty = $stokTersedia;
@@ -271,8 +333,8 @@ class PengajuanSpjForm
 
                                                         Notification::make()
                                                             ->danger()
-                                                            ->title('Melebihi Stok Tersedia')
-                                                            ->body("Volume pesanan tidak boleh melebihi stok barang yang tersedia ({$stokTersedia}).")
+                                                            ->title('Melebihi Stok Tersedia Bidang')
+                                                            ->body("Volume pesanan tidak boleh melebihi stok barang yang tersedia pada bidang ini ({$stokTersedia}).")
                                                             ->send();
                                                     }
 
@@ -341,7 +403,7 @@ class PengajuanSpjForm
                                         ])
                                         ->columns(6)
                                         ->defaultItems(1)
-                                        ->addActionLabel('Tambah Item Barang (Stok Tersedia)'),
+                                        ->addActionLabel('Tambah Item Barang (Stok Bidang)'),
                                 ]),
                         ]),
 

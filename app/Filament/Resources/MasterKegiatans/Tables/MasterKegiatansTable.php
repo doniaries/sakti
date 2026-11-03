@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class MasterKegiatansTable
@@ -15,6 +16,13 @@ class MasterKegiatansTable
     {
         return $table
             ->columns([
+                TextColumn::make('bidang.nama')
+                    ->label('Bidang Pengampu')
+                    ->badge()
+                    ->color('primary')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('kode_kegiatan')
                     ->label('Kode Kegiatan')
                     ->searchable()
@@ -40,6 +48,11 @@ class MasterKegiatansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->filters([
+                SelectFilter::make('bidang_id')
+                    ->relationship('bidang', 'nama')
+                    ->label('Filter Bidang'),
+            ])
             ->actions([
                 EditAction::make(),
                 DeleteAction::make(),
@@ -51,4 +64,3 @@ class MasterKegiatansTable
             ]);
     }
 }
-
