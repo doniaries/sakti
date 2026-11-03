@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MasterKegiatans\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,6 +16,11 @@ class MasterKegiatansTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Tambah Kegiatan')
+                    ->icon('heroicon-m-plus'),
+            ])
             ->columns([
                 TextColumn::make('bidang.nama')
                     ->label('Bidang Pengampu')

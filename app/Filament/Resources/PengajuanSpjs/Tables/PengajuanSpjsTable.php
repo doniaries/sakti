@@ -6,6 +6,7 @@ use App\Models\PengajuanSpj;
 use App\Services\Spj\SpjWorkflowService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -25,6 +26,11 @@ class PengajuanSpjsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Buat Pengajuan SPJ')
+                    ->icon('heroicon-m-plus'),
+            ])
             ->columns([
                 TextColumn::make('nomor_pengajuan')
                     ->label('No. Pengajuan')
