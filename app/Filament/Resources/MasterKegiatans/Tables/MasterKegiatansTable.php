@@ -16,11 +16,6 @@ class MasterKegiatansTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->headerActions([
-                CreateAction::make()
-                    ->label('Tambah Kegiatan')
-                    ->icon('heroicon-m-plus'),
-            ])
             ->columns([
                 TextColumn::make('bidang.nama')
                     ->label('Bidang Pengampu')
@@ -68,7 +63,10 @@ class MasterKegiatansTable
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
+                CreateAction::make()
+                    ->label('Tambah Kegiatan')
+                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

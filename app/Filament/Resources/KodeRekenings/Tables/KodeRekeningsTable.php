@@ -15,11 +15,6 @@ class KodeRekeningsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->headerActions([
-                CreateAction::make()
-                    ->label('Tambah Kode Rekening')
-                    ->icon('heroicon-m-plus'),
-            ])
             ->columns([
                 TextColumn::make('kode_lengkap')
                     ->label('Kode Rekening')
@@ -50,7 +45,10 @@ class KodeRekeningsTable
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
+                CreateAction::make()
+                    ->label('Tambah Kode Rekening')
+                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

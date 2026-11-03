@@ -15,11 +15,6 @@ class MasterBarangsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->headerActions([
-                CreateAction::make()
-                    ->label('Tambah Master Barang')
-                    ->icon('heroicon-m-plus'),
-            ])
             ->columns([
                 TextColumn::make('kode_barang')
                     ->label('Kode')
@@ -61,7 +56,10 @@ class MasterBarangsTable
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
+                CreateAction::make()
+                    ->label('Tambah Master Barang')
+                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

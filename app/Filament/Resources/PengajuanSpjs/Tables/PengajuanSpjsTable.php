@@ -26,11 +26,6 @@ class PengajuanSpjsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->headerActions([
-                CreateAction::make()
-                    ->label('Buat Pengajuan SPJ')
-                    ->icon('heroicon-m-plus'),
-            ])
             ->columns([
                 TextColumn::make('nomor_pengajuan')
                     ->label('No. Pengajuan')
@@ -380,7 +375,10 @@ class PengajuanSpjsTable
                 DeleteAction::make()
                     ->visible(fn (PengajuanSpj $record): bool => $record->status === 'draft'),
             ])
-            ->bulkActions([
+            ->toolbarActions([
+                CreateAction::make()
+                    ->label('Buat Pengajuan SPJ')
+                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

@@ -15,11 +15,6 @@ class MasterSubKegiatansTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->headerActions([
-                CreateAction::make()
-                    ->label('Tambah Sub Kegiatan')
-                    ->icon('heroicon-m-plus'),
-            ])
             ->columns([
                 TextColumn::make('kegiatan.nama_kegiatan')
                     ->label('Kegiatan Induk')
@@ -49,7 +44,10 @@ class MasterSubKegiatansTable
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
+                CreateAction::make()
+                    ->label('Tambah Sub Kegiatan')
+                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
