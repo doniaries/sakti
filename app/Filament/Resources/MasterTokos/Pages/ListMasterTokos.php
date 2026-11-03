@@ -3,19 +3,17 @@
 namespace App\Filament\Resources\MasterTokos\Pages;
 
 use App\Filament\Resources\MasterTokos\MasterTokoResource;
-use Filament\Actions\CreateAction;
+use App\Filament\Resources\PengajuanSpjs\Widgets\KeuanganBidangOverviewWidget;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMasterTokos extends ListRecords
 {
     protected static string $resource = MasterTokoResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getHeaderWidgets(): array
     {
         return [
-            CreateAction::make()
-                ->label('Tambah Toko / Rekanan'),
+            KeuanganBidangOverviewWidget::class,
         ];
     }
 }
-

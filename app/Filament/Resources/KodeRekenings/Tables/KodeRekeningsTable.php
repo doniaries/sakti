@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\KodeRekenings\Tables;
 
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -14,6 +15,11 @@ class KodeRekeningsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Tambah Kode Rekening')
+                    ->icon('heroicon-m-plus'),
+            ])
             ->columns([
                 TextColumn::make('kode_lengkap')
                     ->label('Kode Rekening')

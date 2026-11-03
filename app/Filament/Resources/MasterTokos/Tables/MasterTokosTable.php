@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MasterTokos\Tables;
 
+use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
@@ -13,6 +14,11 @@ class MasterTokosTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Tambah Toko / Rekanan')
+                    ->icon('heroicon-m-plus'),
+            ])
             ->columns([
                 TextColumn::make('nama_toko')
                     ->label('Nama Toko')
