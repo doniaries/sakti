@@ -19,8 +19,8 @@ class PengaturanAplikasiSeeder extends Seeder
         PengaturanAplikasi::updateOrCreate(
             ['id' => 1],
             [
-                'nama_aplikasi' => 'ABSENSI LHK',
-                'sub_nama' => 'Pemerintah Daerah Kabupaten Sijunjung',
+                'nama_aplikasi' => 'Sakti',
+                'sub_nama' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
                 'nama_dinas' => 'Dinas Pariwisata Pemuda dan Olahraga',
                 'kepala_id' => $kadisUser?->id,
                 'nama_kepala_dinas' => $kadisUser?->name ?? 'AFRINELDI, SH',
@@ -32,7 +32,7 @@ class PengaturanAplikasiSeeder extends Seeder
                 'versi_aplikasi' => 'v1.0.0',
                 'pembuat_aplikasi' => 'Don Borland',
                 'kontak_bantuan' => 'helpdesk@lhk.sijunjung.go.id',
-                'deskripsi' => 'Sistem Presensi Elektronik & Laporan Harian Kinerja Pegawai (LHK) Pemerintah Kabupaten Sijunjung',
+                'deskripsi' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
             ]
         );
     }

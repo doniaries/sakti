@@ -1,6 +1,6 @@
-# SAKTI (Sistem Absensi & Kinerja Terintegrasi)
+# Sakti (Sistem Administrasi, Kinerja, dan Tata Informasi)
 
-Sistem Informasi Manajemen Presensi (Absensi) Pegawai dan Laporan Harian Kinerja (LHK) berbasis web dan mobile, terintegrasi langsung dengan mesin fingerprint (ZKTeco) serta mendukung aplikasi mobile berbasis Flutter dan PWA Livewire.
+Sistem Administrasi, Kinerja, dan Tata Informasi (Sakti) — Sistem Informasi Manajemen Presensi Pegawai dan Laporan Harian Kinerja (LHK) berbasis web dan mobile, terintegrasi langsung dengan mesin fingerprint (ZKTeco) serta mendukung aplikasi mobile berbasis Flutter dan PWA Livewire.
 
 ---
 
