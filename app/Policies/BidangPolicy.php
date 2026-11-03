@@ -19,7 +19,12 @@ class BidangPolicy
 
     public function view(AuthUser $authUser, Bidang $bidang): bool
     {
-        return $authUser->can('View:Bidang');
+        if ($authUser->can('View:Bidang') || $authUser->can('ViewAny:Bidang')) {
+            return true;
+        }
+
+        return (int) ($authUser->bidang_id ?? 0) === (int) $bidang->id
+            || (int) ($bidang->kepala_id ?? 0) === (int) $authUser->id;
     }
 
     public function create(AuthUser $authUser): bool

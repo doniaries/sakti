@@ -127,7 +127,29 @@ class PengajuanSpjForm
                                         ->label('Bidang Pengusul')
                                         ->placeholder('Pilih Bidang Pengusul')
                                         ->default(fn (): ?int => $resolveUserBidangId())
-                                        ->options(fn () => Bidang::pluck('nama', 'id')->all())
+                                        ->options(function () use ($resolveUserBidangId): array {
+                                            /** @var \App\Models\User|null $user */
+                                            $user = Auth::user();
+                                            $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
+
+                                            if ($canViewAllBidang) {
+                                                return Bidang::pluck('nama', 'id')->all();
+                                            }
+
+                                            $userBidangId = $resolveUserBidangId();
+
+                                            return $userBidangId
+                                                ? Bidang::whereKey($userBidangId)->pluck('nama', 'id')->all()
+                                                : [];
+                                        })
+                                        ->disabled(function () use ($resolveUserBidangId): bool {
+                                            /** @var \App\Models\User|null $user */
+                                            $user = Auth::user();
+                                            $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
+
+                                            return ! $canViewAllBidang && $resolveUserBidangId() !== null;
+                                        })
+                                        ->dehydrated()
                                         ->searchable()
                                         ->live()
                                         ->afterStateUpdated(function (callable $set, callable $get) {

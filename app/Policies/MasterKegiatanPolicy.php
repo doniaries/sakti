@@ -12,6 +12,19 @@ class MasterKegiatanPolicy
 {
     use HandlesAuthorization;
     
+    protected function canAccessBidang(AuthUser $authUser, MasterKegiatan $masterKegiatan): bool
+    {
+        if ($authUser->can('ViewAny:Bidang')) {
+            return true;
+        }
+
+        if ($masterKegiatan->bidang && $authUser->can('view', $masterKegiatan->bidang)) {
+            return true;
+        }
+
+        return (int) ($authUser->bidang_id ?? 0) === (int) $masterKegiatan->bidang_id;
+    }
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:MasterKegiatan');
@@ -19,7 +32,7 @@ class MasterKegiatanPolicy
 
     public function view(AuthUser $authUser, MasterKegiatan $masterKegiatan): bool
     {
-        return $authUser->can('View:MasterKegiatan');
+        return $authUser->can('View:MasterKegiatan') && $this->canAccessBidang($authUser, $masterKegiatan);
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,12 +42,12 @@ class MasterKegiatanPolicy
 
     public function update(AuthUser $authUser, MasterKegiatan $masterKegiatan): bool
     {
-        return $authUser->can('Update:MasterKegiatan');
+        return $authUser->can('Update:MasterKegiatan') && $this->canAccessBidang($authUser, $masterKegiatan);
     }
 
     public function delete(AuthUser $authUser, MasterKegiatan $masterKegiatan): bool
     {
-        return $authUser->can('Delete:MasterKegiatan');
+        return $authUser->can('Delete:MasterKegiatan') && $this->canAccessBidang($authUser, $masterKegiatan);
     }
 
     public function deleteAny(AuthUser $authUser): bool

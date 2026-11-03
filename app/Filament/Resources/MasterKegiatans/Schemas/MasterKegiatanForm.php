@@ -29,7 +29,28 @@ class MasterKegiatanForm
 
                         return $kepalaBidangId ? (int) $kepalaBidangId : null;
                     })
-                    ->options(fn () => Bidang::pluck('nama', 'id')->all())
+                    ->options(function (): array {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        if ($user !== null && $user->can('viewAny', Bidang::class)) {
+                            return Bidang::pluck('nama', 'id')->all();
+                        }
+
+                        $userBidangId = $user && filled($user->bidang_id)
+                            ? (int) $user->bidang_id
+                            : (int) (Bidang::where('kepala_id', $user?->id)->value('id') ?? 0);
+
+                        return $userBidangId > 0
+                            ? Bidang::whereKey($userBidangId)->pluck('nama', 'id')->all()
+                            : [];
+                    })
+                    ->disabled(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+
+                        return $user !== null && ! $user->can('viewAny', Bidang::class);
+                    })
+                    ->dehydrated()
                     ->searchable()
                     ->required(),
 

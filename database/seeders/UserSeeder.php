@@ -27,9 +27,8 @@ class UserSeeder extends Seeder
         });
         $adminRole->syncPermissions($adminPermissions);
 
-        // 4. Beri Permission ke Role Pegawai (Hanya Melihat Data Sendiri)
+        // 4. Beri Permission ke Role Pegawai (Data Sendiri & Keuangan Bidang Sendiri via Shield Policy)
         $pegawaiPermissions = $allPermissions->filter(function ($permission) {
-            // Pegawai hanya butuh izin "view" atau "view_any" pada menu User dan Absensi
             return in_array($permission->name, [
                 'View:User',
                 'ViewAny:User',
@@ -40,6 +39,28 @@ class UserSeeder extends Seeder
                 'View:AbsensiMobile',
                 'ViewAny:AbsensiMobile',
                 'View:DashboardStatsWidget',
+                'View:KeuanganBidangOverviewWidget',
+                'ViewAny:PengajuanSpj',
+                'View:PengajuanSpj',
+                'Create:PengajuanSpj',
+                'Update:PengajuanSpj',
+                'Delete:PengajuanSpj',
+                'ViewAny:MasterKegiatan',
+                'View:MasterKegiatan',
+                'Create:MasterKegiatan',
+                'Update:MasterKegiatan',
+                'ViewAny:MasterSubKegiatan',
+                'View:MasterSubKegiatan',
+                'Create:MasterSubKegiatan',
+                'Update:MasterSubKegiatan',
+                'ViewAny:MasterToko',
+                'View:MasterToko',
+                'Create:MasterToko',
+                'Update:MasterToko',
+                'ViewAny:KodeRekening',
+                'View:KodeRekening',
+                'ViewAny:MasterBarang',
+                'View:MasterBarang',
             ]);
         });
         $pegawaiRole->syncPermissions($pegawaiPermissions);

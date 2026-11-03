@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Filament\Resources\PengajuanSpjs\Widgets;
 
 use App\Models\Bidang;
+use BezhanSalleh\FilamentShield\Traits\HasWidgetShield;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 
 class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 {
+    use HasWidgetShield;
+
     protected static ?int $sort = 0;
 
     protected ?string $heading = 'Ringkasan Keuangan, Kegiatan & Stok per Bidang';
@@ -24,8 +28,22 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 
     protected function getStats(): array
     {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
+
         $bidangs = Bidang::query()
             ->select(['id', 'nama', 'slug', 'kepala_id'])
+            ->when(! $canViewAllBidang && $user !== null, function ($query) use ($user) {
+                $query->where(function ($q) use ($user) {
+                    if (filled($user->bidang_id)) {
+                        $q->where('id', (int) $user->bidang_id)
+                            ->orWhere('kepala_id', $user->id);
+                    } else {
+                        $q->where('kepala_id', $user->id);
+                    }
+                });
+            })
             ->with(['kepala:id,name,nip'])
             ->withCount([
                 'masterKegiatans',
@@ -34,7 +52,8 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             ])
             ->withSum('masterKegiatans as total_uang_kegiatan', 'pagu_anggaran')
             ->withSum('stokBarangs as total_unit_stok', 'stok_tersedia')
-            ->get();
+            ->get()
+            ->filter(fn (Bidang $bidang): bool => $user === null || $user->can('view', $bidang));
 
         $colors = ['primary', 'info', 'success', 'warning'];
         $stats = [];

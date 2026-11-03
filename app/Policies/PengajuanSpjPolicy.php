@@ -12,6 +12,19 @@ class PengajuanSpjPolicy
 {
     use HandlesAuthorization;
     
+    protected function canAccessBidang(AuthUser $authUser, PengajuanSpj $pengajuanSpj): bool
+    {
+        if ($authUser->can('ViewAny:Bidang')) {
+            return true;
+        }
+
+        if ($pengajuanSpj->bidang && $authUser->can('view', $pengajuanSpj->bidang)) {
+            return true;
+        }
+
+        return (int) ($authUser->bidang_id ?? 0) === (int) $pengajuanSpj->bidang_id;
+    }
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:PengajuanSpj');
@@ -19,7 +32,7 @@ class PengajuanSpjPolicy
 
     public function view(AuthUser $authUser, PengajuanSpj $pengajuanSpj): bool
     {
-        return $authUser->can('View:PengajuanSpj');
+        return $authUser->can('View:PengajuanSpj') && $this->canAccessBidang($authUser, $pengajuanSpj);
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,12 +42,12 @@ class PengajuanSpjPolicy
 
     public function update(AuthUser $authUser, PengajuanSpj $pengajuanSpj): bool
     {
-        return $authUser->can('Update:PengajuanSpj');
+        return $authUser->can('Update:PengajuanSpj') && $this->canAccessBidang($authUser, $pengajuanSpj);
     }
 
     public function delete(AuthUser $authUser, PengajuanSpj $pengajuanSpj): bool
     {
-        return $authUser->can('Delete:PengajuanSpj');
+        return $authUser->can('Delete:PengajuanSpj') && $this->canAccessBidang($authUser, $pengajuanSpj);
     }
 
     public function deleteAny(AuthUser $authUser): bool

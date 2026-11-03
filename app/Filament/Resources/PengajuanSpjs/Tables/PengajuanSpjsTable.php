@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PengajuanSpjs\Tables;
 
+use App\Models\Bidang;
 use App\Models\PengajuanSpj;
 use App\Services\Spj\SpjWorkflowService;
 use Filament\Actions\Action;
@@ -20,12 +21,31 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PengajuanSpjsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                /** @var \App\Models\User|null $user */
+                $user = Auth::user();
+                $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
+
+                if (! $canViewAllBidang && $user !== null) {
+                    $userBidangId = filled($user->bidang_id)
+                        ? (int) $user->bidang_id
+                        : (int) (Bidang::where('kepala_id', $user->id)->value('id') ?? 0);
+
+                    if ($userBidangId > 0) {
+                        $query->where('bidang_id', $userBidangId);
+                    }
+                }
+
+                return $query;
+            })
             ->columns([
                 TextColumn::make('nomor_pengajuan')
                     ->label('No. Pengajuan')

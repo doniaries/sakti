@@ -253,11 +253,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
-     * Hak akses Panel Admin Filament: Khusus super_admin dan admin
+     * Hak akses Panel Admin Filament dikendalikan melalui Filament Shield Roles & Policies
      */
     public function canAccessPanel(Panel $panel): bool
     {
-        return $this->hasAnyRole(['super_admin', 'admin']);
+        return (bool) $this->aktif && $this->hasAnyRole(['super_admin', 'admin', 'pegawai', 'panel_user']);
     }
 
     /**
