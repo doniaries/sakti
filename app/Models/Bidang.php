@@ -24,12 +24,12 @@ class Bidang extends Model
 
     public function users(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class)->bukanSuperAdmin();
     }
 
     public function pegawai(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(User::class);
+        return $this->hasMany(User::class)->bukanSuperAdmin();
     }
 
     public function pengajuanSpjs(): \Illuminate\Database\Eloquent\Relations\HasMany

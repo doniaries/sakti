@@ -196,7 +196,7 @@ class UserForm
                                     ->searchable(),
                                 \Filament\Forms\Components\Select::make('atasan_id')
                                     ->label('Atasan Langsung')
-                                    ->relationship('atasan', 'name')
+                                    ->relationship('atasan', 'name', fn ($query) => $query->bukanSuperAdmin())
                                     ->searchable()
                                     ->preload()
                                     ->placeholder('Kosongkan jika Kepala Dinas')

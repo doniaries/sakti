@@ -99,12 +99,13 @@ class DataPegawaiSeeder extends Seeder
             $doni->syncRoles(['pegawai']);
         }
 
-        // 2. Akun Khusus SuperAdmin Sistem
+        // 2. Akun Khusus SuperAdmin Sistem (tidak dihitung sebagai pegawai dinas)
         $superAdmin = User::updateOrCreate(
             ['email' => 'superadmin@gmail.com'],
             [
                 'name' => 'SUPER ADMIN SISTEM',
-                'nip' => '00000000 000000 0 001',
+                'nip' => null,
+                'nomor_absensi' => null,
                 'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
                 'aktif' => true,
                 'anggaran_role' => null,

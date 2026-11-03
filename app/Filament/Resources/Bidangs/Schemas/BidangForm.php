@@ -26,7 +26,7 @@ class BidangForm
 
                 Select::make('kepala_id')
                     ->label('Kepala Bidang / Sekretaris')
-                    ->relationship('kepala', 'name')
+                    ->relationship('kepala', 'name', fn ($query) => $query->bukanSuperAdmin())
                     ->searchable()
                     ->preload(),
             ]);

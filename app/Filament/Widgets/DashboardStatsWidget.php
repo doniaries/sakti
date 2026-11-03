@@ -29,7 +29,7 @@ class DashboardStatsWidget extends StatsOverviewWidget
             ->descriptionIcon('heroicon-m-clock')
             ->color('primary'),
 
-            Stat::make('Jumlah Pegawai', \App\Models\User::role('pegawai')->count())
+            Stat::make('Jumlah Pegawai', \App\Models\User::query()->bukanSuperAdmin()->count())
                 ->description('Total pengguna berstatus pegawai (Keseluruhan)')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary')

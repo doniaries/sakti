@@ -10,12 +10,14 @@ class UserStatsWidget extends StatsOverviewWidget
 {
     protected function getStats(): array
     {
-        $total = User::query()->count();
-        $s3Count = User::query()->where('jenjang_pendidikan', '=', 'S3')->count();
-        $s2Count = User::query()->where('jenjang_pendidikan', '=', 'S2')->count();
-        $s1Count = User::query()->where('jenjang_pendidikan', '=', 'S1')->count();
-        $sltaCount = User::query()->where('jenjang_pendidikan', '=', 'SLTA')->count();
-        $smpCount = User::query()->where('jenjang_pendidikan', '=', 'SMP')->count();
+        $baseQuery = User::query()->bukanSuperAdmin();
+
+        $total = (clone $baseQuery)->count();
+        $s3Count = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'S3')->count();
+        $s2Count = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'S2')->count();
+        $s1Count = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'S1')->count();
+        $sltaCount = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'SLTA')->count();
+        $smpCount = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'SMP')->count();
 
         return [
             Stat::make('Total Pegawai', $total)

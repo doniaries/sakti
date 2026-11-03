@@ -128,7 +128,7 @@ class PegawaiRelationManager extends RelationManager
                     ->modalHeading('Kaitkan Pegawai ke Bidang')
                     ->modalDescription('Pilih pegawai yang belum memiliki bidang dan tentukan jabatan serta tanggung jawabnya.')
                     ->modalSubmitActionLabel('Kaitkan Pegawai')
-                    ->recordSelectOptionsQuery(fn ($query) => $query->whereNull('bidang_id'))
+                    ->recordSelectOptionsQuery(fn ($query) => $query->whereNull('bidang_id')->bukanSuperAdmin())
                     ->recordTitle(fn ($record) => "{$record->name}" . ($record->nip ? " (NIP: {$record->nip})" : ''))
                     ->recordSelectSearchColumns(['name', 'nip'])
                     ->preloadRecordSelect()

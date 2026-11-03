@@ -148,6 +148,16 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
+     * Scope untuk mengecualikan akun SuperAdmin dari perhitungan dan daftar Pegawai Dinas
+     */
+    public function scopeBukanSuperAdmin(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereDoesntHave('roles', function ($q) {
+            $q->where('name', 'super_admin');
+        });
+    }
+
+    /**
      * Boot model events untuk pembersihan file avatar lama dan auto-extract gelar kepegawaian
      */
     protected static function booted(): void

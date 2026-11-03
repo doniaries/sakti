@@ -20,6 +20,12 @@ class UsersTable
     {
         return $table
             ->modifyQueryUsing(function (\Illuminate\Database\Eloquent\Builder $query) {
+                /** @var \App\Models\User|null $user */
+                $user = \Illuminate\Support\Facades\Auth::user();
+                if (! $user || ! $user->hasRole('super_admin')) {
+                    $query->bukanSuperAdmin();
+                }
+
                 if ($jenjang = request()->query('jenjang')) {
                     $query->where('jenjang_pendidikan', '=', $jenjang);
                 }
@@ -502,7 +508,14 @@ class UsersTable
                         ->form([
                             Select::make('roles')
                                 ->label('Pilih Role Baru')
-                                ->relationship('roles', 'name')
+                                ->relationship('roles', 'name', function ($query) {
+                                    /** @var \App\Models\User|null $user */
+                                    $user = \Illuminate\Support\Facades\Auth::user();
+
+                                    return $user?->hasRole('super_admin')
+                                        ? $query
+                                        : $query->where('name', '!=', 'super_admin');
+                                })
                                 ->multiple()
                                 ->preload()
                                 ->searchable()

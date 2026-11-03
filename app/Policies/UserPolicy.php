@@ -9,14 +9,27 @@ class UserPolicy
 {
     use HandlesAuthorization;
     
+    protected function canAccessTargetUser(AuthUser $authUser, ?AuthUser $record = null): bool
+    {
+        if (! $record) {
+            return true;
+        }
+
+        if (method_exists($record, 'hasRole') && $record->hasRole('super_admin')) {
+            return method_exists($authUser, 'hasRole') && $authUser->hasRole('super_admin');
+        }
+
+        return true;
+    }
+
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:User');
     }
 
-    public function view(AuthUser $authUser): bool
+    public function view(AuthUser $authUser, ?AuthUser $record = null): bool
     {
-        return $authUser->can('View:User');
+        return $authUser->can('View:User') && $this->canAccessTargetUser($authUser, $record);
     }
 
     public function create(AuthUser $authUser): bool
@@ -24,14 +37,14 @@ class UserPolicy
         return $authUser->can('Create:User');
     }
 
-    public function update(AuthUser $authUser): bool
+    public function update(AuthUser $authUser, ?AuthUser $record = null): bool
     {
-        return $authUser->can('Update:User');
+        return $authUser->can('Update:User') && $this->canAccessTargetUser($authUser, $record);
     }
 
-    public function delete(AuthUser $authUser): bool
+    public function delete(AuthUser $authUser, ?AuthUser $record = null): bool
     {
-        return $authUser->can('Delete:User');
+        return $authUser->can('Delete:User') && $this->canAccessTargetUser($authUser, $record);
     }
 
     public function deleteAny(AuthUser $authUser): bool
