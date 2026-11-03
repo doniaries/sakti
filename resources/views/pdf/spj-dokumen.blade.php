@@ -208,8 +208,8 @@
         </table>
     </div>
 
-    @if (!in_array($spj->status, ['draft', 'diajukan'], true))
-    {{-- ==================== HALAMAN 2: KWITANSI PEMBAYARAN (DIPROSES SETELAH SURAT PESANAN DI-TTD PPTK) ==================== --}}
+    @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi'], true))
+    {{-- ==================== HALAMAN 2: KWITANSI PEMBAYARAN (DIPROSES SETELAH SURAT PESANAN DI-TTD PPTK & REALISASI DIINPUT) ==================== --}}
     <div class="page">
         <div class="header-kop">
             <h2>PEMERINTAH DAERAH PROVINSI / KABUPATEN</h2>
@@ -286,7 +286,9 @@
             </tr>
         </table>
     </div>
+    @endif
 
+    @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'menunggu_verifikasi_pptk', 'revisi_pptk'], true))
     {{-- ==================== HALAMAN 3: NOTA PENCAIRAN DANA (NPD) ==================== --}}
     <div class="page">
         <div class="header-kop">

@@ -34,11 +34,19 @@ class PengajuanSpjForm
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
+        // Helper closure: Apakah Surat Pesanan sudah disetujui & di-TTD oleh Kabid (PPTK)?
+        $isPesananDisetujui = fn (?PengajuanSpj $record): bool => $record !== null
+            && ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true);
+
+        // Helper closure: Apakah Kwitansi sudah diproses dan masuk tahap NPD / Verifikasi Pejabat?
+        $isKwitansiDiproses = fn (?PengajuanSpj $record): bool => $record !== null
+            && ! in_array($record->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
+
         return $schema
             ->components([
                 Wizard::make([
                     // =========================================================================
-                    // STEP 1: PENGAJUAN NOTA PESANAN / SURAT PESANAN
+                    // STEP 1: PENGAJUAN NOTA PESANAN / SURAT PESANAN (SELALU TAMPIL)
                     // =========================================================================
                     Step::make('1. Pengajuan Nota Pesanan')
                         ->icon('heroicon-o-document-text')
@@ -296,10 +304,12 @@ class PengajuanSpjForm
                                                 ->readOnly()
                                                 ->columnSpan(2),
 
+                                            // Kolom Realisasi Kwitansi HANYA TAMPIL setelah Surat Pesanan disetujui & di-TTD Kabid (PPTK)
                                             TextInput::make('kuantitas_realisasi')
                                                 ->label('Vol Realisasi Kwitansi')
                                                 ->numeric()
                                                 ->default(1)
+                                                ->visible($isPesananDisetujui)
                                                 ->live(onBlur: true)
                                                 ->afterStateUpdated(function (callable $set, callable $get) {
                                                     $qty = (int) ($get('kuantitas_realisasi') ?: 0);
@@ -312,6 +322,7 @@ class PengajuanSpjForm
                                                 ->label('Harga Aktual Kwitansi (Rp)')
                                                 ->numeric()
                                                 ->default(0)
+                                                ->visible($isPesananDisetujui)
                                                 ->live(onBlur: true)
                                                 ->afterStateUpdated(function (callable $set, callable $get) {
                                                     $qty = (int) ($get('kuantitas_realisasi') ?: 0);
@@ -324,6 +335,7 @@ class PengajuanSpjForm
                                                 ->label('Subtotal Kwitansi (Rp)')
                                                 ->numeric()
                                                 ->default(0)
+                                                ->visible($isPesananDisetujui)
                                                 ->readOnly()
                                                 ->columnSpan(2),
                                         ])
@@ -334,11 +346,12 @@ class PengajuanSpjForm
                         ]),
 
                     // =========================================================================
-                    // STEP 2: PEMBUATAN SURAT KWITANSI PEMBAYARAN
+                    // STEP 2: PEMBUATAN SURAT KWITANSI (TAMPIL SETELAH NOTA PESANAN DISETUJUI KABID)
                     // =========================================================================
                     Step::make('2. Pembuatan Surat Kwitansi')
                         ->icon('heroicon-o-receipt-percent')
                         ->description('Proses Surat Kwitansi setelah Nota Pesanan di-TTD Kabid (PPTK) & unggah bukti faktur')
+                        ->visible($isPesananDisetujui)
                         ->schema([
                             Section::make('Identitas & Bukti Surat Kwitansi Pembayaran')
                                 ->description('Surat Kwitansi Pembayaran diproses setelah Surat Pesanan ditandatangani oleh Kepala Bidang selaku PPTK. Unggah faktur asli penjual dan dokumentasi barang.')
@@ -351,10 +364,7 @@ class PengajuanSpjForm
                                     Placeholder::make('status_ttd_pesanan')
                                         ->label('Status TTD Surat Pesanan (Kabid / PPTK)')
                                         ->content(function (?PengajuanSpj $record): string {
-                                            if (! $record || in_array($record->status, ['draft', 'diajukan'], true)) {
-                                                return '⏳ Menunggu TTD Surat Pesanan oleh Kepala Bidang (PPTK)';
-                                            }
-                                            $namaPptk = $record->pptk?->name ?? 'Kepala Bidang (PPTK)';
+                                            $namaPptk = $record?->pptk?->name ?? 'Kepala Bidang (PPTK)';
 
                                             return "✅ Surat Pesanan Telah Di-TTD oleh {$namaPptk} — Kwitansi Siap Diproses";
                                         }),
@@ -410,11 +420,12 @@ class PengajuanSpjForm
                         ]),
 
                     // =========================================================================
-                    // STEP 3: PEMBUATAN NOTA PENCAIRAN DANA (NPD)
+                    // STEP 3: PEMBUATAN NPD (TAMPIL SETELAH KWITANSI DIPROSES KE VERIFIKASI)
                     // =========================================================================
                     Step::make('3. Pembuatan NPD')
                         ->icon('heroicon-o-banknotes')
                         ->description('Nota Pencairan Dana (NPD) dari PPTK ke PA (Kadis) & Pencairan Bendahara')
+                        ->visible($isKwitansiDiproses)
                         ->schema([
                             Section::make('Rincian Nota Pencairan Dana (NPD) & Realisasi Kas Daerah')
                                 ->description('Nota Pencairan Dana (NPD) diajukan oleh PPTK (Kepala Bidang) kepada Pengguna Anggaran (Kepala Dinas) sebagai dasar pencairan kas oleh Bendahara Pengeluaran.')
@@ -461,10 +472,14 @@ class PengajuanSpjForm
                                     TextInput::make('nomor_bku')
                                         ->label('Nomor Buku Kas Umum (BKU)')
                                         ->placeholder('Diisi Bendahara Pengeluaran saat pencairan dana')
+                                        ->visible(fn (?PengajuanSpj $record): bool => $record !== null
+                                            && in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true))
                                         ->maxLength(100),
 
                                     DatePicker::make('tanggal_dicairkan')
                                         ->label('Tanggal Pencairan Kas (Lunas Dibayar)')
+                                        ->visible(fn (?PengajuanSpj $record): bool => $record !== null
+                                            && in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true))
                                         ->displayFormat('d/m/Y'),
 
                                     Placeholder::make('matrix_penandatangan_npd')

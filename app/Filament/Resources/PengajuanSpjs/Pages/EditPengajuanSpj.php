@@ -15,13 +15,21 @@ class EditPengajuanSpj extends EditRecord
     {
         return [
             Action::make('cetak')
-                ->label('Cetak Dokumen SPJ')
+                ->label(function (): string {
+                    return match ($this->record->status) {
+                        'menunggu_realisasi' => 'Cetak Surat Pesanan',
+                        'menunggu_verifikasi_pptk', 'revisi_pptk' => 'Cetak Pesanan & Kwitansi',
+                        default => 'Cetak Pesanan, Kwitansi & NPD',
+                    };
+                })
                 ->icon('heroicon-o-printer')
                 ->color('success')
+                ->visible(fn (): bool => ! in_array($this->record->status, ['draft', 'diajukan', 'ditolak'], true))
                 ->url(fn (): string => route('admin.pengajuan-spj.cetak', $this->record))
                 ->openUrlInNewTab(),
+
             DeleteAction::make()
-                ->visible(fn (): bool => in_array($this->record->status, ['draft', 'ditolak'])),
+                ->visible(fn (): bool => $this->record->status === 'draft'),
         ];
     }
 
@@ -30,4 +38,3 @@ class EditPengajuanSpj extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 }
-
