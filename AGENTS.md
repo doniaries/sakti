@@ -346,67 +346,80 @@ Modul ini mengintegrasikan pengadaan belanja barang/jasa oleh bidang dengan pert
 Untuk menjaga konsistensi anggaran dan penamaan rekening daerah, master data dikelola terpusat oleh **Admin Keuangan**:
 1. **`master_kegiatan`**: Menyimpan kode dan nomenklatur kegiatan resmi dinas (`kode_kegiatan`, `nama_kegiatan`).
 2. **`master_sub_kegiatan`**: Sub-kegiatan turunan dari kegiatan (`kegiatan_id`, `kode_sub_kegiatan`, `nama_sub_kegiatan`).
-3. **`master_rekening`**: Kode rekening belanja daerah (misal: belanja ATK, cetak, konsumsi rapat, belanja modal, dll) (`kode_rekening`, `nama_rekening`).
-4. **`master_barang`**: Katalog standar barang persediaan (`nama_barang`, `satuan`, `harga_satuan_standar`).
+3. **`master_rekening`** (atau `kode_rekenings`): Kode rekening belanja daerah (misal: belanja ATK, cetak, konsumsi rapat, belanja modal, dll) (`kode_rekening`, `nama_rekening`).
+4. **`master_barang`** (atau `master_barangs`): Katalog standar barang persediaan (`nama_barang`, `satuan`, `harga_satuan_standar`).
 
 ### B. Dynamic Input Form & Entri Belanja (Staf Bidang)
 1. **Auto-fill & Dependent Dropdown Reactive**:
-   - Staf bidang membuka form pengajuan SPJ.
+   - Staf bidang membuka form pengajuan SPJ belanja barang.
    - Memilih **Kegiatan**, maka dropdown **Sub Kegiatan** otomatis tersaring secara reaktif (`->live()`).
    - Dropdown **Kode Rekening** dan **Barang** menyesuaikan alokasi belanja sub kegiatan tersebut.
 2. **Repeater Detail Belanja & Auto-Calculate**:
    - Menggunakan komponen `Repeater` untuk mendukung pembelian banyak item barang dalam 1 pengajuan (`detail_pengajuan_spj`).
-   - Setiap baris item memuat: `rekening_id`, `barang_id`, `kuantitas`, `harga_satuan`, dan `subtotal`.
+   - Setiap baris item memuat: `rekening_id`, `barang_id`, `kuantitas` (volume), `harga_satuan`, dan `subtotal`.
    - **Kalkulasi Otomatis**: Perubahan `kuantitas` atau `harga_satuan` langsung mengkalkulasi `subtotal` per baris secara real-time dan menjumlahkan total keseluruhan ke field `total_nilai` di form induk.
-3. **Prasyarat & Unggah Berkas Bukti Sah**:
-   - `file_nota_penjual`: Unggahan faktur / nota asli dari pihak rekanan/toko penjual.
-   - `file_dokumentasi_barang`: Foto fisik barang nyata hasil pembelian. **Wajib mutlak** untuk barang/belanja dengan total di atas **Rp 2.000.000,-**.
+3. **Prasyarat & Berkas Bukti Sah**:
+   - **Nota Pesanan**: Diterbitkan oleh sistem **sebelum pembelian dilakukan** sebagai dasar staf memesan barang ke pihak penyedia/toko.
+   - **Faktur / Nota Rekanan Penjual (`file_nota_penjual`)**: Hasil scan/foto nota asli toko setelah pembelian dilakukan (wajib diunggah).
+   - **Foto Dokumentasi Produk (`file_dokumentasi_barang`)**: Foto fisik barang nyata hasil pembelian. **Wajib mutlak** untuk belanja dengan total nilai di atas **Rp 2.000.000,-**.
+   - **Kwitansi Pembayaran**: Dihasilkan (*auto-generate*) langsung dari sistem dengan format baku daerah, bukan kwitansi manual toko.
 
-### C. Struktur Peran Jabatan Keuangan (Financial Roles)
-Jabatan keuangan bersifat fungsional-tugas yang fleksibel (dapat dilekatkan ke pegawai mana pun via penugasan SK / konfigurasi sistem), dengan penetapan standar dinas sebagai berikut:
-1. **PPTK (Pejabat Pelaksana Teknis Kegiatan)**: Dijabat oleh **Kepala Bidang (Kabid)** yang mengampu kegiatan/sub-kegiatan bersangkutan.
-2. **PPK (Pejabat Pembuat Komitmen)**: Dijabat oleh **Kasubag Keuangan**.
-3. **PA (Pengguna Anggaran)**: Dijabat oleh **Kepala Dinas (Kadis)** selaku pimpinan tertinggi anggaran dinas.
-4. **Bendahara Pengeluaran**: Petugas fungsional keuangan yang memverifikasi transaksi final dan mengeksekusi pencairan kas/dana.
+### C. Struktur Fleksibel Jabatan Keuangan (Financial Roles)
+Jabatan keuangan bersifat fungsional-tugas yang **fleksibel** (dapat melekat ke pegawai mana pun via penugasan SK / konfigurasi sistem), dengan penetapan hierarki standar pada dinas sebagai berikut:
+1. **PPTK (Pejabat Pelaksana Teknis Kegiatan)**: Melekat pada **Kepala Bidang (Kabid)** yang mengampu program/kegiatan bersangkutan.
+2. **PPK (Pejabat Pembuat Komitmen)**: Melekat pada **Kasubag Keuangan**.
+3. **PA (Pengguna Anggaran)**: Melekat pada **Kepala Dinas (Kadis)** selaku pemegang kekuasaan pengelolaan keuangan dinas.
+4. **Bendahara Pengeluaran**: Pejabat fungsional keuangan yang bertugas menguji akhir tagihan dan mencairkan pembayaran kas.
 
-### D. Rantai Verifikasi & Alur Approval Berjenjang (Approval Workflow)
-Proses verifikasi dokumen SPJ dilakukan berjenjang dengan daftar uji kepatuhan (checklist):
+### D. Rantai Verifikasi & Alur Approval Berjenjang (Step-by-Step Approval Workflow)
+Proses verifikasi dokumen SPJ dilakukan secara berjenjang dan dilengkapi dengan **Daftar Checklist Kelengkapan Dokumen**:
+
 ```mermaid
 graph TD
-    A["1. Staf Bidang (Input Belanja & Upload Bukti)"] -->|Submit Pengajuan| B["2. PPTK / Kabid (Uji Checklist & Tanda Tangan Awal)"]
-    B -->|Lengkap & Sah| C["3. PPK / Kasubag Keuangan (Verifikasi Anggaran & Kepatuhan)"]
+    A["1. Staf Bidang (Input Belanja, Buat Nota Pesanan & Upload Bukti)"] -->|Submit Pengajuan| B["2. PPTK / Kabid (Uji Daftar Checklist & TTD Nota Pesanan, Kwitansi, NPD)"]
+    B -->|Lengkap & Valid| C["3. PPK / Kasubag Keuangan (Pemeriksaan Administrasi, Anggaran & Checklist)"]
     B -->|Tidak Lengkap| A
-    C -->|Lolos Verifikasi| D["4. PA / Kadis (Persetujuan Akhir & Tanda Tangan)"]
+    C -->|Lolos Verifikasi| D["4. PA / Kadis (Penelitian Akhir & TTD Kwitansi, NPD)"]
     C -->|Revisi| A
-    D -->|Disetujui| E["5. Bendahara Pengeluaran (Verifikasi Final & Pencairan Dana)"]
+    D -->|Disetujui & Ditandatangani| E["5. Bendahara Pengeluaran (Verifikasi Final & Pencairan Dana Kas)"]
     D -->|Ditolak/Revisi| A
-    E -->|Cair / Selesai| F["Selesai (SPJ Sah & Arsip Digital)"]
+    E -->|Cair / Selesai| F["Selesai (SPJ Sah, Lunas & Arsip Digital)"]
 ```
 
+#### Tahapan & Rincian Aksi:
 1. **Tahap 1 - Pengajuan (Staf Bidang)**:
-   - Staf menyusun rincian belanja barang, melampirkan faktur rekanan, nota pesanan awal, dan dokumentasi fisik barang.
+   - Staf menyusun rincian belanja barang (volume dan harga satuan), mencetak Nota Pesanan untuk toko, melakukan pembelian, lalu mengunggah faktur asli toko dan foto dokumentasi fisik (wajib jika > Rp 2 jt).
    - Status: `diajukan`.
-2. **Tahap 2 - Pemeriksaan PPTK (Kabid)**:
-   - PPTK memeriksa kesesuaian fisik dan administrasi dengan **Daftar Checklist Verifikasi**.
-   - Jika memenuhi syarat, PPTK menandatangani lembar **Nota Pesanan**, **Kwitansi**, dan **Nota Pencairan Dana (NPD)**.
-   - Status beralih ke verifikasi PPK.
+2. **Tahap 2 - Pemeriksaan & Tanda Tangan PPTK (Kabid)**:
+   - PPTK menguji pengajuan menggunakan **Daftar Checklist Verifikasi SPJ**:
+     - [x] Kesesuaian Program, Kegiatan, Sub Kegiatan, dan Kode Rekening Belanja.
+     - [x] Lembar Nota Pesanan (sebelum barang dibeli).
+     - [x] Bukti Faktur / Nota Asli Rekanan Penjual.
+     - [x] Foto Dokumentasi Fisik Barang (Wajib di atas Rp 2.000.000,-).
+     - [x] Kebenaran perhitungan volume, harga satuan standar, dan total nilai.
+   - Jika checklist terpenuhi, PPTK membubuhkan tanda tangan pada **Nota Pesanan**, **Kwitansi**, dan **Nota Pencairan Dana (NPD)**.
+   - Status beralih ke: `diverifikasi_pptk`.
 3. **Tahap 3 - Pengujian PPK (Kasubag Keuangan)**:
-   - PPK memverifikasi ketersediaan pagu anggaran, ketepatan pembebanan kode rekening, dan kelengkapan bukti transaksi.
-   - Status beralih ke persetujuan PA.
-4. **Tahap 4 - Otorisasi PA (Kepala Dinas)**:
-   - Kepala Dinas selaku PA meneliti dokumen final.
-   - Kadis membubuhkan tanda tangan persetujuan resmi pada **Kwitansi** dan **Nota Pencairan Dana (NPD)**.
-   - Status beralih ke Bendahara Pengeluaran.
-5. **Tahap 5 - Pencairan (Bendahara Pengeluaran)**:
-   - Bendahara melakukan audit akhir kepatuhan pajak (PPN/PPh bila ada) dan dokumen pendukung.
-   - Bendahara memproses pembayaran/pencairan dana kepada pihak pemohon/rekanan.
-   - Status akhir: `dicairkan` (Arsip SPJ Selesai).
+   - PPK (Kasubag Keuangan) menerima berkas yang telah diverifikasi PPTK, kemudian memeriksa kelayakan administrasi, kepatuhan checklist, ketersediaan sisa pagu anggaran dinas, dan ketepatan kode rekening.
+   - Jika lengkap dan sesuai ketentuan perundang-undangan, diteruskan ke PA (Kadis).
+   - Status beralih ke: `diverifikasi_ppk`.
+4. **Tahap 4 - Otorisasi & Tanda Tangan PA (Kepala Dinas)**:
+   - Kepala Dinas selaku PA meneliti dokumen final yang telah diparaf/diverifikasi oleh PPTK dan PPK.
+   - Kadis membubuhkan tanda tangan persetujuan resmi pada lembar **Kwitansi** dan **Nota Pencairan Dana (NPD)**.
+   - Status beralih ke: `disetujui_pa`.
+5. **Tahap 5 - Verifikasi Final & Pencairan (Bendahara Pengeluaran)**:
+   - Bendahara Pengeluaran memeriksa seluruh berkas untuk terakhir kalinya (kelengkapan tanda tangan PPTK, PPK, dan PA serta pemotongan pajak bila ada).
+   - Jika berkas 100% lengkap, Bendahara memproses realisasi pembayaran/pencairan dana kas kepada pemohon/rekanan.
+   - Status akhir: `dicairkan` (Arsip SPJ Selesai & Lunas).
 
-### E. Dokumen Output Terstandarisasi (Otomatisasi PDF via DomPDF)
-Sistem menyediakan aksi cetak dokumen satu-pintu (**"Cetak Dokumen SPJ"**) yang secara otomatis menghasilkan berkas PDF resmi terstandarisasi:
-1. **Nota Pesanan**: Diterbitkan sebelum pembelian barang sebagai dasar pemesanan barang ke penyedia/toko.
-2. **Kwitansi Pembayaran**: Format resmi daerah yang otomatis mencantumkan nominal terbilang rupiah, pihak penerima, PPTK, dan PA.
-3. **Nota Pencairan Dana (NPD)**: Surat nota dinas otorisasi pencairan anggaran kepada bendahara pengeluaran yang ditandatangani oleh PA/Kadis.
+### E. Matriks Dokumen Output & Tanda Tangan Pejabat (PDF Generator via DomPDF)
+Sistem menyediakan aksi cetak dokumen satu-pintu (**"Cetak Dokumen SPJ"**) yang otomatis menghasilkan 3 halaman PDF terstandardisasi:
+
+| No | Nama Dokumen | Keterangan & Waktu Penerbitan | Pihak yang Menandatangani |
+|:---|:---|:---|:---|
+| 1 | **Nota Pesanan** | Diterbitkan sebelum staf membeli barang sebagai dasar pemesanan ke penyedia. | 1. PPTK (Kabid)<br>2. Toko / Rekanan Penyedia |
+| 2 | **Kwitansi Pembayaran** | Format resmi kwitansi daerah (dilengkapi nominal terbilang rupiah otomatis dari sistem). | 1. Penerima / Rekanan<br>2. PPTK (Kabid)<br>3. PA (Kepala Dinas)<br>4. Bendahara Pengeluaran |
+| 3 | **Nota Pencairan Dana (NPD)** | Nota dinas permohonan pencairan kas kepada Bendahara Pengeluaran. | 1. PPTK (Kabid)<br>2. PA (Kepala Dinas) |
 
 ---
 
