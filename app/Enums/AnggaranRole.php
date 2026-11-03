@@ -34,3 +34,4 @@ enum AnggaranRole: string implements HasLabel, HasColor
         };
     }
 }
+
