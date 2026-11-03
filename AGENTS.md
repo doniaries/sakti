@@ -419,10 +419,11 @@ flowchart TD
     TAHAP1 --> TAHAP2
 ```
 
-> **ATURAN BAKU URUTAN DOKUMEN (WAJIB DIPEDOMANI):**
-> 1. **Staf Mengajukan Surat Pesanan ke Kabid (PPTK)**: Langkah pertama wajib dimulai dengan staf mengajukan **Surat Pesanan (Nota Pesanan)** kepada **Kepala Bidang (Kabid) selaku PPTK**.
-> 2. **Kabid (PPTK) Menandatangani Surat Pesanan**: Kabid selaku PPTK memverifikasi kebutuhan barang dan **menandatangani (TTD) Surat Pesanan**. Identitas PPTK langsung terekam pada Surat Pesanan.
-> 3. **Setelah Surat Pesanan Di-TTD, Baru Diproses Surat Kwitansinya**: **Surat Kwitansi Pembayaran** (beserta **Nota Pencairan Dana / NPD**) **HANYA DAPAT DIPROSES SETELAH Surat Pesanan ditandatangani oleh Kabid (PPTK)** dan realisasi pembelian beserta bukti faktur/dokumentasi barang telah diinput. Dilarang memproses atau menerbitkan Kwitansi sebelum Surat Pesanan di-TTD oleh Kabid (PPTK).
+> **ATURAN BAKU URUTAN DOKUMEN & STOK BARANG (WAJIB DIPEDOMANI):**
+> 1. **Hanya Barang yang Memiliki Stok yang Bisa Diajukan**: Pada form pengajuan Surat Pesanan, pilihan barang **WAJIB difilter hanya menampilkan barang yang memiliki stok tersedia (`stok_tersedia > 0` pada tabel `stok_barangs` sesuai Bidang dan Kode Rekening)**. Barang yang stoknya kosong (`0`) atau belum terdaftar di stok bidang tidak dapat diajukan, dan jumlah volume yang diajukan tidak boleh melebihi `stok_tersedia`.
+> 2. **Staf Mengajukan Surat Pesanan ke Kabid (PPTK)**: Langkah pertama wajib dimulai dengan staf mengajukan **Surat Pesanan (Nota Pesanan)** kepada **Kepala Bidang (Kabid) selaku PPTK**.
+> 3. **Kabid (PPTK) Menandatangani Surat Pesanan**: Kabid selaku PPTK memverifikasi kebutuhan barang dan **menandatangani (TTD) Surat Pesanan**. Identitas PPTK langsung terekam pada Surat Pesanan.
+> 4. **Setelah Surat Pesanan Di-TTD, Baru Diproses Surat Kwitansinya**: **Surat Kwitansi Pembayaran** (beserta **Nota Pencairan Dana / NPD**) **HANYA DAPAT DIPROSES SETELAH Surat Pesanan ditandatangani oleh Kabid (PPTK)** dan realisasi pembelian beserta bukti faktur/dokumentasi barang telah diinput. Dilarang memproses atau menerbitkan Kwitansi sebelum Surat Pesanan di-TTD oleh Kabid (PPTK).
 
 1. **Tahap 1: Pengajuan & Penandatanganan Surat Pesanan oleh Kabid/PPTK (Sebelum Pembelian)**:
    - Staf bidang memilih Bidang, Kegiatan, Subkegiatan, Kode Rekening Belanja, dan Katalog Barang.
