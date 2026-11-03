@@ -14,3 +14,4 @@ class CreateMasterSubKegiatan extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

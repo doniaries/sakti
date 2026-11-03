@@ -109,3 +109,4 @@ class SpjWorkflowService
         return trim($temp) . ' Rupiah';
     }
 }
+

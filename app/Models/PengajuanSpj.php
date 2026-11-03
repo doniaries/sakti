@@ -146,3 +146,4 @@ class PengajuanSpj extends Model
         };
     }
 }
+

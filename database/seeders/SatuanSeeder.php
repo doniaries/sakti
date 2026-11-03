@@ -34,3 +34,4 @@ class SatuanSeeder extends Seeder
         }
     }
 }
+

@@ -18,3 +18,4 @@ class ListPengajuanSpjs extends ListRecords
         ];
     }
 }
+

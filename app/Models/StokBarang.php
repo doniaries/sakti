@@ -28,3 +28,4 @@ class StokBarang extends Model
         return $this->belongsTo(MasterBarang::class, 'master_barang_id');
     }
 }
+

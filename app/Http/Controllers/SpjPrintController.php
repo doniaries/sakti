@@ -16,3 +16,4 @@ class SpjPrintController extends Controller
         return $pdf->stream($filename);
     }
 }
+

@@ -18,3 +18,4 @@ class ListMasterKegiatans extends ListRecords
         ];
     }
 }
+

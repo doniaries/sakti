@@ -18,3 +18,4 @@ class ListMasterBarangs extends ListRecords
         ];
     }
 }
+

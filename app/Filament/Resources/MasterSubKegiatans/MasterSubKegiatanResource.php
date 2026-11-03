@@ -47,3 +47,4 @@ class MasterSubKegiatanResource extends Resource
         ];
     }
 }
+

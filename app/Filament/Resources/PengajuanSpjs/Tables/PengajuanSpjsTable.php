@@ -246,3 +246,4 @@ class PengajuanSpjsTable
             ]);
     }
 }
+

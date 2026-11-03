@@ -97,3 +97,4 @@ class TransaksiBarangSeeder extends Seeder
         }
     }
 }
+

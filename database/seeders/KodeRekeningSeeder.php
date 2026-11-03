@@ -68,3 +68,4 @@ class KodeRekeningSeeder extends Seeder
         $this->command->info('Kode Rekening berhasil disimpan.');
     }
 }
+

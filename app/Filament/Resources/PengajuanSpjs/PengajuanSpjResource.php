@@ -49,3 +49,4 @@ class PengajuanSpjResource extends Resource
         ];
     }
 }
+

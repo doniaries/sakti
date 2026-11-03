@@ -83,3 +83,4 @@ class KegiatanSubKegiatanSeeder extends Seeder
         $this->command->info('Data Master Kegiatan & Sub Kegiatan berhasil disimpan.');
     }
 }
+

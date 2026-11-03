@@ -22,3 +22,4 @@ class EditMasterBarang extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

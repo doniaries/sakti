@@ -14,3 +14,4 @@ class CreatePengajuanSpj extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

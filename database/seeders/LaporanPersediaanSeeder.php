@@ -96,3 +96,4 @@ class LaporanPersediaanSeeder extends Seeder
         }
     }
 }
+

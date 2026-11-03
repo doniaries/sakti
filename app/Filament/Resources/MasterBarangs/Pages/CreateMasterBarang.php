@@ -14,3 +14,4 @@ class CreateMasterBarang extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

@@ -32,3 +32,4 @@ class MasterKegiatan extends Model
         return "{$this->kode_kegiatan} - {$this->nama_kegiatan}";
     }
 }
+

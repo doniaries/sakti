@@ -24,3 +24,4 @@ class ViewPengajuanSpj extends ViewRecord
         ];
     }
 }
+

@@ -19,3 +19,4 @@ class Satuan extends Model
         return $this->hasMany(MasterBarang::class, 'satuan_id');
     }
 }
+

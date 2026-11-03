@@ -47,3 +47,4 @@ class MasterBarangResource extends Resource
         ];
     }
 }
+

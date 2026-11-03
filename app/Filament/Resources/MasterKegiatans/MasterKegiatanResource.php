@@ -47,3 +47,4 @@ class MasterKegiatanResource extends Resource
         ];
     }
 }
+

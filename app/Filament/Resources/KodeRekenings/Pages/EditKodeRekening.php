@@ -22,3 +22,4 @@ class EditKodeRekening extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

@@ -39,3 +39,4 @@ class KodeRekening extends Model
         return "{$this->kode_lengkap} - {$this->uraian}";
     }
 }
+

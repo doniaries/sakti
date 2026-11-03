@@ -52,3 +52,4 @@ class StokBarangSeeder extends Seeder
         $this->command->info("Data stok barang berhasil dibuat: {$count} data untuk {$bidangs->count()} bidang x {$masterBarangs->count()} barang.");
     }
 }
+

@@ -194,3 +194,4 @@ class MasterBarangSeeder extends Seeder
         $this->command->info('Data master barang berhasil disimpan: ' . count($masterBarangData) . ' barang');
     }
 }
+

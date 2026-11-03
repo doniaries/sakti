@@ -22,3 +22,4 @@ class EditMasterKegiatan extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 }
+
