@@ -22,7 +22,7 @@ class MasterBarangResource extends Resource
 
     protected static ?string $modelLabel = 'Barang Persediaan';
 
-    protected static ?string $pluralModelLabel = 'Master Barang Persediaan';
+    protected static ?string $pluralModelLabel = 'Barang Persediaan';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
@@ -47,4 +47,3 @@ class MasterBarangResource extends Resource
         ];
     }
 }
-

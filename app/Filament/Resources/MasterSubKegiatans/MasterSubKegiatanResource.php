@@ -22,7 +22,7 @@ class MasterSubKegiatanResource extends Resource
 
     protected static ?string $modelLabel = 'Sub Kegiatan';
 
-    protected static ?string $pluralModelLabel = 'Master Sub Kegiatan';
+    protected static ?string $pluralModelLabel = 'Sub Kegiatan';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
@@ -47,4 +47,3 @@ class MasterSubKegiatanResource extends Resource
         ];
     }
 }
-
