@@ -6,6 +6,7 @@ namespace App\Filament\Resources\PengajuanSpjs\Schemas;
 
 use App\Enums\NamaBank;
 use App\Models\Bidang;
+use App\Models\DetailPengajuanSpj;
 use App\Models\KodeRekening;
 use App\Models\MasterBarang;
 use App\Models\MasterKegiatan;
@@ -41,13 +42,39 @@ class PengajuanSpjForm
             return filled($id) ? (int) $id : null;
         };
 
+        // Helper closure: Ambil parent record PengajuanSpj baik dari level root maupun dari dalam Repeater DetailPengajuanSpj
+        $resolveSpjRecord = function (mixed $record = null, mixed $livewire = null): ?PengajuanSpj {
+            if ($record instanceof PengajuanSpj) {
+                return $record;
+            }
+            if ($record instanceof DetailPengajuanSpj) {
+                return $record->pengajuanSpj;
+            }
+            if (is_object($livewire) && method_exists($livewire, 'getRecord')) {
+                $parent = $livewire->getRecord();
+                if ($parent instanceof PengajuanSpj) {
+                    return $parent;
+                }
+            }
+
+            return null;
+        };
+
         // Helper closure: Apakah Surat Pesanan sudah disetujui & di-TTD?
-        $isPesananDisetujui = fn (?PengajuanSpj $record): bool => $record !== null
-            && ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true);
+        $isPesananDisetujui = function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): bool {
+            $spj = $resolveSpjRecord($record, $livewire);
+
+            return $spj !== null
+                && ! in_array($spj->status, ['draft', 'diajukan', 'ditolak'], true);
+        };
 
         // Helper closure: Apakah Kwitansi sudah diproses dan masuk tahap NPD / Verifikasi?
-        $isKwitansiDiproses = fn (?PengajuanSpj $record): bool => $record !== null
-            && ! in_array($record->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
+        $isKwitansiDiproses = function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): bool {
+            $spj = $resolveSpjRecord($record, $livewire);
+
+            return $spj !== null
+                && ! in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
+        };
 
         return $schema
             ->components([
@@ -613,8 +640,9 @@ class PengajuanSpjForm
 
                                     Placeholder::make('status_ttd_pesanan')
                                         ->label('Status Surat Pesanan')
-                                        ->content(function (?PengajuanSpj $record): string {
-                                            $namaPptk = $record?->pptk?->name ?? 'PPTK';
+                                        ->content(function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record, $livewire);
+                                            $namaPptk = $spj?->pptk?->name ?? 'PPTK';
 
                                             return "✅ Telah disetujui oleh {$namaPptk}";
                                         }),
@@ -643,7 +671,8 @@ class PengajuanSpjForm
 
                                     Placeholder::make('ringkasan_nominal_kwitansi')
                                         ->label('Total Nominal & Terbilang Kwitansi')
-                                        ->content(function (callable $get, ?PengajuanSpj $record): string {
+                                        ->content(function (callable $get, mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record, $livewire);
                                             $details = $get('details') ?? [];
                                             $totalRealisasi = 0;
                                             $totalRencana = 0;
@@ -651,9 +680,9 @@ class PengajuanSpjForm
                                                 $totalRencana += (float) ($item['subtotal'] ?? 0);
                                                 $totalRealisasi += (float) ($item['subtotal_realisasi'] ?? 0);
                                             }
-                                            if ($totalRencana <= 0 && $record) {
-                                                $totalRencana = (float) $record->total_nilai_rencana;
-                                                $totalRealisasi = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
+                                            if ($totalRencana <= 0 && $spj) {
+                                                $totalRencana = (float) $spj->total_nilai_rencana;
+                                                $totalRealisasi = (float) ($spj->total_nilai_realisasi ?: $spj->total_nilai_rencana);
                                             }
                                             $nominalAktif = $totalRealisasi > 0 ? $totalRealisasi : $totalRencana;
                                             $terbilang = $nominalAktif > 0 ? SpjWorkflowService::terbilang($nominalAktif) : 'Nol Rupiah';
@@ -682,18 +711,23 @@ class PengajuanSpjForm
 
                                     Placeholder::make('status_spj_aktif')
                                         ->label('Status SPJ')
-                                        ->content(fn (?PengajuanSpj $record): string => $record ? $record->status_label : 'Draft'),
+                                        ->content(function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record, $livewire);
+
+                                            return $spj ? $spj->status_label : 'Draft';
+                                        }),
 
                                     Placeholder::make('total_rencana_npd')
                                         ->label('Total Nilai Pesanan')
-                                        ->content(function (callable $get, ?PengajuanSpj $record): string {
+                                        ->content(function (callable $get, mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record, $livewire);
                                             $details = $get('details') ?? [];
                                             $total = 0;
                                             foreach ($details as $item) {
                                                 $total += (float) ($item['subtotal'] ?? 0);
                                             }
-                                            if ($total <= 0 && $record) {
-                                                $total = (float) $record->total_nilai_rencana;
+                                            if ($total <= 0 && $spj) {
+                                                $total = (float) $spj->total_nilai_rencana;
                                             }
 
                                             return 'Rp ' . number_format($total, 0, ',', '.') . ',-';
@@ -701,14 +735,15 @@ class PengajuanSpjForm
 
                                     Placeholder::make('total_pencairan_npd')
                                         ->label('Total Nilai Pencairan (NPD)')
-                                        ->content(function (callable $get, ?PengajuanSpj $record): string {
+                                        ->content(function (callable $get, mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record, $livewire);
                                             $details = $get('details') ?? [];
                                             $total = 0;
                                             foreach ($details as $item) {
                                                 $total += (float) ($item['subtotal_realisasi'] ?? 0);
                                             }
-                                            if ($total <= 0 && $record) {
-                                                $total = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
+                                            if ($total <= 0 && $spj) {
+                                                $total = (float) ($spj->total_nilai_realisasi ?: $spj->total_nilai_rencana);
                                             }
 
                                             return 'Rp ' . number_format($total, 0, ',', '.') . ',-';
@@ -717,27 +752,36 @@ class PengajuanSpjForm
                                     TextInput::make('nomor_bku')
                                         ->label('Nomor BKU')
                                         ->placeholder('Diisi Bendahara saat pencairan')
-                                        ->visible(fn (?PengajuanSpj $record): bool => $record !== null
-                                            && in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true))
+                                        ->visible(function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): bool {
+                                            $spj = $resolveSpjRecord($record, $livewire);
+
+                                            return $spj !== null
+                                                && in_array($spj->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true);
+                                        })
                                         ->maxLength(100),
 
                                     DatePicker::make('tanggal_dicairkan')
                                         ->label('Tanggal Pencairan')
-                                        ->visible(fn (?PengajuanSpj $record): bool => $record !== null
-                                            && in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true))
+                                        ->visible(function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): bool {
+                                            $spj = $resolveSpjRecord($record, $livewire);
+
+                                            return $spj !== null
+                                                && in_array($spj->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true);
+                                        })
                                         ->displayFormat('d/m/Y'),
 
                                     Placeholder::make('matrix_penandatangan_npd')
                                         ->label('Pejabat Penandatangan')
-                                        ->content(function (?PengajuanSpj $record): string {
-                                            if (! $record) {
+                                        ->content(function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record, $livewire);
+                                            if (! $spj) {
                                                 return 'PPTK: Menunggu | PPK: Menunggu | PA/KPA: Menunggu | Bendahara: Menunggu';
                                             }
 
-                                            $pptk = $record->pptk?->name ?? 'Belum TTD';
-                                            $ppk = $record->ppk?->name ?? 'Belum Verifikasi';
-                                            $pa = $record->pa?->name ?? 'Belum TTD';
-                                            $bendahara = $record->bendahara?->name ?? 'Belum Cair';
+                                            $pptk = $spj->pptk?->name ?? 'Belum TTD';
+                                            $ppk = $spj->ppk?->name ?? 'Belum Verifikasi';
+                                            $pa = $spj->pa?->name ?? 'Belum TTD';
+                                            $bendahara = $spj->bendahara?->name ?? 'Belum Cair';
 
                                             return "PPTK: {$pptk}  |  PPK: {$ppk}  |  PA/KPA: {$pa}  |  Bendahara: {$bendahara}";
                                         })
@@ -779,11 +823,12 @@ class PengajuanSpjForm
                     ->columnSpanFull()
                     ->skippable()
                     ->persistStepInQueryString()
-                    ->startOnStep(function (?PengajuanSpj $record): int {
-                        if (! $record || in_array($record->status, ['draft', 'diajukan'], true)) {
+                    ->startOnStep(function (mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): int {
+                        $spj = $resolveSpjRecord($record, $livewire);
+                        if (! $spj || in_array($spj->status, ['draft', 'diajukan'], true)) {
                             return 1;
                         }
-                        if (in_array($record->status, ['menunggu_realisasi', 'revisi_pptk'], true)) {
+                        if (in_array($spj->status, ['menunggu_realisasi', 'revisi_pptk'], true)) {
                             return 2;
                         }
 
