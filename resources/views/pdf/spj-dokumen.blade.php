@@ -216,7 +216,8 @@
         ? \Carbon\Carbon::parse($spj->tanggal_batas_pengiriman)->translatedFormat('d F Y')
         : \Carbon\Carbon::parse($spj->tanggal_pengajuan)->addDays(7)->translatedFormat('d F Y');
     $metodeBayar = $spj->metode_pembayaran ?: 'Transfer Bank / Tempo 14 Hari setelah barang diterima';
-    $namaBankToko = $spj->masterBank?->nama_bank ?: ($spj->masterToko?->bank?->nama_bank ?: null);
+    $rawBank = $spj->nama_bank ?: $spj->masterToko?->nama_bank;
+    $namaBankToko = $rawBank instanceof \BackedEnum ? $rawBank->value : ($rawBank ?: null);
 @endphp
 
     {{-- ==================== HALAMAN 1: SURAT PESANAN BARANG ==================== --}}
