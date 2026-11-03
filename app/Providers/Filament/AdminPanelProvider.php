@@ -59,7 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Keuangan & SPJ')
                     ->collapsed(false),
-                NavigationGroup::make('Master Keuangan')
+                NavigationGroup::make('keuangan')
                     ->collapsed(),
                 NavigationGroup::make('Absensi')
                     ->collapsed(),
@@ -95,6 +95,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 fn(): string => view('filament.hooks.topbar-clock')->render()
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn(): string => view('filament.hooks.sidebar-accordion')->render()
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
