@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
             LogAbsensiSeeder::class,
             AktivitasSeeder::class,
             StrukturOrganisasiSeeder::class,
+            SatuanSeeder::class,
+            KodeRekeningSeeder::class,
+            MasterBarangSeeder::class,
+            KegiatanSubKegiatanSeeder::class,
             // SatuTahunStressTestSeeder::class, // Aktifkan seeder ini jika ingin menguji 1 tahun data (~20.000 data) di server online
         ]);
 

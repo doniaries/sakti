@@ -139,6 +139,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         return $this->hasMany(PengajuanIzin::class);
     }
 
+    public function pengajuanSpjs(): HasMany
+    {
+        return $this->hasMany(PengajuanSpj::class, 'user_id');
+    }
+
     /**
      * Boot model events untuk pembersihan file avatar lama dan auto-extract gelar kepegawaian
      */

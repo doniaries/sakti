@@ -32,6 +32,11 @@ class Bidang extends Model
         return $this->hasMany(User::class);
     }
 
+    public function pengajuanSpjs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PengajuanSpj::class, 'bidang_id');
+    }
+
     /**
      * Mendapatkan daftar jabatan yang relevan khusus untuk bidang ini.
      *

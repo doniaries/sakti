@@ -40,3 +40,9 @@ Route::prefix('mobile')->group(function () {
     });
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/pengajuan-spj/{record}/cetak', [\App\Http\Controllers\SpjPrintController::class, 'print'])
+        ->name('admin.pengajuan-spj.cetak');
+});
+
+
