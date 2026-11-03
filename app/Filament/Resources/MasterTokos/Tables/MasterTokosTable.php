@@ -13,7 +13,6 @@ class MasterTokosTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->with('bank'))
             ->columns([
                 TextColumn::make('nama_toko')
                     ->label('Nama Toko')
@@ -31,8 +30,9 @@ class MasterTokosTable
                     ->searchable()
                     ->placeholder('-'),
 
-                TextColumn::make('bank.nama_bank')
+                TextColumn::make('nama_bank')
                     ->label('Bank')
+                    ->badge()
                     ->searchable()
                     ->sortable()
                     ->placeholder('-'),

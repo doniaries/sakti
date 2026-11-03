@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\MasterTokos\Schemas;
 
-use App\Models\MasterBank;
+use App\Enums\NamaBank;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -42,30 +42,11 @@ class MasterTokoForm
                             ->placeholder('Contoh: 01.234.567.8-201.000')
                             ->maxLength(50),
 
-                        Select::make('master_bank_id')
+                        Select::make('nama_bank')
                             ->label('Nama Bank')
-                            ->placeholder('Pilih Bank')
-                            ->options(fn () => MasterBank::where('is_active', true)->pluck('nama_bank', 'id')->all())
-                            ->searchable()
-                            ->preload()
-                            ->createOptionForm([
-                                TextInput::make('kode_bank')
-                                    ->label('Kode Bank')
-                                    ->placeholder('Contoh: 118')
-                                    ->maxLength(20),
-                                TextInput::make('nama_bank')
-                                    ->label('Nama Bank')
-                                    ->placeholder('Contoh: Bank Nagari (BPD Sumbar)')
-                                    ->required()
-                                    ->maxLength(255),
-                            ])
-                            ->createOptionUsing(function (array $data): int {
-                                return MasterBank::create([
-                                    'kode_bank' => $data['kode_bank'] ?? null,
-                                    'nama_bank' => $data['nama_bank'],
-                                    'is_active' => true,
-                                ])->id;
-                            }),
+                            ->options(NamaBank::class)
+                            ->default(NamaBank::BANK_NAGARI)
+                            ->searchable(),
 
                         TextInput::make('nomor_rekening')
                             ->label('No. Rekening Bank Toko')

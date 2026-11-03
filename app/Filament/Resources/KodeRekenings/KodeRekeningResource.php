@@ -24,7 +24,7 @@ class KodeRekeningResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Kode Rekening';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
     protected static ?int $navigationSort = 3;
 

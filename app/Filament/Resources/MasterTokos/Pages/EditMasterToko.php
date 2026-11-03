@@ -22,3 +22,4 @@ class EditMasterToko extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

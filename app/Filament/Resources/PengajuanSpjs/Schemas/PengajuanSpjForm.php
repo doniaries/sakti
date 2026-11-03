@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\PengajuanSpjs\Schemas;
 
+use App\Enums\NamaBank;
 use App\Models\Bidang;
 use App\Models\KodeRekening;
-use App\Models\MasterBank;
 use App\Models\MasterBarang;
 use App\Models\MasterKegiatan;
 use App\Models\MasterSubKegiatan;
@@ -435,9 +435,9 @@ class PengajuanSpjForm
                                         ->addActionLabel('Tambah Barang'),
                                 ]),
 
-                            // 3. DATA TOKO / REKANAN PENYEDIA (Paling Bawah pada Step 1 + Fitur Pilih/Tambah Toko & Bank Langsung)
+                            // 3. DATA TOKO / REKANAN PENYEDIA (Paling Bawah pada Step 1 + Fitur Pilih/Tambah Toko Langsung)
                             Section::make('Data Toko / Rekanan Penyedia')
-                                ->description('Pilih toko dari daftar tersimpan atau klik tombol (+) untuk menambah Toko / Bank baru tanpa berpindah halaman.')
+                                ->description('Pilih toko dari daftar tersimpan atau klik tombol (+) untuk menambah Toko baru tanpa berpindah halaman.')
                                 ->compact()
                                 ->columns(6)
                                 ->schema([
@@ -458,7 +458,7 @@ class PengajuanSpjForm
                                                 $set('penerima_nama', $toko->nama_pemilik);
                                                 $set('telepon_toko', $toko->telepon);
                                                 $set('alamat_toko', $toko->alamat);
-                                                $set('master_bank_id', $toko->master_bank_id);
+                                                $set('nama_bank', $toko->nama_bank?->value ?? $toko->nama_bank);
                                                 $set('penerima_identitas', $toko->nomor_rekening);
                                             }
                                         })
@@ -482,12 +482,11 @@ class PengajuanSpjForm
                                                         ->placeholder('Contoh: 0812-3456-7890')
                                                         ->maxLength(50),
 
-                                                    Select::make('master_bank_id')
+                                                    Select::make('nama_bank')
                                                         ->label('Nama Bank')
-                                                        ->placeholder('Pilih Bank')
-                                                        ->options(fn () => MasterBank::where('is_active', true)->pluck('nama_bank', 'id')->all())
-                                                        ->searchable()
-                                                        ->preload(),
+                                                        ->options(NamaBank::class)
+                                                        ->default(NamaBank::BANK_NAGARI)
+                                                        ->searchable(),
 
                                                     TextInput::make('nomor_rekening')
                                                         ->label('No. Rekening Bank Toko')
@@ -508,7 +507,7 @@ class PengajuanSpjForm
                                                 'nama_toko' => $data['nama_toko'],
                                                 'nama_pemilik' => $data['nama_pemilik'] ?? null,
                                                 'telepon' => $data['telepon'] ?? null,
-                                                'master_bank_id' => $data['master_bank_id'] ?? null,
+                                                'nama_bank' => $data['nama_bank'] ?? NamaBank::BANK_NAGARI->value,
                                                 'nomor_rekening' => $data['nomor_rekening'] ?? null,
                                                 'alamat' => $data['alamat'] ?? null,
                                                 'is_active' => true,
@@ -518,7 +517,7 @@ class PengajuanSpjForm
                                             $set('penerima_nama', $toko->nama_pemilik);
                                             $set('telepon_toko', $toko->telepon);
                                             $set('alamat_toko', $toko->alamat);
-                                            $set('master_bank_id', $toko->master_bank_id);
+                                            $set('nama_bank', $toko->nama_bank?->value ?? $toko->nama_bank);
                                             $set('penerima_identitas', $toko->nomor_rekening);
 
                                             return $toko->id;
@@ -545,30 +544,11 @@ class PengajuanSpjForm
                                         ->maxLength(50)
                                         ->columnSpan(2),
 
-                                    Select::make('master_bank_id')
+                                    Select::make('nama_bank')
                                         ->label('Nama Bank')
-                                        ->placeholder('Pilih Bank atau Klik (+)')
-                                        ->options(fn () => MasterBank::where('is_active', true)->pluck('nama_bank', 'id')->all())
+                                        ->options(NamaBank::class)
+                                        ->default(NamaBank::BANK_NAGARI)
                                         ->searchable()
-                                        ->preload()
-                                        ->createOptionForm([
-                                            TextInput::make('kode_bank')
-                                                ->label('Kode Bank')
-                                                ->placeholder('Contoh: 118')
-                                                ->maxLength(20),
-                                            TextInput::make('nama_bank')
-                                                ->label('Nama Bank')
-                                                ->placeholder('Contoh: Bank Nagari (BPD Sumbar)')
-                                                ->required()
-                                                ->maxLength(255),
-                                        ])
-                                        ->createOptionUsing(function (array $data): int {
-                                            return MasterBank::create([
-                                                'kode_bank' => $data['kode_bank'] ?? null,
-                                                'nama_bank' => $data['nama_bank'],
-                                                'is_active' => true,
-                                            ])->id;
-                                        })
                                         ->columnSpan(2),
 
                                     TextInput::make('penerima_identitas')

@@ -24,7 +24,7 @@ class MasterSubKegiatanResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Sub Kegiatan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'keuangan';
 
     protected static ?int $navigationSort = 2;
 

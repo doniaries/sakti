@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\NamaBank;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MasterToko extends Model
@@ -18,20 +18,16 @@ class MasterToko extends Model
         'nama_pemilik',
         'telepon',
         'alamat',
-        'master_bank_id',
+        'nama_bank',
         'nomor_rekening',
         'npwp',
         'is_active',
     ];
 
     protected $casts = [
+        'nama_bank' => NamaBank::class,
         'is_active' => 'boolean',
     ];
-
-    public function bank(): BelongsTo
-    {
-        return $this->belongsTo(MasterBank::class, 'master_bank_id');
-    }
 
     public function pengajuanSpjs(): HasMany
     {

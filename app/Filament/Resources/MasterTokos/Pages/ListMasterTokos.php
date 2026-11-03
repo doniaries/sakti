@@ -18,3 +18,4 @@ class ListMasterTokos extends ListRecords
         ];
     }
 }
+

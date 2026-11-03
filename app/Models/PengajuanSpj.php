@@ -29,7 +29,7 @@ class PengajuanSpj extends Model
         'nama_toko',
         'alamat_toko',
         'telepon_toko',
-        'master_bank_id',
+        'nama_bank',
         'metode_pembayaran',
         'penerima_nama',
         'penerima_identitas',
@@ -56,11 +56,16 @@ class PengajuanSpj extends Model
         'total_nilai_rencana' => 'decimal:2',
         'total_nilai_realisasi' => 'decimal:2',
         'ppn_persen' => 'decimal:2',
+        'nama_bank' => \App\Enums\NamaBank::class,
     ];
 
     protected static function booted(): void
     {
         static::saving(function (self $spj): void {
+            $bankValue = $spj->nama_bank instanceof \App\Enums\NamaBank
+                ? $spj->nama_bank->value
+                : $spj->nama_bank;
+
             // Jika master_toko_id dipilih tetapi nama_toko kosong, salin dari MasterToko
             if ($spj->master_toko_id && blank($spj->nama_toko)) {
                 $toko = MasterToko::find($spj->master_toko_id);
@@ -69,7 +74,7 @@ class PengajuanSpj extends Model
                     $spj->penerima_nama = $spj->penerima_nama ?: $toko->nama_pemilik;
                     $spj->telepon_toko = $spj->telepon_toko ?: $toko->telepon;
                     $spj->alamat_toko = $spj->alamat_toko ?: $toko->alamat;
-                    $spj->master_bank_id = $spj->master_bank_id ?: $toko->master_bank_id;
+                    $spj->nama_bank = $spj->nama_bank ?: $toko->nama_bank;
                     $spj->penerima_identitas = $spj->penerima_identitas ?: $toko->nomor_rekening;
                 }
             }
@@ -86,7 +91,7 @@ class PengajuanSpj extends Model
                         'nama_pemilik' => $spj->penerima_nama ?: $toko->nama_pemilik,
                         'telepon' => $spj->telepon_toko ?: $toko->telepon,
                         'alamat' => $spj->alamat_toko ?: $toko->alamat,
-                        'master_bank_id' => $spj->master_bank_id ?: $toko->master_bank_id,
+                        'nama_bank' => $bankValue ?: $toko->nama_bank,
                         'nomor_rekening' => $spj->penerima_identitas ?: $toko->nomor_rekening,
                     ]);
                     $spj->master_toko_id = $toko->id;
@@ -96,7 +101,7 @@ class PengajuanSpj extends Model
                         'nama_pemilik' => $spj->penerima_nama,
                         'telepon' => $spj->telepon_toko,
                         'alamat' => $spj->alamat_toko,
-                        'master_bank_id' => $spj->master_bank_id,
+                        'nama_bank' => $bankValue ?: \App\Enums\NamaBank::BANK_NAGARI->value,
                         'nomor_rekening' => $spj->penerima_identitas,
                         'is_active' => true,
                     ]);
@@ -109,11 +114,6 @@ class PengajuanSpj extends Model
     public function masterToko(): BelongsTo
     {
         return $this->belongsTo(MasterToko::class, 'master_toko_id');
-    }
-
-    public function masterBank(): BelongsTo
-    {
-        return $this->belongsTo(MasterBank::class, 'master_bank_id');
     }
 
     public function user(): BelongsTo
