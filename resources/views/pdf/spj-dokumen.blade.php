@@ -185,7 +185,12 @@
     $ttdPa = $spj->getSpecimenTtdBase64('pa');
     $ttdBendahara = $spj->getSpecimenTtdBase64('bendahara');
 
-    $namaDinas = $pengaturan?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA';
+    $namaDinas = $pengaturan?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA KABUPATEN SIJUNJUNG';
+    $alamatKantor = $pengaturan?->alamat_kantor ?? 'Jl. Prof. M. Yamin, SH, Muaro Sijunjung, Kabupaten Sijunjung';
+    $teleponKantor = $pengaturan?->telepon ?? '(0754) 20054';
+    $emailKantor = $pengaturan?->email ?? 'disparpora@sijunjung.go.id';
+    $websiteKantor = $pengaturan?->website ?? 'parpora.sijunjung.go.id';
+
     $tahunAnggaran = date('Y', strtotime((string) $spj->tanggal_pengajuan));
     $firstDetail = $spj->details->first();
     $kodeRekeningUtama = $firstDetail?->kodeRekening?->kode_lengkap ?? '5.1.02.01.001.00024';
@@ -194,117 +199,132 @@
 
     $namaPptk = $spj->pptk?->name ?? ($spj->bidang?->kepala?->name ?? 'DESMAWATI, SE, M.Si');
     $nipPptk = $spj->pptk?->nip ?? ($spj->bidang?->kepala?->nip ?? '19691224 199503 2 002');
+    $jabatanPptk = 'PPTK / Kepala ' . ($spj->bidang?->nama ?? 'Bidang');
 
     $namaPa = $spj->pa?->name ?? ($pengaturan?->nama_kepala_dinas ?? 'AFRINELDI, SH');
     $nipPa = $spj->pa?->nip ?? ($pengaturan?->kepala?->nip ?? '19720407 199202 1 002');
 
     $namaBendahara = $spj->bendahara?->name ?? 'WIWIRNA';
     $nipBendahara = $spj->bendahara?->nip ?? '19850723 200901 2 007';
+
+    $subtotalPesanan = (float) $spj->total_nilai_rencana;
+    $ppnPersen = (float) ($spj->ppn_persen ?? 0);
+    $nilaiPpn = round($subtotalPesanan * ($ppnPersen / 100));
+    $totalSetelahPpn = $subtotalPesanan + $nilaiPpn;
+
+    $tanggalBatasKirim = $spj->tanggal_batas_pengiriman
+        ? \Carbon\Carbon::parse($spj->tanggal_batas_pengiriman)->translatedFormat('d F Y')
+        : \Carbon\Carbon::parse($spj->tanggal_pengajuan)->addDays(7)->translatedFormat('d F Y');
+    $metodeBayar = $spj->metode_pembayaran ?: 'Transfer Bank / Tempo 14 Hari setelah barang diterima';
+    $namaBankToko = $spj->masterBank?->nama_bank ?: ($spj->masterToko?->bank?->nama_bank ?: null);
 @endphp
 
-    {{-- ==================== HALAMAN 1: SURAT PESANAN / NOTA PESANAN ==================== --}}
+    {{-- ==================== HALAMAN 1: SURAT PESANAN BARANG ==================== --}}
     <div class="page">
         <div class="header-kop">
             <h2>PEMERINTAH KABUPATEN SIJUNJUNG</h2>
             <h3>{{ $namaDinas }}</h3>
-            <p>{{ $pengaturan?->alamat_kantor ?? 'Muaro Sijunjung, Kabupaten Sijunjung' }}</p>
+            <p>{{ $alamatKantor }} | Telp: {{ $teleponKantor }} | Email: {{ $emailKantor }} | Web: {{ $websiteKantor }}</p>
         </div>
 
-        <div class="doc-title">SURAT PESANAN / NOTA PESANAN</div>
-        <div class="doc-subtitle">Nomor: {{ $spj->nomor_pengajuan }}/NP/{{ $tahunAnggaran }}</div>
+        <div class="doc-title">SURAT PESANAN BARANG</div>
+        <div class="doc-subtitle" style="margin-bottom: 12px;">
+            <strong>Nomor:</strong> {{ $spj->nomor_surat_pesanan }}<br>
+            <strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($spj->tanggal_pengajuan)->translatedFormat('d F Y') }}
+        </div>
 
-        <table class="meta-table">
-            <tr>
-                <td style="width: 24%;">Kepada Yth. Toko / Rekanan</td>
-                <td style="width: 2%;">:</td>
-                <td style="width: 74%;" class="font-bold">{{ $spj->nama_toko ?: '................................................' }}</td>
-            </tr>
-            <tr>
-                <td>Nama Pemilik Toko</td>
-                <td>:</td>
-                <td>{{ $spj->penerima_nama ?: '................................................' }}</td>
-            </tr>
-            <tr>
-                <td>Alamat Toko</td>
-                <td>:</td>
-                <td>{{ $spj->alamat_toko ?: '................................................' }}</td>
-            </tr>
-            <tr>
-                <td>Bidang Pengusul</td>
-                <td>:</td>
-                <td>{{ $spj->bidang?->nama ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td>Kegiatan</td>
-                <td>:</td>
-                <td>{{ $spj->kegiatan?->label ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td>Sub Kegiatan</td>
-                <td>:</td>
-                <td>{{ $spj->subKegiatan?->label ?? '-' }}</td>
-            </tr>
-            <tr>
-                <td>Tanggal Pesanan</td>
-                <td>:</td>
-                <td>{{ \Carbon\Carbon::parse($spj->tanggal_pengajuan)->translatedFormat('d F Y') }}</td>
-            </tr>
-        </table>
+        <div style="font-size: 9.5pt; margin-bottom: 10px; line-height: 1.45;">
+            Kepada Yth.<br>
+            <strong>{{ $spj->nama_toko ?: '[Nama Perusahaan/Toko Pemasok]' }}</strong><br>
+            {{ $spj->alamat_toko ?: '[Alamat Pemasok]' }}<br>
+            Up. <strong>{{ $spj->penerima_nama ?: '[Nama Kontak Person Pemasok]' }}</strong><br>
+            {{ $spj->telepon_toko ?: '[Nomor Telepon Pemasok]' }}
+        </div>
 
-        <p style="font-size: 9.5pt; margin-bottom: 6px;">
-            Dengan ini kami memesan barang kebutuhan kegiatan dinas dengan rincian sebagai berikut:
+        <p style="font-size: 9.5pt; margin-top: 6px; margin-bottom: 6px; text-align: justify;">
+            Dengan hormat,<br>
+            Merujuk pada penawaran harga yang telah disepakati sebelumnya, bersama surat ini kami bermaksud untuk memesan barang-barang dengan rincian sebagai berikut:
         </p>
 
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width: 6%;">No</th>
-                    <th style="width: 20%;">Kode Rekening</th>
-                    <th style="width: 36%;">Nama Barang</th>
-                    <th style="width: 10%;">Volume</th>
+                    <th style="width: 5%;">No.</th>
+                    <th style="width: 31%;">Nama Barang / Spesifikasi</th>
+                    <th style="width: 14%;">Kode/SKU</th>
+                    <th style="width: 8%;">Jumlah</th>
                     <th style="width: 10%;">Satuan</th>
-                    <th style="width: 18%;">Jumlah (Rp)</th>
+                    <th style="width: 16%;">Harga Satuan (Rp)</th>
+                    <th style="width: 16%;">Total Harga (Rp)</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($spj->details as $index => $item)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td>{{ $item->kodeRekening?->kode_lengkap ?? '-' }}</td>
-                        <td>{{ $item->masterBarang?->nama_barang ?? '-' }}</td>
+                        <td class="text-center">{{ $index + 1 }}.</td>
+                        <td>
+                            <strong>{{ $item->masterBarang?->nama_barang ?? '-' }}</strong>
+                            @if ($item->masterBarang?->spesifikasi)
+                                <br><span style="font-size: 8.5pt; color: #333;">{{ $item->masterBarang->spesifikasi }}</span>
+                            @endif
+                        </td>
+                        <td class="text-center">{{ $item->masterBarang?->kode_barang ?? ($item->kodeRekening?->kode_lengkap ?? '-') }}</td>
                         <td class="text-center">{{ $item->kuantitas }}</td>
                         <td class="text-center">{{ $item->masterBarang?->satuan?->nama ?? 'Unit' }}</td>
+                        <td class="text-right">{{ number_format((float) $item->harga_satuan, 0, ',', '.') }}</td>
                         <td class="text-right">{{ number_format((float) $item->subtotal, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="5" class="text-right font-bold">Jumlah Total Pesanan:</td>
-                    <td class="text-right font-bold">Rp {{ number_format((float) $spj->total_nilai_rencana, 0, ',', '.') }}</td>
+                    <td colspan="6" class="text-right font-bold">Subtotal</td>
+                    <td class="text-right font-bold">{{ number_format($subtotalPesanan, 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="text-right">
+                        <strong>PPN ({{ rtrim(rtrim(number_format($ppnPersen, 2, ',', '.'), '0'), ',') }}%)</strong>
+                        <span style="font-size: 8.5pt; font-style: italic;">(Sesuaikan tarif pajak)</span>
+                    </td>
+                    <td class="text-right">{{ number_format($nilaiPpn, 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="text-right font-bold" style="background-color: #f2f2f2;">TOTAL</td>
+                    <td class="text-right font-bold" style="background-color: #f2f2f2;">{{ number_format($totalSetelahPpn, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
         </table>
 
-        <table class="signature-table" style="margin-top: 22px;">
+        <div style="font-size: 9.5pt; margin-top: 8px; margin-bottom: 10px; line-height: 1.45;">
+            <strong>Ketentuan Pengiriman &amp; Pembayaran:</strong>
+            <ul style="margin: 4px 0 6px 18px; padding: 0;">
+                <li><strong>Lokasi Pengiriman:</strong> Barang mohon dikirimkan ke alamat kantor kami di {{ $alamatKantor }} ({{ $spj->bidang?->nama ?? $namaDinas }}).</li>
+                <li><strong>Waktu Pengiriman:</strong> Paling lambat barang sudah diterima pada {{ $tanggalBatasKirim }}.</li>
+                <li><strong>Metode Pembayaran:</strong> Pembayaran akan dilakukan via {{ $metodeBayar }} ke rekening resmi perusahaan Anda{{ $spj->penerima_identitas ? ' (' . ($namaBankToko ? $namaBankToko . ' — ' : '') . 'No. Rek: ' . $spj->penerima_identitas . ')' : '' }}.</li>
+            </ul>
+            Demikian surat pesanan ini kami sampaikan. Atas perhatian dan kerja samanya, kami ucapkan terima kasih.
+        </div>
+
+        <table class="signature-table" style="margin-top: 16px;">
             <tr>
                 <td style="width: 50%;">
-                    Menerima Pesanan,<br>
-                    <strong>{{ $spj->nama_toko ?: 'Penyedia / Toko' }}</strong>
-                    <div class="signature-space"></div>
-                    <strong><u>{{ $spj->penerima_nama ?: '..................................' }}</u></strong><br>
-                    Pemilik / Pimpinan Toko
-                </td>
-                <td style="width: 50%;">
-                    Muaro Sijunjung, {{ \Carbon\Carbon::parse($spj->tanggal_pengajuan)->translatedFormat('d F Y') }}<br>
-                    <strong>Pejabat Pelaksana Teknis Kegiatan (PPTK)</strong>
+                    Pemesan (Pembeli),<br>
+                    <span style="font-size: 8.5pt; font-style: italic;">(Tanda Tangan &amp; Stempel)</span>
                     <div class="signature-space">
                         @if ($ttdPptk)
                             <img src="{{ $ttdPptk }}" class="ttd-img" alt="TTD PPTK">
                         @endif
                     </div>
                     <strong><u>{{ $namaPptk }}</u></strong><br>
-                    NIP. {{ $nipPptk }}
+                    {{ $jabatanPptk }}<br>
+                    <span style="font-size: 8.5pt;">NIP. {{ $nipPptk }}</span>
+                </td>
+                <td style="width: 50%;">
+                    Menyetujui (Pemasok),<br>
+                    <span style="font-size: 8.5pt; font-style: italic;">(Tanda Tangan &amp; Stempel)</span>
+                    <div class="signature-space"></div>
+                    <strong><u>{{ $spj->penerima_nama ?: '..................................' }}</u></strong><br>
+                    Pimpinan / Pemilik {{ $spj->nama_toko ?: 'Toko Pemasok' }}
                 </td>
             </tr>
         </table>
@@ -346,7 +366,7 @@
                 <td style="padding-top: 8px; text-align: justify;">
                     Pembayaran Biaya Belanja {{ $namaBarangRingkas ?: $uraianRekeningUtama }}
                     @if ($spj->penerima_identitas)
-                        No. Rek. {{ $spj->penerima_identitas }}
+                        No. Rek. {{ $spj->penerima_identitas }}{{ $namaBankToko ? ' (' . $namaBankToko . ')' : '' }}
                     @endif
                     an. {{ $spj->penerima_nama ?: '-' }}
                     Pada {{ $spj->nama_toko ?: '-' }} {{ $spj->alamat_toko ?: 'Muaro Sijunjung' }},

@@ -9,6 +9,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -53,10 +54,24 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->navigationGroups([
-                'Absensi',
-                'LHK',
-                'Master Data',
-                'Konfigurasi Sistem',
+                NavigationGroup::make('Keuangan & SPJ')
+                    ->collapsed(false),
+                NavigationGroup::make('Master Keuangan')
+                    ->collapsed(),
+                NavigationGroup::make('Absensi')
+                    ->collapsed(),
+                NavigationGroup::make('LHK')
+                    ->collapsed(),
+                NavigationGroup::make('Master Data')
+                    ->collapsed(),
+                NavigationGroup::make('Pengaturan')
+                    ->collapsed(),
+                NavigationGroup::make('Konfigurasi Sistem')
+                    ->collapsed(),
+                NavigationGroup::make('Filament Shield')
+                    ->collapsed(),
+                NavigationGroup::make('Pelindung')
+                    ->collapsed(),
             ])
             ->colors([
                 'primary' => Color::Amber,
@@ -77,6 +92,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 fn (): string => view('filament.hooks.topbar-clock')->render()
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => view('filament.hooks.sidebar-accordion')->render()
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -103,7 +122,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-
+FilamentBackgroundsPlugin::make()
                 FilamentEditProfilePlugin::make()
                     ->shouldShowAvatarForm(
                         value: true,

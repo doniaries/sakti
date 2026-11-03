@@ -6,9 +6,11 @@ namespace App\Filament\Resources\PengajuanSpjs\Schemas;
 
 use App\Models\Bidang;
 use App\Models\KodeRekening;
+use App\Models\MasterBank;
 use App\Models\MasterBarang;
 use App\Models\MasterKegiatan;
 use App\Models\MasterSubKegiatan;
+use App\Models\MasterToko;
 use App\Models\PengajuanSpj;
 use App\Models\StokBarang;
 use App\Services\Spj\SpjWorkflowService;
@@ -21,6 +23,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
@@ -31,21 +34,18 @@ class PengajuanSpjForm
 {
     public static function configure(Schema $schema): Schema
     {
-        /** @var \App\Models\User|null $user */
-        $user = Auth::user();
-
-        // Helper closure: Ambil bidang_id secara akurat dari level root maupun dari dalam Wizard/Section/Repeater
+        // Helper closure: Ambil bidang_id dari level root maupun dari dalam Wizard/Section/Repeater
         $resolveBidangId = function (callable $get): ?int {
             $id = $get('/data.bidang_id') ?: $get('bidang_id') ?: $get('../../bidang_id');
 
             return filled($id) ? (int) $id : null;
         };
 
-        // Helper closure: Apakah Surat Pesanan sudah disetujui & di-TTD oleh Kabid (PPTK)?
+        // Helper closure: Apakah Surat Pesanan sudah disetujui & di-TTD?
         $isPesananDisetujui = fn (?PengajuanSpj $record): bool => $record !== null
             && ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true);
 
-        // Helper closure: Apakah Kwitansi sudah diproses dan masuk tahap NPD / Verifikasi Pejabat?
+        // Helper closure: Apakah Kwitansi sudah diproses dan masuk tahap NPD / Verifikasi?
         $isKwitansiDiproses = fn (?PengajuanSpj $record): bool => $record !== null
             && ! in_array($record->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
 
@@ -53,43 +53,45 @@ class PengajuanSpjForm
             ->components([
                 Wizard::make([
                     // =========================================================================
-                    // STEP 1: PENGAJUAN NOTA PESANAN / SURAT PESANAN (SELALU TAMPIL)
+                    // STEP 1: PENGAJUAN NOTA PESANAN / SURAT PESANAN
                     // =========================================================================
                     Step::make('1. Pengajuan Nota Pesanan')
                         ->icon('heroicon-o-document-text')
-                        ->description('Ajukan Surat / Nota Pesanan ke Kabid (PPTK) sesuai Kegiatan & Stok Barang Bidang')
+                        ->description('Data kegiatan, daftar barang pesanan, dan toko penyedia')
                         ->schema([
+                            // 1. IDENTITAS KEGIATAN & SURAT PESANAN
                             Section::make('Identitas Kegiatan & Surat Pesanan')
-                                ->description('Pilih Bidang Pengusul terlebih dahulu agar Kegiatan DPA dan Stok Barang otomatis menyesuaikan dengan Bidang terkait.')
-                                ->columns(2)
+                                ->description('Pilih Bidang Pengusul terlebih dahulu untuk memuat daftar Kegiatan dan Stok Barang.')
+                                ->compact()
+                                ->columns(6)
                                 ->schema([
                                     TextInput::make('nomor_pengajuan')
-                                        ->label('Nomor Pengajuan / Surat Pesanan')
+                                        ->label('Nomor Surat Pesanan')
                                         ->default(fn () => PengajuanSpj::generateNomorPengajuan())
-                                        ->helperText(fn (callable $get): string => 'Format Surat Pesanan: ' . ($get('nomor_pengajuan') ?: 'SPJ/...') . '/NP/' . date('Y'))
                                         ->required()
-                                        ->readOnly(),
+                                        ->readOnly()
+                                        ->columnSpan(2),
 
                                     DatePicker::make('tanggal_pengajuan')
                                         ->label('Tanggal Surat Pesanan')
                                         ->default(now())
                                         ->displayFormat('d/m/Y')
-                                        ->required(),
+                                        ->required()
+                                        ->columnSpan(2),
 
                                     Select::make('bidang_id')
-                                        ->label('Bidang Pengusul (PPTK: Kepala Bidang)')
+                                        ->label('Bidang Pengusul')
+                                        ->placeholder('Pilih Bidang Pengusul terlebih dahulu')
                                         ->options(fn () => Bidang::pluck('nama', 'id')->all())
-                                        ->default(fn () => $user?->bidang_id ?: Bidang::query()->value('id'))
                                         ->searchable()
                                         ->live()
                                         ->afterStateUpdated(function (callable $set, callable $get) {
-                                            // Reset Kegiatan & Sub Kegiatan ketika Bidang berubah
                                             $set('kegiatan_id', null);
                                             $set('sub_kegiatan_id', null);
 
-                                            // Reset pilihan barang pada repeater agar selaras dengan stok Bidang baru
                                             $details = $get('details') ?? [];
                                             foreach (array_keys($details) as $uuid) {
+                                                $set("details.{$uuid}.kode_rekening_id", null);
                                                 $set("details.{$uuid}.master_barang_id", null);
                                                 $set("details.{$uuid}.stok_tersedia", 0);
                                                 $set("details.{$uuid}.harga_satuan", 0);
@@ -100,9 +102,9 @@ class PengajuanSpjForm
                                         ->columnSpan(2),
 
                                     Select::make('kegiatan_id')
-                                        ->label('Kegiatan DPA (Sesuai Bidang)')
+                                        ->label('Kegiatan')
                                         ->placeholder(fn (callable $get): string => $resolveBidangId($get)
-                                            ? 'Pilih Kegiatan DPA Bidang'
+                                            ? 'Pilih Kegiatan'
                                             : 'Pilih Bidang Pengusul terlebih dahulu')
                                         ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null)
                                         ->options(function (callable $get) use ($resolveBidangId): array {
@@ -116,17 +118,35 @@ class PengajuanSpjForm
                                                 ->pluck('label', 'id')
                                                 ->all();
                                         })
+                                        ->createOptionForm([
+                                            TextInput::make('kode_kegiatan')
+                                                ->label('Kode Kegiatan')
+                                                ->placeholder('Contoh: 2.19.02.2.01')
+                                                ->required()
+                                                ->maxLength(100),
+                                            TextInput::make('nama_kegiatan')
+                                                ->label('Nama Kegiatan')
+                                                ->required()
+                                                ->maxLength(255),
+                                        ])
+                                        ->createOptionUsing(function (array $data, callable $get) use ($resolveBidangId): int {
+                                            return MasterKegiatan::create([
+                                                'bidang_id' => $resolveBidangId($get),
+                                                'kode_kegiatan' => $data['kode_kegiatan'],
+                                                'nama_kegiatan' => $data['nama_kegiatan'],
+                                            ])->id;
+                                        })
                                         ->searchable()
                                         ->live()
                                         ->afterStateUpdated(fn (callable $set) => $set('sub_kegiatan_id', null))
                                         ->required()
-                                        ->columnSpan(1),
+                                        ->columnSpan(3),
 
                                     Select::make('sub_kegiatan_id')
-                                        ->label('Sub Kegiatan DPA')
+                                        ->label('Sub Kegiatan')
                                         ->placeholder(fn (callable $get): string => filled($get('kegiatan_id'))
-                                            ? 'Pilih Sub Kegiatan DPA'
-                                            : 'Pilih Kegiatan DPA terlebih dahulu')
+                                            ? 'Pilih Sub Kegiatan'
+                                            : 'Pilih Kegiatan terlebih dahulu')
                                         ->disabled(fn (callable $get): bool => blank($get('kegiatan_id')))
                                         ->options(function (callable $get): array {
                                             $kegiatanId = $get('kegiatan_id');
@@ -139,53 +159,40 @@ class PengajuanSpjForm
                                                 ->pluck('label', 'id')
                                                 ->all();
                                         })
+                                        ->createOptionForm([
+                                            TextInput::make('kode_sub_kegiatan')
+                                                ->label('Kode Sub Kegiatan')
+                                                ->placeholder('Contoh: 2.19.02.2.01.0001')
+                                                ->required()
+                                                ->maxLength(100),
+                                            TextInput::make('nama_sub_kegiatan')
+                                                ->label('Nama Sub Kegiatan')
+                                                ->required()
+                                                ->maxLength(255),
+                                        ])
+                                        ->createOptionUsing(function (array $data, callable $get): int {
+                                            return MasterSubKegiatan::create([
+                                                'kegiatan_id' => (int) $get('kegiatan_id'),
+                                                'kode_sub_kegiatan' => $data['kode_sub_kegiatan'],
+                                                'nama_sub_kegiatan' => $data['nama_sub_kegiatan'],
+                                            ])->id;
+                                        })
                                         ->searchable()
                                         ->required()
-                                        ->columnSpan(1),
+                                        ->columnSpan(3),
 
                                     Hidden::make('user_id')
                                         ->default(fn () => Auth::id()),
                                 ]),
 
-                            // SECTION TERPISAH KHUSUS DATA TOKO & PEMILIK TOKO
-                            Section::make('Data Toko / Rekanan Penyedia Barang')
-                                ->description('Informasi toko tujuan Surat Pesanan, nomor rekening toko, dan nama pemilik toko (Nama Terang) untuk tanda tangan pada Kwitansi Pembayaran.')
-                                ->columns(3)
-                                ->schema([
-                                    TextInput::make('nama_toko')
-                                        ->label('Nama Toko / Rekanan Penyedia')
-                                        ->placeholder('Contoh: Toko Rilex Abadi')
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->columnSpan(1),
-
-                                    TextInput::make('penerima_nama')
-                                        ->label('Nama Pemilik Toko / Nama Terang (TTD Kwitansi)')
-                                        ->placeholder('Contoh: Agusrizal')
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->columnSpan(1),
-
-                                    TextInput::make('penerima_identitas')
-                                        ->label('No. Rekening Bank Toko (Tercantum di Kwitansi)')
-                                        ->placeholder('Contoh: 0700.0210.21699-2')
-                                        ->maxLength(100)
-                                        ->columnSpan(1),
-
-                                    Textarea::make('alamat_toko')
-                                        ->label('Alamat Terang Toko / Rekanan')
-                                        ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
-                                        ->required()
-                                        ->rows(2)
-                                        ->columnSpan(3),
-                                ]),
-
-                            Section::make('Rincian Barang Nota Pesanan (Terkoneksi dengan Stok Bidang)')
-                                ->description('Daftar barang terhubung langsung dengan data stok Bidang Pengusul. Barang yang stoknya kosong (0) pada Bidang tersebut dikunci dan tidak dapat dipilih.')
+                            // 2. RINCIAN BARANG PESANAN (Diletakkan di atas Data Toko karena lebih utama)
+                            Section::make('Rincian Barang Pesanan')
+                                ->description('Pilih barang sesuai stok yang tersedia pada Bidang Pengusul.')
+                                ->compact()
                                 ->schema([
                                     Repeater::make('details')
                                         ->relationship()
-                                        ->label('Daftar Barang yang Dipesan')
+                                        ->label('Daftar Barang')
                                         ->schema([
                                             Select::make('kode_rekening_id')
                                                 ->label('Rekening Belanja')
@@ -213,10 +220,10 @@ class PengajuanSpjForm
                                                     $set('subtotal', 0);
                                                 })
                                                 ->required()
-                                                ->columnSpan(3),
+                                                ->columnSpan(5),
 
                                             Select::make('master_barang_id')
-                                                ->label('Pilih Barang Persediaan Bidang')
+                                                ->label('Nama Barang')
                                                 ->placeholder(function (callable $get) use ($resolveBidangId): string {
                                                     if (! $resolveBidangId($get)) {
                                                         return 'Pilih Bidang Pengusul terlebih dahulu';
@@ -225,7 +232,7 @@ class PengajuanSpjForm
                                                         return 'Pilih Rekening Belanja terlebih dahulu';
                                                     }
 
-                                                    return 'Pilih Barang (Barang stok 0 tidak dapat dipilih)';
+                                                    return 'Pilih Barang';
                                                 })
                                                 ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null || blank($get('kode_rekening_id')))
                                                 ->options(function (callable $get) use ($resolveBidangId): array {
@@ -252,7 +259,7 @@ class PengajuanSpjForm
 
                                                         if ($stok <= 0) {
                                                             return [
-                                                                $barang->id => "🚫 {$barang->nama_barang} ({$satuan}) — [{$bidangNama} | STOK KOSONG: 0]",
+                                                                $barang->id => "🚫 {$barang->nama_barang} ({$satuan}) — [{$bidangNama} | Stok: 0]",
                                                             ];
                                                         }
 
@@ -315,10 +322,10 @@ class PengajuanSpjForm
                                                     }
                                                 })
                                                 ->required()
-                                                ->columnSpan(3),
+                                                ->columnSpan(7),
 
                                             TextInput::make('stok_tersedia')
-                                                ->label('Stok Tersedia')
+                                                ->label('Stok')
                                                 ->disabled()
                                                 ->dehydrated(false)
                                                 ->default(0)
@@ -333,10 +340,10 @@ class PengajuanSpjForm
                                                         ->where('master_barang_id', (int) $barangId)
                                                         ->sum('stok_tersedia');
                                                 })
-                                                ->columnSpan(1),
+                                                ->columnSpan(2),
 
                                             TextInput::make('kuantitas')
-                                                ->label('Vol Pesanan')
+                                                ->label('Jumlah')
                                                 ->numeric()
                                                 ->default(1)
                                                 ->minValue(1)
@@ -356,8 +363,8 @@ class PengajuanSpjForm
 
                                                         Notification::make()
                                                             ->danger()
-                                                            ->title('Melebihi Stok Tersedia Bidang')
-                                                            ->body("Volume pesanan tidak boleh melebihi stok barang yang tersedia pada bidang ini ({$stokTersedia}).")
+                                                            ->title('Melebihi Stok Tersedia')
+                                                            ->body("Jumlah pesanan tidak boleh melebihi stok yang tersedia ({$stokTersedia}).")
                                                             ->send();
                                                     }
 
@@ -367,10 +374,10 @@ class PengajuanSpjForm
                                                     $set('subtotal_realisasi', $qty * $harga);
                                                 })
                                                 ->required()
-                                                ->columnSpan(1),
+                                                ->columnSpan(2),
 
                                             TextInput::make('harga_satuan')
-                                                ->label('Harga Pesanan (Rp)')
+                                                ->label('Harga Satuan (Rp)')
                                                 ->numeric()
                                                 ->default(0)
                                                 ->live(onBlur: true)
@@ -380,18 +387,17 @@ class PengajuanSpjForm
                                                     $set('subtotal', $qty * $harga);
                                                 })
                                                 ->required()
-                                                ->columnSpan(2),
+                                                ->columnSpan(4),
 
                                             TextInput::make('subtotal')
-                                                ->label('Subtotal Pesanan (Rp)')
+                                                ->label('Subtotal (Rp)')
                                                 ->numeric()
                                                 ->default(0)
                                                 ->readOnly()
-                                                ->columnSpan(2),
+                                                ->columnSpan(4),
 
-                                            // Kolom Realisasi Kwitansi HANYA TAMPIL setelah Surat Pesanan disetujui & di-TTD Kabid (PPTK)
                                             TextInput::make('kuantitas_realisasi')
-                                                ->label('Vol Realisasi Kwitansi')
+                                                ->label('Jumlah Realisasi')
                                                 ->numeric()
                                                 ->default(1)
                                                 ->visible($isPesananDisetujui)
@@ -401,10 +407,10 @@ class PengajuanSpjForm
                                                     $harga = (float) ($get('harga_realisasi') ?: 0);
                                                     $set('subtotal_realisasi', $qty * $harga);
                                                 })
-                                                ->columnSpan(2),
+                                                ->columnSpan(4),
 
                                             TextInput::make('harga_realisasi')
-                                                ->label('Harga Aktual Kwitansi (Rp)')
+                                                ->label('Harga Realisasi (Rp)')
                                                 ->numeric()
                                                 ->default(0)
                                                 ->visible($isPesananDisetujui)
@@ -414,70 +420,242 @@ class PengajuanSpjForm
                                                     $harga = (float) ($get('harga_realisasi') ?: 0);
                                                     $set('subtotal_realisasi', $qty * $harga);
                                                 })
-                                                ->columnSpan(2),
+                                                ->columnSpan(4),
 
                                             TextInput::make('subtotal_realisasi')
-                                                ->label('Subtotal Kwitansi (Rp)')
+                                                ->label('Subtotal Realisasi (Rp)')
                                                 ->numeric()
                                                 ->default(0)
                                                 ->visible($isPesananDisetujui)
                                                 ->readOnly()
-                                                ->columnSpan(2),
+                                                ->columnSpan(4),
                                         ])
-                                        ->columns(6)
+                                        ->columns(12)
                                         ->defaultItems(1)
-                                        ->addActionLabel('Tambah Item Barang (Stok Bidang)'),
+                                        ->addActionLabel('Tambah Barang'),
+                                ]),
+
+                            // 3. DATA TOKO / REKANAN PENYEDIA (Paling Bawah pada Step 1 + Fitur Pilih/Tambah Toko & Bank Langsung)
+                            Section::make('Data Toko / Rekanan Penyedia')
+                                ->description('Pilih toko dari daftar tersimpan atau klik tombol (+) untuk menambah Toko / Bank baru tanpa berpindah halaman.')
+                                ->compact()
+                                ->columns(6)
+                                ->schema([
+                                    Select::make('master_toko_id')
+                                        ->label('Pilih Toko / Pemasok')
+                                        ->placeholder('Pilih Toko Tersimpan atau Klik (+) Tambah Baru')
+                                        ->options(fn () => MasterToko::where('is_active', true)->get()->pluck('label', 'id')->all())
+                                        ->searchable()
+                                        ->preload()
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, ?string $state) {
+                                            if (! $state) {
+                                                return;
+                                            }
+                                            $toko = MasterToko::find((int) $state);
+                                            if ($toko) {
+                                                $set('nama_toko', $toko->nama_toko);
+                                                $set('penerima_nama', $toko->nama_pemilik);
+                                                $set('telepon_toko', $toko->telepon);
+                                                $set('alamat_toko', $toko->alamat);
+                                                $set('master_bank_id', $toko->master_bank_id);
+                                                $set('penerima_identitas', $toko->nomor_rekening);
+                                            }
+                                        })
+                                        ->createOptionForm([
+                                            Grid::make(2)
+                                                ->schema([
+                                                    TextInput::make('nama_toko')
+                                                        ->label('Nama Toko / Pemasok')
+                                                        ->placeholder('Contoh: Toko Rilex Abadi')
+                                                        ->required()
+                                                        ->maxLength(255),
+
+                                                    TextInput::make('nama_pemilik')
+                                                        ->label('Nama Pemilik Toko')
+                                                        ->placeholder('Contoh: Agusrizal')
+                                                        ->required()
+                                                        ->maxLength(255),
+
+                                                    TextInput::make('telepon')
+                                                        ->label('No. Telepon Toko')
+                                                        ->placeholder('Contoh: 0812-3456-7890')
+                                                        ->maxLength(50),
+
+                                                    Select::make('master_bank_id')
+                                                        ->label('Nama Bank')
+                                                        ->placeholder('Pilih Bank')
+                                                        ->options(fn () => MasterBank::where('is_active', true)->pluck('nama_bank', 'id')->all())
+                                                        ->searchable()
+                                                        ->preload(),
+
+                                                    TextInput::make('nomor_rekening')
+                                                        ->label('No. Rekening Bank Toko')
+                                                        ->placeholder('Contoh: 0700.0210.21699-2')
+                                                        ->maxLength(100)
+                                                        ->columnSpan(2),
+
+                                                    Textarea::make('alamat')
+                                                        ->label('Alamat Toko')
+                                                        ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
+                                                        ->required()
+                                                        ->rows(2)
+                                                        ->columnSpan(2),
+                                                ]),
+                                        ])
+                                        ->createOptionUsing(function (array $data, callable $set): int {
+                                            $toko = MasterToko::create([
+                                                'nama_toko' => $data['nama_toko'],
+                                                'nama_pemilik' => $data['nama_pemilik'] ?? null,
+                                                'telepon' => $data['telepon'] ?? null,
+                                                'master_bank_id' => $data['master_bank_id'] ?? null,
+                                                'nomor_rekening' => $data['nomor_rekening'] ?? null,
+                                                'alamat' => $data['alamat'] ?? null,
+                                                'is_active' => true,
+                                            ]);
+
+                                            $set('nama_toko', $toko->nama_toko);
+                                            $set('penerima_nama', $toko->nama_pemilik);
+                                            $set('telepon_toko', $toko->telepon);
+                                            $set('alamat_toko', $toko->alamat);
+                                            $set('master_bank_id', $toko->master_bank_id);
+                                            $set('penerima_identitas', $toko->nomor_rekening);
+
+                                            return $toko->id;
+                                        })
+                                        ->columnSpan(2),
+
+                                    TextInput::make('nama_toko')
+                                        ->label('Nama Toko / Pemasok')
+                                        ->placeholder('Contoh: Toko Rilex Abadi')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->columnSpan(2),
+
+                                    TextInput::make('penerima_nama')
+                                        ->label('Nama Pemilik Toko')
+                                        ->placeholder('Contoh: Agusrizal')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->columnSpan(2),
+
+                                    TextInput::make('telepon_toko')
+                                        ->label('No. Telepon Toko')
+                                        ->placeholder('Contoh: 0812-3456-7890')
+                                        ->maxLength(50)
+                                        ->columnSpan(2),
+
+                                    Select::make('master_bank_id')
+                                        ->label('Nama Bank')
+                                        ->placeholder('Pilih Bank atau Klik (+)')
+                                        ->options(fn () => MasterBank::where('is_active', true)->pluck('nama_bank', 'id')->all())
+                                        ->searchable()
+                                        ->preload()
+                                        ->createOptionForm([
+                                            TextInput::make('kode_bank')
+                                                ->label('Kode Bank')
+                                                ->placeholder('Contoh: 118')
+                                                ->maxLength(20),
+                                            TextInput::make('nama_bank')
+                                                ->label('Nama Bank')
+                                                ->placeholder('Contoh: Bank Nagari (BPD Sumbar)')
+                                                ->required()
+                                                ->maxLength(255),
+                                        ])
+                                        ->createOptionUsing(function (array $data): int {
+                                            return MasterBank::create([
+                                                'kode_bank' => $data['kode_bank'] ?? null,
+                                                'nama_bank' => $data['nama_bank'],
+                                                'is_active' => true,
+                                            ])->id;
+                                        })
+                                        ->columnSpan(2),
+
+                                    TextInput::make('penerima_identitas')
+                                        ->label('No. Rekening Bank Toko')
+                                        ->placeholder('Contoh: 0700.0210.21699-2')
+                                        ->maxLength(100)
+                                        ->columnSpan(2),
+
+                                    DatePicker::make('tanggal_batas_pengiriman')
+                                        ->label('Batas Waktu Pengiriman')
+                                        ->default(fn () => now()->addDays(7))
+                                        ->displayFormat('d/m/Y')
+                                        ->columnSpan(2),
+
+                                    TextInput::make('ppn_persen')
+                                        ->label('Tarif PPN (%)')
+                                        ->numeric()
+                                        ->default(12)
+                                        ->minValue(0)
+                                        ->maxValue(100)
+                                        ->suffix('%')
+                                        ->columnSpan(2),
+
+                                    TextInput::make('metode_pembayaran')
+                                        ->label('Metode Pembayaran')
+                                        ->default('Transfer Bank / Tempo 14 Hari setelah barang diterima')
+                                        ->placeholder('Contoh: Transfer Bank / Tempo 14 Hari setelah barang diterima')
+                                        ->maxLength(255)
+                                        ->columnSpan(2),
+
+                                    Textarea::make('alamat_toko')
+                                        ->label('Alamat Toko')
+                                        ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
+                                        ->required()
+                                        ->rows(2)
+                                        ->columnSpan(6),
                                 ]),
                         ]),
 
                     // =========================================================================
-                    // STEP 2: PEMBUATAN SURAT KWITANSI (TAMPIL SETELAH NOTA PESANAN DISETUJUI KABID)
+                    // STEP 2: PEMBUATAN SURAT KWITANSI
                     // =========================================================================
                     Step::make('2. Pembuatan Surat Kwitansi')
                         ->icon('heroicon-o-receipt-percent')
-                        ->description('Proses Surat Kwitansi setelah Nota Pesanan di-TTD Kabid (PPTK) & unggah bukti faktur')
+                        ->description('Proses kwitansi pembayaran & unggah bukti faktur')
                         ->visible($isPesananDisetujui)
                         ->schema([
-                            Section::make('Identitas & Bukti Surat Kwitansi Pembayaran')
-                                ->description('Surat Kwitansi Pembayaran diproses setelah Surat Pesanan ditandatangani oleh Kepala Bidang selaku PPTK. Unggah faktur asli penjual dan dokumentasi barang.')
+                            Section::make('Bukti & Rincian Kwitansi Pembayaran')
+                                ->compact()
                                 ->columns(2)
                                 ->schema([
                                     Placeholder::make('nomor_kwitansi_preview')
-                                        ->label('Nomor Bukti Kas / Surat Kwitansi')
-                                        ->content(fn (callable $get): string => ($get('nomor_pengajuan') ?: 'SPJ/...') . '/KW/' . date('Y')),
+                                        ->label('Nomor Kwitansi')
+                                        ->content(fn (callable $get): string => ($get('nomor_pengajuan') ?: 'SP/...') . '/KW/' . date('Y')),
 
                                     Placeholder::make('status_ttd_pesanan')
-                                        ->label('Status TTD Surat Pesanan (Kabid / PPTK)')
+                                        ->label('Status Surat Pesanan')
                                         ->content(function (?PengajuanSpj $record): string {
-                                            $namaPptk = $record?->pptk?->name ?? 'Kepala Bidang (PPTK)';
+                                            $namaPptk = $record?->pptk?->name ?? 'PPTK';
 
-                                            return "✅ Surat Pesanan Telah Di-TTD oleh {$namaPptk} — Kwitansi Siap Diproses";
+                                            return "✅ Telah disetujui oleh {$namaPptk}";
                                         }),
 
                                     Placeholder::make('info_pemilik_toko_kwitansi')
-                                        ->label('Toko & Nama Pemilik Toko (Penandatangan Kwitansi)')
-                                        ->content(fn (callable $get): string => ($get('nama_toko') ?: '-') . ' — Pemilik/TTD: ' . ($get('penerima_nama') ?: '-'))
+                                        ->label('Penerima Pembayaran')
+                                        ->content(fn (callable $get): string => ($get('nama_toko') ?: '-') . ' — ' . ($get('penerima_nama') ?: '-'))
                                         ->columnSpan(2),
 
                                     FileUpload::make('file_nota_penjual')
-                                        ->label('Unggah Faktur / Nota Asli Toko (Dasar Surat Kwitansi)')
+                                        ->label('Faktur / Nota Asli Toko')
                                         ->directory('spj/nota-penjual')
                                         ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(5120),
 
                                     FileUpload::make('file_dokumentasi_barang')
-                                        ->label('Unggah Foto Dokumentasi Fisik Barang (Wajib jika > Rp 2 Jt)')
+                                        ->label('Foto Dokumentasi Barang (Wajib jika > Rp 2 Jt)')
                                         ->directory('spj/dokumentasi-barang')
                                         ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(5120),
 
                                     Textarea::make('justifikasi_selisih')
-                                        ->label('Catatan Penjelasan / Justifikasi Selisih (Wajib diisi bila nilai Kwitansi berbeda dengan Surat Pesanan)')
+                                        ->label('Catatan / Justifikasi Selisih (Diisi bila nilai realisasi berbeda dengan pesanan)')
                                         ->rows(2)
                                         ->columnSpan(2),
 
                                     Placeholder::make('ringkasan_nominal_kwitansi')
-                                        ->label('Nominal & Terbilang Kwitansi')
+                                        ->label('Total Nominal & Terbilang Kwitansi')
                                         ->content(function (callable $get, ?PengajuanSpj $record): string {
                                             $details = $get('details') ?? [];
                                             $totalRealisasi = 0;
@@ -500,27 +678,27 @@ class PengajuanSpjForm
                         ]),
 
                     // =========================================================================
-                    // STEP 3: PEMBUATAN NPD & SPESIMEN TTD PEJABAT (TAMPIL SETELAH KWITANSI DIPROSES)
+                    // STEP 3: PEMBUATAN NPD & SPESIMEN TTD PEJABAT
                     // =========================================================================
                     Step::make('3. Pembuatan NPD')
                         ->icon('heroicon-o-banknotes')
-                        ->description('Nota Pencairan Dana (NPD), Spesimen TTD Pejabat (Non-TTE), & Pencairan Kas')
+                        ->description('Nota Pencairan Dana (NPD), spesimen TTD, & pencairan kas')
                         ->visible($isKwitansiDiproses)
                         ->schema([
-                            Section::make('Rincian Nota Pencairan Dana (NPD) & Realisasi Kas Daerah')
-                                ->description('Nota Pencairan Dana (NPD) diajukan oleh PPTK (Kepala Bidang) kepada Pengguna Anggaran / KPA sebagai dasar pencairan kas oleh Bendahara Pengeluaran.')
+                            Section::make('Rincian Nota Pencairan Dana (NPD)')
+                                ->compact()
                                 ->columns(2)
                                 ->schema([
                                     Placeholder::make('nomor_npd_preview')
-                                        ->label('Nomor Nota Pencairan Dana (NPD)')
-                                        ->content(fn (callable $get): string => ($get('nomor_pengajuan') ?: 'SPJ/...') . '/NPD/' . date('Y')),
+                                        ->label('Nomor NPD')
+                                        ->content(fn (callable $get): string => ($get('nomor_pengajuan') ?: 'SP/...') . '/NPD/' . date('Y')),
 
                                     Placeholder::make('status_spj_aktif')
-                                        ->label('Status Tahapan Dokumen SPJ')
-                                        ->content(fn (?PengajuanSpj $record): string => $record ? $record->status_label : 'Draft Surat Pesanan Baru'),
+                                        ->label('Status SPJ')
+                                        ->content(fn (?PengajuanSpj $record): string => $record ? $record->status_label : 'Draft'),
 
                                     Placeholder::make('total_rencana_npd')
-                                        ->label('Total Nilai Nota Pesanan (Rencana)')
+                                        ->label('Total Nilai Pesanan')
                                         ->content(function (callable $get, ?PengajuanSpj $record): string {
                                             $details = $get('details') ?? [];
                                             $total = 0;
@@ -535,7 +713,7 @@ class PengajuanSpjForm
                                         }),
 
                                     Placeholder::make('total_pencairan_npd')
-                                        ->label('Total Dana Dimohon pada NPD & Kwitansi (Realisasi)')
+                                        ->label('Total Nilai Pencairan (NPD)')
                                         ->content(function (callable $get, ?PengajuanSpj $record): string {
                                             $details = $get('details') ?? [];
                                             $total = 0;
@@ -550,23 +728,23 @@ class PengajuanSpjForm
                                         }),
 
                                     TextInput::make('nomor_bku')
-                                        ->label('Nomor Buku Kas Umum (BKU)')
-                                        ->placeholder('Diisi Bendahara Pengeluaran saat pencairan dana')
+                                        ->label('Nomor BKU')
+                                        ->placeholder('Diisi Bendahara saat pencairan')
                                         ->visible(fn (?PengajuanSpj $record): bool => $record !== null
                                             && in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true))
                                         ->maxLength(100),
 
                                     DatePicker::make('tanggal_dicairkan')
-                                        ->label('Tanggal Pencairan Kas (Lunas Dibayar)')
+                                        ->label('Tanggal Pencairan')
                                         ->visible(fn (?PengajuanSpj $record): bool => $record !== null
                                             && in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara', 'disetujui', 'dicairkan'], true))
                                         ->displayFormat('d/m/Y'),
 
                                     Placeholder::make('matrix_penandatangan_npd')
-                                        ->label('Otorisasi Pejabat Penandatangan (Surat Pesanan, Kwitansi, Belakang Kwitansi & NPD)')
+                                        ->label('Pejabat Penandatangan')
                                         ->content(function (?PengajuanSpj $record): string {
                                             if (! $record) {
-                                                return '1. PPTK (Kabid): Menunggu Pengajuan | 2. PPK (Kasubag Keu): Menunggu | 3. PA/KPA (Kadis): Menunggu | 4. Bendahara: Menunggu';
+                                                return 'PPTK: Menunggu | PPK: Menunggu | PA/KPA: Menunggu | Bendahara: Menunggu';
                                             }
 
                                             $pptk = $record->pptk?->name ?? 'Belum TTD';
@@ -574,36 +752,37 @@ class PengajuanSpjForm
                                             $pa = $record->pa?->name ?? 'Belum TTD';
                                             $bendahara = $record->bendahara?->name ?? 'Belum Cair';
 
-                                            return "PPTK (Kabid): {$pptk}  |  PPK: {$ppk}  |  PA/KPA (Kadis): {$pa}  |  Bendahara: {$bendahara}";
+                                            return "PPTK: {$pptk}  |  PPK: {$ppk}  |  PA/KPA: {$pa}  |  Bendahara: {$bendahara}";
                                         })
                                         ->columnSpan(2),
                                 ]),
 
-                            Section::make('Unggah Spesimen Tanda Tangan Pejabat (PPTK, PPK, PA/KPA, Bendahara)')
-                                ->description('Karena Tanda Tangan Elektronik (TTE) belum digunakan, unggah gambar contoh/spesimen tanda tangan (PNG/JPG) untuk ditampilkan pada cetakan PDF Surat Pesanan, Kwitansi, Belakang Kwitansi, dan NPD.')
+                            Section::make('Spesimen Tanda Tangan Pejabat (Non-TTE)')
+                                ->description('Unggah gambar tanda tangan (PNG/JPG) untuk dicetak pada dokumen PDF.')
+                                ->compact()
                                 ->columns(2)
                                 ->collapsed()
                                 ->schema([
                                     FileUpload::make('ttd_pptk')
-                                        ->label('Spesimen TTD PPTK (Kepala Bidang)')
+                                        ->label('TTD PPTK')
                                         ->directory('spj/ttd')
                                         ->image()
                                         ->maxSize(2048),
 
                                     FileUpload::make('ttd_ppk')
-                                        ->label('Spesimen TTD PPK (Pejabat Penatausahaan Keuangan)')
+                                        ->label('TTD PPK')
                                         ->directory('spj/ttd')
                                         ->image()
                                         ->maxSize(2048),
 
                                     FileUpload::make('ttd_pa')
-                                        ->label('Spesimen TTD Pengguna Anggaran / KPA (Kepala Dinas)')
+                                        ->label('TTD PA / KPA')
                                         ->directory('spj/ttd')
                                         ->image()
                                         ->maxSize(2048),
 
                                     FileUpload::make('ttd_bendahara')
-                                        ->label('Spesimen TTD Bendahara Pengeluaran')
+                                        ->label('TTD Bendahara')
                                         ->directory('spj/ttd')
                                         ->image()
                                         ->maxSize(2048),

@@ -20,11 +20,17 @@ class PengajuanSpj extends Model
         'kegiatan_id',
         'sub_kegiatan_id',
         'tanggal_pengajuan',
+        'tanggal_batas_pengiriman',
         'total_nilai_rencana',
         'total_nilai_realisasi',
+        'ppn_persen',
         'status',
+        'master_toko_id',
         'nama_toko',
         'alamat_toko',
+        'telepon_toko',
+        'master_bank_id',
+        'metode_pembayaran',
         'penerima_nama',
         'penerima_identitas',
         'file_nota_penjual',
@@ -45,10 +51,70 @@ class PengajuanSpj extends Model
 
     protected $casts = [
         'tanggal_pengajuan' => 'date',
+        'tanggal_batas_pengiriman' => 'date',
         'tanggal_dicairkan' => 'date',
         'total_nilai_rencana' => 'decimal:2',
         'total_nilai_realisasi' => 'decimal:2',
+        'ppn_persen' => 'decimal:2',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $spj): void {
+            // Jika master_toko_id dipilih tetapi nama_toko kosong, salin dari MasterToko
+            if ($spj->master_toko_id && blank($spj->nama_toko)) {
+                $toko = MasterToko::find($spj->master_toko_id);
+                if ($toko) {
+                    $spj->nama_toko = $toko->nama_toko;
+                    $spj->penerima_nama = $spj->penerima_nama ?: $toko->nama_pemilik;
+                    $spj->telepon_toko = $spj->telepon_toko ?: $toko->telepon;
+                    $spj->alamat_toko = $spj->alamat_toko ?: $toko->alamat;
+                    $spj->master_bank_id = $spj->master_bank_id ?: $toko->master_bank_id;
+                    $spj->penerima_identitas = $spj->penerima_identitas ?: $toko->nomor_rekening;
+                }
+            }
+
+            // Sinkronkan juga perubahan kembali ke tabel master_tokos agar tersimpan untuk pemakaian berikutnya
+            if (filled($spj->nama_toko)) {
+                $toko = $spj->master_toko_id
+                    ? MasterToko::find($spj->master_toko_id)
+                    : MasterToko::where('nama_toko', $spj->nama_toko)->first();
+
+                if ($toko) {
+                    $toko->update([
+                        'nama_toko' => $spj->nama_toko,
+                        'nama_pemilik' => $spj->penerima_nama ?: $toko->nama_pemilik,
+                        'telepon' => $spj->telepon_toko ?: $toko->telepon,
+                        'alamat' => $spj->alamat_toko ?: $toko->alamat,
+                        'master_bank_id' => $spj->master_bank_id ?: $toko->master_bank_id,
+                        'nomor_rekening' => $spj->penerima_identitas ?: $toko->nomor_rekening,
+                    ]);
+                    $spj->master_toko_id = $toko->id;
+                } else {
+                    $newToko = MasterToko::create([
+                        'nama_toko' => $spj->nama_toko,
+                        'nama_pemilik' => $spj->penerima_nama,
+                        'telepon' => $spj->telepon_toko,
+                        'alamat' => $spj->alamat_toko,
+                        'master_bank_id' => $spj->master_bank_id,
+                        'nomor_rekening' => $spj->penerima_identitas,
+                        'is_active' => true,
+                    ]);
+                    $spj->master_toko_id = $newToko->id;
+                }
+            }
+        });
+    }
+
+    public function masterToko(): BelongsTo
+    {
+        return $this->belongsTo(MasterToko::class, 'master_toko_id');
+    }
+
+    public function masterBank(): BelongsTo
+    {
+        return $this->belongsTo(MasterBank::class, 'master_bank_id');
+    }
 
     public function user(): BelongsTo
     {
@@ -107,13 +173,33 @@ class PengajuanSpj extends Model
 
     public static function generateNomorPengajuan(int|string|null $bidangId = null): string
     {
-        $prefix = 'SPJ';
+        $prefix = 'SP';
         $tahun = date('Y');
         $bulan = date('m');
         $count = static::whereYear('tanggal_pengajuan', $tahun)->count() + 1;
         $urut = str_pad((string) $count, 4, '0', STR_PAD_LEFT);
-        
-        return "{$prefix}/{$tahun}/{$bulan}/{$urut}";
+
+        return "{$prefix}/{$bulan}/{$tahun}/{$urut}";
+    }
+
+    public function getNomorSuratPesananAttribute(): string
+    {
+        $nomor = (string) $this->nomor_pengajuan;
+        if (str_starts_with($nomor, 'SP/')) {
+            return $nomor;
+        }
+
+        // Konversi format SPJ/YYYY/MM/XXXX menjadi SP/MM/YYYY/XXXX
+        $parts = explode('/', $nomor);
+        if (count($parts) === 4 && $parts[0] === 'SPJ') {
+            return "SP/{$parts[2]}/{$parts[1]}/{$parts[3]}";
+        }
+
+        $bulan = $this->tanggal_pengajuan ? $this->tanggal_pengajuan->format('m') : date('m');
+        $tahun = $this->tanggal_pengajuan ? $this->tanggal_pengajuan->format('Y') : date('Y');
+        $urut = str_pad((string) ($this->id ?: 1), 4, '0', STR_PAD_LEFT);
+
+        return "SP/{$bulan}/{$tahun}/{$urut}";
     }
 
     public function getStatusLabelAttribute(): string

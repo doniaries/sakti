@@ -6,10 +6,13 @@ use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
 
 class EditPengajuanSpj extends EditRecord
 {
     protected static string $resource = PengajuanSpjResource::class;
+
+    protected Width | string | null $maxContentWidth = Width::FiveExtraLarge;
 
     protected function getHeaderActions(): array
     {

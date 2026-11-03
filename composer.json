@@ -19,6 +19,7 @@
         "laravel/tinker": "^2.10.1",
         "leek/filament-header-filters": "^2.0",
         "rats/zkteco": "^002.0",
+        "swisnl/filament-backgrounds": "^2.0",
         "wikimedia/composer-merge-plugin": "^2.1"
     },
     "require-dev": {
