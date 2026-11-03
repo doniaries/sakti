@@ -1,4 +1,4 @@
-# Absensi & LHK (Laporan Harian Kinerja)
+# SAKTI (Sistem Absensi & Kinerja Terintegrasi)
 
 Sistem Informasi Manajemen Presensi (Absensi) Pegawai dan Laporan Harian Kinerja (LHK) berbasis web dan mobile, terintegrasi langsung dengan mesin fingerprint (ZKTeco) serta mendukung aplikasi mobile berbasis Flutter dan PWA Livewire.
 
@@ -136,7 +136,7 @@ Aplikasi menyediakan RESTful API berbasis Laravel Sanctum di `/api`:
 ### 2. Langkah Instalasi
 ```bash
 # 1. Clone repository & masuk ke direktori
-cd c:/laragon/www/absensilhk
+cd c:/laragon/www/sakti
 
 # 2. Salin environment & atur konfigurasi database
 cp .env.example .env
