@@ -73,3 +73,4 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         return $stats;
     }
 }
+
