@@ -34,7 +34,11 @@ class PengajuanSpjsTable
                 $user = Auth::user();
                 $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
 
-                if (! $canViewAllBidang && $user !== null) {
+                $anggaranRole = $user?->anggaran_role instanceof \App\Enums\AnggaranRole
+                    ? $user->anggaran_role->value
+                    : $user?->anggaran_role;
+
+                if (! $canViewAllBidang && ! in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA'], true) && $user !== null) {
                     $userBidangId = filled($user->bidang_id)
                         ? (int) $user->bidang_id
                         : (int) (Bidang::where('kepala_id', $user->id)->value('id') ?? 0);

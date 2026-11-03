@@ -42,6 +42,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'nomor_absensi',
         'aktif',
         'jabatan_id',
+        'anggaran_role',
         'bidang_id',
         'tempat_lahir',
         'tanggal_lahir',
@@ -96,6 +97,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             'pangkat_golongan' => \App\Enums\GolonganRuang::class,
             'jenis_kelamin' => \App\Enums\JenisKelamin::class,
             'eselon' => \App\Enums\Eselon::class,
+            'anggaran_role' => \App\Enums\AnggaranRole::class,
         ];
     }
 

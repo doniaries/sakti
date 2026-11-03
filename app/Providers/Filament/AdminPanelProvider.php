@@ -138,12 +138,18 @@ class AdminPanelProvider extends PanelProvider
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))
                     ->users([
-                        'SuperAdmin (Doni)' => 'superadmin@gmail.com',
-                        'Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
-                        'Sekretaris (Desmiwarti)' => 'sekretaris@gmail.com',
-                        'Kasubag Umum (Zulfitri)' => 'admin@gmail.com',
-                        'Kabid (Indrawadi)' => 'kabid@gmail.com',
-                        'Pegawai (Wilda)' => 'wilda@gmail.com',
+                        'SuperAdmin Sistem' => 'superadmin@gmail.com',
+                        'Admin Dinas (Zulfitri)' => 'admin@gmail.com',
+                        'PA / Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
+                        'PPK (Julhardianto)' => 'julhardianto@gmail.com',
+                        'PPTK Pemasaran (Doni Aries)' => 'doniaries@gmail.com',
+                        'PPTK Sekretariat (Desmawati)' => 'sekretaris@gmail.com',
+                        'PPTK Destinasi (Wilda Ardes)' => 'wilda@gmail.com',
+                        'PPTK Dispora (Indrawadi)' => 'kabid@gmail.com',
+                        'JF (Diki Zulfikar)' => 'dikizulfikar@gmail.com',
+                        'JF (Andra Pebtaliyus)' => 'andrapebtaliyus@gmail.com',
+                        'Staf (Maulana Ibrahim)' => 'maulanaibrahim@gmail.com',
+                        'Staf (Roni Rivandra)' => 'ronirivandra@gmail.com',
                     ]),
             ]);
     }

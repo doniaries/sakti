@@ -18,6 +18,14 @@ class PengajuanSpjPolicy
             return true;
         }
 
+        $anggaranRole = $authUser->anggaran_role instanceof \App\Enums\AnggaranRole
+            ? $authUser->anggaran_role->value
+            : $authUser->anggaran_role;
+
+        if (in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA'], true)) {
+            return true;
+        }
+
         if ($pengajuanSpj->bidang && $authUser->can('view', $pengajuanSpj->bidang)) {
             return true;
         }

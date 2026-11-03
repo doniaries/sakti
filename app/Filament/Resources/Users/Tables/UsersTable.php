@@ -99,6 +99,11 @@ class UsersTable
                     ->color('gray')
                     ->searchable()
                     ->sortable(),
+                \Filament\Tables\Columns\TextColumn::make('anggaran_role')
+                    ->label('Peran Anggaran')
+                    ->badge()
+                    ->placeholder('-')
+                    ->sortable(),
 
                 \Filament\Tables\Columns\TextColumn::make('jenjang_pendidikan')
                     ->label('Pendidikan')

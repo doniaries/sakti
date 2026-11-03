@@ -189,6 +189,11 @@ class UserForm
                                     ->relationship('jabatan', 'nama')
                                     ->searchable()
                                     ->preload(),
+                                \Filament\Forms\Components\Select::make('anggaran_role')
+                                    ->label('Peran Anggaran (PA/PPK/PPTK)')
+                                    ->options(\App\Enums\AnggaranRole::class)
+                                    ->placeholder('Bukan Pejabat Anggaran (Staf / JF)')
+                                    ->searchable(),
                                 \Filament\Forms\Components\Select::make('atasan_id')
                                     ->label('Atasan Langsung')
                                     ->relationship('atasan', 'name')

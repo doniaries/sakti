@@ -86,71 +86,149 @@ class DataPegawaiSeeder extends Seeder
             $user->assignRole('pegawai');
         }
 
-        // --- Atur Akun Khusus ---
-        // 1. Superadmin (DONI ARIES)
-        $doni = User::query()->where('name', 'LIKE', '%DONI ARIES%', 'and')->first();
+        // --- Atur Akun Khusus & Peran Anggaran (Enum AnggaranRole) ---
+        // 1. PPTK Pemasaran Pariwisata (DONI ARIES) - bukan lagi SuperAdmin
+        $doni = User::query()->where('name', 'LIKE', '%DONI ARIES%')->first();
         if ($doni) {
             $doni->update([
-                'email' => 'superadmin@gmail.com',
+                'email' => 'doniaries@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
                 'aktif' => true,
+                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
-            $doni->syncRoles(['super_admin', 'pegawai']);
+            $doni->syncRoles(['pegawai']);
         }
 
-        // 2. Admin / Kasubag Umum (ZULFITRI)
-        $zulfitri = User::query()->where('name', 'LIKE', '%ZULFITRI%', 'and')->first();
+        // 2. Akun Khusus SuperAdmin Sistem
+        $superAdmin = User::updateOrCreate(
+            ['email' => 'superadmin@gmail.com'],
+            [
+                'name' => 'SUPER ADMIN SISTEM',
+                'nip' => '00000000 000000 0 001',
+                'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
+                'aktif' => true,
+                'anggaran_role' => null,
+                'bidang_id' => null,
+            ]
+        );
+        $superAdmin->syncRoles(['super_admin']);
+
+        // 3. Admin Dinas / Kasubag Umum (ZULFITRI)
+        $zulfitri = User::query()->where('name', 'LIKE', '%ZULFITRI%')->first();
         if ($zulfitri) {
             $zulfitri->update([
                 'email' => 'admin@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('admin'),
                 'aktif' => true,
+                'anggaran_role' => null,
             ]);
             $zulfitri->syncRoles(['admin', 'pegawai']);
         }
 
-        // 3. Kepala Dinas (AFRINELDI)
-        $afrineldi = User::query()->where('name', 'LIKE', '%AFRINELDI%', 'and')->first();
+        // 4. Kepala Dinas / PA - Pengguna Anggaran (AFRINELDI)
+        $afrineldi = User::query()->where('name', 'LIKE', '%AFRINELDI%')->first();
         if ($afrineldi) {
             $afrineldi->update([
                 'email' => 'kepaladinas@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'aktif' => true,
+                'anggaran_role' => \App\Enums\AnggaranRole::PA,
             ]);
             $afrineldi->syncRoles(['pegawai']);
         }
 
-        // 4. Sekretaris (DESMIWARTI)
-        $desmiwarti = User::query()->where('name', 'LIKE', '%DESMIWARTI%', 'and')->first();
-        if ($desmiwarti) {
-            $desmiwarti->update([
+        // 5. PPK - Pejabat Pembuat Komitmen (JULHARDIANTO)
+        $julhardianto = User::query()->where('name', 'LIKE', '%JULHARDIANTO%')->first();
+        if ($julhardianto) {
+            $julhardianto->update([
+                'email' => 'julhardianto@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => \App\Enums\AnggaranRole::PPK,
+            ]);
+            $julhardianto->syncRoles(['pegawai']);
+        }
+
+        // 6. Sekretaris / PPTK Sekretariat (DESMAWATI)
+        $desmawati = User::query()->where('name', 'LIKE', '%DESMAWATI%')->first();
+        if ($desmawati) {
+            $desmawati->update([
                 'email' => 'sekretaris@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'aktif' => true,
+                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
-            $desmiwarti->syncRoles(['pegawai']);
+            $desmawati->syncRoles(['pegawai']);
         }
 
-        // 5. Kepala Bidang (INDRAWADI)
-        $indrawadi = User::query()->where('name', 'LIKE', '%INDRAWADI%', 'and')->first();
-        if ($indrawadi) {
-            $indrawadi->update([
-                'email' => 'kabid@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-            ]);
-            $indrawadi->syncRoles(['pegawai']);
-        }
-
-        // 6. Pegawai (WILDA ARDES)
-        $wilda = User::query()->where('name', 'LIKE', '%WILDA ARDES%', 'and')->first();
+        // 7. Kabid Destinasi / PPTK Destinasi (WILDA ARDES)
+        $wilda = User::query()->where('name', 'LIKE', '%WILDA ARDES%')->first();
         if ($wilda) {
             $wilda->update([
                 'email' => 'wilda@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'aktif' => true,
+                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
             $wilda->syncRoles(['pegawai']);
+        }
+
+        // 8. Kabid Pemuda & Olahraga / PPTK Dispora (INDRAWADI)
+        $indrawadi = User::query()->where('name', 'LIKE', '%INDRAWADI%')->first();
+        if ($indrawadi) {
+            $indrawadi->update([
+                'email' => 'kabid@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
+            ]);
+            $indrawadi->syncRoles(['pegawai']);
+        }
+
+        // 9. 2 Orang Jabatan Fungsional (JF) untuk Akses Cepat
+        $diki = User::query()->where('name', 'LIKE', '%DIKI ZULFIKAR%')->first();
+        if ($diki) {
+            $diki->update([
+                'email' => 'dikizulfikar@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => null,
+            ]);
+            $diki->syncRoles(['pegawai']);
+        }
+
+        $andra = User::query()->where('name', 'LIKE', '%ANDRA PEBTALIYUS%')->first();
+        if ($andra) {
+            $andra->update([
+                'email' => 'andrapebtaliyus@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => null,
+            ]);
+            $andra->syncRoles(['pegawai']);
+        }
+
+        // 10. 2 Orang Staf Pelaksana untuk Akses Cepat
+        $maulana = User::query()->where('name', 'LIKE', '%MAULANA IBRAHIM%')->first();
+        if ($maulana) {
+            $maulana->update([
+                'email' => 'maulanaibrahim@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => null,
+            ]);
+            $maulana->syncRoles(['pegawai']);
+        }
+
+        $roni = User::query()->where('name', 'LIKE', '%RONI RIVANDRA%')->first();
+        if ($roni) {
+            $roni->update([
+                'email' => 'ronirivandra@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => null,
+            ]);
+            $roni->syncRoles(['pegawai']);
         }
     }
 }
