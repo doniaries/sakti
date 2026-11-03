@@ -13,10 +13,10 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,7 +35,7 @@ class PengajuanSpjForm
                     ->schema([
                         TextInput::make('nomor_pengajuan')
                             ->label('Nomor Pengajuan SPJ')
-                            ->default(fn () => PengajuanSpj::generateNomorPengajuan())
+                            ->default(fn() => PengajuanSpj::generateNomorPengajuan())
                             ->required()
                             ->readOnly(),
 
@@ -47,17 +47,17 @@ class PengajuanSpjForm
 
                         Select::make('bidang_id')
                             ->label('Bidang Pengusul')
-                            ->options(fn () => Bidang::pluck('nama', 'id')->all())
-                            ->default(fn () => $user?->bidang_id)
+                            ->options(fn() => Bidang::pluck('nama', 'id')->all())
+                            ->default(fn() => $user?->bidang_id)
                             ->searchable()
                             ->required(),
 
                         Select::make('kegiatan_id')
                             ->label('Kegiatan DPA')
-                            ->options(fn () => MasterKegiatan::all()->pluck('label', 'id')->all())
+                            ->options(fn() => MasterKegiatan::all()->pluck('label', 'id')->all())
                             ->searchable()
                             ->live()
-                            ->afterStateUpdated(fn (callable $set) => $set('sub_kegiatan_id', null))
+                            ->afterStateUpdated(fn(callable $set) => $set('sub_kegiatan_id', null))
                             ->required()
                             ->columnSpan(1),
 
@@ -78,7 +78,7 @@ class PengajuanSpjForm
                             ->columnSpan(2),
 
                         Hidden::make('user_id')
-                            ->default(fn () => Auth::id()),
+                            ->default(fn() => Auth::id()),
                     ]),
 
                 Section::make('Rincian Item Barang Yang Dipesan')
@@ -89,14 +89,14 @@ class PengajuanSpjForm
                             ->schema([
                                 Select::make('kode_rekening_id')
                                     ->label('Rekening Belanja')
-                                    ->options(fn () => KodeRekening::all()->pluck('label', 'id')->all())
+                                    ->options(fn() => KodeRekening::all()->pluck('label', 'id')->all())
                                     ->searchable()
                                     ->required()
                                     ->columnSpan(3),
 
                                 Select::make('master_barang_id')
                                     ->label('Pilih Barang Persediaan')
-                                    ->options(fn () => MasterBarang::with('satuan')->get()->pluck('label', 'id')->all())
+                                    ->options(fn() => MasterBarang::with('satuan')->get()->pluck('label', 'id')->all())
                                     ->searchable()
                                     ->live()
                                     ->afterStateUpdated(function (callable $set, callable $get, ?string $state) {
@@ -211,4 +211,3 @@ class PengajuanSpjForm
             ]);
     }
 }
-

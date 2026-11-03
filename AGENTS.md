@@ -64,7 +64,43 @@ protected function getRedirectUrl(): string
 
 ## 3. Aturan Form & Lokalisasi Tanggal (Indonesia)
 
-1. **Komponen Native**: Gunakan komponen native Filament (`TextInput`, `Select`, `DatePicker`, `TimePicker`, `DateTimePicker`, `FileUpload`, `Toggle`, `Radio`, dll).
+### A. Namespace Wajib Layout vs Input Components (Filament 4/5)
+> **PERINGATAN KERAS (WAJIB DIPATUHI):** Pada Filament 4.x / 5.x, komponen layout / container telah berpindah dari Forms ke Schemas. DILARANG mengimpor Section atau Grid dari Forms namespace!
+- **Wajib Gunakan (Filament 4/5 Native)**:
+  ```php
+  use Filament\Schemas\Components\Section;
+  use Filament\Schemas\Components\Grid;
+  use Filament\Schemas\Components\Group;
+  use Filament\Schemas\Components\Tabs;
+  use Filament\Schemas\Components\Wizard;
+  use Filament\Schemas\Components\Utilities\Get;
+  use Filament\Schemas\Components\Utilities\Set;
+  ```
+- **DILARANG KERAS (Akan Menghasilkan Fatal Error "Class Not Found")**:
+  ```php
+  use Filament\Forms\Components\Section; // SALAH BESAR (HANYA ADA DI FILAMENT 2/3)
+  use Filament\Forms\Components\Grid;    // SALAH
+  use Filament\Forms\Components\Group;   // SALAH
+  ```
+- Komponen input nilai (Fields) tetap menggunakan namespace Forms:
+  ```php
+  use Filament\Forms\Components\TextInput;
+  use Filament\Forms\Components\Select;
+  use Filament\Forms\Components\DatePicker;
+  use Filament\Forms\Components\TimePicker;
+  use Filament\Forms\Components\DateTimePicker;
+  use Filament\Forms\Components\FileUpload;
+  use Filament\Forms\Components\Repeater;
+  use Filament\Forms\Components\Textarea;
+  use Filament\Forms\Components\Hidden;
+  use Filament\Forms\Components\Toggle;
+  use Filament\Forms\Components\Checkbox;
+  use Filament\Forms\Components\CheckboxList;
+  use Filament\Forms\Components\Radio;
+  ```
+
+### B. Aturan Format Tanggal & Validasi
+1. **Komponen Native**: Gunakan komponen native Filament di atas, hindari custom HTML manual.
 2. **Format Tanggal Indonesia (Wajib)**:
    - Form `DatePicker`: Selalu sertakan `->displayFormat('d/m/Y')`
    - Form `DateTimePicker`: Selalu sertakan `->displayFormat('d/m/Y H:i')`
