@@ -360,17 +360,136 @@ class UsersTable
                         ->form([
                             Select::make('bidang_id')
                                 ->label('Pilih Bidang Tujuan')
-                                ->relationship('bidang', 'nama')
+                                ->options(function (mixed $livewire): array {
+                                    $selectedRecords = (is_object($livewire) && method_exists($livewire, 'getSelectedTableRecords'))
+                                        ? $livewire->getSelectedTableRecords()
+                                        : collect();
+                                    $totalSelected = $selectedRecords->count();
+
+                                    return \App\Models\Bidang::query()
+                                        ->orderBy('nama')
+                                        ->get()
+                                        ->mapWithKeys(function (\App\Models\Bidang $bidang) use ($selectedRecords, $totalSelected) {
+                                            $alreadyCount = $selectedRecords->where('bidang_id', $bidang->id)->count();
+                                            if ($totalSelected > 0 && $alreadyCount === $totalSelected) {
+                                                return [
+                                                    $bidang->id => "{$bidang->nama} (⚠️ Seluruh {$alreadyCount} pegawai terpilih sudah di bidang ini)",
+                                                ];
+                                            }
+                                            if ($alreadyCount > 0) {
+                                                return [
+                                                    $bidang->id => "{$bidang->nama} (⚠️ {$alreadyCount} dari {$totalSelected} pegawai sudah di bidang ini)",
+                                                ];
+                                            }
+
+                                            return [$bidang->id => $bidang->nama];
+                                        })
+                                        ->all();
+                                })
                                 ->searchable()
                                 ->preload()
+                                ->live()
+                                ->afterStateUpdated(function ($state, mixed $livewire) {
+                                    if (! $state || ! is_object($livewire) || ! method_exists($livewire, 'getSelectedTableRecords')) {
+                                        return;
+                                    }
+
+                                    $selectedRecords = $livewire->getSelectedTableRecords();
+                                    $alreadyIn = $selectedRecords->where('bidang_id', (int) $state);
+
+                                    if ($alreadyIn->isNotEmpty()) {
+                                        $bidangNama = \App\Models\Bidang::whereKey((int) $state)->value('nama') ?? 'Bidang tersebut';
+                                        $names = $alreadyIn->pluck('name')->implode(', ');
+
+                                        Notification::make()
+                                            ->warning()
+                                            ->title('Peringatan: Pegawai Sudah di Bidang Ini')
+                                            ->body("Pegawai ({$names}) sudah terdaftar di {$bidangNama}.")
+                                            ->send();
+                                    }
+                                })
                                 ->required(),
+
+                            \Filament\Forms\Components\Placeholder::make('peringatan_bidang_sama')
+                                ->hiddenLabel()
+                                ->visible(function (callable $get, mixed $livewire): bool {
+                                    $bidangId = $get('bidang_id');
+                                    if (! $bidangId || ! is_object($livewire) || ! method_exists($livewire, 'getSelectedTableRecords')) {
+                                        return false;
+                                    }
+
+                                    return $livewire->getSelectedTableRecords()->where('bidang_id', (int) $bidangId)->isNotEmpty();
+                                })
+                                ->content(function (callable $get, mixed $livewire): \Illuminate\Support\HtmlString {
+                                    $bidangId = (int) $get('bidang_id');
+                                    $selectedRecords = (is_object($livewire) && method_exists($livewire, 'getSelectedTableRecords'))
+                                        ? $livewire->getSelectedTableRecords()
+                                        : collect();
+                                    $alreadyIn = $selectedRecords->where('bidang_id', $bidangId);
+                                    $toMove = $selectedRecords->where('bidang_id', '!=', $bidangId);
+                                    $bidangNama = e(\App\Models\Bidang::whereKey($bidangId)->value('nama') ?? 'Bidang terpilih');
+                                    $alreadyNames = e($alreadyIn->pluck('name')->implode(', '));
+
+                                    if ($toMove->isEmpty()) {
+                                        return new \Illuminate\Support\HtmlString(
+                                            "<div style='padding:10px 12px; border-radius:8px; background-color:#fef2f2; border:1px solid #f87171; color:#991b1b; font-size:0.85rem; line-height:1.45;'>
+                                                <strong>⚠️ Semua Pegawai Terpilih Sudah Berada di {$bidangNama}!</strong><br>
+                                                Pegawai: <strong>{$alreadyNames}</strong>.<br>
+                                                Silakan pilih bidang tujuan yang berbeda agar pemindahan efektif.
+                                            </div>"
+                                        );
+                                    }
+
+                                    $moveNames = e($toMove->pluck('name')->implode(', '));
+
+                                    return new \Illuminate\Support\HtmlString(
+                                        "<div style='padding:10px 12px; border-radius:8px; background-color:#fffbeb; border:1px solid #fbbf24; color:#92400e; font-size:0.85rem; line-height:1.45;'>
+                                            <strong>⚠️ Peringatan Duplikasi Bidang ({$bidangNama}):</strong><br>
+                                            • Sudah berada di bidang ini (akan dilewati): <strong>{$alreadyNames}</strong><br>
+                                            • Akan dipindahkan ({$toMove->count()} pegawai): <strong>{$moveNames}</strong>
+                                        </div>"
+                                    );
+                                }),
                         ])
                         ->action(function (Collection $records, array $data) {
-                            $count = $records->count();
-                            $records->each(fn($user) => $user->update(['bidang_id' => $data['bidang_id']]));
+                            $targetBidangId = (int) $data['bidang_id'];
+                            $targetBidang = \App\Models\Bidang::find($targetBidangId);
+                            $namaBidang = $targetBidang?->nama ?? 'bidang tujuan';
+
+                            $alreadyIn = $records->filter(fn ($user) => (int) $user->bidang_id === $targetBidangId);
+                            $toMove = $records->reject(fn ($user) => (int) $user->bidang_id === $targetBidangId);
+
+                            if ($toMove->isEmpty()) {
+                                $alreadyNames = $alreadyIn->pluck('name')->implode(', ');
+                                Notification::make()
+                                    ->warning()
+                                    ->title('Tidak Ada Pegawai yang Dipindahkan')
+                                    ->body("Seluruh pegawai terpilih ({$alreadyNames}) sudah berada di {$namaBidang}.")
+                                    ->send();
+
+                                return;
+                            }
+
+                            $toMove->each(fn ($user) => $user->update([
+                                'bidang_id' => $targetBidangId,
+                                'atasan_id' => ($targetBidang?->kepala_id && $user->id !== $targetBidang->kepala_id)
+                                    ? $targetBidang->kepala_id
+                                    : $user->atasan_id,
+                            ]));
+
+                            if ($alreadyIn->isNotEmpty()) {
+                                $skippedNames = $alreadyIn->pluck('name')->implode(', ');
+                                Notification::make()
+                                    ->warning()
+                                    ->title("Berhasil memindahkan {$toMove->count()} pegawai ke {$namaBidang}")
+                                    ->body("{$alreadyIn->count()} pegawai ({$skippedNames}) dilewati karena sudah berada di {$namaBidang}.")
+                                    ->send();
+
+                                return;
+                            }
 
                             Notification::make()
-                                ->title("Berhasil memindahkan $count pegawai ke bidang yang dipilih.")
+                                ->title("Berhasil memindahkan {$toMove->count()} pegawai ke {$namaBidang}.")
                                 ->success()
                                 ->send();
                         })
