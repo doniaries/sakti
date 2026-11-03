@@ -1,6 +1,6 @@
 # Pedoman & Aturan Pengembangan (AGENTS.md)
 
-Dokumen ini adalah pedoman baku dan aturan wajib untuk AI Agent dan pengembang dalam memelihara dan mengembangkan proyek **Absensi LHK**.
+Dokumen ini adalah pedoman baku dan aturan wajib untuk AI Agent dan pengembang dalam memelihara dan mengembangkan proyek **Sakti (Sistem Administrasi, Kinerja, dan Tata Informasi)**.
 
 ---
 
@@ -113,6 +113,10 @@ protected function getRedirectUrl(): string
    - Menghitung durasi menit, output bukti URL/foto, dan verifikasi atasan (`menunggu`, `disetujui`, `ditolak`).
 5. **Penilaian Reputasi Pegawai (`Reputasi`)**:
    - Penilaian peer-to-peer antar rekan kerja (1 - 5 bintang) beserta tanggal penilaian format Indonesia dan catatan review.
+6. **Pengadaan Barang & SPJ Keuangan Terpadu (`PengajuanSpj`)**:
+   - Integrasi pengadaan barang oleh staf bidang hingga terbitnya dokumen pertanggungjawaban (SPJ).
+   - Melibatkan rantai verifikasi berjenjang: Pemohon (Staf) ➔ PPTK (Kabid) ➔ PPK (Kasubag Keuangan) ➔ PA (Kadis) ➔ Pencairan (Bendahara Pengeluaran).
+   - Menghasilkan 3 output PDF terstandardisasi: Nota Pesanan, Kwitansi Pembayaran, dan Nota Pencairan Dana (NPD).
 
 ---
 
@@ -196,16 +200,101 @@ Ketika card widget pada Filament digunakan sebagai filter instan:
 
 ## 9. Pedoman Antarmuka Livewire 3/4 & Mobile PWA
 
-Panduan arsitektur dan standar refactor komponen Livewire telah dipisahkan ke dalam dokumen tersendiri:
-👉 **Silakan merujuk ke [`LIVEWIRE.md`](file:///c:/laragon/www/absensilhk/LIVEWIRE.md)** untuk pedoman teknis lengkap.
+Seluruh arsitektur komponen Livewire pada aplikasi **Sakti** terpusat pada pedoman teknis berikut:
 
-### Ringkasan Fitur Mobile Terkini:
-1. **Navigasi Bawah Mengambang (Sticky Floating Bottom Nav)**:
-   - Terdiri dari 5 menu: Beranda, Riwayat, **Tombol ABSEN melayang di tengah (FAB)**, LHK, dan Profil.
-2. **Jam Digital Real-Time**: Format `HH:MM WIB` dengan titik dua berkedip (blinking colon) tanpa detik.
-3. **Statistik 8-Card Kehadiran**: Hadir, Terlambat, Dinas Luar, Pulang Cepat, Izin, Sakit, Alpa, dan LHK Dibuat.
-4. **Validasi Presensi**: Pegawai wajib memiliki absen masuk pagi sebelum dapat mengambil absen pulang di sore hari.
-5. **Profil Pegawai Ala MyASN**: Tab Data Utama, Golongan, Jabatan, Pendidikan, dan Keluarga dengan kemampuan edit profil mandiri.
+### A. Arsitektur & Peran Livewire (Terkoneksi Penuh ke Filament & REST API)
+1. **Sumber Data Tunggal (Single Source of Truth)**:
+   - Seluruh data yang tampil pada klien Mobile PWA (`Dashboard`, `Absensi`, `Riwayat`, `LHK`, `Profil`, serta integrasi SPJ) **100% bersumber dari tabel database Filament** (`absensi_harian`, `log_absensi`, `lhks`, `users`, `pengaturan_aplikasis`, `pengajuan_spj`).
+   - Dilarang membuat data fiktif atau hardcode pada komponen mobile.
+2. **Keselarasan dengan REST API**:
+   - Endpoint API (`/api/absensi`, `/api/dashboard`, `/api/lhk`, `/api/me`) mengembalikan format JSON yang sinkron dengan data Filament Admin dan PWA Mobile.
+   - Setiap perubahan status kehadiran, log jam masuk/pulang, sumber perangkat (`mesin`/`mobile`), maupun cetak dokumen langsung mencerminkan data aktual yang terlihat di Panel Admin Filament.
+3. **Klien Web Mobile (PWA Pegawai)**:
+   - Terletak di `app/Livewire/Mobile/` dan `resources/views/livewire/mobile/`.
+   - Layout Utama: `resources/views/components/layouts/mobile.blade.php`.
+   - Perutean: Menggunakan full-page components yang diregistrasikan di `routes/web.php` dengan awalan `/mobile`. Halaman root `/` menyajikan **Landing Portal Gerbang Masuk** (`welcome.blade.php`) dengan tombol pilihan Pegawai dan Administrator.
+4. **Shortcut Admin**: Jika pengguna terautentikasi memiliki peran `admin` atau `super_admin`, antarmuka mobile dashboard menyediakan tombol pintas langsung ke panel Filament `/admin`.
+
+### B. Navigasi & Tata Letak Mobile (Sticky Bottom Nav & Floating FAB)
+Layout mobile mengadopsi standar modern aplikasi mobile (Glassmorphism & Floating Navigation Bar):
+1. **Sticky Floating Bottom Navigation Bar**:
+   - Menu navigasi bawah berposisi tetap (`position: fixed; bottom: 0`), memiliki efek *backdrop blur* dan rounded pill (`rounded-[28px]`).
+   - Struktur Menu:
+     1. **Beranda**: Mengarah ke `route('mobile.dashboard')`.
+     2. **Riwayat**: Mengarah ke `route('mobile.riwayat')`.
+     3. **Center Elevated Floating Action Button (FAB)**: Tombol bulat menonjol di tengah untuk **ABSEN** (`route('mobile.absensi')`). Tombol ini selalu muncul di setiap halaman dan mudah dijangkau dengan ibu jari.
+     4. **LHK**: Mengarah ke `route('mobile.lhk.index')`.
+     5. **Profil**: Mengarah ke `route('mobile.profil')` (Profil lengkap mandiri ala MyASN).
+2. **SPA Navigasi**:
+   - Seluruh link antarhalaman mobile wajib menyertakan atribut `wire:navigate` untuk transisi halaman instan tanpa reload penuh.
+3. **Safe Area & Padding**:
+   - Konten halaman dibungkus class `.content-area` dengan padding bawah minimal `pb-28` agar elemen formulir dan tombol aksi tidak tertutup oleh bottom bar terapung.
+
+### C. Logika & Aturan Bisnis Presensi Mobile
+1. **Format Jam Server**:
+   - Jam aktif server ditampilkan pada dashboard dan halaman absensi dengan format digital `HH:MM WIB` menggunakan pemisah titik dua `:` berkedip (*blinking colon*) setiap 1 detik tanpa menyertakan detik untuk tampilan yang ringkas dan tenang.
+2. **Statistik 8-Card Kehadiran Bulan Berjalan**:
+   Dashboard menyajikan 8 kartu statistik kehadiran:
+   - **Hadir**: Pegawai yang hadir tepat waktu atau terlambat.
+   - **Terlambat**: Pegawai yang tap masuk lewat dari batas toleransi.
+   - **Dinas Luar**: Pegawai dengan penugasan kedinasan luar kantor.
+   - **Plg Cepat (Pulang Cepat)**: Pegawai yang tap keluar sebelum jam pulang resmi jadwalnya.
+   - **Izin**: Pengajuan izin yang disetujui.
+   - **Sakit**: Keterangan sakit.
+   - **Alpa (Tanpa Keterangan)**: Tidak hadir dan tidak ada konfirmasi izin/DL.
+   - **LHK**: Akumulasi total laporan kinerja yang sudah disubmit bulan ini.
+3. **Validasi Wajib Absen Masuk Sebelum Absen Keluar**:
+   - Sistem menolak pengambilan absen keluar/pulang jika pegawai belum mengambil absen masuk pada pagi hari.
+   - Jika pegawai membuka halaman presensi pada sore hari tanpa riwayat masuk, sistem menampilkan banner peringatan merah: *"Anda tidak dapat mengambil absen pulang karena tidak mengambil absen masuk pagi ini. Status Anda hari ini tercatat Tidak Hadir / Alpa."*
+
+### D. Modul Profil Pegawai Mobile (Model Tab MyASN)
+Halaman profil pegawai di mobile (`App\Livewire\Mobile\Profil`) mengadopsi struktur infolist MyASN yang bersih dan interaktif:
+1. **5 Tab Navigasi Horizontal**:
+   - **Data Utama**: NIP, NIK, Jenis Kelamin, Tempat/Tgl Lahir, Agama, No. HP/WA, Email Dinas, Email Pribadi, dan Alamat Domisili.
+   - **Golongan**: Golongan/Ruang, Pangkat Pembina, Eselon, NPWP, BPJS Kesehatan, dan No. Taspen.
+   - **Jabatan**: Nama Jabatan, Bidang Dinas, Atasan Langsung, Tipe Kerja (WFH/WFO), Shift Kerja, dan PIN ID Mesin.
+   - **Pendidikan**: Jenjang Pendidikan (S3/S2/S1/D3/SLTA/SMP/SD), Jurusan/Prodi, Gelar Depan, dan Gelar Belakang.
+   - **Keluarga**: Nomor KK, NIK, dan Alamat Domisili Keluarga.
+2. **Fitur Edit Profil Mandiri**:
+   - Pegawai dapat menekan tombol **"Edit Profil"** untuk memperbarui data kontak, alamat domisili, data administrasi kependudukan, mengganti foto profil (avatar upload), dan mengubah kata sandi mandiri.
+
+### E. Pedoman Sintaks & Standar Kode Livewire 3/4
+Setiap komponen Livewire baru atau hasil refactor wajib mematuhi aturan berikut:
+1. **Deklarasi Class & Properties**:
+   - Gunakan PHP 8.2+ Typed Properties:
+     ```php
+     public string $search = '';
+     public ?int $selectedId = null;
+     public bool $isEditing = false;
+     ```
+   - Hindari menyimpan objek Query Builder atau Closure pada property publik Livewire (karena tidak dapat diserialisasi ke JSON). Simpan ID atau array data primitif.
+2. **Binding & Direktif Template**:
+   - Gunakan `wire:model.live` untuk pencarian/filter reaktif instan.
+   - Gunakan `wire:model.blur` pada input formulir panjang untuk menghemat request jaringan HTTP.
+   - **DILARANG** menggunakan `wire:model.lazy` (sintaks usang Livewire 2).
+3. **Event Dispatching**:
+   - Pengiriman event dari komponen PHP:
+     ```php
+     $this->dispatch('notify', [
+         'type' => 'success',
+         'title' => 'Berhasil!',
+         'message' => 'Data berhasil disimpan.',
+     ]);
+     ```
+   - **DILARANG** menggunakan `$this->emit()` (sintaks usang Livewire 2).
+4. **Optimasi Performa & Render**:
+   - Selalu tambahkan `wire:key` pada setiap perulangan `@foreach`:
+     ```html
+     @foreach ($riwayat as $item)
+         <div wire:key="riwayat-{{ $item->id }}">...</div>
+     @endforeach
+     ```
+   - Gunakan atribut layout modern:
+     ```php
+     #[Layout('components.layouts.mobile')]
+     #[Title('Judul Halaman')]
+     ```
+   - Gunakan `#[Lazy]` untuk pemuatan komponen berat di latar belakang.
 
 ---
 
@@ -249,7 +338,79 @@ Untuk pengembangan klien mobile Flutter:
 
 ---
 
-## 11. Format Respon AI (MANDATORY / WAJIB)
+## 11. Arsitektur & Alur Kerja (Workflow) Integrasi Keuangan & SPJ Terpadu
+
+Modul ini mengintegrasikan pengadaan belanja barang/jasa oleh bidang dengan pertanggungjawaban keuangan daerah (**SPJ**) secara paperless, terstandardisasi, dan akuntabel.
+
+### A. Master Data Keuangan & Pengkodean Terpusat
+Untuk menjaga konsistensi anggaran dan penamaan rekening daerah, master data dikelola terpusat oleh **Admin Keuangan**:
+1. **`master_kegiatan`**: Menyimpan kode dan nomenklatur kegiatan resmi dinas (`kode_kegiatan`, `nama_kegiatan`).
+2. **`master_sub_kegiatan`**: Sub-kegiatan turunan dari kegiatan (`kegiatan_id`, `kode_sub_kegiatan`, `nama_sub_kegiatan`).
+3. **`master_rekening`**: Kode rekening belanja daerah (misal: belanja ATK, cetak, konsumsi rapat, belanja modal, dll) (`kode_rekening`, `nama_rekening`).
+4. **`master_barang`**: Katalog standar barang persediaan (`nama_barang`, `satuan`, `harga_satuan_standar`).
+
+### B. Dynamic Input Form & Entri Belanja (Staf Bidang)
+1. **Auto-fill & Dependent Dropdown Reactive**:
+   - Staf bidang membuka form pengajuan SPJ.
+   - Memilih **Kegiatan**, maka dropdown **Sub Kegiatan** otomatis tersaring secara reaktif (`->live()`).
+   - Dropdown **Kode Rekening** dan **Barang** menyesuaikan alokasi belanja sub kegiatan tersebut.
+2. **Repeater Detail Belanja & Auto-Calculate**:
+   - Menggunakan komponen `Repeater` untuk mendukung pembelian banyak item barang dalam 1 pengajuan (`detail_pengajuan_spj`).
+   - Setiap baris item memuat: `rekening_id`, `barang_id`, `kuantitas`, `harga_satuan`, dan `subtotal`.
+   - **Kalkulasi Otomatis**: Perubahan `kuantitas` atau `harga_satuan` langsung mengkalkulasi `subtotal` per baris secara real-time dan menjumlahkan total keseluruhan ke field `total_nilai` di form induk.
+3. **Prasyarat & Unggah Berkas Bukti Sah**:
+   - `file_nota_penjual`: Unggahan faktur / nota asli dari pihak rekanan/toko penjual.
+   - `file_dokumentasi_barang`: Foto fisik barang nyata hasil pembelian. **Wajib mutlak** untuk barang/belanja dengan total di atas **Rp 2.000.000,-**.
+
+### C. Struktur Peran Jabatan Keuangan (Financial Roles)
+Jabatan keuangan bersifat fungsional-tugas yang fleksibel (dapat dilekatkan ke pegawai mana pun via penugasan SK / konfigurasi sistem), dengan penetapan standar dinas sebagai berikut:
+1. **PPTK (Pejabat Pelaksana Teknis Kegiatan)**: Dijabat oleh **Kepala Bidang (Kabid)** yang mengampu kegiatan/sub-kegiatan bersangkutan.
+2. **PPK (Pejabat Pembuat Komitmen)**: Dijabat oleh **Kasubag Keuangan**.
+3. **PA (Pengguna Anggaran)**: Dijabat oleh **Kepala Dinas (Kadis)** selaku pimpinan tertinggi anggaran dinas.
+4. **Bendahara Pengeluaran**: Petugas fungsional keuangan yang memverifikasi transaksi final dan mengeksekusi pencairan kas/dana.
+
+### D. Rantai Verifikasi & Alur Approval Berjenjang (Approval Workflow)
+Proses verifikasi dokumen SPJ dilakukan berjenjang dengan daftar uji kepatuhan (checklist):
+```mermaid
+graph TD
+    A["1. Staf Bidang (Input Belanja & Upload Bukti)"] -->|Submit Pengajuan| B["2. PPTK / Kabid (Uji Checklist & Tanda Tangan Awal)"]
+    B -->|Lengkap & Sah| C["3. PPK / Kasubag Keuangan (Verifikasi Anggaran & Kepatuhan)"]
+    B -->|Tidak Lengkap| A
+    C -->|Lolos Verifikasi| D["4. PA / Kadis (Persetujuan Akhir & Tanda Tangan)"]
+    C -->|Revisi| A
+    D -->|Disetujui| E["5. Bendahara Pengeluaran (Verifikasi Final & Pencairan Dana)"]
+    D -->|Ditolak/Revisi| A
+    E -->|Cair / Selesai| F["Selesai (SPJ Sah & Arsip Digital)"]
+```
+
+1. **Tahap 1 - Pengajuan (Staf Bidang)**:
+   - Staf menyusun rincian belanja barang, melampirkan faktur rekanan, nota pesanan awal, dan dokumentasi fisik barang.
+   - Status: `diajukan`.
+2. **Tahap 2 - Pemeriksaan PPTK (Kabid)**:
+   - PPTK memeriksa kesesuaian fisik dan administrasi dengan **Daftar Checklist Verifikasi**.
+   - Jika memenuhi syarat, PPTK menandatangani lembar **Nota Pesanan**, **Kwitansi**, dan **Nota Pencairan Dana (NPD)**.
+   - Status beralih ke verifikasi PPK.
+3. **Tahap 3 - Pengujian PPK (Kasubag Keuangan)**:
+   - PPK memverifikasi ketersediaan pagu anggaran, ketepatan pembebanan kode rekening, dan kelengkapan bukti transaksi.
+   - Status beralih ke persetujuan PA.
+4. **Tahap 4 - Otorisasi PA (Kepala Dinas)**:
+   - Kepala Dinas selaku PA meneliti dokumen final.
+   - Kadis membubuhkan tanda tangan persetujuan resmi pada **Kwitansi** dan **Nota Pencairan Dana (NPD)**.
+   - Status beralih ke Bendahara Pengeluaran.
+5. **Tahap 5 - Pencairan (Bendahara Pengeluaran)**:
+   - Bendahara melakukan audit akhir kepatuhan pajak (PPN/PPh bila ada) dan dokumen pendukung.
+   - Bendahara memproses pembayaran/pencairan dana kepada pihak pemohon/rekanan.
+   - Status akhir: `dicairkan` (Arsip SPJ Selesai).
+
+### E. Dokumen Output Terstandarisasi (Otomatisasi PDF via DomPDF)
+Sistem menyediakan aksi cetak dokumen satu-pintu (**"Cetak Dokumen SPJ"**) yang secara otomatis menghasilkan berkas PDF resmi terstandarisasi:
+1. **Nota Pesanan**: Diterbitkan sebelum pembelian barang sebagai dasar pemesanan barang ke penyedia/toko.
+2. **Kwitansi Pembayaran**: Format resmi daerah yang otomatis mencantumkan nominal terbilang rupiah, pihak penerima, PPTK, dan PA.
+3. **Nota Pencairan Dana (NPD)**: Surat nota dinas otorisasi pencairan anggaran kepada bendahara pengeluaran yang ditandatangani oleh PA/Kadis.
+
+---
+
+## 12. Format Respon AI (MANDATORY / WAJIB)
 
 Setiap kali AI memberikan solusi kode kepada pengguna, AI **WAJIB** menyertakan struktur berikut secara utuh:
 
