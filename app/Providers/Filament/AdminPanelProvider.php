@@ -33,6 +33,8 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
+            ->spa()
+            ->font('Poppins')
             // ->topNavigation()
             ->path('admin')
             ->sidebarCollapsibleOnDesktop()
@@ -46,11 +48,11 @@ class AdminPanelProvider extends PanelProvider
                         $user = auth()->user();
                         return $user ? $user->name : 'Profil';
                     })
-                    ->url(fn (): string => EditProfilePage::getUrl())
+                    ->url(fn(): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
                 'mobile' => MenuItem::make()
                     ->label('Presensi Mobile Pegawai')
-                    ->url(fn (): string => route('mobile.dashboard'))
+                    ->url(fn(): string => route('mobile.dashboard'))
                     ->icon('heroicon-m-device-phone-mobile'),
             ])
 
@@ -92,11 +94,11 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
-                fn (): string => view('filament.hooks.topbar-clock')->render()
+                fn(): string => view('filament.hooks.topbar-clock')->render()
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
-                fn (): string => view('filament.hooks.sidebar-accordion')->render()
+                fn(): string => view('filament.hooks.sidebar-accordion')->render()
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
@@ -123,8 +125,8 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
-FilamentBackgroundsPlugin::make(),
-                FilamentEditProfilePlugin::make(),
+                FilamentBackgroundsPlugin::make(),
+                FilamentEditProfilePlugin::make()
                     ->shouldShowAvatarForm(
                         value: true,
                         directory: 'avatars',
@@ -140,7 +142,7 @@ FilamentBackgroundsPlugin::make(),
                         'Kasubag Umum (Zulfitri)' => 'admin@gmail.com',
                         'Kabid (Indrawadi)' => 'kabid@gmail.com',
                         'Pegawai (Wilda)' => 'wilda@gmail.com',
-                    ])
+                    ]),
             ]);
     }
 }
