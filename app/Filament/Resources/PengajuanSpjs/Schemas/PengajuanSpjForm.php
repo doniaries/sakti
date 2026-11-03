@@ -49,6 +49,14 @@ class PengajuanSpjForm
         $isKwitansiDiproses = fn (?PengajuanSpj $record): bool => $record !== null
             && ! in_array($record->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
 
+        // Helper closure: Apakah Surat Pesanan sudah disetujui & di-TTD oleh Kabid (PPTK)?
+        $isPesananDisetujui = fn (?PengajuanSpj $record): bool => $record !== null
+            && ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true);
+
+        // Helper closure: Apakah Kwitansi sudah diproses dan masuk tahap NPD / Verifikasi Pejabat?
+        $isKwitansiDiproses = fn (?PengajuanSpj $record): bool => $record !== null
+            && ! in_array($record->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
+
         return $schema
             ->components([
                 Wizard::make([
