@@ -35,11 +35,28 @@ class PengajuanSpjForm
 {
     public static function configure(Schema $schema): Schema
     {
-        // Helper closure: Ambil bidang_id dari level root maupun dari dalam Wizard/Section/Repeater
-        $resolveBidangId = function (callable $get): ?int {
+        // Helper closure: Ambil bidang_id otomatis dari Staf atau Kepala Bidang yang sedang login
+        $resolveUserBidangId = function (): ?int {
+            /** @var \App\Models\User|null $user */
+            $user = Auth::user();
+            if (! $user) {
+                return null;
+            }
+
+            if (filled($user->bidang_id)) {
+                return (int) $user->bidang_id;
+            }
+
+            $kepalaBidangId = Bidang::where('kepala_id', $user->id)->value('id');
+
+            return $kepalaBidangId ? (int) $kepalaBidangId : null;
+        };
+
+        // Helper closure: Ambil bidang_id dari level root maupun dari dalam Wizard/Section/Repeater (fallback ke bidang user login)
+        $resolveBidangId = function (callable $get) use ($resolveUserBidangId): ?int {
             $id = $get('/data.bidang_id') ?: $get('bidang_id') ?: $get('../../bidang_id');
 
-            return filled($id) ? (int) $id : null;
+            return filled($id) ? (int) $id : $resolveUserBidangId();
         };
 
         // Helper closure: Ambil parent record PengajuanSpj baik dari level root maupun dari dalam Repeater DetailPengajuanSpj
@@ -88,7 +105,7 @@ class PengajuanSpjForm
                         ->schema([
                             // 1. IDENTITAS KEGIATAN & SURAT PESANAN
                             Section::make('Identitas Kegiatan & Surat Pesanan')
-                                ->description('Pilih Bidang Pengusul terlebih dahulu untuk memuat daftar Kegiatan dan Stok Barang.')
+                                ->description('Bidang Pengusul terisi otomatis sesuai keberadaan Staf atau Kepala Bidang yang mengakses.')
                                 ->compact()
                                 ->columns(6)
                                 ->schema([
@@ -108,7 +125,8 @@ class PengajuanSpjForm
 
                                     Select::make('bidang_id')
                                         ->label('Bidang Pengusul')
-                                        ->placeholder('Pilih Bidang Pengusul terlebih dahulu')
+                                        ->placeholder('Pilih Bidang Pengusul')
+                                        ->default(fn (): ?int => $resolveUserBidangId())
                                         ->options(fn () => Bidang::pluck('nama', 'id')->all())
                                         ->searchable()
                                         ->live()

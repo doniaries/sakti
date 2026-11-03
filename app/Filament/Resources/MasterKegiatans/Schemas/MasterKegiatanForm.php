@@ -6,6 +6,7 @@ use App\Models\Bidang;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class MasterKegiatanForm
 {
@@ -15,6 +16,19 @@ class MasterKegiatanForm
             ->components([
                 Select::make('bidang_id')
                     ->label('Bidang Pengampu Kegiatan')
+                    ->default(function (): ?int {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        if (! $user) {
+                            return null;
+                        }
+                        if (filled($user->bidang_id)) {
+                            return (int) $user->bidang_id;
+                        }
+                        $kepalaBidangId = Bidang::where('kepala_id', $user->id)->value('id');
+
+                        return $kepalaBidangId ? (int) $kepalaBidangId : null;
+                    })
                     ->options(fn () => Bidang::pluck('nama', 'id')->all())
                     ->searchable()
                     ->required(),
