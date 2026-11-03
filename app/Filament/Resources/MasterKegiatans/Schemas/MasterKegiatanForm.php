@@ -28,8 +28,14 @@ class MasterKegiatanForm
                 TextInput::make('nama_kegiatan')
                     ->label('Nomenklatur Kegiatan')
                     ->placeholder('Contoh: Program Pembinaan dan Pengembangan Olahraga')
-                    ->required()
-                    ->columnSpanFull(),
+                    ->required(),
+
+                TextInput::make('pagu_anggaran')
+                    ->label('Jumlah Uang / Pagu Kegiatan (Rp)')
+                    ->numeric()
+                    ->default(0)
+                    ->prefix('Rp')
+                    ->required(),
             ]);
     }
 }

@@ -17,6 +17,11 @@ class MasterKegiatan extends Model
         'bidang_id',
         'kode_kegiatan',
         'nama_kegiatan',
+        'pagu_anggaran',
+    ];
+
+    protected $casts = [
+        'pagu_anggaran' => 'decimal:2',
     ];
 
     public function bidang(): BelongsTo

@@ -35,6 +35,11 @@ class MasterKegiatansTable
                     ->sortable()
                     ->wrap(),
 
+                TextColumn::make('pagu_anggaran')
+                    ->label('Jumlah Uang Kegiatan')
+                    ->money('IDR', locale: 'id')
+                    ->sortable(),
+
                 TextColumn::make('sub_kegiatans_count')
                     ->label('Jml Sub Kegiatan')
                     ->counts('subKegiatans')

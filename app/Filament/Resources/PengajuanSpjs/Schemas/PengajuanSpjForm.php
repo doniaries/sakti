@@ -128,12 +128,19 @@ class PengajuanSpjForm
                                                 ->label('Nama Kegiatan')
                                                 ->required()
                                                 ->maxLength(255),
+                                            TextInput::make('pagu_anggaran')
+                                                ->label('Jumlah Uang / Pagu Kegiatan (Rp)')
+                                                ->numeric()
+                                                ->default(0)
+                                                ->prefix('Rp')
+                                                ->required(),
                                         ])
                                         ->createOptionUsing(function (array $data, callable $get) use ($resolveBidangId): int {
                                             return MasterKegiatan::create([
                                                 'bidang_id' => $resolveBidangId($get),
                                                 'kode_kegiatan' => $data['kode_kegiatan'],
                                                 'nama_kegiatan' => $data['nama_kegiatan'],
+                                                'pagu_anggaran' => (float) ($data['pagu_anggaran'] ?? 0),
                                             ])->id;
                                         })
                                         ->searchable()

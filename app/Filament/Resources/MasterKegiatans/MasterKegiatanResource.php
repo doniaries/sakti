@@ -24,7 +24,7 @@ class MasterKegiatanResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Kegiatan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
     protected static ?int $navigationSort = 1;
 

@@ -8,6 +8,7 @@ use App\Filament\Resources\PengajuanSpjs\Pages\ListPengajuanSpjs;
 use App\Filament\Resources\PengajuanSpjs\Pages\ViewPengajuanSpj;
 use App\Filament\Resources\PengajuanSpjs\Schemas\PengajuanSpjForm;
 use App\Filament\Resources\PengajuanSpjs\Tables\PengajuanSpjsTable;
+use App\Filament\Resources\PengajuanSpjs\Widgets\KeuanganBidangOverviewWidget;
 use App\Models\PengajuanSpj;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -37,6 +38,13 @@ class PengajuanSpjResource extends Resource
     public static function table(Table $table): Table
     {
         return PengajuanSpjsTable::configure($table);
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            KeuanganBidangOverviewWidget::class,
+        ];
     }
 
     public static function getPages(): array
