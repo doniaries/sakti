@@ -389,51 +389,57 @@ Modul ini mengintegrasikan seluruh siklus pengelolaan keuangan belanja dinas—m
 
 ---
 
-### B. Pemisahan Tegas Dua Tahap Belanja: Pemesanan vs Realisasi
+### B. Pemisahan Tegas Dua Tahap Belanja: Surat Pesanan (Di-TTD Kabid/PPTK) vs Proses Surat Kwitansi
 
-Sistem memisahkan alur belanja secara tegas menjadi 2 tahapan kronologis:
+Sistem memisahkan alur belanja dan penerbitan dokumen secara tegas menjadi 2 tahapan kronologis yang **tidak boleh terbalik atau dilompati**:
 
 ```mermaid
 flowchart TD
-    subgraph TAHAP1["TAHAP 1: Pengajuan & Pemesanan (Sebelum Barang Dibeli)"]
+    subgraph TAHAP1["TAHAP 1: Pengajuan & TTD Surat Pesanan ke Kabid / PPTK (Sebelum Pembelian)"]
         A1["Staf Bidang Buka Form Pengajuan"] --> A2["Pilih Kegiatan ➔ Sub Kegiatan ➔ Rekening ➔ Barang"]
         A2 --> A3["Input Volume & Estimasi Harga Satuan"]
         A3 --> A4["Sistem Auto-Calculate Subtotal & Total Pagu"]
-        A4 --> A5["Submit Pengajuan (Status: diajukan)"]
-        A5 --> A6["PPTK Menyetujui Pemesanan"]
-        A6 --> A7["Cetak NOTA PESANAN Resmi Sistem (Status: menunggu_realisasi)"]
+        A4 --> A5["Staf Ajukan SURAT PESANAN ke Kabid selaku PPTK (Status: diajukan)"]
+        A5 --> A6["Kabid (PPTK) Memeriksa & MENANDATANGANI (TTD) Surat Pesanan"]
+        A6 --> A7["Terbit SURAT PESANAN / NOTA PESANAN Resmi Ber-TTD PPTK (Status: menunggu_realisasi)"]
     end
 
-    subgraph TAHAP2["TAHAP 2: Realisasi Pembelian & Unggah Bukti (Setelah Barang Dibeli)"]
-        B1["Staf Membawa Nota Pesanan & Membeli ke Toko/Rekanan"] --> B2["Staf Terima Faktur/Nota Toko Asli & Fisik Barang"]
-        B2 --> B3["Input Realisasi: Kuantitas Nyata & Harga Aktual"]
+    subgraph TAHAP2["TAHAP 2: Realisasi Belanja & Pemrosesan SURAT KWITANSI (Setelah Surat Pesanan Di-TTD)"]
+        B1["Staf Membawa Surat Pesanan Ber-TTD Kabid/PPTK & Membeli ke Toko"] --> B2["Staf Terima Faktur/Nota Toko Asli & Fisik Barang"]
+        B2 --> B3["Input Realisasi: Kuantitas Nyata & Harga Aktual untuk Proses Kwitansi"]
         B3 --> B4["Unggah Faktur Toko (file_nota_penjual)"]
         B4 --> B5["Unggah Foto Dokumentasi Fisik Barang (Wajib jika > Rp 2 Jt)"]
         B5 --> B6{"Apakah Ada Selisih/Deviasi?"}
         B6 -- "Ada Selisih" --> B7["Sistem Deteksi Selisih & Wajibkan Catatan Justifikasi"]
-        B6 -- "Sesuai" --> B8["Submit Realisasi Lengkap"]
+        B6 -- "Sesuai" --> B8["Submit Realisasi & Proses SURAT KWITANSI + NPD"]
         B7 --> B8
-        B8 --> B9["Masuk Antrean Uji Checklist PPTK (Status: menunggu_verifikasi_pptk)"]
+        B8 --> B9["Masuk Antrean Verifikasi & TTD Kwitansi oleh PPTK (Status: menunggu_verifikasi_pptk)"]
     end
 
     TAHAP1 --> TAHAP2
 ```
 
-1. **Tahap 1: Pengajuan & Pemesanan Sebelum Pembelian**:
+> **ATURAN BAKU URUTAN DOKUMEN (WAJIB DIPEDOMANI):**
+> 1. **Staf Mengajukan Surat Pesanan ke Kabid (PPTK)**: Langkah pertama wajib dimulai dengan staf mengajukan **Surat Pesanan (Nota Pesanan)** kepada **Kepala Bidang (Kabid) selaku PPTK**.
+> 2. **Kabid (PPTK) Menandatangani Surat Pesanan**: Kabid selaku PPTK memverifikasi kebutuhan barang dan **menandatangani (TTD) Surat Pesanan**. Identitas PPTK langsung terekam pada Surat Pesanan.
+> 3. **Setelah Surat Pesanan Di-TTD, Baru Diproses Surat Kwitansinya**: **Surat Kwitansi Pembayaran** (beserta **Nota Pencairan Dana / NPD**) **HANYA DAPAT DIPROSES SETELAH Surat Pesanan ditandatangani oleh Kabid (PPTK)** dan realisasi pembelian beserta bukti faktur/dokumentasi barang telah diinput. Dilarang memproses atau menerbitkan Kwitansi sebelum Surat Pesanan di-TTD oleh Kabid (PPTK).
+
+1. **Tahap 1: Pengajuan & Penandatanganan Surat Pesanan oleh Kabid/PPTK (Sebelum Pembelian)**:
    - Staf bidang memilih Bidang, Kegiatan, Subkegiatan, Kode Rekening Belanja, dan Katalog Barang.
    - Mengisi volume kuantitas rencana dan estimasi harga satuan.
    - Sistem melakukan *auto-calculate* subtotal per item dan total nilai belanja.
-   - Setelah diajukan dan disetujui rencana pemesanannya, sistem menerbitkan **Nota Pesanan** resmi. Nota Pesanan ini dibawa oleh staf sebagai dasar legalitas pemesanan barang ke penyedia/toko rekanan.
+   - Staf mengajukan **Surat Pesanan** kepada **Kepala Bidang (Kabid) selaku PPTK** (`status: diajukan`).
+   - **Kabid selaku PPTK** menyetujui dan **menandatangani (TTD) Surat Pesanan** tersebut. Sistem menerbitkan **Surat Pesanan / Nota Pesanan** resmi yang telah bertanda tangan PPTK. Surat Pesanan ini dibawa oleh staf sebagai dasar legalitas pemesanan barang ke penyedia/toko rekanan.
    - Status beralih ke: `menunggu_realisasi`.
-2. **Tahap 2: Realisasi Pembelian Setelah Barang Dibeli**:
-   - Setelah pembelian selesai dilakukan di penyedia/toko, staf kembali ke sistem untuk menginput realisasi fisik dan belanja.
+2. **Tahap 2: Realisasi Pembelian & Pemrosesan Surat Kwitansi (Setelah Surat Pesanan Di-TTD)**:
+   - Setelah Surat Pesanan ditandatangani Kabid (PPTK) dan pembelian selesai dilakukan di penyedia/toko, staf kembali ke sistem untuk menginput realisasi fisik dan belanja guna **memproses Surat Kwitansi Pembayaran**.
    - Mengisi kuantitas aktual yang terbeli dan harga satuan faktur toko sesungguhnya.
    - Mengunggah berkas bukti sah:
      - `file_nota_penjual`: Scan/foto faktur atau nota asli berstempel dari rekanan penjual (wajib untuk seluruh nilai transaksi).
      - `file_dokumentasi_barang`: Foto fisik barang nyata hasil pembelian. **Wajib mutlak** apabila nilai total transaksi belanja **di atas Rp 2.000.000,-**.
    - **Komparasi Nilai & Deteksi Deviasi**:
-     - Sistem membandingkan nilai pengajuan awal dengan nilai realisasi faktur belanja secara otomatis.
-     - Jika terdapat perbedaan nominal atau barang (selisih lebih/kurang), sistem mencatat deviasi tersebut dan mewajibkan staf mengisi kolom *justifikasi selisih* sebelum berkas dapat diserahkan ke tahap verifikasi PPTK.
+     - Sistem membandingkan nilai pengajuan awal pada Surat Pesanan dengan nilai realisasi faktur belanja secara otomatis.
+     - Jika terdapat perbedaan nominal atau barang (selisih lebih/kurang), sistem mencatat deviasi tersebut dan mewajibkan staf mengisi kolom *justifikasi selisih* sebelum **Surat Kwitansi & NPD** diserahkan ke tahap verifikasi dan TTD PPTK, PPK, PA (Kadis), dan Bendahara.
 
 ---
 
@@ -498,28 +504,28 @@ Sistem memberlakukan mesin status yang ketat (*strict state machine*). Pengguna 
 
 ```mermaid
 stateDiagram-v2
-    [*] --> draft: Staf Input Rencana
-    draft --> diajukan: Staf Submit Rencana
-    diajukan --> menunggu_realisasi: PPTK Setujui Pemesanan & Terbit Nota Pesanan
+    [*] --> draft: Staf Input Rencana Pesanan
+    draft --> diajukan: Staf Ajukan Surat Pesanan ke Kabid (PPTK)
+    diajukan --> menunggu_realisasi: Kabid (PPTK) TTD Surat Pesanan / Nota Pesanan
     
-    menunggu_realisasi --> menunggu_verifikasi_pptk: Staf Beli Barang & Upload Faktur + Foto Fisik
+    menunggu_realisasi --> menunggu_verifikasi_pptk: Setelah Surat Pesanan Di-TTD, Staf Beli Barang, Upload Bukti & Proses Surat Kwitansi
     menunggu_verifikasi_pptk --> revisi_pptk: Checklist PPTK Belum Lengkap
     revisi_pptk --> menunggu_verifikasi_pptk: Staf Perbaiki & Resubmit
     
-    menunggu_verifikasi_pptk --> menunggu_verifikasi_ppk: PPTK Loloskan & TTD (Nota Pesanan, Kwitansi, NPD)
+    menunggu_verifikasi_pptk --> menunggu_verifikasi_ppk: PPTK Loloskan Checklist & TTD (Surat Kwitansi & NPD)
     menunggu_verifikasi_ppk --> revisi_ppk: Administrasi/Pagu Belum Sesuai
     revisi_ppk --> menunggu_verifikasi_ppk: Perbaikan Berkas
     
-    menunggu_verifikasi_ppk --> menunggu_persetujuan_pa: PPK Loloskan Verifikasi Anggaran
+    menunggu_verifikasi_ppk --> menunggu_persetujuan_pa: PPK Loloskan Verifikasi Anggaran & Pajak
     menunggu_persetujuan_pa --> revisi_pa: Kadis Meminta Koreksi
     revisi_pa --> menunggu_persetujuan_pa: Perbaikan Berkas
     
-    menunggu_persetujuan_pa --> menunggu_verifikasi_bendahara: Kadis Setujui & TTD (Kwitansi & NPD)
+    menunggu_persetujuan_pa --> menunggu_verifikasi_bendahara: Kadis (PA) Setujui & TTD (Surat Kwitansi & NPD)
     menunggu_verifikasi_bendahara --> revisi_bendahara: Berkas/Pajak Belum Klir
     revisi_bendahara --> menunggu_verifikasi_bendahara: Perbaikan Berkas
     
     menunggu_verifikasi_bendahara --> disetujui: Bendahara Loloskan Uji Kas
-    disetujui --> dicairkan: Kas Dicairkan & Lunas (SPJ Sah)
+    disetujui --> dicairkan: Kas Dicairkan & TTD Lunas Kwitansi (SPJ Sah)
     
     draft --> ditolak: Pembatalan Permanen
     diajukan --> ditolak: Ditolak Permanen
@@ -527,42 +533,42 @@ stateDiagram-v2
 ```
 
 #### Daftar Status Resmi Sistem:
-1. `draft`: Draf pengajuan belanja oleh staf bidang.
-2. `diajukan`: Pengajuan rencana belanja diserahkan ke PPTK untuk persetujuan pemesanan.
-3. `menunggu_realisasi`: Rencana disetujui, Nota Pesanan terbit, staf belanja ke rekanan toko.
-4. `menunggu_verifikasi_pptk`: Faktur toko dan foto barang fisik telah diunggah, menunggu uji checklist PPTK.
+1. `draft`: Draf rencana Surat Pesanan oleh staf bidang.
+2. `diajukan`: Staf mengajukan **Surat Pesanan (Nota Pesanan)** kepada **Kepala Bidang (Kabid) selaku PPTK** untuk ditandatangani.
+3. `menunggu_realisasi`: **Surat Pesanan telah disetujui & ditandatangani (TTD) oleh Kabid (PPTK)**. Surat Pesanan resmi terbit, staf belanja ke rekanan toko, dan siap dilanjutkan ke pemrosesan **Surat Kwitansi**.
+4. `menunggu_verifikasi_pptk`: Faktur toko dan foto barang fisik telah diunggah, **Surat Kwitansi Pembayaran & NPD diproses** dan menunggu uji checklist serta TTD Kwitansi oleh PPTK.
 5. `revisi_pptk`: Dikembalikan oleh PPTK ke staf karena checklist belum terpenuhi.
-6. `menunggu_verifikasi_ppk`: Lolos checklist PPTK, berkas diuji administrasi dan pagu oleh PPK (Kasubag Keuangan).
+6. `menunggu_verifikasi_ppk`: Lolos checklist PPTK & Kwitansi telah di-TTD PPTK, berkas diuji administrasi dan pagu oleh PPK (Kasubag Keuangan).
 7. `revisi_ppk`: Dikembalikan oleh PPK karena catatan anggaran/administrasi.
-8. `menunggu_persetujuan_pa`: Lolos verifikasi PPK, berkas menunggu otorisasi final Kepala Dinas (PA).
+8. `menunggu_persetujuan_pa`: Lolos verifikasi PPK, berkas Surat Kwitansi & NPD menunggu otorisasi final Kepala Dinas (PA).
 9. `revisi_pa`: Dikembalikan oleh Kepala Dinas untuk perbaikan.
-10. `menunggu_verifikasi_bendahara`: Kadis telah menyetujui & TTD dokumen, berkas diuji kas oleh Bendahara.
+10. `menunggu_verifikasi_bendahara`: Kadis telah menyetujui & TTD Surat Kwitansi dan NPD, berkas diuji kas oleh Bendahara.
 11. `revisi_bendahara`: Dikembalikan oleh Bendahara karena koreksi perhitungan pajak atau bukti.
 12. `disetujui`: Berkas 100% lengkap dan sah, siap dibayarkan.
-13. `dicairkan`: Dana kas telah diserahkan/ditransfer ke rekanan/pemohon, SPJ lunas dan terarsip digital.
+13. `dicairkan`: Dana kas telah diserahkan/ditransfer ke rekanan/pemohon, Surat Kwitansi telah di-TTD Lunas oleh Bendahara, SPJ sah dan terarsip digital.
 14. `ditolak`: Pengajuan dibatalkan secara permanen dengan catatan penolakan.
 
 ---
 
-### G. Dokumen SPJ Terstandarisasi (Auto-Generate PDF via DomPDF)
+### G. Dokumen SPJ Terstandarisasi & Urutan Penerbitan (Auto-Generate PDF via DomPDF)
 
-Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Single Source of Truth*):
-1. **Nota Pesanan**:
-   - Waktu Terbit: **Sebelum belanja dilakukan**.
-   - Isi: Dasar pemesanan barang, nomor nota pesanan, nama toko/rekanan penyedia, rincian barang yang dipesan, volume, harga satuan standar, dan ketentuan pemesanan.
-   - Pihak Bertandatangan: **PPTK (Kabid)** dan **Pimpinan/Staf Toko Penyedia**.
-2. **Kwitansi Pembayaran**:
-   - Waktu Terbit: Format baku kwitansi resmi kas daerah.
-   - Isi: Nomor bukti kas, nominal rupiah, teks terbilang otomatis dari sistem (*rupiah spelling function*), rincian pembayaran belanja, nama rekanan penerima dana.
-   - Pihak Bertandatangan:
+Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Single Source of Truth*) dengan **urutan penerbitan bertahap sesuai status TTD**:
+1. **Surat Pesanan / Nota Pesanan (Tahap 1 — Sebelum Pembelian)**:
+   - Waktu Terbit: Diajukan oleh Staf ke **Kabid selaku PPTK**, dan **resmi terbit setelah ditandatangani (TTD) oleh Kabid (PPTK)** (`status >= menunggu_realisasi`) sebelum pembelian dilakukan.
+   - Isi: Dasar pemesanan barang, nomor surat pesanan, nama toko/rekanan penyedia, rincian barang yang dipesan, volume, harga satuan standar, dan ketentuan pemesanan.
+   - Pihak Bertandatangan: **PPTK (Kepala Bidang)** dan **Pimpinan/Staf Toko Penyedia**.
+2. **Surat Kwitansi Pembayaran (Tahap 2 — Diproses Setelah Surat Pesanan Di-TTD Kabid/PPTK)**:
+   - Waktu Terbit: **WAJIB diproses HANYA SETELAH Surat Pesanan ditandatangani oleh Kabid (PPTK)** dan realisasi pembelian barang dilakukan. Sebelum Surat Pesanan di-TTD Kabid/PPTK, Kwitansi belum dapat diterbitkan.
+   - Isi: Nomor bukti kas, nominal rupiah realisasi, teks terbilang otomatis dari sistem (*rupiah spelling function*), rincian pembayaran belanja sesuai faktur, nama rekanan penerima dana.
+   - Pihak Bertandatangan (Berjenjang):
      1. Rekanan Penerima Dana
-     2. PPTK (Kabid)
+     2. PPTK (Kepala Bidang)
      3. PA (Kepala Dinas)
      4. Bendahara Pengeluaran (Tanda lunas bayar)
-3. **Nota Pencairan Dana (NPD)**:
-   - Waktu Terbit: Surat nota dinas permohonan pencairan kas kepada Bendahara Pengeluaran.
+3. **Nota Pencairan Dana / NPD (Tahap 2 — Diproses Bersama Surat Kwitansi)**:
+   - Waktu Terbit: Diproses bersama Surat Kwitansi setelah Surat Pesanan di-TTD Kabid (PPTK) sebagai surat permohonan pencairan kas kepada Bendahara Pengeluaran.
    - Isi: Dasar pengeluaran, nomor NPD, subkegiatan, kode rekening belanja, rincian keperluan belanja, total nominal yang disetujui untuk dicairkan.
-   - Pihak Bertandatangan: **PPTK (Kabid)** dan disetujui oleh **PA (Kepala Dinas)**.
+   - Pihak Bertandatangan: **PPTK (Kepala Bidang)** dan disetujui oleh **PA (Kepala Dinas)**.
 4. **Keamanan & Imutabilitas Dokumen**:
    - Menggunakan tanda tangan digital atau spesimen tanda tangan pejabat berwenang sesuai hak akses.
    - Setiap kali cetak, sistem menyimpan nomor versi dokumen dan riwayat penerbitannya.

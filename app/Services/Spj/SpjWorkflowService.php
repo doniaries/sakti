@@ -32,7 +32,7 @@ class SpjWorkflowService
             }
 
             if ($user) {
-                if ($nextStatus === 'menunggu_verifikasi_ppk' || $nextStatus === 'revisi_pptk') {
+                if (in_array($nextStatus, ['menunggu_realisasi', 'menunggu_verifikasi_ppk', 'revisi_pptk'], true)) {
                     $updateData['pptk_user_id'] = $user->id;
                 } elseif ($nextStatus === 'menunggu_persetujuan_pa' || $nextStatus === 'revisi_ppk') {
                     $updateData['ppk_user_id'] = $user->id;

@@ -33,6 +33,30 @@ class DetailPengajuanSpj extends Model
         'subtotal_realisasi' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::saved(function (DetailPengajuanSpj $detail) {
+            $detail->recalculateParentTotals();
+        });
+
+        static::deleted(function (DetailPengajuanSpj $detail) {
+            $detail->recalculateParentTotals();
+        });
+    }
+
+    public function recalculateParentTotals(): void
+    {
+        $spj = $this->pengajuanSpj;
+        if ($spj) {
+            $totalRencana = $spj->details()->sum('subtotal');
+            $totalRealisasi = $spj->details()->sum('subtotal_realisasi');
+            $spj->updateQuietly([
+                'total_nilai_rencana' => $totalRencana,
+                'total_nilai_realisasi' => $totalRealisasi > 0 ? $totalRealisasi : null,
+            ]);
+        }
+    }
+
     public function pengajuanSpj(): BelongsTo
     {
         return $this->belongsTo(PengajuanSpj::class, 'pengajuan_spj_id');

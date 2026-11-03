@@ -115,19 +115,19 @@ class PengajuanSpj extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'draft' => 'Draft Rencana',
-            'diajukan' => 'Diajukan ke PPTK',
-            'menunggu_realisasi' => 'Nota Pesanan Terbit / Belanja',
-            'menunggu_verifikasi_pptk' => 'Menunggu Verifikasi PPTK',
+            'draft' => 'Draft Surat Pesanan',
+            'diajukan' => 'Menunggu TTD Surat Pesanan (Kabid/PPTK)',
+            'menunggu_realisasi' => 'Surat Pesanan Di-TTD / Proses Kwitansi',
+            'menunggu_verifikasi_pptk' => 'Kwitansi Menunggu Verifikasi & TTD PPTK',
             'revisi_pptk' => 'Revisi PPTK',
-            'menunggu_verifikasi_ppk' => 'Menunggu Verifikasi PPK',
+            'menunggu_verifikasi_ppk' => 'Kwitansi Menunggu Verifikasi PPK',
             'revisi_ppk' => 'Revisi PPK',
-            'menunggu_persetujuan_pa' => 'Menunggu Persetujuan PA (Kadis)',
+            'menunggu_persetujuan_pa' => 'Kwitansi Menunggu TTD PA (Kadis)',
             'revisi_pa' => 'Revisi PA',
-            'menunggu_verifikasi_bendahara' => 'Menunggu Uji Kas Bendahara',
+            'menunggu_verifikasi_bendahara' => 'Kwitansi Menunggu Uji Kas Bendahara',
             'revisi_bendahara' => 'Revisi Bendahara',
             'disetujui' => 'Disetujui (Siap Cair)',
-            'dicairkan' => 'Dicairkan & Lunas',
+            'dicairkan' => 'Kwitansi Lunas & Dicairkan',
             'ditolak' => 'Ditolak Permanen',
             default => ucfirst(str_replace('_', ' ', (string) $this->status)),
         };

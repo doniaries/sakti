@@ -88,9 +88,11 @@ class PengajuanSpjsTable
                     ->label('Bidang Dinas'),
             ])
             ->actions([
-                // Aksi 1: Cetak 3 Dokumen SPJ Terstandardisasi (Nota Pesanan, Kwitansi, NPD)
+                // Aksi 1: Cetak Dokumen SPJ (Surat Pesanan & Kwitansi setelah di-TTD PPTK)
                 Action::make('cetak_dokumen')
-                    ->label('Cetak Dokumen')
+                    ->label(fn (PengajuanSpj $record): string => in_array($record->status, ['draft', 'diajukan'], true)
+                        ? 'Cetak Surat Pesanan'
+                        : 'Cetak Pesanan & Kwitansi')
                     ->icon('heroicon-o-printer')
                     ->color('success')
                     ->url(fn (PengajuanSpj $record): string => route('admin.pengajuan-spj.cetak', $record))
@@ -100,13 +102,13 @@ class PengajuanSpjsTable
                 Action::make('proses_approval')
                     ->label(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'draft' => 'Ajukan Rencana',
-                            'diajukan' => 'Setujui Pemesanan (Terbitkan NP)',
-                            'menunggu_realisasi' => 'Kirim Bukti Pembelian',
-                            'menunggu_verifikasi_pptk' => 'Verifikasi PPTK',
-                            'menunggu_verifikasi_ppk' => 'Verifikasi PPK',
-                            'menunggu_persetujuan_pa' => 'Otorisasi PA (Kadis)',
-                            'menunggu_verifikasi_bendahara' => 'Cairkan Kas Bendahara',
+                            'draft' => 'Ajukan Surat Pesanan ke Kabid',
+                            'diajukan' => 'TTD Surat Pesanan (Kabid/PPTK)',
+                            'menunggu_realisasi' => 'Proses Surat Kwitansi',
+                            'menunggu_verifikasi_pptk', 'revisi_pptk' => 'Verifikasi & TTD Kwitansi (PPTK)',
+                            'menunggu_verifikasi_ppk', 'revisi_ppk' => 'Verifikasi Kwitansi (PPK)',
+                            'menunggu_persetujuan_pa', 'revisi_pa' => 'TTD Kwitansi & NPD (PA/Kadis)',
+                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => 'Cairkan & TTD Lunas Kwitansi',
                             default => 'Proses Tahapan',
                         };
                     })

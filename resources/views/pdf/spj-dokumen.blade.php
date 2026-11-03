@@ -193,8 +193,14 @@
                 <td style="width: 50%;">
                     Ditetapkan di Tempat, {{ \Carbon\Carbon::parse($spj->tanggal_pengajuan)->translatedFormat('d F Y') }}<br>
                     Pejabat Pelaksana Teknis Kegiatan (PPTK)<br>
-                    <strong>{{ $spj->bidang?->nama ?? 'Kepala Bidang' }}</strong>
-                    <div class="signature-space"></div>
+                    <strong>Kepala {{ $spj->bidang?->nama ?? 'Bidang' }}</strong>
+                    <div class="signature-space" style="padding-top: 15px; font-size: 8.5pt; color: #333;">
+                        @if (!in_array($spj->status, ['draft', 'diajukan'], true))
+                            <em>[Telah Ditandatangani Secara Elektronik oleh PPTK]</em>
+                        @else
+                            <em>[Menunggu TTD Kepala Bidang / PPTK]</em>
+                        @endif
+                    </div>
                     <strong><u>{{ $spj->pptk?->name ?? ($spj->bidang?->kepala?->name ?? '..................................') }}</u></strong><br>
                     NIP. {{ $spj->pptk?->nip ?? ($spj->bidang?->kepala?->nip ?? '.................................') }}
                 </td>
@@ -202,7 +208,8 @@
         </table>
     </div>
 
-    {{-- ==================== HALAMAN 2: KWITANSI PEMBAYARAN ==================== --}}
+    @if (!in_array($spj->status, ['draft', 'diajukan'], true))
+    {{-- ==================== HALAMAN 2: KWITANSI PEMBAYARAN (DIPROSES SETELAH SURAT PESANAN DI-TTD PPTK) ==================== --}}
     <div class="page">
         <div class="header-kop">
             <h2>PEMERINTAH DAERAH PROVINSI / KABUPATEN</h2>
@@ -376,6 +383,7 @@
             </tr>
         </table>
     </div>
+    @endif
 
 </body>
 </html>
