@@ -47,7 +47,7 @@ class UsersTable
                     ->sortable()
                     ->weight('bold')
                     ->color('primary')
-                    ->url(fn ($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record])),
+                    ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record])),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->copyable()
@@ -78,6 +78,12 @@ class UsersTable
                     ->searchable()
                     ->copyable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                \Filament\Tables\Columns\TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->color('gray')
+                    ->searchable()
+                    ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('jabatan.nama')
                     ->label('Jabatan')
                     ->badge()
@@ -99,12 +105,7 @@ class UsersTable
                     })
                     ->searchable()
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('bidang.nama')
-                    ->label('Bidang')
-                    ->badge()
-                    ->color('gray')
-                    ->searchable()
-                    ->sortable(),
+
                 \Filament\Tables\Columns\TextColumn::make('anggaran_role')
                     ->label('Peran Anggaran')
                     ->badge()
@@ -462,8 +463,8 @@ class UsersTable
                             $targetBidang = \App\Models\Bidang::find($targetBidangId);
                             $namaBidang = $targetBidang?->nama ?? 'bidang tujuan';
 
-                            $alreadyIn = $records->filter(fn ($user) => (int) $user->bidang_id === $targetBidangId);
-                            $toMove = $records->reject(fn ($user) => (int) $user->bidang_id === $targetBidangId);
+                            $alreadyIn = $records->filter(fn($user) => (int) $user->bidang_id === $targetBidangId);
+                            $toMove = $records->reject(fn($user) => (int) $user->bidang_id === $targetBidangId);
 
                             if ($toMove->isEmpty()) {
                                 $alreadyNames = $alreadyIn->pluck('name')->implode(', ');
@@ -476,7 +477,7 @@ class UsersTable
                                 return;
                             }
 
-                            $toMove->each(fn ($user) => $user->update([
+                            $toMove->each(fn($user) => $user->update([
                                 'bidang_id' => $targetBidangId,
                                 'atasan_id' => ($targetBidang?->kepala_id && $user->id !== $targetBidang->kepala_id)
                                     ? $targetBidang->kepala_id
