@@ -35,6 +35,12 @@ class UsersTable
                     ->disk('public')
                     ->label('Avatar')
                     ->circular(),
+                \Filament\Tables\Columns\TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->color('gray')
+                    ->searchable()
+                    ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
                     ->label('ID Mesin')
                     ->searchable()
@@ -78,12 +84,7 @@ class UsersTable
                     ->searchable()
                     ->copyable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                \Filament\Tables\Columns\TextColumn::make('bidang.nama')
-                    ->label('Bidang')
-                    ->badge()
-                    ->color('gray')
-                    ->searchable()
-                    ->sortable(),
+
                 \Filament\Tables\Columns\TextColumn::make('jabatan.nama')
                     ->label('Jabatan')
                     ->badge()
