@@ -149,32 +149,32 @@ class PengajuanSpjForm
 
                             // SECTION TERPISAH KHUSUS DATA TOKO & PEMILIK TOKO
                             Section::make('Data Toko / Rekanan Penyedia Barang')
-                                ->description('Informasi toko tujuan Surat Pesanan dan nama pemilik toko yang akan menandatangani Surat Pesanan serta Kwitansi Pembayaran.')
+                                ->description('Informasi toko tujuan Surat Pesanan, nomor rekening toko, dan nama pemilik toko (Nama Terang) untuk tanda tangan pada Kwitansi Pembayaran.')
                                 ->columns(3)
                                 ->schema([
                                     TextInput::make('nama_toko')
                                         ->label('Nama Toko / Rekanan Penyedia')
-                                        ->placeholder('Contoh: Toko ATK Sinar Jaya')
+                                        ->placeholder('Contoh: Toko Rilex Abadi')
                                         ->required()
                                         ->maxLength(255)
                                         ->columnSpan(1),
 
                                     TextInput::make('penerima_nama')
-                                        ->label('Nama Pemilik Toko (Untuk TTD Kwitansi & Pesanan)')
-                                        ->placeholder('Contoh: H. Budi Santoso')
+                                        ->label('Nama Pemilik Toko / Nama Terang (TTD Kwitansi)')
+                                        ->placeholder('Contoh: Agusrizal')
                                         ->required()
                                         ->maxLength(255)
                                         ->columnSpan(1),
 
                                     TextInput::make('penerima_identitas')
-                                        ->label('Jabatan / NPWP / No. HP Pemilik Toko')
-                                        ->placeholder('Contoh: Pemilik Toko / NPWP: 01.234.567.8')
+                                        ->label('No. Rekening Bank Toko (Tercantum di Kwitansi)')
+                                        ->placeholder('Contoh: 0700.0210.21699-2')
                                         ->maxLength(100)
                                         ->columnSpan(1),
 
                                     Textarea::make('alamat_toko')
-                                        ->label('Alamat Lengkap Toko / Rekanan')
-                                        ->placeholder('Contoh: Jl. Jenderal Sudirman No. 45, Kompleks Pertokoan Blok B No. 3')
+                                        ->label('Alamat Terang Toko / Rekanan')
+                                        ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
                                         ->required()
                                         ->rows(2)
                                         ->columnSpan(3),
