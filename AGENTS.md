@@ -73,6 +73,7 @@ protected function getRedirectUrl(): string
   use Filament\Schemas\Components\Group;
   use Filament\Schemas\Components\Tabs;
   use Filament\Schemas\Components\Wizard;
+  use Filament\Schemas\Components\Wizard\Step;
   use Filament\Schemas\Components\Utilities\Get;
   use Filament\Schemas\Components\Utilities\Set;
   ```
