@@ -20,8 +20,8 @@ class JenisIzinResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentCheck;
 
-    protected static ?string $modelLabel = 'Tipe Izin & Cuti';
-    protected static ?string $pluralModelLabel = 'Tipe Izin & Cuti';
+    protected static ?string $modelLabel = 'Izin, Sakit & Cuti';
+    protected static ?string $pluralModelLabel = 'Izin, Sakit & Cuti';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
     protected static ?int $navigationSort = 6;
