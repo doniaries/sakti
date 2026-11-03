@@ -38,7 +38,7 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    ->color('gray')
+                    ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
                     ->searchable()
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('nomor_absensi')

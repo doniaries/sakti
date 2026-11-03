@@ -17,6 +17,9 @@ class RencanaAksisTable
                 TextColumn::make('jabatan.nama')
                     ->sortable(),
                 TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
                     ->sortable(),
                 TextColumn::make('tahun'),
                 TextColumn::make('target_jan')

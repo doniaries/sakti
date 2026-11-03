@@ -276,7 +276,7 @@ class UserInfolist
                                         TextEntry::make('bidang.nama')
                                             ->label('Bidang / Unit Kerja')
                                             ->badge()
-                                            ->color('gray')
+                                            ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
                                             ->placeholder('Pimpinan / Tanpa Bidang'),
 
                                         TextEntry::make('atasan.name')

@@ -50,27 +50,6 @@ class PengajuanSpjsTable
 
                 return $query;
             })
-            ->modifyQueryUsing(function (Builder $query): Builder {
-                /** @var \App\Models\User|null $user */
-                $user = Auth::user();
-                $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
-
-                $anggaranRole = $user?->anggaran_role instanceof \App\Enums\AnggaranRole
-                    ? $user->anggaran_role->value
-                    : $user?->anggaran_role;
-
-                if (! $canViewAllBidang && ! in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA'], true) && $user !== null) {
-                    $userBidangId = filled($user->bidang_id)
-                        ? (int) $user->bidang_id
-                        : (int) (Bidang::where('kepala_id', $user->id)->value('id') ?? 0);
-
-                    if ($userBidangId > 0) {
-                        $query->where('bidang_id', $userBidangId);
-                    }
-                }
-
-                return $query;
-            })
             ->columns([
                 TextColumn::make('nomor_pengajuan')
                     ->label('No. Pengajuan')
@@ -86,8 +65,9 @@ class PengajuanSpjsTable
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    ->color('primary')
-                    ->searchable(),
+                    ->color(fn (?string $state): string => Bidang::badgeColor($state))
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('kegiatan.nama_kegiatan')
                     ->label('Kegiatan')

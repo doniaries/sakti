@@ -40,7 +40,7 @@ class MasterKegiatansTable
                 TextColumn::make('bidang.nama')
                     ->label('Bidang Pengampu')
                     ->badge()
-                    ->color('primary')
+                    ->color(fn (?string $state): string => Bidang::badgeColor($state))
                     ->searchable()
                     ->sortable(),
 

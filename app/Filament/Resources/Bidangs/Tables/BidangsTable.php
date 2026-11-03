@@ -16,6 +16,8 @@ class BidangsTable
             ->columns([
                 TextColumn::make('nama')
                     ->label('Nama Bidang')
+                    ->badge()
+                    ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),

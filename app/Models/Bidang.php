@@ -48,6 +48,26 @@ class Bidang extends Model
     }
 
     /**
+     * Warna badge berbeda untuk setiap Bidang.
+     */
+    public static function badgeColor(?string $namaOrSlug): string
+    {
+        if (blank($namaOrSlug)) {
+            return 'gray';
+        }
+
+        $normalized = strtolower(trim($namaOrSlug));
+
+        return match (true) {
+            str_contains($normalized, 'sekretariat') => 'warning',
+            str_contains($normalized, 'pemasaran') => 'purple',
+            str_contains($normalized, 'destinasi') => 'teal',
+            str_contains($normalized, 'pemuda') || str_contains($normalized, 'olahraga') => 'info',
+            default => ['cyan', 'rose', 'indigo', 'emerald', 'violet', 'lime'][abs(crc32($normalized)) % 6],
+        };
+    }
+
+    /**
      * Mendapatkan daftar jabatan yang relevan khusus untuk bidang ini.
      *
      * @return \Illuminate\Support\Collection<int, string>

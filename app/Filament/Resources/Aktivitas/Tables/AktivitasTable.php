@@ -18,6 +18,9 @@ class AktivitasTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('kode')
