@@ -32,9 +32,13 @@ class PengajuanSpj extends Model
         'justifikasi_selisih',
         'catatan_revisi',
         'pptk_user_id',
+        'ttd_pptk',
         'ppk_user_id',
+        'ttd_ppk',
         'pa_user_id',
+        'ttd_pa',
         'bendahara_user_id',
+        'ttd_bendahara',
         'tanggal_dicairkan',
         'nomor_bku',
     ];
@@ -144,6 +148,37 @@ class PengajuanSpj extends Model
             'dicairkan' => 'success',
             default => 'secondary',
         };
+    }
+
+    /**
+     * Ambil spesimen gambar tanda tangan (Base64 URI) untuk DomPDF berdasarkan peran pejabat (pptk, ppk, pa, bendahara).
+     */
+    public function getSpecimenTtdBase64(string $role): ?string
+    {
+        $col = "ttd_{$role}";
+        $relativePath = $this->{$col} ?: $this->{$role}?->file_ttd;
+
+        if (! $relativePath) {
+            return null;
+        }
+
+        $candidates = [
+            storage_path('app/public/' . ltrim($relativePath, '/')),
+            storage_path('app/' . ltrim($relativePath, '/')),
+            public_path('storage/' . ltrim($relativePath, '/')),
+            public_path(ltrim($relativePath, '/')),
+        ];
+
+        foreach ($candidates as $fullPath) {
+            if (is_file($fullPath) && is_readable($fullPath)) {
+                $mime = mime_content_type($fullPath) ?: 'image/png';
+                $data = base64_encode((string) file_get_contents($fullPath));
+
+                return "data:{$mime};base64,{$data}";
+            }
+        }
+
+        return null;
     }
 }
 

@@ -49,14 +49,6 @@ class PengajuanSpjForm
         $isKwitansiDiproses = fn (?PengajuanSpj $record): bool => $record !== null
             && ! in_array($record->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
 
-        // Helper closure: Apakah Surat Pesanan sudah disetujui & di-TTD oleh Kabid (PPTK)?
-        $isPesananDisetujui = fn (?PengajuanSpj $record): bool => $record !== null
-            && ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true);
-
-        // Helper closure: Apakah Kwitansi sudah diproses dan masuk tahap NPD / Verifikasi Pejabat?
-        $isKwitansiDiproses = fn (?PengajuanSpj $record): bool => $record !== null
-            && ! in_array($record->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
-
         return $schema
             ->components([
                 Wizard::make([
@@ -67,14 +59,14 @@ class PengajuanSpjForm
                         ->icon('heroicon-o-document-text')
                         ->description('Ajukan Surat / Nota Pesanan ke Kabid (PPTK) sesuai Kegiatan & Stok Barang Bidang')
                         ->schema([
-                            Section::make('Identitas Surat / Nota Pesanan')
+                            Section::make('Identitas Kegiatan & Surat Pesanan')
                                 ->description('Pilih Bidang Pengusul terlebih dahulu agar Kegiatan DPA dan Stok Barang otomatis menyesuaikan dengan Bidang terkait.')
                                 ->columns(2)
                                 ->schema([
                                     TextInput::make('nomor_pengajuan')
-                                        ->label('Nomor Pengajuan / Nota Pesanan')
+                                        ->label('Nomor Pengajuan / Surat Pesanan')
                                         ->default(fn () => PengajuanSpj::generateNomorPengajuan())
-                                        ->helperText(fn (callable $get): string => 'Format Nota Pesanan: ' . ($get('nomor_pengajuan') ?: 'SPJ/...') . '/NP/' . date('Y'))
+                                        ->helperText(fn (callable $get): string => 'Format Surat Pesanan: ' . ($get('nomor_pengajuan') ?: 'SPJ/...') . '/NP/' . date('Y'))
                                         ->required()
                                         ->readOnly(),
 
@@ -104,7 +96,8 @@ class PengajuanSpjForm
                                                 $set("details.{$uuid}.subtotal", 0);
                                             }
                                         })
-                                        ->required(),
+                                        ->required()
+                                        ->columnSpan(2),
 
                                     Select::make('kegiatan_id')
                                         ->label('Kegiatan DPA (Sesuai Bidang)')
@@ -150,19 +143,41 @@ class PengajuanSpjForm
                                         ->required()
                                         ->columnSpan(1),
 
+                                    Hidden::make('user_id')
+                                        ->default(fn () => Auth::id()),
+                                ]),
+
+                            // SECTION TERPISAH KHUSUS DATA TOKO & PEMILIK TOKO
+                            Section::make('Data Toko / Rekanan Penyedia Barang')
+                                ->description('Informasi toko tujuan Surat Pesanan dan nama pemilik toko yang akan menandatangani Surat Pesanan serta Kwitansi Pembayaran.')
+                                ->columns(3)
+                                ->schema([
                                     TextInput::make('nama_toko')
-                                        ->label('Nama Toko / Rekanan Penyedia Tujuan Pesanan')
+                                        ->label('Nama Toko / Rekanan Penyedia')
                                         ->placeholder('Contoh: Toko ATK Sinar Jaya')
+                                        ->required()
                                         ->maxLength(255)
+                                        ->columnSpan(1),
+
+                                    TextInput::make('penerima_nama')
+                                        ->label('Nama Pemilik Toko (Untuk TTD Kwitansi & Pesanan)')
+                                        ->placeholder('Contoh: H. Budi Santoso')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->columnSpan(1),
+
+                                    TextInput::make('penerima_identitas')
+                                        ->label('Jabatan / NPWP / No. HP Pemilik Toko')
+                                        ->placeholder('Contoh: Pemilik Toko / NPWP: 01.234.567.8')
+                                        ->maxLength(100)
                                         ->columnSpan(1),
 
                                     Textarea::make('alamat_toko')
                                         ->label('Alamat Lengkap Toko / Rekanan')
+                                        ->placeholder('Contoh: Jl. Jenderal Sudirman No. 45, Kompleks Pertokoan Blok B No. 3')
+                                        ->required()
                                         ->rows(2)
-                                        ->columnSpan(2),
-
-                                    Hidden::make('user_id')
-                                        ->default(fn () => Auth::id()),
+                                        ->columnSpan(3),
                                 ]),
 
                             Section::make('Rincian Barang Nota Pesanan (Terkoneksi dengan Stok Bidang)')
@@ -439,15 +454,10 @@ class PengajuanSpjForm
                                             return "✅ Surat Pesanan Telah Di-TTD oleh {$namaPptk} — Kwitansi Siap Diproses";
                                         }),
 
-                                    TextInput::make('penerima_nama')
-                                        ->label('Nama Pimpinan / Penerima Pembayaran Kwitansi')
-                                        ->placeholder('Nama lengkap penerima uang pada lembar Kwitansi')
-                                        ->maxLength(255),
-
-                                    TextInput::make('penerima_identitas')
-                                        ->label('NPWP / NIK / Jabatan Penerima Kwitansi')
-                                        ->placeholder('Contoh: Pemilik Toko / NPWP: 01.234.567.8-901.000')
-                                        ->maxLength(100),
+                                    Placeholder::make('info_pemilik_toko_kwitansi')
+                                        ->label('Toko & Nama Pemilik Toko (Penandatangan Kwitansi)')
+                                        ->content(fn (callable $get): string => ($get('nama_toko') ?: '-') . ' — Pemilik/TTD: ' . ($get('penerima_nama') ?: '-'))
+                                        ->columnSpan(2),
 
                                     FileUpload::make('file_nota_penjual')
                                         ->label('Unggah Faktur / Nota Asli Toko (Dasar Surat Kwitansi)')
@@ -490,15 +500,15 @@ class PengajuanSpjForm
                         ]),
 
                     // =========================================================================
-                    // STEP 3: PEMBUATAN NPD (TAMPIL SETELAH KWITANSI DIPROSES KE VERIFIKASI)
+                    // STEP 3: PEMBUATAN NPD & SPESIMEN TTD PEJABAT (TAMPIL SETELAH KWITANSI DIPROSES)
                     // =========================================================================
                     Step::make('3. Pembuatan NPD')
                         ->icon('heroicon-o-banknotes')
-                        ->description('Nota Pencairan Dana (NPD) dari PPTK ke PA (Kadis) & Pencairan Bendahara')
+                        ->description('Nota Pencairan Dana (NPD), Spesimen TTD Pejabat (Non-TTE), & Pencairan Kas')
                         ->visible($isKwitansiDiproses)
                         ->schema([
                             Section::make('Rincian Nota Pencairan Dana (NPD) & Realisasi Kas Daerah')
-                                ->description('Nota Pencairan Dana (NPD) diajukan oleh PPTK (Kepala Bidang) kepada Pengguna Anggaran (Kepala Dinas) sebagai dasar pencairan kas oleh Bendahara Pengeluaran.')
+                                ->description('Nota Pencairan Dana (NPD) diajukan oleh PPTK (Kepala Bidang) kepada Pengguna Anggaran / KPA sebagai dasar pencairan kas oleh Bendahara Pengeluaran.')
                                 ->columns(2)
                                 ->schema([
                                     Placeholder::make('nomor_npd_preview')
@@ -553,10 +563,10 @@ class PengajuanSpjForm
                                         ->displayFormat('d/m/Y'),
 
                                     Placeholder::make('matrix_penandatangan_npd')
-                                        ->label('Otorisasi Pejabat Penandatangan (Nota Pesanan, Kwitansi & NPD)')
+                                        ->label('Otorisasi Pejabat Penandatangan (Surat Pesanan, Kwitansi, Belakang Kwitansi & NPD)')
                                         ->content(function (?PengajuanSpj $record): string {
                                             if (! $record) {
-                                                return '1. PPTK (Kabid): Menunggu Pengajuan | 2. PPK (Kasubag Keu): Menunggu | 3. PA (Kadis): Menunggu | 4. Bendahara: Menunggu';
+                                                return '1. PPTK (Kabid): Menunggu Pengajuan | 2. PPK (Kasubag Keu): Menunggu | 3. PA/KPA (Kadis): Menunggu | 4. Bendahara: Menunggu';
                                             }
 
                                             $pptk = $record->pptk?->name ?? 'Belum TTD';
@@ -564,9 +574,39 @@ class PengajuanSpjForm
                                             $pa = $record->pa?->name ?? 'Belum TTD';
                                             $bendahara = $record->bendahara?->name ?? 'Belum Cair';
 
-                                            return "PPTK (Kabid): {$pptk}  |  PPK: {$ppk}  |  PA (Kadis): {$pa}  |  Bendahara: {$bendahara}";
+                                            return "PPTK (Kabid): {$pptk}  |  PPK: {$ppk}  |  PA/KPA (Kadis): {$pa}  |  Bendahara: {$bendahara}";
                                         })
                                         ->columnSpan(2),
+                                ]),
+
+                            Section::make('Unggah Spesimen Tanda Tangan Pejabat (PPTK, PPK, PA/KPA, Bendahara)')
+                                ->description('Karena Tanda Tangan Elektronik (TTE) belum digunakan, unggah gambar contoh/spesimen tanda tangan (PNG/JPG) untuk ditampilkan pada cetakan PDF Surat Pesanan, Kwitansi, Belakang Kwitansi, dan NPD.')
+                                ->columns(2)
+                                ->collapsed()
+                                ->schema([
+                                    FileUpload::make('ttd_pptk')
+                                        ->label('Spesimen TTD PPTK (Kepala Bidang)')
+                                        ->directory('spj/ttd')
+                                        ->image()
+                                        ->maxSize(2048),
+
+                                    FileUpload::make('ttd_ppk')
+                                        ->label('Spesimen TTD PPK (Pejabat Penatausahaan Keuangan)')
+                                        ->directory('spj/ttd')
+                                        ->image()
+                                        ->maxSize(2048),
+
+                                    FileUpload::make('ttd_pa')
+                                        ->label('Spesimen TTD Pengguna Anggaran / KPA (Kepala Dinas)')
+                                        ->directory('spj/ttd')
+                                        ->image()
+                                        ->maxSize(2048),
+
+                                    FileUpload::make('ttd_bendahara')
+                                        ->label('Spesimen TTD Bendahara Pengeluaran')
+                                        ->directory('spj/ttd')
+                                        ->image()
+                                        ->maxSize(2048),
                                 ]),
                         ]),
                 ])

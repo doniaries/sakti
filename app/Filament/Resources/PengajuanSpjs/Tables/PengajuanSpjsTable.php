@@ -223,6 +223,37 @@ class PengajuanSpjsTable
                                 ->required();
                         }
 
+                        // Upload Spesimen TTD Pejabat (Non-TTE) sesuai peran yang sedang memproses
+                        if (in_array($record->status, ['diajukan', 'menunggu_verifikasi_pptk'], true)) {
+                            $schema[] = FileUpload::make('ttd_pptk')
+                                ->label('Unggah Spesimen TTD PPTK / Kepala Bidang (PNG/JPG - Opsional)')
+                                ->directory('spj/ttd')
+                                ->default($record->ttd_pptk)
+                                ->image()
+                                ->maxSize(2048);
+                        } elseif (in_array($record->status, ['menunggu_verifikasi_ppk', 'revisi_ppk'], true)) {
+                            $schema[] = FileUpload::make('ttd_ppk')
+                                ->label('Unggah Spesimen TTD PPK / Kasubag Keuangan (PNG/JPG - Opsional)')
+                                ->directory('spj/ttd')
+                                ->default($record->ttd_ppk)
+                                ->image()
+                                ->maxSize(2048);
+                        } elseif (in_array($record->status, ['menunggu_persetujuan_pa', 'revisi_pa'], true)) {
+                            $schema[] = FileUpload::make('ttd_pa')
+                                ->label('Unggah Spesimen TTD PA / KPA / Kepala Dinas (PNG/JPG - Opsional)')
+                                ->directory('spj/ttd')
+                                ->default($record->ttd_pa)
+                                ->image()
+                                ->maxSize(2048);
+                        } elseif (in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara'], true)) {
+                            $schema[] = FileUpload::make('ttd_bendahara')
+                                ->label('Unggah Spesimen TTD Bendahara Pengeluaran (PNG/JPG - Opsional)')
+                                ->directory('spj/ttd')
+                                ->default($record->ttd_bendahara)
+                                ->image()
+                                ->maxSize(2048);
+                        }
+
                         // Kasus 5: Saat Bendahara mencairkan dana, wajib isi Nomor BKU & Tanggal Cair
                         if (in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara'], true)) {
                             $schema[] = TextInput::make('nomor_bku')
@@ -247,7 +278,7 @@ class PengajuanSpjsTable
                     ->action(function (PengajuanSpj $record, array $data, SpjWorkflowService $workflowService): void {
                         // Simpan data tambahan pada tahapan terkait sebelum transisi status
                         $extraUpdates = [];
-                        foreach (['penerima_nama', 'penerima_identitas', 'file_nota_penjual', 'file_dokumentasi_barang', 'justifikasi_selisih', 'nomor_bku', 'tanggal_dicairkan'] as $field) {
+                        foreach (['penerima_nama', 'penerima_identitas', 'file_nota_penjual', 'file_dokumentasi_barang', 'justifikasi_selisih', 'nomor_bku', 'tanggal_dicairkan', 'ttd_pptk', 'ttd_ppk', 'ttd_pa', 'ttd_bendahara'] as $field) {
                             if (! empty($data[$field])) {
                                 $extraUpdates[$field] = $data[$field];
                             }

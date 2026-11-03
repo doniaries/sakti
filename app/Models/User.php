@@ -54,6 +54,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'jadwal_kerja_id',
         'status_kerja',
         'avatar_url',
+        'file_ttd',
         'nik',
         'no_kk',
         'no_hp',
