@@ -53,7 +53,7 @@
             <div class="flex-1 min-w-0">
                 <h3 class="text-xs sm:text-sm font-extrabold text-slate-600 tracking-wide uppercase">PEMERINTAH DAERAH</h3>
                 <h2 class="text-sm sm:text-lg font-black text-slate-900 tracking-tight uppercase leading-snug">
-                    {{ $instansi->nama_dinas ?? $pengaturan->sub_nama ?? 'DINAS LINGKUNGAN HIDUP' }}
+                    {{ $pengaturan->nama_dinas ?? $instansi->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}
                 </h2>
                 <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 font-medium truncate">
                     {{ $instansi->alamat ?? 'Gedung Bersama Lt. III' }} • Sistem Monitoring Presensi Elektronik

@@ -30,23 +30,26 @@ class PengaturanAplikasiForm
                             ->schema([
                                 TextInput::make('nama_aplikasi')
                                     ->label('Nama Aplikasi / Sistem')
-                                    ->placeholder('Contoh: ABSENSI LHK')
+                                    ->placeholder('Contoh: Sakti')
                                     ->required()
-                                    ->default('ABSENSI LHK')
+                                    ->default('Sakti')
                                     ->maxLength(100),
+
+                                TextInput::make('sub_nama')
+                                    ->label('Sub-Judul (Kepanjangan SAKTI)')
+                                    ->placeholder('Contoh: Sistem Administrasi, Kinerja, dan Tata Informasi')
+                                    ->required()
+                                    ->default('Sistem Administrasi, Kinerja, dan Tata Informasi')
+                                    ->helperText('Kepanjangan singkatan SAKTI yang tampil di bawah nama aplikasi.')
+                                    ->maxLength(200),
 
                                 TextInput::make('nama_dinas')
                                     ->label('Nama Instansi / Kedinasan')
                                     ->placeholder('Contoh: Dinas Pariwisata Pemuda dan Olahraga')
                                     ->required()
-                                    ->default('Dinas Pariwisata Pemuda dan Olahraga')
+                                    ->default(fn () => \App\Models\Instansi::first()?->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga')
+                                    ->helperText('Nama resmi dinas/OPD yang tercantum pada kop surat laporan & SPJ.')
                                     ->maxLength(200),
-
-                                TextInput::make('sub_nama')
-                                    ->label('Sub-Judul Lembaga (Portal Masuk)')
-                                    ->placeholder('Contoh: Pemerintah Kabupaten Sijunjung')
-                                    ->default('Pemerintah Kabupaten Sijunjung')
-                                    ->maxLength(150),
                             ]),
 
                         Grid::make(2)

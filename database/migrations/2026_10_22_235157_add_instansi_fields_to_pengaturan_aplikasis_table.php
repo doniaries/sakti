@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pengaturan_aplikasis', function (Blueprint $table) {
-            $table->string('nama_dinas')->nullable()->after('sub_nama');
-            $table->foreignId('kepala_id')->nullable()->after('nama_dinas')->constrained('users')->nullOnDelete();
-            $table->string('nama_kepala_dinas')->nullable()->after('kepala_id');
+            if (!Schema::hasColumn('pengaturan_aplikasis', 'nama_dinas')) {
+                $table->string('nama_dinas')->nullable()->after('sub_nama');
+            }
+            if (!Schema::hasColumn('pengaturan_aplikasis', 'kepala_id')) {
+                $table->foreignId('kepala_id')->nullable()->after('nama_dinas')->constrained('users')->nullOnDelete();
+            }
+            if (!Schema::hasColumn('pengaturan_aplikasis', 'nama_kepala_dinas')) {
+                $table->string('nama_kepala_dinas')->nullable()->after('kepala_id');
+            }
         });
     }
 

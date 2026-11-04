@@ -26,8 +26,15 @@ class PengaturanAplikasisTable
                     ->weight('bold'),
 
                 TextColumn::make('sub_nama')
-                    ->label('Sub-Judul / Instansi')
-                    ->searchable(),
+                    ->label('Sub-Judul (Kepanjangan)')
+                    ->searchable()
+                    ->limit(45),
+
+                TextColumn::make('nama_dinas')
+                    ->label('Nama Instansi')
+                    ->searchable()
+                    ->weight('medium')
+                    ->color('primary'),
 
                 TextColumn::make('radius_meter')
                     ->label('Radius')

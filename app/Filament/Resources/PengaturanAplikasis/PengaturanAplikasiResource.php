@@ -28,6 +28,11 @@ class PengaturanAplikasiResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama_aplikasi';
 
+    public static function canCreate(): bool
+    {
+        return PengaturanAplikasi::count() === 0;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return PengaturanAplikasiForm::configure($schema);

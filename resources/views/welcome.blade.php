@@ -303,35 +303,42 @@
                         </div>
                         <span
                             class="px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[10px] font-extrabold tracking-wider uppercase">
-                            Admin & Verifikator
+                            Admin & Keuangan SPJ
                         </span>
                     </div>
 
                     <h3
                         class="text-lg md:text-xl font-black text-white tracking-tight mb-1.5 group-hover:text-amber-300 transition-colors">
-                        Panel Administrator
+                        Panel Admin & Keuangan
                     </h3>
-                    <p class="text-[11px] md:text-xs text-slate-400 leading-relaxed mb-5 font-medium">
-                        Portal manajemen terpadu untuk pimpinan, admin kepegawaian, verifikator LHK, serta pengelolaan
-                        keuangan SPJ & persediaan dinas.
+                    <p class="text-[11px] md:text-xs text-slate-400 leading-relaxed mb-4 font-medium">
+                        Portal manajemen terpadu: Pengajuan belanja SPJ, verifikasi administrasi berjenjang, otorisasi pencairan dana, serta kepegawaian & kinerja dinas.
                     </p>
 
                     <ul class="space-y-2 mb-6 text-[11px] text-slate-300">
-                        <li class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-amber-400 text-xs"></i>
-                            <span>Monitoring Kehadiran Real-Time & Rekap Absensi</span>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-file-signature text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                            <span><b>Surat Pesanan (Tahap 1)</b>: Pengajuan belanja ber-TTD Kabid (PPTK) sebelum pembelian</span>
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-amber-400 text-xs"></i>
-                            <span>Verifikasi & Evaluasi Laporan Harian Kinerja</span>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-receipt text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                            <span><b>Realisasi Belanja & Bukti</b>: Upload nota asli toko, foto barang fisik & justifikasi selisih</span>
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-amber-400 text-xs"></i>
-                            <span>Pengadaan Barang & SPJ Keuangan Terpadu</span>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-users-viewfinder text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                            <span><b>Verifikasi 4 Tahap</b>: Uji kelayakan berjenjang oleh PPTK, PPK, PA (Kadis) & Bendahara</span>
                         </li>
-                        <li class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-amber-400 text-xs"></i>
-                            <span>Master Pegawai, Mesin ZKTeco & Shift Kerja</span>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-file-invoice-dollar text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                            <span><b>Auto-Generate 3 Dokumen SPJ</b>: Terbit Nota Pesanan, Surat Kwitansi & NPD resmi (PDF)</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-money-bill-transfer text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                            <span><b>Pencairan Kas & Stok</b>: Potongan PPN/PPh, pencatatan BKU & mutasi barang masuk persediaan</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <i class="fa-solid fa-user-check text-amber-400 text-xs mt-0.5 shrink-0"></i>
+                            <span><b>Kepegawaian & Kinerja</b>: Monitoring presensi real-time, ZKTeco, shift & verifikasi LHK</span>
                         </li>
                     </ul>
                 </div>
@@ -342,7 +349,7 @@
                             <a href="{{ url('/admin') }}"
                                 class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-400 hover:to-orange-300 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
                                 <i class="fa-solid fa-gauge-high"></i>
-                                <span>Buka Panel Admin</span>
+                                <span>Buka Panel Admin & Keuangan</span>
                                 <i
                                     class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
                             </a>
@@ -352,14 +359,14 @@
                                     <i class="fa-solid fa-lock text-amber-400/70 mr-1"></i> Akun Anda berstatus
                                     <b>Pegawai</b>
                                 </span>
-                                <span class="text-[10px] text-slate-500">Akses panel admin khusus Administrator</span>
+                                <span class="text-[10px] text-slate-500">Akses panel admin khusus Pejabat & Administrator</span>
                             </div>
                         @endif
                     @else
                         <a href="{{ url('/admin/login') }}"
                             class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-400 hover:to-orange-300 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
                             <i class="fa-solid fa-key"></i>
-                            <span>Masuk Panel Admin</span>
+                            <span>Masuk Panel Admin & Keuangan</span>
                             <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
                         </a>
                     @endauth
@@ -434,6 +441,41 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- Highlight Fitur Keuangan & SPJ Terpadu -->
+        <div class="mt-7 max-w-3xl mx-auto w-full">
+            <div class="rounded-2xl bg-gradient-to-r from-amber-500/10 via-slate-900/60 to-sky-500/10 border border-amber-500/20 backdrop-blur-md p-4">
+                <div class="flex items-center justify-between gap-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                        <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-300">
+                            Fitur Baru: Integrasi Pengadaan Barang & SPJ Keuangan Terpadu
+                        </h4>
+                    </div>
+                    <span class="hidden sm:inline-block px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-[9px] font-bold uppercase tracking-widest">
+                        Paperless & Audit Trail
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-left">
+                    <div class="bg-black/25 rounded-xl p-2.5 border border-white/5">
+                        <div class="text-[10px] font-extrabold text-amber-300 mb-0.5">1. Surat Pesanan</div>
+                        <div class="text-[10px] text-slate-300 leading-tight">Pengajuan belanja & TTD resmi Kabid/PPTK sebelum beli ke toko</div>
+                    </div>
+                    <div class="bg-black/25 rounded-xl p-2.5 border border-white/5">
+                        <div class="text-[10px] font-extrabold text-sky-300 mb-0.5">2. Realisasi & Bukti</div>
+                        <div class="text-[10px] text-slate-300 leading-tight">Upload faktur toko asli & foto dokumentasi fisik barang belanja</div>
+                    </div>
+                    <div class="bg-black/25 rounded-xl p-2.5 border border-white/5">
+                        <div class="text-[10px] font-extrabold text-emerald-300 mb-0.5">3. Verifikasi 4 Tahap</div>
+                        <div class="text-[10px] text-slate-300 leading-tight">Uji kelayakan berjenjang: PPTK &rarr; PPK &rarr; PA (Kadis) &rarr; Bendahara</div>
+                    </div>
+                    <div class="bg-black/25 rounded-xl p-2.5 border border-white/5">
+                        <div class="text-[10px] font-extrabold text-violet-300 mb-0.5">4. Kwitansi, NPD & Kas</div>
+                        <div class="text-[10px] text-slate-300 leading-tight">Cetak 3 dokumen SPJ sah, potongan PPN/PPh & mutasi stok otomatis</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Info Bar -->
