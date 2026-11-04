@@ -150,20 +150,23 @@
         }
         .box-uang-angka {
             border: 2px solid #000;
-            padding: 5px 14px;
+            padding: 5px 12px;
             font-weight: bold;
             font-size: 11pt;
-            display: inline-block;
-            min-width: 110px;
             text-align: center;
+            white-space: nowrap;
+            display: block;
         }
         .box-uang-terbilang {
             border: 2px solid #000;
-            padding: 5px 12px;
+            padding: 5px 10px;
             font-weight: bold;
             font-size: 9.5pt;
-            display: inline-block;
-            width: 68%;
+            line-height: 1.35;
+            text-align: left;
+            display: block;
+            width: 100%;
+            box-sizing: border-box;
         }
         table.kwitansi-left-box {
             width: 100%;
@@ -416,11 +419,18 @@
                 </td>
             </tr>
             <tr>
-                <td style="font-style: italic; padding-top: 8px;">Uang sejumlah Rp,</td>
-                <td style="padding-top: 8px;">
-                    <span class="box-uang-angka">{{ number_format((float) $totalNominal, 0, ',', '.') }}</span>
-                    &nbsp;
-                    <span class="box-uang-terbilang">{{ ucfirst(strtolower($terbilang)) }}</span>
+                <td style="font-style: italic; padding-top: 8px; vertical-align: top;">Uang sejumlah Rp,</td>
+                <td style="padding-top: 8px; vertical-align: top;">
+                    <table style="width: 100%; border-collapse: collapse; border: none; margin: 0; padding: 0;">
+                        <tr>
+                            <td style="width: 1%; white-space: nowrap; border: none; padding: 0 8px 0 0; vertical-align: top;">
+                                <div class="box-uang-angka">{{ number_format((float) $totalNominal, 0, ',', '.') }}</div>
+                            </td>
+                            <td style="border: none; padding: 0; vertical-align: top;">
+                                <div class="box-uang-terbilang">{{ ucwords(strtolower($terbilang)) }}</div>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
             <tr>
@@ -513,16 +523,16 @@
                         <div class="signature-space"></div>
                     </div>
 
-                    <table style="width: 100%; font-size: 9pt;">
+                    <table style="width: 100%; font-size: 9pt; border-collapse: collapse;">
                         <tr>
-                            <td style="width: 38%;">Nama terang</td>
-                            <td style="width: 4%;">:</td>
-                            <td style="width: 58%;" class="font-bold">{{ $spj->penerima_nama ?: '....................' }}</td>
+                            <td style="width: 38%; vertical-align: top; padding: 2px 0;">Nama terang</td>
+                            <td style="width: 5%; vertical-align: top; padding: 2px 0; text-align: center;">:</td>
+                            <td style="width: 57%; vertical-align: top; padding: 2px 0;" class="font-bold">{{ $spj->penerima_nama ?: '....................' }}</td>
                         </tr>
                         <tr>
-                            <td>Alamat terang</td>
-                            <td>:</td>
-                            <td>{{ $spj->alamat_toko ?: 'Muaro Sijunjung' }}</td>
+                            <td style="vertical-align: top; padding: 2px 0;">Alamat terang</td>
+                            <td style="vertical-align: top; padding: 2px 0; text-align: center;">:</td>
+                            <td style="vertical-align: top; padding: 2px 0; line-height: 1.35;">{{ $spj->alamat_toko ?: 'Muaro Sijunjung' }}</td>
                         </tr>
                     </table>
                 </td>
