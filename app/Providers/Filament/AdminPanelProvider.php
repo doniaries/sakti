@@ -127,7 +127,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentBackgroundsPlugin::make(),
                 FilamentEditProfilePlugin::make()
-                    ->shouldRegisterNavigation(false)
+                    ->shouldRegisterNavigation(true)
                     ->shouldShowAvatarForm(
                         value: true,
                         directory: 'avatars',

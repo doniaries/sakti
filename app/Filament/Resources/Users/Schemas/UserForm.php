@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -12,18 +13,18 @@ class UserForm
         return $schema
             ->columns(3)
             ->components([
-                \Filament\Schemas\Components\Group::make()
+                Group::make()
                     ->schema([
                         Section::make('Profil Pegawai')
                             ->icon('heroicon-o-user')
                             ->schema([
-
                                 \Filament\Forms\Components\TextInput::make('name')
                                     ->label('Nama Lengkap')
                                     ->placeholder('Contoh: AHMAD FAUZI, S.KOM')
                                     ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                                     ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                                     ->required()
+                                    ->columnSpanFull()
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('gelar_depan')
                                     ->label('Gelar Depan')
@@ -46,41 +47,6 @@ class UserForm
                                     ->copyable()
                                     ->placeholder('Contoh: user@gmail.com')
                                     ->maxLength(255),
-                                \Filament\Forms\Components\TextInput::make('password')
-                                    ->label('Password Baru')
-                                    ->password()
-                                    ->placeholder('Kosongkan jika tidak ingin merubah...')
-                                    ->revealable()
-                                    ->formatStateUsing(fn() => '')
-                                    ->autocomplete('new-password')
-                                    ->extraInputAttributes([
-                                        'autocomplete' => 'new-password',
-                                        'data-lpignore' => 'true',
-                                    ])
-                                    ->required(fn(string $operation): bool => $operation === 'create')
-                                    ->rule(fn(string $operation) => $operation === 'create' ? 'required|min:6' : 'nullable|min:6')
-                                    ->maxLength(255)
-                                    ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? \Illuminate\Support\Facades\Hash::make($state) : null)
-                                    ->dehydrated(fn(?string $state) => filled($state))
-                                    ->helperText('Kosongkan jika password pegawai tidak ingin dirubah.'),
-
-                                \Filament\Forms\Components\TextInput::make('password_confirmation')
-                                    ->label('Konfirmasi Password')
-                                    ->password()
-                                    ->placeholder('Ketik ulang password baru...')
-                                    ->revealable()
-                                    ->formatStateUsing(fn() => '')
-                                    ->autocomplete('new-password')
-                                    ->extraInputAttributes([
-                                        'autocomplete' => 'new-password',
-                                        'data-lpignore' => 'true',
-                                    ])
-                                    ->required(fn(string $operation, callable $get): bool => $operation === 'create' || (filled($get('password')) && $get('password') !== ''))
-                                    ->same('password')
-                                    ->visible(fn(string $operation, callable $get): bool => $operation === 'create' || filled($get('password')))
-                                    ->maxLength(255)
-                                    ->dehydrated(false),
-
                                 \Filament\Forms\Components\Toggle::make('aktif')
                                     ->label('Status Akun Aktif')
                                     ->default(true)
@@ -262,7 +228,7 @@ class UserForm
                             ])->columns(2),
                     ])->columnSpan(2),
 
-                \Filament\Schemas\Components\Group::make()
+                Group::make()
                     ->schema([
                         Section::make('Foto Profil')
                             ->schema([
@@ -276,6 +242,48 @@ class UserForm
                                     ->columnSpanFull()
                                     ->alignCenter(),
                             ]),
+
+                        Section::make('Keamanan & Kata Sandi')
+                            ->icon('heroicon-o-key')
+                            ->description('Atur atau perbarui password akun pengguna.')
+                            ->schema([
+                                \Filament\Forms\Components\TextInput::make('password')
+                                    ->label('Password Baru')
+                                    ->password()
+                                    ->placeholder('Kosongkan jika tidak diubah...')
+                                    ->revealable()
+                                    ->formatStateUsing(fn() => '')
+                                    ->autocomplete('new-password')
+                                    ->extraInputAttributes([
+                                        'autocomplete' => 'new-password',
+                                        'data-lpignore' => 'true',
+                                    ])
+                                    ->required(fn(string $operation): bool => $operation === 'create')
+                                    ->rule(fn(string $operation) => $operation === 'create' ? 'required|min:6' : 'nullable|min:6')
+                                    ->maxLength(255)
+                                    ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? \Illuminate\Support\Facades\Hash::make($state) : null)
+                                    ->dehydrated(fn(?string $state) => filled($state))
+                                    ->helperText('Kosongkan jika tidak ingin merubah password.'),
+
+                                \Filament\Forms\Components\TextInput::make('password_confirmation')
+                                    ->label('Konfirmasi Password')
+                                    ->password()
+                                    ->placeholder('Ketik ulang password baru...')
+                                    ->revealable()
+                                    ->formatStateUsing(fn() => '')
+                                    ->autocomplete('new-password')
+                                    ->extraInputAttributes([
+                                        'autocomplete' => 'new-password',
+                                        'data-lpignore' => 'true',
+                                    ])
+                                    ->required(fn(string $operation, callable $get): bool => $operation === 'create' || (filled($get('password')) && $get('password') !== ''))
+                                    ->same('password')
+                                    ->visible(fn(string $operation, callable $get): bool => $operation === 'create' || filled($get('password')))
+                                    ->maxLength(255)
+                                    ->dehydrated(false)
+                                    ->helperText('Wajib sama persis dengan password baru di atas.'),
+                            ])->columns(1),
+
                         Section::make('Informasi Tambahan')
                             ->icon('heroicon-o-information-circle')
                             ->schema([
