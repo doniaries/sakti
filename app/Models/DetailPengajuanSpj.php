@@ -14,6 +14,7 @@ class DetailPengajuanSpj extends Model
 
     protected $fillable = [
         'pengajuan_spj_id',
+        'rincian_anggaran_belanja_id',
         'kode_rekening_id',
         'master_barang_id',
         'kuantitas',

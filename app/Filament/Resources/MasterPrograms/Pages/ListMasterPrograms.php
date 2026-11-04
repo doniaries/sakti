@@ -7,7 +7,6 @@ use App\Filament\Resources\MasterKegiatans\MasterKegiatanResource;
 use App\Filament\Resources\MasterPrograms\MasterProgramResource;
 use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
 use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
-use App\Filament\Resources\PengajuanSpjs\Widgets\KeuanganBidangOverviewWidget;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
@@ -47,13 +46,6 @@ class ListMasterPrograms extends ListRecords
                 ->icon('heroicon-o-document-currency-dollar')
                 ->color('gray')
                 ->url(fn (): string => PengajuanSpjResource::getUrl('index')),
-        ];
-    }
-
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            KeuanganBidangOverviewWidget::class,
         ];
     }
 }

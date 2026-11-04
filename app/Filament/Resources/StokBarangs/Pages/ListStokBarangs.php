@@ -7,7 +7,6 @@ namespace App\Filament\Resources\StokBarangs\Pages;
 use App\Filament\Resources\MasterBarangs\MasterBarangResource;
 use App\Filament\Resources\MasterTokos\MasterTokoResource;
 use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
-use App\Filament\Resources\PengajuanSpjs\Widgets\KeuanganBidangOverviewWidget;
 use App\Filament\Resources\StokBarangs\StokBarangResource;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -42,13 +41,6 @@ class ListStokBarangs extends ListRecords
                 ->icon('heroicon-o-document-currency-dollar')
                 ->color('gray')
                 ->url(fn (): string => PengajuanSpjResource::getUrl('index')),
-        ];
-    }
-
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            KeuanganBidangOverviewWidget::class,
         ];
     }
 }

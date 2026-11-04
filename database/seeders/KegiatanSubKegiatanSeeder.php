@@ -3,10 +3,13 @@
 namespace Database\Seeders;
 
 use App\Models\Bidang;
+use App\Models\KodeRekening;
+use App\Models\MasterBarang;
 use App\Models\MasterKegiatan;
 use App\Models\MasterProgram;
 use App\Models\MasterSubKegiatan;
 use App\Models\PengajuanSpj;
+use App\Models\Satuan;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -20,223 +23,310 @@ class KegiatanSubKegiatanSeeder extends Seeder
         MasterProgram::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $sekretariat = Bidang::where('nama', 'LIKE', '%Sekretariat%')->first();
+        // Hanya untuk Bidang Pemasaran Pariwisata (bidang lain dibiarkan kosong sesuai permintaan)
         $pemasaran = Bidang::where('nama', 'LIKE', '%Pemasaran%')->first();
-        $destinasi = Bidang::where('nama', 'LIKE', '%Destinasi%')->first();
-        $pora = Bidang::where('nama', 'LIKE', '%Pemuda%')->first();
+        $bidangId = $pemasaran?->id ?? 2;
 
-        $tahun = 2026;
+        $tahunList = [2026, 2027];
 
-        $programsData = [
-            // =========================================================================
-            // 1. BIDANG PEMASARAN PARIWISATA (SESUAI LAMPIRAN SIPD RESMI)
-            // =========================================================================
+        /**
+         * 3 Dokumen Resmi SIPD-RI RKA Rincian Belanja SKPD untuk Bidang Pemasaran Pariwisata:
+         * 1. Cetak RKA 3.26.03.2.01.0006 - Fasilitasi Kegiatan Pemasaran Pariwisata (Pagu: Rp 47.000.200,00)
+         * 2. Cetak RKA 3.26.04.2.02.0014 - Fasilitasi penguatan Kekayaan Intelektual (Pagu: Rp 3.999.900,00)
+         * 3. Cetak RKA 3.26.05.2.01.0006 - Fasilitasi Pengembangan Kompetensi SDM Ekonomi Kreatif (Pagu: Rp 18.272.100,00)
+         */
+        $programsConfig = [
             [
-                'bidang_id' => $pemasaran?->id ?? 2,
-                'kode_program' => '3.26.04',
-                'nama_program' => 'PROGRAM PENGEMBANGAN EKONOMI KREATIF MELALUI PEMANFAATAN DAN PERLINDUNGAN HAK KEKAYAAN INTELEKTUAL',
-                'kegiatans' => [
-                    [
-                        'kode_kegiatan' => '3.26.04.2.02',
-                        'nama_kegiatan' => 'Pengembangan Ekosistem Ekonomi Kreatif',
-                        'pagu_anggaran' => 150000000,
-                        'sub_kegiatan' => [
-                            [
-                                'kode_sub_kegiatan' => '3.26.04.2.02.0014',
-                                'nama_sub_kegiatan' => 'Fasilitasi penguatan Kekayaan Intelektual',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            [
-                'bidang_id' => $pemasaran?->id ?? 2,
-                'kode_program' => '3.26.05',
-                'nama_program' => 'PROGRAM PENGEMBANGAN SUMBER DAYA PARIWISATA DAN EKONOMI KREATIF',
-                'kegiatans' => [
-                    [
-                        'kode_kegiatan' => '3.26.05.2.01',
-                        'nama_kegiatan' => 'Pelaksanaan Peningkatan Kapasitas Sumber Daya Manusia Pariwisata dan Ekonomi Kreatif Tingkat Dasar',
-                        'pagu_anggaran' => 125000000,
-                        'sub_kegiatan' => [
-                            [
-                                'kode_sub_kegiatan' => '3.26.05.2.01.0006',
-                                'nama_sub_kegiatan' => 'Fasilitasi Pengembangan Kompetensi Sumber Daya Manusia Ekonomi Kreatif',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            [
-                'bidang_id' => $pemasaran?->id ?? 2,
                 'kode_program' => '3.26.03',
                 'nama_program' => 'PROGRAM PEMASARAN PARIWISATA',
-                'kegiatans' => [
-                    [
-                        'kode_kegiatan' => '3.26.03.2.01',
-                        'nama_kegiatan' => 'Pemasaran Pariwisata Nusantara dan Mancanegara',
-                        'pagu_anggaran' => 135000000,
-                        'sub_kegiatan' => [
-                            [
-                                'kode_sub_kegiatan' => '3.26.03.2.01.0001',
-                                'nama_sub_kegiatan' => 'Pemasaran Pariwisata Dalam dan Luar Negeri Daya Tarik, Destinasi dan Kawasan Strategis',
-                            ],
-                            [
-                                'kode_sub_kegiatan' => '3.26.03.2.01.0002',
-                                'nama_sub_kegiatan' => 'Fasilitasi Kegiatan Pemasaran Pariwisata dan Promosi Event Daerah',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-
-            // =========================================================================
-            // 2. BIDANG PENGEMBANGAN DESTINASI PARIWISATA
-            // =========================================================================
-            [
-                'bidang_id' => $destinasi?->id ?? 3,
-                'kode_program' => '3.26.02',
-                'nama_program' => 'PROGRAM PENINGKATAN DAYA TARIK DESTINASI PARIWISATA',
-                'kegiatans' => [
-                    [
-                        'kode_kegiatan' => '3.26.02.2.01',
-                        'nama_kegiatan' => 'Pengembangan Daya Tarik Wisata Daerah Kabupaten/Kota',
-                        'pagu_anggaran' => 140000000,
-                        'sub_kegiatan' => [
-                            [
-                                'kode_sub_kegiatan' => '3.26.02.2.01.0001',
-                                'nama_sub_kegiatan' => 'Pengelolaan Daya Tarik Wisata Kabupaten/Kota',
-                            ],
-                            [
-                                'kode_sub_kegiatan' => '3.26.02.2.01.0002',
-                                'nama_sub_kegiatan' => 'Pengembangan Kawasan Strategis Pariwisata Daerah',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-
-            // =========================================================================
-            // 3. BIDANG SEKRETARIAT
-            // =========================================================================
-            [
-                'bidang_id' => $sekretariat?->id ?? 1,
-                'kode_program' => '1.01.02',
-                'nama_program' => 'PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH KABUPATEN/KOTA',
-                'kegiatans' => [
-                    [
-                        'kode_kegiatan' => '1.01.02.1.01',
-                        'nama_kegiatan' => 'Administrasi Umum dan Penunjang Urusan Pemerintahan Daerah',
-                        'pagu_anggaran' => 175000000,
-                        'sub_kegiatan' => [
-                            [
-                                'kode_sub_kegiatan' => '1.01.02.1.01.0001',
-                                'nama_sub_kegiatan' => 'Penyediaan Komponen Instalasi Listrik/Penerangan Bangunan Kantor',
-                            ],
-                            [
-                                'kode_sub_kegiatan' => '1.01.02.1.01.0002',
-                                'nama_sub_kegiatan' => 'Penyediaan Peralatan dan Perlengkapan Kantor',
-                            ],
-                            [
-                                'kode_sub_kegiatan' => '1.01.02.1.01.0003',
-                                'nama_sub_kegiatan' => 'Penyediaan Bahan Logistik Kantor dan ATK',
-                            ],
-                            [
-                                'kode_sub_kegiatan' => '1.01.02.1.01.0004',
-                                'nama_sub_kegiatan' => 'Penyediaan Barang Cetakan dan Penggandaan',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-
-            // =========================================================================
-            // 4. BIDANG PEMUDA DAN OLAHRAGA
-            // =========================================================================
-            [
-                'bidang_id' => $pora?->id ?? 4,
-                'kode_program' => '2.19.02',
-                'nama_program' => 'PROGRAM PENGEMBANGAN KAPASITAS DAYA SAING KEPEMUDAAN',
-                'kegiatans' => [
-                    [
-                        'kode_kegiatan' => '2.19.02.2.01',
-                        'nama_kegiatan' => 'Pemberdayaan dan Pengembangan Organisasi Kepemudaan Daerah',
-                        'pagu_anggaran' => 85000000,
-                        'sub_kegiatan' => [
-                            [
-                                'kode_sub_kegiatan' => '2.19.02.2.01.0001',
-                                'nama_sub_kegiatan' => 'Pemberdayaan dan Pengembangan Organisasi Kepemudaan',
-                            ],
-                        ],
+                'kegiatan' => [
+                    'kode_kegiatan' => '3.26.03.2.01',
+                    'nama_kegiatan' => 'Pemasaran Pariwisata Dalam dan Luar Negeri Daya Tarik, Destinasi dan Kawasan Strategis Pariwisata Kabupaten/Kota',
+                    'pagu_anggaran' => 47000200, // Rp 47.000.200,00
+                    'sub_kegiatan' => [
+                        'kode_sub_kegiatan' => '3.26.03.2.01.0006',
+                        'nama_sub_kegiatan' => 'Fasilitasi Kegiatan Pemasaran Pariwisata Baik Dalam dan Luar Negeri Pariwisata Kabupaten/Kota',
                     ],
                 ],
             ],
             [
-                'bidang_id' => $pora?->id ?? 4,
-                'kode_program' => '2.19.03',
-                'nama_program' => 'PROGRAM PEMBINAAN DAN PENGEMBANGAN OLAHRAGA',
-                'kegiatans' => [
-                    [
-                        'kode_kegiatan' => '2.19.03.2.01',
-                        'nama_kegiatan' => 'Pembinaan dan Pengembangan Olahraga Prestasi Daerah',
-                        'pagu_anggaran' => 95000000,
-                        'sub_kegiatan' => [
-                            [
-                                'kode_sub_kegiatan' => '2.19.03.2.01.0001',
-                                'nama_sub_kegiatan' => 'Pembinaan dan Pengembangan Olahragawan Berprestasi',
-                            ],
-                            [
-                                'kode_sub_kegiatan' => '2.19.03.2.01.0002',
-                                'nama_sub_kegiatan' => 'Penyelenggaraan Kejuaraan Olahraga Daerah',
-                            ],
-                        ],
+                'kode_program' => '3.26.04',
+                'nama_program' => 'PROGRAM PENGEMBANGAN EKONOMI KREATIF MELALUI PEMANFAATAN DAN PERLINDUNGAN HAK KEKAYAAN INTELEKTUAL',
+                'kegiatan' => [
+                    'kode_kegiatan' => '3.26.04.2.02',
+                    'nama_kegiatan' => 'Pengembangan Ekosistem Ekonomi Kreatif',
+                    'pagu_anggaran' => 3999900, // Rp 3.999.900,00
+                    'sub_kegiatan' => [
+                        'kode_sub_kegiatan' => '3.26.04.2.02.0014',
+                        'nama_sub_kegiatan' => 'Fasilitasi penguatan Kekayaan Intelektual',
+                    ],
+                ],
+            ],
+            [
+                'kode_program' => '3.26.05',
+                'nama_program' => 'PROGRAM PENGEMBANGAN SUMBER DAYA PARIWISATA DAN EKONOMI KREATIF',
+                'kegiatan' => [
+                    'kode_kegiatan' => '3.26.05.2.01',
+                    'nama_kegiatan' => 'Pelaksanaan Peningkatan Kapasitas Sumber Daya Manusia Pariwisata dan Ekonomi Kreatif Tingkat Dasar',
+                    'pagu_anggaran' => 18272100, // Rp 18.272.100,00
+                    'sub_kegiatan' => [
+                        'kode_sub_kegiatan' => '3.26.05.2.01.0006',
+                        'nama_sub_kegiatan' => 'Fasilitasi Pengembangan Kompetensi Sumber Daya Manusia Ekonomi Kreatif',
                     ],
                 ],
             ],
         ];
 
-        foreach ($programsData as $progItem) {
-            $program = MasterProgram::create([
-                'tahun_anggaran' => $tahun,
-                'kode_program' => $progItem['kode_program'],
-                'nama_program' => $progItem['nama_program'],
-            ]);
-
-            foreach ($progItem['kegiatans'] as $kegItem) {
-                $kegiatan = MasterKegiatan::create([
-                    'bidang_id' => $progItem['bidang_id'],
-                    'program_id' => $program->id,
-                    'tahun_anggaran' => $tahun,
-                    'kode_kegiatan' => $kegItem['kode_kegiatan'],
-                    'nama_kegiatan' => $kegItem['nama_kegiatan'],
-                    'pagu_anggaran' => $kegItem['pagu_anggaran'] ?? 0,
+        foreach ($tahunList as $thn) {
+            foreach ($programsConfig as $prog) {
+                $program = MasterProgram::create([
+                    'tahun_anggaran' => $thn,
+                    'kode_program' => $prog['kode_program'],
+                    'nama_program' => $prog['nama_program'],
                 ]);
 
-                foreach ($kegItem['sub_kegiatan'] as $subItem) {
-                    MasterSubKegiatan::create([
-                        'kegiatan_id' => $kegiatan->id,
-                        'tahun_anggaran' => $tahun,
-                        'kode_sub_kegiatan' => $subItem['kode_sub_kegiatan'],
-                        'nama_sub_kegiatan' => $subItem['nama_sub_kegiatan'],
-                    ]);
-                }
+                $kegiatan = MasterKegiatan::create([
+                    'bidang_id' => $bidangId,
+                    'program_id' => $program->id,
+                    'tahun_anggaran' => $thn,
+                    'kode_kegiatan' => $prog['kegiatan']['kode_kegiatan'],
+                    'nama_kegiatan' => $prog['kegiatan']['nama_kegiatan'],
+                    'pagu_anggaran' => $prog['kegiatan']['pagu_anggaran'],
+                ]);
+
+                MasterSubKegiatan::create([
+                    'kegiatan_id' => $kegiatan->id,
+                    'tahun_anggaran' => $thn,
+                    'kode_sub_kegiatan' => $prog['kegiatan']['sub_kegiatan']['kode_sub_kegiatan'],
+                    'nama_sub_kegiatan' => $prog['kegiatan']['sub_kegiatan']['nama_sub_kegiatan'],
+                ]);
             }
         }
 
-        // Sinkronisasi ulang pengajuan SPJ eksisting agar terhubung ke kegiatan & sub kegiatan baru sesuai bidangnya
-        $spjs = PengajuanSpj::all();
-        foreach ($spjs as $spj) {
-            $firstSub = MasterSubKegiatan::whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $spj->bidang_id))->first()
-                ?? MasterSubKegiatan::first();
-
-            if ($firstSub) {
-                $spj->kegiatan_id = $firstSub->kegiatan_id;
-                $spj->sub_kegiatan_id = $firstSub->id;
-                $spj->tahun_anggaran = $tahun;
-                $spj->saveQuietly();
-            }
+        // =========================================================================
+        // SEED KODE REKENING BELANJA & MASTER ITEM BARANG DARI 3 LAMPIRAN SIPD RESMI
+        // =========================================================================
+        $satuans = [
+            'Lembar', 'Rim', 'Kotak', 'Bungkus', 'Kg', 'Paket', 'Orang', 'Botol', 'Buah', 'Pack', 'Lusin'
+        ];
+        $satuanMap = [];
+        foreach ($satuans as $s) {
+            $satuanObj = Satuan::firstOrCreate(['nama' => $s]);
+            $satuanMap[$s] = $satuanObj->id;
         }
 
-        $this->command->info('Seeder Master Program, Kegiatan & Sub Kegiatan (Bidang Pemasaran Pariwisata & seluruh bidang) berhasil diperbarui.');
+        $rekeningData = [
+            [
+                'kode_lengkap' => '5.1.02.01.001.00024',
+                'uraian' => 'Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor',
+            ],
+            [
+                'kode_lengkap' => '5.1.02.01.001.00025',
+                'uraian' => 'Belanja Alat/Bahan untuk Kegiatan Kantor- Kertas dan Cover',
+            ],
+            [
+                'kode_lengkap' => '5.1.02.01.001.00029',
+                'uraian' => 'Belanja Alat/Bahan untuk Kegiatan Kantor-Bahan Komputer',
+            ],
+            [
+                'kode_lengkap' => '5.1.02.01.001.00043',
+                'uraian' => 'Belanja Natura dan Pakan-Natura',
+            ],
+            [
+                'kode_lengkap' => '5.1.02.01.001.00052',
+                'uraian' => 'Belanja Makanan dan Minuman Rapat',
+            ],
+            [
+                'kode_lengkap' => '5.1.02.01.001.00058',
+                'uraian' => 'Belanja Makanan dan Minuman Aktivitas Lapangan',
+            ],
+            [
+                'kode_lengkap' => '5.1.02.02.001.00025',
+                'uraian' => 'Belanja Jasa Tenaga Kesenian dan Kebudayaan',
+            ],
+            [
+                'kode_lengkap' => '5.1.02.02.001.00048',
+                'uraian' => 'Belanja Jasa Kontribusi Asosiasi',
+            ],
+        ];
+
+        $rekeningMap = [];
+        foreach ($rekeningData as $rek) {
+            $parts = explode('.', $rek['kode_lengkap']);
+            $rekObj = KodeRekening::firstOrCreate(
+                ['kode_lengkap' => $rek['kode_lengkap']],
+                [
+                    'akun' => $parts[0] ?? '5',
+                    'kelompok' => $parts[1] ?? '1',
+                    'jenis' => $parts[2] ?? '02',
+                    'objek' => $parts[3] ?? '01',
+                    'rincian_objek' => $parts[4] ?? '001',
+                    'sub_rincian_objek' => $parts[5] ?? '00024',
+                    'sub_sub_rincian_objek' => '00',
+                    'uraian' => $rek['uraian'],
+                ]
+            );
+            $rekeningMap[$rek['kode_lengkap']] = $rekObj->id;
+        }
+
+        // Daftar Rincian Barang Riil dari 3 Lampiran RKA SIPD
+        $barangRkaList = [
+            // ATK & Cetakan
+            [
+                'kode_rekening' => '5.1.02.01.001.00024',
+                'kode_barang' => '5.1.02.01.001.00024.001',
+                'nama_barang' => 'Barang Cetakan - Fotocopy Biasa',
+                'satuan' => 'Lembar',
+                'harga_satuan' => 300,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00024',
+                'kode_barang' => '5.1.02.01.001.00024.002',
+                'nama_barang' => 'Barang Cetakan - Kwitansi NCR, 5 ply',
+                'satuan' => 'Pack',
+                'harga_satuan' => 46300,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00024',
+                'kode_barang' => '5.1.02.01.001.00024.003',
+                'nama_barang' => 'Map - Map Goby',
+                'satuan' => 'Buah',
+                'harga_satuan' => 33500,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00024',
+                'kode_barang' => '5.1.02.01.001.00024.004',
+                'nama_barang' => 'Alat Tulis - Pena Boldliner',
+                'satuan' => 'Buah',
+                'harga_satuan' => 22200,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00024',
+                'kode_barang' => '5.1.02.01.001.00024.005',
+                'nama_barang' => 'Alat Tulis - Pena My-Gel',
+                'satuan' => 'Lusin',
+                'harga_satuan' => 127000,
+            ],
+            // Kertas & Cover
+            [
+                'kode_rekening' => '5.1.02.01.001.00025',
+                'kode_barang' => '5.1.02.01.001.00025.001',
+                'nama_barang' => 'Kertas HVS Sidu, ukuran F4, 75 gram',
+                'satuan' => 'Rim',
+                'harga_satuan' => 65500,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00025',
+                'kode_barang' => '5.1.02.01.001.00025.002',
+                'nama_barang' => 'Kertas HVS - A4, 75 gram',
+                'satuan' => 'Rim',
+                'harga_satuan' => 66200,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00025',
+                'kode_barang' => '5.1.02.01.001.00025.003',
+                'nama_barang' => 'Kertas HVS - F4, 75 gram (Pengadaan Khusus)',
+                'satuan' => 'Rim',
+                'harga_satuan' => 79400,
+            ],
+            // Bahan Komputer & Tinta
+            [
+                'kode_rekening' => '5.1.02.01.001.00029',
+                'kode_barang' => '5.1.02.01.001.00029.001',
+                'nama_barang' => 'Tinta/Toner Printer - Tinta Printer Epson 001 Black',
+                'satuan' => 'Botol',
+                'harga_satuan' => 150000,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00029',
+                'kode_barang' => '5.1.02.01.001.00029.002',
+                'nama_barang' => 'Tinta/Toner Printer - Tinta Printer Epson 001 Color (Cyan/Magenta/Yellow)',
+                'satuan' => 'Botol',
+                'harga_satuan' => 130000,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00029',
+                'kode_barang' => '5.1.02.01.001.00029.003',
+                'nama_barang' => 'Tinta/Toner Printer - Cartridge Printer Brother LC',
+                'satuan' => 'Buah',
+                'harga_satuan' => 160950,
+            ],
+            // Makanan dan Minuman
+            [
+                'kode_rekening' => '5.1.02.01.001.00052',
+                'kode_barang' => '5.1.02.01.001.00052.001',
+                'nama_barang' => 'Makanan/Sembako - Kue Kotak isi 3 kue + air',
+                'satuan' => 'Kotak',
+                'harga_satuan' => 13300,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00052',
+                'kode_barang' => '5.1.02.01.001.00052.002',
+                'nama_barang' => 'Bahan Masakan/Minuman - Kopi Cap Rangkiang',
+                'satuan' => 'Kg',
+                'harga_satuan' => 157750,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00052',
+                'kode_barang' => '5.1.02.01.001.00052.003',
+                'nama_barang' => 'Bahan Masakan/Minuman - Gula Pasir',
+                'satuan' => 'Kg',
+                'harga_satuan' => 21200,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00058',
+                'kode_barang' => '5.1.02.01.001.00058.001',
+                'nama_barang' => 'Makanan - Nasi Goreng Lapangan',
+                'satuan' => 'Bungkus',
+                'harga_satuan' => 20200,
+            ],
+            [
+                'kode_rekening' => '5.1.02.01.001.00058',
+                'kode_barang' => '5.1.02.01.001.00058.002',
+                'nama_barang' => 'Makanan - Nasi Bungkus 1 Protein',
+                'satuan' => 'Bungkus',
+                'harga_satuan' => 24000,
+            ],
+            // Jasa Tenaga Ahli & Kontribusi
+            [
+                'kode_rekening' => '5.1.02.02.001.00025',
+                'kode_barang' => '5.1.02.02.001.00025.001',
+                'nama_barang' => 'Beban Jasa Tenaga Kesenian - Upah Pekerja Seni',
+                'satuan' => 'Orang',
+                'harga_satuan' => 120000,
+            ],
+            [
+                'kode_rekening' => '5.1.02.02.001.00048',
+                'kode_barang' => '5.1.02.02.001.00048.001',
+                'nama_barang' => 'Beban Jasa Kontribusi Asosiasi - Kursus/Pelatihan/Bimtek',
+                'satuan' => 'Paket',
+                'harga_satuan' => 2500000,
+            ],
+        ];
+
+        foreach ($barangRkaList as $item) {
+            MasterBarang::updateOrCreate(
+                ['kode_barang' => $item['kode_barang']],
+                [
+                    'kode_rekening_id' => $rekeningMap[$item['kode_rekening']] ?? 1,
+                    'nama_barang' => $item['nama_barang'],
+                    'satuan_id' => $satuanMap[$item['satuan']] ?? 1,
+                    'harga_satuan' => $item['harga_satuan'],
+                ]
+            );
+        }
+
+        // Sinkronisasi ulang pengajuan SPJ eksisting agar terhubung ke kegiatan & sub kegiatan Bidang Pemasaran
+        $subPemasaran = MasterSubKegiatan::where('tahun_anggaran', 2026)->first();
+        if ($subPemasaran) {
+            PengajuanSpj::query()->update([
+                'bidang_id' => $bidangId,
+                'kegiatan_id' => $subPemasaran->kegiatan_id,
+                'sub_kegiatan_id' => $subPemasaran->id,
+                'tahun_anggaran' => 2026,
+            ]);
+        }
+
+        $this->command->info('Seeder berhasil: Hanya Bidang Pemasaran Pariwisata yang diisi sesuai 3 file PDF SIPD-RI (Program, Kegiatan, Sub Kegiatan, Rekening, dan Barang). Bidang lainnya kosong.');
     }
 }
