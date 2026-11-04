@@ -20,15 +20,15 @@ class MasterBarangResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
-    protected static ?string $modelLabel = 'Katalog Barang';
+    protected static ?string $modelLabel = 'Kode Barang';
 
-    protected static ?string $pluralModelLabel = 'Katalog Barang & Standar Harga';
+    protected static ?string $pluralModelLabel = 'Kode Barang Persediaan';
 
-    protected static ?string $navigationLabel = 'Katalog Barang & Harga';
+    protected static ?string $navigationLabel = 'Kode Barang Persediaan';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema
     {

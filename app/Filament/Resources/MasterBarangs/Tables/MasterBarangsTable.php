@@ -47,10 +47,17 @@ class MasterBarangsTable
                     ->sortable()
                     ->placeholder('-'),
 
+                TextColumn::make('keterangan')
+                    ->label('Keterangan / Spesifikasi')
+                    ->searchable()
+                    ->wrap()
+                    ->placeholder('-'),
+
                 TextColumn::make('harga_satuan')
-                    ->label('Harga Standar')
+                    ->label('Harga Referensi (Opsional)')
                     ->money('IDR', locale: 'id')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
