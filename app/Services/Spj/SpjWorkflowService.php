@@ -76,37 +76,50 @@ class SpjWorkflowService
     }
 
     /**
-     * Konversi angka nominal rupiah ke teks terbilang bahasa Indonesia
+     * Konversi angka nominal rupiah ke teks terbilang bahasa Indonesia (Title Case / Huruf Awal Besar)
      */
     public static function terbilang(float|int $nilai): string
     {
-        $nilai = abs($nilai);
-        $huruf = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
-        $temp = '';
-
-        if ($nilai < 12) {
-            $temp = ' ' . $huruf[(int) $nilai];
-        } elseif ($nilai < 20) {
-            $temp = self::terbilang($nilai - 10) . ' Belas';
-        } elseif ($nilai < 100) {
-            $temp = self::terbilang((int) ($nilai / 10)) . ' Puluh' . self::terbilang($nilai % 10);
-        } elseif ($nilai < 200) {
-            $temp = ' Seratus' . self::terbilang($nilai - 100);
-        } elseif ($nilai < 1000) {
-            $temp = self::terbilang((int) ($nilai / 100)) . ' Ratus' . self::terbilang($nilai % 100);
-        } elseif ($nilai < 2000) {
-            $temp = ' Seribu' . self::terbilang($nilai - 1000);
-        } elseif ($nilai < 1000000) {
-            $temp = self::terbilang((int) ($nilai / 1000)) . ' Ribu' . self::terbilang($nilai % 1000);
-        } elseif ($nilai < 1000000000) {
-            $temp = self::terbilang((int) ($nilai / 1000000)) . ' Juta' . self::terbilang($nilai % 1000000);
-        } elseif ($nilai < 1000000000000) {
-            $temp = self::terbilang((int) ($nilai / 1000000000)) . ' Milyar' . self::terbilang(fmod($nilai, 1000000000));
-        } elseif ($nilai < 1000000000000000) {
-            $temp = self::terbilang((int) ($nilai / 1000000000000)) . ' Triliun' . self::terbilang(fmod($nilai, 1000000000000));
+        if ($nilai == 0) {
+            return 'Nol Rupiah';
         }
 
-        return trim($temp) . ' Rupiah';
+        $hasil = trim(preg_replace('/\s+/', ' ', self::bilang($nilai)));
+
+        return ucwords(strtolower($hasil)) . ' Rupiah';
+    }
+
+    /**
+     * Helper rekursif konversi angka ke kata tanpa akhiran Rupiah
+     */
+    private static function bilang(float|int $nilai): string
+    {
+        $nilai = abs($nilai);
+        $huruf = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+
+        if ($nilai < 12) {
+            return ' ' . $huruf[(int) $nilai];
+        } elseif ($nilai < 20) {
+            return self::bilang($nilai - 10) . ' Belas';
+        } elseif ($nilai < 100) {
+            return self::bilang((int) ($nilai / 10)) . ' Puluh' . self::bilang($nilai % 10);
+        } elseif ($nilai < 200) {
+            return ' Seratus' . self::bilang($nilai - 100);
+        } elseif ($nilai < 1000) {
+            return self::bilang((int) ($nilai / 100)) . ' Ratus' . self::bilang($nilai % 100);
+        } elseif ($nilai < 2000) {
+            return ' Seribu' . self::bilang($nilai - 1000);
+        } elseif ($nilai < 1000000) {
+            return self::bilang((int) ($nilai / 1000)) . ' Ribu' . self::bilang($nilai % 1000);
+        } elseif ($nilai < 1000000000) {
+            return self::bilang((int) ($nilai / 1000000)) . ' Juta' . self::bilang($nilai % 1000000);
+        } elseif ($nilai < 1000000000000) {
+            return self::bilang((int) ($nilai / 1000000000)) . ' Milyar' . self::bilang(fmod($nilai, 1000000000));
+        } elseif ($nilai < 1000000000000000) {
+            return self::bilang((int) ($nilai / 1000000000000)) . ' Triliun' . self::bilang(fmod($nilai, 1000000000000));
+        }
+
+        return '';
     }
 }
 
