@@ -20,9 +20,11 @@ class MasterBarangResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
 
-    protected static ?string $modelLabel = 'Barang Persediaan';
+    protected static ?string $modelLabel = 'Katalog Barang';
 
-    protected static ?string $pluralModelLabel = 'Barang Persediaan';
+    protected static ?string $pluralModelLabel = 'Katalog Barang & Standar Harga';
+
+    protected static ?string $navigationLabel = 'Katalog Barang & Harga';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 

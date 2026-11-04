@@ -7,6 +7,7 @@ namespace App\Filament\Resources\PengajuanSpjs\Widgets;
 use App\Filament\Resources\MasterBarangs\MasterBarangResource;
 use App\Filament\Resources\MasterKegiatans\MasterKegiatanResource;
 use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
+use App\Filament\Resources\StokBarangs\StokBarangResource;
 use App\Models\Bidang;
 use App\Models\MasterKegiatan;
 use App\Models\MasterSubKegiatan;
@@ -70,6 +71,10 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 
         if (str_contains($checkString, 'master-sub-kegiatans')) {
             return \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getUrl('index');
+        }
+
+        if (str_contains($checkString, 'stok-barangs')) {
+            return StokBarangResource::getUrl('index');
         }
 
         if (str_contains($checkString, 'master-barangs')) {
@@ -252,7 +257,7 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
                 ->description($totalBarangHabis > 0 ? 'Perlu pengadaan / restock segera' : 'Semua stok persediaan aman')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($totalBarangHabis > 0 ? 'danger' : 'gray')
-                ->url(MasterBarangResource::getUrl('index', $filterParams)),
+                ->url(StokBarangResource::getUrl('index', $filterParams)),
 
             // Stat 4: Total Uang Sudah Di-SPJ-kan
             Stat::make('Total Sudah Di-SPJ-kan', 'Rp ' . number_format($totalSudahSpj, 0, ',', '.'))
