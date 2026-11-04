@@ -28,24 +28,25 @@ class UserForm
                                     ->maxLength(50),
                                 \Filament\Forms\Components\TextInput::make('gelar_belakang')
                                     ->label('Gelar Belakang')
-                                    ->placeholder('Contoh: S.IP, M.CIO, S.Kom')
+                                    ->placeholder('Contoh: S.IP, S.A.P., S.E., S.Kom')
                                     ->maxLength(100),
                                 \Filament\Forms\Components\TextInput::make('email')
                                     ->label('Email Dinas / Akun')
                                     ->email()
+                                    ->placeholder('Contoh: user@sijunjung.go.id')
                                     ->required()
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('email_pribadi')
                                     ->label('Email Pribadi')
                                     ->email()
-                                    ->placeholder('Email pribadi pegawai...')
+                                    ->placeholder('Contoh: user@gmail.com')
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('password')
                                     ->label('Password Baru')
                                     ->password()
                                     ->placeholder('Kosongkan jika tidak ingin merubah...')
                                     ->revealable()
-                                    ->formatStateUsing(fn () => '')
+                                    ->formatStateUsing(fn() => '')
                                     ->autocomplete('new-password')
                                     ->extraInputAttributes([
                                         'autocomplete' => 'new-password',
@@ -54,7 +55,7 @@ class UserForm
                                     ->required(fn(string $operation): bool => $operation === 'create')
                                     ->rule(fn(string $operation) => $operation === 'create' ? 'required|min:6' : 'nullable|min:6')
                                     ->maxLength(255)
-                                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? \Illuminate\Support\Facades\Hash::make($state) : null)
+                                    ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? \Illuminate\Support\Facades\Hash::make($state) : null)
                                     ->dehydrated(fn(?string $state) => filled($state))
                                     ->helperText('Kosongkan jika password pegawai tidak ingin dirubah.'),
 
@@ -63,7 +64,7 @@ class UserForm
                                     ->password()
                                     ->placeholder('Ketik ulang password baru...')
                                     ->revealable()
-                                    ->formatStateUsing(fn () => '')
+                                    ->formatStateUsing(fn() => '')
                                     ->autocomplete('new-password')
                                     ->extraInputAttributes([
                                         'autocomplete' => 'new-password',
@@ -196,7 +197,7 @@ class UserForm
                                     ->searchable(),
                                 \Filament\Forms\Components\Select::make('atasan_id')
                                     ->label('Atasan Langsung')
-                                    ->relationship('atasan', 'name', fn ($query) => $query->bukanSuperAdmin())
+                                    ->relationship('atasan', 'name', fn($query) => $query->bukanSuperAdmin())
                                     ->searchable()
                                     ->preload()
                                     ->placeholder('Kosongkan jika Kepala Dinas')

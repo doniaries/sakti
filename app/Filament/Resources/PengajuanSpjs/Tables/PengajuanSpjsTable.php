@@ -192,7 +192,6 @@ class PengajuanSpjsTable
                     ->color('info')
                     ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true))
                     ->modalHeading(fn(PengajuanSpj $record): string => "Pratinjau Dokumen SPJ — {$record->nomor_pengajuan}")
-                    ->modalDescription('Periksa isi dokumen sebelum dicetak. Gunakan tombol zoom untuk memperbesar dan beralih antar dokumen.')
                     ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
                     ->modalContent(fn(PengajuanSpj $record) => view('filament.pages.preview-spj-modal', [
                         'record' => $record,
