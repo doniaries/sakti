@@ -47,4 +47,11 @@ Route::middleware('auth')->group(function () {
         ->name('admin.pengajuan-spj.cetak');
 });
 
+// Fallback jika browser melakukan GET pada endpoint livewire/update
+Route::get('livewire/update', function () {
+    $bidang = request()->query('bidang');
+    $params = $bidang ? ['bidang' => $bidang] : [];
+    return redirect()->to(\App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource::getUrl('index', $params));
+});
+
 
