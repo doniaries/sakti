@@ -142,7 +142,8 @@ class StokBarangsTable
                     ->relationship('bidang', 'nama')
                     ->label('Filter Bidang'),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 Action::make('sesuaikan_stok')
                     ->label('Update Stok')
                     ->icon('heroicon-m-arrow-path')

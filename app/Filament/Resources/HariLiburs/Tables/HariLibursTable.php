@@ -69,7 +69,7 @@ class HariLibursTable
                 ToggleColumn::make('is_aktif')
                     ->label('Aktif'),
             ])
-            ->defaultSort('tanggal', 'asc')
+            ->defaultSort('tanggal', 'desc')
             ->filters([
                 SelectFilter::make('jenis')
                     ->label('Jenis Libur')

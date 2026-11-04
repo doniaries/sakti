@@ -177,7 +177,8 @@ class PengajuanSpjsTable
                     ->relationship('bidang', 'nama')
                     ->label('Bidang Dinas'),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 // Aksi 1: Preview & Cetak Dokumen Bertahap dengan Modal Preview Interaktif
                 Action::make('cetak_dokumen')
                     ->label(function (PengajuanSpj $record): string {

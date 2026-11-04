@@ -29,20 +29,14 @@ class KodeRekeningsTable
                     ->wrap()
                     ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
-                TextColumn::make('master_barangs_count')
-                    ->label('Jml Item Barang')
-                    ->counts('masterBarangs')
-                    ->badge()
-                    ->color('primary')
-                    ->sortable(),
-
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
                     ->before(function (DeleteAction $action, \App\Models\KodeRekening $record) {

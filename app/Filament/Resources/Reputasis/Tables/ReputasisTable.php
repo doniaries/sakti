@@ -48,6 +48,7 @@ class ReputasisTable
                     ->label('Bulan Ini')
                     ->query(fn ($query) => $query->whereMonth('tanggal', now()->month)->whereYear('tanggal', now()->year)),
             ])
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
             ])

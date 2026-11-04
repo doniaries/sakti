@@ -110,7 +110,8 @@ class MasterKegiatansTable
                     ->relationship('program', 'nama_program')
                     ->label('Filter Program'),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])

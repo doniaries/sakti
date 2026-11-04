@@ -93,6 +93,7 @@ class LogAbsensisTable
                             );
                     })
             ])
+            ->defaultSort('waktu_absensi', 'desc')
             ->recordActions([
                 //
             ])

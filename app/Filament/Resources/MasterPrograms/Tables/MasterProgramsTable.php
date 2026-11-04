@@ -87,7 +87,8 @@ class MasterProgramsTable
                     ->options($years)
                     ->placeholder('Semua Tahun'),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])

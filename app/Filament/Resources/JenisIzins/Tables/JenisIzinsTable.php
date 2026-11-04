@@ -62,6 +62,7 @@ class JenisIzinsTable
                         'wfh' => 'Work From Home (WFH)',
                     ]),
             ])
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),

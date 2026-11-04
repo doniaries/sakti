@@ -217,6 +217,7 @@ class UsersTable
                     ->label('Shift Kerja')
                     ->relationship('jadwalKerja', 'nama'),
             ])
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

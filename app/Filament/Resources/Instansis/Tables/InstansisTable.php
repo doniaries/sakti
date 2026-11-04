@@ -130,6 +130,7 @@ class InstansisTable
                 ]),
             ])
             ->paginated(false)
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make()
                     ->button()

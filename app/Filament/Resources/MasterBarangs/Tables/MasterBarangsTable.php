@@ -67,7 +67,8 @@ class MasterBarangsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])

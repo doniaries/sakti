@@ -141,6 +141,7 @@ class LhksTable
                     ->columns(2),
             ], layout: FiltersLayout::AboveContent)
             ->filtersFormColumns(4)
+            ->defaultSort('tanggal', 'desc')
             ->recordActions([
                 EditAction::make()
 

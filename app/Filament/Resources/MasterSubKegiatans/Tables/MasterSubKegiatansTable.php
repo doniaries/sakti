@@ -97,7 +97,8 @@ class MasterSubKegiatansTable
                     ->relationship('kegiatan', 'nama_kegiatan')
                     ->label('Filter Kegiatan'),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])

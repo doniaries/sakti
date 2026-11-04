@@ -55,6 +55,7 @@ class MasterTokosTable
                     ->boolean()
                     ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),

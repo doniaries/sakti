@@ -140,7 +140,8 @@ class RincianAnggaranBelanjasTable
                     ->options(fn () => KodeRekening::all()->pluck('uraian', 'id')->all())
                     ->searchable(),
             ])
-            ->actions([
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
                 EditAction::make(),
                 DeleteAction::make(),
             ])
