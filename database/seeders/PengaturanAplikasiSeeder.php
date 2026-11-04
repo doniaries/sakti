@@ -21,7 +21,9 @@ class PengaturanAplikasiSeeder extends Seeder
             [
                 'nama_aplikasi' => 'Sakti',
                 'sub_nama' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
-                'nama_dinas' => 'Dinas Pariwisata Pemuda dan Olahraga',
+                'kode_instansi' => '3.26.2.19.0.00.01.0000',
+                'nama_dinas' => 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA',
+                'sub_unit_organisasi' => '-',
                 'kepala_id' => $kadisUser?->id,
                 'nama_kepala_dinas' => $kadisUser?->name ?? 'AFRINELDI, SH',
                 'alamat_kantor' => 'Gedung Bersama Lt. III, Jl. Prof. M. Yamin, SH No. 1, Muaro Sijunjung, Sumatera Barat',

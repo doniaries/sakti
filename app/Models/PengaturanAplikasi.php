@@ -15,6 +15,8 @@ class PengaturanAplikasi extends Model
         'nama_aplikasi',
         'sub_nama',
         'nama_dinas',
+        'kode_instansi',
+        'sub_unit_organisasi',
         'kepala_id',
         'nama_kepala_dinas',
         'latitude_kantor',
@@ -63,7 +65,9 @@ class PengaturanAplikasi extends Model
                 \App\Models\Instansi::updateOrCreate(
                     ['id' => 1],
                     [
-                        'nama_dinas' => $pengaturan->nama_dinas ?: (\App\Models\Instansi::query()->value('nama_dinas') ?: 'Dinas Pariwisata Pemuda dan Olahraga'),
+                        'nama_dinas' => $pengaturan->nama_dinas ?: (\App\Models\Instansi::query()->value('nama_dinas') ?: 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA'),
+                        'kode_instansi' => $pengaturan->kode_instansi ?: '3.26.2.19.0.00.01.0000',
+                        'sub_unit_organisasi' => $pengaturan->sub_unit_organisasi ?: '-',
                         'nama_kepala_dinas' => $pengaturan->nama_kepala_dinas,
                         'alamat' => $pengaturan->alamat_kantor,
                         'logo' => $pengaturan->logo,
@@ -96,7 +100,9 @@ class PengaturanAplikasi extends Model
             $pengaturan = static::query()->create([
                 'nama_aplikasi' => 'Sakti',
                 'sub_nama' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
-                'nama_dinas' => $instansi?->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga',
+                'nama_dinas' => $instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA',
+                'kode_instansi' => $instansi?->kode_instansi ?? '3.26.2.19.0.00.01.0000',
+                'sub_unit_organisasi' => $instansi?->sub_unit_organisasi ?? '-',
                 'kepala_id' => $instansi?->kepala_id,
                 'nama_kepala_dinas' => $instansi?->nama_kepala_dinas ?? 'AFRINELDI, SH',
                 'latitude_kantor' => -0.69752300,

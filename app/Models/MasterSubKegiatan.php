@@ -15,8 +15,13 @@ class MasterSubKegiatan extends Model
 
     protected $fillable = [
         'kegiatan_id',
+        'tahun_anggaran',
         'kode_sub_kegiatan',
         'nama_sub_kegiatan',
+    ];
+
+    protected $casts = [
+        'tahun_anggaran' => 'integer',
     ];
 
     public function kegiatan(): BelongsTo

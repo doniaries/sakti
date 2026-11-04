@@ -636,12 +636,17 @@
                         <tr>
                             <td>Nama SKPD</td>
                             <td>:</td>
-                            <td>3.26.2.19.0.00.01.0000 - {{ strtoupper($namaDinas) }}</td>
+                            <td>{{ $pengaturan?->kode_instansi ?? '3.26.2.19.0.00.01.0000' }} - {{ strtoupper($namaDinas) }}</td>
                         </tr>
                         <tr>
-                            <td>Nama Unit SKPD</td>
+                            <td>Unit Organisasi</td>
                             <td>:</td>
-                            <td>3.26.2.19.0.00.01.0000 - {{ strtoupper($namaDinas) }}</td>
+                            <td>{{ $pengaturan?->kode_instansi ?? '3.26.2.19.0.00.01.0000' }} {{ strtoupper($namaDinas) }}</td>
+                        </tr>
+                        <tr>
+                            <td>Sub Unit Organisasi</td>
+                            <td>:</td>
+                            <td>{{ $pengaturan?->sub_unit_organisasi ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td>Nama PPTK</td>
@@ -651,12 +656,12 @@
                         <tr>
                             <td>Nomor DPA</td>
                             <td>:</td>
-                            <td>DPPA/A.4/3.26.2.19.0.00.01.0000/001/{{ $tahunAnggaran }}</td>
+                            <td>DPPA/A.4/{{ $pengaturan?->kode_instansi ?? '3.26.2.19.0.00.01.0000' }}/001/{{ $tahunAnggaran }}</td>
                         </tr>
                         <tr>
                             <td>Program</td>
                             <td>:</td>
-                            <td>3.26.01 - PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH KABUPATEN/KOTA</td>
+                            <td>{{ $spj->kegiatan?->program ? ($spj->kegiatan->program->kode_program . ' ' . $spj->kegiatan->program->nama_program) : ($spj->kegiatan?->nama_kegiatan ?? '-') }}</td>
                         </tr>
                         <tr>
                             <td>Kegiatan</td>

@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::create('master_kegiatan', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('program_id')->nullable()->constrained('master_programs')->nullOnDelete();
+            $table->integer('tahun_anggaran')->default((int) date('Y'))->index();
             $table->string('kode_kegiatan')->unique();
             $table->string('nama_kegiatan');
             $table->timestamps();
@@ -21,4 +23,3 @@ return new class extends Migration
         Schema::dropIfExists('master_kegiatan');
     }
 };
-

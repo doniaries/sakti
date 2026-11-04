@@ -15,6 +15,8 @@ class MasterKegiatan extends Model
 
     protected $fillable = [
         'bidang_id',
+        'program_id',
+        'tahun_anggaran',
         'kode_kegiatan',
         'nama_kegiatan',
         'pagu_anggaran',
@@ -22,7 +24,13 @@ class MasterKegiatan extends Model
 
     protected $casts = [
         'pagu_anggaran' => 'decimal:2',
+        'tahun_anggaran' => 'integer',
     ];
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(MasterProgram::class, 'program_id');
+    }
 
     public function bidang(): BelongsTo
     {

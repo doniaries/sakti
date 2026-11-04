@@ -123,6 +123,20 @@ class PengajuanSpjForm
                                         ->required()
                                         ->columnSpan(2),
 
+                                    Select::make('tahun_anggaran')
+                                        ->label('Tahun Anggaran')
+                                        ->options([
+                                            2024 => '2024',
+                                            2025 => '2025',
+                                            2026 => '2026',
+                                            2027 => '2027',
+                                            2028 => '2028',
+                                        ])
+                                        ->default(fn () => (int) (request()->query('tahun') ?? date('Y')))
+                                        ->required()
+                                        ->live()
+                                        ->columnSpan(2),
+
                                     Select::make('bidang_id')
                                         ->label('Bidang Pengusul')
                                         ->placeholder('Pilih Bidang Pengusul')

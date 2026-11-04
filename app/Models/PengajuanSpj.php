@@ -19,6 +19,7 @@ class PengajuanSpj extends Model
         'bidang_id',
         'kegiatan_id',
         'sub_kegiatan_id',
+        'tahun_anggaran',
         'tanggal_pengajuan',
         'tanggal_batas_pengiriman',
         'total_nilai_rencana',
@@ -50,6 +51,7 @@ class PengajuanSpj extends Model
     ];
 
     protected $casts = [
+        'tahun_anggaran' => 'integer',
         'tanggal_pengajuan' => 'date',
         'tanggal_batas_pengiriman' => 'date',
         'tanggal_dicairkan' => 'date',

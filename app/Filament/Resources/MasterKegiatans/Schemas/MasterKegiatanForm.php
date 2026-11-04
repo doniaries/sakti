@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\MasterKegiatans\Schemas;
 
 use App\Models\Bidang;
+use App\Models\MasterProgram;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,8 +15,22 @@ class MasterKegiatanForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $currentYear = (int) date('Y');
+        $years = [];
+        for ($y = $currentYear - 2; $y <= $currentYear + 2; $y++) {
+            $years[$y] = "Tahun Anggaran {$y}";
+        }
+
         return $schema
             ->components([
+                Select::make('tahun_anggaran')
+                    ->label('Tahun Anggaran')
+                    ->options($years)
+                    ->default(fn () => (int) (request()->query('tahun') ?? $currentYear))
+                    ->searchable()
+                    ->live()
+                    ->required(),
+
                 Select::make('bidang_id')
                     ->label('Bidang Pengampu Kegiatan')
                     ->default(function (): ?int {
@@ -54,15 +71,44 @@ class MasterKegiatanForm
                     ->searchable()
                     ->required(),
 
+                Select::make('program_id')
+                    ->label('Program Induk (Sebelum Nama Kegiatan)')
+                    ->relationship('program', 'nama_program')
+                    ->getOptionLabelFromRecordUsing(fn (MasterProgram $record) => $record->label)
+                    ->searchable()
+                    ->preload()
+                    ->live()
+                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                        if ($state) {
+                            $program = MasterProgram::find($state);
+                            if ($program) {
+                                $currentCode = (string) $get('kode_kegiatan');
+                                if (blank($currentCode) || ! str_starts_with($currentCode, $program->kode_program)) {
+                                    $set('kode_kegiatan', $program->kode_program . '.');
+                                }
+                            }
+                        }
+                    })
+                    ->columnSpanFull()
+                    ->required(),
+
                 TextInput::make('kode_kegiatan')
                     ->label('Kode Kegiatan')
-                    ->placeholder('Contoh: 1.01.02.1.01')
+                    ->placeholder('Contoh: 3.26.04.2.02')
+                    ->mask('9.99.99.9.99')
+                    ->length(12)
+                    ->rules(['regex:/^\d\.\d{2}\.\d{2}\.\d\.\d{2}$/'])
+                    ->validationMessages([
+                        'regex' => 'Format kode kegiatan wajib X.XX.XX.X.XX (contoh: 3.26.04.2.02).',
+                        'length' => 'Kode kegiatan harus tepat 12 karakter (termasuk titik).',
+                    ])
+                    ->helperText('Format: X.XX.XX.X.XX (tepat 8 digit angka dengan 4 titik, contoh: 3.26.04.2.02)')
                     ->required()
                     ->unique(ignoreRecord: true),
 
                 TextInput::make('nama_kegiatan')
                     ->label('Nomenklatur Kegiatan')
-                    ->placeholder('Contoh: Program Pembinaan dan Pengembangan Olahraga')
+                    ->placeholder('Contoh: Pengembangan Ekosistem Ekonomi Kreatif')
                     ->required(),
 
                 TextInput::make('pagu_anggaran')

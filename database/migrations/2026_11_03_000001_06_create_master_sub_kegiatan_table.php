@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('master_sub_kegiatan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kegiatan_id')->constrained('master_kegiatan')->cascadeOnDelete();
+            $table->integer('tahun_anggaran')->default((int) date('Y'))->index();
             $table->string('kode_sub_kegiatan');
             $table->string('nama_sub_kegiatan');
             $table->timestamps();
@@ -22,4 +23,3 @@ return new class extends Migration
         Schema::dropIfExists('master_sub_kegiatan');
     }
 };
-

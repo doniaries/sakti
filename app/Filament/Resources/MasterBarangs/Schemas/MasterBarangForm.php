@@ -25,6 +25,14 @@ class MasterBarangForm
                 TextInput::make('kode_barang')
                     ->label('Kode Barang')
                     ->placeholder('Contoh: 1.1.7.01.01.01.001')
+                    ->mask('9.9.9.99.99.99.999')
+                    ->length(18)
+                    ->rules(['regex:/^\d\.\d\.\d\.\d{2}\.\d{2}\.\d{2}\.\d{3}$/'])
+                    ->validationMessages([
+                        'regex' => 'Format kode barang wajib X.X.X.XX.XX.XX.XXX (contoh: 1.1.7.01.01.01.001).',
+                        'length' => 'Kode barang harus tepat 18 karakter (termasuk titik).',
+                    ])
+                    ->helperText('Format: X.X.X.XX.XX.XX.XXX (tepat 11 digit angka dengan 6 titik, contoh: 1.1.7.01.01.01.001)')
                     ->required(),
 
                 TextInput::make('nama_barang')

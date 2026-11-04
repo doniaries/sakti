@@ -57,21 +57,43 @@ class PengajuanSpjsTable
                     ?? data_get(request()->query('tableFilters'), 'bidang_id.value')
                     ?? data_get($livewireFilters, 'bidang_id.value');
 
-                if (blank($selectedBidang) && request()->header('Referer')) {
+                $selectedTahun = request()->query('tahun')
+                    ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
+                    ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
+                    ?? data_get($livewireFilters, 'tahun_anggaran.value');
+
+                if ((blank($selectedBidang) || blank($selectedTahun)) && request()->header('Referer')) {
                     $refererQuery = [];
                     parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-                    $selectedBidang = $refererQuery['bidang']
-                        ?? data_get($refererQuery, 'filters.bidang_id.value')
-                        ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+                    if (blank($selectedBidang)) {
+                        $selectedBidang = $refererQuery['bidang']
+                            ?? data_get($refererQuery, 'filters.bidang_id.value')
+                            ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+                    }
+                    if (blank($selectedTahun)) {
+                        $selectedTahun = $refererQuery['tahun']
+                            ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
+                            ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
+                    }
                 }
 
                 if (filled($selectedBidang)) {
                     $query->where('bidang_id', (int) $selectedBidang);
                 }
 
+                if (filled($selectedTahun)) {
+                    $query->where('tahun_anggaran', (int) $selectedTahun);
+                }
+
                 return $query;
             })
             ->columns([
+                TextColumn::make('tahun_anggaran')
+                    ->label('Tahun')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable(),
+
                 TextColumn::make('nomor_pengajuan')
                     ->label('No. Pengajuan')
                     ->searchable()
@@ -115,6 +137,16 @@ class PengajuanSpjsTable
                     ->sortable(),
             ])
             ->filters([
+                SelectFilter::make('tahun_anggaran')
+                    ->label('Pilih Tahun')
+                    ->options([
+                        2024 => 'Tahun 2024',
+                        2025 => 'Tahun 2025',
+                        2026 => 'Tahun 2026',
+                        2027 => 'Tahun 2027',
+                        2028 => 'Tahun 2028',
+                    ])
+                    ->placeholder('Semua Tahun'),
                 SelectFilter::make('status')
                     ->options([
                         'draft' => 'Draft Surat Pesanan',

@@ -26,7 +26,7 @@ class PengaturanAplikasiForm
                     ->description('Konfigurasi nama dinas/instansi resmi, pimpinan kepala dinas, nama sistem, serta logo yang tampil pada portal mobile dan cetak laporan PDF.')
                     ->icon('heroicon-o-building-office-2')
                     ->schema([
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('nama_aplikasi')
                                     ->label('Nama Aplikasi / Sistem')
@@ -42,14 +42,33 @@ class PengaturanAplikasiForm
                                     ->default('Sistem Administrasi, Kinerja, dan Tata Informasi')
                                     ->helperText('Kepanjangan singkatan SAKTI yang tampil di bawah nama aplikasi.')
                                     ->maxLength(200),
+                            ]),
+
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('kode_instansi')
+                                    ->label('Kode Unit Organisasi (SKPD)')
+                                    ->placeholder('3.26.2.19.0.00.01.0000')
+                                    ->mask('9.99.9.99.9.99.99.9999')
+                                    ->default('3.26.2.19.0.00.01.0000')
+                                    ->helperText('Format SIPD: 3.26.2.19.0.00.01.0000 (Kode SKPD)')
+                                    ->maxLength(50)
+                                    ->required(),
 
                                 TextInput::make('nama_dinas')
-                                    ->label('Nama Instansi / Kedinasan')
-                                    ->placeholder('Contoh: Dinas Pariwisata Pemuda dan Olahraga')
+                                    ->label('Nama Unit Organisasi / Instansi')
+                                    ->placeholder('Contoh: DINAS PARIWISATA, PEMUDA DAN OLAH RAGA')
                                     ->required()
-                                    ->default(fn () => \App\Models\Instansi::first()?->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga')
+                                    ->default(fn () => \App\Models\Instansi::first()?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA')
                                     ->helperText('Nama resmi dinas/OPD yang tercantum pada kop surat laporan & SPJ.')
                                     ->maxLength(200),
+
+                                TextInput::make('sub_unit_organisasi')
+                                    ->label('Sub Unit Organisasi')
+                                    ->placeholder('-')
+                                    ->default('-')
+                                    ->helperText('Isi "-" jika tidak ada sub unit terpisah.')
+                                    ->maxLength(100),
                             ]),
 
                         Grid::make(2)
