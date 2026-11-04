@@ -103,13 +103,7 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             $this->selectedBidangId = $id;
 
             $baseUrl = $this->getCleanPageUrl();
-            $params = [];
-
-            if ($id !== null && $id > 0) {
-                $params['bidang'] = $id;
-                $params['filters'] = ['bidang_id' => ['value' => (string) $id]];
-                $params['tableFilters'] = ['bidang_id' => ['value' => (string) $id]];
-            }
+            $params = ($id !== null && $id > 0) ? ['bidang' => $id] : [];
 
             $targetUrl = ! empty($params) ? $baseUrl . '?' . http_build_query($params) : $baseUrl;
 
@@ -236,8 +230,6 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 
         $filterParams = $bidangId !== null ? [
             'bidang' => $bidangId,
-            'filters' => ['bidang_id' => ['value' => (string) $bidangId]],
-            'tableFilters' => ['bidang_id' => ['value' => (string) $bidangId]],
         ] : [];
 
         return [

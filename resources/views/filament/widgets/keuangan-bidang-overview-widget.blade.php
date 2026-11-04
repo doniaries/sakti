@@ -35,8 +35,6 @@
                         @php
                             $targetUrl = $cleanPageUrl . '?' . http_build_query([
                                 'bidang' => $b->id,
-                                'filters' => ['bidang_id' => ['value' => (string) $b->id]],
-                                'tableFilters' => ['bidang_id' => ['value' => (string) $b->id]],
                             ]);
                         @endphp
                         <a
