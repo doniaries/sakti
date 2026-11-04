@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->spa()
+            ->breadcrumbs(false)
             ->font('Roboto')
             // ->topNavigation()
             ->path('admin')
