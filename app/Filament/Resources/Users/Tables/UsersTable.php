@@ -53,6 +53,7 @@ class UsersTable
                     ->sortable()
                     ->weight('bold')
                     ->color('primary')
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
                     ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record])),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()

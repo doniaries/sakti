@@ -20,6 +20,9 @@ class UserForm
 
                                 \Filament\Forms\Components\TextInput::make('name')
                                     ->label('Nama Lengkap')
+                                    ->placeholder('Contoh: AHMAD FAUZI, S.KOM')
+                                    ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                                    ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                                     ->required()
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('gelar_depan')
@@ -33,12 +36,14 @@ class UserForm
                                 \Filament\Forms\Components\TextInput::make('email')
                                     ->label('Email Dinas / Akun')
                                     ->email()
+                                    ->copyable()
                                     ->placeholder('Contoh: user@sijunjung.go.id')
                                     ->required()
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('email_pribadi')
                                     ->label('Email Pribadi')
                                     ->email()
+                                    ->copyable()
                                     ->placeholder('Contoh: user@gmail.com')
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('password')
@@ -103,6 +108,32 @@ class UserForm
                                     ->label('Nomor Handphone / WhatsApp')
                                     ->tel()
                                     ->placeholder('Contoh: 081234567890')
+                                    ->helperText('Tampilan input nomor Indonesia (08...). Otomatis disimpan ke database dengan kode +62 untuk integrasi WhatsApp.')
+                                    ->formatStateUsing(function (?string $state): ?string {
+                                        if (blank($state)) {
+                                            return null;
+                                        }
+                                        $clean = preg_replace('/[^\d]/', '', $state);
+                                        if (str_starts_with($clean, '62')) {
+                                            return '0' . substr($clean, 2);
+                                        }
+                                        if (str_starts_with($clean, '0')) {
+                                            return $clean;
+                                        }
+                                        return '0' . $clean;
+                                    })
+                                    ->dehydrateStateUsing(function (?string $state): ?string {
+                                        if (blank($state)) {
+                                            return null;
+                                        }
+                                        $clean = preg_replace('/[^\d]/', '', $state);
+                                        if (str_starts_with($clean, '0')) {
+                                            $clean = substr($clean, 1);
+                                        } elseif (str_starts_with($clean, '62')) {
+                                            $clean = substr($clean, 2);
+                                        }
+                                        return '+62' . $clean;
+                                    })
                                     ->maxLength(25),
                                 \Filament\Forms\Components\TextInput::make('no_telp')
                                     ->label('Nomor Telepon Rumah/Kantor')
@@ -112,6 +143,8 @@ class UserForm
                                 \Filament\Forms\Components\TextInput::make('npwp')
                                     ->label('Nomor NPWP')
                                     ->placeholder('Contoh: 15.988.184.6-203.000')
+                                    ->mask('99.999.999.9-999.999')
+                                    ->helperText('Format standar NPWP: 99.999.999.9-999.999 (titik dan strip otomatis)')
                                     ->maxLength(30),
                                 \Filament\Forms\Components\DatePicker::make('tanggal_npwp')
                                     ->label('Tanggal NPWP')
