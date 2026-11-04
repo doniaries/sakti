@@ -58,6 +58,11 @@ class DetailPengajuanSpj extends Model
         }
     }
 
+    public function rincianAnggaranBelanja(): BelongsTo
+    {
+        return $this->belongsTo(RincianAnggaranBelanja::class, 'rincian_anggaran_belanja_id');
+    }
+
     public function pengajuanSpj(): BelongsTo
     {
         return $this->belongsTo(PengajuanSpj::class, 'pengajuan_spj_id');

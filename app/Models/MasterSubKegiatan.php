@@ -34,6 +34,11 @@ class MasterSubKegiatan extends Model
         return $this->hasMany(PengajuanSpj::class, 'sub_kegiatan_id');
     }
 
+    public function rincianAnggarans(): HasMany
+    {
+        return $this->hasMany(RincianAnggaranBelanja::class, 'sub_kegiatan_id');
+    }
+
     public function getLabelAttribute(): string
     {
         return "{$this->kode_sub_kegiatan} - {$this->nama_sub_kegiatan}";

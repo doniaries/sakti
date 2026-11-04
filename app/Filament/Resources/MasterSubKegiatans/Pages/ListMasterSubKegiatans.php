@@ -41,6 +41,12 @@ class ListMasterSubKegiatans extends ListRecords
                 ->color('gray')
                 ->url(fn (): string => KodeRekeningResource::getUrl('index')),
 
+            Action::make('rka_belanja')
+                ->label('Rincian Belanja (RKA)')
+                ->icon('heroicon-o-document-chart-bar')
+                ->color('gray')
+                ->url(fn (): string => \App\Filament\Resources\RincianAnggaranBelanjas\RincianAnggaranBelanjaResource::getUrl('index')),
+
             Action::make('kelola_spj')
                 ->label('SPJ Belanja')
                 ->icon('heroicon-o-document-currency-dollar')

@@ -58,3 +58,4 @@ return new class extends Migration
         Schema::dropIfExists('rincian_anggaran_belanja');
     }
 };
+

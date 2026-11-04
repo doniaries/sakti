@@ -331,79 +331,80 @@ class PengajuanSpjForm
                                                         return [];
                                                     }
 
-                                                    $bidangNama = Bidang::whereKey($bidangId)->value('nama') ?? 'Bidang';
+                                                    $subKegiatanId = $get('../../sub_kegiatan_id');
 
-                                                    $barangs = MasterBarang::with([
-                                                        'satuan',
-                                                        'stokBarangs' => fn ($q) => $q->where('bidang_id', $bidangId),
-                                                    ])
+                                                    // 1. Cek RKA Belanja untuk Sub Kegiatan & Rekening ini
+                                                    $rkaItems = \App\Models\RincianAnggaranBelanja::query()
+                                                        ->where('sub_kegiatan_id', $subKegiatanId)
                                                         ->where('kode_rekening_id', $kodeRekeningId)
                                                         ->get();
 
-                                                    return $barangs->mapWithKeys(function (MasterBarang $barang) use ($bidangNama) {
-                                                        $stok = (int) $barang->stokBarangs->sum('stok_tersedia');
+                                                    if ($rkaItems->isNotEmpty()) {
+                                                        return $rkaItems->mapWithKeys(function ($rka) {
+                                                            $sisaVol = number_format($rka->sisa_volume, 0, ',', '.');
+                                                            $harga = number_format((float) $rka->harga_satuan, 0, ',', '.');
+                                                            $val = $rka->master_barang_id ?? $rka->id;
+                                                            return [
+                                                                $val => "📋 {$rka->nama_item} ({$rka->satuan}) — [Pagu: {$sisaVol} {$rka->satuan} | Rp {$harga}]",
+                                                            ];
+                                                        })->all();
+                                                    }
+
+                                                    // 2. Fallback jika belum diinput di RKA
+                                                    $barangs = MasterBarang::with('satuan')
+                                                        ->where('kode_rekening_id', $kodeRekeningId)
+                                                        ->get();
+
+                                                    return $barangs->mapWithKeys(function (MasterBarang $barang) {
                                                         $satuan = $barang->satuan?->nama ?? 'Unit';
                                                         $harga = number_format((float) $barang->harga_satuan, 0, ',', '.');
 
-                                                        if ($stok <= 0) {
-                                                            return [
-                                                                $barang->id => "🚫 {$barang->nama_barang} ({$satuan}) — [{$bidangNama} | Stok: 0]",
-                                                            ];
-                                                        }
-
                                                         return [
-                                                            $barang->id => "{$barang->nama_barang} ({$satuan}) — [{$bidangNama} | Stok: {$stok}] — Rp {$harga}",
+                                                            $barang->id => "{$barang->nama_barang} ({$satuan}) — Rp {$harga}",
                                                         ];
                                                     })->all();
-                                                })
-                                                ->disableOptionWhen(function (string $value, callable $get) use ($resolveBidangId): bool {
-                                                    $bidangId = $resolveBidangId($get);
-                                                    if (! $bidangId) {
-                                                        return true;
-                                                    }
-
-                                                    $stok = (int) StokBarang::where('bidang_id', $bidangId)
-                                                        ->where('master_barang_id', (int) $value)
-                                                        ->sum('stok_tersedia');
-
-                                                    return $stok <= 0;
                                                 })
                                                 ->searchable()
                                                 ->live()
                                                 ->afterStateUpdated(function (callable $set, callable $get, ?string $state) use ($resolveBidangId) {
                                                     if ($state) {
-                                                        $bidangId = $resolveBidangId($get);
+                                                        $subKegiatanId = $get('../../sub_kegiatan_id');
+                                                        $kodeRekeningId = $get('kode_rekening_id');
                                                         $barang = MasterBarang::with('satuan')->find($state);
-                                                        if ($barang && $bidangId) {
-                                                            $stokTersedia = (int) StokBarang::where('bidang_id', $bidangId)
-                                                                ->where('master_barang_id', (int) $state)
-                                                                ->sum('stok_tersedia');
 
-                                                            if ($stokTersedia <= 0) {
-                                                                $set('master_barang_id', null);
-                                                                $set('stok_tersedia', 0);
+                                                        $rka = \App\Models\RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
+                                                            ->where('kode_rekening_id', $kodeRekeningId)
+                                                            ->where(function ($q) use ($state, $barang) {
+                                                                $q->where('master_barang_id', $state);
+                                                                if ($barang) {
+                                                                    $q->orWhere('nama_item', $barang->nama_barang);
+                                                                }
+                                                            })
+                                                            ->first();
 
-                                                                Notification::make()
-                                                                    ->danger()
-                                                                    ->title('Stok Barang Kosong')
-                                                                    ->body('Barang ini memiliki stok 0 pada Bidang terpilih sehingga tidak dapat diajukan.')
-                                                                    ->send();
-
-                                                                return;
-                                                            }
-
+                                                        if ($rka) {
+                                                            $set('rincian_anggaran_belanja_id', $rka->id);
+                                                            $harga = (float) $rka->harga_satuan;
+                                                            $set('stok_tersedia', (int) $rka->sisa_volume);
+                                                        } elseif ($barang) {
+                                                            $set('rincian_anggaran_belanja_id', null);
                                                             $harga = (float) $barang->harga_satuan;
-                                                            $qty = min((int) ($get('kuantitas') ?: 1), $stokTersedia);
-
-                                                            $set('stok_tersedia', $stokTersedia);
-                                                            $set('kuantitas', $qty);
-                                                            $set('harga_satuan', $harga);
-                                                            $set('subtotal', $qty * $harga);
-                                                            $set('kuantitas_realisasi', $qty);
-                                                            $set('harga_realisasi', $harga);
-                                                            $set('subtotal_realisasi', $qty * $harga);
+                                                            $set('stok_tersedia', 9999);
+                                                        } else {
+                                                            $set('rincian_anggaran_belanja_id', null);
+                                                            $harga = 0;
+                                                            $set('stok_tersedia', 0);
                                                         }
+
+                                                        $qty = max(1, (int) ($get('kuantitas') ?: 1));
+                                                        $set('kuantitas', $qty);
+                                                        $set('harga_satuan', $harga);
+                                                        $set('subtotal', $qty * $harga);
+                                                        $set('kuantitas_realisasi', $qty);
+                                                        $set('harga_realisasi', $harga);
+                                                        $set('subtotal_realisasi', $qty * $harga);
                                                     } else {
+                                                        $set('rincian_anggaran_belanja_id', null);
                                                         $set('stok_tersedia', 0);
                                                         $set('harga_satuan', 0);
                                                         $set('subtotal', 0);
@@ -412,22 +413,13 @@ class PengajuanSpjForm
                                                 ->required()
                                                 ->columnSpan(7),
 
+                                            Hidden::make('rincian_anggaran_belanja_id'),
+
                                             TextInput::make('stok_tersedia')
-                                                ->label('Stok')
+                                                ->label('Pagu RKA')
                                                 ->disabled()
                                                 ->dehydrated(false)
                                                 ->default(0)
-                                                ->formatStateUsing(function (callable $get) use ($resolveBidangId): int {
-                                                    $barangId = $get('master_barang_id');
-                                                    $bidangId = $resolveBidangId($get);
-                                                    if (! $barangId || ! $bidangId) {
-                                                        return 0;
-                                                    }
-
-                                                    return (int) StokBarang::where('bidang_id', $bidangId)
-                                                        ->where('master_barang_id', (int) $barangId)
-                                                        ->sum('stok_tersedia');
-                                                })
                                                 ->columnSpan(2),
 
                                             TextInput::make('kuantitas')
@@ -435,30 +427,13 @@ class PengajuanSpjForm
                                                 ->numeric()
                                                 ->default(1)
                                                 ->minValue(1)
-                                                ->maxValue(function (callable $get): int {
-                                                    $stok = (int) ($get('stok_tersedia') ?: 0);
-
-                                                    return $stok > 0 ? $stok : 1;
-                                                })
                                                 ->live(onBlur: true)
                                                 ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                    $stokTersedia = (int) ($get('stok_tersedia') ?: 0);
                                                     $qty = max(1, (int) ($state ?: 1));
-
-                                                    if ($stokTersedia > 0 && $qty > $stokTersedia) {
-                                                        $qty = $stokTersedia;
-                                                        $set('kuantitas', $qty);
-
-                                                        Notification::make()
-                                                            ->danger()
-                                                            ->title('Melebihi Stok Tersedia')
-                                                            ->body("Jumlah pesanan tidak boleh melebihi stok yang tersedia ({$stokTersedia}).")
-                                                            ->send();
-                                                    }
-
                                                     $harga = (float) ($get('harga_satuan') ?: 0);
                                                     $set('subtotal', $qty * $harga);
                                                     $set('kuantitas_realisasi', $qty);
+                                                    $set('harga_realisasi', $harga);
                                                     $set('subtotal_realisasi', $qty * $harga);
                                                 })
                                                 ->required()
