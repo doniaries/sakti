@@ -7,10 +7,49 @@
 @endphp
 
 @if ($user)
+<style>
+    .fi-user-footer-card {
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        color: #111827;
+    }
+    .dark .fi-user-footer-card {
+        background-color: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #ffffff !important;
+    }
+    .fi-user-footer-card:hover {
+        background-color: #e5e7eb;
+    }
+    .dark .fi-user-footer-card:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .fi-user-footer-menu {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+    }
+    .dark .fi-user-footer-menu {
+        background-color: #18181b !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    }
+    .dark .fi-user-footer-title {
+        color: #ffffff !important;
+    }
+    .dark .fi-user-footer-subtitle {
+        color: #9ca3af !important;
+    }
+    .dark .fi-user-footer-menu-item {
+        color: #f3f4f6 !important;
+    }
+    .dark .fi-user-footer-menu-item:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+    }
+</style>
+
 <div
     x-data="{ open: false }"
     @click.outside="open = false"
-    class="fi-sidebar-footer border-t border-gray-200/80 dark:border-white/10 p-2 bg-gray-50/70 dark:bg-gray-900/60 relative"
+    class="fi-sidebar-footer border-t border-gray-200/80 dark:border-white/10 p-2.5 bg-transparent relative"
 >
     {{-- Tampilan saat sidebar terbuka (Desktop & Mobile) --}}
     <div x-show="$store.sidebar.isOpen" class="space-y-1.5">
@@ -25,7 +64,7 @@
             x-transition:leave="transition ease-in duration-100"
             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
             x-transition:leave-end="opacity-0 -translate-y-2 scale-95"
-            class="p-2 space-y-1 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-white/10 shadow-xl mb-1.5"
+            class="fi-user-footer-menu p-2 space-y-1 rounded-xl shadow-2xl mb-1.5"
         >
             <div class="px-2 py-1 border-b border-gray-100 dark:border-white/5 mb-1">
                 <p class="text-[10px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider">
@@ -38,19 +77,22 @@
                 href="{{ $editProfileUrl }}"
                 wire:navigate
                 @click="open = false"
-                class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors {{ $isEditProfileActive ? 'bg-primary-500 text-white shadow-xs' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10' }}"
+                class="fi-user-footer-menu-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors {{ $isEditProfileActive ? 'bg-primary-500 text-white shadow-xs' : 'text-gray-700 hover:bg-gray-100' }}"
             >
                 <x-heroicon-m-user-circle class="w-4 h-4 shrink-0 {{ $isEditProfileActive ? 'text-white' : 'text-primary-500' }}" />
                 <span>Edit Profil</span>
             </a>
 
-            {{-- Tombol Presensi Mobile --}}
+            {{-- Tombol Presensi Mobile (Buka di New Tab) --}}
             <a
                 href="{{ route('mobile.dashboard') }}"
-                class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="fi-user-footer-menu-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-gray-700 hover:bg-gray-100 transition-colors"
             >
                 <x-heroicon-m-device-phone-mobile class="w-4 h-4 shrink-0 text-amber-500" />
                 <span>Presensi Mobile</span>
+                <x-heroicon-m-arrow-top-right-on-square class="w-3.5 h-3.5 ml-auto text-gray-400 dark:text-gray-500" />
             </a>
 
             {{-- Tombol Keluar (Logout) --}}
@@ -70,21 +112,21 @@
         <button
             type="button"
             @click="open = !open"
-            class="w-full flex items-center gap-2.5 p-2 rounded-xl text-left bg-white/70 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 border border-gray-200/80 dark:border-white/10 transition-all cursor-pointer shadow-xs focus:outline-hidden"
-            :class="{ 'ring-2 ring-primary-500/40 border-primary-500/40': open }"
+            class="fi-user-footer-card w-full flex items-center gap-2.5 p-2 rounded-xl text-left transition-all cursor-pointer shadow-xs focus:outline-hidden"
+            :class="{ 'ring-2 ring-primary-500/50': open }"
             title="Klik untuk membuka menu akun"
         >
-            <x-filament-panels::avatar.user :user="$user" class="w-9 h-9 shrink-0 rounded-full ring-2 ring-primary-500/20" />
+            <x-filament-panels::avatar.user :user="$user" class="w-9 h-9 shrink-0 rounded-full ring-2 ring-primary-500/30" />
             <div class="flex-1 min-w-0">
-                <p class="text-xs font-semibold text-gray-900 dark:text-white truncate">
+                <p class="fi-user-footer-title text-xs font-bold text-gray-900 truncate">
                     {{ $user->name }}
                 </p>
-                <p class="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                <p class="fi-user-footer-subtitle text-[11px] text-gray-500 truncate">
                     {{ $user->email }}
                 </p>
             </div>
             <x-heroicon-m-chevron-up
-                class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200"
+                class="w-4 h-4 text-gray-400 dark:text-gray-400 shrink-0 transition-transform duration-200"
                 ::class="{ 'rotate-180': !open }"
             />
         </button>

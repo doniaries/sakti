@@ -54,6 +54,7 @@ class AdminPanelProvider extends PanelProvider
                 'mobile' => MenuItem::make()
                     ->label('Presensi Mobile Pegawai')
                     ->url(fn(): string => route('mobile.dashboard'))
+                    ->openUrlInNewTab()
                     ->icon('heroicon-m-device-phone-mobile'),
             ])
 
