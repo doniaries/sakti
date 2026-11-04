@@ -26,6 +26,8 @@ class MasterSubKegiatansTable
 
         return $table
             ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
+                $query->with(['kegiatan.bidang', 'kegiatan.program']);
+
                 /** @var \App\Models\User|null $user */
                 $user = Auth::user();
                 $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);

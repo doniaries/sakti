@@ -30,6 +30,15 @@ class PengajuanSpjsTable
     {
         return $table
             ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
+                $query->with([
+                    'bidang',
+                    'kegiatan.program',
+                    'subKegiatan',
+                    'user',
+                    'masterToko',
+                    'pptk',
+                ]);
+
                 /** @var \App\Models\User|null $user */
                 $user = Auth::user();
                 $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);

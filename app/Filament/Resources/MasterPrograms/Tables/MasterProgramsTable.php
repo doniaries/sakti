@@ -24,6 +24,8 @@ class MasterProgramsTable
 
         return $table
             ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
+                $query->withCount('kegiatans');
+
                 $livewire = $table->getLivewire();
                 $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
 
