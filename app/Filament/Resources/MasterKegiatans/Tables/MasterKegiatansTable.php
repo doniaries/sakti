@@ -67,7 +67,8 @@ class MasterKegiatansTable
                     ->description(fn ($record) => $record->program?->kode_program)
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kode_kegiatan')
                     ->label('Kode Kegiatan')
@@ -79,7 +80,8 @@ class MasterKegiatansTable
                     ->label('Nama Kegiatan')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('pagu_anggaran')
                     ->label('Jumlah Uang Kegiatan')

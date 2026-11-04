@@ -59,6 +59,8 @@ class MasterSubKegiatanForm
                 TextInput::make('nama_sub_kegiatan')
                     ->label('Nomenklatur Sub Kegiatan')
                     ->placeholder('Contoh: Fasilitasi penguatan Kekayaan Intelektual')
+                    ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                     ->required()
                     ->columnSpanFull(),
             ]);

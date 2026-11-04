@@ -35,6 +35,8 @@ class MasterBarangForm
                 TextInput::make('nama_barang')
                     ->label('Nama Barang Persediaan')
                     ->placeholder('Contoh: Kertas HVS A4 80 gram')
+                    ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                     ->required()
                     ->columnSpanFull(),
 

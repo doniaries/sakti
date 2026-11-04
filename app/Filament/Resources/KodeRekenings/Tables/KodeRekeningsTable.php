@@ -26,7 +26,8 @@ class KodeRekeningsTable
                     ->label('Uraian Rekening')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('master_barangs_count')
                     ->label('Jml Item Barang')

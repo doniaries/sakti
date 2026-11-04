@@ -30,7 +30,8 @@ class MasterBarangsTable
                     ->label('Nama Barang Persediaan')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kodeRekening.uraian')
                     ->label('Rekening Belanja')
@@ -38,6 +39,7 @@ class MasterBarangsTable
                     ->sortable()
                     ->badge()
                     ->color('gray')
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
                     ->placeholder('-'),
 
                 TextColumn::make('satuan.nama')

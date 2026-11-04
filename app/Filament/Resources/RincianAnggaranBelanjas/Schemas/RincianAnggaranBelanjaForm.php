@@ -108,6 +108,8 @@ class RincianAnggaranBelanjaForm
                             TextInput::make('nama_item')
                                 ->label('Uraian Nama Barang / Jasa')
                                 ->required()
+                                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                                 ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram'),
 
                             TextInput::make('spesifikasi')

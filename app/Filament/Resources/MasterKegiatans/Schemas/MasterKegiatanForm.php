@@ -104,6 +104,8 @@ class MasterKegiatanForm
                 TextInput::make('nama_kegiatan')
                     ->label('Nomenklatur Kegiatan')
                     ->placeholder('Contoh: Pengembangan Ekosistem Ekonomi Kreatif')
+                    ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                     ->required(),
 
                 TextInput::make('pagu_anggaran')

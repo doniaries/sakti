@@ -65,7 +65,8 @@ class MasterProgramsTable
                     ->label('Nama Program')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kegiatans_count')
                     ->label('Jml Kegiatan')

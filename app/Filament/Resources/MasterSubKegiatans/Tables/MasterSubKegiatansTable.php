@@ -66,7 +66,8 @@ class MasterSubKegiatansTable
                     ->description(fn ($record) => $record->kegiatan?->kode_kegiatan)
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kode_sub_kegiatan')
                     ->label('Kode Sub Kegiatan')
@@ -78,7 +79,8 @@ class MasterSubKegiatansTable
                     ->label('Nama Sub Kegiatan')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')

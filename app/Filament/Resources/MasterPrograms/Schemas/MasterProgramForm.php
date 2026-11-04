@@ -37,6 +37,8 @@ class MasterProgramForm
                 TextInput::make('nama_program')
                     ->label('Nama / Nomenklatur Program')
                     ->placeholder('Contoh: PROGRAM PENGEMBANGAN EKONOMI KREATIF...')
+                    ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                     ->required()
                     ->columnSpanFull(),
 

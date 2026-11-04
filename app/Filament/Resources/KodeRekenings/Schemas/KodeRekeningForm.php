@@ -30,6 +30,8 @@ class KodeRekeningForm
                         TextInput::make('uraian')
                             ->label('Uraian Rekening Belanja')
                             ->placeholder('Contoh: Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor')
+                            ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                            ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                             ->required(),
                     ]),
 

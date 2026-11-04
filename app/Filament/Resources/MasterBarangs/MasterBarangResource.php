@@ -22,9 +22,9 @@ class MasterBarangResource extends Resource
 
     protected static ?string $modelLabel = 'Kode Barang';
 
-    protected static ?string $pluralModelLabel = 'Kode Barang Persediaan';
+    protected static ?string $pluralModelLabel = 'Kode Barang';
 
-    protected static ?string $navigationLabel = 'Kode Barang Persediaan';
+    protected static ?string $navigationLabel = 'Kode Barang';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 

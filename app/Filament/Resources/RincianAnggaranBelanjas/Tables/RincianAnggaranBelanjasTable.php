@@ -69,7 +69,8 @@ class RincianAnggaranBelanjasTable
                     ->description(fn (RincianAnggaranBelanja $r) => $r->subKegiatan?->kode_sub_kegiatan)
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kodeRekening.uraian')
                     ->label('Rekening Belanja')
@@ -77,7 +78,8 @@ class RincianAnggaranBelanjasTable
                     ->searchable()
                     ->badge()
                     ->color('gray')
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('nama_item')
                     ->label('Uraian Barang / Belanja RKA')
@@ -85,7 +87,8 @@ class RincianAnggaranBelanjasTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->wrap(),
+                    ->wrap()
+                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('pagu_volume')
                     ->label('Pagu Volume')

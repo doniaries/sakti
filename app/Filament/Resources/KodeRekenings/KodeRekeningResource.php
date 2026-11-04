@@ -20,9 +20,9 @@ class KodeRekeningResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
-    protected static ?string $modelLabel = 'Kode Rekening';
+    protected static ?string $modelLabel = 'Kode Rekening Belanja';
 
-    protected static ?string $pluralModelLabel = 'Kode Rekening';
+    protected static ?string $pluralModelLabel = 'Kode Rekening Belanja';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
