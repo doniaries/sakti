@@ -75,20 +75,40 @@ class RincianAnggaranBelanja extends Model
         return $this->hasMany(DetailPengajuanSpj::class, 'rincian_anggaran_belanja_id');
     }
 
+    public function getVolumeTeralokasiAttribute(): float
+    {
+        return (float) $this->spjDetails()
+            ->whereHas('pengajuanSpj', fn ($q) => $q->whereNotIn('status', ['draft', 'ditolak']))
+            ->sum('kuantitas');
+    }
+
+    public function getNilaiTeralokasiAttribute(): float
+    {
+        return (float) $this->spjDetails()
+            ->whereHas('pengajuanSpj', fn ($q) => $q->whereNotIn('status', ['draft', 'ditolak']))
+            ->sum('subtotal');
+    }
+
     public function getSisaVolumeAttribute(): float
     {
-        return max(0, (float) $this->volume - (float) $this->volume_realisasi);
+        $terpakai = max((float) $this->volume_realisasi, (float) $this->volume_teralokasi);
+
+        return max(0, (float) $this->volume - $terpakai);
     }
 
     public function getSisaAnggaranAttribute(): float
     {
-        return max(0, (float) $this->pagu_total - (float) $this->nilai_realisasi);
+        $terpakai = max((float) $this->nilai_realisasi, (float) $this->nilai_teralokasi);
+
+        return max(0, (float) $this->pagu_total - $terpakai);
     }
 
     public function getPersenRealisasiAttribute(): float
     {
+        $terpakai = max((float) $this->nilai_realisasi, (float) $this->nilai_teralokasi);
+
         return (float) $this->pagu_total > 0
-            ? min(100, round(((float) $this->nilai_realisasi / (float) $this->pagu_total) * 100, 1))
+            ? min(100, round(($terpakai / (float) $this->pagu_total) * 100, 1))
             : 0;
     }
 

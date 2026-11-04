@@ -281,6 +281,18 @@ class PengajuanSpjForm
                                     Repeater::make('details')
                                         ->relationship()
                                         ->label('Daftar Barang')
+                                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                            if (isset($data['rincian_anggaran_belanja_id']) && str_starts_with((string) $data['rincian_anggaran_belanja_id'], 'mb_')) {
+                                                $data['rincian_anggaran_belanja_id'] = null;
+                                            }
+                                            return $data;
+                                        })
+                                        ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
+                                            if (isset($data['rincian_anggaran_belanja_id']) && str_starts_with((string) $data['rincian_anggaran_belanja_id'], 'mb_')) {
+                                                $data['rincian_anggaran_belanja_id'] = null;
+                                            }
+                                            return $data;
+                                        })
                                         ->schema([
                                             Select::make('kode_rekening_id')
                                                 ->label('Rekening Belanja')
@@ -294,15 +306,31 @@ class PengajuanSpjForm
                                                         return [];
                                                     }
 
-                                                    return KodeRekening::whereHas('masterBarangs')
-                                                        ->get()
+                                                    $subKegiatanId = $get('../../sub_kegiatan_id');
+                                                    if ($subKegiatanId) {
+                                                        $rekIds = \App\Models\RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
+                                                            ->pluck('kode_rekening_id')
+                                                            ->unique();
+
+                                                        if ($rekIds->isNotEmpty()) {
+                                                            return KodeRekening::whereIn('id', $rekIds)
+                                                                ->get()
+                                                                ->pluck('label', 'id')
+                                                                ->all();
+                                                        }
+                                                    }
+
+                                                    return KodeRekening::all()
                                                         ->pluck('label', 'id')
                                                         ->all();
                                                 })
                                                 ->searchable()
                                                 ->live()
                                                 ->afterStateUpdated(function (callable $set) {
+                                                    $set('rincian_anggaran_belanja_id', null);
                                                     $set('master_barang_id', null);
+                                                    $set('nama_item_belanja', null);
+                                                    $set('satuan', null);
                                                     $set('stok_tersedia', 0);
                                                     $set('harga_satuan', 0);
                                                     $set('subtotal', 0);
@@ -310,8 +338,8 @@ class PengajuanSpjForm
                                                 ->required()
                                                 ->columnSpan(5),
 
-                                            Select::make('master_barang_id')
-                                                ->label('Nama Barang')
+                                            Select::make('rincian_anggaran_belanja_id')
+                                                ->label('Barang / Belanja (RKA)')
                                                 ->placeholder(function (callable $get) use ($resolveBidangId): string {
                                                     if (! $resolveBidangId($get)) {
                                                         return 'Pilih Bidang Pengusul terlebih dahulu';
@@ -320,7 +348,7 @@ class PengajuanSpjForm
                                                         return 'Pilih Rekening Belanja terlebih dahulu';
                                                     }
 
-                                                    return 'Pilih Barang';
+                                                    return 'Pilih Barang / Belanja dari RKA';
                                                 })
                                                 ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null || blank($get('kode_rekening_id')))
                                                 ->options(function (callable $get) use ($resolveBidangId): array {
@@ -343,9 +371,8 @@ class PengajuanSpjForm
                                                         return $rkaItems->mapWithKeys(function ($rka) {
                                                             $sisaVol = number_format($rka->sisa_volume, 0, ',', '.');
                                                             $harga = number_format((float) $rka->harga_satuan, 0, ',', '.');
-                                                            $val = $rka->master_barang_id ?? $rka->id;
                                                             return [
-                                                                $val => "📋 {$rka->nama_item} ({$rka->satuan}) — [Pagu: {$sisaVol} {$rka->satuan} | Rp {$harga}]",
+                                                                $rka->id => "📋 {$rka->nama_item} ({$rka->satuan}) — [Sisa Pagu: {$sisaVol} {$rka->satuan} | Rp {$harga}]",
                                                             ];
                                                         })->all();
                                                     }
@@ -360,40 +387,39 @@ class PengajuanSpjForm
                                                         $harga = number_format((float) $barang->harga_satuan, 0, ',', '.');
 
                                                         return [
-                                                            $barang->id => "{$barang->nama_barang} ({$satuan}) — Rp {$harga}",
+                                                            "mb_{$barang->id}" => "📦 {$barang->nama_barang} ({$satuan}) — Rp {$harga}",
                                                         ];
                                                     })->all();
                                                 })
                                                 ->searchable()
                                                 ->live()
-                                                ->afterStateUpdated(function (callable $set, callable $get, ?string $state) use ($resolveBidangId) {
+                                                ->afterStateUpdated(function (callable $set, callable $get, ?string $state) {
                                                     if ($state) {
-                                                        $subKegiatanId = $get('../../sub_kegiatan_id');
-                                                        $kodeRekeningId = $get('kode_rekening_id');
-                                                        $barang = MasterBarang::with('satuan')->find($state);
-
-                                                        $rka = \App\Models\RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
-                                                            ->where('kode_rekening_id', $kodeRekeningId)
-                                                            ->where(function ($q) use ($state, $barang) {
-                                                                $q->where('master_barang_id', $state);
-                                                                if ($barang) {
-                                                                    $q->orWhere('nama_item', $barang->nama_barang);
-                                                                }
-                                                            })
-                                                            ->first();
-
-                                                        if ($rka) {
-                                                            $set('rincian_anggaran_belanja_id', $rka->id);
-                                                            $harga = (float) $rka->harga_satuan;
-                                                            $set('stok_tersedia', (int) $rka->sisa_volume);
-                                                        } elseif ($barang) {
-                                                            $set('rincian_anggaran_belanja_id', null);
-                                                            $harga = (float) $barang->harga_satuan;
-                                                            $set('stok_tersedia', 9999);
+                                                        if (str_starts_with($state, 'mb_')) {
+                                                            $mbId = (int) substr($state, 3);
+                                                            $barang = MasterBarang::with('satuan')->find($mbId);
+                                                            if ($barang) {
+                                                                $set('master_barang_id', $barang->id);
+                                                                $set('nama_item_belanja', $barang->nama_barang);
+                                                                $set('satuan', $barang->satuan?->nama ?? 'Unit');
+                                                                $harga = (float) $barang->harga_satuan;
+                                                                $set('stok_tersedia', 9999);
+                                                            } else {
+                                                                $harga = 0;
+                                                                $set('stok_tersedia', 0);
+                                                            }
                                                         } else {
-                                                            $set('rincian_anggaran_belanja_id', null);
-                                                            $harga = 0;
-                                                            $set('stok_tersedia', 0);
+                                                            $rka = \App\Models\RincianAnggaranBelanja::find($state);
+                                                            if ($rka) {
+                                                                $set('master_barang_id', $rka->master_barang_id);
+                                                                $set('nama_item_belanja', $rka->nama_item);
+                                                                $set('satuan', $rka->satuan);
+                                                                $harga = (float) $rka->harga_satuan;
+                                                                $set('stok_tersedia', (float) $rka->sisa_volume);
+                                                            } else {
+                                                                $harga = 0;
+                                                                $set('stok_tersedia', 0);
+                                                            }
                                                         }
 
                                                         $qty = max(1, (int) ($get('kuantitas') ?: 1));
@@ -404,7 +430,9 @@ class PengajuanSpjForm
                                                         $set('harga_realisasi', $harga);
                                                         $set('subtotal_realisasi', $qty * $harga);
                                                     } else {
-                                                        $set('rincian_anggaran_belanja_id', null);
+                                                        $set('master_barang_id', null);
+                                                        $set('nama_item_belanja', null);
+                                                        $set('satuan', null);
                                                         $set('stok_tersedia', 0);
                                                         $set('harga_satuan', 0);
                                                         $set('subtotal', 0);
@@ -413,13 +441,16 @@ class PengajuanSpjForm
                                                 ->required()
                                                 ->columnSpan(7),
 
-                                            Hidden::make('rincian_anggaran_belanja_id'),
+                                            Hidden::make('master_barang_id'),
+                                            Hidden::make('nama_item_belanja'),
+                                            Hidden::make('satuan'),
 
                                             TextInput::make('stok_tersedia')
-                                                ->label('Pagu RKA')
+                                                ->label('Sisa Pagu RKA')
                                                 ->disabled()
                                                 ->dehydrated(false)
                                                 ->default(0)
+                                                ->suffix(fn (callable $get) => $get('satuan') ?: 'Unit')
                                                 ->columnSpan(2),
 
                                             TextInput::make('kuantitas')
@@ -428,9 +459,33 @@ class PengajuanSpjForm
                                                 ->default(1)
                                                 ->minValue(1)
                                                 ->live(onBlur: true)
+                                                ->rules([
+                                                    fn (callable $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                                        $rkaId = $get('rincian_anggaran_belanja_id');
+                                                        if ($rkaId && ! str_starts_with((string) $rkaId, 'mb_')) {
+                                                            $rka = \App\Models\RincianAnggaranBelanja::find($rkaId);
+                                                            if ($rka) {
+                                                                $sisa = (float) $rka->sisa_volume;
+                                                                if ((float) $value > $sisa) {
+                                                                    $fail("Ditolak Sistem (Over Budget): Jumlah pesanan ({$value} {$rka->satuan}) melebihi sisa pagu RKA yang tersedia ({$sisa} {$rka->satuan})!");
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                ])
                                                 ->afterStateUpdated(function (callable $set, callable $get, $state) {
                                                     $qty = max(1, (int) ($state ?: 1));
                                                     $harga = (float) ($get('harga_satuan') ?: 0);
+                                                    $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+
+                                                    if ($sisaPagu > 0 && $qty > $sisaPagu) {
+                                                        \Filament\Notifications\Notification::make()
+                                                            ->title('Peringatan: Over Budget!')
+                                                            ->body("Jumlah yang diinput ({$qty}) melebihi sisa pagu RKA ({$sisaPagu}). Pengajuan akan ditolak oleh sistem.")
+                                                            ->warning()
+                                                            ->send();
+                                                    }
+
                                                     $set('subtotal', $qty * $harga);
                                                     $set('kuantitas_realisasi', $qty);
                                                     $set('harga_realisasi', $harga);

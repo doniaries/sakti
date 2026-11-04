@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             KodeRekeningSeeder::class,
             MasterBarangSeeder::class,
             KegiatanSubKegiatanSeeder::class,
+            RincianAnggaranBelanjaSeeder::class,
             PengaturanAplikasiSeeder::class,
             PengajuanSpjSeeder::class,
             // SatuTahunStressTestSeeder::class, // Aktifkan seeder ini jika ingin menguji 1 tahun data (~20.000 data) di server online

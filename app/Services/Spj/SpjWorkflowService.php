@@ -45,13 +45,14 @@ class SpjWorkflowService
 
                         // 1. Otomatis Tambah Stok Fisik Persediaan (Stock In) saat SPJ Lunas Dicairkan
                         foreach ($spj->details as $detail) {
-                            if ($detail->master_barang_id && $spj->bidang_id) {
+                            $masterBarangId = $detail->master_barang_id ?: $detail->rincianAnggaranBelanja?->master_barang_id;
+                            if ($masterBarangId && $spj->bidang_id) {
                                 $qty = (int) ($detail->kuantitas_realisasi ?? $detail->kuantitas);
                                 if ($qty > 0) {
                                     $stok = \App\Models\StokBarang::firstOrCreate(
                                         [
                                             'bidang_id' => $spj->bidang_id,
-                                            'master_barang_id' => $detail->master_barang_id,
+                                            'master_barang_id' => $masterBarangId,
                                         ],
                                         [
                                             'stok_tersedia' => 0,
@@ -64,7 +65,7 @@ class SpjWorkflowService
                                     if (\Illuminate\Support\Facades\Schema::hasTable('transaksi_barangs')) {
                                         \App\Models\TransaksiBarang::create([
                                             'bidang_id' => $spj->bidang_id,
-                                            'master_barang_id' => $detail->master_barang_id,
+                                            'master_barang_id' => $masterBarangId,
                                             'user_id' => $user?->id ?? $spj->user_id,
                                             'jenis_transaksi' => 'masuk',
                                             'jumlah' => $qty,

@@ -197,8 +197,8 @@
                         $qty = $detail->kuantitas_realisasi ?: $detail->kuantitas;
                         $harga = $detail->harga_realisasi ?: $detail->harga_satuan;
                         $subtotal = $detail->subtotal_realisasi ?: $detail->subtotal;
-                        $namaBrg = $detail->masterBarang?->nama_barang ?: 'Barang #' . ($index + 1);
-                        $satuan = $detail->masterBarang?->satuan?->nama_satuan ?: 'Unit';
+                        $namaBrg = $detail->nama_barang;
+                        $satuan = $detail->satuan_nama;
                     @endphp
                     <div class="border-b border-gray-50 pb-1.5 last:border-b-0 dark:border-white/5">
                         <div class="font-semibold text-gray-900 dark:text-gray-100 text-[11px] leading-tight">

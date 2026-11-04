@@ -133,23 +133,22 @@ class PengajuanSpjSeeder extends Seeder
                     'judul' => 'Pengadaan Perlengkapan Promosi Event Geopark Silokek',
                     'toko' => $tokoRilex,
                     'items' => [
-                        ['nama' => 'Flashdisk 32GB', 'qty' => 2, 'harga' => 95000],
-                        ['nama' => 'Spidol Whiteboard', 'qty' => 4, 'harga' => 75000],
+                        ['nama' => 'Barang Cetakan - Fotocopy Biasa', 'qty' => 10, 'harga' => 300],
+                        ['nama' => 'Kertas HVS Sidu, ukuran F4, 75 gram', 'qty' => 1, 'harga' => 54100],
                     ],
                     'tgl' => $now->copy()->subDays(4),
                     'selisih' => false,
                 ],
                 [
                     'status' => 'menunggu_verifikasi_pptk',
-                    'judul' => 'Belanja Bahan Cetak Brosur & Panduan Wisata Sijunjung',
+                    'judul' => 'Belanja Makanan dan Minuman Rapat Koordinasi Promosi Wisata',
                     'toko' => $tokoSinarJaya,
                     'items' => [
-                        ['nama' => 'Kertas HVS A4 80 gram', 'qty' => 8, 'harga' => 55000],
-                        ['nama' => 'Tinta Printer', 'qty' => 2, 'harga' => 85000],
+                        ['nama' => 'Makanan/Sembako - Kue Kotak isi 3 kue + air', 'qty' => 20, 'harga' => 15000],
+                        ['nama' => 'Bahan Masakan/Minuman - Kopi Cap Rangkiang', 'qty' => 2, 'harga' => 28000],
                     ],
                     'tgl' => $now->copy()->subDays(5),
-                    'selisih' => true,
-                    'justifikasi' => 'Kebutuhan brosur lapangan bertambah sehingga kuantitas kertas disesuaikan dengan faktur toko.',
+                    'selisih' => false,
                 ],
             ],
 
@@ -301,12 +300,24 @@ class PengajuanSpjSeeder extends Seeder
                         $subtotalReal = $qtyRealisasi * $hargaRealisasi;
                     }
 
+                    $rkaItem = \App\Models\RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatan->id)
+                        ->where(function ($q) use ($barang) {
+                            if ($barang) {
+                                $q->where('master_barang_id', $barang->id)
+                                  ->orWhere('nama_item', 'LIKE', '%' . $barang->nama_barang . '%');
+                            }
+                        })
+                        ->first();
+
                     DetailPengajuanSpj::create([
                         'pengajuan_spj_id' => $spj->id,
-                        'kode_rekening_id' => $rekening?->id ?? 1,
-                        'master_barang_id' => $barang?->id ?? 1,
+                        'rincian_anggaran_belanja_id' => $rkaItem?->id,
+                        'kode_rekening_id' => $rkaItem?->kode_rekening_id ?? ($rekening?->id ?? 1),
+                        'master_barang_id' => $barang?->id,
+                        'nama_item_belanja' => $rkaItem?->nama_item ?? ($barang?->nama_barang ?? 'Item Belanja'),
+                        'satuan' => $rkaItem?->satuan ?? ($barang?->satuan?->nama ?? 'Unit'),
                         'kuantitas' => $it['qty'],
-                        'harga_satuan' => $it['harga'],
+                        'harga_satuan' => $rkaItem?->harga_satuan ?? $it['harga'],
                         'subtotal' => $subtotalRencana,
                         'kuantitas_realisasi' => $qtyRealisasi,
                         'harga_realisasi' => $hargaRealisasi,

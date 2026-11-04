@@ -17,6 +17,8 @@ class DetailPengajuanSpj extends Model
         'rincian_anggaran_belanja_id',
         'kode_rekening_id',
         'master_barang_id',
+        'nama_item_belanja',
+        'satuan',
         'kuantitas',
         'harga_satuan',
         'subtotal',
@@ -76,5 +78,31 @@ class DetailPengajuanSpj extends Model
     public function masterBarang(): BelongsTo
     {
         return $this->belongsTo(MasterBarang::class, 'master_barang_id');
+    }
+
+    public function getNamaBarangAttribute(): string
+    {
+        if (filled($this->nama_item_belanja)) {
+            return $this->nama_item_belanja;
+        }
+
+        if ($this->rincianAnggaranBelanja?->nama_item) {
+            return $this->rincianAnggaranBelanja->nama_item;
+        }
+
+        return $this->masterBarang?->nama_barang ?? 'Item Belanja';
+    }
+
+    public function getSatuanNamaAttribute(): string
+    {
+        if (filled($this->satuan)) {
+            return $this->satuan;
+        }
+
+        if ($this->rincianAnggaranBelanja?->satuan) {
+            return $this->rincianAnggaranBelanja->satuan;
+        }
+
+        return $this->masterBarang?->satuan?->nama ?? 'Unit';
     }
 }

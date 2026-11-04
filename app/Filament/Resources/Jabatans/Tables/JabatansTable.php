@@ -34,19 +34,6 @@ class JabatansTable
             ->filters([
                 //
             ])
-            ->headerActions([
-                \Filament\Actions\Action::make('buat_jabatan')
-                    ->label('Tambah Jabatan')
-                    ->icon('heroicon-o-plus')
-                    ->color('primary')
-                    ->url(fn (): string => \App\Filament\Resources\Jabatans\JabatanResource::getUrl('create')),
-
-                \Filament\Actions\Action::make('data_pegawai')
-                    ->label('Data Pegawai')
-                    ->icon('heroicon-o-users')
-                    ->color('gray')
-                    ->url(fn (): string => \App\Filament\Resources\Users\UserResource::getUrl('index')),
-            ])
             ->recordActions([
                 EditAction::make(),
             ])

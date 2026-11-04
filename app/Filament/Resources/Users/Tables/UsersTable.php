@@ -217,19 +217,6 @@ class UsersTable
                     ->label('Shift Kerja')
                     ->relationship('jadwalKerja', 'nama'),
             ])
-            ->headerActions([
-                Action::make('buat_pegawai')
-                    ->label('Tambah Pegawai')
-                    ->icon('heroicon-o-user-plus')
-                    ->color('primary')
-                    ->url(fn(): string => \App\Filament\Resources\Users\UserResource::getUrl('create')),
-
-                Action::make('kelola_bidang')
-                    ->label('Kelola Bidang')
-                    ->icon('heroicon-o-building-office-2')
-                    ->color('gray')
-                    ->url(fn(): string => \App\Filament\Resources\Bidangs\BidangResource::getUrl('index')),
-            ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
@@ -596,70 +583,6 @@ class UsersTable
                             }
                         }),
                 ]),
-            ])
-            ->headerActions([
-                /* Action::make('sync_mesin')
-                    ->label('Tarik Pegawai Mesin (Buat Baru)')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->color('success')
-                    ->form([
-                        Select::make('pegawai_terpilih')
-                            ->label('Pilih Pegawai yang ingin ditambahkan ke Web')
-                            ->multiple()
-                            ->searchable()
-                            ->required()
-                            ->options(function () {
-                                $mesin = \App\Models\MesinAbsensi::where('aktif', true)->first();
-                                if (!$mesin) return [];
-                                try {
-                                    $service = new \App\Services\ZKTecoService($mesin->alamat_ip, $mesin->port);
-                                    $users = $service->getUsers();
-                                    $existingPins = \App\Models\User::whereNotNull('nomor_absensi')->pluck('nomor_absensi')->toArray();
-                                    
-                                    $options = [];
-                                    foreach ($users as $u) {
-                                        if (!in_array($u['userid'], $existingPins)) {
-                                            $options[$u['userid']] = $u['userid'] . ' - ' . $u['name'];
-                                        }
-                                    }
-                                    return $options;
-                                } catch (\Exception $e) {
-                                    return [];
-                                }
-                            })
-                    ])
-                    ->action(function (array $data) {
-                        $mesin = \App\Models\MesinAbsensi::where('aktif', true)->first();
-                        if (!$mesin) {
-                            Notification::make()->title('Mesin Absensi Aktif tidak ditemukan!')->danger()->send();
-                            return;
-                        }
-
-                        try {
-                            $service = new \App\Services\ZKTecoService($mesin->alamat_ip, $mesin->port);
-                            $users = $service->getUsers();
-                            
-                            $terpilih = $data['pegawai_terpilih'] ?? [];
-                            $newUsers = 0;
-
-                            foreach ($users as $u) {
-                                if (in_array($u['userid'], $terpilih)) {
-                                    $newUser = \App\Models\User::create([
-                                        'name' => $u['name'],
-                                        'nomor_absensi' => $u['userid'],
-                                        'email' => strtolower(str_replace([' ', '.', ','], '', $u['name'])) . rand(100, 999) . '@example.com',
-                                        'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                                    ]);
-                                    $newUser->assignRole('pegawai');
-                                    $newUsers++;
-                                }
-                            }
-                            Notification::make()->title("Berhasil menambahkan $newUsers pegawai baru.")->success()->send();
-                        } catch (\Exception $e) {
-                            Notification::make()->title('Gagal terhubung ke mesin: ' . $e->getMessage())->danger()->send();
-                        }
-                    })
-                    ->modalHeading('Tarik Pegawai dari Mesin Absensi')
-                    ->modalDescription('Pilih nama-nama pegawai dari mesin yang belum ada di database untuk dibuatkan akun barunya.'), */]);
+            ]);
     }
 }
