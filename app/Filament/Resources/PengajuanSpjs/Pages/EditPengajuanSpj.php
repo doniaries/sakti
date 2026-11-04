@@ -20,16 +20,22 @@ class EditPengajuanSpj extends EditRecord
             Action::make('cetak')
                 ->label(function (): string {
                     return match ($this->record->status) {
-                        'menunggu_realisasi' => 'Cetak Surat Pesanan',
-                        'menunggu_verifikasi_pptk', 'revisi_pptk' => 'Cetak Pesanan & Kwitansi',
-                        default => 'Cetak Pesanan, Kwitansi & NPD',
+                        'menunggu_realisasi' => 'Preview & Cetak Pesanan',
+                        'menunggu_verifikasi_pptk', 'revisi_pptk' => 'Preview & Cetak Pesanan / Kwitansi',
+                        default => 'Preview & Cetak Dokumen (SPJ / Kwitansi / NPD)',
                     };
                 })
-                ->icon('heroicon-o-printer')
-                ->color('success')
+                ->icon('heroicon-o-document-magnifying-glass')
+                ->color('info')
                 ->visible(fn (): bool => ! in_array($this->record->status, ['draft', 'diajukan', 'ditolak'], true))
-                ->url(fn (): string => route('admin.pengajuan-spj.cetak', $this->record))
-                ->openUrlInNewTab(),
+                ->modalHeading(fn (): string => "Pratinjau Dokumen SPJ — {$this->record->nomor_pengajuan}")
+                ->modalDescription('Periksa isi dokumen sebelum dicetak. Gunakan tombol zoom untuk memperbesar dan beralih antar dokumen.')
+                ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
+                ->modalContent(fn () => view('filament.pages.preview-spj-modal', [
+                    'record' => $this->record,
+                ]))
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Tutup'),
 
             DeleteAction::make()
                 ->visible(fn (): bool => $this->record->status === 'draft'),

@@ -65,7 +65,7 @@ class PengajuanSpjsTable
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    ->color(fn (?string $state): string => Bidang::badgeColor($state))
+                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
                     ->searchable()
                     ->sortable(),
 
@@ -89,8 +89,8 @@ class PengajuanSpjsTable
                 TextColumn::make('status')
                     ->label('Status SPJ')
                     ->badge()
-                    ->color(fn (PengajuanSpj $record): string => $record->status_color)
-                    ->formatStateUsing(fn (PengajuanSpj $record): string => $record->status_label)
+                    ->color(fn(PengajuanSpj $record): string => $record->status_color)
+                    ->formatStateUsing(fn(PengajuanSpj $record): string => $record->status_label)
                     ->sortable(),
             ])
             ->filters([
@@ -116,20 +116,26 @@ class PengajuanSpjsTable
                     ->label('Bidang Dinas'),
             ])
             ->actions([
-                // Aksi 1: Cetak Dokumen Bertahap (TIDAK TAMPIL saat masih Draft / Belum Disetujui Kabid)
+                // Aksi 1: Preview & Cetak Dokumen Bertahap dengan Modal Preview Interaktif
                 Action::make('cetak_dokumen')
                     ->label(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'menunggu_realisasi' => 'Cetak Surat Pesanan',
-                            'menunggu_verifikasi_pptk', 'revisi_pptk' => 'Cetak Pesanan & Kwitansi',
-                            default => 'Cetak Pesanan, Kwitansi & NPD',
+                            'menunggu_realisasi' => 'Preview & Cetak Pesanan',
+                            'menunggu_verifikasi_pptk', 'revisi_pptk' => 'Preview & Cetak Pesanan / Kwitansi',
+                            default => 'Preview & Cetak Dokumen (SPJ / Kwitansi / NPD)',
                         };
                     })
-                    ->icon('heroicon-o-printer')
-                    ->color('success')
-                    ->visible(fn (PengajuanSpj $record): bool => ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true))
-                    ->url(fn (PengajuanSpj $record): string => route('admin.pengajuan-spj.cetak', $record))
-                    ->openUrlInNewTab(),
+                    ->icon('heroicon-o-document-magnifying-glass')
+                    ->color('info')
+                    ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true))
+                    ->modalHeading(fn(PengajuanSpj $record): string => "Pratinjau Dokumen SPJ — {$record->nomor_pengajuan}")
+                    ->modalDescription('Periksa isi dokumen sebelum dicetak. Gunakan tombol zoom untuk memperbesar dan beralih antar dokumen.')
+                    ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
+                    ->modalContent(fn(PengajuanSpj $record) => view('filament.pages.preview-spj-modal', [
+                        'record' => $record,
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
 
                 // Aksi 2: Proses Tahapan Secara Bertahap (Kontekstual sesuai Status)
                 Action::make('proses_approval')
@@ -162,7 +168,7 @@ class PengajuanSpjsTable
                             default => 'success',
                         };
                     })
-                    ->visible(fn (PengajuanSpj $record): bool => ! in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true))
+                    ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true))
                     ->form(function (PengajuanSpj $record): array {
                         $schema = [];
 
@@ -187,7 +193,7 @@ class PengajuanSpjsTable
                                 ->default($record->file_nota_penjual)
                                 ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                 ->maxSize(5120)
-                                ->required(fn () => empty($record->file_nota_penjual));
+                                ->required(fn() => empty($record->file_nota_penjual));
 
                             $schema[] = FileUpload::make('file_dokumentasi_barang')
                                 ->label($wajibFotoBarang
@@ -197,7 +203,7 @@ class PengajuanSpjsTable
                                 ->default($record->file_dokumentasi_barang)
                                 ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                 ->maxSize(5120)
-                                ->required(fn () => $wajibFotoBarang && empty($record->file_dokumentasi_barang));
+                                ->required(fn() => $wajibFotoBarang && empty($record->file_dokumentasi_barang));
 
                             if ((float) $record->total_nilai_realisasi > 0 && (float) $record->total_nilai_realisasi !== (float) $record->total_nilai_rencana) {
                                 $schema[] = Textarea::make('justifikasi_selisih')
@@ -350,10 +356,10 @@ class PengajuanSpjsTable
 
                 // Aksi 3: Kembalikan untuk Revisi (Hanya muncul saat di meja pemeriksa)
                 Action::make('kembalikan_revisi')
-                    ->label(fn (PengajuanSpj $record): string => $record->status === 'diajukan' ? 'Revisi Pesanan' : 'Kembalikan Revisi')
+                    ->label(fn(PengajuanSpj $record): string => $record->status === 'diajukan' ? 'Revisi Pesanan' : 'Kembalikan Revisi')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('danger')
-                    ->visible(fn (PengajuanSpj $record): bool => in_array($record->status, [
+                    ->visible(fn(PengajuanSpj $record): bool => in_array($record->status, [
                         'diajukan',
                         'menunggu_verifikasi_pptk',
                         'menunggu_verifikasi_ppk',
@@ -392,13 +398,13 @@ class PengajuanSpjsTable
 
                 // Edit hanya tampil jika berkas belum terkunci (disetujui/dicairkan/ditolak)
                 EditAction::make()
-                    ->visible(fn (PengajuanSpj $record): bool => ! in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)),
+                    ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)),
 
                 ViewAction::make(),
 
                 // Hapus hanya tampil jika masih berstatus draft awal
                 DeleteAction::make()
-                    ->visible(fn (PengajuanSpj $record): bool => $record->status === 'draft'),
+                    ->visible(fn(PengajuanSpj $record): bool => $record->status === 'draft'),
             ])
             ->toolbarActions([
                 CreateAction::make()

@@ -15,11 +15,18 @@ class ViewPengajuanSpj extends ViewRecord
     {
         return [
             Action::make('cetak')
-                ->label('Cetak Dokumen SPJ (PDF)')
-                ->icon('heroicon-o-printer')
-                ->color('success')
-                ->url(fn (): string => route('admin.pengajuan-spj.cetak', $this->record))
-                ->openUrlInNewTab(),
+                ->label('Preview & Cetak Dokumen (PDF)')
+                ->icon('heroicon-o-document-magnifying-glass')
+                ->color('info')
+                ->visible(fn (): bool => ! in_array($this->record->status, ['draft', 'diajukan', 'ditolak'], true))
+                ->modalHeading(fn (): string => "Pratinjau Dokumen SPJ — {$this->record->nomor_pengajuan}")
+                ->modalDescription('Periksa isi dokumen sebelum dicetak. Gunakan tombol zoom untuk memperbesar dan beralih antar dokumen.')
+                ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
+                ->modalContent(fn () => view('filament.pages.preview-spj-modal', [
+                    'record' => $this->record,
+                ]))
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Tutup'),
             EditAction::make(),
         ];
     }
