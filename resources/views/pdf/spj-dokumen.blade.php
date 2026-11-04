@@ -32,23 +32,35 @@
             text-align: center;
             border-bottom: 3px double #000;
             padding-bottom: 6px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
+        }
+        .kop-logo-container {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .kop-logo {
+            height: 55px;
+            width: auto;
+            display: inline-block;
         }
         .header-kop h2 {
             margin: 0;
-            font-size: 12.5pt;
+            font-size: 12pt;
             text-transform: uppercase;
             font-weight: bold;
+            line-height: 1.2;
         }
         .header-kop h3 {
-            margin: 2px 0;
-            font-size: 13.5pt;
+            margin: 2px 0 3px 0;
+            font-size: 13pt;
             text-transform: uppercase;
             font-weight: bold;
+            line-height: 1.2;
         }
         .header-kop p {
             margin: 0;
-            font-size: 9pt;
+            font-size: 8.5pt;
+            line-height: 1.25;
         }
 
         .doc-title {
@@ -116,12 +128,24 @@
         }
 
         /* Styling Khusus Kwitansi Sijunjung */
+        .kwitansi-watermark-wrapper {
+            position: absolute;
+            top: 200px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: -100;
+        }
+        .kwitansi-watermark-img {
+            width: 410px;
+            opacity: 0.18;
+        }
         .kwitansi-title {
             text-align: center;
-            font-size: 16pt;
+            font-size: 15pt;
             font-weight: bold;
             text-decoration: underline;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             margin: 8px 0 16px 0;
         }
         .box-uang-angka {
@@ -218,11 +242,26 @@
     $metodeBayar = $spj->metode_pembayaran ?: 'Transfer Bank / Tempo 14 Hari setelah barang diterima';
     $rawBank = $spj->nama_bank ?: $spj->masterToko?->nama_bank;
     $namaBankToko = $rawBank instanceof \BackedEnum ? $rawBank->value : ($rawBank ?: null);
+
+    $logoKabupatenPath = public_path('images/kabupaten-sijunjung.png');
+    $logoKabupaten = file_exists($logoKabupatenPath)
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoKabupatenPath))
+        : null;
+
+    $logoWatermarkPath = public_path('images/kabupaten-sijunjung-watermark.png');
+    $logoWatermark = file_exists($logoWatermarkPath)
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoWatermarkPath))
+        : ($logoKabupaten ?: null);
 @endphp
 
     {{-- ==================== HALAMAN 1: SURAT PESANAN BARANG ==================== --}}
     <div class="page">
         <div class="header-kop">
+            @if ($logoKabupaten)
+                <div class="kop-logo-container">
+                    <img src="{{ $logoKabupaten }}" class="kop-logo" alt="Logo Kabupaten Sijunjung">
+                </div>
+            @endif
             <h2>PEMERINTAH KABUPATEN SIJUNJUNG</h2>
             <h3>{{ $namaDinas }}</h3>
             <p>{{ $alamatKantor }} | Telp: {{ $teleponKantor }} | Email: {{ $emailKantor }} | Web: {{ $websiteKantor }}</p>
@@ -335,19 +374,38 @@
     </div>
 
     @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi'], true))
-    {{-- ==================== HALAMAN 2: DEPAN KWITANSI (FORMAT BAKU KAB. SIJUNJUNG) ==================== --}}
+    {{-- ==================== HALAMAN KWITANSI (4 RANGKAP: KWITANSI 1 S.D. 4) ==================== --}}
+    @php
+        $daftarKwitansi = [
+            'KWITANSI 1',
+            'KWITANSI 2',
+            'KWITANSI 3',
+            'KWITANSI 4',
+        ];
+    @endphp
+
+    @foreach ($daftarKwitansi as $indexKwitansi => $judulKwitansi)
     <div class="page">
+        @if ($logoWatermark)
+            <div class="kwitansi-watermark-wrapper">
+                <img src="{{ $logoWatermark }}" class="kwitansi-watermark-img" alt="Watermark Sijunjung">
+            </div>
+        @endif
+
         <table style="width: 100%; font-size: 9.5pt; margin-bottom: 4px;">
             <tr>
-                <td style="width: 50%;">D ......................</td>
-                <td style="width: 50%; text-align: right;">
-                    No. pada s.p.d<br>
-                    <strong>Rek {{ $kodeRekeningUtama }}</strong>
+                <td style="width: 50%; vertical-align: top;">
+                    PP.<br>
+                    No. .........................................
+                </td>
+                <td style="width: 50%; text-align: right; vertical-align: top;">
+                    No. pada s.p.d.<br>
+                    <strong>Kode Rek. {{ $kodeRekeningUtama }}</strong>
                 </td>
             </tr>
         </table>
 
-        <div class="kwitansi-title">KWITANSI KE I</div>
+        <div class="kwitansi-title">{{ $judulKwitansi }}</div>
 
         <table class="meta-table" style="font-size: 10pt;">
             <tr>
@@ -471,6 +529,7 @@
             </tr>
         </table>
     </div>
+    @endforeach
 
     {{-- ==================== HALAMAN 3: BELAKANG KWITANSI (TTD PPTK SESUAI CONTOH) ==================== --}}
     <div class="page">
