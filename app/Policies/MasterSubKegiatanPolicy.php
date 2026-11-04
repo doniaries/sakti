@@ -12,20 +12,6 @@ class MasterSubKegiatanPolicy
 {
     use HandlesAuthorization;
     
-    protected function canAccessBidang(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
-    {
-        if ($authUser->can('ViewAny:Bidang')) {
-            return true;
-        }
-
-        $kegiatan = $masterSubKegiatan->kegiatan;
-        if ($kegiatan && $kegiatan->bidang && $authUser->can('view', $kegiatan->bidang)) {
-            return true;
-        }
-
-        return (int) ($authUser->bidang_id ?? 0) === (int) ($kegiatan?->bidang_id ?? -1);
-    }
-
     public function viewAny(AuthUser $authUser): bool
     {
         return $authUser->can('ViewAny:MasterSubKegiatan');
@@ -33,7 +19,7 @@ class MasterSubKegiatanPolicy
 
     public function view(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
     {
-        return $authUser->can('View:MasterSubKegiatan') && $this->canAccessBidang($authUser, $masterSubKegiatan);
+        return $authUser->can('View:MasterSubKegiatan');
     }
 
     public function create(AuthUser $authUser): bool
@@ -43,12 +29,12 @@ class MasterSubKegiatanPolicy
 
     public function update(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
     {
-        return $authUser->can('Update:MasterSubKegiatan') && $this->canAccessBidang($authUser, $masterSubKegiatan);
+        return $authUser->can('Update:MasterSubKegiatan');
     }
 
     public function delete(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
     {
-        return $authUser->can('Delete:MasterSubKegiatan') && $this->canAccessBidang($authUser, $masterSubKegiatan);
+        return $authUser->can('Delete:MasterSubKegiatan');
     }
 
     public function deleteAny(AuthUser $authUser): bool

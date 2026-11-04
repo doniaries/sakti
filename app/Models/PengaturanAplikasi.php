@@ -70,16 +70,17 @@ class PengaturanAplikasi extends Model
 
         if (! $pengaturan) {
             $pengaturan = static::query()->create([
-                'nama_aplikasi' => 'ABSENSI LHK',
-                'sub_nama' => 'Dinas Lingkungan Hidup',
+                'nama_aplikasi' => 'Sakti',
+                'sub_nama' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
+                'nama_dinas' => 'Dinas Pariwisata Pemuda dan Olahraga',
                 'latitude_kantor' => -0.69752300,
                 'longitude_kantor' => 100.98547200,
-                'radius_meter' => 150,
-                'alamat_kantor' => 'Muaro Sijunjung, Sumatera Barat',
+                'radius_meter' => 50,
+                'alamat_kantor' => 'Gedung Bersama Lt. III, Jl. Prof. M. Yamin, SH No. 1, Muaro Sijunjung, Sumatera Barat',
                 'versi_aplikasi' => 'v1.0.0',
-                'pembuat_aplikasi' => 'Diskominfotik',
-                'kontak_bantuan' => 'helpdesk@lhk.go.id',
-                'deskripsi' => 'Sistem Presensi & Laporan Harian Kinerja Pegawai',
+                'pembuat_aplikasi' => 'Don Borland',
+                'kontak_bantuan' => 'helpdesk@lhk.sijunjung.go.id',
+                'deskripsi' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
             ]);
         }
 
