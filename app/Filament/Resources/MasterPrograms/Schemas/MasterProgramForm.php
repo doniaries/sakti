@@ -30,13 +30,8 @@ class MasterProgramForm
                     ->label('Kode Program')
                     ->placeholder('Contoh: 3.26.04')
                     ->mask('9.99.99')
-                    ->length(7)
-                    ->rules(['regex:/^\d\.\d{2}\.\d{2}$/'])
-                    ->validationMessages([
-                        'regex' => 'Format kode program wajib X.XX.XX (contoh: 3.26.04).',
-                        'length' => 'Kode program harus tepat 7 karakter (termasuk titik).',
-                    ])
-                    ->helperText('Format: X.XX.XX (tepat 5 digit angka dengan 2 titik, contoh: 3.26.04)')
+                    ->maxLength(50)
+                    ->helperText('Format titik otomatis sesuai standar SIPD (contoh: 3.26.04)')
                     ->required(),
 
                 TextInput::make('nama_program')

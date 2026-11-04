@@ -7,6 +7,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 
 class MasterBarangForm
 {
@@ -23,16 +24,12 @@ class MasterBarangForm
                     ->required(),
 
                 TextInput::make('kode_barang')
-                    ->label('Kode Barang')
+                    ->label('Kode Barang Persediaan')
                     ->placeholder('Contoh: 1.1.7.01.01.01.001')
-                    ->mask('9.9.9.99.99.99.999')
-                    ->length(18)
-                    ->rules(['regex:/^\d\.\d\.\d\.\d{2}\.\d{2}\.\d{2}\.\d{3}$/'])
-                    ->validationMessages([
-                        'regex' => 'Format kode barang wajib X.X.X.XX.XX.XX.XXX (contoh: 1.1.7.01.01.01.001).',
-                        'length' => 'Kode barang harus tepat 18 karakter (termasuk titik).',
-                    ])
-                    ->helperText('Format: X.X.X.XX.XX.XX.XXX (tepat 11 digit angka dengan 6 titik, contoh: 1.1.7.01.01.01.001)')
+                    ->mask(RawJs::make(<<<'JS'
+                        $input.startsWith('5') ? '9.9.99.99.999.99999.999' : '9.9.9.99.99.99.999'
+                    JS))
+                    ->helperText('Format titik otomatis sesuai standar persediaan (contoh: 1.1.7.01.01.01.001)')
                     ->required(),
 
                 TextInput::make('nama_barang')
@@ -49,10 +46,11 @@ class MasterBarangForm
                     ->required(),
 
                 TextInput::make('harga_satuan')
-                    ->label('Harga Satuan Standar (Rp)')
+                    ->label('Harga Referensi (Opsional)')
                     ->numeric()
                     ->prefix('Rp')
-                    ->required(),
+                    ->default(0)
+                    ->helperText('Opsional. Harga pagu resmi diinput pada menu Rincian Belanja (RKA) sesuai DPA SIPD.'),
 
                 Textarea::make('keterangan')
                     ->label('Keterangan / Spesifikasi')

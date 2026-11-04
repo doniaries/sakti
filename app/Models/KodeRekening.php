@@ -24,6 +24,22 @@ class KodeRekening extends Model
         'uraian',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (KodeRekening $model) {
+            if ($model->kode_lengkap) {
+                $parts = explode('.', $model->kode_lengkap);
+                $model->akun = filled($model->akun) ? $model->akun : ($parts[0] ?? '5');
+                $model->kelompok = filled($model->kelompok) ? $model->kelompok : ($parts[1] ?? '1');
+                $model->jenis = filled($model->jenis) ? $model->jenis : ($parts[2] ?? '02');
+                $model->objek = filled($model->objek) ? $model->objek : ($parts[3] ?? '01');
+                $model->rincian_objek = filled($model->rincian_objek) ? $model->rincian_objek : ($parts[4] ?? '001');
+                $model->sub_rincian_objek = filled($model->sub_rincian_objek) ? $model->sub_rincian_objek : ($parts[5] ?? '00001');
+                $model->sub_sub_rincian_objek = filled($model->sub_sub_rincian_objek) ? $model->sub_sub_rincian_objek : ($parts[6] ?? '000');
+            }
+        });
+    }
+
     public function masterBarangs(): HasMany
     {
         return $this->hasMany(MasterBarang::class, 'kode_rekening_id');

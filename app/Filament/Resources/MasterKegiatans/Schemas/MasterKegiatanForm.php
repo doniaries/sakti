@@ -96,13 +96,8 @@ class MasterKegiatanForm
                     ->label('Kode Kegiatan')
                     ->placeholder('Contoh: 3.26.04.2.02')
                     ->mask('9.99.99.9.99')
-                    ->length(12)
-                    ->rules(['regex:/^\d\.\d{2}\.\d{2}\.\d\.\d{2}$/'])
-                    ->validationMessages([
-                        'regex' => 'Format kode kegiatan wajib X.XX.XX.X.XX (contoh: 3.26.04.2.02).',
-                        'length' => 'Kode kegiatan harus tepat 12 karakter (termasuk titik).',
-                    ])
-                    ->helperText('Format: X.XX.XX.X.XX (tepat 8 digit angka dengan 4 titik, contoh: 3.26.04.2.02)')
+                    ->maxLength(50)
+                    ->helperText('Format titik otomatis sesuai standar SIPD (contoh: 3.26.04.2.02)')
                     ->required()
                     ->unique(ignoreRecord: true),
 

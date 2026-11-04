@@ -76,25 +76,28 @@ class RincianAnggaranBelanjaForm
                                 ->live(),
 
                             Select::make('master_barang_id')
-                                ->label('Pilih dari Katalog Barang (Opsional)')
+                                ->label('Tautkan ke Kode Barang Persediaan (Opsional)')
+                                ->helperText('Khusus barang persediaan fisik gudang (ATK/komputer). Untuk jasa/konsumsi mamin, biarkan kosong.')
                                 ->options(function (Get $get) {
                                     $rekId = $get('kode_rekening_id');
                                     return MasterBarang::query()
                                         ->when($rekId, fn ($q) => $q->where('kode_rekening_id', $rekId))
                                         ->get()
-                                        ->mapWithKeys(fn ($b) => [$b->id => "{$b->kode_barang} - {$b->nama_barang} (Rp " . number_format($b->harga_satuan, 0, ',', '.') . ")"])
+                                        ->mapWithKeys(fn ($b) => [$b->id => "📦 {$b->kode_barang} - {$b->nama_barang}"])
                                         ->all();
                                 })
                                 ->searchable()
                                 ->live()
-                                ->afterStateUpdated(function ($state, Set $set) {
+                                ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                     if ($state) {
                                         $barang = MasterBarang::with('satuan')->find($state);
                                         if ($barang) {
                                             $set('nama_item', $barang->nama_barang);
-                                            $set('harga_satuan', $barang->harga_satuan);
                                             if ($barang->satuan) {
                                                 $set('satuan', $barang->satuan->nama);
+                                            }
+                                            if ((float) $barang->harga_satuan > 0 && blank($get('harga_satuan'))) {
+                                                $set('harga_satuan', $barang->harga_satuan);
                                             }
                                         }
                                     }

@@ -251,57 +251,6 @@ class KegiatanSubKegiatanSeeder extends Seeder
                 'satuan' => 'Buah',
                 'harga_satuan' => 160950,
             ],
-            // Makanan dan Minuman
-            [
-                'kode_rekening' => '5.1.02.01.001.00052',
-                'kode_barang' => '5.1.02.01.001.00052.001',
-                'nama_barang' => 'Makanan/Sembako - Kue Kotak isi 3 kue + air',
-                'satuan' => 'Kotak',
-                'harga_satuan' => 13300,
-            ],
-            [
-                'kode_rekening' => '5.1.02.01.001.00052',
-                'kode_barang' => '5.1.02.01.001.00052.002',
-                'nama_barang' => 'Bahan Masakan/Minuman - Kopi Cap Rangkiang',
-                'satuan' => 'Kg',
-                'harga_satuan' => 157750,
-            ],
-            [
-                'kode_rekening' => '5.1.02.01.001.00052',
-                'kode_barang' => '5.1.02.01.001.00052.003',
-                'nama_barang' => 'Bahan Masakan/Minuman - Gula Pasir',
-                'satuan' => 'Kg',
-                'harga_satuan' => 21200,
-            ],
-            [
-                'kode_rekening' => '5.1.02.01.001.00058',
-                'kode_barang' => '5.1.02.01.001.00058.001',
-                'nama_barang' => 'Makanan - Nasi Goreng Lapangan',
-                'satuan' => 'Bungkus',
-                'harga_satuan' => 20200,
-            ],
-            [
-                'kode_rekening' => '5.1.02.01.001.00058',
-                'kode_barang' => '5.1.02.01.001.00058.002',
-                'nama_barang' => 'Makanan - Nasi Bungkus 1 Protein',
-                'satuan' => 'Bungkus',
-                'harga_satuan' => 24000,
-            ],
-            // Jasa Tenaga Ahli & Kontribusi
-            [
-                'kode_rekening' => '5.1.02.02.001.00025',
-                'kode_barang' => '5.1.02.02.001.00025.001',
-                'nama_barang' => 'Beban Jasa Tenaga Kesenian - Upah Pekerja Seni',
-                'satuan' => 'Orang',
-                'harga_satuan' => 120000,
-            ],
-            [
-                'kode_rekening' => '5.1.02.02.001.00048',
-                'kode_barang' => '5.1.02.02.001.00048.001',
-                'nama_barang' => 'Beban Jasa Kontribusi Asosiasi - Kursus/Pelatihan/Bimtek',
-                'satuan' => 'Paket',
-                'harga_satuan' => 2500000,
-            ],
         ];
 
         foreach ($barangRkaList as $item) {

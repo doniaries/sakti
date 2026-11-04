@@ -202,9 +202,11 @@ class PengajuanSpjForm
                                         ->createOptionForm([
                                             TextInput::make('kode_kegiatan')
                                                 ->label('Kode Kegiatan')
-                                                ->placeholder('Contoh: 2.19.02.2.01')
+                                                ->placeholder('Contoh: 3.26.03.2.01')
+                                                ->mask('9.99.99.9.99')
+                                                ->helperText('Format titik otomatis sesuai SIPD (contoh: 3.26.03.2.01)')
                                                 ->required()
-                                                ->maxLength(100),
+                                                ->maxLength(50),
                                             TextInput::make('nama_kegiatan')
                                                 ->label('Nama Kegiatan')
                                                 ->required()
@@ -250,9 +252,11 @@ class PengajuanSpjForm
                                         ->createOptionForm([
                                             TextInput::make('kode_sub_kegiatan')
                                                 ->label('Kode Sub Kegiatan')
-                                                ->placeholder('Contoh: 2.19.02.2.01.0001')
+                                                ->placeholder('Contoh: 3.26.03.2.01.0006')
+                                                ->mask('9.99.99.9.99.9999')
+                                                ->helperText('Format titik otomatis sesuai SIPD (contoh: 3.26.03.2.01.0006)')
                                                 ->required()
-                                                ->maxLength(100),
+                                                ->maxLength(50),
                                             TextInput::make('nama_sub_kegiatan')
                                                 ->label('Nama Sub Kegiatan')
                                                 ->required()

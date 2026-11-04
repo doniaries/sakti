@@ -41,7 +41,7 @@ class MasterSubKegiatanForm
                             if ($kegiatan) {
                                 $currentCode = (string) $get('kode_sub_kegiatan');
                                 if (blank($currentCode) || ! str_starts_with($currentCode, $kegiatan->kode_kegiatan)) {
-                                    $set('kode_sub_kegiatan', $kegiatan->kode_kegiatan . '.');
+                                    $set('kode_sub_kegiatan', $kegiatan->kode_kegiatan);
                                 }
                             }
                         }
@@ -52,13 +52,8 @@ class MasterSubKegiatanForm
                     ->label('Kode Sub Kegiatan')
                     ->placeholder('Contoh: 3.26.04.2.02.0014')
                     ->mask('9.99.99.9.99.9999')
-                    ->length(17)
-                    ->rules(['regex:/^\d\.\d{2}\.\d{2}\.\d\.\d{2}\.\d{4}$/'])
-                    ->validationMessages([
-                        'regex' => 'Format kode sub kegiatan wajib X.XX.XX.X.XX.XXXX (contoh: 3.26.04.2.02.0014).',
-                        'length' => 'Kode sub kegiatan harus tepat 17 karakter (termasuk titik).',
-                    ])
-                    ->helperText('Format: X.XX.XX.X.XX.XXXX (tepat 12 digit angka dengan 5 titik, contoh: 3.26.04.2.02.0014)')
+                    ->maxLength(50)
+                    ->helperText('Format titik otomatis sesuai standar SIPD (contoh: 3.26.04.2.02.0014)')
                     ->required(),
 
                 TextInput::make('nama_sub_kegiatan')

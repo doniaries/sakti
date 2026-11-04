@@ -19,9 +19,15 @@ class ListMasterBarangs extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('Tambah Master Barang')
+                ->label('Tambah Kode Barang')
                 ->icon('heroicon-o-plus-circle')
                 ->color('primary'),
+
+            Action::make('rka_belanja')
+                ->label('Rincian Belanja (RKA)')
+                ->icon('heroicon-o-document-chart-bar')
+                ->color('gray')
+                ->url(fn (): string => \App\Filament\Resources\RincianAnggaranBelanjas\RincianAnggaranBelanjaResource::getUrl('index')),
 
             Action::make('kelola_stok')
                 ->label('Stok & Mutasi')
