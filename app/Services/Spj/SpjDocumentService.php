@@ -10,9 +10,10 @@ use Barryvdh\DomPDF\PDF as DomPdfInstance;
 class SpjDocumentService
 {
     /**
-     * Generate 3 lembar PDF SPJ: Nota Pesanan, Kwitansi, Nota Pencairan Dana (NPD)
+     * Generate PDF SPJ: Nota Pesanan, Kwitansi, Nota Pencairan Dana (NPD)
+     * Dapat difilter per jenis dokumen: 'pesanan', 'kwitansi', 'npd', atau 'semua'
      */
-    public function generatePdf(PengajuanSpj $spj): DomPdfInstance
+    public function generatePdf(PengajuanSpj $spj, ?string $tipe = 'semua'): DomPdfInstance
     {
         $spj->loadMissing([
             'bidang',
@@ -36,6 +37,7 @@ class SpjDocumentService
             'pengaturan' => $pengaturan,
             'totalNominal' => $totalNominal,
             'terbilang' => $terbilang,
+            'tipeDokumen' => $tipe ?: 'semua',
         ])->setPaper('a4', 'portrait');
     }
 }

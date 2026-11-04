@@ -21,6 +21,52 @@
         .page:last-child {
             page-break-after: avoid;
         }
+
+        @media screen {
+            html, body {
+                background-color: #525659;
+                margin: 0;
+                padding: 16px 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .page {
+                background-color: #ffffff;
+                width: 210mm;
+                max-width: 100%;
+                min-height: 297mm;
+                margin: 0 auto 20px auto;
+                padding: 1.2cm 1.5cm;
+                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+                box-sizing: border-box;
+                border-radius: 2px;
+                position: relative;
+            }
+            .kwitansi-watermark-wrapper {
+                pointer-events: none !important;
+                z-index: 1 !important;
+            }
+            .kwitansi-watermark-img {
+                opacity: 0.12 !important;
+            }
+        }
+
+        @media print {
+            html, body {
+                background-color: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .page {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: auto !important;
+                min-height: auto !important;
+            }
+        }
+
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .text-left { text-align: left; }
@@ -258,6 +304,7 @@
 @endphp
 
     {{-- ==================== HALAMAN 1: SURAT PESANAN BARANG ==================== --}}
+    @if (in_array($tipeDokumen ?? 'semua', ['semua', 'pesanan'], true))
     <div class="page">
         <div class="header-kop">
             @if ($logoKabupaten)
@@ -375,8 +422,9 @@
             </tr>
         </table>
     </div>
+    @endif
 
-    @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi'], true))
+    @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi'], true) && in_array($tipeDokumen ?? 'semua', ['semua', 'kwitansi'], true))
     {{-- ==================== HALAMAN KWITANSI (4 RANGKAP: KWITANSI 1 S.D. 4) ==================== --}}
     @php
         $daftarKwitansi = [
@@ -556,7 +604,7 @@
     </div>
     @endif
 
-    @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'menunggu_verifikasi_pptk', 'revisi_pptk'], true))
+    @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'menunggu_verifikasi_pptk', 'revisi_pptk'], true) && in_array($tipeDokumen ?? 'semua', ['semua', 'npd'], true))
     {{-- ==================== HALAMAN 4: NOTA PENCAIRAN DANA / NPD (FORMAT BAKU KAB. SIJUNJUNG) ==================== --}}
     <div class="page">
         <table class="npd-outer-box">

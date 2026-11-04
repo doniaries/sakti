@@ -41,6 +41,8 @@ Route::prefix('mobile')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/admin/pengajuan-spj/{record}/preview', [\App\Http\Controllers\SpjPrintController::class, 'preview'])
+        ->name('admin.pengajuan-spj.preview');
     Route::get('/admin/pengajuan-spj/{record}/cetak', [\App\Http\Controllers\SpjPrintController::class, 'print'])
         ->name('admin.pengajuan-spj.cetak');
 });

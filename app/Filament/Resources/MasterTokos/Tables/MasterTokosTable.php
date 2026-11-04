@@ -14,11 +14,11 @@ class MasterTokosTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->headerActions([
+            /* ->headerActions([
                 CreateAction::make()
                     ->label('Tambah Toko / Rekanan')
                     ->icon('heroicon-m-plus'),
-            ])
+            ]) */
             ->columns([
                 TextColumn::make('nama_toko')
                     ->label('Nama Toko')
