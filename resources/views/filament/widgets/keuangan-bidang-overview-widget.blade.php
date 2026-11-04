@@ -5,6 +5,7 @@
     $daftarBidang = $this->getDaftarBidang();
     $activeBidang = $this->getActiveBidang();
     $selectedBidangId = $this->selectedBidangId;
+    $cleanPageUrl = $this->getCleanPageUrl();
 @endphp
 
 <x-filament-widgets::widget
@@ -23,20 +24,38 @@
             <div class="flex flex-wrap items-center gap-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pilih Bidang:</span>
                 <div class="inline-flex flex-wrap gap-1.5">
+                    <a
+                        href="{{ $cleanPageUrl }}"
+                        wire:navigate
+                        class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer {{ empty($selectedBidangId) ? 'bg-primary-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20' }}"
+                    >
+                        Semua Bidang
+                    </a>
                     @foreach ($daftarBidang as $b)
-                        <button
-                            type="button"
-                            wire:click="selectBidang({{ $b->id }})"
-                            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer {{ $selectedBidangId === $b->id ? 'bg-primary-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20' }}"
+                        @php
+                            $targetUrl = $cleanPageUrl . '?' . http_build_query([
+                                'bidang' => $b->id,
+                                'filters' => ['bidang_id' => ['value' => (string) $b->id]],
+                                'tableFilters' => ['bidang_id' => ['value' => (string) $b->id]],
+                            ]);
+                        @endphp
+                        <a
+                            href="{{ $targetUrl }}"
+                            wire:navigate
+                            class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200 cursor-pointer {{ (int) $selectedBidangId === (int) $b->id ? 'bg-primary-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20' }}"
                         >
                             {{ $b->nama }}
-                        </button>
+                        </a>
                     @endforeach
                 </div>
             </div>
             @if ($activeBidang)
                 <div class="text-xs text-gray-600 dark:text-gray-300">
                     PPTK: <span class="font-bold text-primary-600 dark:text-primary-400">{{ $activeBidang->kepala?->name ?? 'Belum Ditentukan' }}</span>
+                </div>
+            @else
+                <div class="text-xs text-gray-600 dark:text-gray-300">
+                    Cakupan: <span class="font-bold text-primary-600 dark:text-primary-400">Semua Bidang Dinas</span>
                 </div>
             @endif
         </div>

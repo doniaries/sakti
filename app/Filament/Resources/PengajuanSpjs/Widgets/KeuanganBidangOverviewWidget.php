@@ -32,11 +32,59 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if ($user !== null && filled($user->bidang_id)) {
+        $queryBidang = request()->query('bidang')
+            ?? data_get(request()->query('filters'), 'bidang_id.value')
+            ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
+
+        if (blank($queryBidang) && request()->header('Referer')) {
+            $refererQuery = [];
+            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
+            $queryBidang = $refererQuery['bidang']
+                ?? data_get($refererQuery, 'filters.bidang_id.value')
+                ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+        }
+
+        if (filled($queryBidang)) {
+            $this->selectedBidangId = (int) $queryBidang;
+        } elseif ($user !== null && filled($user->bidang_id) && ! $this->canChooseBidang()) {
             $this->selectedBidangId = (int) $user->bidang_id;
         } else {
-            $this->selectedBidangId = (int) (Bidang::first()?->id ?? 1);
+            $this->selectedBidangId = null;
         }
+    }
+
+    public function getCleanPageUrl(): string
+    {
+        $referer = (string) request()->header('Referer', '');
+        $currentPath = (string) request()->path();
+
+        $checkString = str_starts_with($currentPath, 'livewire/') ? $referer : $currentPath;
+
+        if (str_contains($checkString, 'pengajuan-spjs')) {
+            return PengajuanSpjResource::getUrl('index');
+        }
+
+        if (str_contains($checkString, 'master-kegiatans')) {
+            return MasterKegiatanResource::getUrl('index');
+        }
+
+        if (str_contains($checkString, 'master-sub-kegiatans')) {
+            return \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getUrl('index');
+        }
+
+        if (str_contains($checkString, 'master-barangs')) {
+            return MasterBarangResource::getUrl('index');
+        }
+
+        if (str_contains($checkString, 'kode-rekenings')) {
+            return \App\Filament\Resources\KodeRekenings\KodeRekeningResource::getUrl('index');
+        }
+
+        if (str_contains($checkString, 'master-tokos')) {
+            return \App\Filament\Resources\MasterTokos\MasterTokoResource::getUrl('index');
+        }
+
+        return PengajuanSpjResource::getUrl('index');
     }
 
     public static function canView(): bool
@@ -49,10 +97,23 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         return 4;
     }
 
-    public function selectBidang(int $id): void
+    public function selectBidang(?int $id = null): void
     {
         if ($this->canChooseBidang()) {
             $this->selectedBidangId = $id;
+
+            $baseUrl = $this->getCleanPageUrl();
+            $params = [];
+
+            if ($id !== null && $id > 0) {
+                $params['bidang'] = $id;
+                $params['filters'] = ['bidang_id' => ['value' => (string) $id]];
+                $params['tableFilters'] = ['bidang_id' => ['value' => (string) $id]];
+            }
+
+            $targetUrl = ! empty($params) ? $baseUrl . '?' . http_build_query($params) : $baseUrl;
+
+            $this->redirect($targetUrl, navigate: true);
         }
     }
 
@@ -93,14 +154,14 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             return Bidang::with('kepala:id,name,nip')->find($user->bidang_id);
         }
 
-        if ($this->selectedBidangId !== null) {
+        if ($this->selectedBidangId !== null && $this->selectedBidangId > 0) {
             $bidang = Bidang::with('kepala:id,name,nip')->find($this->selectedBidangId);
             if ($bidang !== null) {
                 return $bidang;
             }
         }
 
-        return Bidang::with('kepala:id,name,nip')->first();
+        return null;
     }
 
     public function getHeading(): ?string
@@ -114,51 +175,70 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
     public function getDescription(): ?string
     {
         $bidang = $this->getActiveBidang();
-        $pptk = $bidang?->kepala?->name ? " (PPTK: {$bidang->kepala->name})" : '';
+        if ($bidang !== null) {
+            $pptk = $bidang->kepala?->name ? " (PPTK: {$bidang->kepala->name})" : '';
+            return "Pedoman alokasi anggaran, kegiatan, stok kritis barang, dan realisasi SPJ{$pptk} sebelum belanja";
+        }
 
-        return "Pedoman alokasi anggaran, kegiatan, stok kritis barang, dan realisasi SPJ{$pptk} sebelum belanja";
+        return 'Pedoman alokasi anggaran, kegiatan, stok kritis barang, dan realisasi SPJ seluruh bidang dinas sebelum belanja';
     }
 
     protected function getStats(): array
     {
         $bidang = $this->getActiveBidang();
-        if ($bidang === null) {
-            return [];
+        $bidangId = $bidang?->id;
+
+        // 1. Total Anggaran (Pagu Kegiatan Bidang / Semua)
+        $totalAnggaranQuery = MasterKegiatan::query();
+        if ($bidangId !== null) {
+            $totalAnggaranQuery->where('bidang_id', $bidangId);
         }
+        $totalAnggaran = (float) $totalAnggaranQuery->sum('pagu_anggaran');
 
-        $bidangId = $bidang->id;
+        // 2. Total Kegiatan & Sub Kegiatan
+        $totalKegiatanQuery = MasterKegiatan::query();
+        $totalSubKegiatanQuery = MasterSubKegiatan::query();
+        if ($bidangId !== null) {
+            $totalKegiatanQuery->where('bidang_id', $bidangId);
+            $totalSubKegiatanQuery->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidangId));
+        }
+        $totalKegiatan = $totalKegiatanQuery->count();
+        $totalSubKegiatan = $totalSubKegiatanQuery->count();
 
-        // 1. Total Anggaran (Pagu Kegiatan Bidang)
-        $totalAnggaran = (float) MasterKegiatan::where('bidang_id', $bidangId)->sum('pagu_anggaran');
-
-        // 2. Total Kegiatan & Sub Kegiatan Bidang
-        $totalKegiatan = MasterKegiatan::where('bidang_id', $bidangId)->count();
-        $totalSubKegiatan = MasterSubKegiatan::whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidangId))->count();
-
-        // 3. Total Barang Habis (Stok <= 0 pada Bidang)
-        $totalBarangHabis = StokBarang::where('bidang_id', $bidangId)->where('stok_tersedia', '<=', 0)->count();
-        $totalJenisBarang = StokBarang::where('bidang_id', $bidangId)->count();
+        // 3. Total Barang Habis (Stok <= 0 pada Bidang / Semua)
+        $totalBarangHabisQuery = StokBarang::query()->where('stok_tersedia', '<=', 0);
+        if ($bidangId !== null) {
+            $totalBarangHabisQuery->where('bidang_id', $bidangId);
+        }
+        $totalBarangHabis = $totalBarangHabisQuery->count();
 
         // 4. Total Uang Sudah Di-SPJ-kan (Realisasi Belanja)
-        $totalSudahSpj = (float) PengajuanSpj::where('bidang_id', $bidangId)
-            ->whereIn('status', [
-                'dicairkan',
-                'disetujui',
-                'menunggu_verifikasi_bendahara',
-                'menunggu_persetujuan_pa',
-                'menunggu_verifikasi_ppk',
-                'menunggu_verifikasi_pptk',
-            ])
-            ->sum('total_nilai_realisasi');
+        $validStatuses = [
+            'dicairkan',
+            'disetujui',
+            'menunggu_verifikasi_bendahara',
+            'menunggu_persetujuan_pa',
+            'menunggu_verifikasi_ppk',
+            'menunggu_verifikasi_pptk',
+        ];
 
-        $totalSpjCair = PengajuanSpj::where('bidang_id', $bidangId)
-            ->where('status', 'dicairkan')
-            ->count();
+        $spjQuery = PengajuanSpj::query();
+        if ($bidangId !== null) {
+            $spjQuery->where('bidang_id', $bidangId);
+        }
 
-        $totalSemuaSpj = PengajuanSpj::where('bidang_id', $bidangId)->count();
+        $totalSudahSpj = (float) (clone $spjQuery)->whereIn('status', $validStatuses)->sum('total_nilai_realisasi');
+        $totalSpjCair = (clone $spjQuery)->where('status', 'dicairkan')->count();
+        $totalSemuaSpj = (clone $spjQuery)->count();
 
         // Sisa Anggaran (Pagu - Realisasi SPJ)
         $sisaAnggaran = max(0, $totalAnggaran - $totalSudahSpj);
+
+        $filterParams = $bidangId !== null ? [
+            'bidang' => $bidangId,
+            'filters' => ['bidang_id' => ['value' => (string) $bidangId]],
+            'tableFilters' => ['bidang_id' => ['value' => (string) $bidangId]],
+        ] : [];
 
         return [
             // Stat 1: Total Anggaran
@@ -166,28 +246,28 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
                 ->description('Sisa pagu: Rp ' . number_format($sisaAnggaran, 0, ',', '.'))
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('success')
-                ->url(MasterKegiatanResource::getUrl('index')),
+                ->url(MasterKegiatanResource::getUrl('index', $filterParams)),
 
             // Stat 2: Total Kegiatan
             Stat::make('Total Kegiatan', $totalKegiatan . ' Kegiatan')
                 ->description($totalSubKegiatan . ' Sub-Kegiatan aktif')
                 ->descriptionIcon('heroicon-m-briefcase')
                 ->color('info')
-                ->url(MasterKegiatanResource::getUrl('index')),
+                ->url(MasterKegiatanResource::getUrl('index', $filterParams)),
 
             // Stat 3: Total Barang Habis
             Stat::make('Total Barang Habis', $totalBarangHabis . ' Item Habis')
                 ->description($totalBarangHabis > 0 ? 'Perlu pengadaan / restock segera' : 'Semua stok persediaan aman')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color($totalBarangHabis > 0 ? 'danger' : 'gray')
-                ->url(MasterBarangResource::getUrl('index')),
+                ->url(MasterBarangResource::getUrl('index', $filterParams)),
 
             // Stat 4: Total Uang Sudah Di-SPJ-kan
             Stat::make('Total Sudah Di-SPJ-kan', 'Rp ' . number_format($totalSudahSpj, 0, ',', '.'))
                 ->description($totalSpjCair . ' cair dari ' . $totalSemuaSpj . ' berkas SPJ')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color('warning')
-                ->url(PengajuanSpjResource::getUrl('index')),
+                ->url(PengajuanSpjResource::getUrl('index', $filterParams)),
         ];
     }
 }

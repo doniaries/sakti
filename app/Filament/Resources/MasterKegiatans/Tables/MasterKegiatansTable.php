@@ -19,7 +19,7 @@ class MasterKegiatansTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(function (Builder $query): Builder {
+            ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
                 /** @var \App\Models\User|null $user */
                 $user = Auth::user();
                 $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
@@ -32,6 +32,26 @@ class MasterKegiatansTable
                     if ($userBidangId > 0) {
                         $query->where('bidang_id', $userBidangId);
                     }
+                }
+
+                $livewire = $table->getLivewire();
+                $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
+
+                $selectedBidang = request()->query('bidang')
+                    ?? data_get(request()->query('filters'), 'bidang_id.value')
+                    ?? data_get(request()->query('tableFilters'), 'bidang_id.value')
+                    ?? data_get($livewireFilters, 'bidang_id.value');
+
+                if (blank($selectedBidang) && request()->header('Referer')) {
+                    $refererQuery = [];
+                    parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
+                    $selectedBidang = $refererQuery['bidang']
+                        ?? data_get($refererQuery, 'filters.bidang_id.value')
+                        ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+                }
+
+                if (filled($selectedBidang)) {
+                    $query->where('bidang_id', (int) $selectedBidang);
                 }
 
                 return $query;
