@@ -23,6 +23,8 @@ class MasterBarangsTable
                 TextColumn::make('kode_barang')
                     ->label('Kode')
                     ->searchable()
+                    ->copyable()
+                    ->copyMessage('Kode Barang berhasil disalin!')
                     ->sortable()
                     ->weight('bold'),
 
@@ -31,7 +33,7 @@ class MasterBarangsTable
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kodeRekening.uraian')
                     ->label('Rekening Belanja')
@@ -39,7 +41,7 @@ class MasterBarangsTable
                     ->sortable()
                     ->badge()
                     ->color('gray')
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
                     ->placeholder('-'),
 
                 TextColumn::make('satuan.nama')

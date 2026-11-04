@@ -26,9 +26,9 @@ class MasterBarangResource extends Resource
 
     protected static ?string $navigationLabel = 'Kode Barang';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {

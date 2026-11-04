@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->spa()
-            ->font('Poppins')
+            ->font('Roboto')
             // ->topNavigation()
             ->path('admin')
             ->sidebarCollapsibleOnDesktop()
@@ -57,7 +57,8 @@ class AdminPanelProvider extends PanelProvider
             ])
 
             ->navigationGroups([
-                NavigationGroup::make('Keuangan')
+                NavigationGroup::make('Master Keuangan')
+                    ->icon('heroicon-o-banknotes')
                     ->collapsed(),
                 NavigationGroup::make('Absensi')
                     ->collapsed(),
@@ -98,10 +99,6 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::BODY_END,
                 fn(): string => view('filament.hooks.sidebar-accordion')->render()
             )
-            ->renderHook(
-                PanelsRenderHook::BODY_END,
-                fn(): string => view('filament.hooks.sidebar-accordion')->render()
-            )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -129,6 +126,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentBackgroundsPlugin::make(),
                 FilamentEditProfilePlugin::make()
+                    ->shouldRegisterNavigation(false)
                     ->shouldShowAvatarForm(
                         value: true,
                         directory: 'avatars',

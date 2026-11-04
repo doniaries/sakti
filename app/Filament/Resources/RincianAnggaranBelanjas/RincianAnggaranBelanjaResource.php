@@ -21,7 +21,7 @@ class RincianAnggaranBelanjaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentChartBar;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|UnitEnum|null $navigationGroup = 'Master Keuangan';
 
     protected static ?string $navigationLabel = 'Rincian Belanja (RKA)';
 

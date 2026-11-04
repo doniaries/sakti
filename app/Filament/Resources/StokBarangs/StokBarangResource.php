@@ -28,7 +28,7 @@ class StokBarangResource extends Resource
 
     protected static ?string $navigationLabel = 'Stok Persediaan Bidang';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
     protected static ?int $navigationSort = 8;
 
