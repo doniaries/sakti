@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\PengajuanSpjs\Widgets;
 
+use App\Filament\Resources\KodeRekenings\KodeRekeningResource;
 use App\Filament\Resources\MasterBarangs\MasterBarangResource;
 use App\Filament\Resources\MasterKegiatans\MasterKegiatanResource;
 use App\Filament\Resources\MasterPrograms\MasterProgramResource;
 use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
+use App\Filament\Resources\MasterTokos\MasterTokoResource;
 use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
 use App\Filament\Resources\StokBarangs\StokBarangResource;
 use App\Models\Bidang;
@@ -102,6 +104,14 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             return MasterBarangResource::getUrl('index');
         }
 
+        if (str_contains($checkString, 'kode-rekenings')) {
+            return KodeRekeningResource::getUrl('index');
+        }
+
+        if (str_contains($checkString, 'master-tokos')) {
+            return MasterTokoResource::getUrl('index');
+        }
+
         return PengajuanSpjResource::getUrl('index');
     }
 
@@ -182,10 +192,10 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 
         if ($bidang !== null) {
             $pptk = $bidang->kepala?->name ? " (PPTK: {$bidang->kepala->name})" : '';
-            return "Pedoman alokasi anggaran TA {$tahun}, kegiatan, stok kritis barang, dan realisasi SPJ{$pptk}";
+            return "Pedoman alokasi anggaran TA {$tahun}, kegiatan, realisasi SPJ, dan sisa pagu anggaran{$pptk}";
         }
 
-        return "Pedoman alokasi anggaran TA {$tahun}, kegiatan, stok kritis barang, dan realisasi SPJ seluruh bidang dinas";
+        return "Pedoman alokasi anggaran TA {$tahun}, kegiatan, realisasi SPJ, dan sisa pagu anggaran seluruh bidang dinas";
     }
 
     protected function getStats(): array
@@ -211,14 +221,7 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         $totalKegiatan = $totalKegiatanQuery->count();
         $totalSubKegiatan = $totalSubKegiatanQuery->count();
 
-        // 3. Total Barang Habis
-        $totalBarangHabisQuery = StokBarang::query()->where('stok_tersedia', '<=', 0);
-        if ($bidangId !== null) {
-            $totalBarangHabisQuery->where('bidang_id', $bidangId);
-        }
-        $totalBarangHabis = $totalBarangHabisQuery->count();
-
-        // 4. Total Uang Sudah Di-SPJ-kan (Realisasi Belanja)
+        // 3. Total Uang Sudah Di-SPJ-kan (Realisasi Belanja)
         $validStatuses = [
             'dicairkan',
             'disetujui',
@@ -237,8 +240,9 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         $totalSpjCair = (clone $spjQuery)->where('status', 'dicairkan')->count();
         $totalSemuaSpj = (clone $spjQuery)->count();
 
-        // Sisa Anggaran (Pagu - Realisasi SPJ)
+        // 4. Sisa Anggaran (Pagu - Realisasi SPJ)
         $sisaAnggaran = max(0, $totalAnggaran - $totalSudahSpj);
+        $persenSisa = $totalAnggaran > 0 ? round(($sisaAnggaran / $totalAnggaran) * 100, 1) : 0;
 
         $filterParams = array_filter([
             'bidang' => $bidangId,
@@ -247,27 +251,27 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 
         return [
             Stat::make('Total Anggaran', 'Rp ' . number_format($totalAnggaran, 0, ',', '.'))
-                ->description('Sisa pagu: Rp ' . number_format($sisaAnggaran, 0, ',', '.'))
+                ->description("Alokasi pagu TA {$tahun}")
                 ->descriptionIcon('heroicon-m-banknotes')
-                ->color('success')
+                ->color('primary')
                 ->url(MasterKegiatanResource::getUrl('index', $filterParams)),
 
             Stat::make('Total Kegiatan', $totalKegiatan . ' Kegiatan')
                 ->description($totalSubKegiatan . ' Sub-Kegiatan aktif')
                 ->descriptionIcon('heroicon-m-clipboard-document-list')
-                ->color('primary')
+                ->color('info')
                 ->url(MasterKegiatanResource::getUrl('index', $filterParams)),
-
-            Stat::make('Stok Habis / Kritis', $totalBarangHabis . ' Item')
-                ->description($totalBarangHabis > 0 ? 'Prioritaskan pengadaan' : 'Stok persediaan aman')
-                ->descriptionIcon('heroicon-m-archive-box-x-mark')
-                ->color($totalBarangHabis > 0 ? 'danger' : 'gray')
-                ->url(StokBarangResource::getUrl('index', $bidangId ? ['bidang' => $bidangId] : [])),
 
             Stat::make('Realisasi SPJ', 'Rp ' . number_format($totalSudahSpj, 0, ',', '.'))
                 ->description("{$totalSpjCair} dari {$totalSemuaSpj} SPJ dicairkan")
                 ->descriptionIcon('heroicon-m-receipt-percent')
-                ->color($totalSudahSpj > 0 ? 'info' : 'gray')
+                ->color($totalSudahSpj > 0 ? 'warning' : 'gray')
+                ->url(PengajuanSpjResource::getUrl('index', $filterParams)),
+
+            Stat::make('Sisa Anggaran', 'Rp ' . number_format($sisaAnggaran, 0, ',', '.'))
+                ->description($totalAnggaran > 0 ? "{$persenSisa}% pagu tersedia" : 'Pagu belum dialokasikan')
+                ->descriptionIcon('heroicon-m-currency-dollar')
+                ->color($sisaAnggaran > 0 ? 'success' : 'danger')
                 ->url(PengajuanSpjResource::getUrl('index', $filterParams)),
         ];
     }

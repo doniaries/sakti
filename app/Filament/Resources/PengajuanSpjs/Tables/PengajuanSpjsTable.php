@@ -469,9 +469,6 @@ class PengajuanSpjsTable
                     ->visible(fn(PengajuanSpj $record): bool => $record->status === 'draft'),
             ])
             ->toolbarActions([
-                CreateAction::make()
-                    ->label('Buat Pengajuan SPJ')
-                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

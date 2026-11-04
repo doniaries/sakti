@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\MasterTokos\Tables;
 
-use Filament\Actions\CreateAction;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -14,11 +15,6 @@ class MasterTokosTable
     public static function configure(Table $table): Table
     {
         return $table
-            /* ->headerActions([
-                CreateAction::make()
-                    ->label('Tambah Toko / Rekanan')
-                    ->icon('heroicon-m-plus'),
-            ]) */
             ->columns([
                 TextColumn::make('nama_toko')
                     ->label('Nama Toko')
@@ -64,9 +60,9 @@ class MasterTokosTable
                 DeleteAction::make(),
             ])
             ->toolbarActions([
-                CreateAction::make()
-                    ->label('Tambah Toko / Rekanan')
-                    ->icon('heroicon-m-plus'),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 }

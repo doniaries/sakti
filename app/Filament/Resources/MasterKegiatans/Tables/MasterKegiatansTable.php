@@ -148,9 +148,6 @@ class MasterKegiatansTable
                 DeleteAction::make(),
             ])
             ->toolbarActions([
-                CreateAction::make()
-                    ->label('Tambah Kegiatan')
-                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

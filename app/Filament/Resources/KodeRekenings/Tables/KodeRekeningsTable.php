@@ -46,9 +46,6 @@ class KodeRekeningsTable
                 DeleteAction::make(),
             ])
             ->toolbarActions([
-                CreateAction::make()
-                    ->label('Tambah Kode Rekening')
-                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

@@ -173,9 +173,6 @@ class StokBarangsTable
                 DeleteAction::make(),
             ])
             ->toolbarActions([
-                CreateAction::make()
-                    ->label('Tambah Stok Persediaan')
-                    ->icon('heroicon-m-plus'),
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
