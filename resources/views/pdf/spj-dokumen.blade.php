@@ -306,26 +306,29 @@
             Demikian surat pesanan ini kami sampaikan. Atas perhatian dan kerja samanya, kami ucapkan terima kasih.
         </div>
 
-        <table class="signature-table" style="margin-top: 16px;">
+        <table class="signature-table" style="margin-top: 18px;">
             <tr>
                 <td style="width: 50%;">
-                    Pemesan (Pembeli),<br>
-                    <span style="font-size: 8.5pt; font-style: italic;">(Tanda Tangan &amp; Stempel)</span>
+                    Mengetahui<br>
+                    Pengguna Anggaran
+                    <div class="signature-space">
+                        @if ($ttdPa)
+                            <img src="{{ $ttdPa }}" class="ttd-img" alt="TTD Pengguna Anggaran">
+                        @endif
+                    </div>
+                    {{ $namaPa }}<br>
+                    <span style="font-size: 8.5pt;">NIP. {{ $nipPa }}</span>
+                </td>
+                <td style="width: 50%;">
+                    Muaro Sijunjung, {{ \Carbon\Carbon::parse($spj->tanggal_pengajuan)->translatedFormat('d F Y') }}<br>
+                    PPTK
                     <div class="signature-space">
                         @if ($ttdPptk)
                             <img src="{{ $ttdPptk }}" class="ttd-img" alt="TTD PPTK">
                         @endif
                     </div>
-                    <strong><u>{{ $namaPptk }}</u></strong><br>
-                    {{ $jabatanPptk }}<br>
+                    {{ $namaPptk }}<br>
                     <span style="font-size: 8.5pt;">NIP. {{ $nipPptk }}</span>
-                </td>
-                <td style="width: 50%;">
-                    Menyetujui (Pemasok),<br>
-                    <span style="font-size: 8.5pt; font-style: italic;">(Tanda Tangan &amp; Stempel)</span>
-                    <div class="signature-space"></div>
-                    <strong><u>{{ $spj->penerima_nama ?: '..................................' }}</u></strong><br>
-                    Pimpinan / Pemilik {{ $spj->nama_toko ?: 'Toko Pemasok' }}
                 </td>
             </tr>
         </table>

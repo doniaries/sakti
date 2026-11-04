@@ -558,7 +558,7 @@ Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Sing
 1. **Surat Pesanan / Nota Pesanan (Tahap 1 — Sebelum Pembelian)**:
    - Waktu Terbit: Diajukan oleh Staf ke **Kabid selaku PPTK**, dan **resmi terbit setelah ditandatangani (TTD) oleh Kabid (PPTK)** (`status >= menunggu_realisasi`) sebelum pembelian dilakukan.
    - Isi: Dasar pemesanan barang, nomor surat pesanan, nama toko/rekanan penyedia, rincian barang yang dipesan, volume, harga satuan standar, dan ketentuan pemesanan.
-   - Pihak Bertandatangan: **PPTK (Kepala Bidang)** dan **Pimpinan/Staf Toko Penyedia**.
+   - Pihak Bertandatangan: **Mengetahui Pengguna Anggaran (Kepala Dinas)** dan **PPTK (Kepala Bidang)**.
 2. **Surat Kwitansi Pembayaran (Tahap 2 — Diproses Setelah Surat Pesanan Di-TTD Kabid/PPTK)**:
    - Waktu Terbit: **WAJIB diproses HANYA SETELAH Surat Pesanan ditandatangani oleh Kabid (PPTK)** dan realisasi pembelian barang dilakukan. Sebelum Surat Pesanan di-TTD Kabid/PPTK, Kwitansi belum dapat diterbitkan.
    - Isi: Nomor bukti kas, nominal rupiah realisasi, teks terbilang otomatis dari sistem (*rupiah spelling function*), rincian pembayaran belanja sesuai faktur, nama rekanan penerima dana.
