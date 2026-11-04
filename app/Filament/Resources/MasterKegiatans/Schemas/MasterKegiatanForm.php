@@ -26,7 +26,7 @@ class MasterKegiatanForm
                 Select::make('tahun_anggaran')
                     ->label('Tahun Anggaran')
                     ->options($years)
-                    ->default(fn () => (int) (request()->query('tahun') ?? $currentYear))
+                    ->default(fn() => (int) (request()->query('tahun') ?? $currentYear))
                     ->searchable()
                     ->live()
                     ->required(),
@@ -72,9 +72,9 @@ class MasterKegiatanForm
                     ->required(),
 
                 Select::make('program_id')
-                    ->label('Program Induk (Sebelum Nama Kegiatan)')
+                    ->label('Program')
                     ->relationship('program', 'nama_program')
-                    ->getOptionLabelFromRecordUsing(fn (MasterProgram $record) => $record->label)
+                    ->getOptionLabelFromRecordUsing(fn(MasterProgram $record) => $record->label)
                     ->searchable()
                     ->preload()
                     ->live()

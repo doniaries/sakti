@@ -16,53 +16,97 @@ class KodeRekeningSeeder extends Seeder
 
         $kodeRekeningData = [
             [
-                'akun' => '1',
+                'akun' => '5',
                 'kelompok' => '1',
-                'jenis' => '7',
+                'jenis' => '02',
                 'objek' => '01',
-                'rincian_objek' => '01',
-                'sub_rincian_objek' => '01',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00024',
                 'sub_sub_rincian_objek' => '000',
-                'kode_lengkap' => '1.1.7.01.01.01.000',
-                'uraian' => 'ALAT TULIS KANTOR'
+                'kode_lengkap' => '5.1.02.01.001.00024',
+                'uraian' => 'Belanja Alat/Bahan untuk Kegiatan Kantor-Alat Tulis Kantor',
             ],
             [
-                'akun' => '1',
+                'akun' => '5',
                 'kelompok' => '1',
-                'jenis' => '7',
+                'jenis' => '02',
                 'objek' => '01',
-                'rincian_objek' => '02',
-                'sub_rincian_objek' => '01',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00025',
                 'sub_sub_rincian_objek' => '000',
-                'kode_lengkap' => '1.1.7.01.02.01.000',
-                'uraian' => 'PERALATAN KOMPUTER'
+                'kode_lengkap' => '5.1.02.01.001.00025',
+                'uraian' => 'Belanja Alat/Bahan untuk Kegiatan Kantor- Kertas dan Cover',
             ],
             [
-                'akun' => '1',
+                'akun' => '5',
                 'kelompok' => '1',
-                'jenis' => '7',
+                'jenis' => '02',
                 'objek' => '01',
-                'rincian_objek' => '03',
-                'sub_rincian_objek' => '01',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00029',
                 'sub_sub_rincian_objek' => '000',
-                'kode_lengkap' => '1.1.7.01.03.01.000',
-                'uraian' => 'PERLENGKAPAN KANTOR'
+                'kode_lengkap' => '5.1.02.01.001.00029',
+                'uraian' => 'Belanja Alat/Bahan untuk Kegiatan Kantor-Bahan Komputer',
             ],
             [
-                'akun' => '1',
+                'akun' => '5',
                 'kelompok' => '1',
-                'jenis' => '7',
+                'jenis' => '02',
                 'objek' => '01',
-                'rincian_objek' => '04',
-                'sub_rincian_objek' => '01',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00043',
                 'sub_sub_rincian_objek' => '000',
-                'kode_lengkap' => '1.1.7.01.04.01.000',
-                'uraian' => 'BAHAN CETAKAN'
-            ]
+                'kode_lengkap' => '5.1.02.01.001.00043',
+                'uraian' => 'Belanja Natura dan Pakan-Natura',
+            ],
+            [
+                'akun' => '5',
+                'kelompok' => '1',
+                'jenis' => '02',
+                'objek' => '01',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00052',
+                'sub_sub_rincian_objek' => '000',
+                'kode_lengkap' => '5.1.02.01.001.00052',
+                'uraian' => 'Belanja Makanan dan Minuman Rapat',
+            ],
+            [
+                'akun' => '5',
+                'kelompok' => '1',
+                'jenis' => '02',
+                'objek' => '01',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00058',
+                'sub_sub_rincian_objek' => '000',
+                'kode_lengkap' => '5.1.02.01.001.00058',
+                'uraian' => 'Belanja Makanan dan Minuman Aktivitas Lapangan',
+            ],
+            [
+                'akun' => '5',
+                'kelompok' => '1',
+                'jenis' => '02',
+                'objek' => '02',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00025',
+                'sub_sub_rincian_objek' => '000',
+                'kode_lengkap' => '5.1.02.02.001.00025',
+                'uraian' => 'Belanja Jasa Tenaga Kesenian dan Kebudayaan',
+            ],
+            [
+                'akun' => '5',
+                'kelompok' => '1',
+                'jenis' => '02',
+                'objek' => '02',
+                'rincian_objek' => '001',
+                'sub_rincian_objek' => '00048',
+                'sub_sub_rincian_objek' => '000',
+                'kode_lengkap' => '5.1.02.02.001.00048',
+                'uraian' => 'Belanja Jasa Kontribusi Asosiasi',
+            ],
         ];
 
         foreach ($kodeRekeningData as $data) {
-            KodeRekening::create($data);
+            KodeRekening::firstOrCreate(['kode_lengkap' => $data['kode_lengkap']], $data);
         }
 
         $this->command->info('Kode Rekening berhasil disimpan.');

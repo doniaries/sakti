@@ -43,11 +43,50 @@ class KodeRekeningsTable
             ])
             ->actions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->before(function (DeleteAction $action, \App\Models\KodeRekening $record) {
+                        $spjCount = $record->detailPengajuanSpjs()->count();
+                        $rkaCount = \App\Models\RincianAnggaranBelanja::where('kode_rekening_id', $record->id)->count();
+                        $mbCount = $record->masterBarangs()->count();
+
+                        if ($spjCount > 0 || $rkaCount > 0 || $mbCount > 0) {
+                            \Filament\Notifications\Notification::make()
+                                ->danger()
+                                ->title('Gagal Menghapus Rekening')
+                                ->body("Kode rekening {$record->kode_lengkap} tidak dapat dihapus karena masih digunakan oleh {$spjCount} transaksi SPJ, {$rkaCount} item RKA, dan {$mbCount} barang persediaan.")
+                                ->persistent()
+                                ->send();
+
+                            $action->cancel();
+                        }
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->before(function (DeleteBulkAction $action, \Illuminate\Support\Collection $records) {
+                            $blocked = [];
+                            foreach ($records as $record) {
+                                $spjCount = $record->detailPengajuanSpjs()->count();
+                                $rkaCount = \App\Models\RincianAnggaranBelanja::where('kode_rekening_id', $record->id)->count();
+                                $mbCount = $record->masterBarangs()->count();
+
+                                if ($spjCount > 0 || $rkaCount > 0 || $mbCount > 0) {
+                                    $blocked[] = $record->kode_lengkap;
+                                }
+                            }
+
+                            if (! empty($blocked)) {
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Gagal Menghapus Beberapa Rekening')
+                                    ->body('Rekening (' . implode(', ', $blocked) . ') tidak dapat dihapus karena masih digunakan pada data transaksi SPJ, RKA, atau barang persediaan.')
+                                    ->persistent()
+                                    ->send();
+
+                                $action->cancel();
+                            }
+                        }),
                 ]),
             ]);
     }
