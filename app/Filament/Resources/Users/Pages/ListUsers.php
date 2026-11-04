@@ -18,31 +18,12 @@ class ListUsers extends ListRecords
     protected static string $resource = UserResource::class;
 
     /**
-     * Tombol aksi utama di halaman List Pegawai:
-     * - Tambah Pegawai Baru
-     * - Shortcut langsung menuju Kelola Bidang
-     * - Shortcut langsung menuju Kelola Jabatan
+     * Tombol aksi telah dipindahkan ke Table Header Actions (UsersTable)
+     * agar sejajar dengan toolbar tabel di bawah tab filter.
      */
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make()
-                ->label('Tambah Pegawai')
-                ->icon('heroicon-o-user-plus')
-                ->color('primary'),
-
-            Action::make('kelola_bidang')
-                ->label('Kelola Bidang')
-                ->icon('heroicon-o-building-office-2')
-                ->color('gray')
-                ->url(fn (): string => BidangResource::getUrl('index')),
-
-            Action::make('kelola_jabatan')
-                ->label('Kelola Jabatan')
-                ->icon('heroicon-o-tag')
-                ->color('gray')
-                ->url(fn (): string => JabatanResource::getUrl('index')),
-        ];
+        return [];
     }
 
     protected function getHeaderWidgets(): array

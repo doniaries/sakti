@@ -97,6 +97,10 @@ class AdminPanelProvider extends PanelProvider
                 fn(): string => view('filament.hooks.topbar-clock')->render()
             )
             ->renderHook(
+                PanelsRenderHook::SIDEBAR_FOOTER,
+                fn(): string => view('filament.hooks.sidebar-footer')->render()
+            )
+            ->renderHook(
                 PanelsRenderHook::BODY_END,
                 fn(): string => view('filament.hooks.sidebar-accordion')->render()
             )
@@ -127,7 +131,11 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentBackgroundsPlugin::make(),
                 FilamentEditProfilePlugin::make()
-                    ->shouldRegisterNavigation(true)
+                    ->shouldRegisterNavigation(false)
+                    ->shouldShowEditPasswordForm(false)
+                    ->customProfileComponents([
+                        \App\Livewire\Filament\CustomEditPasswordForm::class,
+                    ])
                     ->shouldShowAvatarForm(
                         value: true,
                         directory: 'avatars',

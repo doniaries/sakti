@@ -245,7 +245,7 @@ class UserForm
 
                         Section::make('Keamanan & Kata Sandi')
                             ->icon('heroicon-o-key')
-                            ->description('Atur atau perbarui password akun pengguna.')
+                            ->description('Atur atau perbarui password akun pengguna. Wajib diisi 2x agar tidak terjadi kesalahan ketik.')
                             ->schema([
                                 \Filament\Forms\Components\TextInput::make('password')
                                     ->label('Password Baru')
@@ -266,7 +266,7 @@ class UserForm
                                     ->helperText('Kosongkan jika tidak ingin merubah password.'),
 
                                 \Filament\Forms\Components\TextInput::make('password_confirmation')
-                                    ->label('Konfirmasi Password')
+                                    ->label('Ulangi Password Baru (Konfirmasi)')
                                     ->password()
                                     ->placeholder('Ketik ulang password baru...')
                                     ->revealable()
@@ -278,7 +278,6 @@ class UserForm
                                     ])
                                     ->required(fn(string $operation, callable $get): bool => $operation === 'create' || (filled($get('password')) && $get('password') !== ''))
                                     ->same('password')
-                                    ->visible(fn(string $operation, callable $get): bool => $operation === 'create' || filled($get('password')))
                                     ->maxLength(255)
                                     ->dehydrated(false)
                                     ->helperText('Wajib sama persis dengan password baru di atas.'),
