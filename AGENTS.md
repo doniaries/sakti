@@ -614,7 +614,7 @@ Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Sing
 
 ## 12. Format Respon AI (MANDATORY / WAJIB)
 
-Setiap kali AI memberikan solusi kode kepada pengguna, AI **WAJIB** menyertakan struktur berikut secara utuh:
+> **ATURAN KETAT:** Dilarang memberikan narasi/penjelasan panjang yang tidak diminta ("tidak usah jelaskan"). Langsung berikan respon to the point sesuai format wajib berikut:
 
 ### File
 ```txt
@@ -637,9 +637,9 @@ Ya / Tidak
 
 ### Dampak
 #### Backend
-- Penjelasan dampak pada sistem backend...
+- ...
 #### Frontend
-- Penjelasan dampak pada tampilan antarmuka...
+- ...
 
 ### Git Commit (WAJIB)
 ```bash
