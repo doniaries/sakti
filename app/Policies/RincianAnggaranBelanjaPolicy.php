@@ -4,50 +4,72 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\RincianAnggaranBelanja;
-use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RincianAnggaranBelanjaPolicy
 {
     use HandlesAuthorization;
-
-    public function before(User $user, string $ability): ?bool
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        if ($user->hasRole(['super_admin', 'admin'])) {
-            return true;
-        }
-
-        return null;
+        return $authUser->can('ViewAny:RincianAnggaranBelanja');
     }
 
-    public function viewAny(User $user): bool
+    public function view(AuthUser $authUser, RincianAnggaranBelanja $rincianAnggaranBelanja): bool
     {
-        return $user->can('view_any_rincian::anggaran::belanja') || $user->hasRole(['super_admin', 'admin', 'pegawai']);
+        return $authUser->can('View:RincianAnggaranBelanja');
     }
 
-    public function view(User $user, RincianAnggaranBelanja $record): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('view_rincian::anggaran::belanja') || $user->hasRole(['super_admin', 'admin', 'pegawai']);
+        return $authUser->can('Create:RincianAnggaranBelanja');
     }
 
-    public function create(User $user): bool
+    public function update(AuthUser $authUser, RincianAnggaranBelanja $rincianAnggaranBelanja): bool
     {
-        return $user->can('create_rincian::anggaran::belanja') || $user->hasRole(['super_admin', 'admin']);
+        return $authUser->can('Update:RincianAnggaranBelanja');
     }
 
-    public function update(User $user, RincianAnggaranBelanja $record): bool
+    public function delete(AuthUser $authUser, RincianAnggaranBelanja $rincianAnggaranBelanja): bool
     {
-        return $user->can('update_rincian::anggaran::belanja') || $user->hasRole(['super_admin', 'admin']);
+        return $authUser->can('Delete:RincianAnggaranBelanja');
     }
 
-    public function delete(User $user, RincianAnggaranBelanja $record): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        return $user->can('delete_rincian::anggaran::belanja') || $user->hasRole(['super_admin', 'admin']);
+        return $authUser->can('DeleteAny:RincianAnggaranBelanja');
     }
 
-    public function deleteAny(User $user): bool
+    public function restore(AuthUser $authUser, RincianAnggaranBelanja $rincianAnggaranBelanja): bool
     {
-        return $user->can('delete_any_rincian::anggaran::belanja') || $user->hasRole(['super_admin', 'admin']);
+        return $authUser->can('Restore:RincianAnggaranBelanja');
     }
+
+    public function forceDelete(AuthUser $authUser, RincianAnggaranBelanja $rincianAnggaranBelanja): bool
+    {
+        return $authUser->can('ForceDelete:RincianAnggaranBelanja');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:RincianAnggaranBelanja');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:RincianAnggaranBelanja');
+    }
+
+    public function replicate(AuthUser $authUser, RincianAnggaranBelanja $rincianAnggaranBelanja): bool
+    {
+        return $authUser->can('Replicate:RincianAnggaranBelanja');
+    }
+
+    public function reorder(AuthUser $authUser): bool
+    {
+        return $authUser->can('Reorder:RincianAnggaranBelanja');
+    }
+
 }
