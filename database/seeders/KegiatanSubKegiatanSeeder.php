@@ -28,6 +28,7 @@ class KegiatanSubKegiatanSeeder extends Seeder
                 'bidang_id' => $sekretariat?->id ?? 1,
                 'kode_kegiatan' => '1.01.02.1.01',
                 'nama_kegiatan' => 'Program Penunjang Urusan Pemerintahan Daerah (Sekretariat)',
+                'pagu_anggaran' => 175000000,
                 'sub_kegiatan' => [
                     [
                         'kode_sub_kegiatan' => '1.01.02.1.01.0001',
@@ -52,6 +53,7 @@ class KegiatanSubKegiatanSeeder extends Seeder
                 'bidang_id' => $pemasaran?->id ?? 2,
                 'kode_kegiatan' => '3.26.03.2.01',
                 'nama_kegiatan' => 'Program Pemasaran Pariwisata Daerah',
+                'pagu_anggaran' => 120000000,
                 'sub_kegiatan' => [
                     [
                         'kode_sub_kegiatan' => '3.26.03.2.01.0001',
@@ -68,6 +70,7 @@ class KegiatanSubKegiatanSeeder extends Seeder
                 'bidang_id' => $destinasi?->id ?? 3,
                 'kode_kegiatan' => '3.26.02.2.01',
                 'nama_kegiatan' => 'Program Peningkatan Daya Tarik Destinasi Pariwisata',
+                'pagu_anggaran' => 140000000,
                 'sub_kegiatan' => [
                     [
                         'kode_sub_kegiatan' => '3.26.02.2.01.0001',
@@ -84,6 +87,7 @@ class KegiatanSubKegiatanSeeder extends Seeder
                 'bidang_id' => $pora?->id ?? 4,
                 'kode_kegiatan' => '2.19.02.2.01',
                 'nama_kegiatan' => 'Program Pengembangan Kapasitas Daya Saing Kepemudaan',
+                'pagu_anggaran' => 85000000,
                 'sub_kegiatan' => [
                     [
                         'kode_sub_kegiatan' => '2.19.02.2.01.0001',
@@ -95,6 +99,7 @@ class KegiatanSubKegiatanSeeder extends Seeder
                 'bidang_id' => $pora?->id ?? 4,
                 'kode_kegiatan' => '2.19.03.2.01',
                 'nama_kegiatan' => 'Program Pembinaan dan Pengembangan Olahraga',
+                'pagu_anggaran' => 95000000,
                 'sub_kegiatan' => [
                     [
                         'kode_sub_kegiatan' => '2.19.03.2.01.0001',
@@ -113,6 +118,7 @@ class KegiatanSubKegiatanSeeder extends Seeder
                 'bidang_id' => $item['bidang_id'],
                 'kode_kegiatan' => $item['kode_kegiatan'],
                 'nama_kegiatan' => $item['nama_kegiatan'],
+                'pagu_anggaran' => $item['pagu_anggaran'] ?? 0,
             ]);
 
             foreach ($item['sub_kegiatan'] as $sub) {
