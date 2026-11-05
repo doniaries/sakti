@@ -3,7 +3,7 @@
     @if ($logoUrl)
         <div class="mb-3 flex items-center justify-center">
             <img src="{{ $logoUrl }}" alt="{{ $namaDinas ?? $namaAplikasi }}"
-                class="h-32 sm:h-28 w-auto max-w-[300px] object-contain drop-shadow-lg transition-transform duration-300 hover:scale-105" />
+                class="h-40 sm:h-48 w-auto max-w-[300px] object-contain drop-shadow-lg transition-transform duration-300 hover:scale-105" />
         </div>
     @endif
 
