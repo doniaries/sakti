@@ -24,7 +24,7 @@ class SaktiAvatarProvider implements AvatarProvider
         $initials = collect(explode(' ', trim($cleanName)))
             ->filter()
             ->take(2)
-            ->map(fn (string $segment): string => strtoupper(mb_substr($segment, 0, 1)))
+            ->map(fn(string $segment): string => strtoupper(mb_substr($segment, 0, 1)))
             ->join('');
 
         return 'https://ui-avatars.com/api/?name=' . urlencode($initials ?: 'U') . '&background=0284c7&color=ffffff&size=160';
