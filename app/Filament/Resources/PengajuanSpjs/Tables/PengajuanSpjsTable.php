@@ -504,12 +504,6 @@ class PengajuanSpjsTable
                     ->icon('heroicon-o-cube')
                     ->color('gray')
                     ->url(fn (): string => \App\Filament\Resources\MasterBarangs\MasterBarangResource::getUrl('index')),
-
-                Action::make('kelola_stok')
-                    ->label('Stok Persediaan')
-                    ->icon('heroicon-o-archive-box')
-                    ->color('gray')
-                    ->url(fn (): string => \App\Filament\Resources\StokBarangs\StokBarangResource::getUrl('index')),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

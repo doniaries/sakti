@@ -29,12 +29,6 @@ class ListMasterBarangs extends ListRecords
                 ->color('gray')
                 ->url(fn (): string => \App\Filament\Resources\RincianAnggaranBelanjas\RincianAnggaranBelanjaResource::getUrl('index')),
 
-            Action::make('kelola_stok')
-                ->label('Stok & Mutasi')
-                ->icon('heroicon-o-archive-box')
-                ->color('gray')
-                ->url(fn (): string => StokBarangResource::getUrl('index')),
-
             Action::make('kelola_toko')
                 ->label('Toko Rekanan')
                 ->icon('heroicon-o-building-storefront')

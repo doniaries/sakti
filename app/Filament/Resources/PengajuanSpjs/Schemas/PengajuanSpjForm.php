@@ -279,7 +279,7 @@ class PengajuanSpjForm
 
                             // 2. RINCIAN BARANG PESANAN (Diletakkan di atas Data Toko karena lebih utama)
                             Section::make('Rincian Barang Pesanan')
-                                ->description('Pilih barang sesuai stok yang tersedia pada Bidang Pengusul.')
+                                ->description('Pilih item belanja sesuai ketersediaan sisa pagu alokasi RKA Bidang Pengusul.')
                                 ->compact()
                                 ->schema([
                                     Repeater::make('details')

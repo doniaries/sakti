@@ -108,6 +108,16 @@ class RincianAnggaranBelanjasTable
                     ->weight('bold')
                     ->sortable(),
 
+                TextColumn::make('realisasi')
+                    ->label('Realisasi SPJ')
+                    ->state(function (RincianAnggaranBelanja $r): string {
+                        $vol = number_format((float) $r->volume_realisasi, 0, ',', '.') . ' ' . $r->satuan;
+                        $rp = 'Rp ' . number_format((float) $r->nilai_realisasi, 0, ',', '.');
+                        return "{$vol} ({$rp})";
+                    })
+                    ->badge()
+                    ->color(fn (RincianAnggaranBelanja $r) => (float) $r->volume_realisasi > 0 ? 'warning' : 'gray'),
+
                 TextColumn::make('sisa_pagu')
                     ->label('Sisa Pagu (Volume & Rp)')
                     ->state(function (RincianAnggaranBelanja $r): string {
@@ -117,6 +127,17 @@ class RincianAnggaranBelanjasTable
                     })
                     ->badge()
                     ->color(fn (RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'success' : 'danger'),
+
+                TextColumn::make('persen_realisasi')
+                    ->label('Penyerapan')
+                    ->state(fn (RincianAnggaranBelanja $r): string => $r->persen_realisasi . '%')
+                    ->badge()
+                    ->color(fn (RincianAnggaranBelanja $r): string => match (true) {
+                        $r->persen_realisasi >= 100 => 'danger',
+                        $r->persen_realisasi >= 75 => 'warning',
+                        $r->persen_realisasi > 0 => 'info',
+                        default => 'gray',
+                    }),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')

@@ -384,9 +384,9 @@ Modul ini mengintegrasikan seluruh siklus pengelolaan keuangan belanja dinas—m
 ### A. Prinsip Utama Sistem Keuangan SAKTI
 1. **Sistem Terintegrasi Satu-Pintu**: Modul keuangan SAKTI bukan sekadar aplikasi input pengadaan barang, melainkan sistem pengelolaan utuh yang mencakup pengajuan belanja, realisasi pembelian, verifikasi administrasi berjenjang, persetujuan pejabat berwenang, penerbitan dokumen resmi SPJ, dan pencairan dana kas daerah.
 2. **Keterlacakan Penuh (*End-to-End Auditability*)**: Setiap tahapan memiliki rekam jejak digital (*audit trail*) yang tidak dapat dimanipulasi, mencatat identitas pelaku, peran saat bertindak, catatan hasil pemeriksaan, dan waktu penindakan.
-3. **Pemisahan Domain Transaksi SPJ dan Persediaan**:
-   - **Transaksi SPJ Belanja**: Berfokus pada akuntabilitas anggaran, dokumen pertanggungjawaban keuangan daerah, pembebanan rekening belanja, dan pencairan kas.
-   - **Modul Persediaan / Stok**: Berfokus pada mutasi fisik barang persediaan (`stok_barangs`, `transaksi_barangs`, `laporan_persediaans`). SPJ belanja yang telah berstatus `dicairkan` dapat secara otomatis atau manual memicu pencatatan barang masuk (*stock in*) pada modul persediaan tanpa mencampuradukkan tabel transaksi SPJ dengan log mutasi barang.
+3. **Prinsip Belanja Daerah: Pengurangan Sisa Pagu RKA (Bukan Penambahan Stok Gudang)**:
+   - **Rincian Belanja (RKA) sebagai Single Source of Truth**: Dalam tata kelola keuangan pemerintah daerah (APBD), belanja barang/jasa berpijak pada DPA/RKA. Setiap baris item belanja telah memiliki kuota **Pagu Volume** dan **Pagu Anggaran**.
+   - **Realisasi Belanja Menyerap Kuota**: Pembelian barang melalui SPJ hakikatnya adalah **realisasi belanja yang mengurangi Sisa Pagu (Volume & Rp) di RKA**, bukan menambah stok fisik gudang komersial. Oleh karena itu, menu navigasi `StokBarangResource` dinonaktifkan (`$shouldRegisterNavigation = false`) demi menghilangkan redundansi dan menyatukan seluruh kendali kuota belanja ke **Rincian Belanja (RKA)**.
 
 ---
 
@@ -465,7 +465,7 @@ Master data dikelola terpusat oleh **Admin Keuangan** untuk menjamin standarisas
    - **`detail_pengajuan_spj`**: Rincian item barang memuat `rekening_id`, `barang_id`, `kuantitas_rencana`, `harga_rencana`, `kuantitas_realisasi`, `harga_realisasi`, `subtotal_realisasi`.
    - **`verifikasi_spj`**: Menyimpan checklist pemeriksaan per tahapan jabatan.
    - **`riwayat_status_spj`**: Log audit jejak workflow perubahan status.
-   - **`stok_barangs` & `transaksi_barangs`**: Tabel persediaan fisik tetap terpisah, terhubung via referensi `barang_id` dan nomor referensi SPJ saat status telah `dicairkan`.
+   - **`rincian_anggaran_belanja`**: Satu-satunya sumber kendali alokasi pagu belanja (`volume`, `pagu_total`, `volume_realisasi`, `nilai_realisasi`, `sisa_volume`, `sisa_anggaran`). Pencairan SPJ secara otomatis menambah realisasi dan memotong sisa pagu kuota RKA.
 
 ---
 

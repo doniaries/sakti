@@ -43,41 +43,8 @@ class SpjWorkflowService
                     if ($nextStatus === 'dicairkan') {
                         $updateData['tanggal_dicairkan'] = now()->toDateString();
 
-                        // 1. Otomatis Tambah Stok Fisik Persediaan (Stock In) saat SPJ Lunas Dicairkan
+                        // Otomatis Catat Realisasi Belanja & Pengurangan Sisa Pagu RKA
                         foreach ($spj->details as $detail) {
-                            $masterBarangId = $detail->master_barang_id ?: $detail->rincianAnggaranBelanja?->master_barang_id;
-                            if ($masterBarangId && $spj->bidang_id) {
-                                $qty = (int) ($detail->kuantitas_realisasi ?? $detail->kuantitas);
-                                if ($qty > 0) {
-                                    $stok = \App\Models\StokBarang::firstOrCreate(
-                                        [
-                                            'bidang_id' => $spj->bidang_id,
-                                            'master_barang_id' => $masterBarangId,
-                                        ],
-                                        [
-                                            'stok_tersedia' => 0,
-                                            'stok_minimum' => 5,
-                                            'lokasi_gudang' => 'Gudang Bidang',
-                                        ]
-                                    );
-                                    $stok->increment('stok_tersedia', $qty);
-
-                                    if (\Illuminate\Support\Facades\Schema::hasTable('transaksi_barangs')) {
-                                        \App\Models\TransaksiBarang::create([
-                                            'bidang_id' => $spj->bidang_id,
-                                            'master_barang_id' => $masterBarangId,
-                                            'user_id' => $user?->id ?? $spj->user_id,
-                                            'jenis_transaksi' => 'masuk',
-                                            'jumlah' => $qty,
-                                            'sisa_stok' => $stok->stok_tersedia,
-                                            'keterangan' => "Pencairan SPJ Belanja No: {$spj->nomor_pengajuan}",
-                                            'tanggal_transaksi' => now()->toDateString(),
-                                        ]);
-                                    }
-                                }
-                            }
-
-                            // 2. Otomatis Catat Realisasi Volume & Nilai Pagu RKA
                             if ($detail->rincian_anggaran_belanja_id) {
                                 $rka = \App\Models\RincianAnggaranBelanja::find($detail->rincian_anggaran_belanja_id);
                                 if ($rka) {

@@ -1,0 +1,86 @@
+name: 🚀 Deploy Website
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "resources/**"
+      - "routes/**"
+      - "public/**"
+      - "config/**"
+      - "database/**"
+      - "composer.json"
+      - "composer.lock"
+      - "package-lock.json"
+      - "vite.config.js"
+      - ".github/workflows/main.yml"
+
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: 📂 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build assets
+        run: npm run build
+
+      - name: 🧹 Sanitize & Prepare FTP Host
+        id: ftp_prep
+        run: |
+          RAW_SERVER="${{ secrets.FTP_SERVER }}"
+          # Hapus protokol seperti ftp://, ftps://, https://, http:// serta trailing slash dan spasi
+          CLEAN_SERVER=$(echo "$RAW_SERVER" | sed -E 's|^[a-zA-Z]+://||' | sed -E 's|/.*$||' | tr -d '[:space:]')
+          
+          # Fallback jika secret FTP_SERVER kosong atau belum diset
+          if [ -z "$CLEAN_SERVER" ]; then
+            CLEAN_SERVER="103.163.138.39"
+          fi
+          
+          echo "target_server=$CLEAN_SERVER" >> "$GITHUB_OUTPUT"
+          echo "FTP Target Host disiapkan: $CLEAN_SERVER"
+
+      - name: 🚀 Sync via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ steps.ftp_prep.outputs.target_server }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT || 21 }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
+          state-name: sync-state.json
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/tests/**
+            **/.env*
+            **/node_modules/**
+            **/vendor/**
+            **/database/*.sqlite
+            README.md
+            *.md
+            .antigravity/
+            load-test.js
+            phpunit.xml
+            .editorconfig
+            .gitattributes
+            .github/**

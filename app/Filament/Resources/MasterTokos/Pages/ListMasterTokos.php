@@ -28,12 +28,6 @@ class ListMasterTokos extends ListRecords
                 ->color('gray')
                 ->url(fn (): string => MasterBarangResource::getUrl('index')),
 
-            Action::make('kelola_stok')
-                ->label('Stok Persediaan')
-                ->icon('heroicon-o-archive-box')
-                ->color('gray')
-                ->url(fn (): string => StokBarangResource::getUrl('index')),
-
             Action::make('kelola_spj')
                 ->label('SPJ Belanja')
                 ->icon('heroicon-o-document-currency-dollar')
