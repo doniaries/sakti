@@ -103,9 +103,7 @@ class StrukturOrganisasiSeeder extends Seeder
         }
 
         // 5. Distribusikan Staf Berdasarkan Jabatan & Kebutuhan Bidang
-        $superAdmin = User::query()->where('email', 'superadmin@gmail.com')->first();
         $pimpinanIds = array_filter([
-            $superAdmin?->id,
             $kadis?->id,
             $sekretaris?->id,
             $kabidPemasaran?->id,

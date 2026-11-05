@@ -396,6 +396,9 @@ Aplikasi SAKTI mendefinisikan **8 Role Baku Definitif** yang terdaftar di `UserS
 | **`bendahara`** | Bendahara Pengeluaran | Menguji kas, memotong pajak (PPN/PPh), menginput nomor Buku Kas Umum (BKU) dan tanggal cair, serta membubuhkan tanda tangan pelunasan kas pada Kwitansi. |
 | **`pegawai`** | Pegawai Standar (ASN & Non-ASN) | Hak akses personal mandiri: absensi masuk/pulang GPS mobile, submit LHK harian, pengajuan izin/sakit, dan pembaruan biodata profil MyASN. |
 
+> **Catatan Penggabungan Akun Super Admin**:
+> Akun Super Admin Sistem disatukan langsung ke akun Doni Aries (`doniaries@gmail.com`) yang memiliki multi-role `['super_admin', 'pptk', 'pegawai']`. Hal ini mengeliminasi akun dummy superadmin terpisah sehingga total data pegawai di database murni 100% mencerminkan pegawai riil dinas tanpa ada data fiktif yang menggelembungkan statistik kepegawaian.
+
 ### F. Kebijakan Monitoring Pimpinan se-Dinas (Non-Multi-Tenant)
 Aplikasi SAKTI beroperasi untuk **satu instansi mandiri (Disparpora Sijunjung)** dan bukan multi-tenant. Kebijakan visibilitas data diterapkan sebagai berikut:
 1. **Transparansi Absensi Pegawai**:
