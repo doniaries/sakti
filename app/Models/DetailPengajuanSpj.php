@@ -51,11 +51,37 @@ class DetailPengajuanSpj extends Model
     {
         $spj = $this->pengajuanSpj;
         if ($spj) {
-            $totalRencana = $spj->details()->sum('subtotal');
-            $totalRealisasi = $spj->details()->sum('subtotal_realisasi');
+            $totalRencana = (float) $spj->details()->sum('subtotal');
+            $totalRealisasi = (float) $spj->details()->sum('subtotal_realisasi');
+            $nominalDasar = $totalRealisasi > 0 ? $totalRealisasi : $totalRencana;
+
+            $ppnPersen = (float) ($spj->ppn_persen ?? 0);
+            $pph22Persen = (float) ($spj->pph22_persen ?? 0);
+
+            // Ambang batas pajak: di atas 2 juta otomatis PPN 11% dan PPh 22 1.5%
+            if ($nominalDasar > 2000000) {
+                if ($ppnPersen == 0) {
+                    $ppnPersen = 11.00;
+                }
+                if ($pph22Persen == 0) {
+                    $pph22Persen = 1.50;
+                }
+            }
+
+            $nilaiPpn = round($nominalDasar * ($ppnPersen / 100));
+            $nilaiPph22 = round($nominalDasar * ($pph22Persen / 100));
+            $totalPajak = $nilaiPpn + $nilaiPph22;
+            $nilaiBersih = max(0, $nominalDasar - $totalPajak);
+
             $spj->updateQuietly([
                 'total_nilai_rencana' => $totalRencana,
                 'total_nilai_realisasi' => $totalRealisasi > 0 ? $totalRealisasi : null,
+                'ppn_persen' => $ppnPersen,
+                'pph22_persen' => $pph22Persen,
+                'nilai_ppn' => $nilaiPpn,
+                'nilai_pph22' => $nilaiPph22,
+                'total_pajak' => $totalPajak,
+                'nilai_bersih' => $nilaiBersih,
             ]);
         }
     }

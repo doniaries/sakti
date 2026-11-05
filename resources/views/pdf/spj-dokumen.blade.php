@@ -313,8 +313,12 @@
 
     $subtotalPesanan = (float) $spj->total_nilai_rencana;
     $ppnPersen = (float) ($spj->ppn_persen ?? 0);
-    $nilaiPpn = round($subtotalPesanan * ($ppnPersen / 100));
+    $pph22Persen = (float) ($spj->pph22_persen ?? 0);
+    $nilaiPpn = (float) ($spj->nilai_ppn ?: round($subtotalPesanan * ($ppnPersen / 100)));
+    $nilaiPph22 = (float) ($spj->nilai_pph22 ?: round($subtotalPesanan * ($pph22Persen / 100)));
+    $totalPajak = $nilaiPpn + $nilaiPph22;
     $totalSetelahPpn = $subtotalPesanan + $nilaiPpn;
+    $nilaiBersih = max(0, $totalNominal - $totalPajak);
 
     $tanggalBatasKirim = $spj->tanggal_batas_pengiriman
         ? \Carbon\Carbon::parse($spj->tanggal_batas_pengiriman)->translatedFormat('d F Y')

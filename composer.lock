@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e0d59222cebafca96facc325bb047d2",
+    "content-hash": "e8e38151546e05e999fe1f2b6e918f3a",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -814,63 +814,6 @@
                 }
             ],
             "time": "2026-03-20T21:10:52+00:00"
-        },
-        {
-            "name": "cocosmos/filament-sticky-save-bar",
-            "version": "dev-main",
-            "dist": {
-                "type": "path",
-                "url": "packages/filament-sticky-save-bar",
-                "reference": "d3cfcf169763acffb82b24f0a6ca1013773044b4"
-            },
-            "require": {
-                "filament/filament": "^4.0 || ^5.0",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "laravel/pint": "^1.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Cocosmos\\FilamentStickySaveBar\\FilamentStickySaveBarServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Cocosmos\\FilamentStickySaveBar\\": "src/"
-                }
-            },
-            "scripts": {
-                "format": [
-                    "vendor/bin/pint"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Cocosmos",
-                    "email": "contact@mipam.ch",
-                    "role": "Developer"
-                }
-            ],
-            "description": "A sticky save bar for Filament that floats at the bottom of the viewport when a form has unsaved changes",
-            "homepage": "https://github.com/cocosmos/filament-sticky-save-bar",
-            "keywords": [
-                "filament",
-                "form",
-                "laravel",
-                "save",
-                "sticky",
-                "unsaved-changes"
-            ],
-            "transport-options": {
-                "relative": true
-            }
         },
         {
             "name": "codezero/browser-locale",

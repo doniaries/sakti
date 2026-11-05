@@ -15,6 +15,8 @@ class PengajuanSpj extends Model
 
     protected $fillable = [
         'nomor_pengajuan',
+        'metode_pengadaan',
+        'jenis_belanja',
         'user_id',
         'bidang_id',
         'kegiatan_id',
@@ -25,6 +27,11 @@ class PengajuanSpj extends Model
         'total_nilai_rencana',
         'total_nilai_realisasi',
         'ppn_persen',
+        'pph22_persen',
+        'nilai_ppn',
+        'nilai_pph22',
+        'total_pajak',
+        'nilai_bersih',
         'status',
         'master_toko_id',
         'nama_toko',
@@ -36,6 +43,19 @@ class PengajuanSpj extends Model
         'penerima_identitas',
         'file_nota_penjual',
         'file_dokumentasi_barang',
+        'file_ekatalog_bundel',
+        'tingkat_perjalanan',
+        'nomor_spt',
+        'tanggal_spt',
+        'maksud_perjalanan',
+        'tanggal_berangkat',
+        'tanggal_kembali',
+        'lama_hari',
+        'lokasi_tujuan',
+        'master_tujuan_bbm_id',
+        'jumlah_liter_bbm',
+        'harga_per_liter',
+        'dokumen_syarat_files',
         'justifikasi_selisih',
         'catatan_revisi',
         'pptk_user_id',
@@ -54,10 +74,22 @@ class PengajuanSpj extends Model
         'tahun_anggaran' => 'integer',
         'tanggal_pengajuan' => 'date',
         'tanggal_batas_pengiriman' => 'date',
+        'tanggal_spt' => 'date',
+        'tanggal_berangkat' => 'date',
+        'tanggal_kembali' => 'date',
         'tanggal_dicairkan' => 'date',
+        'lama_hari' => 'integer',
         'total_nilai_rencana' => 'decimal:2',
         'total_nilai_realisasi' => 'decimal:2',
         'ppn_persen' => 'decimal:2',
+        'pph22_persen' => 'decimal:2',
+        'nilai_ppn' => 'decimal:2',
+        'nilai_pph22' => 'decimal:2',
+        'total_pajak' => 'decimal:2',
+        'nilai_bersih' => 'decimal:2',
+        'jumlah_liter_bbm' => 'decimal:2',
+        'harga_per_liter' => 'decimal:2',
+        'dokumen_syarat_files' => 'array',
         'nama_bank' => \App\Enums\NamaBank::class,
     ];
 
@@ -110,7 +142,32 @@ class PengajuanSpj extends Model
                     $spj->master_toko_id = $newToko->id;
                 }
             }
+
+            // Otomasi Pajak Belanja Barang:
+            // Ambang batas: > Rp 2.000.000 dikenakan PPN 11% dan PPh 22 1.5%
+            $nominalDasar = (float) ($spj->total_nilai_realisasi > 0 ? $spj->total_nilai_realisasi : $spj->total_nilai_rencana);
+            if ($nominalDasar > 2000000) {
+                if ((float) $spj->ppn_persen == 0) {
+                    $spj->ppn_persen = 11.00;
+                }
+                if ((float) $spj->pph22_persen == 0) {
+                    $spj->pph22_persen = 1.50;
+                }
+            }
+
+            $ppnRate = (float) ($spj->ppn_persen ?? 0);
+            $pphRate = (float) ($spj->pph22_persen ?? 0);
+
+            $spj->nilai_ppn = round($nominalDasar * ($ppnRate / 100));
+            $spj->nilai_pph22 = round($nominalDasar * ($pphRate / 100));
+            $spj->total_pajak = $spj->nilai_ppn + $spj->nilai_pph22;
+            $spj->nilai_bersih = max(0, $nominalDasar - $spj->total_pajak);
         });
+    }
+
+    public function masterTujuanBbm(): BelongsTo
+    {
+        return $this->belongsTo(MasterTujuanBbm::class, 'master_tujuan_bbm_id');
     }
 
     public function masterToko(): BelongsTo

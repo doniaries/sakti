@@ -109,6 +109,30 @@ class PengajuanSpjForm
                                 ->compact()
                                 ->columns(6)
                                 ->schema([
+                                    Select::make('metode_pengadaan')
+                                        ->label('Metode Pengadaan')
+                                        ->options([
+                                            'non_katalog' => 'Non-Katalog (Pengadaan Langsung)',
+                                            'e_katalog' => 'E-Katalog (E-Purchasing LKPP)',
+                                        ])
+                                        ->default('non_katalog')
+                                        ->required()
+                                        ->live()
+                                        ->columnSpan(3),
+
+                                    Select::make('jenis_belanja')
+                                        ->label('Jenis Belanja')
+                                        ->options([
+                                            'barang_jasa' => 'Belanja Barang & Jasa',
+                                            'makan_minum' => 'Makan & Minum Rapat',
+                                            'sppd' => 'Perjalanan Dinas (SPPD)',
+                                            'bbm' => 'BBM (Bahan Bakar Minyak)',
+                                        ])
+                                        ->default('barang_jasa')
+                                        ->required()
+                                        ->live()
+                                        ->columnSpan(3),
+
                                     TextInput::make('nomor_pengajuan')
                                         ->label('Nomor Surat Pesanan')
                                         ->default(fn () => PengajuanSpj::generateNomorPengajuan())
@@ -304,6 +328,155 @@ class PengajuanSpjForm
                                         ->default(fn () => Auth::id()),
                                 ]),
 
+                            // 1.B KHUSUS E-KATALOG (E-PURCHASING LKPP)
+                            Section::make('Bundel Dokumen E-Purchasing (E-Katalog LKPP)')
+                                ->description('Untuk belanja via E-Katalog, Surat Pesanan, BAST, dan Kwitansi diterbitkan resmi oleh LKPP/E-Proc. Unggah dokumen bundel resmi PDF tersebut di sini.')
+                                ->compact()
+                                ->visible(fn (callable $get) => $get('metode_pengadaan') === 'e_katalog')
+                                ->schema([
+                                    FileUpload::make('file_ekatalog_bundel')
+                                        ->label('Unggah Bundel Dokumen E-Katalog LKPP (PDF)')
+                                        ->disk('public')
+                                        ->directory('spj/ekatalog')
+                                        ->acceptedFileTypes(['application/pdf'])
+                                        ->maxSize(10240)
+                                        ->openable()
+                                        ->downloadable()
+                                        ->columnSpanFull(),
+                                ]),
+
+                            // 1.C KHUSUS PERJALANAN DINAS (SPPD)
+                            Section::make('Rincian Surat Tugas & Perjalanan Dinas (SPPD)')
+                                ->description('Lengkapi data dasar surat perintah tugas dan tujuan kedinasan.')
+                                ->compact()
+                                ->visible(fn (callable $get) => $get('jenis_belanja') === 'sppd')
+                                ->columns(6)
+                                ->schema([
+                                    Select::make('tingkat_perjalanan')
+                                        ->label('Tingkat Perjalanan')
+                                        ->options([
+                                            'dalam_kabupaten' => 'Dalam Kabupaten (Per Nagari)',
+                                            'luar_kabupaten' => 'Luar Kabupaten (Dalam Provinsi)',
+                                            'luar_provinsi' => 'Luar Provinsi',
+                                        ])
+                                        ->default('dalam_kabupaten')
+                                        ->required(fn (callable $get) => $get('jenis_belanja') === 'sppd')
+                                        ->columnSpan(2),
+
+                                    TextInput::make('nomor_spt')
+                                        ->label('Nomor SPT')
+                                        ->placeholder('Contoh: 090/045/SPT/PARPORA-2026')
+                                        ->columnSpan(2),
+
+                                    DatePicker::make('tanggal_spt')
+                                        ->label('Tanggal SPT')
+                                        ->displayFormat('d/m/Y')
+                                        ->default(now())
+                                        ->columnSpan(2),
+
+                                    DatePicker::make('tanggal_berangkat')
+                                        ->label('Tanggal Berangkat')
+                                        ->displayFormat('d/m/Y')
+                                        ->default(now())
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                            $tglPulang = $get('tanggal_kembali');
+                                            if ($state && $tglPulang) {
+                                                $days = \Carbon\Carbon::parse($state)->diffInDays(\Carbon\Carbon::parse($tglPulang)) + 1;
+                                                $set('lama_hari', max(1, $days));
+                                            }
+                                        })
+                                        ->columnSpan(2),
+
+                                    DatePicker::make('tanggal_kembali')
+                                        ->label('Tanggal Kembali')
+                                        ->displayFormat('d/m/Y')
+                                        ->default(now())
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                            $tglBerangkat = $get('tanggal_berangkat');
+                                            if ($state && $tglBerangkat) {
+                                                $days = \Carbon\Carbon::parse($tglBerangkat)->diffInDays(\Carbon\Carbon::parse($state)) + 1;
+                                                $set('lama_hari', max(1, $days));
+                                            }
+                                        })
+                                        ->columnSpan(2),
+
+                                    TextInput::make('lama_hari')
+                                        ->label('Lama Perjalanan')
+                                        ->numeric()
+                                        ->default(1)
+                                        ->readOnly()
+                                        ->suffix('Hari')
+                                        ->columnSpan(2),
+
+                                    TextInput::make('lokasi_tujuan')
+                                        ->label('Lokasi / Tempat Tujuan')
+                                        ->placeholder('Contoh: Nagari Silokek / Kantor Gubernur Sumbar')
+                                        ->columnSpan(3),
+
+                                    Textarea::make('maksud_perjalanan')
+                                        ->label('Maksud Perjalanan Dinas')
+                                        ->placeholder('Contoh: Koordinasi penguatan destinasi wisata nagari')
+                                        ->rows(2)
+                                        ->columnSpan(3),
+                                ]),
+
+                            // 1.D KHUSUS BAHAN BAKAR MINYAK (BBM)
+                            Section::make('Standar Kuota BBM Kedinasan')
+                                ->description('Pilih nagari atau rute tujuan kedinasan. Standar kuota liter akan terisi otomatis sesuai SBM.')
+                                ->compact()
+                                ->visible(fn (callable $get) => $get('jenis_belanja') === 'bbm')
+                                ->columns(6)
+                                ->schema([
+                                    Select::make('master_tujuan_bbm_id')
+                                        ->label('Rute / Nagari Tujuan BBM')
+                                        ->options(fn () => \App\Models\MasterTujuanBbm::where('aktif', true)->get()->pluck('label', 'id')->all())
+                                        ->searchable()
+                                        ->live()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            if ($state) {
+                                                $tujuan = \App\Models\MasterTujuanBbm::find($state);
+                                                if ($tujuan) {
+                                                    $set('jumlah_liter_bbm', $tujuan->kuota_liter);
+                                                    $set('lokasi_tujuan', $tujuan->nama_tujuan);
+                                                }
+                                            }
+                                        })
+                                        ->createOptionForm([
+                                            TextInput::make('nama_tujuan')
+                                                ->label('Nama Tujuan / Nagari Baru')
+                                                ->required(),
+                                            TextInput::make('kuota_liter')
+                                                ->label('Standar Kuota BBM (Liter)')
+                                                ->numeric()
+                                                ->required(),
+                                            TextInput::make('jarak_km')
+                                                ->label('Jarak (KM)')
+                                                ->numeric()
+                                                ->nullable(),
+                                        ])
+                                        ->createOptionUsing(function (array $data): int {
+                                            $tujuan = \App\Models\MasterTujuanBbm::create([
+                                                'nama_tujuan' => $data['nama_tujuan'],
+                                                'kuota_liter' => (float) $data['kuota_liter'],
+                                                'jarak_km' => isset($data['jarak_km']) ? (float) $data['jarak_km'] : null,
+                                                'kategori_wilayah' => 'dalam_kabupaten',
+                                                'aktif' => true,
+                                            ]);
+                                            return $tujuan->id;
+                                        })
+                                        ->columnSpan(3),
+
+                                    TextInput::make('jumlah_liter_bbm')
+                                        ->label('Jumlah Kuota BBM (Liter)')
+                                        ->numeric()
+                                        ->default(20)
+                                        ->suffix('Liter')
+                                        ->required(fn (callable $get) => $get('jenis_belanja') === 'bbm')
+                                        ->columnSpan(3),
+                                ]),
+
                             // 2. RINCIAN BARANG PESANAN (Diletakkan di atas Data Toko karena lebih utama)
                             Section::make('Rincian Barang Pesanan')
                                 ->description('Pilih item belanja sesuai ketersediaan sisa pagu alokasi RKA Bidang Pengusul.')
@@ -354,6 +527,25 @@ class PengajuanSpjForm
                                                     return KodeRekening::all()
                                                         ->pluck('label', 'id')
                                                         ->all();
+                                                })
+                                                ->createOptionForm([
+                                                    TextInput::make('kode_lengkap')
+                                                        ->label('Kode Rekening (SIPD)')
+                                                        ->placeholder('Contoh: 5.1.02.01.01.0024')
+                                                        ->required()
+                                                        ->maxLength(50),
+                                                    TextInput::make('uraian')
+                                                        ->label('Uraian Rekening Belanja')
+                                                        ->placeholder('Contoh: Belanja Alat/Bahan untuk Kegiatan Kantor')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                ])
+                                                ->createOptionUsing(function (array $data): int {
+                                                    $rek = KodeRekening::create([
+                                                        'kode_lengkap' => $data['kode_lengkap'],
+                                                        'uraian' => $data['uraian'],
+                                                    ]);
+                                                    return $rek->id;
                                                 })
                                                 ->searchable()
                                                 ->live()
@@ -421,6 +613,32 @@ class PengajuanSpjForm
                                                             "mb_{$barang->id}" => "📦 {$barang->nama_barang} ({$satuan}) — Rp {$harga}",
                                                         ];
                                                     })->all();
+                                                })
+                                                ->createOptionForm([
+                                                    TextInput::make('nama_barang')
+                                                        ->label('Nama Item Belanja Baru')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('harga_satuan')
+                                                        ->label('Harga Satuan (Rp)')
+                                                        ->numeric()
+                                                        ->default(0)
+                                                        ->required(),
+                                                    TextInput::make('satuan_nama')
+                                                        ->label('Satuan')
+                                                        ->placeholder('Contoh: Kotak / Unit / Rim / Porsi')
+                                                        ->default('Unit'),
+                                                ])
+                                                ->createOptionUsing(function (array $data, callable $get): string {
+                                                    $kodeRekeningId = $get('kode_rekening_id');
+                                                    $satuan = \App\Models\Satuan::firstOrCreate(['nama' => $data['satuan_nama'] ?? 'Unit']);
+                                                    $barang = MasterBarang::create([
+                                                        'kode_rekening_id' => $kodeRekeningId,
+                                                        'nama_barang' => $data['nama_barang'],
+                                                        'harga_satuan' => (float) ($data['harga_satuan'] ?? 0),
+                                                        'satuan_id' => $satuan->id,
+                                                    ]);
+                                                    return "mb_{$barang->id}";
                                                 })
                                                 ->searchable()
                                                 ->live()
@@ -715,10 +933,21 @@ class PengajuanSpjForm
                                     TextInput::make('ppn_persen')
                                         ->label('Tarif PPN (%)')
                                         ->numeric()
-                                        ->default(12)
+                                        ->default(11)
                                         ->minValue(0)
                                         ->maxValue(100)
                                         ->suffix('%')
+                                        ->helperText('Otomatis 11% jika belanja > Rp 2 Juta')
+                                        ->columnSpan(2),
+
+                                    TextInput::make('pph22_persen')
+                                        ->label('Tarif PPh 22 (%)')
+                                        ->numeric()
+                                        ->default(1.5)
+                                        ->minValue(0)
+                                        ->maxValue(100)
+                                        ->suffix('%')
+                                        ->helperText('Otomatis 1,5% jika belanja > Rp 2 Juta')
                                         ->columnSpan(2),
 
                                     TextInput::make('metode_pembayaran')
@@ -779,6 +1008,15 @@ class PengajuanSpjForm
                                         ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(5120),
 
+                                    FileUpload::make('dokumen_syarat_files')
+                                        ->label('Berkas Persyaratan Tambahan (Scan SPT, SPPD, Notulen, Daftar Hadir, dsb.)')
+                                        ->multiple()
+                                        ->disk('public')
+                                        ->directory('spj/dokumen-syarat')
+                                        ->openable()
+                                        ->downloadable()
+                                        ->columnSpan(2),
+
                                     Textarea::make('justifikasi_selisih')
                                         ->label('Catatan / Justifikasi Selisih (Diisi bila nilai realisasi berbeda dengan pesanan)')
                                         ->rows(2)
@@ -803,6 +1041,31 @@ class PengajuanSpjForm
                                             $terbilang = $nominalAktif > 0 ? SpjWorkflowService::terbilang($nominalAktif) : 'Nol Rupiah';
 
                                             return 'Rp ' . number_format($nominalAktif, 0, ',', '.') . ',- (' . $terbilang . ')';
+                                        })
+                                        ->columnSpan(2),
+
+                                    Placeholder::make('rincian_pajak_kwitansi')
+                                        ->label('Rincian Potongan Pajak & Nilai Bersih Rekanan')
+                                        ->content(function (callable $get, mixed $record = null, mixed $livewire = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record, $livewire);
+                                            $details = $get('details') ?? [];
+                                            $total = 0;
+                                            foreach ($details as $item) {
+                                                $total += (float) ($item['subtotal_realisasi'] ?: ($item['subtotal'] ?? 0));
+                                            }
+                                            if ($total <= 0 && $spj) {
+                                                $total = (float) ($spj->total_nilai_realisasi ?: $spj->total_nilai_rencana);
+                                            }
+
+                                            $ppnRate = (float) ($get('ppn_persen') ?: ($spj?->ppn_persen ?? ($total > 2000000 ? 11 : 0)));
+                                            $pphRate = (float) ($get('pph22_persen') ?: ($spj?->pph22_persen ?? ($total > 2000000 ? 1.5 : 0)));
+
+                                            $nilaiPpn = round($total * ($ppnRate / 100));
+                                            $nilaiPph = round($total * ($pphRate / 100));
+                                            $totalPajak = $nilaiPpn + $nilaiPph;
+                                            $netto = max(0, $total - $totalPajak);
+
+                                            return "Bruto: Rp " . number_format($total, 0, ',', '.') . " | PPN ({$ppnRate}%): Rp " . number_format($nilaiPpn, 0, ',', '.') . " | PPh 22 ({$pphRate}%): Rp " . number_format($nilaiPph, 0, ',', '.') . " | Total Pajak: Rp " . number_format($totalPajak, 0, ',', '.') . " ➔ DITERIMA BERSIH: Rp " . number_format($netto, 0, ',', '.');
                                         })
                                         ->columnSpan(2),
                                 ]),
