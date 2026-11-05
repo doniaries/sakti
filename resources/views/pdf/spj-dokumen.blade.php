@@ -4,67 +4,38 @@
     <meta charset="UTF-8">
     <title>Dokumen SPJ - {{ $spj->nomor_pengajuan }}</title>
     <style>
-        @page {
-            margin: 1.2cm 1.5cm;
-            size: a4 portrait;
-        }
+        {{-- Pengaturan Ukuran Kertas Dinamis:
+             1. Kwitansi: F4 Bagi 2 Landscape (215mm x 165mm)
+             2. Surat Pesanan, NPD, dan Dokumen Lengkap: F4 Portrait (215mm x 330mm) --}}
+        @if ($tipeDokumen === 'kwitansi')
+            @page {
+                size: 215mm 165mm landscape;
+                margin: 0.5cm 0.8cm;
+            }
+        @else
+            @page {
+                size: 215mm 330mm portrait;
+                margin: 0.8cm 1.2cm;
+            }
+        @endif
+
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 10pt;
-            line-height: 1.35;
+            font-size: 9.5pt;
+            line-height: 1.3;
             color: #000;
+            margin: 0;
+            padding: 0;
         }
+
         .page {
-            page-break-after: always;
             position: relative;
-        }
-        .page:last-child {
-            page-break-after: avoid;
-        }
-
-        @media screen {
-            html, body {
-                background-color: #525659;
-                margin: 0;
-                padding: 16px 8px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            .page {
-                background-color: #ffffff;
-                width: 210mm;
-                max-width: 100%;
-                min-height: 297mm;
-                margin: 0 auto 20px auto;
-                padding: 1.2cm 1.5cm;
-                box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-                box-sizing: border-box;
-                border-radius: 2px;
-                position: relative;
-            }
-            .kwitansi-watermark-wrapper {
-                pointer-events: none !important;
-                z-index: 1 !important;
-            }
-            .kwitansi-watermark-img {
-                opacity: 0.12 !important;
-            }
+            box-sizing: border-box;
+            width: 100%;
         }
 
-        @media print {
-            html, body {
-                background-color: #ffffff !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            .page {
-                box-shadow: none !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: auto !important;
-                min-height: auto !important;
-            }
+        .page-break {
+            page-break-after: always;
         }
 
         .text-center { text-align: center; }
@@ -77,74 +48,74 @@
         .header-kop {
             text-align: center;
             border-bottom: 3px double #000;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
+            padding-bottom: 4px;
+            margin-bottom: 8px;
         }
         .kop-logo-container {
             text-align: center;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .kop-logo {
-            height: 55px;
+            height: 50px;
             width: auto;
             display: inline-block;
         }
         .header-kop h2 {
             margin: 0;
-            font-size: 12pt;
+            font-size: 11pt;
             text-transform: uppercase;
             font-weight: bold;
             line-height: 1.2;
         }
         .header-kop h3 {
-            margin: 2px 0 3px 0;
-            font-size: 13pt;
+            margin: 1px 0 2px 0;
+            font-size: 12pt;
             text-transform: uppercase;
             font-weight: bold;
             line-height: 1.2;
         }
         .header-kop p {
             margin: 0;
-            font-size: 8.5pt;
-            line-height: 1.25;
+            font-size: 8pt;
+            line-height: 1.2;
         }
 
         .doc-title {
             text-align: center;
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: bold;
             text-decoration: underline;
             text-transform: uppercase;
-            margin-top: 6px;
+            margin-top: 4px;
             margin-bottom: 2px;
         }
         .doc-subtitle {
             text-align: center;
-            font-size: 10pt;
-            margin-bottom: 14px;
+            font-size: 9pt;
+            margin-bottom: 8px;
         }
 
         table.meta-table {
             width: 100%;
-            margin-bottom: 10px;
-            font-size: 9.5pt;
+            margin-bottom: 6px;
+            font-size: 9pt;
             border-collapse: collapse;
         }
         table.meta-table td {
-            padding: 2px 0;
+            padding: 1.5px 0;
             vertical-align: top;
         }
 
         table.data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 6px;
-            margin-bottom: 12px;
-            font-size: 9.5pt;
+            margin-top: 4px;
+            margin-bottom: 8px;
+            font-size: 9pt;
         }
         table.data-table th, table.data-table td {
             border: 1px solid #000;
-            padding: 5px 6px;
+            padding: 4px 5px;
         }
         table.data-table th {
             background-color: #f2f2f2;
@@ -154,61 +125,61 @@
 
         .signature-table {
             width: 100%;
-            margin-top: 14px;
+            margin-top: 10px;
             border-collapse: collapse;
-            font-size: 9.5pt;
+            font-size: 9pt;
         }
         .signature-table td {
             vertical-align: top;
             text-align: center;
-            padding: 0 6px;
+            padding: 0 4px;
         }
         .signature-space {
-            height: 60px;
+            height: 48px;
         }
         .ttd-img {
-            max-height: 55px;
-            max-width: 145px;
+            max-height: 44px;
+            max-width: 140px;
             margin: 2px auto;
             display: block;
         }
 
-        /* Styling Khusus Kwitansi Sijunjung */
+        /* Styling Khusus Kwitansi Sijunjung (F4 Bagi 2 Landscape: 215mm x 165mm) */
         .kwitansi-watermark-wrapper {
             position: absolute;
-            top: 200px;
+            top: 50px;
             left: 0;
             width: 100%;
             text-align: center;
             z-index: -100;
         }
         .kwitansi-watermark-img {
-            width: 410px;
-            opacity: 0.18;
+            width: 220px;
+            opacity: 0.10;
         }
         .kwitansi-title {
             text-align: center;
-            font-size: 15pt;
+            font-size: 12pt;
             font-weight: bold;
             text-decoration: underline;
-            letter-spacing: 1.5px;
-            margin: 8px 0 16px 0;
+            letter-spacing: 1px;
+            margin: 1px 0 5px 0;
         }
         .box-uang-angka {
-            border: 2px solid #000;
-            padding: 5px 12px;
+            border: 1.5px solid #000;
+            padding: 2.5px 6px;
             font-weight: bold;
-            font-size: 11pt;
+            font-size: 9pt;
             text-align: center;
             white-space: nowrap;
             display: block;
         }
         .box-uang-terbilang {
-            border: 2px solid #000;
-            padding: 5px 10px;
+            border: 1.5px solid #000;
+            padding: 2.5px 6px;
             font-weight: bold;
-            font-size: 9.5pt;
-            line-height: 1.35;
+            font-size: 8pt;
+            line-height: 1.2;
             text-align: left;
             display: block;
             width: 100%;
@@ -217,16 +188,17 @@
         table.kwitansi-left-box {
             width: 100%;
             border-collapse: collapse;
-            font-size: 8.5pt;
+            font-size: 7pt;
+            line-height: 1.15;
         }
         table.kwitansi-left-box td {
             border: 1px solid #000;
-            padding: 5px 6px;
+            padding: 2.5px 3.5px;
             text-align: left;
             vertical-align: top;
         }
 
-        /* Styling Khusus NPD Sijunjung */
+        /* Styling Khusus NPD Sijunjung (F4 Portrait) */
         .npd-outer-box {
             border: 1px solid #000;
             width: 100%;
@@ -234,22 +206,81 @@
         }
         .npd-header-cell {
             border-bottom: 1px solid #000;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
             font-weight: bold;
-            font-size: 10.5pt;
-            line-height: 1.4;
+            font-size: 10pt;
+            line-height: 1.35;
         }
         .npd-section-bar {
             border-top: 1px solid #000;
             border-bottom: 1px solid #000;
-            padding: 4px;
+            padding: 3px;
             text-align: center;
             font-weight: bold;
-            font-size: 9.5pt;
+            font-size: 9pt;
             background-color: #fafafa;
         }
     </style>
+
+    @if (!empty($isPreview))
+    {{-- Khusus Tampilan Layar Interaktif (Preview di Modal/Iframe) --}}
+    <style>
+        html, body {
+            background-color: #525659;
+            margin: 0;
+            padding: 16px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .page {
+            background-color: #ffffff;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            box-sizing: border-box;
+            border-radius: 2px;
+            position: relative;
+        }
+        .page-pesanan, .page-npd, .page-f4-portrait {
+            width: 215mm;
+            min-height: 330mm;
+            max-width: 100%;
+            padding: 0.8cm 1.2cm;
+        }
+        .page-kwitansi {
+            width: 215mm;
+            min-height: 165mm;
+            max-width: 100%;
+            padding: 0.5cm 0.8cm;
+        }
+        .kwitansi-watermark-wrapper {
+            pointer-events: none !important;
+            z-index: 1 !important;
+        }
+        .kwitansi-watermark-img {
+            opacity: 0.10 !important;
+        }
+        @media print {
+            html, body {
+                background-color: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+            }
+            .page {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                min-height: auto !important;
+            }
+            .page-break {
+                page-break-after: always !important;
+            }
+        }
+    </style>
+    @endif
 </head>
 <body>
 @php
@@ -303,9 +334,12 @@
         : ($logoKabupaten ?: null);
 @endphp
 
-    {{-- ==================== HALAMAN 1: SURAT PESANAN BARANG ==================== --}}
+    {{-- ==================== HALAMAN 1: SURAT PESANAN BARANG (F4 PORTRAIT) ==================== --}}
     @if (in_array($tipeDokumen ?? 'semua', ['semua', 'pesanan'], true))
-    <div class="page">
+    @php
+        $hasMorePagesAfterPesanan = ($tipeDokumen ?? 'semua') === 'semua';
+    @endphp
+    <div class="page page-pesanan {{ $hasMorePagesAfterPesanan ? 'page-break' : '' }}">
         <div class="header-kop">
             @if ($logoKabupaten)
                 <div class="kop-logo-container">
@@ -318,12 +352,12 @@
         </div>
 
         <div class="doc-title">SURAT PESANAN BARANG</div>
-        <div class="doc-subtitle" style="margin-bottom: 12px;">
+        <div class="doc-subtitle">
             <strong>Nomor:</strong> {{ $spj->nomor_surat_pesanan }}<br>
             <strong>Tanggal:</strong> {{ \Carbon\Carbon::parse($spj->tanggal_pengajuan)->translatedFormat('d F Y') }}
         </div>
 
-        <div style="font-size: 9.5pt; margin-bottom: 10px; line-height: 1.45;">
+        <div style="font-size: 9pt; margin-bottom: 8px; line-height: 1.35;">
             Kepada Yth.<br>
             <strong>{{ $spj->nama_toko ?: '[Nama Perusahaan/Toko Pemasok]' }}</strong><br>
             {{ $spj->alamat_toko ?: '[Alamat Pemasok]' }}<br>
@@ -331,7 +365,7 @@
             {{ $spj->telepon_toko ?: '[Nomor Telepon Pemasok]' }}
         </div>
 
-        <p style="font-size: 9.5pt; margin-top: 6px; margin-bottom: 6px; text-align: justify;">
+        <p style="font-size: 9pt; margin-top: 4px; margin-bottom: 4px; text-align: justify; line-height: 1.35;">
             Dengan hormat,<br>
             Merujuk pada penawaran harga yang telah disepakati sebelumnya, bersama surat ini kami bermaksud untuk memesan barang-barang dengan rincian sebagai berikut:
         </p>
@@ -355,7 +389,7 @@
                         <td>
                             <strong>{{ $item->masterBarang?->nama_barang ?? '-' }}</strong>
                             @if ($item->masterBarang?->spesifikasi)
-                                <br><span style="font-size: 8.5pt; color: #333;">{{ $item->masterBarang->spesifikasi }}</span>
+                                <br><span style="font-size: 8pt; color: #333;">{{ $item->masterBarang->spesifikasi }}</span>
                             @endif
                         </td>
                         <td class="text-center">{{ $item->masterBarang?->kode_barang ?? ($item->kodeRekening?->kode_lengkap ?? '-') }}</td>
@@ -374,7 +408,7 @@
                 <tr>
                     <td colspan="6" class="text-right">
                         <strong>PPN ({{ rtrim(rtrim(number_format($ppnPersen, 2, ',', '.'), '0'), ',') }}%)</strong>
-                        <span style="font-size: 8.5pt; font-style: italic;">(Sesuaikan tarif pajak)</span>
+                        <span style="font-size: 8pt; font-style: italic;">(Sesuaikan tarif pajak)</span>
                     </td>
                     <td class="text-right">{{ number_format($nilaiPpn, 0, ',', '.') }}</td>
                 </tr>
@@ -385,9 +419,9 @@
             </tfoot>
         </table>
 
-        <div style="font-size: 9.5pt; margin-top: 8px; margin-bottom: 10px; line-height: 1.45;">
+        <div style="font-size: 9pt; margin-top: 6px; margin-bottom: 8px; line-height: 1.35;">
             <strong>Ketentuan Pengiriman &amp; Pembayaran:</strong>
-            <ul style="margin: 4px 0 6px 18px; padding: 0;">
+            <ul style="margin: 3px 0 5px 16px; padding: 0;">
                 <li><strong>Lokasi Pengiriman:</strong> Barang mohon dikirimkan ke alamat kantor kami di {{ $alamatKantor }} ({{ $spj->bidang?->nama ?? $namaDinas }}).</li>
                 <li><strong>Waktu Pengiriman:</strong> Paling lambat barang sudah diterima pada {{ $tanggalBatasKirim }}.</li>
                 <li><strong>Metode Pembayaran:</strong> Pembayaran akan dilakukan via {{ $metodeBayar }} ke rekening resmi perusahaan Anda{{ $spj->penerima_identitas ? ' (' . ($namaBankToko ? $namaBankToko . ' — ' : '') . 'No. Rek: ' . $spj->penerima_identitas . ')' : '' }}.</li>
@@ -395,7 +429,7 @@
             Demikian surat pesanan ini kami sampaikan. Atas perhatian dan kerja samanya, kami ucapkan terima kasih.
         </div>
 
-        <table class="signature-table" style="margin-top: 18px;">
+        <table class="signature-table" style="margin-top: 14px;">
             <tr>
                 <td style="width: 50%;">
                     Mengetahui<br>
@@ -405,8 +439,8 @@
                             <img src="{{ $ttdPa }}" class="ttd-img" alt="TTD Pengguna Anggaran">
                         @endif
                     </div>
-                    {{ $namaPa }}<br>
-                    <span style="font-size: 8.5pt;">NIP. {{ $nipPa }}</span>
+                    <strong><u>{{ $namaPa }}</u></strong><br>
+                    <span style="font-size: 8pt;">NIP. {{ $nipPa }}</span>
                 </td>
                 <td style="width: 50%;">
                     Muaro Sijunjung, {{ \Carbon\Carbon::parse($spj->tanggal_pengajuan)->translatedFormat('d F Y') }}<br>
@@ -416,8 +450,8 @@
                             <img src="{{ $ttdPptk }}" class="ttd-img" alt="TTD PPTK">
                         @endif
                     </div>
-                    {{ $namaPptk }}<br>
-                    <span style="font-size: 8.5pt;">NIP. {{ $nipPptk }}</span>
+                    <strong><u>{{ $namaPptk }}</u></strong><br>
+                    <span style="font-size: 8pt;">NIP. {{ $nipPptk }}</span>
                 </td>
             </tr>
         </table>
@@ -425,7 +459,7 @@
     @endif
 
     @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi'], true) && in_array($tipeDokumen ?? 'semua', ['semua', 'kwitansi'], true))
-    {{-- ==================== HALAMAN KWITANSI (4 RANGKAP: KWITANSI 1 S.D. 4) ==================== --}}
+    {{-- ==================== HALAMAN KWITANSI (4 RANGKAP: KWITANSI 1 S.D. 4 - F4 BAGI 2 LANDSCAPE) ==================== --}}
     @php
         $daftarKwitansi = [
             'KWITANSI 1',
@@ -436,14 +470,14 @@
     @endphp
 
     @foreach ($daftarKwitansi as $indexKwitansi => $judulKwitansi)
-    <div class="page">
+    <div class="page page-kwitansi page-break">
         @if ($logoWatermark)
             <div class="kwitansi-watermark-wrapper">
                 <img src="{{ $logoWatermark }}" class="kwitansi-watermark-img" alt="Watermark Sijunjung">
             </div>
         @endif
 
-        <table style="width: 100%; font-size: 9.5pt; margin-bottom: 4px;">
+        <table style="width: 100%; font-size: 8pt; margin-bottom: 2px;">
             <tr>
                 <td style="width: 50%; vertical-align: top;">
                     PP.<br>
@@ -458,20 +492,20 @@
 
         <div class="kwitansi-title">{{ $judulKwitansi }}</div>
 
-        <table class="meta-table" style="font-size: 10pt;">
+        <table class="meta-table" style="font-size: 8pt; margin-bottom: 4px; line-height: 1.25;">
             <tr>
-                <td style="width: 22%; font-style: italic;">Sudah terima dari :</td>
-                <td style="width: 78%;">
-                    Bendahara Pengeluaran {{ ucwords(strtolower($namaDinas)) }}<br>
+                <td style="width: 20%; font-style: italic;">Sudah terima dari :</td>
+                <td style="width: 80%;">
+                    Bendahara Pengeluaran {{ ucwords(strtolower($namaDinas)) }}
                     Kabupaten Sijunjung Tahun Anggaran {{ $tahunAnggaran }}
                 </td>
             </tr>
             <tr>
-                <td style="font-style: italic; padding-top: 8px; vertical-align: top;">Uang sejumlah Rp,</td>
-                <td style="padding-top: 8px; vertical-align: top;">
+                <td style="font-style: italic; padding-top: 3px; vertical-align: top;">Uang sejumlah Rp,</td>
+                <td style="padding-top: 3px; vertical-align: top;">
                     <table style="width: 100%; border-collapse: collapse; border: none; margin: 0; padding: 0;">
                         <tr>
-                            <td style="width: 1%; white-space: nowrap; border: none; padding: 0 8px 0 0; vertical-align: top;">
+                            <td style="width: 1%; white-space: nowrap; border: none; padding: 0 6px 0 0; vertical-align: top;">
                                 <div class="box-uang-angka">{{ number_format((float) $totalNominal, 0, ',', '.') }}</div>
                             </td>
                             <td style="border: none; padding: 0; vertical-align: top;">
@@ -482,8 +516,8 @@
                 </td>
             </tr>
             <tr>
-                <td style="font-style: italic; padding-top: 8px;">Sebab dari :</td>
-                <td style="padding-top: 8px; text-align: justify;">
+                <td style="font-style: italic; padding-top: 3px;">Sebab dari :</td>
+                <td style="padding-top: 3px; text-align: justify;">
                     Pembayaran Biaya Belanja {{ $namaBarangRingkas ?: $uraianRekeningUtama }}
                     @if ($spj->penerima_identitas)
                         No. Rek. {{ $spj->penerima_identitas }}{{ $namaBankToko ? ' (' . $namaBankToko . ')' : '' }}
@@ -494,18 +528,18 @@
                 </td>
             </tr>
             <tr>
-                <td style="font-style: italic; padding-top: 8px;">Untuk pekerjaan :</td>
-                <td style="padding-top: 8px;">
-                    Kegiatan {{ $spj->kegiatan?->nama_kegiatan ?? '-' }}<br>
+                <td style="font-style: italic; padding-top: 3px;">Untuk pekerjaan :</td>
+                <td style="padding-top: 3px;">
+                    Kegiatan {{ $spj->kegiatan?->nama_kegiatan ?? '-' }} / 
                     Sub Kegiatan {{ $spj->subKegiatan?->nama_sub_kegiatan ?? '-' }}
                 </td>
             </tr>
         </table>
 
-        <table style="width: 100%; margin-top: 16px; border-collapse: collapse; font-size: 9.5pt;">
+        <table style="width: 100%; margin-top: 6px; border-collapse: collapse; font-size: 7.5pt; line-height: 1.2;">
             <tr>
                 {{-- KOLOM KIRI: KOTAK INVENTARIS/PEMBUKUAN --}}
-                <td style="width: 34%; vertical-align: top; padding-right: 8px;">
+                <td style="width: 34%; vertical-align: top; padding-right: 6px;">
                     <table class="kwitansi-left-box">
                         <tr>
                             <td>
@@ -521,11 +555,11 @@
                         </tr>
                         <tr>
                             <td>
-                                Barang-barang yang dibeli ini telah diterima dalam keadaan baik dan telah dibukukan sebagai barang inventaris/stock dalam daftar inventaris/stock<br><br>
+                                Barang-barang yang dibeli ini telah diterima dalam keadaan baik dan telah dibukukan sebagai barang inventaris/stock dalam daftar inventaris/stock<br>
                                 No. .............. Tgl. .....................<br>
                                 Oleh ........................................
-                                <div style="height: 45px;"></div>
-                                <div class="text-center">Bendaharawan</div>
+                                <div style="height: 20px;"></div>
+                                <div class="text-center font-bold">Bendaharawan</div>
                             </td>
                         </tr>
                     </table>
@@ -536,25 +570,25 @@
                     <div>
                         Setuju dibayar,<br>
                         Kuasa Pengguna Anggaran
-                        <div class="signature-space">
+                        <div class="signature-space" style="height: 28px;">
                             @if ($ttdPa)
-                                <img src="{{ $ttdPa }}" class="ttd-img" alt="TTD KPA">
+                                <img src="{{ $ttdPa }}" class="ttd-img" style="max-height: 26px;" alt="TTD KPA">
                             @endif
                         </div>
                         <strong><u>{{ $namaPa }}</u></strong><br>
-                        NIP. {{ $nipPa }}
+                        <span style="font-size: 7pt;">NIP. {{ $nipPa }}</span>
                     </div>
 
-                    <div style="margin-top: 18px;">
+                    <div style="margin-top: 6px;">
                         Lunas dibayar,<br>
-                        Bendahara pengeluaran
-                        <div class="signature-space">
+                        Bendahara Pengeluaran
+                        <div class="signature-space" style="height: 28px;">
                             @if ($ttdBendahara)
-                                <img src="{{ $ttdBendahara }}" class="ttd-img" alt="TTD Bendahara">
+                                <img src="{{ $ttdBendahara }}" class="ttd-img" style="max-height: 26px;" alt="TTD Bendahara">
                             @endif
                         </div>
                         <strong><u>{{ $namaBendahara }}</u></strong><br>
-                        NIP. {{ $nipBendahara }}
+                        <span style="font-size: 7pt;">NIP. {{ $nipBendahara }}</span>
                     </div>
                 </td>
 
@@ -565,22 +599,22 @@
                         Ma. Sijunjung, {{ \Carbon\Carbon::parse($spj->tanggal_dicairkan ?: $spj->tanggal_pengajuan)->translatedFormat('d F Y') }}
                     </div>
 
-                    <div style="margin-top: 22px; text-align: center;">
+                    <div style="margin-top: 8px; text-align: center;">
                         Lunas<br>
                         Yang terima
-                        <div class="signature-space"></div>
+                        <div class="signature-space" style="height: 28px;"></div>
                     </div>
 
-                    <table style="width: 100%; font-size: 9pt; border-collapse: collapse;">
+                    <table style="width: 100%; font-size: 7pt; border-collapse: collapse; margin-top: 2px;">
                         <tr>
-                            <td style="width: 38%; vertical-align: top; padding: 2px 0;">Nama terang</td>
-                            <td style="width: 5%; vertical-align: top; padding: 2px 0; text-align: center;">:</td>
-                            <td style="width: 57%; vertical-align: top; padding: 2px 0;" class="font-bold">{{ $spj->penerima_nama ?: '....................' }}</td>
+                            <td style="width: 38%; vertical-align: top; padding: 1px 0;">Nama terang</td>
+                            <td style="width: 5%; vertical-align: top; padding: 1px 0; text-align: center;">:</td>
+                            <td style="width: 57%; vertical-align: top; padding: 1px 0;" class="font-bold">{{ $spj->penerima_nama ?: '....................' }}</td>
                         </tr>
                         <tr>
-                            <td style="vertical-align: top; padding: 2px 0;">Alamat terang</td>
-                            <td style="vertical-align: top; padding: 2px 0; text-align: center;">:</td>
-                            <td style="vertical-align: top; padding: 2px 0; line-height: 1.35;">{{ $spj->alamat_toko ?: 'Muaro Sijunjung' }}</td>
+                            <td style="vertical-align: top; padding: 1px 0;">Alamat terang</td>
+                            <td style="vertical-align: top; padding: 1px 0; text-align: center;">:</td>
+                            <td style="vertical-align: top; padding: 1px 0; line-height: 1.2;">{{ $spj->alamat_toko ?: 'Muaro Sijunjung' }}</td>
                         </tr>
                     </table>
                 </td>
@@ -589,24 +623,27 @@
     </div>
     @endforeach
 
-    {{-- ==================== HALAMAN 3: BELAKANG KWITANSI (TTD PPTK SESUAI CONTOH) ==================== --}}
-    <div class="page">
-        <div style="margin-top: 160px; text-align: center;">
-            <div style="font-size: 11pt; font-weight: bold; margin-bottom: 5px;">PPTK</div>
-            <div class="signature-space" style="height: 70px;">
+    {{-- ==================== HALAMAN BELAKANG KWITANSI (TTD PPTK - F4 BAGI 2 LANDSCAPE) ==================== --}}
+    @php
+        $hasMorePagesAfterKwitansi = ($tipeDokumen ?? 'semua') === 'semua' && !in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'menunggu_verifikasi_pptk', 'revisi_pptk'], true);
+    @endphp
+    <div class="page page-kwitansi {{ $hasMorePagesAfterKwitansi ? 'page-break' : '' }}">
+        <div style="margin-top: 35px; text-align: center;">
+            <div style="font-size: 9.5pt; font-weight: bold; margin-bottom: 4px;">PPTK</div>
+            <div class="signature-space" style="height: 38px;">
                 @if ($ttdPptk)
-                    <img src="{{ $ttdPptk }}" class="ttd-img" alt="TTD PPTK">
+                    <img src="{{ $ttdPptk }}" class="ttd-img" style="max-height: 34px;" alt="TTD PPTK">
                 @endif
             </div>
-            <div style="font-size: 11pt; font-weight: bold; text-decoration: underline;">{{ strtoupper($namaPptk) }}</div>
-            <div style="font-size: 10.5pt; font-weight: bold;">NIP. {{ $nipPptk }}</div>
+            <div style="font-size: 10pt; font-weight: bold; text-decoration: underline;">{{ strtoupper($namaPptk) }}</div>
+            <div style="font-size: 8.5pt; font-weight: bold;">NIP. {{ $nipPptk }}</div>
         </div>
     </div>
     @endif
 
     @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'menunggu_verifikasi_pptk', 'revisi_pptk'], true) && in_array($tipeDokumen ?? 'semua', ['semua', 'npd'], true))
-    {{-- ==================== HALAMAN 4: NOTA PENCAIRAN DANA / NPD (FORMAT BAKU KAB. SIJUNJUNG) ==================== --}}
-    <div class="page">
+    {{-- ==================== HALAMAN 4: NOTA PENCAIRAN DANA / NPD (F4 PORTRAIT) ==================== --}}
+    <div class="page page-npd">
         <table class="npd-outer-box">
             <tr>
                 <td class="npd-header-cell">
@@ -616,12 +653,12 @@
                 </td>
             </tr>
             <tr>
-                <td style="padding: 10px 14px;">
-                    <table class="meta-table" style="font-size: 9.5pt; margin-bottom: 4px;">
+                <td style="padding: 8px 12px;">
+                    <table class="meta-table" style="font-size: 9pt; margin-bottom: 3px;">
                         <tr>
                             <td style="width: 22%;">Nomor</td>
                             <td style="width: 2%;">:</td>
-                            <td style="width: 76%;">{{ $spj->nomor_pengajuan }}/NPD-NONPANJAR/3.26.2.19.0.00.01.0000/{{ $tahunAnggaran }}</td>
+                            <td style="width: 76%;">{{ $spj->nomor_pengajuan }}/NPD-NONPANJAR/{{ $pengaturan?->kode_instansi ?? '3.26.2.19.0.00.01.0000' }}/{{ $tahunAnggaran }}</td>
                         </tr>
                         <tr>
                             <td>Tanggal</td>
@@ -725,13 +762,13 @@
                 </td>
             </tr>
             <tr>
-                <td style="padding: 20px 10px 25px 10px;">
+                <td style="padding: 16px 10px 20px 10px;">
                     <table class="signature-table" style="margin-top: 0;">
                         <tr>
                             <td style="width: 50%;">
                                 Disetujui Oleh,<br>
                                 <strong>PENGGUNA ANGGARAN/KUASA PENGGUNA ANGGARAN</strong>
-                                <div class="signature-space" style="height: 65px;">
+                                <div class="signature-space" style="height: 55px;">
                                     @if ($ttdPa)
                                         <img src="{{ $ttdPa }}" class="ttd-img" alt="TTD PA/KPA">
                                     @endif
@@ -742,7 +779,7 @@
                             <td style="width: 50%;">
                                 Disiapkan Oleh,<br>
                                 <strong>Pejabat Pelaksana Teknis Kegiatan</strong>
-                                <div class="signature-space" style="height: 65px;">
+                                <div class="signature-space" style="height: 55px;">
                                     @if ($ttdPptk)
                                         <img src="{{ $ttdPptk }}" class="ttd-img" alt="TTD PPTK">
                                     @endif

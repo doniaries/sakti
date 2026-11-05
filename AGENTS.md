@@ -603,7 +603,10 @@ Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Sing
    Gunakan dedicated service class untuk logika bisnis kompleks, seperti:
    - `App\Services\Spj\SpjWorkflowService`: Mengelola transisi status, validasi state machine, dan pencatatan audit log.
    - `App\Services\Spj\SpjChecklistService`: Mengelola pengisian dan validasi kelayakan checklist.
-   - `App\Services\Spj\SpjDocumentService`: Menghasilkan 3 halaman PDF (Nota Pesanan, Kwitansi, NPD) menggunakan DomPDF.
+   - `App\Services\Spj\SpjDocumentService`: Menghasilkan dokumen PDF terstandardisasi (Nota Pesanan, Kwitansi, NPD) menggunakan DomPDF dengan konfigurasi ukuran kertas resmi:
+     - **Surat Pesanan Barang**: Kertas **F4 Portrait (215 mm x 330 mm / 609.45 pt x 935.43 pt)**, fit di 1 halaman tanpa lembar kosong kedua.
+     - **Kwitansi Pembayaran**: Kertas **F4 Bagi 2 Landscape (215 mm x 165 mm / 609.45 pt x 467.72 pt)**, 4 rangkap (Kwitansi 1 s.d. 4) + lembar belakang TTD PPTK, masing-masing lembar fit presisi di 1 halaman tanpa overflow.
+     - **Nota Pencairan Dana (NPD)**: Kertas **F4 Portrait (215 mm x 330 mm)**, fit di 1 halaman.
 2. **Database Transactions**:
    Setiap transisi status, perubahan nominal realisasi, penyimpanan checklist, dan pencatatan riwayat audit **WAJIB** dibungkus dalam `DB::transaction()` untuk menjamin integritas data (ACID compliance).
 3. **Event & Notifikasi Real-time**:

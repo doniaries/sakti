@@ -32,12 +32,29 @@ class SpjDocumentService
         $totalNominal = $spj->total_nilai_realisasi ?: $spj->total_nilai_rencana;
         $terbilang = SpjWorkflowService::terbilang((float) $totalNominal);
 
-        return Pdf::loadView('pdf.spj-dokumen', [
+        $pdf = Pdf::loadView('pdf.spj-dokumen', [
             'spj' => $spj,
             'pengaturan' => $pengaturan,
             'totalNominal' => $totalNominal,
             'terbilang' => $terbilang,
             'tipeDokumen' => $tipe ?: 'semua',
-        ])->setPaper('a4', 'portrait');
+        ]);
+
+        // Standar Ukuran Kertas SAKTI (Kabupaten Sijunjung):
+        // 1. Kertas F4 / Folio Standar Indonesia = 215 mm x 330 mm
+        //    Konversi ke points (72 pt / 25.4 mm):
+        //    Lebar:  215 mm = 609.45 pt
+        //    Tinggi: 330 mm = 935.43 pt
+        //
+        // 2. Kertas F4 Bagi 2 Landscape (Kwitansi Setengah Folio):
+        //    Lembar F4 dipotong 2 horizontal = 215 mm x 165 mm
+        //    Lebar:  215 mm = 609.45 pt
+        //    Tinggi: 165 mm = 467.72 pt
+        if ($tipe === 'kwitansi') {
+            return $pdf->setPaper([0, 0, 609.45, 467.72]);
+        }
+
+        // Surat Pesanan, NPD, dan SPJ Lengkap: F4 Portrait (215 mm x 330 mm)
+        return $pdf->setPaper([0, 0, 609.45, 935.43], 'portrait');
     }
 }

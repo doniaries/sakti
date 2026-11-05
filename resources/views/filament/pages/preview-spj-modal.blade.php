@@ -161,13 +161,13 @@
             {{-- 2. Surat Pesanan --}}
             <button
                 type="button"
-                @click="setDocument('pesanan', 'Surat Pesanan Barang (Nota Pesanan)', '{{ $previewBaseUrl }}?tipe=pesanan', false)"
+                @click="setDocument('pesanan', 'Surat Pesanan Barang (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=pesanan', false)"
                 :class="activeTab === 'pesanan' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                 class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
             >
                 <div class="flex items-center gap-1.5 truncate">
                     <span class="text-sm">📝</span>
-                    <span class="font-semibold text-[11px] truncate">Surat Pesanan Barang</span>
+                    <span class="font-semibold text-[11px] truncate">Surat Pesanan (F4)</span>
                 </div>
                 <span x-show="activeTab === 'pesanan'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
             </button>
@@ -176,13 +176,13 @@
             @if ($hasKwitansi)
                 <button
                     type="button"
-                    @click="setDocument('kwitansi', 'Kwitansi Pembayaran (4 Rangkap)', '{{ $previewBaseUrl }}?tipe=kwitansi', false)"
+                    @click="setDocument('kwitansi', 'Kwitansi Pembayaran (F4 Bagi 2 Landscape - 4 Rangkap)', '{{ $previewBaseUrl }}?tipe=kwitansi', false)"
                     :class="activeTab === 'kwitansi' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                     class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
                 >
                     <div class="flex items-center gap-1.5 truncate">
                         <span class="text-sm">🧾</span>
-                        <span class="font-semibold text-[11px] truncate">Kwitansi (4 Rangkap)</span>
+                        <span class="font-semibold text-[11px] truncate">Kwitansi (F4/2 Landscape)</span>
                     </div>
                     <span x-show="activeTab === 'kwitansi'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
                 </button>
@@ -192,13 +192,13 @@
             @if ($hasNpd)
                 <button
                     type="button"
-                    @click="setDocument('npd', 'Nota Pencairan Dana (NPD)', '{{ $previewBaseUrl }}?tipe=npd', false)"
+                    @click="setDocument('npd', 'Nota Pencairan Dana (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=npd', false)"
                     :class="activeTab === 'npd' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                     class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
                 >
                     <div class="flex items-center gap-1.5 truncate">
                         <span class="text-sm">💰</span>
-                        <span class="font-semibold text-[11px] truncate">Nota Pencairan Dana</span>
+                        <span class="font-semibold text-[11px] truncate">NPD (F4 Portrait)</span>
                     </div>
                     <span x-show="activeTab === 'npd'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
                 </button>
