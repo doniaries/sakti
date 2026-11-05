@@ -32,13 +32,33 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 🐘 Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, bcmath, curl
+          coverage: none
+
+      - name: ⚡ Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: 📦 Install Composer dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true'
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev --no-scripts
+
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "npm"
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install NPM dependencies
         run: npm ci
 
       - name: 🏗️ Build assets
