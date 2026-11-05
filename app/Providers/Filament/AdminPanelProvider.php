@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Cocosmos\FilamentStickySaveBar\StickySaveBarPlugin;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -135,7 +136,7 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentBackgroundsPlugin::make(),
                 StickyTableHeaderPlugin::make(),
-                \Cocosmos\FilamentStickySaveBar\StickySaveBarPlugin::make()
+                StickySaveBarPlugin::make()
                     ->withCancel(true)
                     ->withSaveAndClose(true),
                 FilamentEditProfilePlugin::make()
