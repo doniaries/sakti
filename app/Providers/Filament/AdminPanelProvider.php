@@ -26,6 +26,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Swis\Filament\Backgrounds\FilamentBackgroundsPlugin;
+use WatheqAlshowaiter\FilamentStickyTableHeader\StickyTableHeaderPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -133,6 +134,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentBackgroundsPlugin::make(),
+                StickyTableHeaderPlugin::make(),
                 FilamentEditProfilePlugin::make()
                     ->shouldRegisterNavigation(false)
                     ->shouldShowEditPasswordForm(false)

@@ -21,6 +21,7 @@
         "leek/filament-header-filters": "^2.0",
         "rats/zkteco": "^002.0",
         "swisnl/filament-backgrounds": "^2.0",
+        "watheqalshowaiter/filament-sticky-table-header": "*",
         "wikimedia/composer-merge-plugin": "^2.1"
     },
     "require-dev": {
