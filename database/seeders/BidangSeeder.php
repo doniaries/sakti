@@ -15,7 +15,7 @@ class BidangSeeder extends Seeder
     {
         $bidangs = [
             'Sekretariat',
-            'Bidang Pemasaran Pariwisata',
+            'Pemasaran Pariwisata',
             'Pengembangan Destinasi Pariwisata',
             'Pemuda dan Olahraga',
         ];
