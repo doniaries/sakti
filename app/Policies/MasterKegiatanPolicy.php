@@ -29,12 +29,30 @@ class MasterKegiatanPolicy
 
     public function update(AuthUser $authUser, MasterKegiatan $masterKegiatan): bool
     {
-        return $authUser->can('Update:MasterKegiatan');
+        if (! $authUser->can('Update:MasterKegiatan')) {
+            return false;
+        }
+
+        /** @var \App\Models\User $authUser */
+        if ($authUser->hasRole('jf') && ! $authUser->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
+            return (int) $masterKegiatan->bidang_id === (int) $authUser->bidang_id;
+        }
+
+        return true;
     }
 
     public function delete(AuthUser $authUser, MasterKegiatan $masterKegiatan): bool
     {
-        return $authUser->can('Delete:MasterKegiatan');
+        if (! $authUser->can('Delete:MasterKegiatan')) {
+            return false;
+        }
+
+        /** @var \App\Models\User $authUser */
+        if ($authUser->hasRole('jf') && ! $authUser->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
+            return (int) $masterKegiatan->bidang_id === (int) $authUser->bidang_id;
+        }
+
+        return true;
     }
 
     public function deleteAny(AuthUser $authUser): bool

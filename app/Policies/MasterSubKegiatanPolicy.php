@@ -29,12 +29,34 @@ class MasterSubKegiatanPolicy
 
     public function update(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
     {
-        return $authUser->can('Update:MasterSubKegiatan');
+        if (! $authUser->can('Update:MasterSubKegiatan')) {
+            return false;
+        }
+
+        /** @var \App\Models\User $authUser */
+        if ($authUser->hasRole('jf') && ! $authUser->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
+            $isSameBidang = (int) $masterSubKegiatan->kegiatan?->bidang_id === (int) $authUser->bidang_id;
+            $isPengampu = (int) $masterSubKegiatan->jf_id === (int) $authUser->id;
+            return $isSameBidang || $isPengampu;
+        }
+
+        return true;
     }
 
     public function delete(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
     {
-        return $authUser->can('Delete:MasterSubKegiatan');
+        if (! $authUser->can('Delete:MasterSubKegiatan')) {
+            return false;
+        }
+
+        /** @var \App\Models\User $authUser */
+        if ($authUser->hasRole('jf') && ! $authUser->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
+            $isSameBidang = (int) $masterSubKegiatan->kegiatan?->bidang_id === (int) $authUser->bidang_id;
+            $isPengampu = (int) $masterSubKegiatan->jf_id === (int) $authUser->id;
+            return $isSameBidang || $isPengampu;
+        }
+
+        return true;
     }
 
     public function deleteAny(AuthUser $authUser): bool

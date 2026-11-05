@@ -274,7 +274,17 @@ class PengajuanSpjForm
                                             Select::make('jf_id')
                                                 ->label('JF Pengampu')
                                                 ->placeholder('Pilih Pejabat Fungsional (Opsional)')
-                                                ->options(\App\Models\User::role('jf')->pluck('name', 'id')->all())
+                                                ->options(function (callable $get) {
+                                                    $kegiatanId = $get('kegiatan_id');
+                                                    $bidangId = $kegiatanId ? \App\Models\MasterKegiatan::find($kegiatanId)?->bidang_id : null;
+
+                                                    return \App\Models\User::query()
+                                                        ->where('aktif', true)
+                                                        ->whereHas('roles', fn ($q) => $q->where('name', 'jf'))
+                                                        ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                                                        ->pluck('name', 'id')
+                                                        ->all();
+                                                })
                                                 ->searchable()
                                                 ->nullable(),
                                         ])

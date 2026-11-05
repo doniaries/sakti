@@ -148,12 +148,17 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
-     * Scope untuk mengecualikan akun SuperAdmin dari perhitungan dan daftar Pegawai Dinas
+     * Scope untuk mengecualikan akun murni IT/SuperAdmin sistem (yang bukan pegawai dinas).
+     * Pegawai definitif yang juga memegang role super_admin tetap disertakan sebagai pegawai.
      */
     public function scopeBukanSuperAdmin(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->whereDoesntHave('roles', function ($q) {
-            $q->where('name', 'super_admin');
+        return $query->where(function ($q) {
+            $q->whereDoesntHave('roles', function ($sub) {
+                $sub->where('name', 'super_admin');
+            })->orWhereHas('roles', function ($sub) {
+                $sub->where('name', 'pegawai');
+            });
         });
     }
 

@@ -30,7 +30,13 @@ class MasterSubKegiatanForm
 
                 Select::make('kegiatan_id')
                     ->label('Kegiatan Induk')
-                    ->relationship('kegiatan', 'nama_kegiatan')
+                    ->relationship('kegiatan', 'nama_kegiatan', function ($query) {
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara']) && $user->bidang_id) {
+                            $query->where('bidang_id', $user->bidang_id);
+                        }
+                    })
                     ->getOptionLabelFromRecordUsing(fn (MasterKegiatan $record) => $record->label)
                     ->searchable()
                     ->preload()
@@ -43,7 +49,18 @@ class MasterSubKegiatanForm
                                 if (blank($currentCode) || ! str_starts_with($currentCode, $kegiatan->kode_kegiatan)) {
                                     $set('kode_sub_kegiatan', $kegiatan->kode_kegiatan);
                                 }
+
+                                // Reset jf_id jika JF yang terpilih sebelumnya tidak berada di bidang kegiatan yang baru
+                                $currentJfId = $get('jf_id');
+                                if ($currentJfId) {
+                                    $jfUser = \App\Models\User::find($currentJfId);
+                                    if ($jfUser && (int) $jfUser->bidang_id !== (int) $kegiatan->bidang_id) {
+                                        $set('jf_id', null);
+                                    }
+                                }
                             }
+                        } else {
+                            $set('jf_id', null);
                         }
                     })
                     ->required(),
@@ -51,29 +68,38 @@ class MasterSubKegiatanForm
                 Select::make('jf_id')
                     ->label('Pejabat Fungsional (JF) Pengampu')
                     ->placeholder('Pilih Pejabat Fungsional (JF)')
-                    ->helperText('Pegawai JF yang mengampu sub kegiatan ini. Staf teknis membuat usulan SPJ di bawah koordinasi JF ini.')
-                    ->options(function (Get $get) {
-                        $kegiatanId = $get('kegiatan_id');
-                        $bidangId = null;
-                        if ($kegiatanId) {
-                            $bidangId = MasterKegiatan::find($kegiatanId)?->bidang_id;
+                    ->helperText(fn (Get $get) => $get('kegiatan_id')
+                        ? 'Hanya menampilkan Pejabat Fungsional (JF) yang berada di bidang bersangkutan.'
+                        : 'Pilih Kegiatan Induk terlebih dahulu agar daftar JF terfilter sesuai bidang.')
+                    ->default(function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        return $user && $user->hasRole('jf') ? $user->id : null;
+                    })
+                    ->options(function (Get $get, ?\App\Models\MasterSubKegiatan $record) {
+                        $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
+                        if (! $kegiatanId) {
+                            return [];
                         }
 
-                        return \App\Models\User::query()
+                        $bidangId = MasterKegiatan::find($kegiatanId)?->bidang_id;
+                        if (! $bidangId) {
+                            return [];
+                        }
+
+                        $query = \App\Models\User::query()
                             ->where('aktif', true)
+                            ->where('bidang_id', $bidangId)
+                            ->whereHas('roles', fn ($q) => $q->where('name', 'jf'));
+
+                        if ($record?->jf_id) {
+                            $query->orWhere('id', $record->jf_id);
+                        }
+
+                        return $query->orderBy('name')
                             ->get()
-                            ->sortBy(function ($u) use ($bidangId) {
-                                $score = 0;
-                                if ($u->hasRole('jf')) $score -= 10;
-                                if ($bidangId && $u->bidang_id == $bidangId) $score -= 5;
-                                return $score;
-                            })
                             ->mapWithKeys(function ($u) {
-                                $tags = [];
-                                if ($u->hasRole('jf')) $tags[] = 'JF';
-                                if ($u->bidang) $tags[] = $u->bidang->nama;
-                                $suffix = !empty($tags) ? ' (' . implode(' • ', $tags) . ')' : '';
-                                return [$u->id => "{$u->name}{$suffix}"];
+                                return [$u->id => "{$u->name} (JF • {$u->bidang?->nama})"];
                             })
                             ->all();
                     })

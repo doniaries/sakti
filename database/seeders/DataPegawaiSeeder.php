@@ -186,10 +186,12 @@ class DataPegawaiSeeder extends Seeder
 
         $novrizal = User::query()->where('name', 'LIKE', '%NOFRIZAL%')->first();
         if ($novrizal) {
+            $bidangPemasaran = \App\Models\Bidang::where('nama', 'like', '%Pemasaran%')->first();
             $novrizal->update([
                 'email' => 'novrizal@gmail.com',
                 'password' => \Illuminate\Support\Facades\Hash::make('password'),
                 'aktif' => true,
+                'bidang_id' => $bidangPemasaran?->id ?? 2,
                 'anggaran_role' => null,
             ]);
             $novrizal->syncRoles(['jf', 'pegawai']);
