@@ -5,3 +5,28 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/zeeshantariq/filament-sticky-columns/resources/views/**/*.blade.php';
+
+/* ==========================================================================
+   Z-Index Hierarchy Fix: Dropdown & Modals vs Sticky Columns
+   ========================================================================== */
+
+/* Pastikan Toolbar tabel dan indikator seleksi memiliki stacking context di atas tabel */
+.fi-ta-header-toolbar,
+.fi-ta-selection-indicator {
+    position: relative;
+    z-index: 30;
+}
+
+/* Dropdown menu (Tindakan massal, ActionGroup, filter popover) selalu di atas sticky columns */
+.fi-dropdown-panel,
+.fi-dropdown-list,
+.fi-popover-content {
+    z-index: 50 !important;
+}
+
+/* Modal dan Slide-over selalu di atas seluruh elemen halaman */
+.fi-modal,
+.fi-modal-window,
+.fi-slide-over {
+    z-index: 100 !important;
+}

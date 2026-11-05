@@ -9,11 +9,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Sticky cells need a z-index so they render on top of scrolling content.
-    | Filament overlays (modals, dropdowns) use much higher values, so 10–20
-    | is safe for table cells. Header cells automatically get +10 on top of this.
+    | Set to 2 so sticky cells (body: 2, header: 12) never cover Filament
+    | dropdown menus, modals, and toolbars (which use z-index 30+).
     |
     */
-    'z_index' => 10,
+    'z_index' => 2,
 
     /*
     |--------------------------------------------------------------------------
