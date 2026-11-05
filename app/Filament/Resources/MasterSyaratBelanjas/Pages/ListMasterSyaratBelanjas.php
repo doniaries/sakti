@@ -17,3 +17,4 @@ class ListMasterSyaratBelanjas extends ListRecords
         ];
     }
 }
+

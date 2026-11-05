@@ -47,3 +47,4 @@ class MasterTujuanBbmResource extends Resource
         ];
     }
 }
+

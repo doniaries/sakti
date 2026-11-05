@@ -100,3 +100,4 @@ class MasterTujuanBbmsTable
             ->defaultSort('nama_tujuan');
     }
 }
+

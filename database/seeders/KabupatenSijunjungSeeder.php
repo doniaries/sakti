@@ -121,3 +121,4 @@ class KabupatenSijunjungSeeder extends Seeder
         }
     }
 }
+

@@ -14,3 +14,4 @@ class CreateMasterTujuanBbm extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

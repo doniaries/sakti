@@ -22,3 +22,4 @@ class EditMasterSyaratBelanja extends EditRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

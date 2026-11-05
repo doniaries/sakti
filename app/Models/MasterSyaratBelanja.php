@@ -27,3 +27,4 @@ class MasterSyaratBelanja extends Model
         'urutan' => 'integer',
     ];
 }
+

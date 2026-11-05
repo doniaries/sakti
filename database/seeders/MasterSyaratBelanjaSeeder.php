@@ -186,3 +186,4 @@ class MasterSyaratBelanjaSeeder extends Seeder
         }
     }
 }
+

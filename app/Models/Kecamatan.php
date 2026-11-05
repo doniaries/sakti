@@ -22,3 +22,4 @@ class Kecamatan extends Model
         return $this->hasMany(Nagari::class, 'kecamatan_id');
     }
 }
+

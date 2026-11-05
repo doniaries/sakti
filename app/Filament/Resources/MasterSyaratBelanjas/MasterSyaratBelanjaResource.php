@@ -47,3 +47,4 @@ class MasterSyaratBelanjaResource extends Resource
         ];
     }
 }
+

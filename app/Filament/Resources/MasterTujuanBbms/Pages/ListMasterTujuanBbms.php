@@ -17,3 +17,4 @@ class ListMasterTujuanBbms extends ListRecords
         ];
     }
 }
+

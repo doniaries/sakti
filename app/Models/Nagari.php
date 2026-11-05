@@ -42,3 +42,4 @@ class Nagari extends Model
         return "{$this->nama_nagari}{$kec}";
     }
 }
+

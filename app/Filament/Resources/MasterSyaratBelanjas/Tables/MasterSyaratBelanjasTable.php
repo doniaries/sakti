@@ -107,3 +107,4 @@ class MasterSyaratBelanjasTable
             ->defaultSort('urutan');
     }
 }
+
