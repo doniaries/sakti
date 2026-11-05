@@ -468,6 +468,49 @@ class PengajuanSpjsTable
                 DeleteAction::make()
                     ->visible(fn(PengajuanSpj $record): bool => $record->status === 'draft'),
             ])
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Buat Pengajuan SPJ')
+                    ->icon('heroicon-o-plus-circle')
+                    ->color('primary')
+                    ->url(\App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource::getUrl('create')),
+
+                Action::make('rka_belanja')
+                    ->label('Rincian Belanja (RKA)')
+                    ->icon('heroicon-o-document-chart-bar')
+                    ->color('gray')
+                    ->url(fn (): string => \App\Filament\Resources\RincianAnggaranBelanjas\RincianAnggaranBelanjaResource::getUrl('index')),
+
+                Action::make('kelola_sub_kegiatan')
+                    ->label('Sub-Kegiatan')
+                    ->icon('heroicon-o-rectangle-stack')
+                    ->color('gray')
+                    ->url(fn (): string => \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getUrl('index')),
+
+                Action::make('kelola_kegiatan')
+                    ->label('Kegiatan')
+                    ->icon('heroicon-o-queue-list')
+                    ->color('gray')
+                    ->url(fn (): string => \App\Filament\Resources\MasterKegiatans\MasterKegiatanResource::getUrl('index')),
+
+                Action::make('kelola_rekening')
+                    ->label('Kode Rekening')
+                    ->icon('heroicon-o-clipboard-document-list')
+                    ->color('gray')
+                    ->url(fn (): string => \App\Filament\Resources\KodeRekenings\KodeRekeningResource::getUrl('index')),
+
+                Action::make('kelola_barang')
+                    ->label('Master Barang')
+                    ->icon('heroicon-o-cube')
+                    ->color('gray')
+                    ->url(fn (): string => \App\Filament\Resources\MasterBarangs\MasterBarangResource::getUrl('index')),
+
+                Action::make('kelola_stok')
+                    ->label('Stok Persediaan')
+                    ->icon('heroicon-o-archive-box')
+                    ->color('gray')
+                    ->url(fn (): string => \App\Filament\Resources\StokBarangs\StokBarangResource::getUrl('index')),
+            ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

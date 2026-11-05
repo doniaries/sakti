@@ -9,6 +9,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -58,6 +59,12 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-m-device-phone-mobile'),
             ])
 
+            ->navigationItems([
+                NavigationItem::make('Presensi Mobile')
+                    ->url(fn(): string => route('mobile.dashboard'), shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-device-phone-mobile')
+                    ->sort(2),
+            ])
             ->navigationGroups([
                 NavigationGroup::make('Master Keuangan')
                     ->icon('heroicon-o-banknotes')

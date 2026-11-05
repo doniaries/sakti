@@ -399,6 +399,12 @@ class AbsensiHariansTable
                     }),
                 // ──────────────────────────────────────────────────────────────
             ])
+            ->headerActions([
+                \Filament\Actions\CreateAction::make()
+                    ->label('Tambah Absensi Harian')
+                    ->icon('heroicon-o-plus-circle')
+                    ->url(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('create')),
+            ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

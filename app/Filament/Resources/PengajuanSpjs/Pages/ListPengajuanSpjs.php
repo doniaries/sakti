@@ -19,48 +19,7 @@ class ListPengajuanSpjs extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make()
-                ->label('Buat Pengajuan SPJ')
-                ->icon('heroicon-o-plus-circle')
-                ->color('primary'),
-
-            Action::make('rka_belanja')
-                ->label('Rincian Belanja (RKA)')
-                ->icon('heroicon-o-document-chart-bar')
-                ->color('gray')
-                ->url(fn (): string => \App\Filament\Resources\RincianAnggaranBelanjas\RincianAnggaranBelanjaResource::getUrl('index')),
-
-            Action::make('kelola_sub_kegiatan')
-                ->label('Sub-Kegiatan')
-                ->icon('heroicon-o-rectangle-stack')
-                ->color('gray')
-                ->url(fn (): string => MasterSubKegiatanResource::getUrl('index')),
-
-            Action::make('kelola_kegiatan')
-                ->label('Kegiatan')
-                ->icon('heroicon-o-queue-list')
-                ->color('gray')
-                ->url(fn (): string => MasterKegiatanResource::getUrl('index')),
-
-            Action::make('kelola_rekening')
-                ->label('Kode Rekening')
-                ->icon('heroicon-o-clipboard-document-list')
-                ->color('gray')
-                ->url(fn (): string => KodeRekeningResource::getUrl('index')),
-
-            Action::make('kelola_barang')
-                ->label('Master Barang')
-                ->icon('heroicon-o-cube')
-                ->color('gray')
-                ->url(fn (): string => MasterBarangResource::getUrl('index')),
-
-            Action::make('kelola_stok')
-                ->label('Stok Persediaan')
-                ->icon('heroicon-o-archive-box')
-                ->color('gray')
-                ->url(fn (): string => StokBarangResource::getUrl('index')),
-        ];
+        return [];
     }
 
     protected function getHeaderWidgets(): array
