@@ -42,34 +42,4 @@ class AbsensiHarianPolicy
         return $authUser->can('DeleteAny:AbsensiHarian');
     }
 
-    public function restore(AuthUser $authUser, AbsensiHarian $absensiHarian): bool
-    {
-        return $authUser->can('Restore:AbsensiHarian');
-    }
-
-    public function forceDelete(AuthUser $authUser, AbsensiHarian $absensiHarian): bool
-    {
-        return $authUser->can('ForceDelete:AbsensiHarian');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:AbsensiHarian');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:AbsensiHarian');
-    }
-
-    public function replicate(AuthUser $authUser, AbsensiHarian $absensiHarian): bool
-    {
-        return $authUser->can('Replicate:AbsensiHarian');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:AbsensiHarian');
-    }
-
 }

@@ -42,34 +42,4 @@ class LogAbsensiPolicy
         return $authUser->can('DeleteAny:LogAbsensi');
     }
 
-    public function restore(AuthUser $authUser, LogAbsensi $logAbsensi): bool
-    {
-        return $authUser->can('Restore:LogAbsensi');
-    }
-
-    public function forceDelete(AuthUser $authUser, LogAbsensi $logAbsensi): bool
-    {
-        return $authUser->can('ForceDelete:LogAbsensi');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:LogAbsensi');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:LogAbsensi');
-    }
-
-    public function replicate(AuthUser $authUser, LogAbsensi $logAbsensi): bool
-    {
-        return $authUser->can('Replicate:LogAbsensi');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:LogAbsensi');
-    }
-
 }

@@ -42,34 +42,4 @@ class BidangPolicy
         return $authUser->can('DeleteAny:Bidang');
     }
 
-    public function restore(AuthUser $authUser, Bidang $bidang): bool
-    {
-        return $authUser->can('Restore:Bidang');
-    }
-
-    public function forceDelete(AuthUser $authUser, Bidang $bidang): bool
-    {
-        return $authUser->can('ForceDelete:Bidang');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Bidang');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Bidang');
-    }
-
-    public function replicate(AuthUser $authUser, Bidang $bidang): bool
-    {
-        return $authUser->can('Replicate:Bidang');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Bidang');
-    }
-
 }

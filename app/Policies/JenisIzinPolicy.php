@@ -42,34 +42,4 @@ class JenisIzinPolicy
         return $authUser->can('DeleteAny:JenisIzin');
     }
 
-    public function restore(AuthUser $authUser, JenisIzin $jenisIzin): bool
-    {
-        return $authUser->can('Restore:JenisIzin');
-    }
-
-    public function forceDelete(AuthUser $authUser, JenisIzin $jenisIzin): bool
-    {
-        return $authUser->can('ForceDelete:JenisIzin');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:JenisIzin');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:JenisIzin');
-    }
-
-    public function replicate(AuthUser $authUser, JenisIzin $jenisIzin): bool
-    {
-        return $authUser->can('Replicate:JenisIzin');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:JenisIzin');
-    }
-
 }

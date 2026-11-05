@@ -42,34 +42,4 @@ class AktivitasPolicy
         return $authUser->can('DeleteAny:Aktivitas');
     }
 
-    public function restore(AuthUser $authUser, Aktivitas $aktivitas): bool
-    {
-        return $authUser->can('Restore:Aktivitas');
-    }
-
-    public function forceDelete(AuthUser $authUser, Aktivitas $aktivitas): bool
-    {
-        return $authUser->can('ForceDelete:Aktivitas');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Aktivitas');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Aktivitas');
-    }
-
-    public function replicate(AuthUser $authUser, Aktivitas $aktivitas): bool
-    {
-        return $authUser->can('Replicate:Aktivitas');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Aktivitas');
-    }
-
 }

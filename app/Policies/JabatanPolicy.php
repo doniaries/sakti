@@ -42,34 +42,4 @@ class JabatanPolicy
         return $authUser->can('DeleteAny:Jabatan');
     }
 
-    public function restore(AuthUser $authUser, Jabatan $jabatan): bool
-    {
-        return $authUser->can('Restore:Jabatan');
-    }
-
-    public function forceDelete(AuthUser $authUser, Jabatan $jabatan): bool
-    {
-        return $authUser->can('ForceDelete:Jabatan');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Jabatan');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Jabatan');
-    }
-
-    public function replicate(AuthUser $authUser, Jabatan $jabatan): bool
-    {
-        return $authUser->can('Replicate:Jabatan');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Jabatan');
-    }
-
 }

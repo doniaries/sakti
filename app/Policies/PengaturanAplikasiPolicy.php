@@ -42,34 +42,4 @@ class PengaturanAplikasiPolicy
         return $authUser->can('DeleteAny:PengaturanAplikasi');
     }
 
-    public function restore(AuthUser $authUser, PengaturanAplikasi $pengaturanAplikasi): bool
-    {
-        return $authUser->can('Restore:PengaturanAplikasi');
-    }
-
-    public function forceDelete(AuthUser $authUser, PengaturanAplikasi $pengaturanAplikasi): bool
-    {
-        return $authUser->can('ForceDelete:PengaturanAplikasi');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:PengaturanAplikasi');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:PengaturanAplikasi');
-    }
-
-    public function replicate(AuthUser $authUser, PengaturanAplikasi $pengaturanAplikasi): bool
-    {
-        return $authUser->can('Replicate:PengaturanAplikasi');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:PengaturanAplikasi');
-    }
-
 }

@@ -29,69 +29,17 @@ class MasterSubKegiatanPolicy
 
     public function update(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
     {
-        if (! $authUser->can('Update:MasterSubKegiatan')) {
-            return false;
-        }
-
-        /** @var \App\Models\User $authUser */
-        if ($authUser->hasRole('jf') && ! $authUser->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
-            $isSameBidang = (int) $masterSubKegiatan->kegiatan?->bidang_id === (int) $authUser->bidang_id;
-            $isPengampu = (int) $masterSubKegiatan->jf_id === (int) $authUser->id;
-            return $isSameBidang || $isPengampu;
-        }
-
-        return true;
+        return $authUser->can('Update:MasterSubKegiatan');
     }
 
     public function delete(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
     {
-        if (! $authUser->can('Delete:MasterSubKegiatan')) {
-            return false;
-        }
-
-        /** @var \App\Models\User $authUser */
-        if ($authUser->hasRole('jf') && ! $authUser->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
-            $isSameBidang = (int) $masterSubKegiatan->kegiatan?->bidang_id === (int) $authUser->bidang_id;
-            $isPengampu = (int) $masterSubKegiatan->jf_id === (int) $authUser->id;
-            return $isSameBidang || $isPengampu;
-        }
-
-        return true;
+        return $authUser->can('Delete:MasterSubKegiatan');
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
         return $authUser->can('DeleteAny:MasterSubKegiatan');
-    }
-
-    public function restore(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
-    {
-        return $authUser->can('Restore:MasterSubKegiatan');
-    }
-
-    public function forceDelete(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
-    {
-        return $authUser->can('ForceDelete:MasterSubKegiatan');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:MasterSubKegiatan');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:MasterSubKegiatan');
-    }
-
-    public function replicate(AuthUser $authUser, MasterSubKegiatan $masterSubKegiatan): bool
-    {
-        return $authUser->can('Replicate:MasterSubKegiatan');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:MasterSubKegiatan');
     }
 
 }

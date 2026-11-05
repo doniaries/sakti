@@ -42,34 +42,4 @@ class LhkPolicy
         return $authUser->can('DeleteAny:Lhk');
     }
 
-    public function restore(AuthUser $authUser, Lhk $lhk): bool
-    {
-        return $authUser->can('Restore:Lhk');
-    }
-
-    public function forceDelete(AuthUser $authUser, Lhk $lhk): bool
-    {
-        return $authUser->can('ForceDelete:Lhk');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Lhk');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Lhk');
-    }
-
-    public function replicate(AuthUser $authUser, Lhk $lhk): bool
-    {
-        return $authUser->can('Replicate:Lhk');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Lhk');
-    }
-
 }

@@ -42,34 +42,4 @@ class JadwalKerjaPolicy
         return $authUser->can('DeleteAny:JadwalKerja');
     }
 
-    public function restore(AuthUser $authUser, JadwalKerja $jadwalKerja): bool
-    {
-        return $authUser->can('Restore:JadwalKerja');
-    }
-
-    public function forceDelete(AuthUser $authUser, JadwalKerja $jadwalKerja): bool
-    {
-        return $authUser->can('ForceDelete:JadwalKerja');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:JadwalKerja');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:JadwalKerja');
-    }
-
-    public function replicate(AuthUser $authUser, JadwalKerja $jadwalKerja): bool
-    {
-        return $authUser->can('Replicate:JadwalKerja');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:JadwalKerja');
-    }
-
 }

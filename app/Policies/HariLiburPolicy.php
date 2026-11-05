@@ -42,34 +42,4 @@ class HariLiburPolicy
         return $authUser->can('DeleteAny:HariLibur');
     }
 
-    public function restore(AuthUser $authUser, HariLibur $hariLibur): bool
-    {
-        return $authUser->can('Restore:HariLibur');
-    }
-
-    public function forceDelete(AuthUser $authUser, HariLibur $hariLibur): bool
-    {
-        return $authUser->can('ForceDelete:HariLibur');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:HariLibur');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:HariLibur');
-    }
-
-    public function replicate(AuthUser $authUser, HariLibur $hariLibur): bool
-    {
-        return $authUser->can('Replicate:HariLibur');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:HariLibur');
-    }
-
 }

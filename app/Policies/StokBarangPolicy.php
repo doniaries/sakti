@@ -42,34 +42,4 @@ class StokBarangPolicy
         return $authUser->can('DeleteAny:StokBarang');
     }
 
-    public function restore(AuthUser $authUser, StokBarang $stokBarang): bool
-    {
-        return $authUser->can('Restore:StokBarang');
-    }
-
-    public function forceDelete(AuthUser $authUser, StokBarang $stokBarang): bool
-    {
-        return $authUser->can('ForceDelete:StokBarang');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:StokBarang');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:StokBarang');
-    }
-
-    public function replicate(AuthUser $authUser, StokBarang $stokBarang): bool
-    {
-        return $authUser->can('Replicate:StokBarang');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:StokBarang');
-    }
-
 }

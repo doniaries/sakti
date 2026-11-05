@@ -42,34 +42,4 @@ class PengajuanIzinPolicy
         return $authUser->can('DeleteAny:PengajuanIzin');
     }
 
-    public function restore(AuthUser $authUser, PengajuanIzin $pengajuanIzin): bool
-    {
-        return $authUser->can('Restore:PengajuanIzin');
-    }
-
-    public function forceDelete(AuthUser $authUser, PengajuanIzin $pengajuanIzin): bool
-    {
-        return $authUser->can('ForceDelete:PengajuanIzin');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:PengajuanIzin');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:PengajuanIzin');
-    }
-
-    public function replicate(AuthUser $authUser, PengajuanIzin $pengajuanIzin): bool
-    {
-        return $authUser->can('Replicate:PengajuanIzin');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:PengajuanIzin');
-    }
-
 }

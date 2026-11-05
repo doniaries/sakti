@@ -42,34 +42,4 @@ class MasterProgramPolicy
         return $authUser->can('DeleteAny:MasterProgram');
     }
 
-    public function restore(AuthUser $authUser, MasterProgram $masterProgram): bool
-    {
-        return $authUser->can('Restore:MasterProgram');
-    }
-
-    public function forceDelete(AuthUser $authUser, MasterProgram $masterProgram): bool
-    {
-        return $authUser->can('ForceDelete:MasterProgram');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:MasterProgram');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:MasterProgram');
-    }
-
-    public function replicate(AuthUser $authUser, MasterProgram $masterProgram): bool
-    {
-        return $authUser->can('Replicate:MasterProgram');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:MasterProgram');
-    }
-
 }

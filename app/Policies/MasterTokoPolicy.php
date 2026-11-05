@@ -42,34 +42,4 @@ class MasterTokoPolicy
         return $authUser->can('DeleteAny:MasterToko');
     }
 
-    public function restore(AuthUser $authUser, MasterToko $masterToko): bool
-    {
-        return $authUser->can('Restore:MasterToko');
-    }
-
-    public function forceDelete(AuthUser $authUser, MasterToko $masterToko): bool
-    {
-        return $authUser->can('ForceDelete:MasterToko');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:MasterToko');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:MasterToko');
-    }
-
-    public function replicate(AuthUser $authUser, MasterToko $masterToko): bool
-    {
-        return $authUser->can('Replicate:MasterToko');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:MasterToko');
-    }
-
 }

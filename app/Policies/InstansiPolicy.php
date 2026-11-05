@@ -42,34 +42,4 @@ class InstansiPolicy
         return $authUser->can('DeleteAny:Instansi');
     }
 
-    public function restore(AuthUser $authUser, Instansi $instansi): bool
-    {
-        return $authUser->can('Restore:Instansi');
-    }
-
-    public function forceDelete(AuthUser $authUser, Instansi $instansi): bool
-    {
-        return $authUser->can('ForceDelete:Instansi');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Instansi');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Instansi');
-    }
-
-    public function replicate(AuthUser $authUser, Instansi $instansi): bool
-    {
-        return $authUser->can('Replicate:Instansi');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Instansi');
-    }
-
 }

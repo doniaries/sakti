@@ -42,34 +42,4 @@ class KodeRekeningPolicy
         return $authUser->can('DeleteAny:KodeRekening');
     }
 
-    public function restore(AuthUser $authUser, KodeRekening $kodeRekening): bool
-    {
-        return $authUser->can('Restore:KodeRekening');
-    }
-
-    public function forceDelete(AuthUser $authUser, KodeRekening $kodeRekening): bool
-    {
-        return $authUser->can('ForceDelete:KodeRekening');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:KodeRekening');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:KodeRekening');
-    }
-
-    public function replicate(AuthUser $authUser, KodeRekening $kodeRekening): bool
-    {
-        return $authUser->can('Replicate:KodeRekening');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:KodeRekening');
-    }
-
 }

@@ -42,34 +42,4 @@ class MesinAbsensiPolicy
         return $authUser->can('DeleteAny:MesinAbsensi');
     }
 
-    public function restore(AuthUser $authUser, MesinAbsensi $mesinAbsensi): bool
-    {
-        return $authUser->can('Restore:MesinAbsensi');
-    }
-
-    public function forceDelete(AuthUser $authUser, MesinAbsensi $mesinAbsensi): bool
-    {
-        return $authUser->can('ForceDelete:MesinAbsensi');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:MesinAbsensi');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:MesinAbsensi');
-    }
-
-    public function replicate(AuthUser $authUser, MesinAbsensi $mesinAbsensi): bool
-    {
-        return $authUser->can('Replicate:MesinAbsensi');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:MesinAbsensi');
-    }
-
 }

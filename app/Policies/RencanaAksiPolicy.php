@@ -42,34 +42,4 @@ class RencanaAksiPolicy
         return $authUser->can('DeleteAny:RencanaAksi');
     }
 
-    public function restore(AuthUser $authUser, RencanaAksi $rencanaAksi): bool
-    {
-        return $authUser->can('Restore:RencanaAksi');
-    }
-
-    public function forceDelete(AuthUser $authUser, RencanaAksi $rencanaAksi): bool
-    {
-        return $authUser->can('ForceDelete:RencanaAksi');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:RencanaAksi');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:RencanaAksi');
-    }
-
-    public function replicate(AuthUser $authUser, RencanaAksi $rencanaAksi): bool
-    {
-        return $authUser->can('Replicate:RencanaAksi');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:RencanaAksi');
-    }
-
 }

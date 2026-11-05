@@ -42,34 +42,4 @@ class PengajuanSpjPolicy
         return $authUser->can('DeleteAny:PengajuanSpj');
     }
 
-    public function restore(AuthUser $authUser, PengajuanSpj $pengajuanSpj): bool
-    {
-        return $authUser->can('Restore:PengajuanSpj');
-    }
-
-    public function forceDelete(AuthUser $authUser, PengajuanSpj $pengajuanSpj): bool
-    {
-        return $authUser->can('ForceDelete:PengajuanSpj');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:PengajuanSpj');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:PengajuanSpj');
-    }
-
-    public function replicate(AuthUser $authUser, PengajuanSpj $pengajuanSpj): bool
-    {
-        return $authUser->can('Replicate:PengajuanSpj');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:PengajuanSpj');
-    }
-
 }

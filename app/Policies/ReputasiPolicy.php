@@ -42,34 +42,4 @@ class ReputasiPolicy
         return $authUser->can('DeleteAny:Reputasi');
     }
 
-    public function restore(AuthUser $authUser, Reputasi $reputasi): bool
-    {
-        return $authUser->can('Restore:Reputasi');
-    }
-
-    public function forceDelete(AuthUser $authUser, Reputasi $reputasi): bool
-    {
-        return $authUser->can('ForceDelete:Reputasi');
-    }
-
-    public function forceDeleteAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('ForceDeleteAny:Reputasi');
-    }
-
-    public function restoreAny(AuthUser $authUser): bool
-    {
-        return $authUser->can('RestoreAny:Reputasi');
-    }
-
-    public function replicate(AuthUser $authUser, Reputasi $reputasi): bool
-    {
-        return $authUser->can('Replicate:Reputasi');
-    }
-
-    public function reorder(AuthUser $authUser): bool
-    {
-        return $authUser->can('Reorder:Reputasi');
-    }
-
 }
