@@ -23,8 +23,15 @@
         "swisnl/filament-backgrounds": "^2.0",
         "watheqalshowaiter/filament-sticky-table-header": "*",
         "wikimedia/composer-merge-plugin": "^2.1",
-        "zeeshantariq/filament-sticky-columns": "^1.2"
+        "zeeshantariq/filament-sticky-columns": "^1.2",
+        "cocosmos/filament-sticky-save-bar": "*"
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/filament-sticky-save-bar"
+        }
+    ],
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.2",

@@ -80,7 +80,7 @@ class PegawaiRelationManager extends RelationManager
                 TextColumn::make('jabatan.nama')
                     ->label('Jabatan')
                     ->badge()
-                    ->color(fn ($state) => match (true) {
+                    ->color(fn($state) => match (true) {
                         str_contains($state ?? '', 'Kepala Dinas') => 'danger',
                         str_contains($state ?? '', 'Sekretaris') => 'warning',
                         str_contains($state ?? '', 'Kabid') => 'purple',
@@ -106,15 +106,15 @@ class PegawaiRelationManager extends RelationManager
                 TextColumn::make('status_kerja')
                     ->label('Tipe Kerja')
                     ->badge()
-                    ->color(fn ($state) => match(strtolower($state ?? 'wfo')) {
+                    ->color(fn($state) => match (strtolower($state ?? 'wfo')) {
                         'wfh' => 'warning',
                         default => 'success',
                     })
-                    ->icon(fn ($state) => match(strtolower($state ?? 'wfo')) {
+                    ->icon(fn($state) => match (strtolower($state ?? 'wfo')) {
                         'wfh' => 'heroicon-m-home',
                         default => 'heroicon-m-building-office-2',
                     })
-                    ->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
+                    ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
 
                 ToggleColumn::make('aktif')
                     ->label('Status Aktif'),
@@ -128,8 +128,8 @@ class PegawaiRelationManager extends RelationManager
                     ->modalHeading('Kaitkan Pegawai ke Bidang')
                     ->modalDescription('Pilih pegawai yang belum memiliki bidang dan tentukan jabatan serta tanggung jawabnya.')
                     ->modalSubmitActionLabel('Kaitkan Pegawai')
-                    ->recordSelectOptionsQuery(fn ($query) => $query->whereNull('bidang_id')->bukanSuperAdmin())
-                    ->recordTitle(fn ($record) => "{$record->name}" . ($record->nip ? " (NIP: {$record->nip})" : ''))
+                    ->recordSelectOptionsQuery(fn($query) => $query->whereNull('bidang_id')->bukanSuperAdmin())
+                    ->recordTitle(fn($record) => "{$record->name}" . ($record->nip ? " (NIP: {$record->nip})" : ''))
                     ->recordSelectSearchColumns(['name', 'nip'])
                     ->preloadRecordSelect()
                     ->schema(function (AssociateAction $action, PegawaiRelationManager $livewire): array {
@@ -202,7 +202,7 @@ class PegawaiRelationManager extends RelationManager
                                 ->options(Bidang::where('id', '!=', $currentBidang?->id)->pluck('nama', 'id'))
                                 ->required()
                                 ->live()
-                                ->afterStateUpdated(fn (callable $set) => $set('jabatan_id', null)),
+                                ->afterStateUpdated(fn(callable $set) => $set('jabatan_id', null)),
 
                             Select::make('jabatan_id')
                                 ->label('Jabatan Baru di Bidang Tujuan')
@@ -236,7 +236,7 @@ class PegawaiRelationManager extends RelationManager
                     }),
 
                 // Aksi Pindah Instansi (Mutasi Keluar Dinas / Instansi)
-                Action::make('pindah_instansi')
+                /* Action::make('pindah_instansi')
                     ->label('Pindah Instansi')
                     ->icon('heroicon-o-arrow-right-start-on-rectangle')
                     ->color('danger')
@@ -256,7 +256,7 @@ class PegawaiRelationManager extends RelationManager
                             ->body("{$record->name} telah dikeluarkan dari dinas ini dan status akun dinonaktifkan.")
                             ->warning()
                             ->send();
-                    }),
+                    }), */
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -269,7 +269,7 @@ class PegawaiRelationManager extends RelationManager
                         ->modalDescription('Pegawai terpilih akan dikeluarkan dari dinas ini dan status akun dinonaktifkan.')
                         ->modalSubmitActionLabel('Konfirmasi Pindah Instansi')
                         ->action(function (Collection $records): void {
-                            $records->each(fn (User $u) => $u->update([
+                            $records->each(fn(User $u) => $u->update([
                                 'bidang_id' => null,
                                 'atasan_id' => null,
                                 'aktif' => false,
