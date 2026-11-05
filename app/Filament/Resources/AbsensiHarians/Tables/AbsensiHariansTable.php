@@ -34,10 +34,19 @@ class AbsensiHariansTable
         /** @var \App\Models\User|null $currentUser */
         $currentUser = \Illuminate\Support\Facades\Auth::user();
 
-        $table->modifyQueryUsing(function ($query) use ($currentUser) {
+        $isPimpinanOrAdmin = $currentUser !== null && (
+            $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'pa', 'pptk'])
+            || in_array($currentUser->anggaran_role?->value ?? $currentUser->anggaran_role, ['PA', 'PPTK'], true)
+            || str_contains(strtolower($currentUser->jabatan ?? ''), 'kepala dinas')
+            || str_contains(strtolower($currentUser->jabatan ?? ''), 'sekretaris')
+            || str_contains(strtolower($currentUser->jabatan ?? ''), 'kepala bidang')
+            || str_contains(strtolower($currentUser->jabatan ?? ''), 'kasubag')
+        );
+
+        $table->modifyQueryUsing(function ($query) use ($currentUser, $isPimpinanOrAdmin) {
             $query->with(['user', 'logMasuk', 'logPulang']);
 
-            if ($currentUser && ! $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan'])) {
+            if (! $isPimpinanOrAdmin && $currentUser !== null) {
                 $query->where('user_id', $currentUser->id);
             }
 
@@ -171,9 +180,31 @@ class AbsensiHariansTable
                         return $labels[$data['kategori'] ?? ''] ?? null;
                     }),
 
+                Filter::make('bidang')
+                    ->label('Bidang')
+                    ->visible(fn() => $isPimpinanOrAdmin)
+                    ->form([
+                        Select::make('bidang_id')
+                            ->label('Bidang')
+                            ->options(
+                                \App\Models\Bidang::orderBy('nama', 'asc')->pluck('nama', 'id')->toArray()
+                            )
+                            ->searchable()
+                            ->placeholder('Semua Bidang')
+                            ->live(),
+                    ])
+                    ->query(
+                        fn(Builder $query, array $data): Builder =>
+                        $query->when($data['bidang_id'] ?? null, fn(Builder $q, $v) => $q->whereHas('user', fn($uq) => $uq->where('bidang_id', $v)))
+                    )
+                    ->indicateUsing(function (array $data): ?string {
+                        $bidang = \App\Models\Bidang::find((int) ($data['bidang_id'] ?? 0));
+                        return $bidang ? 'Bidang: ' . $bidang->nama : null;
+                    }),
+
                 Filter::make('pegawai')
                     ->label('Pegawai')
-                    ->visible(fn() => \Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'pimpinan']))
+                    ->visible(fn() => $isPimpinanOrAdmin)
                     ->form([
                         Select::make('user_id')
                             ->label('Nama Pegawai')

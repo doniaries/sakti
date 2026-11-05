@@ -47,8 +47,11 @@ class PengajuanSpjsTable
                     ? $user->anggaran_role->value
                     : $user?->anggaran_role;
 
-                $isGlobalRole = in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA'], true)
-                    || ($user !== null && $user->hasAnyRole(['pa', 'ppk', 'bendahara', 'super_admin', 'admin']));
+                $isGlobalRole = in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA', 'PPTK'], true)
+                    || ($user !== null && $user->hasAnyRole(['pa', 'ppk', 'pptk', 'bendahara', 'super_admin', 'admin']))
+                    || str_contains(strtolower($user?->jabatan ?? ''), 'kepala dinas')
+                    || str_contains(strtolower($user?->jabatan ?? ''), 'sekretaris')
+                    || str_contains(strtolower($user?->jabatan ?? ''), 'kepala bidang');
 
                 if (! $canViewAllBidang && ! $isGlobalRole && $user !== null) {
                     $userBidangId = filled($user->bidang_id)
@@ -252,11 +255,14 @@ class PengajuanSpjsTable
                             ? $user->anggaran_role->value
                             : $user->anggaran_role;
 
+                        $isPptkThisRecord = ($user->hasRole('pptk') || $anggaranRole === 'PPTK')
+                            && ($user->id === $record->pptk_user_id || ((int) $user->bidang_id > 0 && (int) $user->bidang_id === (int) $record->bidang_id) || (int) $record->bidang?->kepala_id === (int) $user->id || $user->hasRole('super_admin'));
+
                         return match ($record->status) {
                             'draft' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
-                            'diajukan' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'diajukan' => $isPptkThisRecord,
                             'menunggu_realisasi', 'revisi_pptk' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
-                            'menunggu_verifikasi_pptk' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'menunggu_verifikasi_pptk' => $isPptkThisRecord,
                             'menunggu_verifikasi_ppk', 'revisi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
                             'menunggu_persetujuan_pa', 'revisi_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,
                             'menunggu_verifikasi_bendahara', 'revisi_bendahara' => $user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' || $user->id === $record->bendahara_user_id,
@@ -537,11 +543,14 @@ class PengajuanSpjsTable
                             ? $user->anggaran_role->value
                             : $user->anggaran_role;
 
+                        $isPptkThisRecord = ($user->hasRole('pptk') || $anggaranRole === 'PPTK')
+                            && ($user->id === $record->pptk_user_id || ((int) $user->bidang_id > 0 && (int) $user->bidang_id === (int) $record->bidang_id) || (int) $record->bidang?->kepala_id === (int) $user->id || $user->hasRole('super_admin'));
+
                         return match ($record->status) {
                             'draft' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
-                            'diajukan' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'diajukan' => $isPptkThisRecord,
                             'menunggu_realisasi', 'revisi_pptk' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
-                            'menunggu_verifikasi_pptk' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'menunggu_verifikasi_pptk' => $isPptkThisRecord,
                             'menunggu_verifikasi_ppk', 'revisi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
                             'menunggu_persetujuan_pa', 'revisi_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,
                             'menunggu_verifikasi_bendahara', 'revisi_bendahara' => $user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' || $user->id === $record->bendahara_user_id,

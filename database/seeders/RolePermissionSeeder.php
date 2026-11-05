@@ -143,6 +143,9 @@ class RolePermissionSeeder extends Seeder
             'View:MasterToko',
             'ViewAny:MasterBarang',
             'View:MasterBarang',
+            'ViewAny:Bidang',
+            'View:Bidang',
+            'ViewAny:User',
         ]))->get();
         $pptkRole->syncPermissions($pptkPermissions);
 
