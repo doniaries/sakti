@@ -29,7 +29,11 @@
             ])
     "
 >
-    <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-gray-900/80">
+    {{-- Kartu Stats Overview --}}
+    {{ $this->content }}
+
+    {{-- Filter Bidang & Tahun Anggaran (Diposisikan di bawah widget card, di atas tombol akses) --}}
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-gray-900/80">
         {{-- Bagian Kiri: Filter Bidang --}}
         <div class="flex flex-wrap items-center gap-2">
             @if ($canChooseBidang && count($daftarBidang) > 1)
@@ -86,7 +90,4 @@
             </div>
         </div>
     </div>
-
-    {{-- Kartu Stats Overview --}}
-    {{ $this->content }}
 </x-filament-widgets::widget>
