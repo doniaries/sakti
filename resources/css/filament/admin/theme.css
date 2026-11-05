@@ -24,6 +24,17 @@
     z-index: 50 !important;
 }
 
+/* ==========================================================================
+   Filter Popover & Dropdown Scroll & Height Fix (Anti Terpotong di Bawah Layar)
+   ========================================================================== */
+.fi-dropdown-panel:has(.fi-ta-filters),
+.fi-ta-filters-dropdown,
+.fi-ta-filters-dropdown-content {
+    max-height: min(80vh, 520px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+}
+
 /* Modal dan Slide-over selalu di atas seluruh elemen halaman */
 .fi-modal,
 .fi-modal-window,

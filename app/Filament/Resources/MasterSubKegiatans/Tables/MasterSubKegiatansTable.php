@@ -96,25 +96,7 @@ class MasterSubKegiatansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('tahun_anggaran')
-                    ->label('Pilih Tahun')
-                    ->options($years)
-                    ->placeholder('Semua Tahun'),
-                SelectFilter::make('bidang_id')
-                    ->relationship('kegiatan.bidang', 'nama')
-                    ->label('Filter Bidang')
-                    ->preload()
-                    ->searchable(),
-                SelectFilter::make('kegiatan_id')
-                    ->relationship('kegiatan', 'nama_kegiatan')
-                    ->label('Filter Kegiatan'),
-                SelectFilter::make('jf_id')
-                    ->relationship('jf', 'name')
-                    ->label('Filter JF Pengampu')
-                    ->searchable()
-                    ->preload(),
-            ])
+            ->filters([])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),

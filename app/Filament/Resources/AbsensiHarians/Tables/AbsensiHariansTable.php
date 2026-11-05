@@ -139,13 +139,12 @@ class AbsensiHariansTable
                         Select::make('kategori')
                             ->label('Status Kehadiran')
                             ->options([
-                                'hadir'        => 'Hadir Tepat Waktu',
+                                'hadir'        => 'Hadir (Tepat Waktu & Terlambat)',
                                 'terlambat'    => 'Terlambat Masuk',
-                                'pulang_cepat' => 'Pulang Cepat (Tidak Absen Pulang)',
+                                'pulang_cepat' => 'Belum Pulang / Pulang Cepat',
                                 'dinas_luar'   => 'Dinas Luar',
-                                'izin'         => 'Izin',
+                                'izin'         => 'Izin & Cuti',
                                 'sakit'        => 'Sakit',
-                                'cuti'         => 'Cuti',
                                 'tidak_hadir'  => 'Tanpa Keterangan (Alpa)',
                             ])
                             ->placeholder('Semua Status')
@@ -158,24 +157,24 @@ class AbsensiHariansTable
                         }
 
                         return match ($kategori) {
-                            'hadir'        => $query->where('status', 'hadir')->whereNotNull('jam_masuk')->whereNotNull('jam_pulang'),
+                            'hadir'        => $query->whereIn('status', ['hadir', 'terlambat'])->whereNotNull('jam_masuk'),
                             'terlambat'    => $query->where('status', 'terlambat'),
                             'pulang_cepat' => $query->whereNotNull('jam_masuk')->whereNull('jam_pulang')->whereNotIn('status', ['tidak_hadir', 'izin', 'sakit', 'cuti']),
                             'dinas_luar'   => $query->where(fn ($q) => $q->where('jenis_kehadiran', 'dinas_luar')->orWhere('status', 'dinas_luar')),
-                            'izin'         => $query->where('status', 'izin'),
+                            'izin'         => $query->whereIn('status', ['izin', 'cuti']),
                             'sakit'        => $query->where('status', 'sakit'),
                             'cuti'         => $query->where('status', 'cuti'),
-                            'tidak_hadir'  => $query->where('status', 'tidak_hadir')->orWhere(fn ($q) => $q->whereNull('jam_masuk')->whereNull('jam_pulang')),
+                            'tidak_hadir'  => $query->where(fn ($q) => $q->where('status', 'tidak_hadir')->orWhere(fn ($sq) => $sq->whereNull('jam_masuk')->whereNull('jam_pulang')->whereNotIn('status', ['izin', 'sakit', 'cuti', 'dinas_luar']))),
                             default        => $query,
                         };
                     })
                     ->indicateUsing(function (array $data): ?string {
                         $labels = [
-                            'hadir'        => 'Status: Hadir Tepat Waktu',
+                            'hadir'        => 'Status: Hadir',
                             'terlambat'    => 'Status: Terlambat Masuk',
-                            'pulang_cepat' => 'Status: Pulang Cepat',
+                            'pulang_cepat' => 'Status: Pulang Cepat / Belum Pulang',
                             'dinas_luar'   => 'Status: Dinas Luar',
-                            'izin'         => 'Status: Izin',
+                            'izin'         => 'Status: Izin & Cuti',
                             'sakit'        => 'Status: Sakit',
                             'cuti'         => 'Status: Cuti',
                             'tidak_hadir'  => 'Status: Tanpa Keterangan (Alpa)',

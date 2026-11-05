@@ -23,8 +23,8 @@ class AbsensiHarianResource extends Resource
     protected static ?string $model = AbsensiHarian::class;
 
     protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
-    protected static ?string $modelLabel = 'Absensi Harian';
-    protected static ?string $pluralModelLabel = 'Data Absensi Harian';
+    protected static ?string $modelLabel = 'Data Absensi';
+    protected static ?string $pluralModelLabel = 'Data Absensi';
     protected static ?int $navigationSort = 1;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;

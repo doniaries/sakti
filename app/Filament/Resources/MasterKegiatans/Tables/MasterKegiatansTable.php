@@ -101,20 +101,7 @@ class MasterKegiatansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                SelectFilter::make('tahun_anggaran')
-                    ->label('Pilih Tahun')
-                    ->options($years)
-                    ->placeholder('Semua Tahun'),
-                SelectFilter::make('bidang_id')
-                    ->relationship('bidang', 'nama')
-                    ->label('Filter Bidang')
-                    ->preload()
-                    ->searchable(),
-                SelectFilter::make('program_id')
-                    ->relationship('program', 'nama_program')
-                    ->label('Filter Program'),
-            ])
+            ->filters([])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
