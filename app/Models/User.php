@@ -246,7 +246,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
             $cleanPath = ltrim($this->avatar_url, '/');
             if (Storage::disk('public')->exists($cleanPath)) {
-                return '/storage/' . $cleanPath;
+                $storageLink = public_path('storage');
+                if (is_link($storageLink) || is_dir($storageLink)) {
+                    return asset('storage/' . $cleanPath);
+                }
+                return url('/media-file/' . $cleanPath);
             }
         }
 
@@ -262,7 +266,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
             $cleanPath = ltrim($this->avatar_url, '/');
             if (Storage::disk('public')->exists($cleanPath)) {
-                return '/storage/' . $cleanPath;
+                $storageLink = public_path('storage');
+                if (is_link($storageLink) || is_dir($storageLink)) {
+                    return asset('storage/' . $cleanPath);
+                }
+                return url('/media-file/' . $cleanPath);
             }
         }
 

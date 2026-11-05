@@ -35,9 +35,13 @@ class Login extends BaseLogin
             $privatePath = storage_path('app/private/' . $pengaturan->logo);
             $publicStorageLink = public_path('storage');
 
-            // Gunakan custom logo jika file fisiknya ada DAN symlink public/storage aktif
-            if ((file_exists($publicPath) || file_exists($privatePath)) && (is_link($publicStorageLink) || is_dir($publicStorageLink))) {
-                $logoUrl = asset('storage/' . $pengaturan->logo);
+            // Gunakan custom logo jika file fisiknya ada
+            if (file_exists($publicPath) || file_exists($privatePath)) {
+                if (is_link($publicStorageLink) || is_dir($publicStorageLink)) {
+                    $logoUrl = asset('storage/' . $pengaturan->logo);
+                } else {
+                    $logoUrl = url('/media-file/' . $pengaturan->logo);
+                }
             }
         }
 

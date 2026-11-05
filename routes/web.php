@@ -54,7 +54,7 @@ Route::get('livewire/update', function () {
     return redirect()->to(\App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource::getUrl('index', $params));
 });
 
-// Fallback jika hosting cPanel mematikan symlink() PHP (melayani file storage langsung)
+// Fallback jika hosting cPanel/VPS belum menjalankan storage:link atau Nginx memblokir static symlink
 Route::get('/storage/{path}', function (string $path) {
     $filePath = storage_path('app/public/' . $path);
 
@@ -68,5 +68,17 @@ Route::get('/storage/{path}', function (string $path) {
 
     return response()->file($filePath);
 })->where('path', '.*');
+
+// Route direct streaming file storage publik jika symlink public/storage belum aktif
+Route::get('/media-file/{path}', function (string $path) {
+    $cleanPath = str_replace(['..', '\\'], ['', '/'], $path);
+    $filePath = storage_path('app/public/' . $cleanPath);
+
+    if (! file_exists($filePath)) {
+        abort(404);
+    }
+
+    return response()->file($filePath);
+})->where('path', '.*')->name('media.serve');
 
 
