@@ -21,6 +21,8 @@ class Instansi extends Model
                 if ($pengaturan) {
                     $pengaturan->updateQuietly([
                         'nama_dinas' => $instansi->nama_dinas,
+                        'kode_instansi' => $instansi->kode_instansi,
+                        'sub_unit_organisasi' => $instansi->sub_unit_organisasi,
                         'nama_kepala_dinas' => $instansi->nama_kepala_dinas,
                         'alamat_kantor' => $instansi->alamat,
                         'logo' => $instansi->logo ?? $pengaturan->logo,

@@ -18,10 +18,10 @@ class PengaturanAplikasiResource extends Resource
 {
     protected static ?string $model = PengaturanAplikasi::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
-    protected static ?string $modelLabel = 'Identitas & Pengaturan Instansi';
-    protected static ?string $pluralModelLabel = 'Identitas & Pengaturan Instansi';
+    protected static ?string $modelLabel = 'Konfigurasi Sistem';
+    protected static ?string $pluralModelLabel = 'Konfigurasi Sistem';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Pengaturan';
     protected static ?int $navigationSort = 1;

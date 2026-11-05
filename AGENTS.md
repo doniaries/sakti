@@ -125,9 +125,10 @@ protected function getRedirectUrl(): string
 
 ## 5. Domain & Alur Bisnis Aplikasi
 
-1. **Master Kepegawaian & Pengaturan Instansi Terpadu**:
-   - `PengaturanAplikasi` (Identitas & Pengaturan Instansi): Menggabungkan profil instansi, logo, kepala dinas, alamat kantor, versi aplikasi, serta titik koordinat & radius geofencing peta interaktif dalam satu menu tunggal (*Single Source of Truth*). Data disinkronkan otomatis ke model `Instansi` demi kompatibilitas query lama (`Instansi::first()`).
-   - `InstansiResource`: Dinonaktifkan dari menu navigasi sidebar (`$shouldRegisterNavigation = false`) untuk menghilangkan redundansi.
+1. **Master Kepegawaian, Profil Instansi & Konfigurasi Sistem Terpadu**:
+   - **Master Data ➔ `Profil Instansi & OPD` (`InstansiResource`)**: Khusus mengelola data kedinasan resmi: Nama Dinas/Instansi, Kode SKPD (SIPD), Sub Unit Organisasi, Alamat Kantor Resmi, Akun Kepala Dinas (Kadis) & Nama Gelar Lengkap, serta Logo Resmi Instansi (disk `public`).
+   - **Pengaturan ➔ `Konfigurasi Sistem` (`PengaturanAplikasiResource`)**: Khusus mengelola parameter teknis aplikasi: Nama Sistem (SAKTI), Sub-Judul (Kepanjangan), Deskripsi Singkat, Titik Koordinat GPS Peta & Radius Toleransi Geofencing Presensi, serta Versi Sistem & Kontak Pengembang.
+   - **Sinkronisasi Otomatis Dua-Arah (Bidirectional Sync)**: Model `Instansi` dan `PengaturanAplikasi` saling menyinkronkan data secara otomatis saat disimpan via callback `booted()`. Accessor cadangan memastikan seluruh modul lama (`SpjPrintController`, `CetakLaporanController`, `Absensi.php`, dsb.) tetap 100% kompatibel dan tidak ada query yang error.
    - Relasi atasan-bawahan via `atasan_id` pada model `User`.
    - **Aturan Pimpinan / Kadis**: Kepala Dinas merupakan pimpinan tertinggi di dinas sehingga:
      - `bidang_id` = `null` (tidak terikat bidang).

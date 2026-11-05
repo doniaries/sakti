@@ -21,18 +21,18 @@ class PengaturanAplikasiForm
     {
         return $schema
             ->components([
-                // 1. IDENTITAS INSTANSI & APLIKASI
-                Section::make('Identitas Instansi & Profil Aplikasi')
-                    ->description('Konfigurasi nama dinas/instansi resmi, pimpinan kepala dinas, nama sistem, serta logo yang tampil pada portal mobile dan cetak laporan PDF.')
-                    ->icon('heroicon-o-building-office-2')
+                // 1. IDENTITAS SISTEM APLIKASI
+                Section::make('Identitas Sistem Aplikasi')
+                    ->description('Konfigurasi nama sistem aplikasi, sub-judul kepanjangan, dan ringkasan sistem.')
+                    ->icon('heroicon-o-computer-desktop')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('nama_aplikasi')
                                     ->label('Nama Aplikasi / Sistem')
-                                    ->placeholder('Contoh: Sakti')
+                                    ->placeholder('Contoh: SAKTI')
                                     ->required()
-                                    ->default('Sakti')
+                                    ->default('SAKTI')
                                     ->maxLength(100),
 
                                 TextInput::make('sub_nama')
@@ -44,109 +44,14 @@ class PengaturanAplikasiForm
                                     ->maxLength(200),
                             ]),
 
-                        Grid::make(3)
-                            ->schema([
-                                TextInput::make('kode_instansi')
-                                    ->label('Kode Unit Organisasi (SKPD)')
-                                    ->placeholder('3.26.2.19.0.00.01.0000')
-                                    ->mask('9.99.9.99.9.99.99.9999')
-                                    ->default('3.26.2.19.0.00.01.0000')
-                                    ->helperText('Format SIPD: 3.26.2.19.0.00.01.0000 (Kode SKPD)')
-                                    ->maxLength(50)
-                                    ->required(),
-
-                                TextInput::make('nama_dinas')
-                                    ->label('Nama Unit Organisasi / Instansi')
-                                    ->placeholder('Contoh: DINAS PARIWISATA, PEMUDA DAN OLAH RAGA')
-                                    ->required()
-                                    ->default(fn () => \App\Models\Instansi::first()?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA')
-                                    ->helperText('Nama resmi dinas/OPD yang tercantum pada kop surat laporan & SPJ.')
-                                    ->maxLength(200),
-
-                                TextInput::make('sub_unit_organisasi')
-                                    ->label('Sub Unit Organisasi')
-                                    ->placeholder('-')
-                                    ->default('-')
-                                    ->helperText('Isi "-" jika tidak ada sub unit terpisah.')
-                                    ->maxLength(100),
-                            ]),
-
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('kepala_id')
-                                    ->label('Akun Kepala Dinas (Kadis)')
-                                    ->relationship('kepala', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, Set $set) {
-                                        if ($state) {
-                                            $user = User::find($state);
-                                            if ($user) {
-                                                $namaLengkap = trim(($user->gelar_depan ? $user->gelar_depan . ' ' : '') . $user->name . ($user->gelar_belakang ? ', ' . $user->gelar_belakang : ''));
-                                                $set('nama_kepala_dinas', $namaLengkap);
-                                            }
-                                        }
-                                    })
-                                    ->placeholder('Pilih Akun Pegawai sebagai Kepala Dinas')
-                                    ->helperText('Akun pimpinan tertinggi yang menandatangani pengesahan rekap dan laporan presensi.'),
-
-                                TextInput::make('nama_kepala_dinas')
-                                    ->label('Nama Lengkap & Gelar Kadis')
-                                    ->placeholder('Otomatis dari akun atau ketik manual')
-                                    ->maxLength(150)
-                                    ->helperText('Tampil pada tanda tangan lembar cetak laporan PDF.'),
-                            ]),
-
-                        TextInput::make('alamat_kantor')
-                            ->label('Alamat Kantor / Gedung Instansi')
-                            ->placeholder('Contoh: Gedung Bersama Lt. III, Jl. Prof. M. Yamin, SH No. 1, Muaro Sijunjung')
-                            ->maxLength(255)
-                            ->columnSpanFull()
-                            ->helperText('Alamat kantor resmi yang dicantumkan pada kop surat laporan presensi.'),
-
-                        FileUpload::make('logo')
-                            ->label('Logo Resmi Instansi / Aplikasi')
-                            ->helperText('Format file gambar (PNG, JPG, SVG). Disarankan rasio kotak / persegi.')
-                            ->image()
-                            ->disk('public')
-                            ->directory('aplikasi')
-                            ->imageEditor()
-                            ->maxSize(2048)
-                            ->columnSpanFull(),
-                    ]),
-
-                // 2. INFORMASI VERSI & PENGEMBANG
-                Section::make('Informasi Versi & Pengembang')
-                    ->description('Rincian versi sistem, pihak pembuat, serta kontak bantuan resmi.')
-                    ->icon('heroicon-o-information-circle')
-                    ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                TextInput::make('versi_aplikasi')
-                                    ->label('Versi Aplikasi')
-                                    ->placeholder('Contoh: v1.0.0')
-                                    ->required()
-                                    ->default('v1.0.0'),
-
-                                TextInput::make('pembuat_aplikasi')
-                                    ->label('Pembuat / Developer Aplikasi')
-                                    ->placeholder('Contoh: Diskominfotik')
-                                    ->default('Diskominfotik'),
-
-                                TextInput::make('kontak_bantuan')
-                                    ->label('Kontak / Email Bantuan')
-                                    ->placeholder('Contoh: helpdesk@lhk.go.id'),
-                            ]),
-
                         Textarea::make('deskripsi')
                             ->label('Deskripsi / Catatan Sistem')
                             ->rows(2)
-                            ->placeholder('Sistem Presensi & Laporan Harian Kinerja Pegawai')
+                            ->placeholder('Sistem Administrasi, Kinerja, dan Tata Informasi')
                             ->columnSpanFull(),
                     ]),
 
-                // 3. LOKASI KANTOR & GEOFENCING (PALING BAWAH AGAR RAPI)
+                // 2. LOKASI KANTOR & GEOFENCING (PETA GPS)
                 Section::make('Lokasi Kantor & Geofencing Presensi (Peta)')
                     ->description('Tandai titik koordinat kantor melalui peta interaktif di bawah. Latitude dan Longitude otomatis terisi saat pin digeser atau peta diklik.')
                     ->icon('heroicon-o-map-pin')
@@ -275,6 +180,30 @@ class PengaturanAplikasiForm
                             ->zoom(16)
                             ->detectRetina()
                             ->dehydrated(false),
+                    ]),
+
+                // 3. INFORMASI VERSI & PENGEMBANG
+                Section::make('Informasi Versi & Pengembang')
+                    ->description('Rincian versi sistem, pihak pembuat, serta kontak bantuan resmi.')
+                    ->icon('heroicon-o-information-circle')
+                    ->schema([
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('versi_aplikasi')
+                                    ->label('Versi Aplikasi')
+                                    ->placeholder('Contoh: v1.0.0')
+                                    ->required()
+                                    ->default('v1.0.0'),
+
+                                TextInput::make('pembuat_aplikasi')
+                                    ->label('Pembuat / Developer Aplikasi')
+                                    ->placeholder('Contoh: Diskominfotik')
+                                    ->default('Diskominfotik'),
+
+                                TextInput::make('kontak_bantuan')
+                                    ->label('Kontak / Email Bantuan')
+                                    ->placeholder('Contoh: helpdesk@lhk.go.id'),
+                            ]),
                     ]),
             ]);
     }

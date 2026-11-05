@@ -8,6 +8,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -23,14 +24,32 @@ class InstansiForm
                     ->schema([
                         TextInput::make('nama_dinas')
                             ->label('Nama Instansi / Dinas')
+                            ->placeholder('Contoh: DINAS PARIWISATA, PEMUDA DAN OLAH RAGA')
                             ->required()
                             ->columnSpanFull(),
+
+                        Grid::make(2)
+                            ->schema([
+                                TextInput::make('kode_instansi')
+                                    ->label('Kode Unit Organisasi (SKPD)')
+                                    ->placeholder('3.26.2.19.0.00.01.0000')
+                                    ->mask('9.99.9.99.9.99.99.9999')
+                                    ->default('3.26.2.19.0.00.01.0000')
+                                    ->helperText('Format SIPD: 3.26.2.19.0.00.01.0000'),
+
+                                TextInput::make('sub_unit_organisasi')
+                                    ->label('Sub Unit Organisasi')
+                                    ->placeholder('-')
+                                    ->default('-'),
+                            ]),
+
                         Textarea::make('alamat')
                             ->label('Alamat Kantor')
                             ->rows(3)
                             ->columnSpanFull(),
+
                         FileUpload::make('logo')
-                            ->label('Logo Instansi')
+                            ->label('Logo Resmi Instansi')
                             ->image()
                             ->disk('public')
                             ->directory('instansis')

@@ -54,26 +54,72 @@ class PengaturanAplikasi extends Model
             return $value;
         }
 
-        return \App\Models\Instansi::query()->value('nama_dinas') ?? 'Dinas Pariwisata Pemuda dan Olahraga';
+        return \App\Models\Instansi::query()->value('nama_dinas') ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA';
+    }
+
+    public function getLogoAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        return \App\Models\Instansi::query()->value('logo');
+    }
+
+    public function getAlamatKantorAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        return \App\Models\Instansi::query()->value('alamat');
+    }
+
+    public function getKodeInstansiAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        return \App\Models\Instansi::query()->value('kode_instansi') ?? '3.26.2.19.0.00.01.0000';
+    }
+
+    public function getNamaKepalaDinasAttribute($value): ?string
+    {
+        if (!empty($value)) {
+            return $value;
+        }
+
+        return \App\Models\Instansi::query()->value('nama_kepala_dinas');
+    }
+
+    public function getKepalaIdAttribute($value): ?int
+    {
+        if (!empty($value)) {
+            return (int) $value;
+        }
+
+        return \App\Models\Instansi::query()->value('kepala_id');
     }
 
     protected static function booted(): void
     {
         static::saved(function (self $pengaturan) {
-            // Sinkronisasi data ke model Instansi demi kompatibilitas penuh
+            // Sinkronisasi data ke model Instansi demi kompatibilitas penuh jika ada field yang terisi
             try {
-                \App\Models\Instansi::updateOrCreate(
-                    ['id' => 1],
-                    [
-                        'nama_dinas' => $pengaturan->nama_dinas ?: (\App\Models\Instansi::query()->value('nama_dinas') ?: 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA'),
-                        'kode_instansi' => $pengaturan->kode_instansi ?: '3.26.2.19.0.00.01.0000',
-                        'sub_unit_organisasi' => $pengaturan->sub_unit_organisasi ?: '-',
-                        'nama_kepala_dinas' => $pengaturan->nama_kepala_dinas,
-                        'alamat' => $pengaturan->alamat_kantor,
-                        'logo' => $pengaturan->logo,
-                        'kepala_id' => $pengaturan->kepala_id,
-                    ]
-                );
+                $instansiData = array_filter([
+                    'nama_dinas' => $pengaturan->attributes['nama_dinas'] ?? null,
+                    'kode_instansi' => $pengaturan->attributes['kode_instansi'] ?? null,
+                    'sub_unit_organisasi' => $pengaturan->attributes['sub_unit_organisasi'] ?? null,
+                    'nama_kepala_dinas' => $pengaturan->attributes['nama_kepala_dinas'] ?? null,
+                    'alamat' => $pengaturan->attributes['alamat_kantor'] ?? null,
+                    'logo' => $pengaturan->attributes['logo'] ?? null,
+                    'kepala_id' => $pengaturan->attributes['kepala_id'] ?? null,
+                ], fn ($val) => !is_null($val) && $val !== '');
+
+                if (!empty($instansiData)) {
+                    \App\Models\Instansi::updateOrCreate(['id' => 1], $instansiData);
+                }
             } catch (\Throwable $e) {
                 // Abaikan jika tabel instansis belum siap
             }

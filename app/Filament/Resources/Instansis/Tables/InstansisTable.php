@@ -29,8 +29,7 @@ class InstansisTable
                         // Header Identitas Instansi
                         Split::make([
                             ImageColumn::make('logo')
-                                ->defaultImageUrl(url('/images/logo.png'))
-                                ->circular()
+                                ->defaultImageUrl(asset('images/logo-instansi.png'))
                                 ->grow(false),
 
                             Stack::make([

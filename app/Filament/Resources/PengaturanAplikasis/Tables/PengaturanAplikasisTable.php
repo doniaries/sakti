@@ -14,10 +14,6 @@ class PengaturanAplikasisTable
     {
         return $table
             ->columns([
-                \Filament\Tables\Columns\ImageColumn::make('logo')
-                    ->label('Logo')
-                    ->defaultImageUrl(asset('images/logo-instansi.png')),
-
                 TextColumn::make('nama_aplikasi')
                     ->label('Nama Sistem')
                     ->searchable()
@@ -27,24 +23,13 @@ class PengaturanAplikasisTable
                 TextColumn::make('sub_nama')
                     ->label('Sub-Judul (Kepanjangan)')
                     ->searchable()
-                    ->limit(45),
-
-                TextColumn::make('nama_dinas')
-                    ->label('Nama Instansi')
-                    ->searchable()
-                    ->weight('medium')
-                    ->color('primary'),
+                    ->limit(50),
 
                 TextColumn::make('radius_meter')
-                    ->label('Radius')
+                    ->label('Radius Presensi')
                     ->suffix(' M')
                     ->badge()
                     ->color('warning'),
-
-                TextColumn::make('alamat_kantor')
-                    ->label('Alamat Kantor')
-                    ->limit(30)
-                    ->toggleable(),
 
                 TextColumn::make('versi_aplikasi')
                     ->label('Versi')
