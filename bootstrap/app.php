@@ -15,5 +15,29 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Auth\Access\AuthorizationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Anda tidak memiliki hak akses untuk fitur ini.',
+                ], 403);
+            }
+
+            return response()->view('errors.403', [
+                'exception' => $e,
+            ], 403);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) {
+            if ($e->getStatusCode() === 403) {
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'message' => 'Akses ditolak. Anda tidak memiliki izin untuk membuka halaman ini.',
+                    ], 403);
+                }
+
+                return response()->view('errors.403', [
+                    'exception' => $e,
+                ], 403);
+            }
+        });
     })->create();

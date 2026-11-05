@@ -1,12 +1,12 @@
 @extends('errors.layout')
 
 @section('code', '403')
-@section('badge_label', 'PROTEKSI HAK AKSES SHIELD')
+@section('badge_label', 'HAK AKSES DIBATASI')
 @section('title', 'Akses Halaman Dibatasi')
 @section('message')
-    {{ !empty($exception?->getMessage()) && $exception->getMessage() !== 'This action is unauthorized.'
+    {{ !empty($exception?->getMessage()) && !in_array($exception->getMessage(), ['This action is unauthorized.', 'Forbidden'])
         ? $exception->getMessage()
-        : 'Halaman atau fitur yang Anda tuju dikhususkan bagi pejabat/administrator berwenang sesuai kebijakan Filament Shield Policy. Silakan kembali ke Beranda untuk mengakses layanan sesuai kewenangan jabatan dan bidang Anda.' }}
+        : 'Mohon maaf, akun Anda tidak memiliki hak akses untuk membuka halaman atau fitur ini. Fitur ini dikhususkan bagi pejabat/pengelola berwenang. Jika Anda memerlukan akses untuk tugas kedinasan, silakan hubungi Kasubag Umum & Kepegawaian atau Administrator Dinas.' }}
 @endsection
 
 @section('illustration')
