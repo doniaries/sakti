@@ -29,8 +29,10 @@ class Login extends BaseLogin
         $namaDinas = $pengaturan?->nama_dinas ?: 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA';
 
         $logoUrl = null;
-        if (!empty($pengaturan?->logo)) {
+        if (!empty($pengaturan?->logo) && (file_exists(storage_path('app/public/' . $pengaturan->logo)) || file_exists(storage_path('app/private/' . $pengaturan->logo)))) {
             $logoUrl = asset('storage/' . $pengaturan->logo);
+        } elseif (file_exists(public_path('images/logo-instansi.png'))) {
+            $logoUrl = asset('images/logo-instansi.png');
         } elseif (file_exists(public_path('images/kabupaten-sijunjung.png'))) {
             $logoUrl = asset('images/kabupaten-sijunjung.png');
         }

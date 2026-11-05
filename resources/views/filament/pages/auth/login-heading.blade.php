@@ -4,8 +4,9 @@
         <div class="mb-1 flex items-center justify-center">
             <img 
                 src="{{ $logoUrl }}" 
-                alt="{{ $namaDinas ?? $namaAplikasi }}" 
+                alt="Logo Resmi" 
                 class="h-24 sm:h-28 w-auto max-w-[300px] object-contain drop-shadow-lg transition-transform duration-300 hover:scale-105"
+                onerror="this.style.display='none'"
             />
         </div>
     @endif
