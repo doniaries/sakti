@@ -238,16 +238,39 @@
             @php
                 /** @var \App\Models\User|null $user */
                 $user = auth()->user();
+                $isFilamentRequest = request()->is('admin*');
+                $isMobileRequest = request()->is('mobile*') || (! $isFilamentRequest && preg_match('/(android|iphone|ipad|mobile)/i', (string) request()->userAgent()));
                 $hasAdminAccess = $user && $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'pptk', 'jf', 'bendahara']);
-                $homeUrl = $user ? ($hasAdminAccess ? url('/admin') : route('mobile.dashboard')) : url('/');
-                $homeLabel = $user ? ($hasAdminAccess ? 'Kembali ke Dashboard Admin' : 'Kembali ke Presensi Mobile') : 'Kembali ke Halaman Masuk';
+
+                if ($isMobileRequest) {
+                    // MODE MOBILE: Tampilkan opsi Presensi Mobile agar user mobile tidak ragu
+                    $primaryUrl = $user ? route('mobile.dashboard') : route('mobile.login');
+                    $primaryLabel = 'Kembali ke Presensi Mobile';
+                    $isHomeIcon = false;
+                } else {
+                    // AKSES FILAMENT / DESKTOP: Jangan tampilkan absensi mobile, tapi Kembali ke Beranda
+                    if ($user && $hasAdminAccess) {
+                        $primaryUrl = url('/admin');
+                        $primaryLabel = 'Kembali ke Beranda';
+                    } else {
+                        $primaryUrl = url('/');
+                        $primaryLabel = 'Kembali ke Beranda';
+                    }
+                    $isHomeIcon = true;
+                }
             @endphp
 
-            <a href="{{ $homeUrl }}" class="btn btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                </svg>
-                <span>{{ $homeLabel }}</span>
+            <a href="{{ $primaryUrl }}" class="btn btn-primary">
+                @if($isHomeIcon)
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                @else
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                @endif
+                <span>{{ $primaryLabel }}</span>
             </a>
 
             @if($hasAdminAccess)
@@ -259,7 +282,7 @@
                 </a>
             @endif
 
-            <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='{{ $homeUrl }}'" class="btn btn-ghost">
+            <button type="button" onclick="window.history.length > 1 ? window.history.back() : window.location.href='{{ $primaryUrl }}'" class="btn btn-ghost">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>

@@ -4,9 +4,16 @@
 @section('badge_label', 'HAK AKSES DIBATASI')
 @section('title', 'Akses Halaman Dibatasi')
 @section('message')
-    {{ !empty($exception?->getMessage()) && !in_array($exception->getMessage(), ['This action is unauthorized.', 'Forbidden'])
-        ? $exception->getMessage()
-        : 'Mohon maaf, akun Anda tidak memiliki hak akses untuk membuka halaman atau fitur ini. Fitur ini dikhususkan bagi pejabat/pengelola berwenang. Jika Anda memerlukan akses untuk tugas kedinasan, silakan hubungi Kasubag Umum & Kepegawaian atau Administrator Dinas.' }}
+    @php
+        $isFilament = request()->is('admin*');
+    @endphp
+    @if(!empty($exception?->getMessage()) && !in_array($exception->getMessage(), ['This action is unauthorized.', 'Forbidden']))
+        {{ $exception->getMessage() }}
+    @elseif($isFilament)
+        Mohon maaf, akun Anda tidak memiliki hak akses untuk membuka Panel Administrator Sistem. Panel ini khusus diperuntukkan bagi pejabat pengelola dan administrator berwenang. Silakan hubungi Kasubag Umum & Kepegawaian jika Anda memerlukan akses.
+    @else
+        Mohon maaf, akun Anda tidak memiliki hak akses untuk membuka halaman atau fitur ini. Silakan kembali ke menu utama untuk melanjutkan aktivitas kedinasan Anda.
+    @endif
 @endsection
 
 @section('illustration')
