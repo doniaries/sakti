@@ -8,3 +8,4 @@ return [
     'disk' => 'public',
     'visibility' => 'public',
 ];
+
