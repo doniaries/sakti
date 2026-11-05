@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarCollapsibleOnDesktop()
             ->sidebarWidth('16rem')
             ->maxContentWidth(\Filament\Support\Enums\Width::Full)
-            ->login()
+            ->login(\App\Filament\Pages\Auth\Login::class)
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label(function () {
