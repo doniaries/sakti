@@ -135,6 +135,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentBackgroundsPlugin::make(),
                 StickyTableHeaderPlugin::make(),
+                \Cocosmos\FilamentStickySaveBar\StickySaveBarPlugin::make()
+                    ->withCancel(true)
+                    ->withSaveAndClose(true),
                 FilamentEditProfilePlugin::make()
                     ->shouldRegisterNavigation(false)
                     ->shouldShowEditPasswordForm(false)
