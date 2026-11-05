@@ -39,7 +39,7 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
+                    ->color(fn(?string $state): string => \App\Models\Bidang::badgeColor($state))
                     ->searchable()
                     ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
@@ -50,11 +50,10 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('name')
                     ->label('Nama Pegawai')
                     ->searchable()
-                    ->copyable()
                     ->sortable()
                     ->weight('bold')
                     ->color('primary')
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
                     ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record])),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()
