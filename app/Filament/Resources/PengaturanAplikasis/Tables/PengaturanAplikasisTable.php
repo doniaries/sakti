@@ -16,8 +16,7 @@ class PengaturanAplikasisTable
             ->columns([
                 \Filament\Tables\Columns\ImageColumn::make('logo')
                     ->label('Logo')
-                    ->circular()
-                    ->defaultImageUrl(url('/icons/icon-192x192.png')),
+                    ->defaultImageUrl(asset('images/logo-instansi.png')),
 
                 TextColumn::make('nama_aplikasi')
                     ->label('Nama Sistem')

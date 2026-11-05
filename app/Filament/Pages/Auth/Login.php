@@ -28,13 +28,15 @@ class Login extends BaseLogin
             ?: ($pengaturan?->deskripsi ?: 'Sistem Administrasi, Kinerja, dan Tata Informasi');
         $namaDinas = $pengaturan?->nama_dinas ?: 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA';
 
-        $logoUrl = null;
-        if (!empty($pengaturan?->logo) && (file_exists(storage_path('app/public/' . $pengaturan->logo)) || file_exists(storage_path('app/private/' . $pengaturan->logo)))) {
-            $logoUrl = asset('storage/' . $pengaturan->logo);
-        } elseif (file_exists(public_path('images/logo-instansi.png'))) {
-            $logoUrl = asset('images/logo-instansi.png');
-        } elseif (file_exists(public_path('images/kabupaten-sijunjung.png'))) {
-            $logoUrl = asset('images/kabupaten-sijunjung.png');
+        $logoUrl = asset('images/logo-instansi.png');
+
+        if (!empty($pengaturan?->logo)) {
+            $publicPath = storage_path('app/public/' . $pengaturan->logo);
+            $privatePath = storage_path('app/private/' . $pengaturan->logo);
+
+            if (file_exists($publicPath) || file_exists($privatePath)) {
+                $logoUrl = asset('storage/' . $pengaturan->logo);
+            }
         }
 
         return new HtmlString(

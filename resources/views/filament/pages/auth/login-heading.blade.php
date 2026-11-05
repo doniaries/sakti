@@ -1,12 +1,12 @@
 <div class="flex flex-col items-center justify-center text-center -mt-6 sm:-mt-8">
     {{-- 1. LOGO RESMI --}}
-    @if ($logoUrl)
+    @if (!empty($logoUrl))
         <div class="mb-1 flex items-center justify-center">
             <img 
                 src="{{ $logoUrl }}" 
                 alt="Logo Resmi" 
                 class="h-24 sm:h-28 w-auto max-w-[300px] object-contain drop-shadow-lg transition-transform duration-300 hover:scale-105"
-                onerror="this.style.display='none'"
+                onerror="this.onerror=null; this.src='{{ asset('images/logo-instansi.png') }}';"
             />
         </div>
     @endif
