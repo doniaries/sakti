@@ -37,12 +37,7 @@ class UsersTable
                     ->disk('public')
                     ->label('Avatar')
                     ->circular(),
-                \Filament\Tables\Columns\TextColumn::make('bidang.nama')
-                    ->label('Bidang')
-                    ->badge()
-                    ->color(fn(?string $state): string => \App\Models\Bidang::badgeColor($state))
-                    ->searchable()
-                    ->sortable(),
+
                 \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
                     ->label('ID Mesin')
                     ->searchable()
@@ -56,6 +51,12 @@ class UsersTable
                     ->color('primary')
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
                     ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record])),
+                \Filament\Tables\Columns\TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->color(fn(?string $state): string => \App\Models\Bidang::badgeColor($state))
+                    ->searchable()
+                    ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->copyable()
@@ -187,7 +188,7 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('roles.name')
                     ->label('Hak Akses (Role)')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'super_admin' => 'danger',
                         'admin' => 'warning',
                         'pa' => 'purple',
@@ -197,7 +198,7 @@ class UsersTable
                         'bendahara' => 'amber',
                         default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'super_admin' => 'Super Admin',
                         'admin' => 'Admin Dinas',
                         'pa' => 'PA (Kadis)',
@@ -253,8 +254,8 @@ class UsersTable
                     ->icon('heroicon-o-shield-check')
                     ->color('warning')
                     ->tooltip('Ubah Peran & Hak Akses Pegawai')
-                    ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
-                    ->modalHeading(fn (\App\Models\User $record): string => "Ubah Role & Hak Akses: {$record->name}")
+                    ->visible(fn() => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                    ->modalHeading(fn(\App\Models\User $record): string => "Ubah Role & Hak Akses: {$record->name}")
                     ->modalDescription('Pilih peran resmi untuk pegawai ini. Hak akses dan kewenangan dokumen SPJ akan langsung aktif.')
                     ->modalWidth('lg')
                     ->modalSubmitActionLabel('Simpan Perubahan Role')
@@ -292,7 +293,7 @@ class UsersTable
                                 'bendahara' => 'Menguji kas belanja dinas, memotong pajak, dan menandatangani pelunasan Kwitansi.',
                                 'pegawai' => 'Wajib bagi semua ASN/Non-ASN untuk presensi harian dan submit laporan kinerja (LHK).',
                             ])
-                            ->default(fn (\App\Models\User $record): array => $record->roles->pluck('name')->toArray())
+                            ->default(fn(\App\Models\User $record): array => $record->roles->pluck('name')->toArray())
                             ->columns(1)
                             ->required(),
                     ])
@@ -410,7 +411,7 @@ class UsersTable
                         ->label('Ubah Role Massal')
                         ->icon('heroicon-o-shield-check')
                         ->color('warning')
-                        ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                        ->visible(fn() => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
                         ->form([
                             Select::make('mode')
                                 ->label('Pilihan Aksi Role')
