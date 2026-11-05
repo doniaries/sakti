@@ -244,10 +244,20 @@ class PengajuanSpjForm
                                                 return [];
                                             }
 
-                                            return MasterSubKegiatan::where('kegiatan_id', $kegiatanId)
-                                                ->get()
-                                                ->pluck('label', 'id')
-                                                ->all();
+                                            $query = MasterSubKegiatan::where('kegiatan_id', $kegiatanId)->with('jf');
+
+                                            /** @var \App\Models\User|null $user */
+                                            $user = auth()->user();
+                                            if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'pptk'])) {
+                                                if ((clone $query)->where('jf_id', $user->id)->exists()) {
+                                                    $query->where('jf_id', $user->id);
+                                                }
+                                            }
+
+                                            return $query->get()->mapWithKeys(function ($sk) {
+                                                $jfLabel = $sk->jf ? " [JF: {$sk->jf->name}]" : '';
+                                                return [$sk->id => "{$sk->label}{$jfLabel}"];
+                                            })->all();
                                         })
                                         ->createOptionForm([
                                             TextInput::make('kode_sub_kegiatan')
@@ -261,10 +271,17 @@ class PengajuanSpjForm
                                                 ->label('Nama Sub Kegiatan')
                                                 ->required()
                                                 ->maxLength(255),
+                                            Select::make('jf_id')
+                                                ->label('JF Pengampu')
+                                                ->placeholder('Pilih Pejabat Fungsional (Opsional)')
+                                                ->options(\App\Models\User::role('jf')->pluck('name', 'id')->all())
+                                                ->searchable()
+                                                ->nullable(),
                                         ])
                                         ->createOptionUsing(function (array $data, callable $get): int {
                                             return MasterSubKegiatan::create([
                                                 'kegiatan_id' => (int) $get('kegiatan_id'),
+                                                'jf_id' => $data['jf_id'] ?? (auth()->user()?->hasRole('jf') ? auth()->id() : null),
                                                 'kode_sub_kegiatan' => $data['kode_sub_kegiatan'],
                                                 'nama_sub_kegiatan' => $data['nama_sub_kegiatan'],
                                             ])->id;

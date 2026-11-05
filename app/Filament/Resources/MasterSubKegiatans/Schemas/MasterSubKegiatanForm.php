@@ -48,6 +48,39 @@ class MasterSubKegiatanForm
                     })
                     ->required(),
 
+                Select::make('jf_id')
+                    ->label('Pejabat Fungsional (JF) Pengampu')
+                    ->placeholder('Pilih Pejabat Fungsional (JF)')
+                    ->helperText('Pegawai JF yang mengampu sub kegiatan ini. Staf teknis membuat usulan SPJ di bawah koordinasi JF ini.')
+                    ->options(function (Get $get) {
+                        $kegiatanId = $get('kegiatan_id');
+                        $bidangId = null;
+                        if ($kegiatanId) {
+                            $bidangId = MasterKegiatan::find($kegiatanId)?->bidang_id;
+                        }
+
+                        return \App\Models\User::query()
+                            ->where('aktif', true)
+                            ->get()
+                            ->sortBy(function ($u) use ($bidangId) {
+                                $score = 0;
+                                if ($u->hasRole('jf')) $score -= 10;
+                                if ($bidangId && $u->bidang_id == $bidangId) $score -= 5;
+                                return $score;
+                            })
+                            ->mapWithKeys(function ($u) {
+                                $tags = [];
+                                if ($u->hasRole('jf')) $tags[] = 'JF';
+                                if ($u->bidang) $tags[] = $u->bidang->nama;
+                                $suffix = !empty($tags) ? ' (' . implode(' • ', $tags) . ')' : '';
+                                return [$u->id => "{$u->name}{$suffix}"];
+                            })
+                            ->all();
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
+
                 TextInput::make('kode_sub_kegiatan')
                     ->label('Kode Sub Kegiatan')
                     ->placeholder('Contoh: 3.26.04.2.02.0014')

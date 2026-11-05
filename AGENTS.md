@@ -453,6 +453,11 @@ Modul ini mengintegrasikan seluruh siklus pengelolaan keuangan belanja dinas—m
    - **Rincian Belanja (RKA) sebagai Single Source of Truth**: Dalam tata kelola keuangan pemerintah daerah (APBD), belanja barang/jasa berpijak pada DPA/RKA. Setiap baris item belanja telah memiliki kuota **Pagu Volume** dan **Pagu Anggaran**.
    - **Realisasi Belanja Menyerap Kuota**: Pembelian barang melalui SPJ hakikatnya adalah **realisasi belanja yang mengurangi Sisa Pagu (Volume & Rp) di RKA**, bukan menambah stok fisik gudang komersial. Oleh karena itu, menu navigasi `StokBarangResource` dinonaktifkan (`$shouldRegisterNavigation = false`) demi menghilangkan redundansi dan menyatukan seluruh kendali kuota belanja ke **Rincian Belanja (RKA)**.
 
+4. **Keterkaitan Pejabat Fungsional (JF) & Tim Staf dengan Sub Kegiatan**:
+   - Setiap baris **Sub Kegiatan** (`master_sub_kegiatan`) memiliki penanggung jawab teknis melalui kolom `jf_id` (Pejabat Fungsional Pengampu).
+   - Penugasan JF dilakukan langsung pada form *Sub Kegiatan* di Panel Admin Filament.
+   - Ketika staf menginput draf usulan SPJ belanja menggunakan akun JF bidangnya, sistem otomatis menyaring dropdown Sub Kegiatan sesuai sub kegiatan yang diampu oleh JF tersebut, sehingga mencegah kesalahan input pagu antar tim kerja.
+
 ---
 
 ### B. Pemisahan Tegas Dua Tahap Belanja: Surat Pesanan (Di-TTD Kabid/PPTK) vs Proses Surat Kwitansi

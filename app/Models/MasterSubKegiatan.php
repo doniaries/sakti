@@ -15,6 +15,7 @@ class MasterSubKegiatan extends Model
 
     protected $fillable = [
         'kegiatan_id',
+        'jf_id',
         'tahun_anggaran',
         'kode_sub_kegiatan',
         'nama_sub_kegiatan',
@@ -22,11 +23,17 @@ class MasterSubKegiatan extends Model
 
     protected $casts = [
         'tahun_anggaran' => 'integer',
+        'jf_id' => 'integer',
     ];
 
     public function kegiatan(): BelongsTo
     {
         return $this->belongsTo(MasterKegiatan::class, 'kegiatan_id');
+    }
+
+    public function jf(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'jf_id');
     }
 
     public function pengajuanSpjs(): HasMany

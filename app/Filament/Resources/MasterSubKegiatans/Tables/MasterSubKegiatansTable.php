@@ -24,7 +24,7 @@ class MasterSubKegiatansTable
 
         return $table
             ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
-                $query->with(['kegiatan.bidang', 'kegiatan.program']);
+                $query->with(['kegiatan.bidang', 'kegiatan.program', 'jf']);
 
                 $livewire = $table->getLivewire();
                 $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
@@ -82,6 +82,14 @@ class MasterSubKegiatansTable
                     ->wrap()
                     ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
+                TextColumn::make('jf.name')
+                    ->label('JF Pengampu')
+                    ->placeholder('Belum Ditugaskan')
+                    ->badge()
+                    ->color(fn ($state) => $state ? 'info' : 'gray')
+                    ->searchable()
+                    ->sortable(),
+
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d/m/Y H:i')
@@ -96,6 +104,11 @@ class MasterSubKegiatansTable
                 SelectFilter::make('kegiatan_id')
                     ->relationship('kegiatan', 'nama_kegiatan')
                     ->label('Filter Kegiatan'),
+                SelectFilter::make('jf_id')
+                    ->relationship('jf', 'name')
+                    ->label('Filter JF Pengampu')
+                    ->searchable()
+                    ->preload(),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
