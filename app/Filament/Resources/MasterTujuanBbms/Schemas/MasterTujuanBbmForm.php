@@ -4,9 +4,9 @@ namespace App\Filament\Resources\MasterTujuanBbms\Schemas;
 
 use App\Models\Kecamatan;
 use App\Models\Nagari;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -18,16 +18,16 @@ class MasterTujuanBbmForm
     {
         return $schema
             ->components([
-                Section::make('Standar Rute & Kuota BBM Kedinasan')
-                    ->description('Kelola daftar tujuan perjalanan dinas per nagari / rute beserta batas pagu kuota BBM (SBM).')
+                Section::make('Standar Rute & Kuota BBM')
+                    ->description('Tentukan nama tujuan / nagari dan pagu standar kuota liter BBM.')
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 Select::make('kategori_wilayah')
                                     ->label('Kategori Wilayah')
                                     ->options([
-                                        'dalam_kabupaten' => 'Dalam Kabupaten (Per Nagari)',
-                                        'luar_kabupaten' => 'Luar Kabupaten (Dalam Provinsi)',
+                                        'dalam_kabupaten' => 'Dalam Kabupaten (Nagari)',
+                                        'luar_kabupaten' => 'Luar Kabupaten',
                                         'luar_provinsi' => 'Luar Provinsi',
                                     ])
                                     ->default('dalam_kabupaten')
@@ -35,30 +35,42 @@ class MasterTujuanBbmForm
                                     ->required(),
 
                                 Select::make('kecamatan_id')
-                                    ->label('Kecamatan (Sijunjung)')
-                                    ->options(fn () => Kecamatan::pluck('nama_kecamatan', 'id')->all())
+                                    ->label('Pilih Kecamatan Tujuan')
+                                    ->options(fn() => Kecamatan::pluck('nama_kecamatan', 'id')->all())
                                     ->searchable()
+                                    ->preload()
                                     ->live()
-                                    ->visible(fn (callable $get) => $get('kategori_wilayah') === 'dalam_kabupaten')
-                                    ->afterStateUpdated(fn (callable $set) => $set('nagari_id', null)),
+                                    ->visible(fn(callable $get) => $get('kategori_wilayah') === 'dalam_kabupaten')
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $set('nagari_id', null);
+                                        // Jika user hanya memilih kecamatan dan belum memilih nagari
+                                        if ($state && empty($get('nagari_id'))) {
+                                            $kec = Kecamatan::find($state);
+                                            if ($kec) {
+                                                $set('nama_tujuan', $kec->nama_kecamatan);
+                                            }
+                                        }
+                                    }),
 
                                 Select::make('nagari_id')
-                                    ->label('Nagari Tujuan')
+                                    ->label('Pilih Nagari Tujuan')
                                     ->options(function (callable $get) {
                                         $kecId = $get('kecamatan_id');
                                         return Nagari::query()
-                                            ->when($kecId, fn ($q) => $q->where('kecamatan_id', $kecId))
+                                            ->when($kecId, fn($q) => $q->where('kecamatan_id', $kecId))
                                             ->pluck('nama_nagari', 'id')
                                             ->all();
                                     })
                                     ->searchable()
+                                    ->preload()
                                     ->live()
-                                    ->visible(fn (callable $get) => $get('kategori_wilayah') === 'dalam_kabupaten')
+                                    ->visible(fn(callable $get) => $get('kategori_wilayah') === 'dalam_kabupaten')
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
-                                            $nagari = Nagari::with('kecamatan')->find($state);
+                                            $nagari = Nagari::find($state);
                                             if ($nagari) {
-                                                $set('nama_tujuan', "{$nagari->nama_nagari} (Kec. {$nagari->kecamatan?->nama_kecamatan})");
+                                                // Cukup nama nagari saja, tidak berlebihan
+                                                $set('nama_tujuan', $nagari->nama_nagari);
                                                 if ($nagari->kuota_liter_bbm > 0) {
                                                     $set('kuota_liter', $nagari->kuota_liter_bbm);
                                                 }
@@ -71,7 +83,7 @@ class MasterTujuanBbmForm
                                     ->createOptionForm([
                                         Select::make('kecamatan_id')
                                             ->label('Kecamatan')
-                                            ->options(fn () => Kecamatan::pluck('nama_kecamatan', 'id')->all())
+                                            ->options(fn() => Kecamatan::pluck('nama_kecamatan', 'id')->all())
                                             ->required(),
                                         TextInput::make('nama_nagari')
                                             ->label('Nama Nagari Baru')
@@ -82,7 +94,7 @@ class MasterTujuanBbmForm
                                             ->numeric()
                                             ->default(20),
                                         TextInput::make('jarak_km')
-                                            ->label('Jarak Perkiraan (KM)')
+                                            ->label('Jarak (KM)')
                                             ->numeric()
                                             ->nullable(),
                                     ])
@@ -93,12 +105,12 @@ class MasterTujuanBbmForm
                             ]),
 
                         TextInput::make('nama_tujuan')
-                            ->label('Nama Rute / Lokasi Tujuan')
-                            ->placeholder('Contoh: Nagari Silokek (Kec. Sijunjung) atau Kota Padang')
+                            ->label('Nama Lokasi / Rute Tujuan')
+                            ->placeholder('Contoh: Nagari Aia Amo atau Kota Padang')
                             ->required()
                             ->maxLength(255),
 
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('kuota_liter')
                                     ->label('Standar Kuota BBM (Liter)')
@@ -111,22 +123,10 @@ class MasterTujuanBbmForm
                                     ->numeric()
                                     ->suffix('KM')
                                     ->nullable(),
-
-                                Select::make('jenis_kendaraan')
-                                    ->label('Jenis Kendaraan')
-                                    ->options([
-                                        'roda_4' => 'Kendaraan Roda 4 (Mobil Dinas)',
-                                        'roda_2' => 'Kendaraan Roda 2 (Motor Dinas)',
-                                        'bus' => 'Bus / Kendaraan Khusus',
-                                    ])
-                                    ->default('roda_4')
-                                    ->required(),
                             ]),
 
-                        Textarea::make('keterangan')
-                            ->label('Keterangan / Dasar Penetapan SBM')
-                            ->placeholder('Contoh: Standar kuota BBM resmi Kabupaten Sijunjung')
-                            ->rows(2),
+                        Hidden::make('jenis_kendaraan')
+                            ->default('semua'),
 
                         Toggle::make('aktif')
                             ->label('Status Aktif')

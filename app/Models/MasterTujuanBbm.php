@@ -48,8 +48,6 @@ class MasterTujuanBbm extends Model
 
     public function getLabelAttribute(): string
     {
-        $kategoriLabel = ucwords(str_replace('_', ' ', $this->kategori_wilayah));
-        $wilayah = $this->nagari ? " - {$this->nagari->label}" : '';
-        return "{$this->nama_tujuan}{$wilayah} ({$kategoriLabel} - {$this->kuota_liter} Liter)";
+        return "{$this->nama_tujuan} ({$this->kuota_liter} Liter)";
     }
 }

@@ -10,7 +10,7 @@ class MasterTujuanBbmSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Ambil beberapa nagari representatif dari berbagai kecamatan
+        // 1. Ambil beberapa nagari representatif dari berbagai kecamatan di Sijunjung
         $sampleNagaris = Nagari::with('kecamatan')->whereIn('id', [
             1,  // Nagari Muaro (Kec. Sijunjung)
             3,  // Nagari Silokek (Kec. Sijunjung)
@@ -30,15 +30,14 @@ class MasterTujuanBbmSeeder extends Seeder
             MasterTujuanBbm::updateOrCreate(
                 [
                     'nagari_id' => $nagari->id,
-                    'jenis_kendaraan' => 'roda_4',
                 ],
                 [
-                    'nama_tujuan' => "{$nagari->nama_nagari} (Kec. {$nagari->kecamatan?->nama_kecamatan})",
+                    'nama_tujuan' => $nagari->nama_nagari,
                     'kecamatan_id' => $nagari->kecamatan_id,
                     'kategori_wilayah' => 'dalam_kabupaten',
                     'jarak_km' => $nagari->jarak_km ?: 25,
                     'kuota_liter' => $nagari->kuota_liter_bbm ?: 20,
-                    'keterangan' => "Standar kuota BBM dinas tujuan {$nagari->nama_nagari}",
+                    'jenis_kendaraan' => 'semua',
                     'aktif' => true,
                 ]
             );
@@ -47,30 +46,27 @@ class MasterTujuanBbmSeeder extends Seeder
         // 2. Destinasi Luar Kabupaten & Luar Provinsi
         $luarKabupaten = [
             [
-                'nama_tujuan' => 'Kota Padang (Provinsi Sumatera Barat)',
+                'nama_tujuan' => 'Kota Padang',
                 'kategori_wilayah' => 'luar_kabupaten',
                 'jarak_km' => 140,
                 'kuota_liter' => 50,
-                'jenis_kendaraan' => 'roda_4',
-                'keterangan' => 'Koordinasi dinas tingkat provinsi di Ibukota Padang (PP)',
+                'jenis_kendaraan' => 'semua',
                 'aktif' => true,
             ],
             [
-                'nama_tujuan' => 'Kota Bukittinggi / Payakumbuh',
+                'nama_tujuan' => 'Kota Bukittinggi',
                 'kategori_wilayah' => 'luar_kabupaten',
                 'jarak_km' => 120,
                 'kuota_liter' => 45,
-                'jenis_kendaraan' => 'roda_4',
-                'keterangan' => 'Kunjungan kerja dinas wilayah Bukittinggi/Payakumbuh (PP)',
+                'jenis_kendaraan' => 'semua',
                 'aktif' => true,
             ],
             [
-                'nama_tujuan' => 'Kota Pekanbaru (Riau)',
+                'nama_tujuan' => 'Kota Pekanbaru',
                 'kategori_wilayah' => 'luar_provinsi',
                 'jarak_km' => 260,
                 'kuota_liter' => 90,
-                'jenis_kendaraan' => 'roda_4',
-                'keterangan' => 'Perjalanan dinas antar provinsi via jalur darat (PP)',
+                'jenis_kendaraan' => 'semua',
                 'aktif' => true,
             ],
         ];
@@ -79,7 +75,6 @@ class MasterTujuanBbmSeeder extends Seeder
             MasterTujuanBbm::updateOrCreate(
                 [
                     'nama_tujuan' => $item['nama_tujuan'],
-                    'jenis_kendaraan' => $item['jenis_kendaraan'],
                 ],
                 $item
             );

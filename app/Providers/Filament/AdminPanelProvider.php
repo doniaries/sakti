@@ -70,13 +70,17 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Master Keuangan')
                     ->icon('heroicon-o-banknotes')
                     ->collapsed(),
+                NavigationGroup::make('Master Data')
+                    ->icon('heroicon-o-circle-stack')
+                    ->collapsed(),
                 NavigationGroup::make('Absensi')
+                    ->icon('heroicon-o-calendar-days')
                     ->collapsed(),
                 NavigationGroup::make('LHK')
-                    ->collapsed(),
-                NavigationGroup::make('Master Data')
+                    ->icon('heroicon-o-clipboard-document-list')
                     ->collapsed(),
                 NavigationGroup::make('Pengaturan')
+                    ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(),
             ])
             ->colors([

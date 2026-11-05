@@ -18,7 +18,7 @@ class MasterTujuanBbmsTable
         return $table
             ->columns([
                 TextColumn::make('nama_tujuan')
-                    ->label('Nama Rute Tujuan')
+                    ->label('Nama Tujuan / Nagari')
                     ->searchable()
                     ->sortable()
                     ->wrap(),
@@ -55,17 +55,6 @@ class MasterTujuanBbmsTable
                     ->alignEnd()
                     ->toggleable(),
 
-                TextColumn::make('jenis_kendaraan')
-                    ->label('Kendaraan')
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'roda_4' => 'Mobil (R4)',
-                        'roda_2' => 'Motor (R2)',
-                        'bus' => 'Bus',
-                        default => $state,
-                    })
-                    ->badge()
-                    ->color('gray'),
-
                 IconColumn::make('aktif')
                     ->label('Aktif')
                     ->boolean()
@@ -78,14 +67,6 @@ class MasterTujuanBbmsTable
                         'dalam_kabupaten' => 'Dalam Kabupaten',
                         'luar_kabupaten' => 'Luar Kabupaten',
                         'luar_provinsi' => 'Luar Provinsi',
-                    ]),
-
-                SelectFilter::make('jenis_kendaraan')
-                    ->label('Jenis Kendaraan')
-                    ->options([
-                        'roda_4' => 'Mobil (Roda 4)',
-                        'roda_2' => 'Motor (Roda 2)',
-                        'bus' => 'Bus',
                     ]),
             ])
             ->recordActions([
@@ -100,4 +81,3 @@ class MasterTujuanBbmsTable
             ->defaultSort('nama_tujuan');
     }
 }
-

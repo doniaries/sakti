@@ -155,10 +155,19 @@ protected function getRedirectUrl(): string
    - Menghitung durasi menit, output bukti URL/foto, dan verifikasi atasan (`menunggu`, `disetujui`, `ditolak`).
 5. **Penilaian Reputasi Pegawai (`Reputasi`)**:
    - Penilaian peer-to-peer antar rekan kerja (1 - 5 bintang) beserta tanggal penilaian format Indonesia dan catatan review.
-6. **Pengadaan Barang & SPJ Keuangan Terpadu (`PengajuanSpj`)**:
+6. **Pengadaan Barang, SPJ Keuangan, Syarat Dokumen & Standar Kuota BBM Terpadu (`PengajuanSpj`)**:
    - Integrasi pengadaan barang oleh staf bidang hingga terbitnya dokumen pertanggungjawaban (SPJ).
    - Melibatkan rantai verifikasi berjenjang: Pemohon (Staf) ➔ PPTK (Kabid) ➔ PPK (Kasubag Keuangan) ➔ PA (Kadis) ➔ Pencairan (Bendahara Pengeluaran).
    - Menghasilkan 3 output PDF terstandardisasi: Nota Pesanan, Kwitansi Pembayaran, dan Nota Pencairan Dana (NPD).
+   - **Metode Pengadaan**: `e_katalog` (cukup upload PDF dokumen resmi e-katalog eproc) dan `non_katalog` (input rincian item, toko, dsb.).
+   - **Tipe / Jenis Belanja**: `barang_jasa` (belanja barang/jasa), `makan_minum` (makan minum rapat sesuai RKA), `sppd` (perjalanan dinas), dan `bbm` (kuota BBM dinas).
+   - **Master Syarat Dokumen Belanja (`MasterSyaratBelanja`)**: Pengaturan dinamis syarat kelengkapan SPJ per jenis belanja dan metode pengadaan.
+   - **Master Standar Kuota BBM (`MasterTujuanBbm`)**:
+     - Standar pagu liter BBM per lokasi tujuan (Nagari di Kabupaten Sijunjung, Luar Kabupaten, dan Luar Provinsi).
+     - Tidak membedakan roda 4 atau roda 2 (standar tunggal liter BBM).
+     - Pemilihan lokasi ringkas: memilih Nagari otomatis mengisi nama nagari di formulir tanpa teks berlebihan.
+   - **Aturan Perpajakan Otomatis**: Transaksi belanja barang dengan nilai di atas Rp 2.000.000 otomatis dikenakan PPN 11% dan PPh 22 sebesar 1,5%.
+   - **Desain Navigasi Sidebar**: Seluruh `NavigationGroup` (`Master Keuangan`, `Master Data`, `Absensi`, `LHK`, `Pengaturan`) dikonfigurasi dengan icon grup di `AdminPanelProvider.php`, sehingga seluruh sub-item di dalamnya tampil seragam dengan garis pohon vertikal dan tanda titik (dot) tanpa icon individual.
 
 ---
 
