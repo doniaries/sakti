@@ -244,8 +244,9 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
                 return $this->avatar_url;
             }
 
-            if (Storage::disk('public')->exists($this->avatar_url)) {
-                return Storage::disk('public')->url($this->avatar_url);
+            $cleanPath = ltrim($this->avatar_url, '/');
+            if (Storage::disk('public')->exists($cleanPath)) {
+                return '/storage/' . $cleanPath;
             }
         }
 
@@ -254,9 +255,18 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
     public function getFilamentAvatarUrl(): ?string
     {
-        return (!empty($this->avatar_url) && Storage::disk('public')->exists($this->avatar_url))
-            ? Storage::disk('public')->url($this->avatar_url)
-            : null;
+        if (!empty($this->avatar_url)) {
+            if (str_starts_with($this->avatar_url, 'http://') || str_starts_with($this->avatar_url, 'https://')) {
+                return $this->avatar_url;
+            }
+
+            $cleanPath = ltrim($this->avatar_url, '/');
+            if (Storage::disk('public')->exists($cleanPath)) {
+                return '/storage/' . $cleanPath;
+            }
+        }
+
+        return null;
     }
 
     public function getFilamentName(): string
