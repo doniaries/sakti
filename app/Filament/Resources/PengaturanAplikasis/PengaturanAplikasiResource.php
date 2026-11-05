@@ -33,6 +33,16 @@ class PengaturanAplikasiResource extends Resource
         return PengaturanAplikasi::count() === 0;
     }
 
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return PengaturanAplikasiForm::configure($schema);

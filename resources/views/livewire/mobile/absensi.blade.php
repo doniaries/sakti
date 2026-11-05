@@ -72,14 +72,15 @@
             </div>
         </div>
 
-        <!-- Admin Quick Setter: Set Office Location to My Current GPS -->
+        <!-- Admin Tools: Lokasi Cepat & Simulasi Uji Coba Presensi -->
         @if ($isAdmin)
-            <div class="mt-3 pt-2.5 border-t border-dashed border-amber-200 bg-amber-50/50 p-2.5 rounded-xl">
+            <div class="mt-3 pt-2.5 border-t border-dashed border-amber-200 bg-amber-50/60 p-3 rounded-xl space-y-2.5">
+                <!-- 1. Set Lokasi Cepat -->
                 <div class="flex items-center justify-between">
                     <div>
                         <span class="text-[11px] font-bold text-amber-900 block flex items-center">
                             <i class="fa-solid fa-wand-magic-sparkles text-amber-600 mr-1.5"></i>
-                            Admin: Atur Lokasi Kantor Cepat
+                            Atur Titik Kantor Cepat
                         </span>
                         <span class="text-[10px] text-amber-700">Set koordinat kantor ke posisi GPS Anda saat ini</span>
                     </div>
@@ -89,6 +90,42 @@
                         <span x-text="settingOffice ? 'Menyimpan...' : 'Set Ke Posisi Saya'">Set Ke Posisi Saya</span>
                     </button>
                 </div>
+
+                <!-- 2. Mode Simulasi / Demo Uji Coba -->
+                <div class="pt-2 border-t border-amber-200/60">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-flask-vial text-sky-600 mr-1.5"></i>
+                            Mode Simulasi / Demo Presensi
+                        </span>
+                        <button wire:click="toggleModeSimulasi"
+                            class="px-2 py-0.5 rounded-full text-[10px] font-bold transition {{ $modeSimulasi ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-700' }}">
+                            {{ $modeSimulasi ? 'Bypass Jam: ON' : 'Bypass Jam: OFF' }}
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500 leading-tight mb-2">
+                        Gunakan tombol di bawah untuk menyimulasikan status masuk/pulang kapan saja tanpa menunggu jam dinas:
+                    </p>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <button wire:click="simulasiResetMasuk"
+                            class="px-2 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-[10px] rounded-lg shadow-xs transition active:scale-95 flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i>
+                            <span>Tes Absen Masuk</span>
+                        </button>
+                        <button wire:click="simulasiSiapPulang"
+                            class="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-lg shadow-xs transition active:scale-95 flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                            <span>Tes Absen Pulang</span>
+                        </button>
+                    </div>
+                </div>
+
+                @if ($modeSimulasi)
+                    <div class="p-2 bg-emerald-100/70 border border-emerald-300 rounded-lg text-[10px] text-emerald-900 font-medium flex items-start space-x-1.5">
+                        <i class="fa-solid fa-circle-info text-emerald-600 mt-0.5 shrink-0"></i>
+                        <span><strong>Mode Demo Aktif:</strong> Jam kerja dinas di-bypass. Anda bebas menekan tombol ABSEN untuk mendemokan alur masuk maupun pulang.</span>
+                    </div>
+                @endif
             </div>
         @endif
     </div>

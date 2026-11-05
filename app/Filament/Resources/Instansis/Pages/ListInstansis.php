@@ -10,6 +10,17 @@ class ListInstansis extends ListRecords
 {
     protected static string $resource = InstansiResource::class;
 
+    public function mount(): void
+    {
+        $instansi = \App\Models\Instansi::first();
+        if ($instansi) {
+            $this->redirect(InstansiResource::getUrl('edit', ['record' => $instansi]));
+            return;
+        }
+
+        parent::mount();
+    }
+
     protected function getHeaderActions(): array
     {
         return [

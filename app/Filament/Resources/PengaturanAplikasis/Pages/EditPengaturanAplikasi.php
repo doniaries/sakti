@@ -12,9 +12,7 @@ class EditPengaturanAplikasi extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [
-            DeleteAction::make(),
-        ];
+        return [];
     }
 
     public function getMaxContentWidth(): \Filament\Support\Enums\Width|string|null
