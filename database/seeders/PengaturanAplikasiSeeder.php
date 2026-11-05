@@ -33,7 +33,7 @@ class PengaturanAplikasiSeeder extends Seeder
                 'logo' => null,
                 'versi_aplikasi' => 'v1.0.0',
                 'pembuat_aplikasi' => 'Don Borland',
-                'kontak_bantuan' => 'helpdesk@lhk.sijunjung.go.id',
+                'kontak_bantuan' => 'helpdesk@sakti.sijunjung.cloud',
                 'deskripsi' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
             ]
         );

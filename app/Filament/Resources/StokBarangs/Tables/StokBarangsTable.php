@@ -30,7 +30,10 @@ class StokBarangsTable
 
                 /** @var \App\Models\User|null $user */
                 $user = Auth::user();
-                $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
+                $canViewAllBidang = $user !== null && (
+                    $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                    || $user->can('viewAny', Bidang::class)
+                );
 
                 if (! $canViewAllBidang && $user !== null) {
                     $userBidangId = filled($user->bidang_id)

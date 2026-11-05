@@ -168,7 +168,10 @@ class PengajuanSpjForm
                                         ->options(function () use ($resolveUserBidangId): array {
                                             /** @var \App\Models\User|null $user */
                                             $user = Auth::user();
-                                            $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
+                                            $canViewAllBidang = $user !== null && (
+                                                $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                                                || $user->can('viewAny', Bidang::class)
+                                            );
 
                                             if ($canViewAllBidang) {
                                                 return Bidang::pluck('nama', 'id')->all();
@@ -183,7 +186,10 @@ class PengajuanSpjForm
                                         ->disabled(function () use ($resolveUserBidangId): bool {
                                             /** @var \App\Models\User|null $user */
                                             $user = Auth::user();
-                                            $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
+                                            $canViewAllBidang = $user !== null && (
+                                                $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                                                || $user->can('viewAny', Bidang::class)
+                                            );
 
                                             return ! $canViewAllBidang && $resolveUserBidangId() !== null;
                                         })

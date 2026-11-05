@@ -49,7 +49,12 @@ class MasterKegiatanForm
                     ->options(function (): array {
                         /** @var \App\Models\User|null $user */
                         $user = Auth::user();
-                        if ($user !== null && $user->can('viewAny', Bidang::class)) {
+                        $canViewAll = $user !== null && (
+                            $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                            || $user->can('viewAny', Bidang::class)
+                        );
+
+                        if ($canViewAll) {
                             return Bidang::pluck('nama', 'id')->all();
                         }
 
@@ -64,8 +69,12 @@ class MasterKegiatanForm
                     ->disabled(function (): bool {
                         /** @var \App\Models\User|null $user */
                         $user = Auth::user();
+                        $canViewAll = $user !== null && (
+                            $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                            || $user->can('viewAny', Bidang::class)
+                        );
 
-                        return $user !== null && ! $user->can('viewAny', Bidang::class);
+                        return ! $canViewAll;
                     })
                     ->dehydrated()
                     ->searchable()

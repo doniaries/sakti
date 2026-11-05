@@ -101,6 +101,11 @@ class MasterSubKegiatansTable
                     ->label('Pilih Tahun')
                     ->options($years)
                     ->placeholder('Semua Tahun'),
+                SelectFilter::make('bidang_id')
+                    ->relationship('kegiatan.bidang', 'nama')
+                    ->label('Filter Bidang')
+                    ->preload()
+                    ->searchable(),
                 SelectFilter::make('kegiatan_id')
                     ->relationship('kegiatan', 'nama_kegiatan')
                     ->label('Filter Kegiatan'),

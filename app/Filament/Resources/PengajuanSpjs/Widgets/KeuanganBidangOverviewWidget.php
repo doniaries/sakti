@@ -134,6 +134,10 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             return false;
         }
 
+        if ($user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
+            return true;
+        }
+
         if (blank($user->bidang_id)) {
             return true;
         }

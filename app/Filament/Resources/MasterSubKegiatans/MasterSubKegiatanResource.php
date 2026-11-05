@@ -44,13 +44,15 @@ class MasterSubKegiatanResource extends Resource
 
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
-            $query->where(function ($q) use ($user) {
-                if ($user->bidang_id) {
-                    $q->whereHas('kegiatan', fn ($kq) => $kq->where('bidang_id', $user->bidang_id));
-                }
-                $q->orWhere('jf_id', $user->id);
-            });
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara', 'pimpinan'])) {
+            if ($user->hasRole('jf')) {
+                $query->where(function ($q) use ($user) {
+                    if ($user->bidang_id) {
+                        $q->whereHas('kegiatan', fn ($kq) => $kq->where('bidang_id', $user->bidang_id));
+                    }
+                    $q->orWhere('jf_id', $user->id);
+                });
+            }
         }
 
         return $query;

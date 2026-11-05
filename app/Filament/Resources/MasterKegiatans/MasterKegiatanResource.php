@@ -44,8 +44,10 @@ class MasterKegiatanResource extends Resource
 
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
-            $query->where('bidang_id', $user->bidang_id);
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara', 'pimpinan'])) {
+            if ($user->hasRole('jf') && $user->bidang_id) {
+                $query->where('bidang_id', $user->bidang_id);
+            }
         }
 
         return $query;

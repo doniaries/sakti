@@ -33,7 +33,7 @@ class MasterSubKegiatanForm
                     ->relationship('kegiatan', 'nama_kegiatan', function ($query) {
                         /** @var \App\Models\User|null $user */
                         $user = \Illuminate\Support\Facades\Auth::user();
-                        if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara']) && $user->bidang_id) {
+                        if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara', 'pptk', 'pimpinan']) && $user->bidang_id) {
                             $query->where('bidang_id', $user->bidang_id);
                         }
                     })

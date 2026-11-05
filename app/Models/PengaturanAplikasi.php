@@ -115,7 +115,7 @@ class PengaturanAplikasi extends Model
                     'alamat' => $pengaturan->attributes['alamat_kantor'] ?? null,
                     'logo' => $pengaturan->attributes['logo'] ?? null,
                     'kepala_id' => $pengaturan->attributes['kepala_id'] ?? null,
-                ], fn ($val) => !is_null($val) && $val !== '');
+                ], fn($val) => !is_null($val) && $val !== '');
 
                 if (!empty($instansiData)) {
                     \App\Models\Instansi::updateOrCreate(['id' => 1], $instansiData);
@@ -158,7 +158,7 @@ class PengaturanAplikasi extends Model
                 'logo' => $instansi?->logo,
                 'versi_aplikasi' => 'v1.0.0',
                 'pembuat_aplikasi' => 'Don Borland',
-                'kontak_bantuan' => 'helpdesk@lhk.sijunjung.go.id',
+                'kontak_bantuan' => 'helpdesk@sakti.sijunjung.cloud',
                 'deskripsi' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
             ]);
         } else {
