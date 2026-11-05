@@ -17,9 +17,11 @@ class UserSeeder extends Seeder
         $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
         $pptkRole = Role::firstOrCreate(['name' => 'pptk', 'guard_name' => 'web']);
         $jfRole = Role::firstOrCreate(['name' => 'jf', 'guard_name' => 'web']);
-        $stafKeuanganRole = Role::firstOrCreate(['name' => 'staf_keuangan', 'guard_name' => 'web']);
         $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara', 'guard_name' => 'web']);
         $pegawaiRole = Role::firstOrCreate(['name' => 'pegawai', 'guard_name' => 'web']);
+
+        // Hapus role usang yang tidak lagi dipakai
+        Role::query()->whereIn('name', ['staf_keuangan', 'jf_staf'])->delete();
 
         // 2. Beri Semua Permission ke Role Super Admin
         $allPermissions = Permission::all();

@@ -209,7 +209,7 @@ class DataPegawaiSeeder extends Seeder
             $andra->syncRoles(['jf', 'pegawai']);
         }
 
-        // 10. 2 Orang Staf Pelaksana / Operator SPJ
+        // 10. 2 Orang Staf Pelaksana
         $maulana = User::query()->where('name', 'LIKE', '%MAULANA IBRAHIM%')->first();
         if ($maulana) {
             $maulana->update([
@@ -218,7 +218,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $maulana->syncRoles(['staf_keuangan', 'pegawai']);
+            $maulana->syncRoles(['pegawai']);
         }
 
         $roni = User::query()->where('name', 'LIKE', '%RONI RIVANDRA%')->first();
@@ -229,7 +229,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $roni->syncRoles(['staf_keuangan', 'pegawai']);
+            $roni->syncRoles(['pegawai']);
         }
 
         // 11. Bendahara Pengeluaran (WIWIRNA)

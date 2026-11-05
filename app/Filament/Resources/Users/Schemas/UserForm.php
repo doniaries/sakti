@@ -229,7 +229,6 @@ class UserForm
                                         'ppk' => 'PPK (Kasubag Keuangan / Pejabat Pembuat Komitmen)',
                                         'pptk' => 'PPTK (Kepala Bidang / Sekretaris Dinas)',
                                         'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja)',
-                                        'staf_keuangan' => 'Staf Keuangan (Operator SPJ)',
                                         'bendahara' => 'Bendahara Pengeluaran (Uji Kas & Potong Pajak)',
                                         'pegawai' => 'Pegawai Biasa (Presensi & LHK Pribadi)',
                                         default => ucwords(str_replace('_', ' ', $record->name)),

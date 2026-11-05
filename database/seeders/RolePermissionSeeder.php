@@ -21,8 +21,10 @@ class RolePermissionSeeder extends Seeder
         $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
         $pptkRole = Role::firstOrCreate(['name' => 'pptk', 'guard_name' => 'web']);
         $jfRole = Role::firstOrCreate(['name' => 'jf', 'guard_name' => 'web']);
-        $stafKeuanganRole = Role::firstOrCreate(['name' => 'staf_keuangan', 'guard_name' => 'web']);
         $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara', 'guard_name' => 'web']);
+
+        // Hapus role usang yang tidak lagi dipakai
+        Role::query()->whereIn('name', ['staf_keuangan', 'jf_staf'])->delete();
 
         // Buat permissions widget jika belum ada agar seeder tidak error karena data kosong
         Permission::firstOrCreate(['name' => 'View:PegawaiAbsensiBulanChartWidget', 'guard_name' => 'web']);
@@ -144,9 +146,9 @@ class RolePermissionSeeder extends Seeder
         ]))->get();
         $pptkRole->syncPermissions($pptkPermissions);
 
-        // === 5. Setup Role Staf Keuangan / Operator SPJ Bidang ===
+        // === 5. Setup Role JF (Jabatan Fungsional / Pengusul SPJ Bidang) ===
         // Pengusul belanja: buat draf Surat Pesanan, input realisasi aktual, unggah faktur/foto fisik toko
-        $stafKeuanganPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
+        $jfPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
             'ViewAny:PengajuanSpj',
             'View:PengajuanSpj',
             'Create:PengajuanSpj',
@@ -167,8 +169,7 @@ class RolePermissionSeeder extends Seeder
             'ViewAny:MasterBarang',
             'View:MasterBarang',
         ]))->get();
-        $stafKeuanganRole->syncPermissions($stafKeuanganPermissions);
-        $jfRole->syncPermissions($stafKeuanganPermissions);
+        $jfRole->syncPermissions($jfPermissions);
 
         // === 6. Setup Role Bendahara Pengeluaran ===
         // Uji kas, pencairan dana, pemungutan pajak, input nomor BKU & tgl cair, serta TTD Lunas Kwitansi
