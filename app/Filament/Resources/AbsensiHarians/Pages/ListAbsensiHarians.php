@@ -8,9 +8,12 @@ use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use ZeeshanTariq\FilamentStickyColumns\Concerns\InteractsWithStickyableColumns;
 
 class ListAbsensiHarians extends ListRecords
 {
+    use InteractsWithStickyableColumns;
+
     protected static string $resource = AbsensiHarianResource::class;
 
     protected function getHeaderWidgets(): array

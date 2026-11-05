@@ -12,9 +12,12 @@ use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use ZeeshanTariq\FilamentStickyColumns\Concerns\InteractsWithStickyableColumns;
 
 class ListUsers extends ListRecords
 {
+    use InteractsWithStickyableColumns;
+
     protected static string $resource = UserResource::class;
 
     /**

@@ -12,9 +12,12 @@ use App\Filament\Resources\StokBarangs\StokBarangResource;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use ZeeshanTariq\FilamentStickyColumns\Concerns\InteractsWithStickyableColumns;
 
 class ListPengajuanSpjs extends ListRecords
 {
+    use InteractsWithStickyableColumns;
+
     protected static string $resource = PengajuanSpjResource::class;
 
     protected function getHeaderActions(): array

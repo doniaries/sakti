@@ -32,17 +32,14 @@ class UsersTable
                     $query->where('jenjang_pendidikan', '=', $jenjang);
                 }
             })
+            ->stickyableColumns()
             ->columns([
                 \Filament\Tables\Columns\ImageColumn::make('avatar_url')
                     ->disk('public')
                     ->label('Avatar')
-                    ->circular(),
+                    ->circular()
+                    ->sticky(),
 
-                \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
-                    ->label('ID Mesin')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('name')
                     ->label('Nama Pegawai')
                     ->searchable()
@@ -50,13 +47,22 @@ class UsersTable
                     ->weight('bold')
                     ->color('primary')
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
-                    ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record])),
+                    ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record]))
+                    ->sticky(),
+
+                \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
+                    ->label('ID Mesin')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 \Filament\Tables\Columns\TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
                     ->color(fn(?string $state): string => \App\Models\Bidang::badgeColor($state))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->stickyable(),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->copyable()

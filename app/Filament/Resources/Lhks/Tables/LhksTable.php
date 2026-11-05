@@ -37,15 +37,18 @@ class LhksTable
                     }
                 </style>
             '))
+            ->stickyableColumns()
             ->columns([
                 TextColumn::make('tanggal')
                     ->date('d/m/Y')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sticky(),
                 TextColumn::make('user.name')
                     ->label('Pegawai')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->sticky(),
                 TextColumn::make('logAbsensiMasuk.waktu_absensi')
                     ->label('Masuk')
                     ->time('H:i'),

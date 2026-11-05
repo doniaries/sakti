@@ -120,6 +120,10 @@ protected function getRedirectUrl(): string
 2. **Eager Loading & Anti N+1**:
    - Pada resource data besar, wajib gunakan `modifyQueryUsing()` dengan `with()`, `select()`, dan `withCount()`.
    - DILARANG menggunakan `Model::all()` pada resource atau halaman dengan volume data besar.
+3. **Kolom Sticky / Beku (Sticky Columns & Stickyable Manager)**:
+   - Menggunakan package `zeeshantariq/filament-sticky-columns` yang diintegrasikan via custom Vite theme (`resources/css/filament/admin/theme.css`).
+   - Pada tabel-tabel berukuran lebar horizontal (seperti **Pegawai**, **Absensi Harian**, **LHK**, dan **Pengajuan SPJ**), kolom identitas utama (misal: `Nama Pegawai`, `Tanggal`, `Nomor Pengajuan`) dikunci di sisi kiri menggunakan `->sticky()`.
+   - Tabel dilengkapi dengan `$table->stickyableColumns()` dan trait `InteractsWithStickyableColumns` pada halaman List page agar pengguna dapat secara mandiri memilih kolom tambahan yang ingin dipin/dibekukan dari dropdown toolbar bookmark.
 
 ---
 

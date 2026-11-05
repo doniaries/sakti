@@ -102,6 +102,7 @@ class PengajuanSpjsTable
 
                 return $query;
             })
+            ->stickyableColumns()
             ->columns([
                 TextColumn::make('tahun_anggaran')
                     ->label('Tahun')
@@ -113,7 +114,8 @@ class PengajuanSpjsTable
                     ->label('No. Pengajuan')
                     ->searchable()
                     ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->sticky(),
 
                 TextColumn::make('tanggal_pengajuan')
                     ->label('Tgl Pengajuan')
@@ -125,7 +127,8 @@ class PengajuanSpjsTable
                     ->badge()
                     ->color(fn(?string $state): string => Bidang::badgeColor($state))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->stickyable(),
 
                 TextColumn::make('kegiatan.nama_kegiatan')
                     ->label('Kegiatan')

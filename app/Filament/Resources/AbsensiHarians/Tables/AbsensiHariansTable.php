@@ -71,15 +71,18 @@ class AbsensiHariansTable
                     }
                 </style>
             '))
+            ->stickyableColumns()
             ->columns([
                 TextColumn::make('tanggal')
                     ->label('Tanggal')
                     ->date('d/m/Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->sticky(),
                 TextColumn::make('user.name')
                     ->label('Nama Pegawai')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->sticky(),
                 TextColumn::make('jam_masuk')
                     ->time('H:i:s')
                     ->sortable()

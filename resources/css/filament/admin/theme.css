@@ -1,5 +1,7 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 @import '../../../../vendor/leek/filament-header-filters/resources/css/filament-header-filters.css';
+@import '../../../../vendor/zeeshantariq/filament-sticky-columns/resources/css/filament-sticky-columns.css';
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
+@source '../../../../vendor/zeeshantariq/filament-sticky-columns/resources/views/**/*.blade.php';
