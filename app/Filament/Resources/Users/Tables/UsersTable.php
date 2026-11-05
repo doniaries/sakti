@@ -46,7 +46,7 @@ class UsersTable
                     ->label('ID Mesin')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('name')
                     ->label('Nama Pegawai')
                     ->searchable()
@@ -218,7 +218,7 @@ class UsersTable
                     ->label('Shift Kerja')
                     ->relationship('jadwalKerja', 'nama'),
             ])
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('created_at', 'asc')
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
