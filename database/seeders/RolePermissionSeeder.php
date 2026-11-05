@@ -20,6 +20,7 @@ class RolePermissionSeeder extends Seeder
         $paRole = Role::firstOrCreate(['name' => 'pa', 'guard_name' => 'web']);
         $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
         $pptkRole = Role::firstOrCreate(['name' => 'pptk', 'guard_name' => 'web']);
+        $jfRole = Role::firstOrCreate(['name' => 'jf', 'guard_name' => 'web']);
         $stafKeuanganRole = Role::firstOrCreate(['name' => 'staf_keuangan', 'guard_name' => 'web']);
         $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara', 'guard_name' => 'web']);
 
@@ -167,6 +168,7 @@ class RolePermissionSeeder extends Seeder
             'View:MasterBarang',
         ]))->get();
         $stafKeuanganRole->syncPermissions($stafKeuanganPermissions);
+        $jfRole->syncPermissions($stafKeuanganPermissions);
 
         // === 6. Setup Role Bendahara Pengeluaran ===
         // Uji kas, pencairan dana, pemungutan pajak, input nomor BKU & tgl cair, serta TTD Lunas Kwitansi

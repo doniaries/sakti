@@ -186,7 +186,7 @@ class DataPegawaiSeeder extends Seeder
             $indrawadi->syncRoles(['pptk', 'pegawai']);
         }
 
-        // 9. 2 Orang Jabatan Fungsional (JF) untuk Akses Cepat
+        // 9. 2 Orang Jabatan Fungsional (JF) untuk Akses Cepat & Pengusul SPJ
         $diki = User::query()->where('name', 'LIKE', '%DIKI ZULFIKAR%')->first();
         if ($diki) {
             $diki->update([
@@ -195,7 +195,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $diki->syncRoles(['pegawai']);
+            $diki->syncRoles(['jf', 'pegawai']);
         }
 
         $andra = User::query()->where('name', 'LIKE', '%ANDRA PEBTALIYUS%')->first();
@@ -206,7 +206,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $andra->syncRoles(['pegawai']);
+            $andra->syncRoles(['jf', 'pegawai']);
         }
 
         // 10. 2 Orang Staf Pelaksana / Operator SPJ

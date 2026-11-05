@@ -287,6 +287,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             'pa',
             'ppk',
             'pptk',
+            'jf',
             'staf_keuangan',
             'bendahara',
         ]);

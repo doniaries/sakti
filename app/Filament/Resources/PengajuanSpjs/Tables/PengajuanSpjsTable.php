@@ -253,9 +253,9 @@ class PengajuanSpjsTable
                             : $user->anggaran_role;
 
                         return match ($record->status) {
-                            'draft' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'draft' => $user->hasAnyRole(['jf', 'jf_staf', 'staf_keuangan', 'pegawai']) || $user->id === $record->user_id,
                             'diajukan' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
-                            'menunggu_realisasi', 'revisi_pptk' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'menunggu_realisasi', 'revisi_pptk' => $user->hasAnyRole(['jf', 'jf_staf', 'staf_keuangan', 'pegawai']) || $user->id === $record->user_id,
                             'menunggu_verifikasi_pptk' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
                             'menunggu_verifikasi_ppk', 'revisi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
                             'menunggu_persetujuan_pa', 'revisi_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,
@@ -538,9 +538,9 @@ class PengajuanSpjsTable
                             : $user->anggaran_role;
 
                         return match ($record->status) {
-                            'draft' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'draft' => $user->hasAnyRole(['jf', 'jf_staf', 'staf_keuangan', 'pegawai']) || $user->id === $record->user_id,
                             'diajukan' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
-                            'menunggu_realisasi', 'revisi_pptk' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'menunggu_realisasi', 'revisi_pptk' => $user->hasAnyRole(['jf', 'jf_staf', 'staf_keuangan', 'pegawai']) || $user->id === $record->user_id,
                             'menunggu_verifikasi_pptk' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
                             'menunggu_verifikasi_ppk', 'revisi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
                             'menunggu_persetujuan_pa', 'revisi_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,

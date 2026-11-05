@@ -1,11 +1,22 @@
-<div class="flex flex-col items-center justify-center text-center -mt-6 sm:-mt-8">
+<style>
+    /* Pangkas ruang kosong/lapang di bagian atas card login Filament */
+    .fi-simple-main {
+        padding-top: 1.25rem !important;
+        padding-bottom: 2rem !important;
+    }
+    .fi-simple-header {
+        margin-bottom: 0.25rem !important;
+    }
+</style>
+
+<div class="flex flex-col items-center justify-center text-center -mt-2">
     {{-- 1. LOGO RESMI --}}
     @if (!empty($logoUrl))
-        <div class="mb-1 flex items-center justify-center">
+        <div class="mb-1.5 flex items-center justify-center">
             <img 
                 src="{{ $logoUrl }}" 
                 alt="Logo Resmi" 
-                class="h-24 sm:h-28 w-auto max-w-[300px] object-contain drop-shadow-lg transition-transform duration-300 hover:scale-105"
+                class="h-20 sm:h-24 w-auto max-w-[280px] object-contain drop-shadow-lg transition-transform duration-300 hover:scale-105"
                 onerror="this.onerror=null; this.src='{{ asset('images/logo-instansi.png') }}';"
             />
         </div>

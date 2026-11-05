@@ -16,6 +16,7 @@ class UserSeeder extends Seeder
         $paRole = Role::firstOrCreate(['name' => 'pa', 'guard_name' => 'web']);
         $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
         $pptkRole = Role::firstOrCreate(['name' => 'pptk', 'guard_name' => 'web']);
+        $jfRole = Role::firstOrCreate(['name' => 'jf', 'guard_name' => 'web']);
         $stafKeuanganRole = Role::firstOrCreate(['name' => 'staf_keuangan', 'guard_name' => 'web']);
         $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara', 'guard_name' => 'web']);
         $pegawaiRole = Role::firstOrCreate(['name' => 'pegawai', 'guard_name' => 'web']);
