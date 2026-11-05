@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use Cocosmos\FilamentStickySaveBar\Enums\Position;
+use Cocosmos\FilamentStickySaveBar\Enums\ShowOn;
+use Cocosmos\FilamentStickySaveBar\StickySaveBarPlugin;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -27,7 +30,6 @@ use Joaopaulolndev\FilamentEditProfile\FilamentEditProfilePlugin;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
 use Swis\Filament\Backgrounds\FilamentBackgroundsPlugin;
 use WatheqAlshowaiter\FilamentStickyTableHeader\StickyTableHeaderPlugin;
-use Cocosmos\FilamentStickySaveBar\StickySaveBarPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -136,7 +138,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 FilamentBackgroundsPlugin::make(),
                 StickyTableHeaderPlugin::make(),
-                StickySaveBarPlugin::make(),
+                StickySaveBarPlugin::make()
+                    ->position(Position::Bottom)
+                    ->showOn(ShowOn::Always),
                 FilamentEditProfilePlugin::make()
                     ->shouldRegisterNavigation(false)
                     ->shouldShowEditPasswordForm(false)

@@ -132,7 +132,8 @@ class StrukturOrganisasiSeeder extends Seeder
                 str_contains($jabatanNama, 'ekonomi kreatif') ||
                 str_contains($jabatanNama, 'adyatama') ||
                 str_contains($jabatanNama, 'hubungan msyarakat') ||
-                str_contains($jabatanNama, 'penerjemah')
+                str_contains($jabatanNama, 'penerjemah') ||
+                str_contains(strtoupper($staf->name), 'NOFRIZAL')
             ) {
                 // Bidang Pemasaran Pariwisata
                 $staf->update([
