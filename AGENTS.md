@@ -612,7 +612,42 @@ Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Sing
 
 ---
 
-## 12. Format Respon AI (MANDATORY / WAJIB)
+## 12. Best Practices Filament (Performance, Security, Code Organization, Testing & Usage)
+
+### A. Performance
+- **Eager Loading via `getEloquentQuery()`**: Gunakan `getEloquentQuery()` pada Resource untuk eager load relationships (`with()`, `withCount()`) dan mencegah query N+1.
+- **Component Caching di Production**: Aktifkan component caching di production environment dengan perintah `php artisan filament:cache-components`.
+- **Pagination & Deferred Loading**: Batasi opsi pagination dan terapkan deferred loading (`->deferLoading()`) untuk dataset berukuran besar agar render awal tabel tetap instan.
+- **Cache Perhitungan Berat di Widget**: Selalu cache perhitungan agregasi, statistik berat, atau query analitik pada widget dashboard/overview.
+
+### B. Security
+- **Implementasi Kontrak `FilamentUser`**: Selalu implementasikan interface `Filament\Models\Contracts\FilamentUser` pada model `User` dengan method `canAccessPanel()` untuk kontrol hak akses panel admin.
+- **Laravel Policies untuk Resource**: Gunakan Laravel Policies untuk otorisasi di level Resource (`viewAny`, `view`, `create`, `update`, `delete`, `restore`, `forceDelete`).
+- **Validasi Lengkap Input**: Validasi seluruh input form dengan aturan validasi form yang tepat di level Form Component, Form Request, dan Database Constraint.
+- **Jangan Pernah Melewati Otorisasi**: Dilarang mengabaikan atau melewati otorisasi pada environment production.
+- **Isolasi Tenant**: Terapkan isolasi tenant yang aman dan teruji jika mengimplementasikan skenario multi-tenant.
+
+### C. Code Organization
+- **Organize by Feature**: Struktur direktori di bawah `app/Filament/Resources/` dengan pemisahan sub-direktori `Schemas/`, `Tables/`, `Pages/`, `RelationManagers/`, dan `Widgets/`.
+- **Ekstraksi Form & Table Kompleks**: Ekstraksi form dan table kompleks ke dalam class terpisah (misal `[Nama]Form.php` dan `[Nama]Table.php`) agar Resource tetap ramping dan mudah dipelihara.
+- **Komponen Form Reusable**: Buat komponen form atau schema reusable untuk pola formulir yang sering digunakan berulang kali.
+- **Prinsip Tanggung Jawab Tunggal (*Single Responsibility*)**: Jaga agar setiap Resource fokus pada entitas dan tanggung jawab tunggalnya.
+- **Dedicated Pages**: Gunakan dedicated custom pages untuk fungsionalitas di luar operasi CRUD standar.
+
+### D. Testing
+- **Uji Seluruh Operasi CRUD**: Uji operasi Create, Read, Update, dan Delete untuk setiap Resource.
+- **Validasi Form dengan Berbagai Skenario**: Validasi aturan validasi formulir menggunakan berbagai skenario (data valid, invalid, boundary cases).
+- **Uji Fitur Tabel**: Uji fungsionalitas pencarian (*search*), filter (*filters*), pengurutan (*sorting*), serta aksi baris dan massal (*record & bulk actions*).
+- **Verifikasi Otorisasi Berdasarkan Peran**: Uji hak akses panel dan resource dengan berbagai role user yang berbeda (`super_admin`, `admin`, `pegawai`).
+- **Gunakan Model Factories**: Manfaatkan Laravel Model Factories untuk menghasilkan data uji (*test data*) yang realistis.
+
+### E. When to Use Filament
+- Gunakan Filament untuk **seluruh panel administrasi internal, manajemen data terstruktur (CRUD), dashboard analitik & KPI, alur verifikasi dokumen berjenjang, dan tata kelola master data instansi**.
+- Antarmuka pegawai non-administratif (presensi selfie GPS harian, log kehadiran, dan portal mandiri MyASN) dikelola melalui klien **Livewire Mobile PWA** dan klien mobile Flutter (`absensi_flutter`) yang terhubung langsung ke database dan API backend Filament.
+
+---
+
+## 13. Format Respon AI (MANDATORY / WAJIB)
 
 > **ATURAN KETAT:** Dilarang memberikan narasi/penjelasan panjang yang tidak diminta ("tidak usah jelaskan"). Langsung berikan respon to the point sesuai format wajib berikut:
 
