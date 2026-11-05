@@ -20,9 +20,9 @@ class InstansiResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
 
-    protected static ?string $modelLabel = 'Profil Instansi & OPD';
+    protected static ?string $modelLabel = 'Profil Instansi';
 
-    protected static ?string $pluralModelLabel = 'Profil Instansi & OPD';
+    protected static ?string $pluralModelLabel = 'Profil Instansi';
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
     protected static ?int $navigationSort = 1;
     protected static bool $shouldRegisterNavigation = true;
