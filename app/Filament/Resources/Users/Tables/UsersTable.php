@@ -9,6 +9,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
@@ -183,7 +184,32 @@ class UsersTable
                         default => 'heroicon-m-building-office-2',
                     })
                     ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
-                \Filament\Tables\Columns\TextColumn::make('roles.name')->badge(),
+                \Filament\Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Hak Akses (Role)')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'super_admin' => 'danger',
+                        'admin' => 'warning',
+                        'pa' => 'purple',
+                        'ppk' => 'indigo',
+                        'pptk' => 'info',
+                        'jf' => 'success',
+                        'bendahara' => 'amber',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'super_admin' => 'Super Admin',
+                        'admin' => 'Admin Dinas',
+                        'pa' => 'PA (Kadis)',
+                        'ppk' => 'PPK',
+                        'pptk' => 'PPTK',
+                        'jf' => 'JF (Pengusul)',
+                        'bendahara' => 'Bendahara',
+                        'pegawai' => 'Pegawai',
+                        default => ucwords(str_replace('_', ' ', $state)),
+                    })
+                    ->searchable()
+                    ->sortable(),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif'),
             ])
             ->filters([
@@ -222,6 +248,83 @@ class UsersTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+                Action::make('ubah_role')
+                    ->label('Ubah Role')
+                    ->icon('heroicon-o-shield-check')
+                    ->color('warning')
+                    ->tooltip('Ubah Peran & Hak Akses Pegawai')
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                    ->modalHeading(fn (\App\Models\User $record): string => "Ubah Role & Hak Akses: {$record->name}")
+                    ->modalDescription('Pilih peran resmi untuk pegawai ini. Hak akses dan kewenangan dokumen SPJ akan langsung aktif.')
+                    ->modalWidth('lg')
+                    ->modalSubmitActionLabel('Simpan Perubahan Role')
+                    ->form([
+                        CheckboxList::make('roles')
+                            ->label('Pilih Peran Resmi (Bisa Lebih Dari Satu)')
+                            ->options(function () {
+                                /** @var \App\Models\User|null $user */
+                                $user = \Illuminate\Support\Facades\Auth::user();
+                                $isSuperAdmin = $user && $user->hasRole('super_admin');
+
+                                $options = [
+                                    'admin' => 'Admin Dinas (Kasubag Umum & Kepegawaian)',
+                                    'pa' => 'PA (Kepala Dinas / Pengguna Anggaran)',
+                                    'ppk' => 'PPK (Kasubag Keuangan / Pejabat Pembuat Komitmen)',
+                                    'pptk' => 'PPTK (Sekretaris Dinas / Kepala Bidang)',
+                                    'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja Sub Kegiatan)',
+                                    'bendahara' => 'Bendahara Pengeluaran (Uji Kas & Potong Pajak)',
+                                    'pegawai' => 'Pegawai Standar (Presensi GPS Mobile & LHK Pribadi)',
+                                ];
+
+                                if ($isSuperAdmin) {
+                                    $options = ['super_admin' => 'Super Admin Sistem (Akses Penuh IT)'] + $options;
+                                }
+
+                                return $options;
+                            })
+                            ->descriptions([
+                                'super_admin' => 'Akses penuh tak terbatas ke seluruh sistem dan konfigurasi teknis.',
+                                'admin' => 'Mengelola master pegawai, jadwal shift kerja, mesin presensi, dan rekap dinas.',
+                                'pa' => 'Memantau seluruh absensi & SPJ, menyetujui tahap akhir SPJ (Kwitansi & NPD).',
+                                'ppk' => 'Memverifikasi administrasi belanja dinas, pagu DPA, dan checklist verifikasi SPJ.',
+                                'pptk' => 'Menandatangani Surat Pesanan dan Kwitansi Pembayaran khusus belanja bidangnya.',
+                                'jf' => 'Membuat draf usulan belanja pada sub kegiatan yang diampunya di bidangnya.',
+                                'bendahara' => 'Menguji kas belanja dinas, memotong pajak, dan menandatangani pelunasan Kwitansi.',
+                                'pegawai' => 'Wajib bagi semua ASN/Non-ASN untuk presensi harian dan submit laporan kinerja (LHK).',
+                            ])
+                            ->default(fn (\App\Models\User $record): array => $record->roles->pluck('name')->toArray())
+                            ->columns(1)
+                            ->required(),
+                    ])
+                    ->action(function (\App\Models\User $record, array $data) {
+                        $selectedRoles = $data['roles'] ?? [];
+
+                        // Pegawai dinas otomatis tetap memiliki role dasar 'pegawai'
+                        if (!in_array('pegawai', $selectedRoles)) {
+                            $selectedRoles[] = 'pegawai';
+                        }
+
+                        $record->syncRoles($selectedRoles);
+
+                        // Sinkronkan kolom anggaran_role jika memegang jabatan keuangan resmi
+                        $anggaranRole = null;
+                        if (in_array('pa', $selectedRoles)) {
+                            $anggaranRole = \App\Enums\AnggaranRole::PA;
+                        } elseif (in_array('ppk', $selectedRoles)) {
+                            $anggaranRole = \App\Enums\AnggaranRole::PPK;
+                        } elseif (in_array('pptk', $selectedRoles)) {
+                            $anggaranRole = \App\Enums\AnggaranRole::PPTK;
+                        } elseif (in_array('bendahara', $selectedRoles)) {
+                            $anggaranRole = \App\Enums\AnggaranRole::BENDAHARA;
+                        }
+                        $record->update(['anggaran_role' => $anggaranRole]);
+
+                        Notification::make()
+                            ->title('Peran Pegawai Berhasil Diperbarui')
+                            ->body("Role untuk {$record->name} kini adalah: " . implode(', ', $selectedRoles))
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('hubungkan_mesin')
                     ->label('Hubungkan ke Mesin')
                     ->icon('heroicon-o-link')
@@ -302,6 +405,61 @@ class UsersTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+
+                    BulkAction::make('ubah_role_massal')
+                        ->label('Ubah Role Massal')
+                        ->icon('heroicon-o-shield-check')
+                        ->color('warning')
+                        ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                        ->form([
+                            Select::make('mode')
+                                ->label('Pilihan Aksi Role')
+                                ->options([
+                                    'tambah' => 'Tambahkan Role Tertentu (Role yang Ada Tetap Dipertahankan)',
+                                    'ganti' => 'Ganti Peran Menjadi Role Baru (Reset Role Lama)',
+                                ])
+                                ->default('tambah')
+                                ->required(),
+                            Select::make('role')
+                                ->label('Pilih Role Target')
+                                ->options([
+                                    'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja)',
+                                    'pptk' => 'PPTK (Sekdis / Kepala Bidang)',
+                                    'admin' => 'Admin Dinas (Umum & Kepegawaian)',
+                                    'pegawai' => 'Pegawai Biasa (Staf Pelaksana)',
+                                ])
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $count = $records->count();
+                            $targetRole = $data['role'];
+                            $mode = $data['mode'];
+
+                            foreach ($records as $record) {
+                                if ($mode === 'tambah') {
+                                    $record->assignRole($targetRole);
+                                } else {
+                                    $roles = [$targetRole];
+                                    if ($targetRole !== 'pegawai') {
+                                        $roles[] = 'pegawai';
+                                    }
+                                    $record->syncRoles($roles);
+                                }
+
+                                // Update anggaran_role jika PPTK
+                                if ($targetRole === 'pptk') {
+                                    $record->update(['anggaran_role' => \App\Enums\AnggaranRole::PPTK]);
+                                } elseif ($mode === 'ganti' && $targetRole === 'pegawai') {
+                                    $record->update(['anggaran_role' => null]);
+                                }
+                            }
+
+                            Notification::make()
+                                ->title("Berhasil Memperbarui Role untuk {$count} Pegawai")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
 
                     BulkAction::make('ubah_tipe_kerja_massal')
                         ->label('Ubah Tipe Kerja (WFH/WFO)')

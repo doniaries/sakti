@@ -423,6 +423,10 @@ Untuk menjaga agar Shield mudah dipelihara dan tidak membebani database:
    - Aturan bisnis kedinasan (seperti kewenangan TTD per bidang, batas status SPJ, kuota pagu RKA) dikelola pada **Model Policy / Action `visible()` / Query Builder `modifyQueryUsing()`** (Tingkat Mikro).
 4. **Penyatuan Menu Shield ke NavigationGroup 'Pengaturan'**:
    Resource peran & hak akses Shield (`RoleResource`) disatukan ke dalam grup `'Pengaturan'` dengan label `'Peran & Hak Akses'` dan icon `'heroicon-o-shield-check'`, sehingga sidebar menu admin lebih rapi, terpusat, dan tidak memunculkan grup navigasi terpisah "Filament Shield".
+5. **Tombol Cepat Pengalihan Role Pegawai (1-Klik Tanpa Masuk Form Edit)**:
+   - Pada tabel **Daftar Pegawai** (`UserResource`), disediakan tombol aksi baris **"Ubah Role"** (`heroicon-o-shield-check`) dengan modal interaktif yang menampilkan 8 peran resmi beserta ringkasan kewenangannya.
+   - Perubahan role langsung menyinkronkan tabel `model_has_roles` Spatie dan kolom `anggaran_role` di model `User`.
+   - Disediakan pula aksi massal **"Ubah Role Massal"** pada toolbar tabel untuk menetapkan atau mengalihkan peran pegawai secara serentak.
 
 ### H. Halaman Error 403 User-Friendly & Smart Device Redirection
 1. **Pesan Resmi Bahasa Indonesia**: Menghilangkan tampilan default Laravel (*"This action is unauthorized"*). Menyajikan pesan santun resmi kedinasan dan informasi akun/bidang yang sedang aktif.
