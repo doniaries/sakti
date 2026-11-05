@@ -349,21 +349,29 @@ Aplikasi memiliki dua ranah antarmuka utama yang dipisahkan secara tegas berdasa
 
 ### B. Proteksi Akses Panel Filament Admin (`canAccessPanel`)
 - Model `User` mengimplementasikan interface `Filament\Models\Contracts\FilamentUser`.
-- Method `canAccessPanel(Panel $panel): bool` memvalidasi hak akses:
+- Method `canAccessPanel(Panel $panel): bool` memvalidasi hak akses panel admin untuk 7 role resmi pengelola sistem & keuangan:
   ```php
   public function canAccessPanel(Panel $panel): bool
   {
-      return $this->hasAnyRole(['super_admin', 'admin']);
+      return (bool) $this->aktif && $this->hasAnyRole([
+          'super_admin',
+          'admin',
+          'pa',
+          'ppk',
+          'pptk',
+          'jf',
+          'bendahara',
+      ]);
   }
   ```
-- **Aturan Keamanan (PENTING)**: Pegawai biasa (hanya memiliki role `pegawai`) yang mencoba mengakses `/admin` atau login via panel admin akan ditolak otomatis oleh sistem (**HTTP 403 Forbidden**).
+- **Aturan Keamanan (PENTING)**: Pegawai biasa (yang hanya memegang role `pegawai`) yang mencoba mengakses `/admin` akan otomatis dialihkan ke halaman ramah **Akses Dibatasi (HTTP 403 Forbidden)** bertema SAKTI dengan tombol kembali ke beranda.
 
 ### C. Alur Pengguna Administrator (Akses Ganda & Switcher Cepat)
-- Administrator sistem (`super_admin` dan `admin`) pada umumnya juga merupakan pegawai dinas yang wajib diabsen dan mengisi LHK.
-- Oleh karena itu, user admin juga memiliki role `pegawai`.
+- Administrator dan pejabat dinas (`super_admin`, `admin`, `pa`, `ppk`, `pptk`, `jf`, `bendahara`) pada dasarnya juga merupakan pegawai ASN dinas yang wajib diabsen dan mengisi LHK.
+- Oleh karena itu, para pengelola dan pimpinan juga disinkronkan memiliki role dasar `pegawai`.
 - **Navigasi Bolak-Balik Terintegrasi**:
   1. **Dari Filament ke Mobile**: Di menu avatar Filament (pojok kanan atas), terdapat menu item **"Presensi Mobile Pegawai"** (`route('mobile.dashboard')`).
-  2. **Dari Mobile ke Filament**: Pada dashboard Mobile PWA (`livewire.mobile.dashboard`), jika user memiliki role `admin`/`super_admin`, tersedia tombol pintas badge **"Admin"** (`/admin`) di samping tombol logout.
+  2. **Dari Mobile ke Filament**: Pada dashboard Mobile PWA (`livewire.mobile.dashboard`), jika user memiliki role pengelola panel admin, tersedia tombol pintas badge **"Admin"** (`/admin`) di samping tombol logout.
 
 ### D. Pedoman Bagi Klien Mobile Flutter (`absensi_flutter`)
 Untuk pengembangan klien mobile Flutter:
@@ -371,8 +379,55 @@ Untuk pengembangan klien mobile Flutter:
 2. **Validasi Role pada Response Login**:
    - Endpoint login API mengembalikan data profil pengguna beserta array `roles`.
    - Klien Flutter ditujukan **khusus untuk operasional Pegawai** (Presensi GPS/Geofencing, Log Kehadiran, Submit LHK, & Profil).
-   - Pengguna dengan role `pegawai`, `admin`, maupun `super_admin` dapat menggunakan aplikasi Flutter untuk melakukan presensi harian.
+   - Pengguna dengan role `pegawai`, `admin`, maupun pejabat pimpinan dapat menggunakan aplikasi Flutter untuk melakukan presensi harian.
    - Manajemen sistem (CRUD master data, tarik log mesin, manajemen user, dsb.) **TIDAK** diimplementasikan di Flutter, melainkan diarahkan untuk diakses via Filament Admin Panel di browser desktop/laptop.
+
+### E. Standar 8 Role Sistem & Matriks Hak Akses Kedinasan SAKTI
+Aplikasi SAKTI mendefinisikan **8 Role Baku Definitif** yang terdaftar di `UserSeeder.php` dan `RolePermissionSeeder.php`:
+
+| Role Key | Nama Peran Resmi | Deskripsi Kewenangan & Tanggung Jawab |
+|:---|:---|:---|
+| **`super_admin`** | Super Admin Sistem | Hak akses penuh tak terbatas (Full Bypass via Gate). Digunakan untuk pemeliharaan teknis sistem/IT. |
+| **`admin`** | Kasubag Umum & Kepegawaian | Administrator operasional OPD: mengelola data pegawai (`User`), shift/jadwal kerja, mesin absensi, hari libur, pemantauan seluruh absensi & log fingerprint. |
+| **`pa`** | Pengguna Anggaran (Kadis) | Pimpinan tertinggi dinas: memantau absensi & kinerja seluruh pegawai dinas, memantau seluruh keuangan dinas, otorisasi & tanda tangan persetujuan akhir SPJ (Kwitansi & NPD). |
+| **`ppk`** | Pejabat Pembuat Komitmen (Kasubag Keuangan / JF PBJ) | Memverifikasi kelayakan dokumen belanja se-dinas, kepatuhan administrasi, menguji ketersediaan pagu DPA/RKA, dan paraf checklist verifikasi SPJ. |
+| **`pptk`** | Pejabat Pelaksana Teknis Kegiatan (Sekdis & Para Kabid) | Memantau absensi & keuangan seluruh dinas, menandatangani Surat Pesanan (Tahap 1) dan Kwitansi Pembayaran (Tahap 2) **khusus untuk belanja di bidangnya sendiri**. |
+| **`jf`** | Jabatan Fungsional (Pengusul SPJ) | Membuat draf usulan Surat Pesanan kegiatan bidangnya, menginput rincian realisasi fisik toko, serta mengunggah bukti nota/faktur. *(Catatan: Staf pelaksana yang membantu pengusulan SPJ menggunakan akun JF bidang bersangkutan)*. |
+| **`bendahara`** | Bendahara Pengeluaran | Menguji kas, memotong pajak (PPN/PPh), menginput nomor Buku Kas Umum (BKU) dan tanggal cair, serta membubuhkan tanda tangan pelunasan kas pada Kwitansi. |
+| **`pegawai`** | Pegawai Standar (ASN & Non-ASN) | Hak akses personal mandiri: absensi masuk/pulang GPS mobile, submit LHK harian, pengajuan izin/sakit, dan pembaruan biodata profil MyASN. |
+
+### F. Kebijakan Monitoring Pimpinan se-Dinas (Non-Multi-Tenant)
+Aplikasi SAKTI beroperasi untuk **satu instansi mandiri (Disparpora Sijunjung)** dan bukan multi-tenant. Kebijakan visibilitas data diterapkan sebagai berikut:
+1. **Transparansi Absensi Pegawai**:
+   - Kepala Dinas (`pa`), Sekretaris Dinas (`pptk`), Kepala Bidang (`pptk`), dan Kasubag Kepegawaian (`admin`) diberikan akses monitoring untuk melihat **seluruh rekap absensi, log mesin, dan LHK semua pegawai** di dinas.
+   - Tabel absensi menyediakan filter instan **Bidang** dan **Pegawai** agar pimpinan dapat memfilter staf bidangnya sendiri atau melihat seluruh dinas.
+2. **Transparansi Keuangan & Pengajuan SPJ**:
+   - Seluruh pimpinan (Kadis, Sekdis, Kabid, PPK, Bendahara) dapat melihat (**Read-Only**) seluruh daftar pengajuan SPJ dan sisa pagu kuota belanja RKA se-dinas.
+3. **Penguncian Kewenangan Eksekusi / Tanda Tangan (Action-Level Security)**:
+   - Hak melihat (*Read*) bersifat terbuka se-dinas, namun hak mengambil tindakan (*Approve / TTD*) **dikunci ketat per bidang**:
+     - Kabid Destinasi **TIDAK BISA** menandatangani Surat Pesanan atau Kwitansi milik Bidang Pemasaran/Dispora.
+     - Tombol aksi verifikasi PPTK hanya muncul bila user adalah PPTK resmi dari SPJ / bidang tersebut.
+     - Kadis (PA) dapat menyetujui seluruh SPJ dinas pada tahapan akhir PA.
+
+### G. Pedoman Filament Shield Ringkas & Anti-Bloat (Easy Maintenance)
+Untuk menjaga agar Shield mudah dipelihara dan tidak membebani database:
+1. **Pangkas Default Methods Menjadi 5 Aksi Esensial**:
+   Di `config/filament-shield.php`, methods dibatasi hanya: `['viewAny', 'view', 'create', 'update', 'delete', 'deleteAny']`. Menghilangkan aksi yang jarang dipakai (`restore`, `forceDelete`, `reorder`, `replicate`).
+2. **Eksklusi Widget & Halaman Statis dari Shield**:
+   Menonaktifkan tab widgets dan pages di Shield (`'tabs' => ['pages' => false, 'widgets' => false, 'resources' => true]`). Kontrol visibilitas widget dilakukan langsung pada method `canView()` class widget.
+3. **Pemisahan Tegas Antara Shield vs Aturan Bisnis**:
+   - Shield hanya mengatur: *"Boleh atau tidak membuka menu / form input CRUD"* (Tingkat Makro).
+   - Aturan bisnis kedinasan (seperti kewenangan TTD per bidang, batas status SPJ, kuota pagu RKA) dikelola pada **Model Policy / Action `visible()` / Query Builder `modifyQueryUsing()`** (Tingkat Mikro).
+
+### H. Halaman Error 403 User-Friendly & Smart Device Redirection
+1. **Pesan Resmi Bahasa Indonesia**: Menghilangkan tampilan default Laravel (*"This action is unauthorized"*). Menyajikan pesan santun resmi kedinasan dan informasi akun/bidang yang sedang aktif.
+2. **Deteksi Perangkat & Rute Cerdas**:
+   - **Konteks Akses Filament (`/admin`)**: Menampilkan tombol utama **"Kembali ke Beranda"** (menuju `/admin` bagi pejabat pengelola atau ke portal utama `/` bagi pegawai biasa) dengan icon Home.
+   - **Konteks Akses Mobile (`/mobile`)**: Menampilkan tombol utama **"Kembali ke Presensi Mobile"** (menuju `route('mobile.dashboard')`) dengan icon Ponsel.
+
+### I. Jalur Ganda Storage & Streaming Fallback (`/media-file/`)
+- Mencegah masalah foto avatar atau logo instansi rusak (*broken image 404*) pada server Linux / VPS / cPanel jika symlink `public/storage` belum aktif atau diblokir static file cache Nginx.
+- Sistem menyediakan route fallback streaming langsung: `/media-file/{path}` yang melayani file secara aman dan instan langsung dari folder `storage/app/public/`.
 
 ---
 
