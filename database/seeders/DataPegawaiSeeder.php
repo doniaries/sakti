@@ -184,6 +184,18 @@ class DataPegawaiSeeder extends Seeder
             $diki->syncRoles(['jf', 'pegawai']);
         }
 
+        $novrizal = User::query()->where('name', 'LIKE', '%NOFRIZAL%')->first();
+        if ($novrizal) {
+            $novrizal->update([
+                'email' => 'novrizal@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => null,
+            ]);
+            $novrizal->syncRoles(['jf', 'pegawai']);
+        }
+
+        // 10. Staf Pelaksana
         $andra = User::query()->where('name', 'LIKE', '%ANDRA PEBTALIYUS%')->first();
         if ($andra) {
             $andra->update([
@@ -192,10 +204,8 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $andra->syncRoles(['jf', 'pegawai']);
+            $andra->syncRoles(['pegawai']);
         }
-
-        // 10. 2 Orang Staf Pelaksana
         $maulana = User::query()->where('name', 'LIKE', '%MAULANA IBRAHIM%')->first();
         if ($maulana) {
             $maulana->update([
