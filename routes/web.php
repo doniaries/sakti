@@ -54,4 +54,15 @@ Route::get('livewire/update', function () {
     return redirect()->to(\App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource::getUrl('index', $params));
 });
 
+// Fallback jika hosting cPanel mematikan symlink() PHP (melayani file storage langsung)
+Route::get('/storage/{path}', function (string $path) {
+    $filePath = storage_path('app/public/' . $path);
+
+    if (! file_exists($filePath)) {
+        abort(404);
+    }
+
+    return response()->file($filePath);
+})->where('path', '.*');
+
 
