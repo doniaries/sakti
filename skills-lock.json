@@ -7,6 +7,27 @@
       "skillPath": "skills/filament-pro/SKILL.md",
       "computedHash": "d1223bfca670c420fef58114545206b951a38599f8648d6677d370339a53ebfe",
       "installMode": "copy"
+    },
+    "laravel-filament-v5-ui-ux": {
+      "source": "jotafurtado/dev-skills",
+      "sourceType": "github",
+      "skillPath": "skills/laravel-filament-v5-ui-ux/SKILL.md",
+      "computedHash": "53274af44cf1693ff10a88eb6197d1b553927f07111b1ac797c7b5d56e3af4bd",
+      "installMode": "copy"
+    },
+    "laravel-security": {
+      "source": "affaan-m/ecc",
+      "sourceType": "github",
+      "skillPath": "skills/laravel-security/SKILL.md",
+      "computedHash": "89ad2cbae3832da0b934e1eb6548aa7396b27744c12a1a409a6f318c7ca6253f",
+      "installMode": "copy"
+    },
+    "olakunlevpn-filament-skills": {
+      "source": "olakunlevpn/olakunlevpn-filament-skills",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "0562d590c14fa018f17f6a6b39d1aa12cf076a4b60f7ba9d2283b93819b08713",
+      "installMode": "copy"
     }
   }
 }

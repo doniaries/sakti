@@ -5,6 +5,7 @@ namespace App\Filament\Pages\Auth;
 use App\Models\PengaturanAplikasi;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\HtmlString;
 
 class Login extends BaseLogin
 {
@@ -32,12 +33,15 @@ class Login extends BaseLogin
             $logoUrl = asset('storage/' . $pengaturan->logo);
         }
 
-        return view('filament.pages.auth.login-heading', [
-            'namaAplikasi' => $namaAplikasi,
-            'kepanjangan' => $kepanjangan,
-            'namaDinas' => $namaDinas,
-            'logoUrl' => $logoUrl,
-            'defaultHeading' => __('filament-panels::auth/pages/login.heading'),
-        ]);
+        return new HtmlString(
+            view('filament.pages.auth.login-heading', [
+                'namaAplikasi' => $namaAplikasi,
+                'kepanjangan' => $kepanjangan,
+                'namaDinas' => $namaDinas,
+                'logoUrl' => $logoUrl,
+                'defaultHeading' => __('filament-panels::auth/pages/login.heading'),
+            ])->render()
+        );
     }
 }
+

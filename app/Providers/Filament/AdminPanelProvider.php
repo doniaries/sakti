@@ -47,7 +47,7 @@ class AdminPanelProvider extends PanelProvider
                 'profile' => MenuItem::make()
                     ->label(function () {
                         /** @var \App\Models\User|null $user */
-                        $user = auth()->user();
+                        $user = \Illuminate\Support\Facades\Auth::user();
                         return $user ? $user->name : 'Profil';
                     })
                     ->url(fn(): string => EditProfilePage::getUrl())
