@@ -15,6 +15,11 @@ class PegawaiAbsensiBulanStatsWidget extends BaseWidget
 
     protected static ?int $sort = 2;
 
+    public static function canView(): bool
+    {
+        return false;
+    }
+
     protected function getStats(): array
     {
         /** @var \App\Models\User|null $user */
