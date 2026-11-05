@@ -4,11 +4,13 @@ on:
     branches: [main]
     paths:
       - "app/**"
-      - "resources/**"
-      - "routes/**"
-      - "public/**"
+      - "bootstrap/**"
       - "config/**"
       - "database/**"
+      - "lang/**"
+      - "public/**"
+      - "resources/**"
+      - "routes/**"
       - "composer.json"
       - "composer.lock"
       - "package-lock.json"
@@ -64,20 +66,20 @@ jobs:
       - name: 🏗️ Build assets
         run: npm run build
 
-      - name: 🧹 Sanitize & Prepare FTP Host
+      - name: 🧹 Sanitize & Validate FTP Host
         id: ftp_prep
         run: |
           RAW_SERVER="${{ secrets.FTP_SERVER }}"
+          if [ -z "$RAW_SERVER" ]; then
+            echo "::error::Secret FTP_SERVER belum diset di GitHub Repository Secrets!"
+            exit 1
+          fi
+
           # Hapus protokol seperti ftp://, ftps://, https://, http:// serta trailing slash dan spasi
           CLEAN_SERVER=$(echo "$RAW_SERVER" | sed -E 's|^[a-zA-Z]+://||' | sed -E 's|/.*$||' | tr -d '[:space:]')
           
-          # Fallback jika secret FTP_SERVER kosong atau belum diset
-          if [ -z "$CLEAN_SERVER" ]; then
-            CLEAN_SERVER="103.163.138.39"
-          fi
-          
           echo "target_server=$CLEAN_SERVER" >> "$GITHUB_OUTPUT"
-          echo "FTP Target Host disiapkan: $CLEAN_SERVER"
+          echo "FTP Target Host disiapkan secara aman dari secrets."
 
       - name: 🚀 Sync via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -91,16 +93,37 @@ jobs:
           exclude: |
             **/.git*
             **/.git*/**
-            **/tests/**
+            **/.github/**
+            **/.vscode/**
+            **/.idea/**
+            **/.agents/**
+            **/.claude/**
+            **/.antigravity/**
             **/.env*
+            **/*.sql
+            **/*.sqlite*
+            **/*.md
+            README.md
             **/node_modules/**
             **/vendor/**
-            **/database/*.sqlite
-            README.md
-            *.md
-            .antigravity/
+            **/tests/**
+            **/lhksource/**
+            storage/logs/**
+            storage/framework/cache/**
+            storage/framework/sessions/**
+            storage/framework/views/**
+            storage/app/public/**
+            *.py
+            match.php
+            modify_users.php
+            update_seeder.php
             load-test.js
             phpunit.xml
+            .phpunit.result.cache
             .editorconfig
             .gitattributes
-            .github/**
+            .gitignore
+            skills-lock.json
+            package.json
+            package-lock.json
+            vite.config.js
