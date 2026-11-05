@@ -533,17 +533,54 @@ Master data dikelola terpusat oleh **Admin Keuangan** untuk menjamin standarisas
    - **Master Kode Rekening** (`kode_rekenings` / `master_rekening`): Kode rekening belanja daerah (misal: belanja ATK, cetak, konsumsi, belanja modal, dll).
    - **Master Barang Persediaan** (`master_barangs`): Katalog standar barang persediaan (`kode_barang`, `nama_barang`, `satuan_id`, `spesifikasi`, `harga_satuan_standar`).
    - **Satuan Barang** (`satuans`): Standar satuan unit/barang (rim, pack, pcs, dus, dll).
+   - **Master Syarat Belanja Dinamis** (`master_syarat_belanja`): Konfigurasi dokumen checklist persyaratan per jenis belanja dan metode pengadaan.
+   - **Master Standar BBM Per Nagari & Wilayah** (`master_tujuan_bbm`): Kuota liter resmi per nagari tujuan di Kabupaten Sijunjung dan luar daerah.
+   - **Master Wilayah Sijunjung** (`kecamatans` & `nagaris`): 8 Kecamatan dan 62 Nagari resmi di Kabupaten Sijunjung sebagai basis penugasan dan standar SPPD/BBM.
    - **Alokasi Pagu Anggaran** (`pagu_sub_kegiatans`): Pagu pagu batas belanja per sub-kegiatan dan kode rekening dalam tahun anggaran berjalan.
-2. **Cascading Dependent Dropdown Reaktif (Filament 4/5)**:
+2. **Cascading Dependent Dropdown Reaktif (Filament 4/5) & Quick-Add In-Place**:
    - Form entri pengajuan menerapkan filter bertingkat berurutan:
      $$\text{Bidang} \longrightarrow \text{Kegiatan} \longrightarrow \text{Sub Kegiatan} \longrightarrow \text{Kode Rekening} \longrightarrow \text{Katalog Barang}$$
    - Dropdown menggunakan `->live()` di Filament: saat Kegiatan dipilih, opsi Sub Kegiatan langsung terfilter; saat Sub Kegiatan dipilih, opsi Kode Rekening dan Barang hanya menampilkan alokasi belanja yang sah sesuai pagu sub kegiatan bersangkutan. Dilarang memunculkan rekening atau barang di luar peruntukan subkegiatan tersebut.
+   - **Quick-Add Tanpa Bolak-Balik (`createOptionForm`)**: Seluruh dropdown penting (Kegiatan, Sub Kegiatan, Rekening Belanja, Barang Baru, Data Toko, hingga Nagari/Tujuan BBM) dilengkapi aksi modal `createOptionForm()` langsung dari form pengajuan sehingga pengguna tidak perlu berpindah menu.
 3. **Pemisahan Tabel Transaksi SPJ vs Stok Persediaan**:
-   - **`pengajuan_spj`**: Header transaksi SPJ memuat `nomor_pengajuan`, `bidang_id`, `kegiatan_id`, `sub_kegiatan_id`, `tanggal_pengajuan`, `total_nilai_rencana`, `total_nilai_realisasi`, status, berkas unggahan, dan snapshot identitas para pejabat penandatangan.
+   - **`pengajuan_spj`**: Header transaksi SPJ memuat `nomor_pengajuan`, `metode_pengadaan`, `jenis_belanja`, `bidang_id`, `kegiatan_id`, `sub_kegiatan_id`, `tanggal_pengajuan`, `total_nilai_rencana`, `total_nilai_realisasi`, rincian pajak (`ppn_persen`, `pph22_persen`, `nilai_ppn`, `nilai_pph22`, `total_pajak`, `nilai_bersih`), data SPPD/BBM, status, berkas unggahan, dan snapshot identitas para pejabat penandatangan.
    - **`detail_pengajuan_spj`**: Rincian item barang memuat `rekening_id`, `barang_id`, `kuantitas_rencana`, `harga_rencana`, `kuantitas_realisasi`, `harga_realisasi`, `subtotal_realisasi`.
    - **`verifikasi_spj`**: Menyimpan checklist pemeriksaan per tahapan jabatan.
    - **`riwayat_status_spj`**: Log audit jejak workflow perubahan status.
    - **`rincian_anggaran_belanja`**: Satu-satunya sumber kendali alokasi pagu belanja (`volume`, `pagu_total`, `volume_realisasi`, `nilai_realisasi`, `sisa_volume`, `sisa_anggaran`). Pencairan SPJ secara otomatis menambah realisasi dan memotong sisa pagu kuota RKA.
+
+---
+
+### C.1. Klasifikasi Metode Pengadaan & Jenis Belanja Daerah
+
+SAKTI membagi pengajuan pengeluaran kas dinas ke dalam 2 dimensi mandiri:
+
+1. **Metode Pengadaan (`metode_pengadaan`)**:
+   - **`e_katalog` (E-Purchasing LKPP)**:
+     - Dokumen Surat Pesanan, BAST Rekanan, dan Kwitansi sudah terbit resmi dari portal E-Katalog/E-Proc LKPP.
+     - Staf **TIDAK PERLU** menginput rincian barang per unit satu per satu; cukup menginput total nilai paket dan **mengunggah PDF Bundel E-Katalog**.
+     - Sistem SAKTI hanya memproses verifikasi berjenjang dan menerbitkan **Nota Pencairan Dana (NPD)** resmi.
+   - **`non_katalog` (Pengadaan Langsung)**:
+     - Pengadaan barang/jasa langsung melalui toko/rekanan fisik.
+     - SAKTI men-generate seluruh dokumen resmi: Surat Pesanan Barang, Kwitansi 4-Rangkap, BAST, dan NPD.
+
+2. **Jenis Belanja (`jenis_belanja`)**:
+   - **`barang_jasa`**: Belanja ATK, perlengkapan kantor, cetak penggandaan, dan pemeliharaan.
+   - **`makan_minum`**: Belanja jamuan rapat dinas (snack box & nasi box sesuai pagu DPA/RKA).
+   - **`sppd`**: Belanja Perjalanan Dinas (Tingkat: Dalam Kabupaten per Nagari, Luar Kabupaten, Luar Provinsi). Mengelola Nomor SPT, Tanggal SPT, Waktu Berangkat & Kembali (lama hari otomatis), Lokasi Tujuan, dan Pelaksana Tugas.
+   - **`bbm`**: Belanja Bahan Bakar Minyak kedinasan dengan standar kuota liter resmi per Nagari tujuan di Kabupaten Sijunjung atau rute luar daerah.
+
+3. **Otomasi Pemotongan Pajak Belanja Barang (Threshold > Rp 2.000.000,-)**:
+   - **Belanja $\le$ Rp 2.000.000,-**: Bebas PPN (0%) dan Bebas PPh 22 (0%).
+   - **Belanja $>$ Rp 2.000.000,-**:
+     - **PPN = 11%**
+     - **PPh Pasal 22 = 1,5%**
+     - Sistem otomatis menghitung potongan:
+       $$\text{Nilai PPN} = \text{Bruto} \times 11\%$$
+       $$\text{Nilai PPh 22} = \text{Bruto} \times 1,5\%$$
+       $$\text{Total Pajak} = \text{Nilai PPN} + \text{Nilai PPh 22} \quad (12,5\%)$$
+       $$\text{Diterima Bersih (Netto)} = \text{Total Bruto} - \text{Total Pajak}$$
+     - Rincian potongan PPN 11% dan PPh 22 1,5% otomatis tertera secara transparan pada formulir, Surat Pesanan, lembar Kwitansi Kas, dan Nota Pencairan Dana (NPD).
 
 ---
 

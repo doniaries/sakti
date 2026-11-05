@@ -122,6 +122,40 @@ class PengajuanSpjsTable
                     ->date('d/m/Y')
                     ->sortable(),
 
+                TextColumn::make('metode_pengadaan')
+                    ->label('Metode')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'e_katalog' => 'E-Katalog',
+                        default => 'Non-Katalog',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'e_katalog' => 'info',
+                        default => 'gray',
+                    })
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('jenis_belanja')
+                    ->label('Jenis Belanja')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'barang_jasa' => 'Barang & Jasa',
+                        'makan_minum' => 'Makan Minum',
+                        'sppd' => 'SPPD',
+                        'bbm' => 'BBM',
+                        default => 'Barang & Jasa',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'barang_jasa' => 'primary',
+                        'makan_minum' => 'warning',
+                        'sppd' => 'success',
+                        'bbm' => 'danger',
+                        default => 'primary',
+                    })
+                    ->sortable()
+                    ->toggleable(),
+
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()

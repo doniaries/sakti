@@ -409,15 +409,24 @@
                     <td colspan="6" class="text-right font-bold">Subtotal</td>
                     <td class="text-right font-bold">{{ number_format($subtotalPesanan, 0, ',', '.') }}</td>
                 </tr>
+                @if ($nilaiPpn > 0)
                 <tr>
                     <td colspan="6" class="text-right">
                         <strong>PPN ({{ rtrim(rtrim(number_format($ppnPersen, 2, ',', '.'), '0'), ',') }}%)</strong>
-                        <span style="font-size: 8pt; font-style: italic;">(Sesuaikan tarif pajak)</span>
                     </td>
                     <td class="text-right">{{ number_format($nilaiPpn, 0, ',', '.') }}</td>
                 </tr>
+                @endif
+                @if ($nilaiPph22 > 0)
                 <tr>
-                    <td colspan="6" class="text-right font-bold" style="background-color: #f2f2f2;">TOTAL</td>
+                    <td colspan="6" class="text-right">
+                        <strong>PPh Pasal 22 ({{ rtrim(rtrim(number_format($pph22Persen, 2, ',', '.'), '0'), ',') }}%)</strong>
+                    </td>
+                    <td class="text-right">{{ number_format($nilaiPph22, 0, ',', '.') }}</td>
+                </tr>
+                @endif
+                <tr>
+                    <td colspan="6" class="text-right font-bold" style="background-color: #f2f2f2;">TOTAL PESANAN</td>
                     <td class="text-right font-bold" style="background-color: #f2f2f2;">{{ number_format($totalSetelahPpn, 0, ',', '.') }}</td>
                 </tr>
             </tfoot>
@@ -529,6 +538,9 @@
                     an. {{ $spj->penerima_nama ?: '-' }}
                     Pada {{ $spj->nama_toko ?: '-' }} {{ $spj->alamat_toko ?: 'Muaro Sijunjung' }},
                     sesuai DPA Dinas Parpora No Rek yang tercantum diatas ( Faktur terlampir ).
+                    @if ($totalPajak > 0)
+                        <br><span style="font-size: 7.5pt; font-weight: bold; color: #111;">[ Rincian Pajak: PPN {{ $ppnPersen }}% = Rp {{ number_format($nilaiPpn, 0, ',', '.') }} | PPh 22 {{ $pph22Persen }}% = Rp {{ number_format($nilaiPph22, 0, ',', '.') }} | Diterima Bersih = Rp {{ number_format($nilaiBersih, 0, ',', '.') }} ]</span>
+                    @endif
                 </td>
             </tr>
             <tr>
@@ -756,11 +768,21 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" class="text-right font-bold" style="border-left: none;">Jumlah</td>
+                                <td colspan="3" class="text-right font-bold" style="border-left: none;">Jumlah Bruto</td>
                                 <td class="text-right font-bold">Rp{{ number_format((float) $spj->total_nilai_rencana, 2, ',', '.') }}</td>
                                 <td class="text-right font-bold">Rp{{ number_format((float) $spj->total_nilai_rencana, 2, ',', '.') }}</td>
                                 <td class="text-right font-bold" style="border-right: none;">Rp{{ number_format((float) $totalNominal, 2, ',', '.') }}</td>
                             </tr>
+                            @if ($totalPajak > 0)
+                            <tr>
+                                <td colspan="5" class="text-right font-bold" style="border-left: none;">Potongan Pajak (PPN {{ $ppnPersen }}% + PPh 22 {{ $pph22Persen }}%)</td>
+                                <td class="text-right font-bold" style="border-right: none; color: #b91c1c;">(Rp{{ number_format($totalPajak, 2, ',', '.') }})</td>
+                            </tr>
+                            <tr>
+                                <td colspan="5" class="text-right font-bold" style="border-left: none; background-color: #f8fafc;">Jumlah Bersih yang Diterima (Netto)</td>
+                                <td class="text-right font-bold" style="border-right: none; background-color: #f8fafc; color: #047857;">Rp{{ number_format($nilaiBersih, 2, ',', '.') }}</td>
+                            </tr>
+                            @endif
                         </tfoot>
                     </table>
                 </td>
