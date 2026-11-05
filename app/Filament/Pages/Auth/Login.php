@@ -31,6 +31,8 @@ class Login extends BaseLogin
         $logoUrl = null;
         if (!empty($pengaturan?->logo)) {
             $logoUrl = asset('storage/' . $pengaturan->logo);
+        } elseif (file_exists(public_path('images/kabupaten-sijunjung.png'))) {
+            $logoUrl = asset('images/kabupaten-sijunjung.png');
         }
 
         return new HtmlString(

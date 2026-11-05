@@ -32,6 +32,7 @@ class InstansiForm
                         FileUpload::make('logo')
                             ->label('Logo Instansi')
                             ->image()
+                            ->disk('public')
                             ->directory('instansis')
                             ->maxSize(2048)
                             ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/jpg'])

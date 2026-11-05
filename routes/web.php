@@ -59,6 +59,10 @@ Route::get('/storage/{path}', function (string $path) {
     $filePath = storage_path('app/public/' . $path);
 
     if (! file_exists($filePath)) {
+        $privatePath = storage_path('app/private/' . $path);
+        if (file_exists($privatePath)) {
+            return response()->file($privatePath);
+        }
         abort(404);
     }
 

@@ -109,6 +109,7 @@ class PengaturanAplikasiForm
                             ->label('Logo Resmi Instansi / Aplikasi')
                             ->helperText('Format file gambar (PNG, JPG, SVG). Disarankan rasio kotak / persegi.')
                             ->image()
+                            ->disk('public')
                             ->directory('aplikasi')
                             ->imageEditor()
                             ->maxSize(2048)
