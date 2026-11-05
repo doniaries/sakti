@@ -86,8 +86,8 @@ class DataPegawaiSeeder extends Seeder
             $user->assignRole('pegawai');
         }
 
-        // --- Atur Akun Khusus & Peran Anggaran (Enum AnggaranRole) ---
-        // 1. PPTK Pemasaran Pariwisata (DONI ARIES) - bukan lagi SuperAdmin
+        // --- Atur Akun Khusus & Peran Anggaran (Enum AnggaranRole & Roles Spatie) ---
+        // 1. PPTK Pemasaran Pariwisata (DONI ARIES)
         $doni = User::query()->where('name', 'LIKE', '%DONI ARIES%')->first();
         if ($doni) {
             $doni->update([
@@ -96,7 +96,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
-            $doni->syncRoles(['pegawai']);
+            $doni->syncRoles(['pptk', 'pegawai']);
         }
 
         // 2. Akun Khusus SuperAdmin Sistem (tidak dihitung sebagai pegawai dinas)
@@ -135,7 +135,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PA,
             ]);
-            $afrineldi->syncRoles(['pegawai']);
+            $afrineldi->syncRoles(['pa', 'pegawai']);
         }
 
         // 5. PPK - Pejabat Pembuat Komitmen (JULHARDIANTO)
@@ -147,7 +147,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PPK,
             ]);
-            $julhardianto->syncRoles(['pegawai']);
+            $julhardianto->syncRoles(['ppk', 'pegawai']);
         }
 
         // 6. Sekretaris / PPTK Sekretariat (DESMAWATI)
@@ -159,7 +159,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
-            $desmawati->syncRoles(['pegawai']);
+            $desmawati->syncRoles(['pptk', 'pegawai']);
         }
 
         // 7. Kabid Destinasi / PPTK Destinasi (WILDA ARDES)
@@ -171,7 +171,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
-            $wilda->syncRoles(['pegawai']);
+            $wilda->syncRoles(['pptk', 'pegawai']);
         }
 
         // 8. Kabid Pemuda & Olahraga / PPTK Dispora (INDRAWADI)
@@ -183,7 +183,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
-            $indrawadi->syncRoles(['pegawai']);
+            $indrawadi->syncRoles(['pptk', 'pegawai']);
         }
 
         // 9. 2 Orang Jabatan Fungsional (JF) untuk Akses Cepat
@@ -209,7 +209,7 @@ class DataPegawaiSeeder extends Seeder
             $andra->syncRoles(['pegawai']);
         }
 
-        // 10. 2 Orang Staf Pelaksana untuk Akses Cepat
+        // 10. 2 Orang Staf Pelaksana / Operator SPJ
         $maulana = User::query()->where('name', 'LIKE', '%MAULANA IBRAHIM%')->first();
         if ($maulana) {
             $maulana->update([
@@ -218,7 +218,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $maulana->syncRoles(['pegawai']);
+            $maulana->syncRoles(['staf_keuangan', 'pegawai']);
         }
 
         $roni = User::query()->where('name', 'LIKE', '%RONI RIVANDRA%')->first();
@@ -229,7 +229,19 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $roni->syncRoles(['pegawai']);
+            $roni->syncRoles(['staf_keuangan', 'pegawai']);
+        }
+
+        // 11. Bendahara Pengeluaran (WIWIRNA)
+        $wiwirna = User::query()->where('name', 'LIKE', '%WIWIRNA%')->first();
+        if ($wiwirna) {
+            $wiwirna->update([
+                'email' => 'bendahara@gmail.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'aktif' => true,
+                'anggaran_role' => \App\Enums\AnggaranRole::BENDAHARA,
+            ]);
+            $wiwirna->syncRoles(['bendahara', 'pegawai']);
         }
     }
 }

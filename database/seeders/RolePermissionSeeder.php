@@ -13,10 +13,15 @@ class RolePermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // Pastikan role super_admin, admin, dan pegawai sudah ada
+        // 1. Pastikan seluruh role sistem terdaftar
         $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $pegawaiRole = Role::firstOrCreate(['name' => 'pegawai', 'guard_name' => 'web']);
+        $paRole = Role::firstOrCreate(['name' => 'pa', 'guard_name' => 'web']);
+        $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
+        $pptkRole = Role::firstOrCreate(['name' => 'pptk', 'guard_name' => 'web']);
+        $stafKeuanganRole = Role::firstOrCreate(['name' => 'staf_keuangan', 'guard_name' => 'web']);
+        $bendaharaRole = Role::firstOrCreate(['name' => 'bendahara', 'guard_name' => 'web']);
 
         // Buat permissions widget jika belum ada agar seeder tidak error karena data kosong
         Permission::firstOrCreate(['name' => 'View:PegawaiAbsensiBulanChartWidget', 'guard_name' => 'web']);
@@ -27,13 +32,11 @@ class RolePermissionSeeder extends Seeder
         $superAdminRole->syncPermissions(Permission::all());
 
         // === 1. Setup Role Admin Dinas ===
-        // Admin bisa melakukan semuanya (termasuk ViewAny:Bidang & View:Bidang) kecuali mengatur Role
         $adminPermissions = Permission::where('name', 'not like', '%Role%')->get();
         $adminRole->syncPermissions($adminPermissions);
 
-        // === 2. Setup Role Pegawai (Staf & Kepala Bidang) ===
-        // Pegawai bisa mengelola Keuangan & SPJ pada bidangnya sendiri (TIDAK diberi ViewAny:Bidang / View:Bidang)
-        $pegawaiPermissions = Permission::whereIn('name', [
+        // Permissions Dasar Kepegawaian (Presensi, LHK, Profil Diri)
+        $basicPegawaiPermissions = [
             'ViewAny:AbsensiHarian',
             'View:AbsensiHarian',
             'ViewAny:LogAbsensi',
@@ -45,12 +48,53 @@ class RolePermissionSeeder extends Seeder
             'Delete:Lhk',
             'View:User',
             'Update:User',
-            // Permissions Modul Keuangan & SPJ (scoping per Bidang via Shield Policy)
+            'View:Dashboard',
+            'View:KeuanganBidangOverviewWidget',
+            'View:LatestAbsensiWidget',
+            'View:PegawaiAbsensiBulanChartWidget',
+            'View:PegawaiAbsensiBulanStatsWidget',
+        ];
+
+        // === 2. Setup Role PA (Pengguna Anggaran / Kepala Dinas) ===
+        // Otorisasi tertinggi anggaran se-Dinas (semua bidang), persetujuan & TTD Kwitansi + NPD, pantau penyerapan pagu
+        $paPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
             'ViewAny:PengajuanSpj',
             'View:PengajuanSpj',
-            'Create:PengajuanSpj',
             'Update:PengajuanSpj',
-            'Delete:PengajuanSpj',
+            'ViewAny:RincianAnggaranBelanja',
+            'View:RincianAnggaranBelanja',
+            'ViewAny:MasterProgram',
+            'View:MasterProgram',
+            'ViewAny:MasterKegiatan',
+            'View:MasterKegiatan',
+            'ViewAny:MasterSubKegiatan',
+            'View:MasterSubKegiatan',
+            'ViewAny:KodeRekening',
+            'View:KodeRekening',
+            'ViewAny:MasterToko',
+            'View:MasterToko',
+            'ViewAny:MasterBarang',
+            'View:MasterBarang',
+            'ViewAny:Bidang',
+            'View:Bidang',
+            'ViewAny:User',
+        ]))->get();
+        $paRole->syncPermissions($paPermissions);
+
+        // === 3. Setup Role PPK (Pejabat Pembuat Komitmen / Kasubag Keuangan / Sekdis) ===
+        // Verifikasi administrasi & pagu se-Dinas (checklist kelayakan), kelola DPA/RKA & kuota belanja RKA
+        $ppkPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
+            'ViewAny:PengajuanSpj',
+            'View:PengajuanSpj',
+            'Update:PengajuanSpj',
+            'ViewAny:RincianAnggaranBelanja',
+            'View:RincianAnggaranBelanja',
+            'Create:RincianAnggaranBelanja',
+            'Update:RincianAnggaranBelanja',
+            'ViewAny:MasterProgram',
+            'View:MasterProgram',
+            'Create:MasterProgram',
+            'Update:MasterProgram',
             'ViewAny:MasterKegiatan',
             'View:MasterKegiatan',
             'Create:MasterKegiatan',
@@ -59,6 +103,108 @@ class RolePermissionSeeder extends Seeder
             'View:MasterSubKegiatan',
             'Create:MasterSubKegiatan',
             'Update:MasterSubKegiatan',
+            'ViewAny:KodeRekening',
+            'View:KodeRekening',
+            'Create:KodeRekening',
+            'Update:KodeRekening',
+            'ViewAny:MasterToko',
+            'View:MasterToko',
+            'Create:MasterToko',
+            'Update:MasterToko',
+            'ViewAny:MasterBarang',
+            'View:MasterBarang',
+            'Create:MasterBarang',
+            'Update:MasterBarang',
+            'ViewAny:Bidang',
+            'View:Bidang',
+            'ViewAny:User',
+        ]))->get();
+        $ppkRole->syncPermissions($ppkPermissions);
+
+        // === 4. Setup Role PPTK (Pejabat Pelaksana Teknis Kegiatan / Kepala Bidang) ===
+        // Otorisasi teknis kegiatan di bidangnya: TTD Surat Pesanan (Tahap 1), Verifikasi & TTD Kwitansi (Tahap 2)
+        $pptkPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
+            'ViewAny:PengajuanSpj',
+            'View:PengajuanSpj',
+            'Create:PengajuanSpj',
+            'Update:PengajuanSpj',
+            'ViewAny:RincianAnggaranBelanja',
+            'View:RincianAnggaranBelanja',
+            'ViewAny:MasterKegiatan',
+            'View:MasterKegiatan',
+            'ViewAny:MasterSubKegiatan',
+            'View:MasterSubKegiatan',
+            'ViewAny:KodeRekening',
+            'View:KodeRekening',
+            'ViewAny:MasterToko',
+            'View:MasterToko',
+            'ViewAny:MasterBarang',
+            'View:MasterBarang',
+        ]))->get();
+        $pptkRole->syncPermissions($pptkPermissions);
+
+        // === 5. Setup Role Staf Keuangan / Operator SPJ Bidang ===
+        // Pengusul belanja: buat draf Surat Pesanan, input realisasi aktual, unggah faktur/foto fisik toko
+        $stafKeuanganPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
+            'ViewAny:PengajuanSpj',
+            'View:PengajuanSpj',
+            'Create:PengajuanSpj',
+            'Update:PengajuanSpj',
+            'Delete:PengajuanSpj',
+            'ViewAny:RincianAnggaranBelanja',
+            'View:RincianAnggaranBelanja',
+            'ViewAny:MasterKegiatan',
+            'View:MasterKegiatan',
+            'ViewAny:MasterSubKegiatan',
+            'View:MasterSubKegiatan',
+            'ViewAny:KodeRekening',
+            'View:KodeRekening',
+            'ViewAny:MasterToko',
+            'View:MasterToko',
+            'Create:MasterToko',
+            'Update:MasterToko',
+            'ViewAny:MasterBarang',
+            'View:MasterBarang',
+        ]))->get();
+        $stafKeuanganRole->syncPermissions($stafKeuanganPermissions);
+
+        // === 6. Setup Role Bendahara Pengeluaran ===
+        // Uji kas, pencairan dana, pemungutan pajak, input nomor BKU & tgl cair, serta TTD Lunas Kwitansi
+        $bendaharaPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
+            'ViewAny:PengajuanSpj',
+            'View:PengajuanSpj',
+            'Update:PengajuanSpj',
+            'ViewAny:RincianAnggaranBelanja',
+            'View:RincianAnggaranBelanja',
+            'ViewAny:MasterProgram',
+            'View:MasterProgram',
+            'ViewAny:MasterKegiatan',
+            'View:MasterKegiatan',
+            'ViewAny:MasterSubKegiatan',
+            'View:MasterSubKegiatan',
+            'ViewAny:KodeRekening',
+            'View:KodeRekening',
+            'ViewAny:MasterToko',
+            'View:MasterToko',
+            'ViewAny:MasterBarang',
+            'View:MasterBarang',
+            'ViewAny:Bidang',
+            'View:Bidang',
+            'ViewAny:User',
+        ]))->get();
+        $bendaharaRole->syncPermissions($bendaharaPermissions);
+
+        // === 7. Setup Role Pegawai Standar (Non-Keuangan Khusus) ===
+        $pegawaiPermissions = Permission::whereIn('name', array_merge($basicPegawaiPermissions, [
+            'ViewAny:PengajuanSpj',
+            'View:PengajuanSpj',
+            'Create:PengajuanSpj',
+            'Update:PengajuanSpj',
+            'Delete:PengajuanSpj',
+            'ViewAny:MasterKegiatan',
+            'View:MasterKegiatan',
+            'ViewAny:MasterSubKegiatan',
+            'View:MasterSubKegiatan',
             'ViewAny:MasterToko',
             'View:MasterToko',
             'Create:MasterToko',
@@ -67,15 +213,9 @@ class RolePermissionSeeder extends Seeder
             'View:KodeRekening',
             'ViewAny:MasterBarang',
             'View:MasterBarang',
-            // Widgets
-            'View:KeuanganBidangOverviewWidget',
-            'View:LatestAbsensiWidget',
-            'View:PegawaiAbsensiBulanChartWidget',
-            'View:PegawaiAbsensiBulanStatsWidget',
-        ])->get();
-
+        ]))->get();
         $pegawaiRole->syncPermissions($pegawaiPermissions);
-        
-        $this->command->info('Hak Akses (Permissions) untuk Admin dan Pegawai telah berhasil disinkronisasi.');
+
+        $this->command?->info('Hak Akses (Permissions) untuk Role Keuangan (PA, PPK, PPTK, Staf Keuangan, Bendahara, Admin, Pegawai) telah berhasil disinkronisasi.');
     }
 }

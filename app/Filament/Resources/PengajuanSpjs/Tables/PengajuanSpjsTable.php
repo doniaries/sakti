@@ -47,7 +47,10 @@ class PengajuanSpjsTable
                     ? $user->anggaran_role->value
                     : $user?->anggaran_role;
 
-                if (! $canViewAllBidang && ! in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA'], true) && $user !== null) {
+                $isGlobalRole = in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA'], true)
+                    || ($user !== null && $user->hasAnyRole(['pa', 'ppk', 'bendahara', 'super_admin', 'admin']));
+
+                if (! $canViewAllBidang && ! $isGlobalRole && $user !== null) {
                     $userBidangId = filled($user->bidang_id)
                         ? (int) $user->bidang_id
                         : (int) (Bidang::where('kepala_id', $user->id)->value('id') ?? 0);
@@ -230,7 +233,36 @@ class PengajuanSpjsTable
                             default => 'success',
                         };
                     })
-                    ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true))
+                    ->visible(function (PengajuanSpj $record): bool {
+                        if (in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)) {
+                            return false;
+                        }
+
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        if (! $user) {
+                            return false;
+                        }
+
+                        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+                            return true;
+                        }
+
+                        $anggaranRole = $user->anggaran_role instanceof \App\Enums\AnggaranRole
+                            ? $user->anggaran_role->value
+                            : $user->anggaran_role;
+
+                        return match ($record->status) {
+                            'draft' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'diajukan' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'menunggu_realisasi', 'revisi_pptk' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'menunggu_verifikasi_pptk' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'menunggu_verifikasi_ppk', 'revisi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
+                            'menunggu_persetujuan_pa', 'revisi_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,
+                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => $user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' || $user->id === $record->bendahara_user_id,
+                            default => true,
+                        };
+                    })
                     ->form(function (PengajuanSpj $record): array {
                         $schema = [];
 
@@ -421,13 +453,39 @@ class PengajuanSpjsTable
                     ->label(fn(PengajuanSpj $record): string => $record->status === 'diajukan' ? 'Revisi Pesanan' : 'Kembalikan Revisi')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('danger')
-                    ->visible(fn(PengajuanSpj $record): bool => in_array($record->status, [
-                        'diajukan',
-                        'menunggu_verifikasi_pptk',
-                        'menunggu_verifikasi_ppk',
-                        'menunggu_persetujuan_pa',
-                        'menunggu_verifikasi_bendahara',
-                    ], true))
+                    ->visible(function (PengajuanSpj $record): bool {
+                        if (! in_array($record->status, [
+                            'diajukan',
+                            'menunggu_verifikasi_pptk',
+                            'menunggu_verifikasi_ppk',
+                            'menunggu_persetujuan_pa',
+                            'menunggu_verifikasi_bendahara',
+                        ], true)) {
+                            return false;
+                        }
+
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        if (! $user) {
+                            return false;
+                        }
+
+                        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+                            return true;
+                        }
+
+                        $anggaranRole = $user->anggaran_role instanceof \App\Enums\AnggaranRole
+                            ? $user->anggaran_role->value
+                            : $user->anggaran_role;
+
+                        return match ($record->status) {
+                            'diajukan', 'menunggu_verifikasi_pptk' => $user->hasRole('pptk') || $anggaranRole === 'PPTK',
+                            'menunggu_verifikasi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK',
+                            'menunggu_persetujuan_pa' => $user->hasRole('pa') || $anggaranRole === 'PA',
+                            'menunggu_verifikasi_bendahara' => $user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA',
+                            default => true,
+                        };
+                    })
                     ->form([
                         Textarea::make('catatan_revisi')
                             ->label('Catatan Instruksi Perbaikan / Revisi')
@@ -460,7 +518,36 @@ class PengajuanSpjsTable
 
                 // Edit hanya tampil jika berkas belum terkunci (disetujui/dicairkan/ditolak)
                 EditAction::make()
-                    ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)),
+                    ->visible(function (PengajuanSpj $record): bool {
+                        if (in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)) {
+                            return false;
+                        }
+
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        if (! $user) {
+                            return false;
+                        }
+
+                        if ($user->hasAnyRole(['super_admin', 'admin'])) {
+                            return true;
+                        }
+
+                        $anggaranRole = $user->anggaran_role instanceof \App\Enums\AnggaranRole
+                            ? $user->anggaran_role->value
+                            : $user->anggaran_role;
+
+                        return match ($record->status) {
+                            'draft' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'diajukan' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'menunggu_realisasi', 'revisi_pptk' => $user->hasRole('staf_keuangan') || $user->id === $record->user_id || $user->hasRole('pegawai'),
+                            'menunggu_verifikasi_pptk' => $user->hasRole('pptk') || $anggaranRole === 'PPTK' || $user->id === $record->pptk_user_id,
+                            'menunggu_verifikasi_ppk', 'revisi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
+                            'menunggu_persetujuan_pa', 'revisi_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,
+                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => $user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' || $user->id === $record->bendahara_user_id,
+                            default => true,
+                        };
+                    }),
 
                 ViewAction::make(),
 
