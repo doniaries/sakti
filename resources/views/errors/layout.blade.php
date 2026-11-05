@@ -238,7 +238,7 @@
             @php
                 /** @var \App\Models\User|null $user */
                 $user = auth()->user();
-                $isFilamentRequest = request()->is('admin*');
+                $isFilamentRequest = request()->is('admin*') || request()->is('*/admin*') || request()->routeIs('filament.*');
                 $isMobileRequest = request()->is('mobile*') || (! $isFilamentRequest && preg_match('/(android|iphone|ipad|mobile)/i', (string) request()->userAgent()));
                 $hasAdminAccess = $user && $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'pptk', 'jf', 'bendahara']);
 

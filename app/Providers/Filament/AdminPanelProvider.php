@@ -77,12 +77,6 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(),
                 NavigationGroup::make('Pengaturan')
                     ->collapsed(),
-                NavigationGroup::make('Konfigurasi Sistem')
-                    ->collapsed(),
-                NavigationGroup::make('Filament Shield')
-                    ->collapsed(),
-                NavigationGroup::make('Pelindung')
-                    ->collapsed(),
             ])
             ->colors([
                 'primary' => Color::Amber,
@@ -99,6 +93,7 @@ class AdminPanelProvider extends PanelProvider
                 'violet' => Color::Violet,
                 'lime' => Color::Lime,
             ])
+            ->defaultAvatarProvider(\App\Filament\AvatarProviders\SaktiAvatarProvider::class)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
@@ -149,7 +144,11 @@ class AdminPanelProvider extends PanelProvider
                         directory: 'avatars',
                         rules: 'mimes:jpeg,png|max:1024'
                     ),
-                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+                    ->navigationGroup('Pengaturan')
+                    ->navigationLabel('Peran & Hak Akses')
+                    ->navigationIcon('heroicon-o-shield-check')
+                    ->navigationSort(99),
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))
                     ->users([

@@ -254,7 +254,14 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             }
         }
 
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name ?? 'User') . '&background=0284c7&color=fff&size=160';
+        $cleanName = (string) preg_replace('/[^a-zA-Z0-9\s]/', '', $this->name ?? 'User');
+        $initials = collect(explode(' ', trim($cleanName)))
+            ->filter()
+            ->take(2)
+            ->map(fn($part) => strtoupper(substr($part, 0, 1)))
+            ->implode('');
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($initials ?: 'U') . '&background=0284c7&color=ffffff&size=160';
     }
 
     public function getFilamentAvatarUrl(): ?string
@@ -274,7 +281,15 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             }
         }
 
-        return null;
+        // Hindari return null agar Filament v4/v5 tidak memanggil UiAvatarsProvider bawaan yang mengirim oklch (error 400 Bad Request)
+        $cleanName = (string) preg_replace('/[^a-zA-Z0-9\s]/', '', $this->name ?? 'User');
+        $initials = collect(explode(' ', trim($cleanName)))
+            ->filter()
+            ->take(2)
+            ->map(fn($part) => strtoupper(substr($part, 0, 1)))
+            ->implode('');
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($initials ?: 'U') . '&background=0284c7&color=ffffff&size=160';
     }
 
     public function getFilamentName(): string

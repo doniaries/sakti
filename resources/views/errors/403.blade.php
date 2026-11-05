@@ -7,7 +7,7 @@
     @php
         $isFilament = request()->is('admin*');
     @endphp
-    @if(!empty($exception?->getMessage()) && !in_array($exception->getMessage(), ['This action is unauthorized.', 'Forbidden']))
+    @if(isset($exception) && filled($exception?->getMessage()) && !in_array($exception->getMessage(), ['This action is unauthorized.', 'Forbidden']))
         {{ $exception->getMessage() }}
     @elseif($isFilament)
         Mohon maaf, akun Anda tidak memiliki hak akses untuk membuka Panel Administrator Sistem. Panel ini khusus diperuntukkan bagi pejabat pengelola dan administrator berwenang. Silakan hubungi Kasubag Umum & Kepegawaian jika Anda memerlukan akses.

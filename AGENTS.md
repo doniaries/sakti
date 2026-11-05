@@ -418,6 +418,8 @@ Untuk menjaga agar Shield mudah dipelihara dan tidak membebani database:
 3. **Pemisahan Tegas Antara Shield vs Aturan Bisnis**:
    - Shield hanya mengatur: *"Boleh atau tidak membuka menu / form input CRUD"* (Tingkat Makro).
    - Aturan bisnis kedinasan (seperti kewenangan TTD per bidang, batas status SPJ, kuota pagu RKA) dikelola pada **Model Policy / Action `visible()` / Query Builder `modifyQueryUsing()`** (Tingkat Mikro).
+4. **Penyatuan Menu Shield ke NavigationGroup 'Pengaturan'**:
+   Resource peran & hak akses Shield (`RoleResource`) disatukan ke dalam grup `'Pengaturan'` dengan label `'Peran & Hak Akses'` dan icon `'heroicon-o-shield-check'`, sehingga sidebar menu admin lebih rapi, terpusat, dan tidak memunculkan grup navigasi terpisah "Filament Shield".
 
 ### H. Halaman Error 403 User-Friendly & Smart Device Redirection
 1. **Pesan Resmi Bahasa Indonesia**: Menghilangkan tampilan default Laravel (*"This action is unauthorized"*). Menyajikan pesan santun resmi kedinasan dan informasi akun/bidang yang sedang aktif.
@@ -425,9 +427,13 @@ Untuk menjaga agar Shield mudah dipelihara dan tidak membebani database:
    - **Konteks Akses Filament (`/admin`)**: Menampilkan tombol utama **"Kembali ke Beranda"** (menuju `/admin` bagi pejabat pengelola atau ke portal utama `/` bagi pegawai biasa) dengan icon Home.
    - **Konteks Akses Mobile (`/mobile`)**: Menampilkan tombol utama **"Kembali ke Presensi Mobile"** (menuju `route('mobile.dashboard')`) dengan icon Ponsel.
 
-### I. Jalur Ganda Storage & Streaming Fallback (`/media-file/`)
-- Mencegah masalah foto avatar atau logo instansi rusak (*broken image 404*) pada server Linux / VPS / cPanel jika symlink `public/storage` belum aktif atau diblokir static file cache Nginx.
-- Sistem menyediakan route fallback streaming langsung: `/media-file/{path}` yang melayani file secara aman dan instan langsung dari folder `storage/app/public/`.
+### I. Jalur Ganda Storage, Avatar Provider & Anti Broken Image
+1. **Jalur Ganda Storage & Streaming Fallback (`/media-file/`)**:
+   - Mencegah masalah foto avatar atau logo instansi rusak (*broken image 404*) pada server Linux / VPS / cPanel jika symlink `public/storage` belum aktif atau diblokir static file cache Nginx.
+   - Sistem menyediakan route fallback streaming langsung: `/media-file/{path}` yang melayani file secara aman dan instan langsung dari folder `storage/app/public/`.
+2. **Avatar Provider Mandiri (`SaktiAvatarProvider`) & HEX Fallback**:
+   - **Akar Masalah**: Filament v4/v5 secara default menggunakan color palette `oklch(...)` (Tailwind CSS v4). `UiAvatarsProvider` bawaan Filament mengirimkan string warna `background=oklch(0.141 0.005 285.823)` ke API eksternal `ui-avatars.com`, yang menyebabkan `HTTP 400 Bad Request` dan menghasilkan ikon avatar gambar rusak (*broken image*).
+   - **Solusi Baku**: Panel Admin mendaftarkan `SaktiAvatarProvider` via `->defaultAvatarProvider(SaktiAvatarProvider::class)` dan method `getFilamentAvatarUrl()` serta `getAvatarImageUrlAttribute()` pada model `User` selalu mengembalikan inisial nama dengan background HEX `#0284c7` yang valid, sehingga avatar selalu tampil bersih dan tidak pernah rusak.
 
 ---
 
