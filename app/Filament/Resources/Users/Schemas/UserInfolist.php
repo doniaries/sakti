@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use App\Filament\Resources\Users\UserResource;
+use Filament\Actions\Action;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -25,6 +27,14 @@ class UserInfolist
                 // Header Identitas Utama Pegawai
                 Section::make('Identitas Pegawai')
                     ->icon('heroicon-o-identification')
+                    ->headerActions([
+                        Action::make('edit')
+                            ->label('Ubah')
+                            ->icon('heroicon-m-pencil-square')
+                            ->color('warning')
+                            ->button()
+                            ->url(fn ($record) => UserResource::getUrl('edit', ['record' => $record])),
+                    ])
                     ->schema([
                         Grid::make([
                             'default' => 1,

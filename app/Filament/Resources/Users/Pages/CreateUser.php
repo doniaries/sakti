@@ -24,6 +24,11 @@ class CreateUser extends CreateRecord
                 ->color('primary')
                 ->action('create')
                 ->keyBindings(['mod+s']),
+            Action::make('batal')
+                ->label('Batal')
+                ->icon('heroicon-o-x-mark')
+                ->color('danger')
+                ->url($this->getResource()::getUrl('index')),
         ];
     }
 
