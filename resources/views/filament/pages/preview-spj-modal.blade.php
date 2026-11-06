@@ -84,54 +84,35 @@
     }"
 >
     {{-- ==================== KOLOM KIRI: RINGKASAN & PILIH DOKUMEN (FIT DI LAYAR) ==================== --}}
-    <div style="width: 310px; min-width: 290px; max-width: 320px; display: flex; flex-direction: column; gap: 8px; height: 100%; overflow-y: auto; padding-right: 4px;">
+    <div style="width: 320px; min-width: 300px; max-width: 330px; display: flex; flex-direction: column; gap: 10px; height: 100%; overflow-y: auto; padding-right: 2px;">
         
-        {{-- CARD 1: INFORMASI RINGKAS TRANSAKSI & ANGGARAN --}}
-        <div class="rounded-xl border border-gray-200 bg-white p-2.5 shadow-xs dark:border-white/10 dark:bg-gray-900" style="font-size: 11px;">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-1 mb-1.5 dark:border-white/5">
-                <span class="font-bold text-gray-900 dark:text-white truncate text-[11px]">{{ $record->nomor_pengajuan }}</span>
-                <span class="inline-flex rounded px-1.5 py-0.5 text-[9px] font-bold bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+        {{-- CARD 1: INFORMASI UTAMA TRANSAKSI SPJ --}}
+        <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-2 mb-2 dark:border-white/5">
+                <span class="font-extrabold text-gray-900 dark:text-white text-sm tracking-tight truncate">{{ $record->nomor_pengajuan }}</span>
+                <span class="inline-flex rounded-md px-2 py-0.5 text-[10px] font-bold bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300">
                     {{ strtoupper(str_replace('_', ' ', $record->status)) }}
                 </span>
             </div>
 
-            <div class="space-y-1 leading-tight text-[10.5px]">
-                <div class="flex justify-between items-baseline">
-                    <span class="text-gray-400 text-[10px]">Tanggal:</span>
-                    <span class="text-gray-800 dark:text-gray-200 font-medium">
+            <div class="space-y-1.5 text-xs">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 dark:text-gray-400 font-medium">Tanggal:</span>
+                    <span class="text-gray-900 dark:text-gray-100 font-bold">
                         {{ \Carbon\Carbon::parse($record->tanggal_pengajuan)->format('d/m/Y') }}
                     </span>
                 </div>
 
-                <div>
-                    <span class="text-gray-400 text-[9.5px] block">Sub Kegiatan:</span>
-                    <span class="font-medium text-gray-800 dark:text-gray-200 block truncate" title="{{ $record->subKegiatan?->nama_sub_kegiatan }}">
-                        {{ $record->subKegiatan?->nama_sub_kegiatan ?? '-' }}
-                    </span>
-                </div>
-
-                @php
-                    $firstRekening = $record->details->first()?->kodeRekening;
-                @endphp
-                @if ($firstRekening)
-                    <div>
-                        <span class="text-gray-400 text-[9.5px] block">Rekening Belanja:</span>
-                        <span class="font-mono text-[10px] font-semibold text-primary-600 dark:text-primary-400 block truncate" title="{{ $firstRekening->uraian }}">
-                            {{ $firstRekening->kode_lengkap ?? $firstRekening->kode_rekening }}
-                        </span>
-                    </div>
-                @endif
-
-                <div>
-                    <span class="text-gray-400 text-[9.5px] block">Penyedia / Toko:</span>
-                    <span class="font-semibold text-gray-800 dark:text-gray-200 block truncate">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 dark:text-gray-400 font-medium">Toko / Rekanan:</span>
+                    <span class="font-bold text-gray-900 dark:text-gray-100 truncate" style="max-width: 170px;">
                         {{ $record->nama_toko ?: ($record->masterToko?->nama_toko ?? '-') }}
                     </span>
                 </div>
 
-                <div class="flex justify-between items-baseline pt-1 border-t border-gray-100 dark:border-white/5">
-                    <span class="text-gray-400 text-[10px]">Total Belanja:</span>
-                    <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
+                <div class="flex justify-between items-baseline pt-2 border-t border-gray-100 dark:border-white/5">
+                    <span class="text-gray-500 dark:text-gray-400 font-semibold">Total Belanja:</span>
+                    <span class="text-base font-black text-emerald-600 dark:text-emerald-400">
                         Rp {{ number_format((float) $totalNominal, 0, ',', '.') }}
                     </span>
                 </div>
@@ -139,8 +120,8 @@
         </div>
 
         {{-- CARD 2: PILIH DOKUMEN PRATINJAU --}}
-        <div class="rounded-xl border border-gray-200 bg-white p-2 shadow-xs dark:border-white/10 dark:bg-gray-900 space-y-1">
-            <div class="font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-[9px] mb-1 px-1">
+        <div class="rounded-xl border border-gray-200 bg-white p-2.5 shadow-xs dark:border-white/10 dark:bg-gray-900 space-y-1.5">
+            <div class="font-extrabold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-[10px] mb-1 px-1">
                 Pilih Dokumen Pratinjau
             </div>
 
@@ -149,13 +130,13 @@
                 type="button"
                 @click="setDocument('semua', 'Semua Dokumen SPJ Lengkap', '{{ $previewBaseUrl }}?tipe=semua', false)"
                 :class="activeTab === 'semua' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
-                class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
+                class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
             >
-                <div class="flex items-center gap-1.5 truncate">
-                    <span class="text-sm">📄</span>
-                    <span class="font-semibold text-[11px] truncate">Semua Dokumen SPJ</span>
+                <div class="flex items-center gap-2 truncate">
+                    <span class="text-base">📄</span>
+                    <span class="font-bold text-xs truncate">Semua Dokumen SPJ</span>
                 </div>
-                <span x-show="activeTab === 'semua'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
+                <span x-show="activeTab === 'semua'" class="text-primary-600 dark:text-primary-400 font-bold text-sm">✓</span>
             </button>
 
             {{-- 2. Surat Pesanan --}}
@@ -163,13 +144,13 @@
                 type="button"
                 @click="setDocument('pesanan', 'Surat Pesanan Barang (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=pesanan', false)"
                 :class="activeTab === 'pesanan' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
-                class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
+                class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
             >
-                <div class="flex items-center gap-1.5 truncate">
-                    <span class="text-sm">📝</span>
-                    <span class="font-semibold text-[11px] truncate">Surat Pesanan (F4)</span>
+                <div class="flex items-center gap-2 truncate">
+                    <span class="text-base">📝</span>
+                    <span class="font-bold text-xs truncate">Surat Pesanan (F4)</span>
                 </div>
-                <span x-show="activeTab === 'pesanan'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
+                <span x-show="activeTab === 'pesanan'" class="text-primary-600 dark:text-primary-400 font-bold text-sm">✓</span>
             </button>
 
             {{-- 3. Kwitansi --}}
@@ -178,13 +159,13 @@
                     type="button"
                     @click="setDocument('kwitansi', 'Kwitansi Pembayaran (F4 Bagi 2 Landscape - 4 Rangkap)', '{{ $previewBaseUrl }}?tipe=kwitansi', false)"
                     :class="activeTab === 'kwitansi' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
-                    class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
+                    class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
-                    <div class="flex items-center gap-1.5 truncate">
-                        <span class="text-sm">🧾</span>
-                        <span class="font-semibold text-[11px] truncate">Kwitansi (F4/2 Landscape)</span>
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-base">🧾</span>
+                        <span class="font-bold text-xs truncate">Kwitansi (F4/2 Landscape)</span>
                     </div>
-                    <span x-show="activeTab === 'kwitansi'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
+                    <span x-show="activeTab === 'kwitansi'" class="text-primary-600 dark:text-primary-400 font-bold text-sm">✓</span>
                 </button>
             @endif
 
@@ -194,13 +175,13 @@
                     type="button"
                     @click="setDocument('npd', 'Nota Pencairan Dana (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=npd', false)"
                     :class="activeTab === 'npd' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
-                    class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
+                    class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
-                    <div class="flex items-center gap-1.5 truncate">
-                        <span class="text-sm">💰</span>
-                        <span class="font-semibold text-[11px] truncate">NPD (F4 Portrait)</span>
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-base">💰</span>
+                        <span class="font-bold text-xs truncate">NPD (F4 Portrait)</span>
                     </div>
-                    <span x-show="activeTab === 'npd'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
+                    <span x-show="activeTab === 'npd'" class="text-primary-600 dark:text-primary-400 font-bold text-sm">✓</span>
                 </button>
             @endif
 
@@ -210,11 +191,11 @@
                     type="button"
                     @click="setDocument('nota_toko', 'Faktur / Nota Toko Asli', '{{ $fileNotaUrl }}', {{ $isNotaImage ? 'true' : 'false' }})"
                     :class="activeTab === 'nota_toko' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
-                    class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
+                    class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
-                    <div class="flex items-center gap-1.5 truncate">
-                        <span class="text-sm">📎</span>
-                        <span class="font-semibold text-[11px] truncate">Faktur / Nota Toko</span>
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-base">📎</span>
+                        <span class="font-bold text-xs truncate">Faktur / Nota Toko</span>
                     </div>
                     <span x-show="activeTab === 'nota_toko'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
                 </button>
@@ -226,11 +207,11 @@
                     type="button"
                     @click="setDocument('foto_barang', 'Foto Fisik Barang', '{{ $fileDokumentasiUrl }}', {{ $isDokumentasiImage ? 'true' : 'false' }})"
                     :class="activeTab === 'foto_barang' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
-                    class="w-full flex items-center justify-between rounded-lg border p-1.5 text-xs transition cursor-pointer text-left"
+                    class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
-                    <div class="flex items-center gap-1.5 truncate">
-                        <span class="text-sm">📷</span>
-                        <span class="font-semibold text-[11px] truncate">Foto Fisik Barang</span>
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-base">📷</span>
+                        <span class="font-bold text-xs truncate">Foto Fisik Barang</span>
                     </div>
                     <span x-show="activeTab === 'foto_barang'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
                 </button>
@@ -238,27 +219,27 @@
         </div>
 
         {{-- CARD 3: TOMBOL AKSI CETAK & UNDUH PDF RESMI --}}
-        <div class="space-y-1.5 pt-0.5">
+        <div class="space-y-2 pt-0.5">
             <button
                 type="button"
                 @click="printIframe()"
-                class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-3 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-primary-500 cursor-pointer"
+                class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition hover:bg-primary-500 cursor-pointer"
             >
-                <x-filament::icon icon="heroicon-o-printer" class="h-3.5 w-3.5" />
-                <span>Cetak Dokumen</span>
+                <x-filament::icon icon="heroicon-o-printer" class="h-4 w-4" />
+                <span class="text-xs font-bold">Cetak Dokumen</span>
             </button>
 
             <a
                 :href="downloadUrl"
                 target="_blank"
-                class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-white/15 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 cursor-pointer"
+                class="w-full inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-xs font-bold text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-white/15 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700 cursor-pointer"
             >
-                <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-3.5 w-3.5 text-gray-500" />
-                <span>Unduh File PDF</span>
+                <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-4 w-4 text-gray-500" />
+                <span class="text-xs font-bold">Unduh File PDF</span>
             </a>
         </div>
 
-        {{-- CARD 4: KETENTUAN PERPAJAKAN & RINCIAN PEMBAYARAN --}}
+        {{-- CARD 4: KETENTUAN PERPAJAKAN & PEMBAYARAN BERSIH --}}
         @php
             $totalBelanja = (float) $totalNominal;
             $ppnPersen = (float) ($record->ppn_persen ?? 0);
@@ -270,93 +251,40 @@
             $nilaiBersih = max(0, $totalBelanja - $totalPajak);
         @endphp
 
-        <div class="rounded-xl border border-gray-200 bg-white p-2.5 shadow-xs dark:border-white/10 dark:bg-gray-900 space-y-1.5" style="font-size: 10.5px;">
-            <div class="flex items-center justify-between border-b border-gray-100 pb-1 dark:border-white/5">
-                <span class="font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-[9px]">
-                    Status Perpajakan
-                </span>
-                @if ($totalBelanja > 2000000)
-                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                        <span>⚠️ Kena Pajak (> 2 Jt)</span>
+        <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">
+            @if ($totalBelanja > 2000000)
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-100 dark:border-white/5">
+                    <span class="text-xs font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                        <span class="text-sm">⚠️</span> Wajib Pajak (> Rp 2 Jt)
                     </span>
-                @else
-                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                        <span>✓ Bebas Pajak (≤ 2 Jt)</span>
+                    <span class="text-[11px] font-mono font-bold text-gray-600 dark:text-gray-300">
+                        PPN {{ $ppnPersen }}% + PPh {{ $pphPersen }}%
                     </span>
-                @endif
-            </div>
+                </div>
 
-            @if ($isKenaPajak)
-                <div class="space-y-1 font-mono text-[10px] bg-gray-50 dark:bg-gray-800/60 p-2 rounded-lg border border-gray-100 dark:border-white/5">
-                    <div class="flex justify-between text-gray-500 dark:text-gray-400">
-                        <span>PPN ({{ $ppnPersen }}%):</span>
-                        <span class="font-semibold text-gray-800 dark:text-gray-200">Rp {{ number_format($nilaiPpn, 0, ',', '.') }}</span>
+                <div class="space-y-1.5 font-mono text-xs">
+                    <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                        <span>Potongan Pajak:</span>
+                        <span class="font-bold text-danger-600 dark:text-danger-400">- Rp {{ number_format($totalPajak, 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between text-gray-500 dark:text-gray-400">
-                        <span>PPh 22 ({{ $pphPersen }}%):</span>
-                        <span class="font-semibold text-gray-800 dark:text-gray-200">Rp {{ number_format($nilaiPph, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between border-t border-gray-200 dark:border-white/10 pt-1 text-danger-600 dark:text-danger-400 font-bold">
-                        <span>Total Potongan:</span>
-                        <span>- Rp {{ number_format($totalPajak, 0, ',', '.') }}</span>
-                    </div>
-                    <div class="flex justify-between border-t border-gray-200 dark:border-white/10 pt-1 text-emerald-600 dark:text-emerald-400 font-extrabold text-[11px]">
-                        <span>Diterima Bersih:</span>
-                        <span>Rp {{ number_format($nilaiBersih, 0, ',', '.') }}</span>
+                    <div class="flex justify-between items-baseline pt-1.5 border-t border-gray-100 dark:border-white/5 font-bold">
+                        <span class="text-xs text-gray-600 dark:text-gray-300 font-sans font-semibold">Diterima Bersih:</span>
+                        <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">Rp {{ number_format($nilaiBersih, 0, ',', '.') }}</span>
                     </div>
                 </div>
             @else
-                <div class="text-[10px] text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60 p-2 rounded-lg border border-gray-100 dark:border-white/5 leading-relaxed">
-                    <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-[10.5px]">
-                        <span>ℹ️</span>
-                        <span>Bebas PPN & PPh 22</span>
+                <div class="flex items-center gap-2.5 p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80">
+                    <span class="text-lg text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
+                    <div>
+                        <div class="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">
+                            Bebas Pajak (Belanja ≤ Rp 2 Jt)
+                        </div>
+                        <div class="text-xs text-emerald-700 dark:text-emerald-400 font-bold mt-0.5">
+                            Diterima Bersih: Rp {{ number_format($totalBelanja, 0, ',', '.') }} (100%)
+                        </div>
                     </div>
-                    <p class="mt-0.5 opacity-90">
-                        Belanja instansi pemerintah di bawah Rp 2.000.000 bebas pungutan pajak. Rekanan menerima pembayaran penuh <strong>Rp {{ number_format($totalBelanja, 0, ',', '.') }}</strong> (100%).
-                    </p>
                 </div>
             @endif
-
-            {{-- Rekening Tujuan --}}
-            <div class="pt-1 border-t border-gray-100 dark:border-white/5 text-[9.5px] text-gray-500 dark:text-gray-400 space-y-0.5">
-                <div class="flex justify-between">
-                    <span>Rekening Tujuan:</span>
-                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $bankName }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>No. Rekening:</span>
-                    <span class="font-mono font-bold text-primary-600 dark:text-primary-400">{{ $record->penerima_identitas ?: ($record->masterToko?->nomor_rekening ?? '-') }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span>Atas Nama:</span>
-                    <span class="font-medium text-gray-800 dark:text-gray-200 truncate" style="max-width: 160px;">{{ $record->penerima_nama ?: ($record->masterToko?->nama_pemilik ?? '-') }}</span>
-                </div>
-            </div>
-        </div>
-
-        {{-- CARD 5: PETUNJUK TEKNIS CETAK RESMI --}}
-        <div class="rounded-xl border border-gray-200 bg-white p-2.5 shadow-xs dark:border-white/10 dark:bg-gray-900" style="font-size: 10px;">
-            <div class="font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-[9px] mb-1">
-                Petunjuk Teknis Cetak SPJ
-            </div>
-            <ul class="space-y-1 text-gray-600 dark:text-gray-300 text-[9.5px] leading-tight">
-                <li class="flex items-start gap-1">
-                    <span class="text-primary-500 font-bold">•</span>
-                    <span><strong>Surat Pesanan:</strong> Kertas F4 (Folio) Portrait.</span>
-                </li>
-                <li class="flex items-start gap-1">
-                    <span class="text-primary-500 font-bold">•</span>
-                    <span><strong>Kwitansi:</strong> Kertas F4 Landscape dibagi 2 (4 rangkap).</span>
-                </li>
-                <li class="flex items-start gap-1">
-                    <span class="text-primary-500 font-bold">•</span>
-                    <span><strong>NPD:</strong> Kertas F4 Portrait untuk pencairan bendahara.</span>
-                </li>
-                <li class="flex items-start gap-1">
-                    <span class="text-emerald-500 font-bold">✓</span>
-                    <span class="text-gray-500 dark:text-gray-400">Lampirkan faktur toko dan nota fisik asli.</span>
-                </li>
-            </ul>
         </div>
     </div>
 
