@@ -26,6 +26,11 @@ class EditUser extends EditRecord
                 ->color('primary')
                 ->action('save')
                 ->keyBindings(['mod+s']),
+            Action::make('batal')
+                ->label('Batal')
+                ->icon('heroicon-o-x-mark')
+                ->color('danger')
+                ->url($this->getResource()::getUrl('index')),
             ViewAction::make(),
             DeleteAction::make(),
         ];
