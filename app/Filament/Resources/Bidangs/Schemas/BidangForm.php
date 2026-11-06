@@ -16,17 +16,17 @@ class BidangForm
             ->components([
                 TextInput::make('nama')
                     ->label('Nama Bidang')
-                    ->placeholder('Contoh: Bidang Pemasaran Pariwisata')
+                    ->placeholder('tambahkan tanpa menggunakan kata bidang')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn (callable $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
+                    ->afterStateUpdated(fn(callable $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
 
                 Hidden::make('slug')
                     ->dehydrated(),
 
                 Select::make('kepala_id')
                     ->label('Kepala Bidang / Sekretaris')
-                    ->relationship('kepala', 'name', fn ($query) => $query->bukanSuperAdmin())
+                    ->relationship('kepala', 'name', fn($query) => $query->bukanSuperAdmin())
                     ->searchable()
                     ->preload(),
             ]);
