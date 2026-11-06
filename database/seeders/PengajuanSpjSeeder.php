@@ -344,10 +344,20 @@ class PengajuanSpjSeeder extends Seeder
                     }
                 }
 
-                // Update Total pada Header
+                // Update Total pada Header dan sinkronkan kalkulasi perpajakan akurat
+                $nominalAktif = $totalRealisasi > 0 ? $totalRealisasi : $totalRencana;
+                $nilaiPpn = round($nominalAktif * ($ppnPersen / 100));
+                $nilaiPph22 = round($nominalAktif * ($pphPersen / 100));
+                $totalPajak = $nilaiPpn + $nilaiPph22;
+                $nilaiBersih = max(0, ($nominalAktif + $nilaiPpn) - $totalPajak);
+
                 $spj->updateQuietly([
                     'total_nilai_rencana' => $totalRencana,
                     'total_nilai_realisasi' => $totalRealisasi > 0 ? $totalRealisasi : null,
+                    'nilai_ppn' => $nilaiPpn,
+                    'nilai_pph22' => $nilaiPph22,
+                    'total_pajak' => $totalPajak,
+                    'nilai_bersih' => $nilaiBersih,
                 ]);
 
                 // Buat Riwayat Status Audit Trail

@@ -133,7 +133,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PPK,
             ]);
-            $julhardianto->syncRoles(['ppk', 'pegawai']);
+            $julhardianto->syncRoles(['ppk', 'admin', 'pegawai']);
         }
 
         // 6. Sekretaris / PPTK Sekretariat (DESMAWATI)

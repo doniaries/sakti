@@ -162,8 +162,16 @@ class PengajuanSpj extends Model
             $spj->nilai_ppn = round($nominalDasar * ($ppnRate / 100));
             $spj->nilai_pph22 = round($nominalDasar * ($pphRate / 100));
             $spj->total_pajak = $spj->nilai_ppn + $spj->nilai_pph22;
-            $spj->nilai_bersih = max(0, $nominalDasar - $spj->total_pajak);
+            // Nilai Bruto = Subtotal DPP + Nilai PPN
+            // Diterima Bersih Rekanan = Nilai Bruto - Total Potongan Pajak = Subtotal DPP - Nilai PPh 22
+            $spj->nilai_bersih = max(0, ($nominalDasar + $spj->nilai_ppn) - $spj->total_pajak);
         });
+    }
+
+    public function getTotalBrutoAttribute(): float
+    {
+        $dasar = (float) ($this->total_nilai_realisasi ?: $this->total_nilai_rencana);
+        return $dasar + (float) ($this->nilai_ppn ?? 0);
     }
 
     public function masterTujuanBbm(): BelongsTo
@@ -284,19 +292,19 @@ class PengajuanSpj extends Model
     {
         return match ($this->status) {
             'draft' => 'Draft Surat Pesanan',
-            'diajukan' => 'Menunggu TTD Surat Pesanan (Kabid/PPTK)',
-            'menunggu_realisasi' => 'Surat Pesanan Di-TTD / Proses Kwitansi',
-            'menunggu_verifikasi_pptk' => 'Kwitansi Menunggu Verifikasi & TTD PPTK',
-            'revisi_pptk' => 'Revisi PPTK',
-            'menunggu_verifikasi_ppk' => 'Kwitansi Menunggu Verifikasi PPK',
-            'revisi_ppk' => 'Revisi PPK',
-            'menunggu_persetujuan_pa' => 'Kwitansi Menunggu TTD PA (Kadis)',
-            'revisi_pa' => 'Revisi PA',
-            'menunggu_verifikasi_bendahara' => 'Kwitansi Menunggu Uji Kas Bendahara',
-            'revisi_bendahara' => 'Revisi Bendahara',
-            'disetujui' => 'Disetujui (Siap Cair)',
-            'dicairkan' => 'Kwitansi Lunas & Dicairkan',
-            'ditolak' => 'Ditolak Permanen',
+            'diajukan' => 'Surat Pesanan Menunggu TTD (PPTK)',
+            'menunggu_realisasi' => 'Pesanan Disetujui / Menyiapkan Berkas SPJ',
+            'menunggu_verifikasi_pptk' => 'SPJ Menunggu Verifikasi (PPTK)',
+            'revisi_pptk' => 'SPJ Perlu Revisi (PPTK)',
+            'menunggu_verifikasi_ppk' => 'SPJ Menunggu Verifikasi (PPK)',
+            'revisi_ppk' => 'SPJ Perlu Revisi (PPK)',
+            'menunggu_persetujuan_pa' => 'SPJ Menunggu Persetujuan (PA)',
+            'revisi_pa' => 'SPJ Perlu Revisi (PA)',
+            'menunggu_verifikasi_bendahara' => 'SPJ Menunggu Uji Kas (Bendahara)',
+            'revisi_bendahara' => 'SPJ Perlu Revisi (Bendahara)',
+            'disetujui' => 'SPJ Disetujui (Siap Dicairkan)',
+            'dicairkan' => 'SPJ Lunas & Selesai Dicairkan',
+            'ditolak' => 'SPJ Ditolak Permanen',
             default => ucfirst(str_replace('_', ' ', (string) $this->status)),
         };
     }

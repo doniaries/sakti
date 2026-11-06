@@ -318,7 +318,10 @@
     $nilaiPph22 = (float) ($spj->nilai_pph22 ?: round($subtotalPesanan * ($pph22Persen / 100)));
     $totalPajak = $nilaiPpn + $nilaiPph22;
     $totalSetelahPpn = $subtotalPesanan + $nilaiPpn;
-    $nilaiBersih = max(0, $totalNominal - $totalPajak);
+    // Diterima Bersih Rekanan = Total Pesanan (Bruto) - Total Potongan Pajak = Subtotal DPP - Nilai PPh 22
+    $nilaiBersih = max(0, $totalSetelahPpn - $totalPajak);
+    $nominalKwitansi = $totalSetelahPpn > 0 ? $totalSetelahPpn : (float) $totalNominal;
+    $terbilangKwitansi = \App\Services\Spj\SpjWorkflowService::terbilang((float) $nominalKwitansi);
 
     $tanggalBatasKirim = $spj->tanggal_batas_pengiriman
         ? \Carbon\Carbon::parse($spj->tanggal_batas_pengiriman)->translatedFormat('d F Y')
@@ -519,10 +522,10 @@
                     <table style="width: 100%; border-collapse: collapse; border: none; margin: 0; padding: 0;">
                         <tr>
                             <td style="width: 1%; white-space: nowrap; border: none; padding: 0 6px 0 0; vertical-align: top;">
-                                <div class="box-uang-angka">{{ number_format((float) $totalNominal, 0, ',', '.') }}</div>
+                                <div class="box-uang-angka">{{ number_format((float) $nominalKwitansi, 0, ',', '.') }}</div>
                             </td>
                             <td style="border: none; padding: 0; vertical-align: top;">
-                                <div class="box-uang-terbilang">{{ ucwords(strtolower($terbilang)) }}</div>
+                                <div class="box-uang-terbilang">{{ ucwords(strtolower($terbilangKwitansi)) }}</div>
                             </td>
                         </tr>
                     </table>
@@ -768,10 +771,10 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="3" class="text-right font-bold" style="border-left: none;">Jumlah Bruto</td>
-                                <td class="text-right font-bold">Rp{{ number_format((float) $spj->total_nilai_rencana, 2, ',', '.') }}</td>
-                                <td class="text-right font-bold">Rp{{ number_format((float) $spj->total_nilai_rencana, 2, ',', '.') }}</td>
-                                <td class="text-right font-bold" style="border-right: none;">Rp{{ number_format((float) $totalNominal, 2, ',', '.') }}</td>
+                                <td colspan="3" class="text-right font-bold" style="border-left: none;">Jumlah Bruto Pesanan</td>
+                                <td class="text-right font-bold">Rp{{ number_format((float) $totalSetelahPpn, 2, ',', '.') }}</td>
+                                <td class="text-right font-bold">Rp{{ number_format((float) $totalSetelahPpn, 2, ',', '.') }}</td>
+                                <td class="text-right font-bold" style="border-right: none;">Rp{{ number_format((float) $nominalKwitansi, 2, ',', '.') }}</td>
                             </tr>
                             @if ($totalPajak > 0)
                             <tr>
@@ -779,7 +782,7 @@
                                 <td class="text-right font-bold" style="border-right: none; color: #b91c1c;">(Rp{{ number_format($totalPajak, 2, ',', '.') }})</td>
                             </tr>
                             <tr>
-                                <td colspan="5" class="text-right font-bold" style="border-left: none; background-color: #f8fafc;">Jumlah Bersih yang Diterima (Netto)</td>
+                                <td colspan="5" class="text-right font-bold" style="border-left: none; background-color: #f8fafc;">Jumlah Bersih yang Diterima Rekanan (Netto)</td>
                                 <td class="text-right font-bold" style="border-right: none; background-color: #f8fafc; color: #047857;">Rp{{ number_format($nilaiBersih, 2, ',', '.') }}</td>
                             </tr>
                             @endif

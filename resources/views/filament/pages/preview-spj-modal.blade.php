@@ -239,48 +239,80 @@
             </a>
         </div>
 
-        {{-- CARD 4: KETENTUAN PERPAJAKAN & PEMBAYARAN BERSIH --}}
+        {{-- CARD 4: KETENTUAN PERPAJAKAN & PEMBAYARAN BERSIH (LENGKAP SEPERTI DI KWITANSI) --}}
         @php
-            $totalBelanja = (float) $totalNominal;
+            $subtotalBarang = (float) $totalNominal;
             $ppnPersen = (float) ($record->ppn_persen ?? 0);
             $pphPersen = (float) ($record->pph22_persen ?? 0);
-            $isKenaPajak = $totalBelanja > 2000000 && ($ppnPersen > 0 || $pphPersen > 0);
-            $nilaiPpn = $isKenaPajak ? round($totalBelanja * ($ppnPersen / 100)) : 0;
-            $nilaiPph = $isKenaPajak ? round($totalBelanja * ($pphPersen / 100)) : 0;
+            $isKenaPajak = $subtotalBarang > 2000000 && ($ppnPersen > 0 || $pphPersen > 0);
+            $nilaiPpn = $isKenaPajak ? (float) ($record->nilai_ppn ?: round($subtotalBarang * ($ppnPersen / 100))) : 0;
+            $nilaiPph = $isKenaPajak ? (float) ($record->nilai_pph22 ?: round($subtotalBarang * ($pphPersen / 100))) : 0;
             $totalPajak = $nilaiPpn + $nilaiPph;
-            $nilaiBersih = max(0, $totalBelanja - $totalPajak);
+            $totalBruto = $subtotalBarang + $nilaiPpn;
+            $nilaiBersih = max(0, $totalBruto - $totalPajak);
         @endphp
 
         <div class="rounded-xl border border-gray-200 bg-white p-3 shadow-xs dark:border-white/10 dark:bg-gray-900">
-            @if ($totalBelanja > 2000000)
+            @if ($isKenaPajak)
                 <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-100 dark:border-white/5">
                     <span class="text-xs font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
-                        <span class="text-sm">⚠️</span> Wajib Pajak (> Rp 2 Jt)
+                        <span class="text-sm">⚠️</span> Wajib Pungut Pajak
                     </span>
-                    <span class="text-[11px] font-mono font-bold text-gray-600 dark:text-gray-300">
+                    <span class="text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
                         PPN {{ $ppnPersen }}% + PPh {{ $pphPersen }}%
                     </span>
                 </div>
 
-                <div class="space-y-1.5 font-mono text-xs">
+                <div class="space-y-1.5 text-xs font-mono">
                     <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                        <span>Potongan Pajak:</span>
-                        <span class="font-bold text-danger-600 dark:text-danger-400">- Rp {{ number_format($totalPajak, 0, ',', '.') }}</span>
+                        <span>Subtotal Barang (DPP):</span>
+                        <span class="font-bold text-gray-800 dark:text-gray-200">Rp {{ number_format($subtotalBarang, 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between items-baseline pt-1.5 border-t border-gray-100 dark:border-white/5 font-bold">
-                        <span class="text-xs text-gray-600 dark:text-gray-300 font-sans font-semibold">Diterima Bersih:</span>
-                        <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">Rp {{ number_format($nilaiBersih, 0, ',', '.') }}</span>
+
+                    <div class="flex justify-between text-gray-600 dark:text-gray-400">
+                        <span>PPN ({{ $ppnPersen }}%):</span>
+                        <span class="font-bold text-gray-800 dark:text-gray-200">+ Rp {{ number_format($nilaiPpn, 0, ',', '.') }}</span>
+                    </div>
+
+                    <div class="flex justify-between items-center py-1 border-y border-dashed border-gray-200 dark:border-white/10 font-bold bg-gray-50/70 dark:bg-gray-800/40 px-1 rounded">
+                        <span class="text-gray-700 dark:text-gray-300 font-sans font-semibold">Total Pesanan (Bruto):</span>
+                        <span class="text-gray-900 dark:text-white">Rp {{ number_format($totalBruto, 0, ',', '.') }}</span>
+                    </div>
+
+                    <div class="pt-1 space-y-1">
+                        <div class="flex justify-between text-[11px] text-gray-500 dark:text-gray-400">
+                            <span>• Potongan PPN ({{ $ppnPersen }}%):</span>
+                            <span class="text-danger-600 dark:text-danger-400 font-semibold">- Rp {{ number_format($nilaiPpn, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between text-[11px] text-gray-500 dark:text-gray-400">
+                            <span>• Potongan PPh 22 ({{ $pphPersen }}%):</span>
+                            <span class="text-danger-600 dark:text-danger-400 font-semibold">- Rp {{ number_format($nilaiPph, 0, ',', '.') }}</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-danger-700 dark:text-danger-400 font-bold">
+                            <span>Total Potongan Kas:</span>
+                            <span>- Rp {{ number_format($totalPajak, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between items-baseline pt-2 border-t-2 border-gray-200 dark:border-white/10 font-bold">
+                        <span class="text-xs text-gray-700 dark:text-gray-200 font-sans font-bold">Diterima Bersih:</span>
+                        <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                            Rp {{ number_format($nilaiBersih, 0, ',', '.') }}
+                        </span>
                     </div>
                 </div>
             @else
-                <div class="flex items-center gap-2.5 p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80">
+                <div class="flex items-center gap-2.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80">
                     <span class="text-lg text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
-                    <div>
+                    <div class="flex-1">
                         <div class="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">
                             Bebas Pajak (Belanja ≤ Rp 2 Jt)
                         </div>
-                        <div class="text-xs text-emerald-700 dark:text-emerald-400 font-bold mt-0.5">
-                            Diterima Bersih: Rp {{ number_format($totalBelanja, 0, ',', '.') }} (100%)
+                        <div class="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5">
+                            Bebas pungutan PPN 0% & PPh 22 0%. Rekanan menerima pembayaran utuh 100%.
+                        </div>
+                        <div class="text-xs text-emerald-700 dark:text-emerald-400 font-bold mt-1 font-mono">
+                            Diterima Bersih: Rp {{ number_format($subtotalBarang, 0, ',', '.') }}
                         </div>
                     </div>
                 </div>

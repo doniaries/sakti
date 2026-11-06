@@ -38,7 +38,7 @@ class LogAbsensiResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if ($user && $user->hasRole('pegawai')) {
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'pa', 'pptk', 'ppk'])) {
             $query->where('user_id', $user->id);
         }
 

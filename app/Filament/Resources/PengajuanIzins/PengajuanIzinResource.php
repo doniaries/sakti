@@ -35,8 +35,8 @@ class PengajuanIzinResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        // Pegawai biasa hanya melihat pengajuan dirinya sendiri
-        if ($user && $user->hasRole('pegawai')) {
+        // Pegawai biasa (bukan admin dinas, pimpinan, pa, atau ppk) hanya melihat pengajuan dirinya sendiri
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'pimpinan', 'ppk'])) {
             $query->where('user_id', $user->id);
         }
 

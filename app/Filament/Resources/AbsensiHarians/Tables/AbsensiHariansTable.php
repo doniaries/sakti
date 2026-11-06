@@ -35,12 +35,12 @@ class AbsensiHariansTable
         $currentUser = \Illuminate\Support\Facades\Auth::user();
 
         $isPimpinanOrAdmin = $currentUser !== null && (
-            $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'pa', 'pptk'])
-            || in_array($currentUser->anggaran_role?->value ?? $currentUser->anggaran_role, ['PA', 'PPTK'], true)
-            || str_contains(strtolower($currentUser->jabatan ?? ''), 'kepala dinas')
-            || str_contains(strtolower($currentUser->jabatan ?? ''), 'sekretaris')
-            || str_contains(strtolower($currentUser->jabatan ?? ''), 'kepala bidang')
-            || str_contains(strtolower($currentUser->jabatan ?? ''), 'kasubag')
+            $currentUser->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'pa', 'pptk', 'ppk'])
+            || in_array($currentUser->anggaran_role?->value ?? $currentUser->anggaran_role, ['PA', 'PPTK', 'PPK'], true)
+            || str_contains(strtolower($currentUser->jabatan?->nama ?? ''), 'kepala dinas')
+            || str_contains(strtolower($currentUser->jabatan?->nama ?? ''), 'sekretaris')
+            || str_contains(strtolower($currentUser->jabatan?->nama ?? ''), 'kepala bidang')
+            || str_contains(strtolower($currentUser->jabatan?->nama ?? ''), 'kasubag')
         );
 
         $table->modifyQueryUsing(function ($query) use ($currentUser, $isPimpinanOrAdmin) {

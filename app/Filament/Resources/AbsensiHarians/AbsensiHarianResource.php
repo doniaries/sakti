@@ -36,7 +36,7 @@ class AbsensiHarianResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pimpinan'])) {
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'pa', 'pptk', 'ppk'])) {
             $query->where('user_id', $user->id);
         }
 

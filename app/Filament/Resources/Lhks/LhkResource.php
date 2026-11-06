@@ -30,7 +30,7 @@ class LhkResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'pimpinan'])) {
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'pimpinan', 'ppk'])) {
             // Jika Kepala Bidang / Atasan langsung
             $isKabid = filled($user->bidang_id) && (bool) \App\Models\Bidang::where('kepala_id', $user->id)->exists();
             if ($isKabid) {
