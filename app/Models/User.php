@@ -116,6 +116,16 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         return $this->hasMany(RiwayatPendidikan::class)->orderByRaw("FIELD(jenjang, 'S3', 'S2', 'S1', 'D4', 'D3', 'D2', 'D1', 'SLTA', 'SLTP', 'SD')");
     }
 
+    public function riwayatGolongan(): HasMany
+    {
+        return $this->hasMany(RiwayatGolongan::class)->orderByDesc('tmt_golongan')->orderByDesc('id');
+    }
+
+    public function riwayatJabatan(): HasMany
+    {
+        return $this->hasMany(RiwayatJabatan::class)->orderByDesc('tmt_jabatan')->orderByDesc('id');
+    }
+
 
     public function jabatan()
     {

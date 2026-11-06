@@ -208,43 +208,62 @@ class UserInfolist
                                 ]),
                             ]),
 
-                        // Tab 2: Golongan & Pangkat
+                        // Tab 2: Golongan & Pangkat (MyASN Style)
                         Tab::make('Golongan')
                             ->icon('heroicon-m-shield-check')
                             ->schema([
-                                Section::make('Kepangkatan & Golongan Ruang')
+                                Section::make('Riwayat Pangkat & Golongan Ruang (MyASN)')
+                                    ->description('Daftar riwayat kenaikan pangkat dan golongan ruang yang tercatat beserta berkas SK Pangkat asli.')
+                                    ->icon('heroicon-o-academic-cap')
+                                    ->schema([
+                                        RepeatableEntry::make('riwayatGolongan')
+                                            ->label('')
+                                            ->schema([
+                                                Grid::make([
+                                                    'default' => 1,
+                                                    'md' => 4,
+                                                ])
+                                                ->schema([
+                                                    TextEntry::make('golongan')
+                                                        ->label('Golongan / Ruang')
+                                                        ->badge()
+                                                        ->color('info'),
+
+                                                    TextEntry::make('nama_pangkat')
+                                                        ->label('Nama Pangkat')
+                                                        ->weight('bold')
+                                                        ->columnSpan(2),
+
+                                                    TextEntry::make('tmt_golongan')
+                                                        ->label('TMT Golongan')
+                                                        ->date('d F Y')
+                                                        ->badge()
+                                                        ->color('success')
+                                                        ->placeholder('-'),
+
+                                                    TextEntry::make('nomor_sk')
+                                                        ->label('Nomor SK')
+                                                        ->placeholder('-')
+                                                        ->columnSpan(2),
+
+                                                    TextEntry::make('tanggal_sk')
+                                                        ->label('Tanggal SK')
+                                                        ->date('d/m/Y')
+                                                        ->placeholder('-'),
+
+                                                    TextEntry::make('file_sk_golongan')
+                                                        ->label('Lampiran Berkas SK Pangkat')
+                                                        ->formatStateUsing(fn ($state) => $state ? 'Unduh SK Pangkat (PDF)' : 'Belum diunggah')
+                                                        ->icon(fn ($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
+                                                        ->color(fn ($state) => $state ? 'primary' : 'gray')
+                                                        ->url(fn ($record) => $record->file_sk_golongan ? Storage::disk('public')->url($record->file_sk_golongan) : null, shouldOpenInNewTab: true),
+                                                ]),
+                                            ]),
+                                    ]),
+
+                                Section::make('Informasi Tambahan & Administrasi')
                                     ->columns(2)
                                     ->schema([
-                                        TextEntry::make('pangkat_golongan')
-                                            ->label('Golongan / Ruang')
-                                            ->badge()
-                                            ->color('info')
-                                            ->placeholder('-'),
-
-                                        TextEntry::make('pangkat_pembina')
-                                            ->label('Pangkat')
-                                            ->state(fn ($record) => match ($record->pangkat_golongan?->value ?? $record->pangkat_golongan) {
-                                                'IV/e' => 'Pembina Utama',
-                                                'IV/d' => 'Pembina Utama Madya',
-                                                'IV/c' => 'Pembina Utama Muda',
-                                                'IV/b' => 'Pembina Tingkat I',
-                                                'IV/a' => 'Pembina',
-                                                'III/d' => 'Penata Tingkat I',
-                                                'III/c' => 'Penata',
-                                                'III/b' => 'Penata Muda Tingkat I',
-                                                'III/a' => 'Penata Muda',
-                                                'II/d' => 'Pengatur Tingkat I',
-                                                'II/c' => 'Pengatur',
-                                                'II/b' => 'Pengatur Muda Tingkat I',
-                                                'II/a' => 'Pengatur Muda',
-                                                'I/d' => 'Juru Tingkat I',
-                                                'I/c' => 'Juru',
-                                                'I/b' => 'Juru Muda Tingkat I',
-                                                'I/a' => 'Juru Muda',
-                                                default => '-',
-                                            })
-                                            ->weight('medium'),
-
                                         TextEntry::make('eselon')
                                             ->label('Eselon')
                                             ->badge()
@@ -258,11 +277,11 @@ class UserInfolist
                                     ]),
                             ]),
 
-                        // Tab 3: Jabatan & Posisi
+                        // Tab 3: Jabatan & Posisi (MyASN Style)
                         Tab::make('Jabatan')
                             ->icon('heroicon-m-briefcase')
                             ->schema([
-                                Section::make('Informasi Jabatan & Unit Kerja')
+                                Section::make('Informasi Jabatan & Unit Kerja Saat Ini')
                                     ->columns(2)
                                     ->schema([
                                         TextEntry::make('jabatan.jenis_jabatan')
@@ -304,6 +323,54 @@ class UserInfolist
                                             ->badge()
                                             ->color('secondary')
                                             ->placeholder('Belum Terhubung Mesin'),
+                                    ]),
+
+                                Section::make('Riwayat Jabatan Pegawai (MyASN)')
+                                    ->description('Daftar riwayat jabatan struktural, fungsional, maupun pelaksana beserta berkas SK Jabatan asli.')
+                                    ->icon('heroicon-o-briefcase')
+                                    ->schema([
+                                        RepeatableEntry::make('riwayatJabatan')
+                                            ->label('')
+                                            ->schema([
+                                                Grid::make([
+                                                    'default' => 1,
+                                                    'md' => 4,
+                                                ])
+                                                ->schema([
+                                                    TextEntry::make('nama_jabatan')
+                                                        ->label('Nama Jabatan')
+                                                        ->weight('bold')
+                                                        ->columnSpan(2),
+
+                                                    TextEntry::make('jenis_jabatan')
+                                                        ->label('Jenis Jabatan')
+                                                        ->badge()
+                                                        ->color('primary'),
+
+                                                    TextEntry::make('tmt_jabatan')
+                                                        ->label('TMT Jabatan')
+                                                        ->date('d F Y')
+                                                        ->badge()
+                                                        ->color('success')
+                                                        ->placeholder('-'),
+
+                                                    TextEntry::make('unit_kerja')
+                                                        ->label('Unit Kerja')
+                                                        ->placeholder('-')
+                                                        ->columnSpan(2),
+
+                                                    TextEntry::make('nomor_sk')
+                                                        ->label('Nomor SK')
+                                                        ->placeholder('-'),
+
+                                                    TextEntry::make('file_sk_jabatan')
+                                                        ->label('Lampiran Berkas SK Jabatan')
+                                                        ->formatStateUsing(fn ($state) => $state ? 'Unduh SK Jabatan (PDF)' : 'Belum diunggah')
+                                                        ->icon(fn ($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
+                                                        ->color(fn ($state) => $state ? 'primary' : 'gray')
+                                                        ->url(fn ($record) => $record->file_sk_jabatan ? Storage::disk('public')->url($record->file_sk_jabatan) : null, shouldOpenInNewTab: true),
+                                                ]),
+                                            ]),
                                     ]),
                             ]),
 

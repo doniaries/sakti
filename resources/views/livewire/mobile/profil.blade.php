@@ -424,78 +424,186 @@
             </div>
         @endif
 
-        <!-- TAB 2: GOLONGAN -->
+        <!-- TAB 2: GOLONGAN (MYASN STYLE) -->
         @if($activeTab === 'golongan')
-            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Kepangkatan & Golongan</h3>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Golongan Ruang</span>
-                    <span class="px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-700 font-bold border border-sky-100">{{ $user->pangkat_golongan?->value ?? $user->pangkat_golongan ?? '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Pangkat Pembina</span>
-                    <span class="font-bold text-slate-800">
-                        @php
-                            $g = $user->pangkat_golongan?->value ?? $user->pangkat_golongan;
-                            $pangkat = match($g) {
-                                'IV/e' => 'Pembina Utama', 'IV/d' => 'Pembina Utama Madya', 'IV/c' => 'Pembina Utama Muda', 'IV/b' => 'Pembina Tingkat I', 'IV/a' => 'Pembina',
-                                'III/d' => 'Penata Tingkat I', 'III/c' => 'Penata', 'III/b' => 'Penata Muda Tingkat I', 'III/a' => 'Penata Muda',
-                                'II/d' => 'Pengatur Tingkat I', 'II/c' => 'Pengatur', 'II/b' => 'Pengatur Muda Tingkat I', 'II/a' => 'Pengatur Muda',
-                                default => '-'
-                            };
-                        @endphp
-                        {{ $pangkat }}
+            <div class="space-y-3">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved"></i> Riwayat Pangkat/Golongan (MyASN)
+                    </h3>
+                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                        {{ $user->riwayatGolongan->count() }} Pangkat
                     </span>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Eselon</span>
-                    <span class="font-bold text-slate-800">{{ $user->eselon?->value ?? $user->eselon ?? 'Non Eselon' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">NPWP</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">BPJS Kesehatan</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->no_bpjs ?? '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Nomor Taspen</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->no_taspen ?? '-' }}</span>
+
+                @forelse($user->riwayatGolongan as $item)
+                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-sky-50 text-sky-700 border border-sky-200">
+                                        {{ $item->golongan?->value ?? (string)$item->golongan }}
+                                    </span>
+                                    @if($item->is_golongan_terakhir)
+                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                            Pangkat Terakhir
+                                        </span>
+                                    @endif
+                                </div>
+                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                    {{ $item->golongan?->value ?? (string)$item->golongan }} - {{ $item->nama_pangkat }}
+                                </h4>
+                                <p class="text-[11px] font-mono text-slate-500 mt-0.5">
+                                    {{ $item->nomor_sk ?: '-' }}
+                                </p>
+                            </div>
+                            @if($item->tmt_golongan)
+                                <span class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
+                                    {{ \Carbon\Carbon::parse($item->tmt_golongan)->translatedFormat('d F Y') }}
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">
+                                TMT: <strong class="text-slate-700">{{ $item->tmt_golongan ? \Carbon\Carbon::parse($item->tmt_golongan)->format('d/m/Y') : '-' }}</strong>
+                            </span>
+
+                            @if($item->file_sk_golongan)
+                                <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_golongan) }}" 
+                                   target="_blank" 
+                                   class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK Pangkat
+                                </a>
+                            @else
+                                <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 text-center py-6">
+                        <p class="text-xs text-slate-400 italic">Belum ada data riwayat pangkat/golongan.</p>
+                    </div>
+                @endforelse
+
+                <!-- Data Administrasi Pelengkap -->
+                <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5 mt-4">
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Administrasi Kepegawaian</h3>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">Eselon</span>
+                        <span class="font-bold text-slate-800">{{ $user->eselon?->value ?? $user->eselon ?? 'Non Eselon' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">NPWP</span>
+                        <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">BPJS Kesehatan</span>
+                        <span class="font-bold font-mono text-slate-800">{{ $user->no_bpjs ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">Nomor Taspen</span>
+                        <span class="font-bold font-mono text-slate-800">{{ $user->no_taspen ?? '-' }}</span>
+                    </div>
                 </div>
             </div>
         @endif
 
-        <!-- TAB 3: JABATAN -->
+        <!-- TAB 3: JABATAN (MYASN STYLE) -->
         @if($activeTab === 'jabatan')
-            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Posisi & Shift Kerja</h3>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Jabatan</span>
-                    <span class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? 'Belum Ditentukan' }}</span>
+            <div class="space-y-3">
+                <!-- Posisi Sekarang -->
+                <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Jabatan & Shift Kerja Saat Ini</h3>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">Jabatan</span>
+                        <span class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? 'Belum Ditentukan' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">Bidang Dinas</span>
+                        <span class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Pimpinan / Tanpa Bidang' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">Atasan Langsung</span>
+                        <span class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">Tipe Kerja</span>
+                        <span class="px-2.5 py-0.5 rounded-full font-bold uppercase {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600' }}">
+                            {{ $user->status_kerja ?? 'WFO' }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">Shift Kerja</span>
+                        <span class="font-bold text-slate-800">{{ $user->jadwalKerja->nama ?? 'Jadwal Default Sistem' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <span class="text-slate-400 font-medium">ID Mesin (PIN)</span>
+                        <span class="font-bold font-mono text-slate-800">{{ $user->nomor_absensi ?? 'Belum Terhubung' }}</span>
+                    </div>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Bidang Dinas</span>
-                    <span class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Pimpinan / Tanpa Bidang' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Atasan Langsung</span>
-                    <span class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Tipe Kerja</span>
-                    <span class="px-2.5 py-0.5 rounded-full font-bold uppercase {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600' }}">
-                        {{ $user->status_kerja ?? 'WFO' }}
+
+                <!-- Riwayat Jabatan MyASN -->
+                <div class="flex items-center justify-between px-1 pt-2">
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-briefcase"></i> Riwayat Jabatan (MyASN)
+                    </h3>
+                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                        {{ $user->riwayatJabatan->count() }} Jabatan
                     </span>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Shift Kerja</span>
-                    <span class="font-bold text-slate-800">{{ $user->jadwalKerja->nama ?? 'Jadwal Default Sistem' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">ID Mesin (PIN)</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->nomor_absensi ?? 'Belum Terhubung' }}</span>
-                </div>
+
+                @forelse($user->riwayatJabatan as $item)
+                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        {{ $item->jenis_jabatan }}
+                                    </span>
+                                    @if($item->is_jabatan_sekarang)
+                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
+                                            Sekarang
+                                        </span>
+                                    @endif
+                                </div>
+                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                    {{ $item->nama_jabatan }}
+                                </h4>
+                                @if($item->unit_kerja)
+                                    <p class="text-[11px] font-medium text-slate-500 mt-0.5">
+                                        {{ $item->unit_kerja }}
+                                    </p>
+                                @endif
+                            </div>
+                            @if($item->tmt_jabatan)
+                                <span class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
+                                    {{ \Carbon\Carbon::parse($item->tmt_jabatan)->translatedFormat('d F Y') }}
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">
+                                SK: <strong class="text-slate-700">{{ $item->nomor_sk ?: '-' }}</strong>
+                            </span>
+
+                            @if($item->file_sk_jabatan)
+                                <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_jabatan) }}" 
+                                   target="_blank" 
+                                   class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK Jabatan
+                                </a>
+                            @else
+                                <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 text-center py-6">
+                        <p class="text-xs text-slate-400 italic">Belum ada data riwayat jabatan.</p>
+                    </div>
+                @endforelse
             </div>
         @endif
 
