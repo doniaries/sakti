@@ -101,13 +101,13 @@ class PengajuanSpjsTable
                     }
                 }
 
+                $tahunAktif = (int) ($selectedTahun ?: date('Y'));
+
                 if (filled($selectedBidang)) {
                     $query->where('bidang_id', (int) $selectedBidang);
                 }
 
-                if (filled($selectedTahun)) {
-                    $query->where('tahun_anggaran', (int) $selectedTahun);
-                }
+                $query->where('tahun_anggaran', $tahunAktif);
 
                 return $query;
             })

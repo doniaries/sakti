@@ -45,8 +45,39 @@ class ListPengajuanSpjs extends ListRecords
             ? $user->anggaran_role->value
             : $user?->anggaran_role;
 
+        // Ambil filter tahun & bidang aktif dari request / referer
+        $selectedTahun = request()->query('tahun')
+            ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
+            ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value');
+
+        $selectedBidang = request()->query('bidang')
+            ?? data_get(request()->query('filters'), 'bidang_id.value')
+            ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
+
+        if ((blank($selectedTahun) || blank($selectedBidang)) && request()->header('Referer')) {
+            $refererQuery = [];
+            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
+            if (blank($selectedTahun)) {
+                $selectedTahun = $refererQuery['tahun']
+                    ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
+                    ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
+            }
+            if (blank($selectedBidang)) {
+                $selectedBidang = $refererQuery['bidang']
+                    ?? data_get($refererQuery, 'filters.bidang_id.value')
+                    ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+            }
+        }
+
+        $tahunAktif = (int) ($selectedTahun ?: date('Y'));
+
+        // Base query yang konsisten mengunci tahun anggaran dan bidang terpilih
+        $baseQuery = fn () => PengajuanSpj::query()
+            ->where('tahun_anggaran', $tahunAktif)
+            ->when(filled($selectedBidang), fn ($q) => $q->where('bidang_id', (int) $selectedBidang));
+
         // Hitung badge antrean khusus tugas user aktif
-        $antreanSayaQuery = PengajuanSpj::query();
+        $antreanSayaQuery = $baseQuery();
         if ($user) {
             if ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
                 $antreanSayaQuery->where('status', 'menunggu_verifikasi_ppk');
@@ -74,12 +105,13 @@ class ListPengajuanSpjs extends ListRecords
         }
         $antreanSayaCount = $antreanSayaQuery->count();
 
-        // Hitung total berkas per tahapan untuk badge tab
-        $ppkCount = PengajuanSpj::query()->where('status', 'menunggu_verifikasi_ppk')->count();
-        $paCount = PengajuanSpj::query()->where('status', 'menunggu_persetujuan_pa')->count();
-        $bendaharaCount = PengajuanSpj::query()->where('status', 'menunggu_verifikasi_bendahara')->count();
-        $revisiCount = PengajuanSpj::query()->whereIn('status', ['revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara'])->count();
-        $cairCount = PengajuanSpj::query()->where('status', 'dicairkan')->count();
+        // Hitung total berkas per tahapan untuk badge tab sesuai tahun aktif
+        $semuaCount = $baseQuery()->count();
+        $ppkCount = $baseQuery()->where('status', 'menunggu_verifikasi_ppk')->count();
+        $paCount = $baseQuery()->where('status', 'menunggu_persetujuan_pa')->count();
+        $bendaharaCount = $baseQuery()->where('status', 'menunggu_verifikasi_bendahara')->count();
+        $revisiCount = $baseQuery()->whereIn('status', ['revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara'])->count();
+        $cairCount = $baseQuery()->where('status', 'dicairkan')->count();
 
         $labelAntreanSaya = match (true) {
             $user?->hasRole('ppk') || $anggaranRole === 'PPK' => 'Perlu Diperiksa PPK',
@@ -94,7 +126,11 @@ class ListPengajuanSpjs extends ListRecords
             'antrean_saya' => Tab::make($labelAntreanSaya)
                 ->badge($antreanSayaCount)
                 ->badgeColor($antreanSayaCount > 0 ? 'danger' : 'gray')
-                ->modifyQueryUsing(function (Builder $query) use ($user, $anggaranRole) {
+                ->modifyQueryUsing(function (Builder $query) use ($user, $anggaranRole, $tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif);
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
+                    }
                     if (! $user) return;
                     if ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
                         $query->where('status', 'menunggu_verifikasi_ppk');
@@ -122,33 +158,64 @@ class ListPengajuanSpjs extends ListRecords
                 }),
 
             'semua' => Tab::make('Semua SPJ')
-                ->badge(PengajuanSpj::count())
-                ->badgeColor('gray'),
+                ->badge($semuaCount)
+                ->badgeColor($semuaCount > 0 ? 'primary' : 'gray')
+                ->modifyQueryUsing(function (Builder $query) use ($tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif);
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
+                    }
+                }),
 
             'menunggu_ppk' => Tab::make('Menunggu PPK')
                 ->badge($ppkCount)
                 ->badgeColor($ppkCount > 0 ? 'warning' : 'gray')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'menunggu_verifikasi_ppk')),
+                ->modifyQueryUsing(function (Builder $query) use ($tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif)->where('status', 'menunggu_verifikasi_ppk');
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
+                    }
+                }),
 
             'menunggu_pa' => Tab::make('Menunggu PA')
                 ->badge($paCount)
                 ->badgeColor($paCount > 0 ? 'info' : 'gray')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'menunggu_persetujuan_pa')),
+                ->modifyQueryUsing(function (Builder $query) use ($tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif)->where('status', 'menunggu_persetujuan_pa');
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
+                    }
+                }),
 
             'menunggu_bendahara' => Tab::make('Menunggu Bendahara')
                 ->badge($bendaharaCount)
                 ->badgeColor($bendaharaCount > 0 ? 'primary' : 'gray')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'menunggu_verifikasi_bendahara')),
+                ->modifyQueryUsing(function (Builder $query) use ($tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif)->where('status', 'menunggu_verifikasi_bendahara');
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
+                    }
+                }),
 
             'perlu_revisi' => Tab::make('Perlu Revisi')
                 ->badge($revisiCount)
                 ->badgeColor($revisiCount > 0 ? 'danger' : 'gray')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('status', ['revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara'])),
+                ->modifyQueryUsing(function (Builder $query) use ($tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif)->whereIn('status', ['revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
+                    }
+                }),
 
             'selesai' => Tab::make('Selesai / Cair')
                 ->badge($cairCount)
                 ->badgeColor('success')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'dicairkan')),
+                ->modifyQueryUsing(function (Builder $query) use ($tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif)->where('status', 'dicairkan');
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
+                    }
+                }),
         ];
     }
 }
