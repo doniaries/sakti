@@ -37,10 +37,18 @@
 }
 
 /* ==========================================================================
-   Filter Popover & Dropdown Scroll & Height Fix (Anti Terpotong di Bawah Layar)
+   Filter Popover & Dropdown Scroll & Height Fix (Anti Terpotong & Anti Scrollbar Rusak)
    ========================================================================== */
+
+/* Pastikan wrapper tombol filter dropdown SELALU overflow visible dan tanpa scrollbar */
+.fi-ta-filters-dropdown {
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Hanya panel popover dropdown atau modal form filter yang memiliki max-height dan scroll */
+.fi-ta-filters-dropdown > .fi-dropdown-panel,
 .fi-dropdown-panel:has(.fi-ta-filters),
-.fi-ta-filters-dropdown,
 .fi-ta-filters-dropdown-content {
     max-height: min(80vh, 520px) !important;
     overflow-y: auto !important;
