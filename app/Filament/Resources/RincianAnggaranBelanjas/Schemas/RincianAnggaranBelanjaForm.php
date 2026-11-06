@@ -49,8 +49,8 @@ class RincianAnggaranBelanjaForm
 
                             Select::make('bidang_id')
                                 ->label('Bidang Pengampu')
-                                ->options(fn () => Bidang::pluck('nama', 'id')->all())
-                                ->default(fn () => Bidang::where('nama', 'LIKE', '%Pemasaran%')->value('id') ?? Bidang::first()?->id)
+                                ->options(fn() => Bidang::pluck('nama', 'id')->all())
+                                ->default(fn() => Bidang::where('nama', 'LIKE', '%Pemasaran%')->value('id') ?? Bidang::first()?->id)
                                 ->required()
                                 ->live(onBlur: true),
 
@@ -62,16 +62,16 @@ class RincianAnggaranBelanjaForm
 
                             Select::make('sub_kegiatan_id')
                                 ->label('Sub Kegiatan')
-                                ->visible(fn (Get $get): bool => filled($get('bidang_id')))
+                                ->visible(fn(Get $get): bool => filled($get('bidang_id')))
                                 ->options(function (Get $get) {
                                     $tahun = $get('tahun_anggaran') ?? (int) date('Y');
                                     $bidangId = $get('bidang_id');
 
                                     return MasterSubKegiatan::query()
                                         ->where('tahun_anggaran', $tahun)
-                                        ->when($bidangId, fn ($q) => $q->whereHas('kegiatan', fn ($k) => $k->where('bidang_id', $bidangId)))
+                                        ->when($bidangId, fn($q) => $q->whereHas('kegiatan', fn($k) => $k->where('bidang_id', $bidangId)))
                                         ->get()
-                                        ->mapWithKeys(fn ($item) => [$item->id => "{$item->kode_sub_kegiatan} - {$item->nama_sub_kegiatan}"])
+                                        ->mapWithKeys(fn($item) => [$item->id => "{$item->kode_sub_kegiatan} - {$item->nama_sub_kegiatan}"])
                                         ->all();
                                 })
                                 ->searchable()
@@ -84,12 +84,12 @@ class RincianAnggaranBelanjaForm
                 Section::make('Objek & Komponen Belanja SIPD')
                     ->description('Pilih rekening belanja dan komponen belanja yang akan dibebankan sesuai rincian SIPD.')
                     ->icon('heroicon-o-shopping-bag')
-                    ->visible(fn (Get $get): bool => filled($get('sub_kegiatan_id')))
+                    ->visible(fn(Get $get): bool => filled($get('sub_kegiatan_id')))
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('kode_rekening_id')
                                 ->label('Kode Rekening Belanja')
-                                ->options(fn () => KodeRekening::all()->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])->all())
+                                ->options(fn() => KodeRekening::all()->mapWithKeys(fn($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])->all())
                                 ->searchable()
                                 ->required()
                                 ->live(),
@@ -97,14 +97,14 @@ class RincianAnggaranBelanjaForm
                             Select::make('master_barang_id')
                                 ->label('Komponen Belanja')
                                 ->helperText('Pilih komponen/produk belanja. Transaksi SPJ akan mengurangi volume pagu komponen ini.')
-                                ->visible(fn (Get $get): bool => filled($get('kode_rekening_id')))
+                                ->visible(fn(Get $get): bool => filled($get('kode_rekening_id')))
                                 ->options(function (Get $get) {
                                     $rekId = $get('kode_rekening_id');
                                     return MasterBarang::query()
-                                        ->when($rekId, fn ($q) => $q->where('kode_rekening_id', $rekId))
+                                        ->when($rekId, fn($q) => $q->where('kode_rekening_id', $rekId))
                                         ->with('satuan')
                                         ->get()
-                                        ->mapWithKeys(fn ($b) => [$b->id => "📦 {$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
+                                        ->mapWithKeys(fn($b) => [$b->id => "📦 {$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
                                         ->all();
                                 })
                                 ->searchable()
@@ -133,7 +133,7 @@ class RincianAnggaranBelanjaForm
                             TextInput::make('spesifikasi')
                                 ->label('Spesifikasi Teknis / Merk Barang')
                                 ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram / Pertamax')
-                                ->visible(fn (Get $get): bool => filled($get('master_barang_id')))
+                                ->visible(fn(Get $get): bool => filled($get('master_barang_id')))
                                 ->columnSpanFull(),
                         ]),
                     ]),
@@ -142,7 +142,7 @@ class RincianAnggaranBelanjaForm
                 Section::make('Kalkulasi Koefisien Volume & Pagu Anggaran')
                     ->description('Hitung total pagu anggaran berdasarkan koefisien volume dan harga satuan standar belanja.')
                     ->icon('heroicon-o-calculator')
-                    ->visible(fn (Get $get): bool => filled($get('master_barang_id')))
+                    ->visible(fn(Get $get): bool => filled($get('master_barang_id')))
                     ->schema([
                         Grid::make([
                             'default' => 1,
@@ -163,7 +163,7 @@ class RincianAnggaranBelanjaForm
 
                             Select::make('satuan')
                                 ->label('Satuan Unit')
-                                ->options(fn () => Satuan::pluck('nama', 'nama')->all())
+                                ->options(fn() => Satuan::pluck('nama', 'nama')->all())
                                 ->default('Rim')
                                 ->searchable()
                                 ->required(),
@@ -182,8 +182,8 @@ class RincianAnggaranBelanjaForm
                                 ->label('Total Pagu Anggaran')
                                 ->prefix('Rp')
                                 ->readOnly()
-                                ->formatStateUsing(fn ($state) => filled($state) ? number_format(FormatHelper::parseRupiah($state), 0, ',', '.') : '0')
-                                ->dehydrateStateUsing(fn ($state) => FormatHelper::parseRupiah($state))
+                                ->formatStateUsing(fn($state) => filled($state) ? number_format(FormatHelper::parseRupiah($state), 0, ',', '.') : '0')
+                                ->dehydrateStateUsing(fn($state) => FormatHelper::parseRupiah($state))
                                 ->extraInputAttributes(['class' => 'font-bold text-amber-500'])
                                 ->helperText('Kalkulasi otomatis (Volume x Harga Satuan)'),
                         ]),
