@@ -499,26 +499,80 @@
             </div>
         @endif
 
-        <!-- TAB 4: PENDIDIKAN -->
+        <!-- TAB 4: PENDIDIKAN (MYASN STYLE) -->
         @if($activeTab === 'pendidikan')
-            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Riwayat Pendidikan</h3>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Tingkat Pendidikan</span>
-                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">{{ $user->jenjang_pendidikan ?? '-' }}</span>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan Formal (MyASN)
+                    </h3>
+                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                        {{ $user->riwayatPendidikan->count() }} Jenjang
+                    </span>
                 </div>
-                <div class="py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium block mb-1">Jurusan / Prodi</span>
-                    <span class="font-bold text-slate-800">{{ $user->pendidikan ?? '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Gelar Depan</span>
-                    <span class="font-bold text-slate-800">{{ $user->gelar_depan ?? '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Gelar Belakang</span>
-                    <span class="font-bold text-slate-800">{{ $user->gelar_belakang ?? '-' }}</span>
-                </div>
+
+                @forelse($user->riwayatPendidikan as $item)
+                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase {{ match($item->jenjang?->value ?? (string)$item->jenjang) {
+                                        'S3', 'S2' => 'bg-amber-50 text-amber-700 border border-amber-200',
+                                        'S1', 'D4' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                                        'D3', 'D2', 'D1' => 'bg-sky-50 text-sky-700 border border-sky-200',
+                                        'SLTA' => 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+                                        default => 'bg-slate-100 text-slate-700 border border-slate-200',
+                                    } }}">
+                                        {{ $item->jenjang?->value ?? (string)$item->jenjang }}
+                                    </span>
+                                    @if($item->is_pendidikan_terakhir)
+                                        <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
+                                            Terakhir
+                                        </span>
+                                    @endif
+                                </div>
+                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                    {{ $item->jurusan ?: $item->nama_institusi }}
+                                </h4>
+                                <p class="text-[11px] font-medium text-slate-500 mt-0.5">
+                                    {{ $item->nama_institusi }}
+                                </p>
+                            </div>
+                            @if($item->tahun_lulus)
+                                <span class="text-xs font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 shrink-0">
+                                    {{ $item->tahun_lulus }}
+                                </span>
+                            @endif
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                            <span class="text-slate-400">
+                                No. Ijazah: <strong class="text-slate-700">{{ $item->nomor_ijazah ?: '-' }}</strong>
+                            </span>
+
+                            @if($item->file_ijazah)
+                                <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_ijazah) }}" 
+                                   target="_blank" 
+                                   class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh Ijazah
+                                </a>
+                            @else
+                                <span class="text-slate-300 italic text-[10px]">Ijazah belum diunggah</span>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                            <span class="text-slate-400 font-medium">Tingkat Pendidikan</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">{{ $user->jenjang_pendidikan ?? '-' }}</span>
+                        </div>
+                        <div class="py-1.5 border-b border-slate-50 text-xs">
+                            <span class="text-slate-400 font-medium block mb-1">Jurusan / Prodi</span>
+                            <span class="font-bold text-slate-800">{{ $user->pendidikan ?? '-' }}</span>
+                        </div>
+                    </div>
+                @endforelse
             </div>
         @endif
 

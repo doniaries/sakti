@@ -6,9 +6,11 @@ use App\Enums\AnggaranRole;
 use App\Enums\Eselon;
 use App\Enums\GolonganRuang;
 use App\Enums\JenisKelamin;
+use App\Enums\JenjangPendidikan;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -333,26 +335,90 @@ class UserForm
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
                             ->schema([
-                                Section::make('Riwayat Pendidikan Formal')
+                                Section::make('Riwayat Pendidikan Formal (MyASN)')
+                                    ->description('Kelola seluruh riwayat pendidikan pegawai mulai dari jenjang SD, SLTP, SLTA, Diploma, S1, S2, hingga S3 beserta berkas scan Ijazah (PDF) yang dapat diunduh kembali.')
                                     ->icon('heroicon-o-academic-cap')
-                                    ->columns(2)
                                     ->schema([
-                                        Select::make('jenjang_pendidikan')
-                                            ->label('Jenjang Pendidikan')
-                                            ->options([
-                                                'S3' => 'S3 (Doktoral)',
-                                                'S2' => 'S2 (Magister)',
-                                                'S1' => 'S1 / D-IV (Sarjana)',
-                                                'D3' => 'D3 (Diploma)',
-                                                'SLTA' => 'SLTA / SMA / SMK',
-                                                'SMP' => 'SMP / MTs',
-                                                'SD' => 'SD',
-                                            ]),
+                                        Repeater::make('riwayatPendidikan')
+                                            ->relationship('riwayatPendidikan')
+                                            ->label('Daftar Riwayat Pendidikan')
+                                            ->addActionLabel('+ Tambah Riwayat Pendidikan')
+                                            ->reorderableWithButtons()
+                                            ->collapsible()
+                                            ->cloneable()
+                                            ->itemLabel(function (array $state): ?string {
+                                                $jenjang = $state['jenjang'] ?? '';
+                                                if ($jenjang instanceof \App\Enums\JenjangPendidikan) {
+                                                    $jenjang = $jenjang->value;
+                                                }
+                                                $nama = $state['nama_institusi'] ?? '';
+                                                $jurusan = $state['jurusan'] ?? '';
+                                                $tahun = $state['tahun_lulus'] ?? '';
 
-                                        TextInput::make('pendidikan')
-                                            ->label('Jurusan / Nama Pendidikan')
-                                            ->placeholder('Contoh: S1 Ilmu Komputer, S2 Magister Teknik...')
-                                            ->maxLength(100),
+                                                $label = $jenjang ? "[$jenjang]" : '';
+                                                if ($jurusan) {
+                                                    $label .= ' ' . $jurusan;
+                                                } elseif ($nama) {
+                                                    $label .= ' ' . $nama;
+                                                }
+                                                if ($tahun) {
+                                                    $label .= ' (' . $tahun . ')';
+                                                }
+                                                return $label ?: 'Riwayat Pendidikan';
+                                            })
+                                            ->schema([
+                                                Grid::make([
+                                                    'default' => 1,
+                                                    'md' => 3,
+                                                ])
+                                                ->schema([
+                                                    Select::make('jenjang')
+                                                        ->label('Jenjang Pendidikan')
+                                                        ->options(JenjangPendidikan::class)
+                                                        ->required()
+                                                        ->searchable(),
+
+                                                    TextInput::make('nama_institusi')
+                                                        ->label('Nama Sekolah / Perguruan Tinggi')
+                                                        ->placeholder('Contoh: SMKN 1 Sijunjung / Universitas Terbuka')
+                                                        ->required()
+                                                        ->maxLength(255)
+                                                        ->columnSpan(2),
+
+                                                    TextInput::make('jurusan')
+                                                        ->label('Jurusan / Program Studi')
+                                                        ->placeholder('Contoh: Ilmu Pemerintahan, Teknik Komputer, Umum')
+                                                        ->maxLength(255),
+
+                                                    TextInput::make('tahun_lulus')
+                                                        ->label('Tahun Lulus')
+                                                        ->numeric()
+                                                        ->mask('9999')
+                                                        ->placeholder('Contoh: 2015'),
+
+                                                    TextInput::make('nomor_ijazah')
+                                                        ->label('Nomor Seri Ijazah')
+                                                        ->placeholder('Contoh: DN-08/D-SMK/06/0012345')
+                                                        ->maxLength(100),
+
+                                                    FileUpload::make('file_ijazah')
+                                                        ->label('Berkas Ijazah Asli (PDF)')
+                                                        ->acceptedFileTypes(['application/pdf'])
+                                                        ->disk('public')
+                                                        ->directory('dokumen_pendidikan')
+                                                        ->maxSize(5120)
+                                                        ->downloadable()
+                                                        ->openable()
+                                                        ->columnSpan(2)
+                                                        ->helperText('Unggah berkas ijazah resmi berformat PDF (Maks. 5 MB) agar dapat diunduh kapan saja.'),
+
+                                                    Toggle::make('is_pendidikan_terakhir')
+                                                        ->label('Pendidikan Terakhir / Diakui')
+                                                        ->helperText('Tandai jika merupakan jenjang pendidikan terakhir')
+                                                        ->default(false)
+                                                        ->inline(false),
+                                                ]),
+                                            ]),
                                     ]),
                             ]),
 

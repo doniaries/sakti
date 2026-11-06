@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
+use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
@@ -11,6 +13,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
+use Illuminate\Support\Facades\Storage;
 
 class UserInfolist
 {
@@ -308,27 +311,51 @@ class UserInfolist
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
                             ->schema([
-                                Section::make('Riwayat Pendidikan Formal')
-                                    ->columns(2)
+                                Section::make('Riwayat Pendidikan Formal (MyASN)')
+                                    ->description('Daftar riwayat jenjang pendidikan formal yang tercatat dan lampiran berkas Ijazah asli.')
+                                    ->icon('heroicon-o-academic-cap')
                                     ->schema([
-                                        TextEntry::make('jenjang_pendidikan')
-                                            ->label('Tingkat Pendidikan')
-                                            ->badge()
-                                            ->color('success')
-                                            ->placeholder('-'),
+                                        RepeatableEntry::make('riwayatPendidikan')
+                                            ->label('')
+                                            ->schema([
+                                                Grid::make([
+                                                    'default' => 1,
+                                                    'md' => 4,
+                                                ])
+                                                ->schema([
+                                                    TextEntry::make('jenjang')
+                                                        ->label('Jenjang')
+                                                        ->badge()
+                                                        ->color(fn ($state) => $state instanceof \App\Enums\JenjangPendidikan ? $state->getColor() : 'primary'),
 
-                                        TextEntry::make('pendidikan')
-                                            ->label('Nama Pendidikan / Jurusan')
-                                            ->weight('medium')
-                                            ->placeholder('-'),
+                                                    TextEntry::make('nama_institusi')
+                                                        ->label('Nama Sekolah / Perguruan Tinggi')
+                                                        ->weight('bold')
+                                                        ->columnSpan(2),
 
-                                        TextEntry::make('gelar_depan')
-                                            ->label('Gelar Depan')
-                                            ->placeholder('-'),
+                                                    TextEntry::make('tahun_lulus')
+                                                        ->label('Tahun Lulus')
+                                                        ->badge()
+                                                        ->color('info')
+                                                        ->placeholder('-'),
 
-                                        TextEntry::make('gelar_belakang')
-                                            ->label('Gelar Belakang')
-                                            ->placeholder('-'),
+                                                    TextEntry::make('jurusan')
+                                                        ->label('Jurusan / Program Studi')
+                                                        ->placeholder('-')
+                                                        ->columnSpan(2),
+
+                                                    TextEntry::make('nomor_ijazah')
+                                                        ->label('Nomor Seri Ijazah')
+                                                        ->placeholder('-'),
+
+                                                    TextEntry::make('file_ijazah')
+                                                        ->label('Lampiran Berkas Ijazah')
+                                                        ->formatStateUsing(fn ($state) => $state ? 'Unduh Berkas Ijazah (PDF)' : 'Belum diunggah')
+                                                        ->icon(fn ($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
+                                                        ->color(fn ($state) => $state ? 'primary' : 'gray')
+                                                        ->url(fn ($record) => $record->file_ijazah ? Storage::disk('public')->url($record->file_ijazah) : null, shouldOpenInNewTab: true),
+                                                ]),
+                                            ]),
                                     ]),
                             ]),
 
