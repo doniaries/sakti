@@ -55,5 +55,48 @@ class AppServiceProvider extends ServiceProvider
         \Filament\Forms\Components\FileUpload::configureUsing(function (\Filament\Forms\Components\FileUpload $fileUpload): void {
             $fileUpload->maxSize(2048);
         });
+
+        // Registrasi Observers untuk Audit Trail / Log Aktivitas
+        \App\Models\PengajuanSpj::observe(\App\Observers\PengajuanSpjObserver::class);
+        \App\Models\Lhk::observe(\App\Observers\LhkObserver::class);
+        \App\Models\AbsensiHarian::observe(\App\Observers\AbsensiHarianObserver::class);
+        \App\Models\User::observe(\App\Observers\UserObserver::class);
+        \App\Models\PengaturanAplikasi::observe(\App\Observers\PengaturanAplikasiObserver::class);
+
+        // Catat Event Autentikasi Pengguna
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (\Illuminate\Auth\Events\Login $event): void {
+            if ($event->user instanceof \App\Models\User) {
+                \App\Services\ActivityLogger::log(
+                    event: 'login',
+                    module: 'Autentikasi',
+                    description: "Pengguna {$event->user->name} berhasil login ke dalam sistem",
+                    subject: $event->user,
+                    user: $event->user
+                );
+            }
+        });
+
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Logout::class, function (\Illuminate\Auth\Events\Logout $event): void {
+            if ($event->user instanceof \App\Models\User) {
+                \App\Services\ActivityLogger::log(
+                    event: 'logout',
+                    module: 'Autentikasi',
+                    description: "Pengguna {$event->user->name} logout dari sistem",
+                    subject: $event->user,
+                    user: $event->user
+                );
+            }
+        });
+
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Failed::class, function (\Illuminate\Auth\Events\Failed $event): void {
+            $identifier = $event->credentials['email'] ?? ($event->credentials['nip'] ?? 'Tidak diketahui');
+            \App\Services\ActivityLogger::log(
+                event: 'login_failed',
+                module: 'Autentikasi',
+                description: "Percobaan login gagal untuk akun/identitas: {$identifier}",
+                properties: ['identifier' => $identifier],
+                user: $event->user instanceof \App\Models\User ? $event->user : null
+            );
+        });
     }
 }
