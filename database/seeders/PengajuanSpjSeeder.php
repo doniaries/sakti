@@ -347,7 +347,7 @@ class PengajuanSpjSeeder extends Seeder
                 // Update Total pada Header dan sinkronkan kalkulasi perpajakan akurat
                 $nominalAktif = $totalRealisasi > 0 ? $totalRealisasi : $totalRencana;
                 $nilaiPpn = round($nominalAktif * ($ppnPersen / 100));
-                $nilaiPph22 = round($nominalAktif * ($pphPersen / 100));
+                $nilaiPph22 = round($nominalAktif * ($pph22Persen / 100));
                 $totalPajak = $nilaiPpn + $nilaiPph22;
                 $nilaiBersih = max(0, ($nominalAktif + $nilaiPpn) - $totalPajak);
 
