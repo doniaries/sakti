@@ -30,7 +30,11 @@ class ListMasterKegiatans extends ListRecords
         $user = \Illuminate\Support\Facades\Auth::user();
         $isGlobal = ! $user || $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara', 'pimpinan']);
 
-        $baseQuery = MasterKegiatan::query();
+        $selectedTahun = request()->query('tahun')
+            ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
+            ?? (int) date('Y');
+
+        $baseQuery = MasterKegiatan::query()->where('tahun_anggaran', (int) $selectedTahun);
         if (! $isGlobal && $user->bidang_id) {
             $baseQuery->where('bidang_id', $user->bidang_id);
         }
@@ -56,7 +60,9 @@ class ListMasterKegiatans extends ListRecords
                 default => 'heroicon-m-briefcase',
             };
 
-            $count = MasterKegiatan::where('bidang_id', $bidang->id)->count();
+            $count = MasterKegiatan::where('tahun_anggaran', (int) $selectedTahun)
+                ->where('bidang_id', $bidang->id)
+                ->count();
 
             $tabs[$bidang->slug ?: 'bidang_' . $bidang->id] = Tab::make($bidang->nama)
                 ->icon($icon)

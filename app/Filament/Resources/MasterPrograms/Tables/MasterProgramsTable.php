@@ -42,9 +42,9 @@ class MasterProgramsTable
                         ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
                 }
 
-                if (filled($selectedTahun)) {
-                    $query->where('tahun_anggaran', (int) $selectedTahun);
-                }
+                $selectedTahun = filled($selectedTahun) ? (int) $selectedTahun : (int) date('Y');
+
+                $query->where('tahun_anggaran', $selectedTahun);
 
                 return $query;
             })
@@ -85,7 +85,7 @@ class MasterProgramsTable
                 SelectFilter::make('tahun_anggaran')
                     ->label('Pilih Tahun')
                     ->options($years)
-                    ->placeholder('Semua Tahun'),
+                    ->default((int) date('Y')),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([

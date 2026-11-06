@@ -42,9 +42,9 @@ class MasterKegiatansTable
                         ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
                 }
 
-                if (filled($selectedTahun)) {
-                    $query->where('tahun_anggaran', (int) $selectedTahun);
-                }
+                $selectedTahun = filled($selectedTahun) ? (int) $selectedTahun : (int) date('Y');
+
+                $query->where('tahun_anggaran', $selectedTahun);
 
                 return $query;
             })
@@ -101,7 +101,12 @@ class MasterKegiatansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([])
+            ->filters([
+                SelectFilter::make('tahun_anggaran')
+                    ->label('Tahun Anggaran')
+                    ->options($years)
+                    ->default((int) date('Y')),
+            ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
