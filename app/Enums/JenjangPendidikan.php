@@ -45,3 +45,4 @@ enum JenjangPendidikan: string implements HasLabel, HasColor
         };
     }
 }
+

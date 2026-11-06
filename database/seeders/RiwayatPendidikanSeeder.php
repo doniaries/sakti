@@ -125,3 +125,4 @@ class RiwayatPendidikanSeeder extends Seeder
         }
     }
 }
+
