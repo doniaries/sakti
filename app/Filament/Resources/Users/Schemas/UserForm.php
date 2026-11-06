@@ -254,54 +254,54 @@ class UserForm
                                                     'default' => 1,
                                                     'md' => 3,
                                                 ])
-                                                ->schema([
-                                                    Select::make('golongan')
-                                                        ->label('Pangkat / Golongan Ruang')
-                                                        ->options(GolonganRuang::class)
-                                                        ->required()
-                                                        ->searchable(),
+                                                    ->schema([
+                                                        Select::make('golongan')
+                                                            ->label('Pangkat / Golongan Ruang')
+                                                            ->options(GolonganRuang::class)
+                                                            ->required()
+                                                            ->searchable(),
 
-                                                    TextInput::make('nama_pangkat')
-                                                        ->label('Nama Pangkat')
-                                                        ->placeholder('Contoh: Pembina, Penata Tingkat I')
-                                                        ->maxLength(100),
+                                                        TextInput::make('nama_pangkat')
+                                                            ->label('Nama Pangkat')
+                                                            ->placeholder('Contoh: Pembina, Penata Tingkat I')
+                                                            ->maxLength(100),
 
-                                                    DatePicker::make('tmt_golongan')
-                                                        ->label('TMT Golongan')
-                                                        ->displayFormat('d/m/Y')
-                                                        ->required(),
+                                                        DatePicker::make('tmt_golongan')
+                                                            ->label('TMT Golongan')
+                                                            ->displayFormat('d/m/Y')
+                                                            ->required(),
 
-                                                    TextInput::make('nomor_sk')
-                                                        ->label('Nomor SK Kenaikan Pangkat')
-                                                        ->placeholder('Contoh: 823.4/1136/BKD-2026')
-                                                        ->maxLength(100),
+                                                        TextInput::make('nomor_sk')
+                                                            ->label('Nomor SK Kenaikan Pangkat')
+                                                            ->placeholder('Contoh: 823.4/1136/BKD-2026')
+                                                            ->maxLength(100),
 
-                                                    DatePicker::make('tanggal_sk')
-                                                        ->label('Tanggal SK')
-                                                        ->displayFormat('d/m/Y'),
+                                                        DatePicker::make('tanggal_sk')
+                                                            ->label('Tanggal SK')
+                                                            ->displayFormat('d/m/Y'),
 
-                                                    Toggle::make('is_golongan_terakhir')
-                                                        ->label('Pangkat / Golongan Terakhir')
-                                                        ->helperText('Tandai jika merupakan pangkat aktif sekarang')
-                                                        ->default(false)
-                                                        ->inline(false),
+                                                        Toggle::make('is_golongan_terakhir')
+                                                            ->label('Pangkat / Golongan Terakhir')
+                                                            ->helperText('Tandai jika merupakan pangkat aktif sekarang')
+                                                            ->default(false)
+                                                            ->inline(false),
 
-                                                    FileUpload::make('file_sk_golongan')
-                                                        ->label('Berkas SK Pangkat (Wajib PDF, Maks. 2 MB)')
-                                                        ->acceptedFileTypes(['application/pdf'])
-                                                        ->rules(['file', 'mimes:pdf', 'max:2048'])
-                                                        ->maxSize(2048)
-                                                        ->required()
-                                                        ->disk('public')
-                                                        ->directory('dokumen_golongan')
-                                                        ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
-                                                            return (string) str('sk-golongan-' . str()->random(16) . '.pdf');
-                                                        })
-                                                        ->downloadable()
-                                                        ->openable()
-                                                        ->columnSpanFull()
-                                                        ->helperText('Wajib unggah berkas scan PDF asli SK Kenaikan Pangkat resmi (Maksimal 2 MB).'),
-                                                ]),
+                                                        FileUpload::make('file_sk_golongan')
+                                                            ->label('Berkas SK Pangkat (Wajib PDF, Maks. 2 MB)')
+                                                            ->acceptedFileTypes(['application/pdf'])
+                                                            ->rules(['file', 'mimes:pdf', 'max:2048'])
+                                                            ->maxSize(2048)
+                                                            // ->required()
+                                                            ->disk('public')
+                                                            ->directory('dokumen_golongan')
+                                                            ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
+                                                                return (string) str('sk-golongan-' . str()->random(16) . '.pdf');
+                                                            })
+                                                            ->downloadable()
+                                                            ->openable()
+                                                            ->columnSpanFull()
+                                                            ->helperText('Wajib unggah berkas scan PDF asli SK Kenaikan Pangkat resmi (Maksimal 2 MB).'),
+                                                    ]),
                                             ]),
                                     ]),
                             ]),
@@ -314,81 +314,81 @@ class UserForm
                                     'default' => 1,
                                     'lg' => 2,
                                 ])
-                                ->schema([
-                                    Section::make('Informasi Jabatan & Unit Kerja Saat Ini')
-                                        ->icon('heroicon-o-briefcase')
-                                        ->columns(2)
-                                        ->schema([
-                                            Select::make('bidang_id')
-                                                ->label('Bidang')
-                                                ->relationship('bidang', 'nama')
-                                                ->searchable()
-                                                ->preload()
-                                                ->placeholder('Kosongkan jika Kepala Dinas (Pimpinan Tertinggi)')
-                                                ->helperText('Kepala Dinas tidak memiliki bidang karena memimpin seluruh dinas.')
-                                                ->columnSpanFull(),
+                                    ->schema([
+                                        Section::make('Informasi Jabatan & Unit Kerja Saat Ini')
+                                            ->icon('heroicon-o-briefcase')
+                                            ->columns(2)
+                                            ->schema([
+                                                Select::make('bidang_id')
+                                                    ->label('Bidang')
+                                                    ->relationship('bidang', 'nama')
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->placeholder('Kosongkan jika Kepala Dinas (Pimpinan Tertinggi)')
+                                                    ->helperText('Kepala Dinas tidak memiliki bidang karena memimpin seluruh dinas.')
+                                                    ->columnSpanFull(),
 
-                                            Select::make('jabatan_id')
-                                                ->label('Jabatan')
-                                                ->relationship('jabatan', 'nama')
-                                                ->searchable()
-                                                ->preload()
-                                                ->columnSpanFull(),
+                                                Select::make('jabatan_id')
+                                                    ->label('Jabatan')
+                                                    ->relationship('jabatan', 'nama')
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->columnSpanFull(),
 
-                                            Select::make('atasan_id')
-                                                ->label('Atasan Langsung')
-                                                ->relationship('atasan', 'name', fn($query) => $query->bukanSuperAdmin())
-                                                ->searchable()
-                                                ->preload()
-                                                ->placeholder('Kosongkan jika Kepala Dinas')
-                                                ->helperText('Kepala Dinas tidak memiliki atasan langsung di lingkungan dinas.')
-                                                ->columnSpanFull(),
+                                                Select::make('atasan_id')
+                                                    ->label('Atasan Langsung')
+                                                    ->relationship('atasan', 'name', fn($query) => $query->bukanSuperAdmin())
+                                                    ->searchable()
+                                                    ->preload()
+                                                    ->placeholder('Kosongkan jika Kepala Dinas')
+                                                    ->helperText('Kepala Dinas tidak memiliki atasan langsung di lingkungan dinas.')
+                                                    ->columnSpanFull(),
 
-                                            Select::make('anggaran_role')
-                                                ->label('Peran Anggaran (PA/PPK/PPTK)')
-                                                ->options(AnggaranRole::class)
-                                                ->placeholder('Bukan Pejabat Anggaran (Staf / JF)')
-                                                ->searchable()
-                                                ->columnSpanFull(),
-                                        ]),
+                                                Select::make('anggaran_role')
+                                                    ->label('Peran Anggaran (PA/PPK/PPTK)')
+                                                    ->options(AnggaranRole::class)
+                                                    ->placeholder('Bukan Pejabat Anggaran (Staf / JF)')
+                                                    ->searchable()
+                                                    ->columnSpanFull(),
+                                            ]),
 
-                                    Section::make('Presensi & Operasional Kerja')
-                                        ->icon('heroicon-o-clock')
-                                        ->columns(1)
-                                        ->schema([
-                                            Select::make('status_kerja')
-                                                ->label('Status Kerja (WFH/WFO)')
-                                                ->options([
-                                                    'wfo' => 'WFO (Work From Office)',
-                                                    'wfh' => 'WFH (Work From Home)',
-                                                ])
-                                                ->default('wfo')
-                                                ->required(),
+                                        Section::make('Presensi & Operasional Kerja')
+                                            ->icon('heroicon-o-clock')
+                                            ->columns(1)
+                                            ->schema([
+                                                Select::make('status_kerja')
+                                                    ->label('Status Kerja (WFH/WFO)')
+                                                    ->options([
+                                                        'wfo' => 'WFO (Work From Office)',
+                                                        'wfh' => 'WFH (Work From Home)',
+                                                    ])
+                                                    ->default('wfo')
+                                                    ->required(),
 
-                                            Select::make('jadwal_kerja_id')
-                                                ->label('Jadwal / Shift Kerja')
-                                                ->relationship('jadwalKerja', 'nama')
-                                                ->placeholder('Ikuti Jadwal Default Sistem')
-                                                ->searchable()
-                                                ->preload(),
+                                                Select::make('jadwal_kerja_id')
+                                                    ->label('Jadwal / Shift Kerja')
+                                                    ->relationship('jadwalKerja', 'nama')
+                                                    ->placeholder('Ikuti Jadwal Default Sistem')
+                                                    ->searchable()
+                                                    ->preload(),
 
-                                            TextInput::make('nomor_absensi')
-                                                ->label('ID Mesin Presensi (PIN)')
-                                                ->maxLength(50)
-                                                ->readOnly(function () {
-                                                    /** @var \App\Models\User|null $user */
-                                                    $user = Auth::user();
-                                                    return !($user && ($user->hasRole('super_admin') || $user->hasRole('admin')));
-                                                })
-                                                ->helperText(function () {
-                                                    /** @var \App\Models\User|null $user */
-                                                    $user = Auth::user();
-                                                    return !($user && ($user->hasRole('super_admin') || $user->hasRole('admin')))
-                                                        ? 'Hanya Administrator yang dapat mengubah ID Mesin Presensi.'
-                                                        : null;
-                                                }),
-                                        ]),
-                                ]),
+                                                TextInput::make('nomor_absensi')
+                                                    ->label('ID Mesin Presensi (PIN)')
+                                                    ->maxLength(50)
+                                                    ->readOnly(function () {
+                                                        /** @var \App\Models\User|null $user */
+                                                        $user = Auth::user();
+                                                        return !($user && ($user->hasRole('super_admin') || $user->hasRole('admin')));
+                                                    })
+                                                    ->helperText(function () {
+                                                        /** @var \App\Models\User|null $user */
+                                                        $user = Auth::user();
+                                                        return !($user && ($user->hasRole('super_admin') || $user->hasRole('admin')))
+                                                            ? 'Hanya Administrator yang dapat mengubah ID Mesin Presensi.'
+                                                            : null;
+                                                    }),
+                                            ]),
+                                    ]),
 
                                 Section::make('Riwayat Mutasi & Jabatan Pegawai')
                                     ->description('Kelola seluruh riwayat penugasan/jabatan struktural, fungsional, dan pelaksana beserta berkas scan SK Jabatan (PDF) yang dapat diunduh kembali.')
@@ -420,63 +420,63 @@ class UserForm
                                                     'default' => 1,
                                                     'md' => 3,
                                                 ])
-                                                ->schema([
-                                                    TextInput::make('nama_jabatan')
-                                                        ->label('Nama Jabatan')
-                                                        ->placeholder('Contoh: Kepala BIDANG PEMASARAN PARIWISATA')
-                                                        ->required()
-                                                        ->columnSpan(2),
+                                                    ->schema([
+                                                        TextInput::make('nama_jabatan')
+                                                            ->label('Nama Jabatan')
+                                                            ->placeholder('Contoh: Kepala BIDANG PEMASARAN PARIWISATA')
+                                                            ->required()
+                                                            ->columnSpan(2),
 
-                                                    Select::make('jenis_jabatan')
-                                                        ->label('Jenis Jabatan')
-                                                        ->options([
-                                                            'Jabatan Struktural' => 'Jabatan Struktural',
-                                                            'Jabatan Fungsional' => 'Jabatan Fungsional',
-                                                            'Jabatan Pelaksana' => 'Jabatan Pelaksana',
-                                                        ])
-                                                        ->default('Jabatan Struktural')
-                                                        ->required(),
+                                                        Select::make('jenis_jabatan')
+                                                            ->label('Jenis Jabatan')
+                                                            ->options([
+                                                                'Jabatan Struktural' => 'Jabatan Struktural',
+                                                                'Jabatan Fungsional' => 'Jabatan Fungsional',
+                                                                'Jabatan Pelaksana' => 'Jabatan Pelaksana',
+                                                            ])
+                                                            ->default('Jabatan Struktural')
+                                                            ->required(),
 
-                                                    TextInput::make('unit_kerja')
-                                                        ->label('Unit Kerja / SKPD')
-                                                        ->placeholder('Contoh: Dinas Pariwisata, Pemuda dan Olahraga')
-                                                        ->columnSpan(2),
+                                                        TextInput::make('unit_kerja')
+                                                            ->label('Unit Kerja / SKPD')
+                                                            ->placeholder('Contoh: Dinas Pariwisata, Pemuda dan Olahraga')
+                                                            ->columnSpan(2),
 
-                                                    DatePicker::make('tmt_jabatan')
-                                                        ->label('TMT Jabatan')
-                                                        ->displayFormat('d/m/Y'),
+                                                        DatePicker::make('tmt_jabatan')
+                                                            ->label('TMT Jabatan')
+                                                            ->displayFormat('d/m/Y'),
 
-                                                    TextInput::make('nomor_sk')
-                                                        ->label('Nomor SK Jabatan')
-                                                        ->placeholder('Nomor SK pelantikan / mutasi...')
-                                                        ->maxLength(100),
+                                                        TextInput::make('nomor_sk')
+                                                            ->label('Nomor SK Jabatan')
+                                                            ->placeholder('Nomor SK pelantikan / mutasi...')
+                                                            ->maxLength(100),
 
-                                                    DatePicker::make('tanggal_sk')
-                                                        ->label('Tanggal SK')
-                                                        ->displayFormat('d/m/Y'),
+                                                        DatePicker::make('tanggal_sk')
+                                                            ->label('Tanggal SK')
+                                                            ->displayFormat('d/m/Y'),
 
-                                                    Toggle::make('is_jabatan_sekarang')
-                                                        ->label('Jabatan Sekarang')
-                                                        ->helperText('Tandai jika ini merupakan jabatan aktif saat ini')
-                                                        ->default(false)
-                                                        ->inline(false),
+                                                        Toggle::make('is_jabatan_sekarang')
+                                                            ->label('Jabatan Sekarang')
+                                                            ->helperText('Tandai jika ini merupakan jabatan aktif saat ini')
+                                                            ->default(false)
+                                                            ->inline(false),
 
-                                                    FileUpload::make('file_sk_jabatan')
-                                                        ->label('Berkas SK Jabatan (Wajib PDF, Maks. 2 MB)')
-                                                        ->acceptedFileTypes(['application/pdf'])
-                                                        ->rules(['file', 'mimes:pdf', 'max:2048'])
-                                                        ->maxSize(2048)
-                                                        ->required()
-                                                        ->disk('public')
-                                                        ->directory('dokumen_jabatan')
-                                                        ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
-                                                            return (string) str('sk-jabatan-' . str()->random(16) . '.pdf');
-                                                        })
-                                                        ->downloadable()
-                                                        ->openable()
-                                                        ->columnSpanFull()
-                                                        ->helperText('Wajib unggah berkas scan PDF asli SK Jabatan / Pelantikan resmi (Maksimal 2 MB).'),
-                                                ]),
+                                                        FileUpload::make('file_sk_jabatan')
+                                                            ->label('Berkas SK Jabatan (Wajib PDF, Maks. 2 MB)')
+                                                            ->acceptedFileTypes(['application/pdf'])
+                                                            ->rules(['file', 'mimes:pdf', 'max:2048'])
+                                                            ->maxSize(2048)
+                                                            ->required()
+                                                            ->disk('public')
+                                                            ->directory('dokumen_jabatan')
+                                                            ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
+                                                                return (string) str('sk-jabatan-' . str()->random(16) . '.pdf');
+                                                            })
+                                                            ->downloadable()
+                                                            ->openable()
+                                                            ->columnSpanFull()
+                                                            ->helperText('Wajib unggah berkas scan PDF asli SK Jabatan / Pelantikan resmi (Maksimal 2 MB).'),
+                                                    ]),
                                             ]),
                                     ]),
                             ]),
