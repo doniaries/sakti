@@ -144,14 +144,15 @@ class PengajuanSpj extends Model
             }
 
             // Otomasi Pajak Belanja Barang:
-            // Ambang batas: > Rp 2.000.000 dikenakan PPN 11% dan PPh 22 1.5%
+            // Ambang batas: > Rp 2.000.000 default PPN 11% & PPh 22 1.5% jika belum ditentukan manual
             $nominalDasar = (float) ($spj->total_nilai_realisasi > 0 ? $spj->total_nilai_realisasi : $spj->total_nilai_rencana);
-            if ($nominalDasar > 2000000) {
-                if ((float) $spj->ppn_persen == 0) {
+            if ($spj->ppn_persen === null && $spj->pph22_persen === null) {
+                if ($nominalDasar > 2000000) {
                     $spj->ppn_persen = 11.00;
-                }
-                if ((float) $spj->pph22_persen == 0) {
                     $spj->pph22_persen = 1.50;
+                } else {
+                    $spj->ppn_persen = 0.00;
+                    $spj->pph22_persen = 0.00;
                 }
             }
 

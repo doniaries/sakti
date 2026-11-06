@@ -18,6 +18,7 @@ use App\Models\RincianAnggaranBelanja;
 use App\Models\Satuan;
 use App\Models\User;
 use App\Services\Spj\SpjWorkflowService;
+use App\Support\FormatHelper;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -27,6 +28,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
@@ -106,6 +108,29 @@ class PengajuanSpjForm
                 && ! in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'ditolak'], true);
         };
 
+        // Helper closure: Hitung live total nilai pesanan dari repeater details / record SPJ
+        $calculateTotalPesanan = function (callable $get, mixed $record = null) use ($resolveSpjRecord): float {
+            $details = $get('details') ?? [];
+            $total = 0;
+            foreach ($details as $item) {
+                $subtotal = FormatHelper::parseRupiah($item['subtotal'] ?? 0);
+                if ($subtotal <= 0) {
+                    $qty = (float) ($item['kuantitas'] ?? 0);
+                    $harga = FormatHelper::parseRupiah($item['harga_satuan'] ?? 0);
+                    $subtotal = $qty * $harga;
+                }
+                $total += $subtotal;
+            }
+            if ($total <= 0) {
+                $spj = $resolveSpjRecord($record);
+                if ($spj) {
+                    $total = (float) ($spj->total_nilai_realisasi ?: $spj->total_nilai_rencana);
+                }
+            }
+
+            return $total;
+        };
+
         return $schema
             ->components([
                 Wizard::make([
@@ -161,7 +186,7 @@ class PengajuanSpjForm
                                                                 2027 => '2027',
                                                                 2028 => '2028',
                                                             ])
-                                                            ->default(fn () => (int) (request()->query('tahun') ?? date('Y')))
+                                                            ->default(fn() => (int) (request()->query('tahun') ?? date('Y')))
                                                             ->required()
                                                             ->live()
                                                             ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
@@ -181,7 +206,7 @@ class PengajuanSpjForm
                                                         Select::make('bidang_id')
                                                             ->label('Bidang Pengusul')
                                                             ->placeholder('Pilih Bidang Pengusul')
-                                                            ->default(fn (): ?int => $resolveUserBidangId())
+                                                            ->default(fn(): ?int => $resolveUserBidangId())
                                                             ->options(function () use ($resolveUserBidangId): array {
                                                                 /** @var \App\Models\User|null $user */
                                                                 $user = Auth::user();
@@ -237,7 +262,7 @@ class PengajuanSpjForm
 
                                                         TextInput::make('nomor_pengajuan')
                                                             ->label('Nomor Surat Pesanan')
-                                                            ->default(fn (Get $get) => PengajuanSpj::generateNomorPengajuan(
+                                                            ->default(fn(Get $get) => PengajuanSpj::generateNomorPengajuan(
                                                                 $get('bidang_id') ?: $resolveUserBidangId(),
                                                                 (int) ($get('tahun_anggaran') ?? date('Y')),
                                                                 $get('tanggal_pengajuan')
@@ -268,10 +293,10 @@ class PengajuanSpjForm
 
                                                         Select::make('kegiatan_id')
                                                             ->label('Kegiatan (SIPD)')
-                                                            ->placeholder(fn (callable $get): string => $resolveBidangId($get)
+                                                            ->placeholder(fn(callable $get): string => $resolveBidangId($get)
                                                                 ? 'Pilih Kegiatan'
                                                                 : 'Pilih Bidang Pengusul terlebih dahulu')
-                                                            ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null)
+                                                            ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null)
                                                             ->options(function (callable $get) use ($resolveBidangId): array {
                                                                 $bidangId = $resolveBidangId($get);
                                                                 if (! $bidangId) {
@@ -312,15 +337,16 @@ class PengajuanSpjForm
                                                             })
                                                             ->searchable()
                                                             ->live()
-                                                            ->afterStateUpdated(fn (callable $set) => $set('sub_kegiatan_id', null))
+                                                            ->afterStateUpdated(fn(callable $set) => $set('sub_kegiatan_id', null))
                                                             ->required(),
 
                                                         Select::make('sub_kegiatan_id')
                                                             ->label('Sub Kegiatan (SIPD)')
+                                                            ->visible(fn (callable $get): bool => filled($get('kegiatan_id')))
                                                             ->placeholder(fn (callable $get): string => filled($get('kegiatan_id'))
                                                                 ? 'Pilih Sub Kegiatan'
                                                                 : 'Pilih Kegiatan terlebih dahulu')
-                                                            ->disabled(fn (callable $get): bool => blank($get('kegiatan_id')))
+                                                            ->disabled(fn(callable $get): bool => blank($get('kegiatan_id')))
                                                             ->options(function (callable $get): array {
                                                                 $kegiatanId = $get('kegiatan_id');
                                                                 if (! $kegiatanId) {
@@ -363,8 +389,8 @@ class PengajuanSpjForm
 
                                                                         return User::query()
                                                                             ->where('aktif', true)
-                                                                            ->whereHas('roles', fn ($q) => $q->where('name', 'jf'))
-                                                                            ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                                                                            ->whereHas('roles', fn($q) => $q->where('name', 'jf'))
+                                                                            ->when($bidangId, fn($q) => $q->where('bidang_id', $bidangId))
                                                                             ->pluck('name', 'id')
                                                                             ->all();
                                                                     })
@@ -380,18 +406,19 @@ class PengajuanSpjForm
                                                                 ])->id;
                                                             })
                                                             ->searchable()
+                                                            ->live()
                                                             ->required(),
                                                     ]),
 
                                                 Hidden::make('user_id')
-                                                    ->default(fn () => Auth::id()),
+                                                    ->default(fn() => Auth::id()),
                                             ]),
 
                                         // 1.B KHUSUS E-KATALOG (E-PURCHASING LKPP)
                                         Section::make('Bundel Dokumen E-Purchasing (E-Katalog LKPP)')
                                             ->description('Untuk belanja via E-Katalog, Surat Pesanan, BAST, dan Kwitansi diterbitkan resmi oleh LKPP/E-Proc. Unggah dokumen bundel resmi PDF tersebut di sini.')
                                             ->compact()
-                                            ->visible(fn (callable $get) => $get('metode_pengadaan') === 'e_katalog')
+                                            ->visible(fn(callable $get) => $get('metode_pengadaan') === 'e_katalog')
                                             ->schema([
                                                 FileUpload::make('file_ekatalog_bundel')
                                                     ->label('Unggah Bundel Dokumen E-Katalog LKPP (PDF)')
@@ -408,7 +435,7 @@ class PengajuanSpjForm
                                         Section::make('Rincian Surat Tugas & Perjalanan Dinas (SPPD)')
                                             ->description('Lengkapi data dasar surat perintah tugas dan tujuan kedinasan.')
                                             ->compact()
-                                            ->visible(fn (callable $get) => $get('jenis_belanja') === 'sppd')
+                                            ->visible(fn(callable $get) => $get('jenis_belanja') === 'sppd')
                                             ->columns(12)
                                             ->schema([
                                                 Select::make('tingkat_perjalanan')
@@ -419,7 +446,7 @@ class PengajuanSpjForm
                                                         'luar_provinsi' => 'Luar Provinsi',
                                                     ])
                                                     ->default('dalam_kabupaten')
-                                                    ->required(fn (callable $get) => $get('jenis_belanja') === 'sppd')
+                                                    ->required(fn(callable $get) => $get('jenis_belanja') === 'sppd')
                                                     ->columnSpan(['default' => 12, 'md' => 4]),
 
                                                 TextInput::make('nomor_spt')
@@ -485,12 +512,12 @@ class PengajuanSpjForm
                                         Section::make('Standar Kuota BBM Kedinasan')
                                             ->description('Pilih nagari atau rute tujuan kedinasan. Standar kuota liter akan terisi otomatis sesuai SBM.')
                                             ->compact()
-                                            ->visible(fn (callable $get) => $get('jenis_belanja') === 'bbm')
+                                            ->visible(fn(callable $get) => $get('jenis_belanja') === 'bbm')
                                             ->columns(12)
                                             ->schema([
                                                 Select::make('master_tujuan_bbm_id')
                                                     ->label('Rute / Nagari Tujuan BBM')
-                                                    ->options(fn () => MasterTujuanBbm::where('aktif', true)->get()->pluck('label', 'id')->all())
+                                                    ->options(fn() => MasterTujuanBbm::where('aktif', true)->get()->pluck('label', 'id')->all())
                                                     ->searchable()
                                                     ->live()
                                                     ->afterStateUpdated(function ($state, callable $set) {
@@ -532,7 +559,7 @@ class PengajuanSpjForm
                                                     ->numeric()
                                                     ->default(20)
                                                     ->suffix('Liter')
-                                                    ->required(fn (callable $get) => $get('jenis_belanja') === 'bbm')
+                                                    ->required(fn(callable $get) => $get('jenis_belanja') === 'bbm')
                                                     ->columnSpan(['default' => 12, 'md' => 4]),
                                             ]),
 
@@ -540,15 +567,17 @@ class PengajuanSpjForm
                                         Section::make('Rincian Barang Pesanan')
                                             ->description('Pilih item belanja sesuai ketersediaan sisa pagu alokasi RKA Bidang Pengusul.')
                                             ->compact()
+                                            ->visible(fn(callable $get) => filled($get('sub_kegiatan_id')))
                                             ->schema([
                                                 Repeater::make('details')
                                                     ->relationship()
                                                     ->label('Daftar Barang & Rincian Belanja')
-                                                    ->itemLabel(fn (array $state): ?string => filled($state['nama_item_belanja'] ?? null)
+                                                    ->itemLabel(fn(array $state): ?string => filled($state['nama_item_belanja'] ?? null)
                                                         ? ($state['nama_item_belanja'] . ' — ' . ($state['kuantitas'] ?? 1) . ' ' . ($state['satuan'] ?? 'Unit') . ' (Rp ' . number_format((float) ($state['subtotal'] ?? 0), 0, ',', '.') . ')')
                                                         : 'Item Belanja Baru')
                                                     ->collapsible()
                                                     ->cloneable()
+                                                    ->live()
                                                     ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
                                                         if (isset($data['rincian_anggaran_belanja_id']) && str_starts_with((string) $data['rincian_anggaran_belanja_id'], 'mb_')) {
                                                             $data['rincian_anggaran_belanja_id'] = null;
@@ -565,10 +594,10 @@ class PengajuanSpjForm
                                                     ->schema([
                                                         Select::make('kode_rekening_id')
                                                             ->label('Rekening Belanja')
-                                                            ->placeholder(fn (callable $get): string => $resolveBidangId($get)
+                                                            ->placeholder(fn(callable $get): string => $resolveBidangId($get)
                                                                 ? 'Pilih Rekening Belanja'
                                                                 : 'Pilih Bidang Pengusul terlebih dahulu')
-                                                            ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null)
+                                                            ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null)
                                                             ->options(function (callable $get) use ($resolveBidangId): array {
                                                                 $bidangId = $resolveBidangId($get);
                                                                 if (! $bidangId) {
@@ -633,6 +662,7 @@ class PengajuanSpjForm
 
                                                         Select::make('rincian_anggaran_belanja_id')
                                                             ->label('Barang / Belanja (RKA)')
+                                                            ->visible(fn (callable $get): bool => filled($get('kode_rekening_id')))
                                                             ->placeholder(function (callable $get) use ($resolveBidangId): string {
                                                                 if (! $resolveBidangId($get)) {
                                                                     return 'Pilih Bidang Pengusul terlebih dahulu';
@@ -643,7 +673,7 @@ class PengajuanSpjForm
 
                                                                 return 'Pilih Barang / Belanja dari RKA';
                                                             })
-                                                            ->disabled(fn (callable $get): bool => $resolveBidangId($get) === null || blank($get('kode_rekening_id')))
+                                                            ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null || blank($get('kode_rekening_id')))
                                                             ->options(function (callable $get) use ($resolveBidangId): array {
                                                                 $bidangId = $resolveBidangId($get);
                                                                 $kodeRekeningId = $get('kode_rekening_id');
@@ -769,115 +799,104 @@ class PengajuanSpjForm
                                                         Hidden::make('nama_item_belanja'),
                                                         Hidden::make('satuan'),
 
-                                                        TextInput::make('stok_tersedia')
-                                                            ->label('Sisa Pagu RKA')
-                                                            ->disabled()
-                                                            ->dehydrated(false)
-                                                            ->default(0)
-                                                            ->prefix('📊')
-                                                            ->suffix(fn (callable $get) => $get('satuan') ?: 'Unit')
-                                                            ->columnSpan(['default' => 6, 'md' => 2]),
+                                                        Hidden::make('stok_tersedia'),
 
-                                                        TextInput::make('kuantitas')
-                                                            ->label('Jumlah Dipesan')
-                                                            ->numeric()
-                                                            ->default(1)
-                                                            ->minValue(1)
-                                                            ->suffix(fn (callable $get) => $get('satuan') ?: 'Unit')
-                                                            ->live(onBlur: true)
-                                                            ->rules([
-                                                                fn (callable $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
-                                                                    $rkaId = $get('rincian_anggaran_belanja_id');
-                                                                    if ($rkaId && ! str_starts_with((string) $rkaId, 'mb_')) {
-                                                                        $rka = RincianAnggaranBelanja::find($rkaId);
-                                                                        if ($rka) {
-                                                                            $sisa = (float) $rka->sisa_volume;
-                                                                            if ((float) $value > $sisa) {
-                                                                                $fail("Ditolak Sistem (Over Budget): Jumlah pesanan ({$value} {$rka->satuan}) melebihi sisa pagu RKA yang tersedia ({$sisa} {$rka->satuan})!");
+                                                        // BARIS 2: Kuantitas & Harga (Hanya muncul jika Barang sudah dipilih)
+                                                        Grid::make(12)
+                                                            ->visible(fn(callable $get): bool => filled($get('rincian_anggaran_belanja_id')) || filled($get('nama_item_belanja')))
+                                                            ->columnSpan(12)
+                                                            ->schema([
+                                                                TextInput::make('kuantitas')
+                                                                    ->label('Jumlah Dipesan')
+                                                                    ->numeric()
+                                                                    ->default(1)
+                                                                    ->minValue(1)
+                                                                    ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
+                                                                    ->live(onBlur: true)
+                                                                    ->rules([
+                                                                        fn(callable $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                                                            $rkaId = $get('rincian_anggaran_belanja_id');
+                                                                            if ($rkaId && ! str_starts_with((string) $rkaId, 'mb_')) {
+                                                                                $rka = RincianAnggaranBelanja::find($rkaId);
+                                                                                if ($rka) {
+                                                                                    $sisa = (float) $rka->sisa_volume;
+                                                                                    if ((float) $value > $sisa) {
+                                                                                        $fail("Ditolak Sistem (Over Budget): Jumlah pesanan ({$value} {$rka->satuan}) melebihi sisa pagu RKA yang tersedia ({$sisa} {$rka->satuan})!");
+                                                                                    }
+                                                                                }
                                                                             }
+                                                                        },
+                                                                    ])
+                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                                                        $qty = max(1, (int) ($state ?: 1));
+                                                                        $harga = FormatHelper::parseRupiah($get('harga_satuan'));
+                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+
+                                                                        if ($sisaPagu > 0 && $qty > $sisaPagu) {
+                                                                            Notification::make()
+                                                                                ->title('Peringatan: Over Budget!')
+                                                                                ->body("Jumlah yang diinput ({$qty}) melebihi sisa pagu RKA ({$sisaPagu}). Pengajuan akan ditolak oleh sistem.")
+                                                                                ->warning()
+                                                                                ->send();
                                                                         }
-                                                                    }
-                                                                },
-                                                            ])
-                                                            ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                $qty = max(1, (int) ($state ?: 1));
-                                                                $harga = (float) ($get('harga_satuan') ?: 0);
-                                                                $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
 
-                                                                if ($sisaPagu > 0 && $qty > $sisaPagu) {
-                                                                    Notification::make()
-                                                                        ->title('Peringatan: Over Budget!')
-                                                                        ->body("Jumlah yang diinput ({$qty}) melebihi sisa pagu RKA ({$sisaPagu}). Pengajuan akan ditolak oleh sistem.")
-                                                                        ->warning()
-                                                                        ->send();
-                                                                }
+                                                                        $subtotal = $qty * $harga;
+                                                                        $set('subtotal', $subtotal);
+                                                                        $set('kuantitas_realisasi', $qty);
+                                                                        $set('harga_realisasi', $harga);
+                                                                        $set('subtotal_realisasi', $subtotal);
+                                                                    })
+                                                                    ->required()
+                                                                    ->columnSpan(['default' => 12, 'md' => 3]),
 
-                                                                $set('subtotal', $qty * $harga);
-                                                                $set('kuantitas_realisasi', $qty);
-                                                                $set('harga_realisasi', $harga);
-                                                                $set('subtotal_realisasi', $qty * $harga);
-                                                            })
-                                                            ->required()
-                                                            ->columnSpan(['default' => 6, 'md' => 2]),
+                                                                FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan')
+                                                                    ->required()
+                                                                    ->live(onBlur: true)
+                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                                                        $qty = (int) ($get('kuantitas') ?: 0);
+                                                                        $harga = FormatHelper::parseRupiah($state);
+                                                                        $subtotal = $qty * $harga;
+                                                                        $set('subtotal', $subtotal);
+                                                                        $set('harga_realisasi', $harga);
+                                                                        $set('subtotal_realisasi', $subtotal);
+                                                                    })
+                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
 
-                                                        TextInput::make('harga_satuan')
-                                                            ->label('Harga Satuan')
-                                                            ->numeric()
-                                                            ->default(0)
-                                                            ->prefix('Rp')
-                                                            ->live(onBlur: true)
-                                                            ->afterStateUpdated(function (callable $set, callable $get) {
-                                                                $qty = (int) ($get('kuantitas') ?: 0);
-                                                                $harga = (float) ($get('harga_satuan') ?: 0);
-                                                                $set('subtotal', $qty * $harga);
-                                                            })
-                                                            ->required()
-                                                            ->columnSpan(['default' => 12, 'md' => 4]),
+                                                                FormatHelper::rupiahInput('subtotal', 'Subtotal Pesanan')
+                                                                    ->readOnly()
+                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500'])
+                                                                    ->columnSpan(['default' => 12, 'md' => 5]),
 
-                                                        TextInput::make('subtotal')
-                                                            ->label('Subtotal Pesanan')
-                                                            ->numeric()
-                                                            ->default(0)
-                                                            ->prefix('Rp')
-                                                            ->readOnly()
-                                                            ->columnSpan(['default' => 12, 'md' => 4]),
+                                                                TextInput::make('kuantitas_realisasi')
+                                                                    ->label('Jumlah Realisasi (Faktur)')
+                                                                    ->numeric()
+                                                                    ->default(1)
+                                                                    ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
+                                                                    ->visible($isPesananDisetujui)
+                                                                    ->live(onBlur: true)
+                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                                                        $qty = (int) ($state ?: 0);
+                                                                        $harga = FormatHelper::parseRupiah($get('harga_realisasi'));
+                                                                        $set('subtotal_realisasi', $qty * $harga);
+                                                                    })
+                                                                    ->columnSpan(['default' => 12, 'md' => 3]),
 
-                                                        TextInput::make('kuantitas_realisasi')
-                                                            ->label('Jumlah Realisasi (Faktur)')
-                                                            ->numeric()
-                                                            ->default(1)
-                                                            ->suffix(fn (callable $get) => $get('satuan') ?: 'Unit')
-                                                            ->visible($isPesananDisetujui)
-                                                            ->live(onBlur: true)
-                                                            ->afterStateUpdated(function (callable $set, callable $get) {
-                                                                $qty = (int) ($get('kuantitas_realisasi') ?: 0);
-                                                                $harga = (float) ($get('harga_realisasi') ?: 0);
-                                                                $set('subtotal_realisasi', $qty * $harga);
-                                                            })
-                                                            ->columnSpan(['default' => 12, 'md' => 4]),
+                                                                FormatHelper::rupiahInput('harga_realisasi', 'Harga Realisasi (Faktur)')
+                                                                    ->visible($isPesananDisetujui)
+                                                                    ->live(onBlur: true)
+                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                                                        $qty = (int) ($get('kuantitas_realisasi') ?: 0);
+                                                                        $harga = FormatHelper::parseRupiah($state);
+                                                                        $set('subtotal_realisasi', $qty * $harga);
+                                                                    })
+                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
 
-                                                        TextInput::make('harga_realisasi')
-                                                            ->label('Harga Realisasi (Faktur)')
-                                                            ->numeric()
-                                                            ->default(0)
-                                                            ->prefix('Rp')
-                                                            ->visible($isPesananDisetujui)
-                                                            ->live(onBlur: true)
-                                                            ->afterStateUpdated(function (callable $set, callable $get) {
-                                                                $qty = (int) ($get('kuantitas_realisasi') ?: 0);
-                                                                $harga = (float) ($get('harga_realisasi') ?: 0);
-                                                                $set('subtotal_realisasi', $qty * $harga);
-                                                            })
-                                                            ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                        TextInput::make('subtotal_realisasi')
-                                                            ->label('Subtotal Realisasi')
-                                                            ->numeric()
-                                                            ->default(0)
-                                                            ->prefix('Rp')
-                                                            ->visible($isPesananDisetujui)
-                                                            ->readOnly()
-                                                            ->columnSpan(['default' => 12, 'md' => 4]),
+                                                                FormatHelper::rupiahInput('subtotal_realisasi', 'Subtotal Realisasi')
+                                                                    ->visible($isPesananDisetujui)
+                                                                    ->readOnly()
+                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500'])
+                                                                    ->columnSpan(['default' => 12, 'md' => 5]),
+                                                            ]),
                                                     ])
                                                     ->defaultItems(1)
                                                     ->addActionLabel('Tambah Barang Belanja'),
@@ -896,7 +915,7 @@ class PengajuanSpjForm
                                                 Select::make('master_toko_id')
                                                     ->label('Toko / Rekanan')
                                                     ->placeholder('Pilih Toko atau Klik (+) Tambah')
-                                                    ->options(fn () => MasterToko::where('is_active', true)->get()->pluck('label', 'id')->all())
+                                                    ->options(fn() => MasterToko::where('is_active', true)->get()->pluck('label', 'id')->all())
                                                     ->searchable()
                                                     ->preload()
                                                     ->live()
@@ -1019,34 +1038,175 @@ class PengajuanSpjForm
 
                                                 DatePicker::make('tanggal_batas_pengiriman')
                                                     ->label('Batas Waktu Pengiriman')
-                                                    ->default(fn () => now()->addDays(7))
+                                                    ->default(fn() => now()->addDays(7))
                                                     ->displayFormat('d/m/Y'),
 
                                                 TextInput::make('metode_pembayaran')
                                                     ->label('Metode Pembayaran')
                                                     ->default('Transfer Bank / Tempo 14 Hari setelah barang diterima')
                                                     ->placeholder('Contoh: Transfer Bank / Tempo 14 Hari'),
+                                            ]),
 
-                                                Grid::make(2)
-                                                    ->schema([
-                                                        TextInput::make('ppn_persen')
-                                                            ->label('PPN (%)')
-                                                            ->numeric()
-                                                            ->default(11)
-                                                            ->minValue(0)
-                                                            ->maxValue(100)
-                                                            ->suffix('%')
-                                                            ->helperText('> Rp 2 Jt = 11%'),
+                                        // 2. KETENTUAN PERPAJAKAN DINAMIS & ANTI PERUBAHAN KEBIJAKAN
+                                        Section::make('Ketentuan Perpajakan (PPN & PPh)')
+                                            ->description('Menu otomatis muncul untuk belanja di atas Rp 2.000.000.')
+                                            ->compact()
+                                            ->schema([
+                                                Placeholder::make('info_ambang_pajak')
+                                                    ->label('')
+                                                    ->content(function (callable $get, mixed $record = null) use ($calculateTotalPesanan): HtmlString {
+                                                        $total = $calculateTotalPesanan($get, $record);
+                                                        $formatted = 'Rp ' . number_format($total, 0, ',', '.');
+                                                        if ($total > 2000000) {
+                                                            return new HtmlString("
+                                                                <div class='flex items-start gap-2 p-2.5 rounded-lg bg-warning-50 dark:bg-warning-950/40 text-warning-800 dark:text-warning-300 border border-warning-200 dark:border-warning-800 text-xs'>
+                                                                    <span class='text-sm'>⚠️</span>
+                                                                    <div>
+                                                                        <div class='font-semibold'>Total Belanja {$formatted} (> Rp 2 Jt)</div>
+                                                                        <div class='text-[11px] opacity-90'>Wajib dipungut PPN & PPh sesuai ketentuan instansi pemerintah.</div>
+                                                                    </div>
+                                                                </div>
+                                                            ");
+                                                        }
 
-                                                        TextInput::make('pph22_persen')
-                                                            ->label('PPh 22 (%)')
-                                                            ->numeric()
-                                                            ->default(1.5)
-                                                            ->minValue(0)
-                                                            ->maxValue(100)
-                                                            ->suffix('%')
-                                                            ->helperText('> Rp 2 Jt = 1.5%'),
-                                                    ]),
+                                                        return new HtmlString("
+                                                            <div class='flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 text-xs'>
+                                                                <span class='text-sm'>ℹ️</span>
+                                                                <div>
+                                                                    <div class='font-semibold'>Total Belanja {$formatted} (≤ Rp 2 Jt)</div>
+                                                                    <div class='text-[11px] opacity-90'>Bebas pungutan pajak pemerintah (PPN 0% & PPh 0%).</div>
+                                                                </div>
+                                                            </div>
+                                                        ");
+                                                    }),
+
+                                                Toggle::make('kenakan_pajak_manual')
+                                                    ->label('Kenakan Pungutan Pajak Khusus')
+                                                    ->helperText('Aktifkan jika ada regulasi khusus di bawah Rp 2 Jt')
+                                                    ->dehydrated(false)
+                                                    ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): bool {
+                                                        $spj = $resolveSpjRecord($record);
+                                                        if ($spj) {
+                                                            return (float) $spj->ppn_persen > 0 || (float) $spj->pph22_persen > 0;
+                                                        }
+                                                        return $calculateTotalPesanan($get) > 2000000;
+                                                    })
+                                                    ->visible(fn(callable $get, mixed $record = null): bool => $calculateTotalPesanan($get, $record) <= 2000000)
+                                                    ->live()
+                                                    ->afterStateUpdated(function (bool $state, callable $set) {
+                                                        if ($state) {
+                                                            $set('ppn_persen', 11.0);
+                                                            $set('pph22_persen', 1.5);
+                                                            $set('skema_pajak', 'standar');
+                                                        } else {
+                                                            $set('ppn_persen', 0.0);
+                                                            $set('pph22_persen', 0.0);
+                                                            $set('skema_pajak', 'bebas');
+                                                        }
+                                                    }),
+
+                                                Group::make([
+                                                    Select::make('skema_pajak')
+                                                        ->label('Skema / Kebijakan Pajak')
+                                                        ->dehydrated(false)
+                                                        ->options([
+                                                            'standar' => 'Standar Belanja Barang (PPN 11% + PPh 22 1,5%)',
+                                                            'ppn12' => 'Kebijakan Baru PPN 12% (PPN 12% + PPh 22 1,5%)',
+                                                            'non_npwp' => 'Rekanan Non-NPWP (PPN 11% + PPh 22 3%)',
+                                                            'jasa_pph23' => 'Jasa / Katering (PPN 11% + PPh 23 2%)',
+                                                            'kustom' => 'Kustom (Atur Persentase Manual)',
+                                                            'bebas' => 'Bebas Pungut Pajak / SKB (0%)',
+                                                        ])
+                                                        ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): string {
+                                                            $spj = $resolveSpjRecord($record);
+                                                            if ($spj) {
+                                                                if ((float) $spj->ppn_persen == 12.0) return 'ppn12';
+                                                                if ((float) $spj->pph22_persen == 3.0) return 'non_npwp';
+                                                                if ((float) $spj->pph22_persen == 2.0) return 'jasa_pph23';
+                                                                if ((float) $spj->ppn_persen == 0 && (float) $spj->pph22_persen == 0) return 'bebas';
+                                                                if ((float) $spj->ppn_persen == 11.0 && (float) $spj->pph22_persen == 1.5) return 'standar';
+                                                                return 'kustom';
+                                                            }
+                                                            return $calculateTotalPesanan($get) > 2000000 ? 'standar' : 'bebas';
+                                                        })
+                                                        ->live()
+                                                        ->afterStateUpdated(function (?string $state, callable $set) {
+                                                            match ($state) {
+                                                                'standar' => [$set('ppn_persen', 11.0), $set('pph22_persen', 1.5)],
+                                                                'ppn12' => [$set('ppn_persen', 12.0), $set('pph22_persen', 1.5)],
+                                                                'non_npwp' => [$set('ppn_persen', 11.0), $set('pph22_persen', 3.0)],
+                                                                'jasa_pph23' => [$set('ppn_persen', 11.0), $set('pph22_persen', 2.0)],
+                                                                'bebas' => [$set('ppn_persen', 0.0), $set('pph22_persen', 0.0)],
+                                                                default => null,
+                                                            };
+                                                        }),
+
+                                                    Grid::make(2)
+                                                        ->schema([
+                                                            TextInput::make('ppn_persen')
+                                                                ->label('PPN (%)')
+                                                                ->numeric()
+                                                                ->minValue(0)
+                                                                ->maxValue(100)
+                                                                ->suffix('%')
+                                                                ->live()
+                                                                ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): float {
+                                                                    $spj = $resolveSpjRecord($record);
+                                                                    if ($spj && $spj->ppn_persen !== null) {
+                                                                        return (float) $spj->ppn_persen;
+                                                                    }
+                                                                    return $calculateTotalPesanan($get) > 2000000 ? 11.0 : 0.0;
+                                                                })
+                                                                ->helperText('Dapat diedit bebas'),
+
+                                                            TextInput::make('pph22_persen')
+                                                                ->label('PPh (%)')
+                                                                ->numeric()
+                                                                ->minValue(0)
+                                                                ->maxValue(100)
+                                                                ->suffix('%')
+                                                                ->live()
+                                                                ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): float {
+                                                                    $spj = $resolveSpjRecord($record);
+                                                                    if ($spj && $spj->pph22_persen !== null) {
+                                                                        return (float) $spj->pph22_persen;
+                                                                    }
+                                                                    return $calculateTotalPesanan($get) > 2000000 ? 1.5 : 0.0;
+                                                                })
+                                                                ->helperText('Dapat diedit bebas'),
+                                                        ]),
+
+                                                    Placeholder::make('live_preview_pajak')
+                                                        ->label('Estimasi Potongan & Bersih')
+                                                        ->content(function (callable $get, mixed $record = null) use ($calculateTotalPesanan): HtmlString {
+                                                            $total = $calculateTotalPesanan($get, $record);
+                                                            $ppnRate = (float) ($get('ppn_persen') ?? 0);
+                                                            $pphRate = (float) ($get('pph22_persen') ?? 0);
+
+                                                            $nilaiPpn = round($total * ($ppnRate / 100));
+                                                            $nilaiPph = round($total * ($pphRate / 100));
+                                                            $totalPajak = $nilaiPpn + $nilaiPph;
+                                                            $bersih = max(0, $total - $totalPajak);
+
+                                                            $ppnRp = number_format($nilaiPpn, 0, ',', '.');
+                                                            $pphRp = number_format($nilaiPph, 0, ',', '.');
+                                                            $pajakRp = number_format($totalPajak, 0, ',', '.');
+                                                            $bersihRp = number_format($bersih, 0, ',', '.');
+
+                                                            return new HtmlString("
+                                                                <div class='text-xs space-y-1 bg-gray-50 dark:bg-gray-800/80 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 font-mono'>
+                                                                    <div class='flex justify-between text-gray-500'><span>PPN ({$ppnRate}%):</span><span>Rp {$ppnRp}</span></div>
+                                                                    <div class='flex justify-between text-gray-500'><span>PPh ({$pphRate}%):</span><span>Rp {$pphRp}</span></div>
+                                                                    <div class='flex justify-between font-semibold text-danger-600 dark:text-danger-400 border-t border-gray-200 dark:border-gray-700 pt-1'><span>Total Pajak:</span><span>Rp {$pajakRp}</span></div>
+                                                                    <div class='flex justify-between font-bold text-success-600 dark:text-success-400'><span>Diterima Bersih:</span><span>Rp {$bersihRp}</span></div>
+                                                                </div>
+                                                            ");
+                                                        }),
+                                                ])
+                                                    ->visible(function (callable $get, mixed $record = null) use ($calculateTotalPesanan): bool {
+                                                        $total = $calculateTotalPesanan($get, $record);
+                                                        return $total > 2000000 || (bool) $get('kenakan_pajak_manual');
+                                                    }),
                                             ]),
                                     ])
                                         ->columnSpan(['default' => 1, 'lg' => 1]),
@@ -1067,7 +1227,7 @@ class PengajuanSpjForm
                                 ->schema([
                                     Placeholder::make('nomor_kwitansi_preview')
                                         ->label('Nomor Kwitansi')
-                                        ->content(fn (callable $get): string => ($get('nomor_pengajuan') ?: 'SP/...') . '/KW/' . date('Y'))
+                                        ->content(fn(callable $get): string => ($get('nomor_pengajuan') ?: 'SP/...') . '/KW/' . date('Y'))
                                         ->columnSpan(['default' => 12, 'md' => 4]),
 
                                     Placeholder::make('status_ttd_pesanan')
@@ -1082,7 +1242,7 @@ class PengajuanSpjForm
 
                                     Placeholder::make('info_pemilik_toko_kwitansi')
                                         ->label('Penerima Pembayaran')
-                                        ->content(fn (callable $get): string => ($get('nama_toko') ?: '-') . ' — ' . ($get('penerima_nama') ?: '-'))
+                                        ->content(fn(callable $get): string => ($get('nama_toko') ?: '-') . ' — ' . ($get('penerima_nama') ?: '-'))
                                         ->columnSpan(['default' => 12, 'md' => 4]),
 
                                     FileUpload::make('file_nota_penjual')
@@ -1121,8 +1281,8 @@ class PengajuanSpjForm
                                             $totalRealisasi = 0;
                                             $totalRencana = 0;
                                             foreach ($details as $item) {
-                                                $totalRencana += (float) ($item['subtotal'] ?? 0);
-                                                $totalRealisasi += (float) ($item['subtotal_realisasi'] ?? 0);
+                                                $totalRencana += FormatHelper::parseRupiah($item['subtotal'] ?? 0);
+                                                $totalRealisasi += FormatHelper::parseRupiah($item['subtotal_realisasi'] ?? 0);
                                             }
                                             if ($totalRencana <= 0 && $spj) {
                                                 $totalRencana = (float) $spj->total_nilai_rencana;
@@ -1142,7 +1302,7 @@ class PengajuanSpjForm
                                             $details = $get('details') ?? [];
                                             $total = 0;
                                             foreach ($details as $item) {
-                                                $total += (float) ($item['subtotal_realisasi'] ?: ($item['subtotal'] ?? 0));
+                                                $total += FormatHelper::parseRupiah($item['subtotal_realisasi'] ?: ($item['subtotal'] ?? 0));
                                             }
                                             if ($total <= 0 && $spj) {
                                                 $total = (float) ($spj->total_nilai_realisasi ?: $spj->total_nilai_rencana);
@@ -1176,7 +1336,7 @@ class PengajuanSpjForm
                                 ->schema([
                                     Placeholder::make('nomor_npd_preview')
                                         ->label('Nomor NPD')
-                                        ->content(fn (callable $get): string => ($get('nomor_pengajuan') ?: 'SP/...') . '/NPD/' . date('Y'))
+                                        ->content(fn(callable $get): string => ($get('nomor_pengajuan') ?: 'SP/...') . '/NPD/' . date('Y'))
                                         ->columnSpan(['default' => 12, 'md' => 6]),
 
                                     Placeholder::make('status_spj_aktif')
@@ -1195,7 +1355,7 @@ class PengajuanSpjForm
                                             $details = $get('details') ?? [];
                                             $total = 0;
                                             foreach ($details as $item) {
-                                                $total += (float) ($item['subtotal'] ?? 0);
+                                                $total += FormatHelper::parseRupiah($item['subtotal'] ?? 0);
                                             }
                                             if ($total <= 0 && $spj) {
                                                 $total = (float) $spj->total_nilai_rencana;
@@ -1212,7 +1372,7 @@ class PengajuanSpjForm
                                             $details = $get('details') ?? [];
                                             $total = 0;
                                             foreach ($details as $item) {
-                                                $total += (float) ($item['subtotal_realisasi'] ?? 0);
+                                                $total += FormatHelper::parseRupiah($item['subtotal_realisasi'] ?? 0);
                                             }
                                             if ($total <= 0 && $spj) {
                                                 $total = (float) ($spj->total_nilai_realisasi ?: $spj->total_nilai_rencana);

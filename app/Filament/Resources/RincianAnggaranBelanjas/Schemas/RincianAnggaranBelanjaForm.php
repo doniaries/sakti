@@ -62,6 +62,7 @@ class RincianAnggaranBelanjaForm
 
                             Select::make('sub_kegiatan_id')
                                 ->label('Sub Kegiatan')
+                                ->visible(fn (Get $get): bool => filled($get('bidang_id')))
                                 ->options(function (Get $get) {
                                     $tahun = $get('tahun_anggaran') ?? (int) date('Y');
                                     $bidangId = $get('bidang_id');
@@ -74,14 +75,16 @@ class RincianAnggaranBelanjaForm
                                         ->all();
                                 })
                                 ->searchable()
+                                ->live()
                                 ->required(),
                         ]),
                     ]),
 
-                // Section 2: Objek & Komponen Belanja
+                // Section 2: Objek & Komponen Belanja (Muncul bertahap setelah Sub Kegiatan dipilih)
                 Section::make('Objek & Komponen Belanja SIPD')
                     ->description('Pilih rekening belanja dan komponen belanja yang akan dibebankan sesuai rincian SIPD.')
                     ->icon('heroicon-o-shopping-bag')
+                    ->visible(fn (Get $get): bool => filled($get('sub_kegiatan_id')))
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('kode_rekening_id')
@@ -89,11 +92,12 @@ class RincianAnggaranBelanjaForm
                                 ->options(fn () => KodeRekening::all()->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])->all())
                                 ->searchable()
                                 ->required()
-                                ->live(onBlur: true),
+                                ->live(),
 
                             Select::make('master_barang_id')
                                 ->label('Komponen Belanja')
                                 ->helperText('Pilih komponen/produk belanja. Transaksi SPJ akan mengurangi volume pagu komponen ini.')
+                                ->visible(fn (Get $get): bool => filled($get('kode_rekening_id')))
                                 ->options(function (Get $get) {
                                     $rekId = $get('kode_rekening_id');
                                     return MasterBarang::query()
@@ -104,8 +108,8 @@ class RincianAnggaranBelanjaForm
                                         ->all();
                                 })
                                 ->searchable()
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function ($state, Set $set) {
+                                ->live()
+                                ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                     if ($state) {
                                         $barang = MasterBarang::with('satuan')->find($state);
                                         if ($barang) {
@@ -113,9 +117,15 @@ class RincianAnggaranBelanjaForm
                                             if ($barang->satuan) {
                                                 $set('satuan', $barang->satuan->nama);
                                             }
+                                            $harga = (float) $barang->harga_satuan;
+                                            $set('harga_satuan', $harga);
+                                            $vol = max(1, (float) ($get('volume') ?: 1));
+                                            $set('volume', $vol);
+                                            $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
                                         }
                                     }
-                                }),
+                                })
+                                ->required(),
 
                             Hidden::make('nama_item')
                                 ->dehydrated(),
@@ -123,14 +133,16 @@ class RincianAnggaranBelanjaForm
                             TextInput::make('spesifikasi')
                                 ->label('Spesifikasi Teknis / Merk Barang')
                                 ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram / Pertamax')
+                                ->visible(fn (Get $get): bool => filled($get('master_barang_id')))
                                 ->columnSpanFull(),
                         ]),
                     ]),
 
-                // Section 3: Kalkulasi Koefisien Volume & Pagu Anggaran
+                // Section 3: Kalkulasi Koefisien Volume & Pagu Anggaran (Muncul bertahap setelah Komponen Belanja dipilih)
                 Section::make('Kalkulasi Koefisien Volume & Pagu Anggaran')
                     ->description('Hitung total pagu anggaran berdasarkan koefisien volume dan harga satuan standar belanja.')
                     ->icon('heroicon-o-calculator')
+                    ->visible(fn (Get $get): bool => filled($get('master_barang_id')))
                     ->schema([
                         Grid::make([
                             'default' => 1,

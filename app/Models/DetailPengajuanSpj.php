@@ -55,18 +55,9 @@ class DetailPengajuanSpj extends Model
             $totalRealisasi = (float) $spj->details()->sum('subtotal_realisasi');
             $nominalDasar = $totalRealisasi > 0 ? $totalRealisasi : $totalRencana;
 
-            $ppnPersen = (float) ($spj->ppn_persen ?? 0);
-            $pph22Persen = (float) ($spj->pph22_persen ?? 0);
-
-            // Ambang batas pajak: di atas 2 juta otomatis PPN 11% dan PPh 22 1.5%
-            if ($nominalDasar > 2000000) {
-                if ($ppnPersen == 0) {
-                    $ppnPersen = 11.00;
-                }
-                if ($pph22Persen == 0) {
-                    $pph22Persen = 1.50;
-                }
-            }
+            // Pajak fleksibel: hormati pilihan manual form, hanya default jika null
+            $ppnPersen = $spj->ppn_persen !== null ? (float) $spj->ppn_persen : ($nominalDasar > 2000000 ? 11.00 : 0.00);
+            $pph22Persen = $spj->pph22_persen !== null ? (float) $spj->pph22_persen : ($nominalDasar > 2000000 ? 1.50 : 0.00);
 
             $nilaiPpn = round($nominalDasar * ($ppnPersen / 100));
             $nilaiPph22 = round($nominalDasar * ($pph22Persen / 100));
