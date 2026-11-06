@@ -18,9 +18,9 @@ class SpjPrintController extends Controller
     public function preview(Request $request, PengajuanSpj $record): View
     {
         abort_if(
-            in_array($record->status, ['draft', 'diajukan', 'ditolak'], true),
+            $record->status === 'ditolak',
             403,
-            'Dokumen belum dapat dilihat karena Surat Pesanan belum disetujui dan ditandatangani oleh Kepala Bidang (PPTK).'
+            'Dokumen tidak dapat dilihat karena pengajuan SPJ telah ditolak permanen.'
         );
 
         $record->loadMissing([
@@ -58,9 +58,9 @@ class SpjPrintController extends Controller
     public function print(Request $request, PengajuanSpj $record, SpjDocumentService $documentService): Response
     {
         abort_if(
-            in_array($record->status, ['draft', 'diajukan', 'ditolak'], true),
+            $record->status === 'ditolak',
             403,
-            'Dokumen belum dapat dicetak karena Surat Pesanan belum disetujui dan ditandatangani oleh Kepala Bidang (PPTK).'
+            'Dokumen tidak dapat dicetak karena pengajuan SPJ telah ditolak permanen.'
         );
 
         $tipe = (string) $request->query('tipe', 'semua');

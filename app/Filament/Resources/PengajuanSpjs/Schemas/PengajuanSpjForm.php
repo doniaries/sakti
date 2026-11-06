@@ -1433,37 +1433,6 @@ class PengajuanSpjForm
                                         })
                                         ->columnSpanFull(),
                                 ]),
-
-                            Section::make('Spesimen Tanda Tangan Pejabat (Non-TTE)')
-                                ->description('Unggah gambar tanda tangan (PNG/JPG) untuk dicetak pada dokumen PDF.')
-                                ->compact()
-                                ->columns(['default' => 2, 'lg' => 4])
-                                ->collapsed()
-                                ->schema([
-                                    FileUpload::make('ttd_pptk')
-                                        ->label('TTD PPTK')
-                                        ->directory('spj/ttd')
-                                        ->image()
-                                        ->maxSize(2048),
-
-                                    FileUpload::make('ttd_ppk')
-                                        ->label('TTD PPK')
-                                        ->directory('spj/ttd')
-                                        ->image()
-                                        ->maxSize(2048),
-
-                                    FileUpload::make('ttd_pa')
-                                        ->label('TTD PA / KPA')
-                                        ->directory('spj/ttd')
-                                        ->image()
-                                        ->maxSize(2048),
-
-                                    FileUpload::make('ttd_bendahara')
-                                        ->label('TTD Bendahara')
-                                        ->directory('spj/ttd')
-                                        ->image()
-                                        ->maxSize(2048),
-                                ]),
                         ]),
                 ])
                     ->columnSpanFull()

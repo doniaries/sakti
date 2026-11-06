@@ -20,8 +20,11 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\View;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -300,6 +303,7 @@ class PengajuanSpjsTable
                             default => 'success',
                         };
                     })
+                    ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
                     ->visible(function (PengajuanSpj $record): bool {
                         if (in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)) {
                             return false;
@@ -446,41 +450,6 @@ class PengajuanSpjsTable
                                 ->required(fn(Get $get): bool => $get('keputusan') !== 'revisi');
                         }
 
-                        // Upload Spesimen TTD Pejabat (Non-TTE) sesuai peran yang sedang memproses
-                        if (in_array($record->status, ['diajukan', 'menunggu_verifikasi_pptk'], true)) {
-                            $schema[] = FileUpload::make('ttd_pptk')
-                                ->label('Unggah Spesimen TTD PPTK / Kepala Bidang (PNG/JPG - Opsional)')
-                                ->directory('spj/ttd')
-                                ->default($record->ttd_pptk)
-                                ->image()
-                                ->maxSize(2048)
-                                ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi');
-                        } elseif (in_array($record->status, ['menunggu_verifikasi_ppk', 'revisi_ppk'], true)) {
-                            $schema[] = FileUpload::make('ttd_ppk')
-                                ->label('Unggah Spesimen TTD PPK / Kasubag Keuangan (PNG/JPG - Opsional)')
-                                ->directory('spj/ttd')
-                                ->default($record->ttd_ppk)
-                                ->image()
-                                ->maxSize(2048)
-                                ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi');
-                        } elseif (in_array($record->status, ['menunggu_persetujuan_pa', 'revisi_pa'], true)) {
-                            $schema[] = FileUpload::make('ttd_pa')
-                                ->label('Unggah Spesimen TTD PA / KPA / Kepala Dinas (PNG/JPG - Opsional)')
-                                ->directory('spj/ttd')
-                                ->default($record->ttd_pa)
-                                ->image()
-                                ->maxSize(2048)
-                                ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi');
-                        } elseif (in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara'], true)) {
-                            $schema[] = FileUpload::make('ttd_bendahara')
-                                ->label('Unggah Spesimen TTD Bendahara Pengeluaran (PNG/JPG - Opsional)')
-                                ->directory('spj/ttd')
-                                ->default($record->ttd_bendahara)
-                                ->image()
-                                ->maxSize(2048)
-                                ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi');
-                        }
-
                         // Kasus 5: Saat Bendahara mencairkan dana, wajib isi Nomor BKU & Tanggal Cair
                         if (in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara'], true)) {
                             $schema[] = TextInput::make('nomor_bku')
@@ -511,6 +480,26 @@ class PengajuanSpjsTable
                             ->label('Catatan Tindakan / Keterangan')
                             ->placeholder('Tambahkan catatan pemeriksaan atau keterangan tahapan ini...')
                             ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi');
+
+                        if ($record->status !== 'draft') {
+                            return [
+                                Grid::make([
+                                    'default' => 1,
+                                    'xl' => 12,
+                                ])
+                                    ->schema([
+                                        Group::make([
+                                            View::make('filament.components.pedoman-verifikasi-spj')
+                                                ->viewData([
+                                                    'record' => $record,
+                                                ]),
+                                        ])->columnSpan(['xl' => 7]),
+
+                                        Group::make($schema)
+                                            ->columnSpan(['xl' => 5]),
+                                    ]),
+                            ];
+                        }
 
                         return $schema;
                     })
@@ -552,7 +541,7 @@ class PengajuanSpjsTable
 
                         // Simpan data tambahan pada tahapan terkait sebelum transisi status
                         $extraUpdates = [];
-                        foreach (['penerima_nama', 'penerima_identitas', 'file_nota_penjual', 'file_dokumentasi_barang', 'justifikasi_selisih', 'nomor_bku', 'tanggal_dicairkan', 'ttd_pptk', 'ttd_ppk', 'ttd_pa', 'ttd_bendahara'] as $field) {
+                        foreach (['penerima_nama', 'penerima_identitas', 'file_nota_penjual', 'file_dokumentasi_barang', 'justifikasi_selisih', 'nomor_bku', 'tanggal_dicairkan'] as $field) {
                             if (! empty($data[$field])) {
                                 $extraUpdates[$field] = $data[$field];
                             }
