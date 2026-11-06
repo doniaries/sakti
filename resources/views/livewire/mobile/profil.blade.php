@@ -390,10 +390,6 @@
                     <span class="font-bold font-mono text-slate-800">{{ $user->nip ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">NIK</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->nik ?? '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
                     <span class="text-slate-400 font-medium">Jenis Kelamin</span>
                     <span class="font-bold text-slate-800">{{ $user->jenis_kelamin?->value ?? $user->jenis_kelamin ?? '-' }}</span>
                 </div>

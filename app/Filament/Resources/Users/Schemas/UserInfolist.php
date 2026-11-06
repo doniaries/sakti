@@ -435,7 +435,7 @@ class UserInfolist
                                             ->placeholder('-'),
 
                                         TextEntry::make('nik')
-                                            ->label('NIK')
+                                            ->label('Nomor Induk Kependudukan (NIK)')
                                             ->icon('heroicon-m-credit-card')
                                             ->copyable()
                                             ->placeholder('-'),

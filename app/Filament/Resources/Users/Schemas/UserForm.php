@@ -102,29 +102,13 @@ class UserForm
                                     'lg' => 2,
                                 ])
                                     ->schema([
-                                        Section::make('Identitas Kependudukan & Personal')
+                                        Section::make('Identitas Personal')
                                             ->icon('heroicon-o-identification')
                                             ->columns(2)
                                             ->schema([
-                                                TextInput::make('nik')
-                                                    ->label('Nomor Induk Kependudukan (NIK)')
-                                                    ->mask('9999999999999999')
-                                                    ->placeholder('16 digit NIK...')
-                                                    ->maxLength(20)
-                                                    ->numeric(),
-
                                                 Select::make('jenis_kelamin')
                                                     ->label('Jenis Kelamin')
                                                     ->options(JenisKelamin::class),
-
-                                                TextInput::make('tempat_lahir')
-                                                    ->label('Tempat Lahir')
-                                                    ->placeholder('Kota/Kab tempat lahir...')
-                                                    ->maxLength(100),
-
-                                                DatePicker::make('tanggal_lahir')
-                                                    ->label('Tanggal Lahir')
-                                                    ->displayFormat('d/m/Y'),
 
                                                 Select::make('agama')
                                                     ->label('Agama')
@@ -135,8 +119,16 @@ class UserForm
                                                         'Hindu' => 'Hindu',
                                                         'Buddha' => 'Buddha',
                                                         'Konghucu' => 'Konghucu',
-                                                    ])
-                                                    ->columnSpanFull(),
+                                                    ]),
+
+                                                TextInput::make('tempat_lahir')
+                                                    ->label('Tempat Lahir')
+                                                    ->placeholder('Kota/Kab tempat lahir...')
+                                                    ->maxLength(100),
+
+                                                DatePicker::make('tanggal_lahir')
+                                                    ->label('Tanggal Lahir')
+                                                    ->displayFormat('d/m/Y'),
                                             ]),
 
                                         Section::make('Kontak & Domisili')
@@ -589,9 +581,9 @@ class UserForm
                         Tab::make('Keluarga')
                             ->icon('heroicon-m-user-group')
                             ->schema([
-                                Section::make('Data Administrasi Keluarga')
+                                Section::make('Data Administrasi Kependudukan & Keluarga')
                                     ->icon('heroicon-o-user-group')
-                                    ->columns(1)
+                                    ->columns(2)
                                     ->schema([
                                         TextInput::make('no_kk')
                                             ->label('Nomor Kartu Keluarga (KK)')
@@ -600,6 +592,14 @@ class UserForm
                                             ->maxLength(20)
                                             ->numeric()
                                             ->helperText('Nomor Kartu Keluarga resmi yang tercatat di Dinas Kependudukan dan Pencatatan Sipil.'),
+
+                                        TextInput::make('nik')
+                                            ->label('Nomor Induk Kependudukan (NIK)')
+                                            ->mask('9999999999999999')
+                                            ->placeholder('16 digit NIK...')
+                                            ->maxLength(20)
+                                            ->numeric()
+                                            ->helperText('Nomor Induk Kependudukan resmi pegawai yang tercantum pada KTP / KK.'),
                                     ]),
                             ]),
 
