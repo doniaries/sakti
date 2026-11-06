@@ -5,12 +5,12 @@ namespace Database\Seeders;
 use App\Enums\NamaBank;
 use App\Models\Bidang;
 use App\Models\DetailPengajuanSpj;
-use App\Models\KodeRekening;
 use App\Models\MasterBarang;
 use App\Models\MasterKegiatan;
 use App\Models\MasterSubKegiatan;
 use App\Models\MasterToko;
 use App\Models\PengajuanSpj;
+use App\Models\RincianAnggaranBelanja;
 use App\Models\RiwayatStatusSpj;
 use App\Models\User;
 use App\Models\VerifikasiSpj;
@@ -21,8 +21,9 @@ use Illuminate\Support\Facades\DB;
 class PengajuanSpjSeeder extends Seeder
 {
     /**
-     * Seeder untuk membuat 2 pengajuan SPJ per bidang dengan berbagai status workflow
-     * sehingga pengguna dapat mensimulasikan seluruh tahapan (Surat Pesanan, Realisasi, Verifikasi Berjenjang, Pencairan).
+     * Seeder Pengajuan SPJ Komprehensif
+     * Mensimulasikan transaksi BEBAS PAJAK (<= Rp 2 Jt) dan KENA PAJAK (> Rp 2 Jt)
+     * di seluruh 4 Bidang Dinas dengan tahapan workflow lengkap.
      */
     public function run(): void
     {
@@ -76,16 +77,7 @@ class PengajuanSpjSeeder extends Seeder
             ?? User::where('name', 'like', '%BENDAHARA%')->first()
             ?? User::skip(2)->first();
 
-        // 3. Ambil Master Barang & Rekening
-        $barangList = MasterBarang::with('satuan')->get();
-        $rekeningList = KodeRekening::all();
-
-        if ($barangList->isEmpty() || $rekeningList->isEmpty()) {
-            $this->command->error('Data master barang atau kode rekening belum ada. Jalankan MasterBarangSeeder dan KodeRekeningSeeder terlebih dahulu.');
-            return;
-        }
-
-        // 4. Bersihkan data SPJ lama agar simulasi segar
+        // 3. Bersihkan data SPJ lama agar simulasi segar
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DetailPengajuanSpj::truncate();
         RiwayatStatusSpj::truncate();
@@ -94,118 +86,141 @@ class PengajuanSpjSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $bidangs = Bidang::with('users')->get();
-        $counter = 1;
         $now = Carbon::now();
 
-        // Skenario simulasi per bidang (2 SPJ per bidang)
+        /**
+         * Skenario Simulasi: 2 SPJ per Bidang
+         * SPJ 1: Belanja <= Rp 2.000.000 (BEBAS PAJAK: PPN 0%, PPh 0%)
+         * SPJ 2: Belanja > Rp 2.000.000 (KENA PAJAK: PPN 11%, PPh 22 1.5%)
+         */
         $skenarioPerBidang = [
-            // Bidang 1: Sekretariat
+            // =========================================================================
+            // BIDANG 1: SEKRETARIAT (Inisial: Sekre)
+            // =========================================================================
             1 => [
+                // SPJ 1: Bebas Pajak (Total: Rp 825.000 <= 2 Jt)
                 [
                     'status' => 'diajukan',
-                    'judul' => 'Pengadaan Bahan Logistik Kantor & ATK Triwulan IV',
+                    'judul' => 'Pengadaan Kertas & ATK Rutin Administrasi Sekretariat',
                     'toko' => $tokoSinarJaya,
-                    'items' => [
-                        ['nama' => 'Pena Signo Uniball', 'qty' => 5, 'harga' => 23000],
-                        ['nama' => 'Kertas HVS A4 80 gram', 'qty' => 10, 'harga' => 55000],
-                    ],
                     'tgl' => $now->copy()->subDays(2),
-                    'selisih' => false,
+                    'is_taxable' => false,
+                    'items' => [
+                        ['nama_item' => 'Kertas HVS A4 80 gram Sidu', 'qty' => 10, 'harga' => 55000], // 550.000
+                        ['nama_item' => 'Pena Signo Uniball 0.5', 'qty' => 10, 'harga' => 23000],       // 230.000
+                        ['nama_item' => 'Buku Kwitansi Keuangan NCR 5 Ply', 'qty' => 1, 'harga' => 45000], // 45.000
+                    ],
                 ],
+                // SPJ 2: Kena Pajak (Total: Rp 3.850.000 > 2 Jt)
                 [
                     'status' => 'dicairkan',
-                    'judul' => 'Penyediaan Peralatan Komputer dan Media Penyimpanan',
+                    'judul' => 'Pengadaan Tinta Printer & Flashdisk Penyimpanan Neraca Keuangan',
                     'toko' => $tokoKomputer,
-                    'items' => [
-                        ['nama' => 'Flashdisk 32GB', 'qty' => 4, 'harga' => 95000],
-                        ['nama' => 'Tinta Printer', 'qty' => 3, 'harga' => 85000],
-                    ],
-                    'tgl' => $now->copy()->subDays(10),
-                    'selisih' => false,
+                    'tgl' => $now->copy()->subDays(12),
+                    'is_taxable' => true,
                     'bku' => 'BKU/11/2026/0001',
+                    'items' => [
+                        ['nama_item' => 'Tinta Printer Epson 001 Black', 'qty' => 10, 'harga' => 150000], // 1.500.000
+                        ['nama_item' => 'Tinta Printer Epson 001 Color (Cyan/Magenta/Yellow)', 'qty' => 10, 'harga' => 130000], // 1.300.000
+                        ['nama_item' => 'Flashdisk Sandisk 32GB USB 3.0', 'qty' => 11, 'harga' => 95000], // 1.045.000
+                    ],
                 ],
             ],
 
-            // Bidang 2: Bidang Pemasaran Pariwisata
+            // =========================================================================
+            // BIDANG 2: PEMASARAN PARIWISATA (Inisial: PP)
+            // =========================================================================
             2 => [
+                // SPJ 1: Bebas Pajak (Total: Rp 356.400 <= 2 Jt)
                 [
                     'status' => 'menunggu_realisasi',
-                    'judul' => 'Pengadaan Perlengkapan Promosi Event Geopark Silokek',
+                    'judul' => 'Belanja Bahan Promosi Cetakan Brosur Geopark Silokek',
                     'toko' => $tokoRilex,
-                    'items' => [
-                        ['nama' => 'Barang Cetakan - Fotocopy Biasa', 'qty' => 10, 'harga' => 300],
-                        ['nama' => 'Kertas HVS Sidu, ukuran F4, 75 gram', 'qty' => 1, 'harga' => 54100],
-                    ],
                     'tgl' => $now->copy()->subDays(4),
-                    'selisih' => false,
+                    'is_taxable' => false,
+                    'items' => [
+                        ['nama_item' => 'Barang Cetakan - Fotocopy Biasa', 'qty' => 300, 'harga' => 300], // 90.000
+                        ['nama_item' => 'Kertas HVS Sidu, ukuran F4, 75 gram', 'qty' => 4, 'harga' => 65500], // 262.000
+                    ],
                 ],
+                // SPJ 2: Kena Pajak (Total: Rp 5.230.000 > 2 Jt)
                 [
                     'status' => 'menunggu_verifikasi_pptk',
-                    'judul' => 'Belanja Makanan dan Minuman Rapat Koordinasi Promosi Wisata',
+                    'judul' => 'Belanja Konsumsi & Jamuan Rapat Koordinasi Promosi Wisata Daerah',
                     'toko' => $tokoSinarJaya,
-                    'items' => [
-                        ['nama' => 'Makanan/Sembako - Kue Kotak isi 3 kue + air', 'qty' => 20, 'harga' => 15000],
-                        ['nama' => 'Bahan Masakan/Minuman - Kopi Cap Rangkiang', 'qty' => 2, 'harga' => 28000],
-                    ],
                     'tgl' => $now->copy()->subDays(5),
-                    'selisih' => false,
+                    'is_taxable' => true,
+                    'items' => [
+                        ['nama_item' => 'Makanan/Sembako - Kue Kotak isi 3 kue + air', 'qty' => 150, 'harga' => 13300], // 1.995.000
+                        ['nama_item' => 'Bahan Masakan/Minuman - Kopi Cap Rangkiang', 'qty' => 10, 'harga' => 157750], // 1.577.500
+                        ['nama_item' => 'Makanan - Nasi Bungkus 1 Protein', 'qty' => 70, 'harga' => 24000], // 1.680.000
+                    ],
                 ],
             ],
 
-            // Bidang 3: Pengembangan Destinasi Pariwisata
+            // =========================================================================
+            // BIDANG 3: PENGEMBANGAN DESTINASI PARIWISATA (Inisial: PDP)
+            // =========================================================================
             3 => [
-                [
-                    'status' => 'menunggu_verifikasi_ppk',
-                    'judul' => 'Pengadaan Komponen Kelistrikan & Lampu Spot Destinasi Wisata',
-                    'toko' => $tokoRilex,
-                    'items' => [
-                        ['nama' => 'Pena Signo Uniball', 'qty' => 3, 'harga' => 23000],
-                        ['nama' => 'Flashdisk 32GB', 'qty' => 1, 'harga' => 95000],
-                    ],
-                    'tgl' => $now->copy()->subDays(6),
-                    'selisih' => false,
-                ],
+                // SPJ 1: Bebas Pajak (Total: Rp 1.485.000 <= 2 Jt)
                 [
                     'status' => 'revisi_pptk',
-                    'judul' => 'Penyediaan ATK Perencanaan Tata Ruang Kawasan Wisata',
-                    'toko' => $tokoSinarJaya,
-                    'items' => [
-                        ['nama' => 'Spidol Whiteboard', 'qty' => 6, 'harga' => 75000],
-                        ['nama' => 'Kertas HVS A4 80 gram', 'qty' => 5, 'harga' => 55000],
-                    ],
+                    'judul' => 'Pengadaan Cat & Kelengkapan Perawatan Signboard Kawasan Wisata',
+                    'toko' => $tokoRilex,
                     'tgl' => $now->copy()->subDays(3),
-                    'selisih' => false,
-                    'catatan_revisi' => 'Mohon sesuaikan rincian spesifikasi spidol dengan kebutuhan teknis tim surveyor lapangan.',
+                    'is_taxable' => false,
+                    'catatan_revisi' => 'Mohon tambahkan rincian warna cat sesuai brand identity Geopark.',
+                    'items' => [
+                        ['nama_item' => 'Cat Kayu & Besi Anti Karat Signboard Wisata', 'qty' => 15, 'harga' => 95000], // 1.425.000
+                    ],
+                ],
+                // SPJ 2: Kena Pajak (Total: Rp 5.350.000 > 2 Jt)
+                [
+                    'status' => 'menunggu_verifikasi_ppk',
+                    'judul' => 'Pengadaan Lampu Sorot LED & Kabel Instalasi Penerangan Wisata',
+                    'toko' => $tokoRilex,
+                    'tgl' => $now->copy()->subDays(6),
+                    'is_taxable' => true,
+                    'items' => [
+                        ['nama_item' => 'Lampu Sorot LED Outdoor Spot Destinasi 50W', 'qty' => 10, 'harga' => 275000], // 2.750.000
+                        ['nama_item' => 'Kabel Listrik NYY 2x2.5mm Outdoor', 'qty' => 4, 'harga' => 650000], // 2.600.000
+                    ],
                 ],
             ],
 
-            // Bidang 4: Pemuda dan Olahraga
+            // =========================================================================
+            // BIDANG 4: PEMUDA DAN OLAHRAGA (Inisial: PO)
+            // =========================================================================
             4 => [
+                // SPJ 1: Bebas Pajak (Total: Rp 1.540.000 <= 2 Jt)
                 [
                     'status' => 'menunggu_persetujuan_pa',
-                    'judul' => 'Pengadaan ATK & Kelengkapan Administrasi Seleksi Atlet Porprov',
+                    'judul' => 'Pengadaan Bola Pertandingan Latihan Atlet Cabor Daerah',
                     'toko' => $tokoSinarJaya,
-                    'items' => [
-                        ['nama' => 'Pena Signo Uniball', 'qty' => 10, 'harga' => 23000],
-                        ['nama' => 'Kertas HVS A4 80 gram', 'qty' => 6, 'harga' => 55000],
-                        ['nama' => 'Tinta Printer', 'qty' => 2, 'harga' => 85000],
-                    ],
                     'tgl' => $now->copy()->subDays(7),
-                    'selisih' => false,
+                    'is_taxable' => false,
+                    'items' => [
+                        ['nama_item' => 'Bola Sepak Standar Pertandingan FIFA Match', 'qty' => 2, 'harga' => 385000], // 770.000
+                        ['nama_item' => 'Bola Voli Standar Turnamen Mikasa V200W', 'qty' => 1, 'harga' => 420000],  // 420.000
+                        ['nama_item' => 'Rompi Tim Latihan Atlet Porprov', 'qty' => 1, 'harga' => 240000],          // 240.000
+                    ],
                 ],
+                // SPJ 2: Kena Pajak (Total: Rp 5.750.000 > 2 Jt)
                 [
                     'status' => 'menunggu_verifikasi_bendahara',
-                    'judul' => 'Belanja Perlengkapan Dokumentasi Pembinaan Pemuda Pelopor',
-                    'toko' => $tokoKomputer,
-                    'items' => [
-                        ['nama' => 'Flashdisk 32GB', 'qty' => 3, 'harga' => 95000],
-                        ['nama' => 'Tinta Printer', 'qty' => 2, 'harga' => 85000],
-                    ],
+                    'judul' => 'Pengadaan Medali Kejuaraan & Kaos Kontingen Atlet Porprov',
+                    'toko' => $tokoSinarJaya,
                     'tgl' => $now->copy()->subDays(8),
-                    'selisih' => false,
+                    'is_taxable' => true,
+                    'items' => [
+                        ['nama_item' => 'Medali Kejuaraan Olahraga Daerah Set Emas/Perak/Perunggu', 'qty' => 20, 'harga' => 175000], // 3.500.000
+                        ['nama_item' => 'Kaos Kontingen Atlet Kabupaten Sijunjung', 'qty' => 18, 'harga' => 125000],                // 2.250.000
+                    ],
                 ],
             ],
         ];
+
+        $counter = 1;
 
         foreach ($bidangs as $bidang) {
             $skenarios = $skenarioPerBidang[$bidang->id] ?? [];
@@ -213,7 +228,7 @@ class PengajuanSpjSeeder extends Seeder
                 continue;
             }
 
-            // Tentukan staf pengusul dan PPTK (Kepala Bidang)
+            // Staf pengusul dan PPTK (Kepala Bidang)
             $pptkUser = User::find($bidang->kepala_id) ?? $bidang->users->first() ?? $paUser;
             $stafUsers = $bidang->users->where('id', '!=', $pptkUser->id);
             $stafUser = $stafUsers->first() ?? $pptkUser;
@@ -222,16 +237,21 @@ class PengajuanSpjSeeder extends Seeder
             $kegiatan = MasterKegiatan::where('bidang_id', $bidang->id)->first()
                 ?? MasterKegiatan::first();
             $subKegiatan = $kegiatan ? MasterSubKegiatan::where('kegiatan_id', $kegiatan->id)->first() : null;
-            if (!$subKegiatan) {
+            if (! $subKegiatan) {
                 $subKegiatan = MasterSubKegiatan::first();
                 $kegiatan = $subKegiatan ? MasterKegiatan::find($subKegiatan->kegiatan_id) : null;
             }
 
             foreach ($skenarios as $idx => $sken) {
-                $nomorPengajuan = 'SP/' . $bidang->inisial . '/' . str_pad((string) $now->month, 2, '0', STR_PAD_LEFT) . '/' . $now->year . '/' . str_pad((string) ($idx + 1), 4, '0', STR_PAD_LEFT);
+                $tglPengajuan = $sken['tgl'];
+                $nomorPengajuan = PengajuanSpj::generateNomorPengajuan($bidang->id, (int) $now->year, $tglPengajuan->toDateString());
                 $status = $sken['status'];
                 $toko = $sken['toko'];
-                $tglPengajuan = $sken['tgl'];
+                $isTaxable = (bool) $sken['is_taxable'];
+
+                // Pajak: Jika belanja <= 2 Jt, PPN 0% & PPh 0%. Jika > 2 Jt, PPN 11% & PPh 22 1.5%
+                $ppnPersen = $isTaxable ? 11.00 : 0.00;
+                $pph22Persen = $isTaxable ? 1.50 : 0.00;
 
                 // Buat Header Pengajuan SPJ
                 $spj = PengajuanSpj::create([
@@ -240,11 +260,15 @@ class PengajuanSpjSeeder extends Seeder
                     'bidang_id' => $bidang->id,
                     'kegiatan_id' => $kegiatan?->id ?? 1,
                     'sub_kegiatan_id' => $subKegiatan?->id ?? 1,
+                    'tahun_anggaran' => (int) $now->year,
+                    'metode_pengadaan' => 'non_katalog',
+                    'jenis_belanja' => 'barang_jasa',
                     'tanggal_pengajuan' => $tglPengajuan->toDateString(),
                     'tanggal_batas_pengiriman' => $tglPengajuan->copy()->addDays(7)->toDateString(),
                     'total_nilai_rencana' => 0,
                     'total_nilai_realisasi' => null,
-                    'ppn_persen' => 12.00,
+                    'ppn_persen' => $ppnPersen,
+                    'pph22_persen' => $pph22Persen,
                     'status' => $status,
                     'master_toko_id' => $toko->id,
                     'nama_toko' => $toko->nama_toko,
@@ -260,7 +284,6 @@ class PengajuanSpjSeeder extends Seeder
                     'file_dokumentasi_barang' => in_array($status, ['menunggu_verifikasi_pptk', 'menunggu_verifikasi_ppk', 'menunggu_persetujuan_pa', 'menunggu_verifikasi_bendahara', 'disetujui', 'dicairkan'], true)
                         ? 'simulasi/foto_fisik_barang_' . $counter . '.jpg'
                         : null,
-                    'justifikasi_selisih' => $sken['justifikasi'] ?? null,
                     'catatan_revisi' => $sken['catatan_revisi'] ?? null,
                     'pptk_user_id' => in_array($status, ['menunggu_realisasi', 'menunggu_verifikasi_pptk', 'revisi_pptk', 'menunggu_verifikasi_ppk', 'menunggu_persetujuan_pa', 'menunggu_verifikasi_bendahara', 'disetujui', 'dicairkan'], true)
                         ? $pptkUser->id
@@ -286,41 +309,32 @@ class PengajuanSpjSeeder extends Seeder
                 $isRealisasiActive = in_array($status, ['menunggu_verifikasi_pptk', 'menunggu_verifikasi_ppk', 'menunggu_persetujuan_pa', 'menunggu_verifikasi_bendahara', 'disetujui', 'dicairkan'], true);
 
                 foreach ($sken['items'] as $it) {
-                    $barang = $barangList->firstWhere('nama_barang', $it['nama']) ?? $barangList->first();
-                    $rekening = $barang?->kodeRekening ?? $rekeningList->first();
-                    $subtotalRencana = $it['qty'] * $it['harga'];
+                    // Cari item RKA yang cocok
+                    $rkaItem = RincianAnggaranBelanja::where('nama_item', 'LIKE', '%' . $it['nama_item'] . '%')->first();
 
-                    $qtyRealisasi = $isRealisasiActive ? $it['qty'] : null;
-                    $hargaRealisasi = $isRealisasiActive ? $it['harga'] : null;
-                    $subtotalReal = $isRealisasiActive ? $subtotalRencana : null;
-
-                    // Jika diset ada selisih di realisasi
-                    if ($isRealisasiActive && $sken['selisih']) {
-                        $qtyRealisasi = $it['qty'] + 1;
-                        $subtotalReal = $qtyRealisasi * $hargaRealisasi;
+                    $masterBarangId = $rkaItem?->master_barang_id;
+                    if (! $masterBarangId) {
+                        $mb = MasterBarang::where('nama_barang', 'LIKE', '%' . $it['nama_item'] . '%')->first();
+                        $masterBarangId = $mb?->id;
                     }
 
-                    $rkaItem = \App\Models\RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatan->id)
-                        ->where(function ($q) use ($barang) {
-                            if ($barang) {
-                                $q->where('master_barang_id', $barang->id)
-                                  ->orWhere('nama_item', 'LIKE', '%' . $barang->nama_barang . '%');
-                            }
-                        })
-                        ->first();
+                    $subtotalRencana = $it['qty'] * $it['harga'];
+                    $qtyReal = $isRealisasiActive ? $it['qty'] : null;
+                    $hargaReal = $isRealisasiActive ? $it['harga'] : null;
+                    $subtotalReal = $isRealisasiActive ? $subtotalRencana : null;
 
                     DetailPengajuanSpj::create([
                         'pengajuan_spj_id' => $spj->id,
                         'rincian_anggaran_belanja_id' => $rkaItem?->id,
-                        'kode_rekening_id' => $rkaItem?->kode_rekening_id ?? ($rekening?->id ?? 1),
-                        'master_barang_id' => $barang?->id,
-                        'nama_item_belanja' => $rkaItem?->nama_item ?? ($barang?->nama_barang ?? 'Item Belanja'),
-                        'satuan' => $rkaItem?->satuan ?? ($barang?->satuan?->nama ?? 'Unit'),
+                        'kode_rekening_id' => $rkaItem?->kode_rekening_id ?? 1,
+                        'master_barang_id' => $masterBarangId,
+                        'nama_item_belanja' => $rkaItem?->nama_item ?? $it['nama_item'],
+                        'satuan' => $rkaItem?->satuan ?? 'Unit',
                         'kuantitas' => $it['qty'],
-                        'harga_satuan' => $rkaItem?->harga_satuan ?? $it['harga'],
+                        'harga_satuan' => $it['harga'],
                         'subtotal' => $subtotalRencana,
-                        'kuantitas_realisasi' => $qtyRealisasi,
-                        'harga_realisasi' => $hargaRealisasi,
+                        'kuantitas_realisasi' => $qtyReal,
+                        'harga_realisasi' => $hargaReal,
                         'subtotal_realisasi' => $subtotalReal,
                     ]);
 
@@ -336,7 +350,7 @@ class PengajuanSpjSeeder extends Seeder
                     'total_nilai_realisasi' => $totalRealisasi > 0 ? $totalRealisasi : null,
                 ]);
 
-                // Buat Log Audit Trail (RiwayatStatusSpj)
+                // Buat Riwayat Status Audit Trail
                 RiwayatStatusSpj::create([
                     'pengajuan_spj_id' => $spj->id,
                     'status_sebelumnya' => 'draft',
@@ -368,88 +382,14 @@ class PengajuanSpjSeeder extends Seeder
                             'sp3' => 'Persetujuan penandatanganan Surat Pesanan / Nota Pesanan',
                         ],
                         'catatan' => 'Surat pesanan disetujui untuk dibelanjakan ke rekanan penyedia.',
-                        'is_approved' => true,
                         'created_at' => $tglPengajuan->copy()->addHours(2),
                     ]);
                 }
 
-                if ($isRealisasiActive) {
-                    RiwayatStatusSpj::create([
-                        'pengajuan_spj_id' => $spj->id,
-                        'status_sebelumnya' => 'menunggu_realisasi',
-                        'status_berikutnya' => 'menunggu_verifikasi_pptk',
-                        'user_id' => $stafUser->id,
-                        'peran_saat_tindakan' => 'staf',
-                        'catatan' => 'Realisasi pembelian barang, nota toko, dan dokumentasi fisik berhasil diunggah.',
-                        'created_at' => $tglPengajuan->copy()->addDays(2),
-                    ]);
-                }
-
-                if (in_array($status, ['menunggu_verifikasi_ppk', 'menunggu_persetujuan_pa', 'menunggu_verifikasi_bendahara', 'disetujui', 'dicairkan'], true)) {
-                    RiwayatStatusSpj::create([
-                        'pengajuan_spj_id' => $spj->id,
-                        'status_sebelumnya' => 'menunggu_verifikasi_pptk',
-                        'status_berikutnya' => 'menunggu_verifikasi_ppk',
-                        'user_id' => $pptkUser->id,
-                        'peran_saat_tindakan' => 'pptk',
-                        'catatan' => 'Lolos checklist PPTK, berkas diteruskan ke Kasubag Keuangan (PPK).',
-                        'created_at' => $tglPengajuan->copy()->addDays(2)->addHours(3),
-                    ]);
-                }
-
-                if ($status === 'revisi_pptk') {
-                    RiwayatStatusSpj::create([
-                        'pengajuan_spj_id' => $spj->id,
-                        'status_sebelumnya' => 'menunggu_verifikasi_pptk',
-                        'status_berikutnya' => 'revisi_pptk',
-                        'user_id' => $pptkUser->id,
-                        'peran_saat_tindakan' => 'pptk',
-                        'catatan' => $sken['catatan_revisi'] ?? 'Perlu perbaikan kelengkapan berkas.',
-                        'created_at' => $tglPengajuan->copy()->addDays(2)->addHours(4),
-                    ]);
-                }
-
-                if (in_array($status, ['menunggu_persetujuan_pa', 'menunggu_verifikasi_bendahara', 'disetujui', 'dicairkan'], true)) {
-                    RiwayatStatusSpj::create([
-                        'pengajuan_spj_id' => $spj->id,
-                        'status_sebelumnya' => 'menunggu_verifikasi_ppk',
-                        'status_berikutnya' => 'menunggu_persetujuan_pa',
-                        'user_id' => $ppkUser?->id ?? $stafUser->id,
-                        'peran_saat_tindakan' => 'ppk',
-                        'catatan' => 'Verifikasi pembebanan anggaran & administrasi PPK disetujui, diteruskan ke PA (Kadis).',
-                        'created_at' => $tglPengajuan->copy()->addDays(3),
-                    ]);
-                }
-
-                if (in_array($status, ['menunggu_verifikasi_bendahara', 'disetujui', 'dicairkan'], true)) {
-                    RiwayatStatusSpj::create([
-                        'pengajuan_spj_id' => $spj->id,
-                        'status_sebelumnya' => 'menunggu_persetujuan_pa',
-                        'status_berikutnya' => 'menunggu_verifikasi_bendahara',
-                        'user_id' => $paUser?->id ?? $stafUser->id,
-                        'peran_saat_tindakan' => 'pa',
-                        'catatan' => 'Persetujuan akhir Pengguna Anggaran (Kadis) diterbitkan bersama TTD Kwitansi & NPD.',
-                        'created_at' => $tglPengajuan->copy()->addDays(4),
-                    ]);
-                }
-
-                if ($status === 'dicairkan') {
-                    RiwayatStatusSpj::create([
-                        'pengajuan_spj_id' => $spj->id,
-                        'status_sebelumnya' => 'menunggu_verifikasi_bendahara',
-                        'status_berikutnya' => 'dicairkan',
-                        'user_id' => $bendaharaUser?->id ?? $stafUser->id,
-                        'peran_saat_tindakan' => 'bendahara',
-                        'catatan' => 'Dana belanja telah dibayarkan lunas oleh Bendahara Pengeluaran. SPJ sah dan tercatat di BKU.',
-                        'created_at' => $tglPengajuan->copy()->addDays(5),
-                    ]);
-                }
-
-                $this->command->info("Simulasi [{$bidang->nama}] #{$counter}: {$spj->nomor_pengajuan} - Status: {$status} ({$sken['judul']})");
                 $counter++;
             }
         }
 
-        $this->command->info('Seeder Pengajuan SPJ simulasi (2 per bidang = 8 total) berhasil dijalankan.');
+        $this->command->info('Seeder Pengajuan SPJ berhasil: 8 pengajuan SPJ simulasi (Bebas Pajak & Kena Pajak) untuk 4 Bidang telah siap diuji.');
     }
 }

@@ -257,6 +257,107 @@
                 <span>Unduh File PDF</span>
             </a>
         </div>
+
+        {{-- CARD 4: KETENTUAN PERPAJAKAN & RINCIAN PEMBAYARAN --}}
+        @php
+            $totalBelanja = (float) $totalNominal;
+            $ppnPersen = (float) ($record->ppn_persen ?? 0);
+            $pphPersen = (float) ($record->pph22_persen ?? 0);
+            $isKenaPajak = $totalBelanja > 2000000 && ($ppnPersen > 0 || $pphPersen > 0);
+            $nilaiPpn = $isKenaPajak ? round($totalBelanja * ($ppnPersen / 100)) : 0;
+            $nilaiPph = $isKenaPajak ? round($totalBelanja * ($pphPersen / 100)) : 0;
+            $totalPajak = $nilaiPpn + $nilaiPph;
+            $nilaiBersih = max(0, $totalBelanja - $totalPajak);
+        @endphp
+
+        <div class="rounded-xl border border-gray-200 bg-white p-2.5 shadow-xs dark:border-white/10 dark:bg-gray-900 space-y-1.5" style="font-size: 10.5px;">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-1 dark:border-white/5">
+                <span class="font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-[9px]">
+                    Status Perpajakan
+                </span>
+                @if ($totalBelanja > 2000000)
+                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                        <span>⚠️ Kena Pajak (> 2 Jt)</span>
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                        <span>✓ Bebas Pajak (≤ 2 Jt)</span>
+                    </span>
+                @endif
+            </div>
+
+            @if ($isKenaPajak)
+                <div class="space-y-1 font-mono text-[10px] bg-gray-50 dark:bg-gray-800/60 p-2 rounded-lg border border-gray-100 dark:border-white/5">
+                    <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                        <span>PPN ({{ $ppnPersen }}%):</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200">Rp {{ number_format($nilaiPpn, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-gray-500 dark:text-gray-400">
+                        <span>PPh 22 ({{ $pphPersen }}%):</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200">Rp {{ number_format($nilaiPph, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-200 dark:border-white/10 pt-1 text-danger-600 dark:text-danger-400 font-bold">
+                        <span>Total Potongan:</span>
+                        <span>- Rp {{ number_format($totalPajak, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between border-t border-gray-200 dark:border-white/10 pt-1 text-emerald-600 dark:text-emerald-400 font-extrabold text-[11px]">
+                        <span>Diterima Bersih:</span>
+                        <span>Rp {{ number_format($nilaiBersih, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            @else
+                <div class="text-[10px] text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/60 p-2 rounded-lg border border-gray-100 dark:border-white/5 leading-relaxed">
+                    <div class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-[10.5px]">
+                        <span>ℹ️</span>
+                        <span>Bebas PPN & PPh 22</span>
+                    </div>
+                    <p class="mt-0.5 opacity-90">
+                        Belanja instansi pemerintah di bawah Rp 2.000.000 bebas pungutan pajak. Rekanan menerima pembayaran penuh <strong>Rp {{ number_format($totalBelanja, 0, ',', '.') }}</strong> (100%).
+                    </p>
+                </div>
+            @endif
+
+            {{-- Rekening Tujuan --}}
+            <div class="pt-1 border-t border-gray-100 dark:border-white/5 text-[9.5px] text-gray-500 dark:text-gray-400 space-y-0.5">
+                <div class="flex justify-between">
+                    <span>Rekening Tujuan:</span>
+                    <span class="font-semibold text-gray-800 dark:text-gray-200">{{ $bankName }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>No. Rekening:</span>
+                    <span class="font-mono font-bold text-primary-600 dark:text-primary-400">{{ $record->penerima_identitas ?: ($record->masterToko?->nomor_rekening ?? '-') }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Atas Nama:</span>
+                    <span class="font-medium text-gray-800 dark:text-gray-200 truncate" style="max-width: 160px;">{{ $record->penerima_nama ?: ($record->masterToko?->nama_pemilik ?? '-') }}</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- CARD 5: PETUNJUK TEKNIS CETAK RESMI --}}
+        <div class="rounded-xl border border-gray-200 bg-white p-2.5 shadow-xs dark:border-white/10 dark:bg-gray-900" style="font-size: 10px;">
+            <div class="font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 text-[9px] mb-1">
+                Petunjuk Teknis Cetak SPJ
+            </div>
+            <ul class="space-y-1 text-gray-600 dark:text-gray-300 text-[9.5px] leading-tight">
+                <li class="flex items-start gap-1">
+                    <span class="text-primary-500 font-bold">•</span>
+                    <span><strong>Surat Pesanan:</strong> Kertas F4 (Folio) Portrait.</span>
+                </li>
+                <li class="flex items-start gap-1">
+                    <span class="text-primary-500 font-bold">•</span>
+                    <span><strong>Kwitansi:</strong> Kertas F4 Landscape dibagi 2 (4 rangkap).</span>
+                </li>
+                <li class="flex items-start gap-1">
+                    <span class="text-primary-500 font-bold">•</span>
+                    <span><strong>NPD:</strong> Kertas F4 Portrait untuk pencairan bendahara.</span>
+                </li>
+                <li class="flex items-start gap-1">
+                    <span class="text-emerald-500 font-bold">✓</span>
+                    <span class="text-gray-500 dark:text-gray-400">Lampirkan faktur toko dan nota fisik asli.</span>
+                </li>
+            </ul>
+        </div>
     </div>
 
     {{-- ==================== KOLOM KANAN: PREVIEW DOKUMEN (HTML A4 / IMAGE) DENGAN TOOLBAR ==================== --}}

@@ -237,7 +237,7 @@ class PengajuanSpj extends Model
         $tahunAnggaran = $tahun ?: (int) date('Y');
         $bulan = $tanggal ? date('m', strtotime($tanggal)) : date('m');
 
-        $inisial = 'SEKR';
+        $inisial = 'Sekre';
         if ($bidangId) {
             $bidang = Bidang::find($bidangId);
             if ($bidang) {

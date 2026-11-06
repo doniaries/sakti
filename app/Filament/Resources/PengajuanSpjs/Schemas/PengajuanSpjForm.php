@@ -813,6 +813,15 @@ class PengajuanSpjForm
                                                                     ->minValue(1)
                                                                     ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
                                                                     ->live(onBlur: true)
+                                                                    ->helperText(function (callable $get) {
+                                                                        $qty = (float) ($get('kuantitas') ?: 0);
+                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                                        $satuan = $get('satuan') ?: 'Unit';
+                                                                        if ($sisaPagu > 0 && $qty > $sisaPagu) {
+                                                                            return new HtmlString("<span class='text-danger-600 dark:text-danger-400 font-semibold'>⚠️ Over budget! Sisa pagu: {$sisaPagu} {$satuan}</span>");
+                                                                        }
+                                                                        return null;
+                                                                    })
                                                                     ->rules([
                                                                         fn(callable $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
                                                                             $rkaId = $get('rincian_anggaran_belanja_id');
@@ -896,6 +905,35 @@ class PengajuanSpjForm
                                                                     ->readOnly()
                                                                     ->extraInputAttributes(['class' => 'font-bold text-amber-500'])
                                                                     ->columnSpan(['default' => 12, 'md' => 5]),
+
+                                                                // Notifikasi Peringatan Over Budget (Muncul langsung di bawah baris input)
+                                                                Placeholder::make('notif_over_budget')
+                                                                    ->hiddenLabel()
+                                                                    ->columnSpan(12)
+                                                                    ->visible(function (callable $get): bool {
+                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                                        $qty = (float) ($get('kuantitas') ?: 0);
+                                                                        return $sisaPagu > 0 && $qty > $sisaPagu;
+                                                                    })
+                                                                    ->content(function (callable $get): HtmlString {
+                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                                        $qty = (float) ($get('kuantitas') ?: 0);
+                                                                        $satuan = $get('satuan') ?: 'Unit';
+
+                                                                        return new HtmlString("
+                                                                            <div class='flex items-start gap-3 p-3 text-sm rounded-xl bg-danger-50 text-danger-800 dark:bg-danger-950/60 dark:text-danger-300 border border-danger-300 dark:border-danger-700 shadow-sm'>
+                                                                                <div class='flex-shrink-0 text-danger-600 dark:text-danger-400 mt-0.5'>
+                                                                                    <svg class='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
+                                                                                        <path fill-rule='evenodd' d='M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z' clip-rule='evenodd'></path>
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <span class='font-bold block text-danger-900 dark:text-danger-200'>Peringatan: Over Budget!</span>
+                                                                                    <span class='text-xs opacity-95'>Jumlah yang diinput (<strong>{$qty} {$satuan}</strong>) melebihi sisa pagu RKA (<strong>{$sisaPagu} {$satuan}</strong>). Pengajuan akan ditolak oleh sistem.</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        ");
+                                                                    }),
                                                             ]),
                                                     ])
                                                     ->defaultItems(1)
@@ -1047,62 +1085,38 @@ class PengajuanSpjForm
                                                     ->placeholder('Contoh: Transfer Bank / Tempo 14 Hari'),
                                             ]),
 
-                                        // 2. KETENTUAN PERPAJAKAN DINAMIS & ANTI PERUBAHAN KEBIJAKAN
+                                        // 2. KETENTUAN PERPAJAKAN (Informatif & Otomatis Aktif jika Belanja > Rp 2.000.000)
                                         Section::make('Ketentuan Perpajakan (PPN & PPh)')
-                                            ->description('Menu otomatis muncul untuk belanja di atas Rp 2.000.000.')
+                                            ->description('Informasi dan kebijakan pajak belanja pemerintah.')
                                             ->compact()
                                             ->schema([
                                                 Placeholder::make('info_ambang_pajak')
-                                                    ->label('')
+                                                    ->hiddenLabel()
                                                     ->content(function (callable $get, mixed $record = null) use ($calculateTotalPesanan): HtmlString {
                                                         $total = $calculateTotalPesanan($get, $record);
                                                         $formatted = 'Rp ' . number_format($total, 0, ',', '.');
+
                                                         if ($total > 2000000) {
                                                             return new HtmlString("
-                                                                <div class='flex items-start gap-2 p-2.5 rounded-lg bg-warning-50 dark:bg-warning-950/40 text-warning-800 dark:text-warning-300 border border-warning-200 dark:border-warning-800 text-xs'>
-                                                                    <span class='text-sm'>⚠️</span>
+                                                                <div class='flex items-start gap-2 p-2.5 rounded-lg bg-warning-50 dark:bg-warning-950/40 text-warning-800 dark:text-warning-300 border border-warning-200 dark:border-warning-800 text-xs shadow-sm'>
+                                                                    <span class='text-sm mt-0.5'>⚠️</span>
                                                                     <div>
                                                                         <div class='font-semibold'>Total Belanja {$formatted} (> Rp 2 Jt)</div>
-                                                                        <div class='text-[11px] opacity-90'>Wajib dipungut PPN & PPh sesuai ketentuan instansi pemerintah.</div>
+                                                                        <div class='text-[11px] opacity-90 mt-0.5'>Wajib dipungut PPN & PPh sesuai ketentuan instansi pemerintah.</div>
                                                                     </div>
                                                                 </div>
                                                             ");
                                                         }
 
                                                         return new HtmlString("
-                                                            <div class='flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 dark:bg-gray-800/60 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 text-xs'>
-                                                                <span class='text-sm'>ℹ️</span>
+                                                            <div class='flex items-start gap-2 p-2.5 rounded-lg bg-info-50 dark:bg-info-950/40 text-info-800 dark:text-info-300 border border-info-200 dark:border-info-800 text-xs shadow-sm'>
+                                                                <span class='text-sm mt-0.5'>ℹ️</span>
                                                                 <div>
                                                                     <div class='font-semibold'>Total Belanja {$formatted} (≤ Rp 2 Jt)</div>
-                                                                    <div class='text-[11px] opacity-90'>Bebas pungutan pajak pemerintah (PPN 0% & PPh 0%).</div>
+                                                                    <div class='text-[11px] opacity-90 mt-0.5'>Bebas pungutan pajak pemerintah (PPN 0% & PPh 0%). Formulir rincian pajak akan otomatis aktif jika total belanja melebihi Rp 2.000.000.</div>
                                                                 </div>
                                                             </div>
                                                         ");
-                                                    }),
-
-                                                Toggle::make('kenakan_pajak_manual')
-                                                    ->label('Kenakan Pungutan Pajak Khusus')
-                                                    ->helperText('Aktifkan jika ada regulasi khusus di bawah Rp 2 Jt')
-                                                    ->dehydrated(false)
-                                                    ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): bool {
-                                                        $spj = $resolveSpjRecord($record);
-                                                        if ($spj) {
-                                                            return (float) $spj->ppn_persen > 0 || (float) $spj->pph22_persen > 0;
-                                                        }
-                                                        return $calculateTotalPesanan($get) > 2000000;
-                                                    })
-                                                    ->visible(fn(callable $get, mixed $record = null): bool => $calculateTotalPesanan($get, $record) <= 2000000)
-                                                    ->live()
-                                                    ->afterStateUpdated(function (bool $state, callable $set) {
-                                                        if ($state) {
-                                                            $set('ppn_persen', 11.0);
-                                                            $set('pph22_persen', 1.5);
-                                                            $set('skema_pajak', 'standar');
-                                                        } else {
-                                                            $set('ppn_persen', 0.0);
-                                                            $set('pph22_persen', 0.0);
-                                                            $set('skema_pajak', 'bebas');
-                                                        }
                                                     }),
 
                                                 Group::make([
@@ -1117,7 +1131,7 @@ class PengajuanSpjForm
                                                             'kustom' => 'Kustom (Atur Persentase Manual)',
                                                             'bebas' => 'Bebas Pungut Pajak / SKB (0%)',
                                                         ])
-                                                        ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): string {
+                                                        ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): string {
                                                             $spj = $resolveSpjRecord($record);
                                                             if ($spj) {
                                                                 if ((float) $spj->ppn_persen == 12.0) return 'ppn12';
@@ -1127,7 +1141,7 @@ class PengajuanSpjForm
                                                                 if ((float) $spj->ppn_persen == 11.0 && (float) $spj->pph22_persen == 1.5) return 'standar';
                                                                 return 'kustom';
                                                             }
-                                                            return $calculateTotalPesanan($get) > 2000000 ? 'standar' : 'bebas';
+                                                            return 'standar';
                                                         })
                                                         ->live()
                                                         ->afterStateUpdated(function (?string $state, callable $set) {
@@ -1150,12 +1164,12 @@ class PengajuanSpjForm
                                                                 ->maxValue(100)
                                                                 ->suffix('%')
                                                                 ->live()
-                                                                ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): float {
+                                                                ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): float {
                                                                     $spj = $resolveSpjRecord($record);
                                                                     if ($spj && $spj->ppn_persen !== null) {
                                                                         return (float) $spj->ppn_persen;
                                                                     }
-                                                                    return $calculateTotalPesanan($get) > 2000000 ? 11.0 : 0.0;
+                                                                    return 11.0;
                                                                 })
                                                                 ->helperText('Dapat diedit bebas'),
 
@@ -1166,12 +1180,12 @@ class PengajuanSpjForm
                                                                 ->maxValue(100)
                                                                 ->suffix('%')
                                                                 ->live()
-                                                                ->default(function (callable $get, mixed $record = null) use ($calculateTotalPesanan, $resolveSpjRecord): float {
+                                                                ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): float {
                                                                     $spj = $resolveSpjRecord($record);
                                                                     if ($spj && $spj->pph22_persen !== null) {
                                                                         return (float) $spj->pph22_persen;
                                                                     }
-                                                                    return $calculateTotalPesanan($get) > 2000000 ? 1.5 : 0.0;
+                                                                    return 1.5;
                                                                 })
                                                                 ->helperText('Dapat diedit bebas'),
                                                         ]),
@@ -1203,10 +1217,7 @@ class PengajuanSpjForm
                                                             ");
                                                         }),
                                                 ])
-                                                    ->visible(function (callable $get, mixed $record = null) use ($calculateTotalPesanan): bool {
-                                                        $total = $calculateTotalPesanan($get, $record);
-                                                        return $total > 2000000 || (bool) $get('kenakan_pajak_manual');
-                                                    }),
+                                                    ->visible(fn (callable $get, mixed $record = null): bool => $calculateTotalPesanan($get, $record) > 2000000),
                                             ]),
                                     ])
                                         ->columnSpan(['default' => 1, 'lg' => 1]),

@@ -64,10 +64,10 @@ class Bidang extends Model
         $normalized = strtolower(trim($namaOrSlug));
 
         return match (true) {
-            str_contains($normalized, 'sekretariat') => 'SEKR',
-            str_contains($normalized, 'pemasaran') => 'PMR',
-            str_contains($normalized, 'destinasi') => 'DEST',
-            str_contains($normalized, 'pemuda') || str_contains($normalized, 'olahraga') => 'PORA',
+            str_contains($normalized, 'sekretariat') => 'Sekre',
+            str_contains($normalized, 'pemasaran') => 'PP',
+            str_contains($normalized, 'destinasi') => 'PDP',
+            str_contains($normalized, 'pemuda') || str_contains($normalized, 'olahraga') => 'PO',
             default => strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $normalized), 0, 4)),
         };
     }
