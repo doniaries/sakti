@@ -193,12 +193,6 @@ class UserForm
                                     ->icon('heroicon-o-document-text')
                                     ->columns(2)
                                     ->schema([
-                                        Select::make('eselon')
-                                            ->label('Eselon')
-                                            ->options(Eselon::class)
-                                            ->placeholder('Non Eselon')
-                                            ->columnSpanFull(),
-
                                         TextInput::make('npwp')
                                             ->label('Nomor NPWP')
                                             ->placeholder('Contoh: 15.988.184.6-203.000')
@@ -222,11 +216,20 @@ class UserForm
                                     ]),
                             ]),
 
-                        // Tab 2: Golongan & Pangkat (MyASN Style)
-                        Tab::make('Golongan')
+                        // Tab 2: Pangkat / Golongan (MyASN Style)
+                        Tab::make('Pangkat / Golongan')
                             ->icon('heroicon-m-shield-check')
                             ->schema([
-                                Section::make('Riwayat Pangkat & Golongan Ruang (MyASN)')
+                                Section::make('Tingkat Eselon Jabatan')
+                                    ->icon('heroicon-o-chart-bar')
+                                    ->schema([
+                                        Select::make('eselon')
+                                            ->label('Tingkat Eselon')
+                                            ->options(Eselon::class)
+                                            ->placeholder('Non Eselon'),
+                                    ]),
+
+                                Section::make('Riwayat Pangkat & Golongan Ruang')
                                     ->description('Kelola seluruh riwayat kenaikan pangkat dan golongan ruang pegawai beserta berkas scan SK Pangkat (PDF) yang dapat diunduh kembali.')
                                     ->icon('heroicon-o-academic-cap')
                                     ->schema([
@@ -395,7 +398,7 @@ class UserForm
                                         ]),
                                 ]),
 
-                                Section::make('Riwayat Mutasi & Jabatan Pegawai (MyASN)')
+                                Section::make('Riwayat Mutasi & Jabatan Pegawai')
                                     ->description('Kelola seluruh riwayat penugasan/jabatan struktural, fungsional, dan pelaksana beserta berkas scan SK Jabatan (PDF) yang dapat diunduh kembali.')
                                     ->icon('heroicon-o-briefcase')
                                     ->schema([
@@ -490,7 +493,7 @@ class UserForm
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
                             ->schema([
-                                Section::make('Riwayat Pendidikan Formal (MyASN)')
+                                Section::make('Riwayat Pendidikan Formal')
                                     ->description('Kelola seluruh riwayat pendidikan pegawai mulai dari jenjang SD, SLTP, SLTA, Diploma, S1, S2, hingga S3 beserta berkas scan Ijazah (PDF) yang dapat diunduh kembali.')
                                     ->icon('heroicon-o-academic-cap')
                                     ->schema([

@@ -80,7 +80,7 @@
             </button>
             <button wire:click="setTab('golongan')" 
                     class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'golongan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Golongan
+                <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Pangkat / Golongan
             </button>
             <button wire:click="setTab('jabatan')" 
                     class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'jabatan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
@@ -423,11 +423,7 @@
                 </div>
 
                 <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <h4 class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Administrasi & Jaminan Sosial</h4>
-                    <div class="flex justify-between py-1 text-xs">
-                        <span class="text-slate-400 font-medium">Eselon</span>
-                        <span class="font-bold text-slate-800">{{ $user->eselon?->value ?? $user->eselon ?? 'Non Eselon' }}</span>
-                    </div>
+                    <h4 class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Nomor Administrasi & Jaminan</h4>
                     <div class="flex justify-between py-1 text-xs">
                         <span class="text-slate-400 font-medium">NPWP</span>
                         <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
@@ -444,12 +440,23 @@
             </div>
         @endif
 
-        <!-- TAB 2: GOLONGAN (MYASN STYLE) -->
+        <!-- TAB 2: PANGKAT / GOLONGAN -->
         @if($activeTab === 'golongan')
             <div class="space-y-3">
-                <div class="flex items-center justify-between px-1">
+                <!-- Info Eselon -->
+                <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-medium block">Tingkat Eselon Jabatan</span>
+                        <span class="font-extrabold text-slate-900 text-sm">{{ $user->eselon?->value ?? $user->eselon ?? 'Non Eselon' }}</span>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                        {{ $user->eselon?->value ?? 'Non Eselon' }}
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between px-1 pt-1">
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-shield-halved"></i> Riwayat Pangkat/Golongan (MyASN)
+                        <i class="fa-solid fa-shield-halved"></i> Riwayat Pangkat & Golongan Ruang
                     </h3>
                     <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                         {{ $user->riwayatGolongan->count() }} Pangkat
@@ -508,7 +515,7 @@
             </div>
         @endif
 
-        <!-- TAB 3: JABATAN (MYASN STYLE) -->
+        <!-- TAB 3: JABATAN -->
         @if($activeTab === 'jabatan')
             <div class="space-y-3">
                 <!-- Posisi Sekarang -->
@@ -542,10 +549,10 @@
                     </div>
                 </div>
 
-                <!-- Riwayat Jabatan MyASN -->
+                <!-- Riwayat Jabatan -->
                 <div class="flex items-center justify-between px-1 pt-2">
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-briefcase"></i> Riwayat Jabatan (MyASN)
+                        <i class="fa-solid fa-briefcase"></i> Riwayat Jabatan
                     </h3>
                     <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                         {{ $user->riwayatJabatan->count() }} Jabatan
@@ -606,12 +613,12 @@
             </div>
         @endif
 
-        <!-- TAB 4: PENDIDIKAN (MYASN STYLE) -->
+        <!-- TAB 4: PENDIDIKAN -->
         @if($activeTab === 'pendidikan')
             <div class="space-y-3">
                 <div class="flex items-center justify-between px-1">
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan Formal (MyASN)
+                        <i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan Formal
                     </h3>
                     <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                         {{ $user->riwayatPendidikan->count() }} Jenjang

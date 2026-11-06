@@ -204,21 +204,25 @@ class UserInfolist
                                                 ->icon('heroicon-m-building-library')
                                                 ->copyable()
                                                 ->placeholder('-'),
-
-                                            TextEntry::make('eselon')
-                                                ->label('Eselon')
-                                                ->badge()
-                                                ->color('warning')
-                                                ->placeholder('Non Eselon'),
                                         ]),
                                 ]),
                             ]),
 
-                        // Tab 2: Golongan & Pangkat (MyASN Style)
-                        Tab::make('Golongan')
+                        // Tab 2: Pangkat / Golongan (MyASN Style)
+                        Tab::make('Pangkat / Golongan')
                             ->icon('heroicon-m-shield-check')
                             ->schema([
-                                Section::make('Riwayat Pangkat & Golongan Ruang (MyASN)')
+                                Section::make('Tingkat Eselon')
+                                    ->columns(2)
+                                    ->schema([
+                                        TextEntry::make('eselon')
+                                            ->label('Eselon Jabatan')
+                                            ->badge()
+                                            ->color('warning')
+                                            ->placeholder('Non Eselon'),
+                                    ]),
+
+                                Section::make('Riwayat Pangkat & Golongan Ruang')
                                     ->description('Daftar riwayat kenaikan pangkat dan golongan ruang yang tercatat beserta berkas SK Pangkat asli.')
                                     ->icon('heroicon-o-academic-cap')
                                     ->schema([
@@ -316,7 +320,7 @@ class UserInfolist
                                             ->placeholder('Belum Terhubung Mesin'),
                                     ]),
 
-                                Section::make('Riwayat Jabatan Pegawai (MyASN)')
+                                Section::make('Riwayat Jabatan Pegawai')
                                     ->description('Daftar riwayat jabatan struktural, fungsional, maupun pelaksana beserta berkas SK Jabatan asli.')
                                     ->icon('heroicon-o-briefcase')
                                     ->schema([
@@ -369,7 +373,7 @@ class UserInfolist
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
                             ->schema([
-                                Section::make('Riwayat Pendidikan Formal (MyASN)')
+                                Section::make('Riwayat Pendidikan Formal')
                                     ->description('Daftar riwayat jenjang pendidikan formal yang tercatat dan lampiran berkas Ijazah asli.')
                                     ->icon('heroicon-o-academic-cap')
                                     ->schema([
