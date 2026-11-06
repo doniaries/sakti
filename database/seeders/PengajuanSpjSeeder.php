@@ -228,7 +228,7 @@ class PengajuanSpjSeeder extends Seeder
             }
 
             foreach ($skenarios as $idx => $sken) {
-                $nomorPengajuan = 'SP/' . str_pad((string) $now->month, 2, '0', STR_PAD_LEFT) . '/' . $now->year . '/' . str_pad((string) $counter, 4, '0', STR_PAD_LEFT);
+                $nomorPengajuan = 'SP/' . $bidang->inisial . '/' . str_pad((string) $now->month, 2, '0', STR_PAD_LEFT) . '/' . $now->year . '/' . str_pad((string) ($idx + 1), 4, '0', STR_PAD_LEFT);
                 $status = $sken['status'];
                 $toko = $sken['toko'];
                 $tglPengajuan = $sken['tgl'];

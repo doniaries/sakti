@@ -230,35 +230,42 @@ class PengajuanSpj extends Model
         return $this->hasMany(RiwayatStatusSpj::class, 'pengajuan_spj_id')->orderBy('created_at', 'desc');
     }
 
-    public static function generateNomorPengajuan(int|string|null $bidangId = null): string
+    public static function generateNomorPengajuan(int|string|null $bidangId = null, ?int $tahun = null, ?string $tanggal = null): string
     {
         $prefix = 'SP';
-        $tahun = date('Y');
-        $bulan = date('m');
-        $count = static::whereYear('tanggal_pengajuan', $tahun)->count() + 1;
+        $tahunAnggaran = $tahun ?: (int) date('Y');
+        $bulan = $tanggal ? date('m', strtotime($tanggal)) : date('m');
+
+        $inisial = 'SEKR';
+        if ($bidangId) {
+            $bidang = Bidang::find($bidangId);
+            if ($bidang) {
+                $inisial = $bidang->inisial;
+            }
+        }
+
+        // Hitung nomor urut mandiri khusus untuk bidang ini pada tahun anggaran berjalan (terpisah per bidang)
+        $query = static::whereYear('tanggal_pengajuan', $tahunAnggaran);
+        if ($bidangId) {
+            $query->where('bidang_id', $bidangId);
+        }
+        $count = $query->count() + 1;
         $urut = str_pad((string) $count, 4, '0', STR_PAD_LEFT);
 
-        return "{$prefix}/{$bulan}/{$tahun}/{$urut}";
+        return "{$prefix}/{$inisial}/{$bulan}/{$tahunAnggaran}/{$urut}";
     }
 
     public function getNomorSuratPesananAttribute(): string
     {
-        $nomor = (string) $this->nomor_pengajuan;
-        if (str_starts_with($nomor, 'SP/')) {
-            return $nomor;
+        if (filled($this->nomor_pengajuan)) {
+            return (string) $this->nomor_pengajuan;
         }
 
-        // Konversi format SPJ/YYYY/MM/XXXX menjadi SP/MM/YYYY/XXXX
-        $parts = explode('/', $nomor);
-        if (count($parts) === 4 && $parts[0] === 'SPJ') {
-            return "SP/{$parts[2]}/{$parts[1]}/{$parts[3]}";
-        }
-
-        $bulan = $this->tanggal_pengajuan ? $this->tanggal_pengajuan->format('m') : date('m');
-        $tahun = $this->tanggal_pengajuan ? $this->tanggal_pengajuan->format('Y') : date('Y');
-        $urut = str_pad((string) ($this->id ?: 1), 4, '0', STR_PAD_LEFT);
-
-        return "SP/{$bulan}/{$tahun}/{$urut}";
+        return static::generateNomorPengajuan(
+            $this->bidang_id,
+            (int) ($this->tahun_anggaran ?? date('Y')),
+            $this->tanggal_pengajuan?->toDateString()
+        );
     }
 
     public function getStatusLabelAttribute(): string

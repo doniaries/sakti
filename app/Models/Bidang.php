@@ -48,6 +48,31 @@ class Bidang extends Model
     }
 
     /**
+     * Inisial resmi bidang untuk penomoran surat pesanan dan dokumen SPJ dinas.
+     */
+    public function getInisialAttribute(): string
+    {
+        return self::getInisialBidang($this->nama ?? $this->slug ?? '');
+    }
+
+    public static function getInisialBidang(?string $namaOrSlug): string
+    {
+        if (blank($namaOrSlug)) {
+            return 'DINAS';
+        }
+
+        $normalized = strtolower(trim($namaOrSlug));
+
+        return match (true) {
+            str_contains($normalized, 'sekretariat') => 'SEKR',
+            str_contains($normalized, 'pemasaran') => 'PMR',
+            str_contains($normalized, 'destinasi') => 'DEST',
+            str_contains($normalized, 'pemuda') || str_contains($normalized, 'olahraga') => 'PORA',
+            default => strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $normalized), 0, 4)),
+        };
+    }
+
+    /**
      * Warna badge berbeda untuk setiap Bidang.
      */
     public static function badgeColor(?string $namaOrSlug): string

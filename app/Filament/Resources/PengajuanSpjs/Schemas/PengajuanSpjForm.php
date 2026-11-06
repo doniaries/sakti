@@ -26,6 +26,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -135,7 +137,11 @@ class PengajuanSpjForm
 
                                     TextInput::make('nomor_pengajuan')
                                         ->label('Nomor Surat Pesanan')
-                                        ->default(fn () => PengajuanSpj::generateNomorPengajuan())
+                                        ->default(fn (Get $get) => PengajuanSpj::generateNomorPengajuan(
+                                            $resolveUserBidangId(),
+                                            (int) ($get('tahun_anggaran') ?? date('Y')),
+                                            $get('tanggal_pengajuan')
+                                        ))
                                         ->required()
                                         ->readOnly()
                                         ->columnSpan(2),
@@ -145,6 +151,16 @@ class PengajuanSpjForm
                                         ->default(now())
                                         ->displayFormat('d/m/Y')
                                         ->required()
+                                        ->live()
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
+                                            if (! $record) {
+                                                $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
+                                                    $get('bidang_id'),
+                                                    (int) ($get('tahun_anggaran') ?? date('Y')),
+                                                    $state
+                                                ));
+                                            }
+                                        })
                                         ->columnSpan(2),
 
                                     Select::make('tahun_anggaran')
@@ -159,6 +175,15 @@ class PengajuanSpjForm
                                         ->default(fn () => (int) (request()->query('tahun') ?? date('Y')))
                                         ->required()
                                         ->live()
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
+                                            if (! $record) {
+                                                $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
+                                                    $get('bidang_id'),
+                                                    (int) ($state ?? date('Y')),
+                                                    $get('tanggal_pengajuan')
+                                                ));
+                                            }
+                                        })
                                         ->columnSpan(2),
 
                                     Select::make('bidang_id')
@@ -196,9 +221,16 @@ class PengajuanSpjForm
                                         ->dehydrated()
                                         ->searchable()
                                         ->live()
-                                        ->afterStateUpdated(function (callable $set, callable $get) {
+                                        ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
                                             $set('kegiatan_id', null);
                                             $set('sub_kegiatan_id', null);
+                                            if (! $record) {
+                                                $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
+                                                    $state,
+                                                    (int) ($get('tahun_anggaran') ?? date('Y')),
+                                                    $get('tanggal_pengajuan')
+                                                ));
+                                            }
 
                                             $details = $get('details') ?? [];
                                             foreach (array_keys($details) as $uuid) {
