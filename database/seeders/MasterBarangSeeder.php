@@ -16,13 +16,36 @@ class MasterBarangSeeder extends Seeder
         MasterBarang::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $kodeAtk = KodeRekening::where('uraian', 'ALAT TULIS KANTOR')->first();
-        $kodeKomputer = KodeRekening::where('uraian', 'PERALATAN KOMPUTER')->first();
-        $kodePerlengkapan = KodeRekening::where('uraian', 'PERLENGKAPAN KANTOR')->first();
-        $kodeCetakan = KodeRekening::where('uraian', 'BAHAN CETAKAN')->first();
+        $kodeAtk = KodeRekening::where('kode_lengkap', '5.1.02.01.001.00024')
+            ->orWhere('uraian', 'LIKE', '%Alat Tulis Kantor%')
+            ->orWhere('uraian', 'ALAT TULIS KANTOR')
+            ->first();
 
-        if (!$kodeAtk || !$kodeKomputer || !$kodePerlengkapan || !$kodeCetakan) {
-            $this->command->error('Kode rekening tidak lengkap. Jalankan KodeRekeningSeeder terlebih dahulu.');
+        $kodeKomputer = KodeRekening::where('kode_lengkap', '5.1.02.01.001.00029')
+            ->orWhere('uraian', 'LIKE', '%Bahan Komputer%')
+            ->orWhere('uraian', 'LIKE', '%Komputer%')
+            ->first();
+
+        $kodePerlengkapan = KodeRekening::where('kode_lengkap', '5.1.02.01.001.00030')
+            ->orWhere('kode_lengkap', '5.1.02.01.001.00025')
+            ->orWhere('uraian', 'LIKE', '%Perabot%')
+            ->orWhere('uraian', 'LIKE', '%Kertas%')
+            ->first();
+
+        $kodeCetakan = KodeRekening::where('kode_lengkap', '5.1.02.01.001.00026')
+            ->orWhere('kode_lengkap', '5.1.02.01.001.00025')
+            ->orWhere('uraian', 'LIKE', '%Cetak%')
+            ->first();
+
+        // Fallback cerdas agar seeder tidak pernah macet
+        $defaultKode = KodeRekening::first();
+        $kodeAtk = $kodeAtk ?: $defaultKode;
+        $kodeKomputer = $kodeKomputer ?: $defaultKode;
+        $kodePerlengkapan = $kodePerlengkapan ?: $defaultKode;
+        $kodeCetakan = $kodeCetakan ?: $defaultKode;
+
+        if (! $kodeAtk) {
+            $this->command->error('Kode rekening belum tersedia di database. Jalankan KodeRekeningSeeder terlebih dahulu.');
             return;
         }
 

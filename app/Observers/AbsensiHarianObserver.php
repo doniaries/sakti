@@ -23,14 +23,16 @@ class AbsensiHarianObserver
                 $aksi = "Absen Masuk ({$absen->jam_masuk})";
             }
 
+            $statusStr = $absen->status instanceof \BackedEnum ? $absen->status->value : (string) $absen->status;
+
             ActivityLogger::log(
                 event: 'update',
                 module: 'Presensi',
-                description: "Presensi pegawai {$namaUser} ({$tgl}): {$aksi}, status: {$absen->status}",
+                description: "Presensi pegawai {$namaUser} ({$tgl}): {$aksi}, status: {$statusStr}",
                 subject: $absen,
                 properties: [
                     'tanggal' => $absen->tanggal,
-                    'status' => $absen->status,
+                    'status' => $statusStr,
                     'jam_masuk' => $absen->jam_masuk,
                     'jam_pulang' => $absen->jam_pulang,
                 ]

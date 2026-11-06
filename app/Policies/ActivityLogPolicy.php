@@ -4,54 +4,42 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use App\Models\ActivityLog;
-use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Foundation\Auth\User as AuthUser;
+use App\Models\ActivityLog;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ActivityLogPolicy
 {
     use HandlesAuthorization;
-
-    /**
-     * Tentukan apakah user dapat melihat daftar Log Aktivitas.
-     * Hanya Superadmin, Kasubag Keuangan (Admin Dinas), PPK, dan PA (Kadis).
-     */
+    
     public function viewAny(AuthUser $authUser): bool
     {
-        /** @var User $user */
-        $user = $authUser;
-
-        $anggaranRole = $user->anggaran_role instanceof \App\Enums\AnggaranRole
-            ? $user->anggaran_role->value
-            : $user->anggaran_role;
-
-        return $user->hasAnyRole(['super_admin', 'admin', 'ppk', 'pa'])
-            || in_array($anggaranRole, ['PPK', 'PA'], true);
+        return $authUser->can('ViewAny:ActivityLog');
     }
 
     public function view(AuthUser $authUser, ActivityLog $activityLog): bool
     {
-        return $this->viewAny($authUser);
+        return $authUser->can('View:ActivityLog');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return false;
+        return $authUser->can('Create:ActivityLog');
     }
 
     public function update(AuthUser $authUser, ActivityLog $activityLog): bool
     {
-        return false;
+        return $authUser->can('Update:ActivityLog');
     }
 
     public function delete(AuthUser $authUser, ActivityLog $activityLog): bool
     {
-        return false;
+        return $authUser->can('Delete:ActivityLog');
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
-        return false;
+        return $authUser->can('DeleteAny:ActivityLog');
     }
+
 }

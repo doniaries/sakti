@@ -13,6 +13,7 @@ class LhkObserver
     {
         $tgl = $lhk->tanggal ? \Illuminate\Support\Carbon::parse($lhk->tanggal)->format('d/m/Y') : '-';
         $namaUser = $lhk->user?->name ?? 'Pegawai';
+        $statusStr = $lhk->status instanceof \BackedEnum ? $lhk->status->value : (string) $lhk->status;
 
         ActivityLogger::log(
             event: 'create',
@@ -21,7 +22,7 @@ class LhkObserver
             subject: $lhk,
             properties: [
                 'tanggal' => $lhk->tanggal,
-                'status' => $lhk->status,
+                'status' => $statusStr,
                 'user_id' => $lhk->user_id,
             ]
         );
@@ -33,7 +34,7 @@ class LhkObserver
         $namaUser = $lhk->user?->name ?? 'Pegawai';
 
         if ($lhk->wasChanged('status')) {
-            $status = (string) $lhk->status;
+            $status = $lhk->status instanceof \BackedEnum ? $lhk->status->value : (string) $lhk->status;
             $event = match ($status) {
                 'disetujui' => 'verify',
                 'ditolak' => 'tolak',

@@ -11,6 +11,9 @@ class PengajuanSpjObserver
 {
     public function created(PengajuanSpj $spj): void
     {
+        $statusStr = $spj->status instanceof \BackedEnum ? $spj->status->value : (string) $spj->status;
+        $jenisStr = $spj->jenis_belanja instanceof \BackedEnum ? $spj->jenis_belanja->value : (string) $spj->jenis_belanja;
+
         ActivityLogger::log(
             event: 'create',
             module: 'Pengajuan SPJ',
@@ -19,8 +22,8 @@ class PengajuanSpjObserver
             properties: [
                 'nomor_pengajuan' => $spj->nomor_pengajuan,
                 'total_belanja' => $spj->total_belanja,
-                'status' => $spj->status,
-                'jenis_belanja' => $spj->jenis_belanja,
+                'status' => $statusStr,
+                'jenis_belanja' => $jenisStr,
             ]
         );
     }
@@ -28,7 +31,7 @@ class PengajuanSpjObserver
     public function updated(PengajuanSpj $spj): void
     {
         if ($spj->wasChanged('status')) {
-            $status = (string) $spj->status;
+            $status = $spj->status instanceof \BackedEnum ? $spj->status->value : (string) $spj->status;
             $event = match ($status) {
                 'menunggu_realisasi', 'menunggu_persetujuan_pa', 'menunggu_verifikasi_bendahara', 'disetujui' => 'verify',
                 'revisi_ppk', 'revisi_pa', 'revisi_bendahara' => 'revisi',
