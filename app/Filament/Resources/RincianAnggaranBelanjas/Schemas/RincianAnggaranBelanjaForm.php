@@ -27,11 +27,17 @@ class RincianAnggaranBelanjaForm
         }
 
         return $schema
+            ->columns(1)
             ->components([
-                Section::make('Pedoman Anggaran & Penugasan Bidang')
-                    ->description('Tentukan tahun anggaran, bidang pengampu, dan sub kegiatan sesuai cetak dokumen RKA/DPA.')
+                // Section 1: Pembebanan Sub Kegiatan
+                Section::make('Sub Kegiatan & Pembebanan Anggaran')
+                    ->description('Tentukan tahun anggaran, bidang pengampu, dan sub kegiatan sesuai Dokumen Pelaksanaan Anggaran (DPA/RKA).')
+                    ->icon('heroicon-o-building-office-2')
                     ->schema([
-                        Grid::make(3)->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'md' => 4,
+                        ])->schema([
                             Select::make('tahun_anggaran')
                                 ->label('Tahun Anggaran')
                                 ->options($years)
@@ -60,12 +66,18 @@ class RincianAnggaranBelanjaForm
                                         ->all();
                                 })
                                 ->searchable()
-                                ->required(),
+                                ->required()
+                                ->columnSpan([
+                                    'default' => 1,
+                                    'md' => 2,
+                                ]),
                         ]),
                     ]),
 
-                Section::make('Rincian Belanja & Harga Satuan Standar')
-                    ->description('Masukkan uraian barang/jasa, kode rekening pembebanan, koefisien volume, dan harga satuan.')
+                // Section 2: Objek & Komponen Belanja
+                Section::make('Objek & Komponen Belanja SIPD')
+                    ->description('Pilih rekening belanja dan komponen belanja yang akan dibebankan sesuai rincian SIPD.')
+                    ->icon('heroicon-o-shopping-bag')
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('kode_rekening_id')
@@ -76,14 +88,15 @@ class RincianAnggaranBelanjaForm
                                 ->live(),
 
                             Select::make('master_barang_id')
-                                ->label('Tautkan ke Kode Barang Persediaan (Opsional)')
-                                ->helperText('Khusus barang persediaan fisik gudang (ATK/komputer). Untuk jasa/konsumsi mamin, biarkan kosong.')
+                                ->label('Komponen Belanja')
+                                ->helperText('Pilih komponen/produk belanja (BBM, Kertas & Cover, Natura, ATK). Transaksi SPJ akan mengurangi volume pagu komponen ini.')
                                 ->options(function (Get $get) {
                                     $rekId = $get('kode_rekening_id');
                                     return MasterBarang::query()
                                         ->when($rekId, fn ($q) => $q->where('kode_rekening_id', $rekId))
+                                        ->with('satuan')
                                         ->get()
-                                        ->mapWithKeys(fn ($b) => [$b->id => "📦 {$b->kode_barang} - {$b->nama_barang}"])
+                                        ->mapWithKeys(fn ($b) => [$b->id => "📦 {$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
                                         ->all();
                                 })
                                 ->searchable()
@@ -92,32 +105,38 @@ class RincianAnggaranBelanjaForm
                                     if ($state) {
                                         $barang = MasterBarang::with('satuan')->find($state);
                                         if ($barang) {
-                                            $set('nama_item', $barang->nama_barang);
+                                            if (blank($get('nama_item'))) {
+                                                $set('nama_item', $barang->nama_barang);
+                                            }
                                             if ($barang->satuan) {
                                                 $set('satuan', $barang->satuan->nama);
-                                            }
-                                            if ((float) $barang->harga_satuan > 0 && blank($get('harga_satuan'))) {
-                                                $set('harga_satuan', $barang->harga_satuan);
                                             }
                                         }
                                     }
                                 }),
-                        ]),
 
-                        Grid::make(2)->schema([
                             TextInput::make('nama_item')
-                                ->label('Uraian Nama Barang / Jasa')
+                                ->label('Uraian Belanja [-]')
                                 ->required()
                                 ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                                 ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
-                                ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram'),
+                                ->placeholder('Contoh: KERTAS HVS F4, NASI GORENG, BBM PERTAMAX'),
 
                             TextInput::make('spesifikasi')
-                                ->label('Spesifikasi / Merk / Keterangan Teknis')
-                                ->placeholder('Contoh: F4 75 gram, isi 500 lembar per rim'),
+                                ->label('Spesifikasi Teknis / Merk Barang')
+                                ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram'),
                         ]),
+                    ]),
 
-                        Grid::make(4)->schema([
+                // Section 3: Kalkulasi Koefisien & Pagu Anggaran
+                Section::make('Kalkulasi Koefisien Volume & Pagu Anggaran')
+                    ->description('Hitung total pagu anggaran berdasarkan koefisien volume dan harga satuan standar belanja.')
+                    ->icon('heroicon-o-calculator')
+                    ->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'md' => 4,
+                        ])->schema([
                             TextInput::make('volume')
                                 ->label('Koefisien / Volume Pagu')
                                 ->numeric()
@@ -131,7 +150,7 @@ class RincianAnggaranBelanjaForm
                                 }),
 
                             Select::make('satuan')
-                                ->label('Satuan')
+                                ->label('Satuan Unit')
                                 ->options(fn () => Satuan::pluck('nama', 'nama')->all())
                                 ->default('Rim')
                                 ->searchable()
@@ -150,11 +169,12 @@ class RincianAnggaranBelanjaForm
                                 }),
 
                             TextInput::make('pagu_total')
-                                ->label('Total Pagu Anggaran (Rp)')
+                                ->label('Total Pagu Anggaran')
                                 ->numeric()
                                 ->prefix('Rp')
                                 ->readOnly()
-                                ->dehydrated(),
+                                ->dehydrated()
+                                ->helperText('Kalkulasi otomatis (Volume x Harga Satuan)'),
                         ]),
 
                         Grid::make(2)->schema([
@@ -163,10 +183,9 @@ class RincianAnggaranBelanjaForm
                                 ->default('Dana Alokasi Umum (DAU)')
                                 ->required(),
 
-                            Textarea::make('keterangan')
-                                ->label('Catatan Tambahan')
-                                ->rows(2)
-                                ->placeholder('Catatan atau peruntukan belanja'),
+                            TextInput::make('keterangan')
+                                ->label('Catatan Tambahan / Peruntukan')
+                                ->placeholder('Contoh: Kegiatan Sosialisasi Pariwisata Triwulan I'),
                         ]),
                     ]),
             ]);

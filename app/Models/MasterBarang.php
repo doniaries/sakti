@@ -28,6 +28,15 @@ class MasterBarang extends Model
         'harga_satuan' => 'decimal:2',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (MasterBarang $model) {
+            if (empty($model->kode_barang)) {
+                $model->kode_barang = 'KMP-' . strtoupper(str()->random(6));
+            }
+        });
+    }
+
     public function kodeRekening(): BelongsTo
     {
         return $this->belongsTo(KodeRekening::class, 'kode_rekening_id');
@@ -51,7 +60,6 @@ class MasterBarang extends Model
     public function getLabelAttribute(): string
     {
         $satuanNama = $this->satuan?->nama ?? 'Unit';
-        $hargaFormatted = number_format((float) $this->harga_satuan, 0, ',', '.');
-        return "{$this->nama_barang} ({$satuanNama}) - Rp {$hargaFormatted}";
+        return "{$this->nama_barang} ({$satuanNama})";
     }
 }

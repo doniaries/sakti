@@ -20,47 +20,39 @@ class MasterBarangsTable
                 return $query->with(['kodeRekening', 'satuan']);
             })
             ->columns([
-                TextColumn::make('kode_barang')
-                    ->label('Kode')
+                TextColumn::make('kodeRekening.kode_lengkap')
+                    ->label('Kode Rekening')
                     ->searchable()
-                    ->copyable()
-                    ->copyMessage('Kode Barang berhasil disalin!')
                     ->sortable()
+                    ->copyable()
                     ->weight('bold'),
 
-                TextColumn::make('nama_barang')
-                    ->label('Nama Barang Persediaan')
+                TextColumn::make('kodeRekening.uraian')
+                    ->label('Uraian Rekening')
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
-
-                TextColumn::make('kodeRekening.uraian')
-                    ->label('Rekening Belanja')
-                    ->searchable()
-                    ->sortable()
-                    ->badge()
-                    ->color('gray')
-                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
                     ->placeholder('-'),
 
+                TextColumn::make('nama_barang')
+                    ->label('Nama Komponen Belanja')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->color('primary')
+                    ->wrap()
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+
                 TextColumn::make('satuan.nama')
-                    ->label('Satuan')
+                    ->label('Satuan Standar')
                     ->badge()
                     ->color('info')
                     ->sortable()
                     ->placeholder('-'),
 
-                TextColumn::make('keterangan')
-                    ->label('Keterangan / Spesifikasi')
+                TextColumn::make('kode_barang')
+                    ->label('Kode Sistem')
                     ->searchable()
-                    ->wrap()
-                    ->placeholder('-'),
-
-                TextColumn::make('harga_satuan')
-                    ->label('Harga Referensi (Opsional)')
-                    ->money('IDR', locale: 'id')
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
