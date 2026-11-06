@@ -4,41 +4,42 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\MasterSyaratBelanja;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
 
 class MasterSyaratBelanjaPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
-        return true; // Data global persyaratan, dapat diakses oleh semua pengguna
+        return $authUser->can('ViewAny:MasterSyaratBelanja');
     }
 
     public function view(AuthUser $authUser, MasterSyaratBelanja $masterSyaratBelanja): bool
     {
-        return true; // Data global persyaratan, dapat diakses oleh semua pengguna
+        return $authUser->can('View:MasterSyaratBelanja');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->hasAnyRole(['super_admin', 'admin', 'ppk', 'bendahara', 'pa']);
+        return $authUser->can('Create:MasterSyaratBelanja');
     }
 
     public function update(AuthUser $authUser, MasterSyaratBelanja $masterSyaratBelanja): bool
     {
-        return $authUser->hasAnyRole(['super_admin', 'admin', 'ppk', 'bendahara', 'pa']);
+        return $authUser->can('Update:MasterSyaratBelanja');
     }
 
     public function delete(AuthUser $authUser, MasterSyaratBelanja $masterSyaratBelanja): bool
     {
-        return $authUser->hasAnyRole(['super_admin', 'admin', 'ppk']);
+        return $authUser->can('Delete:MasterSyaratBelanja');
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
-        return $authUser->hasAnyRole(['super_admin', 'admin', 'ppk']);
+        return $authUser->can('DeleteAny:MasterSyaratBelanja');
     }
+
 }

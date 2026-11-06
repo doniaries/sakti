@@ -36,7 +36,7 @@ class Login extends Component
             return redirect()->intended(route('mobile.dashboard'));
         }
 
-        $this->addError('email', 'Kredensial yang diberikan tidak cocok dengan data kami.');
+        $this->addError('email', 'Akun tidak cocok dengan data kami.');
     }
 
     public function render()

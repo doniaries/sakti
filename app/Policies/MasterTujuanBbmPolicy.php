@@ -4,41 +4,42 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\MasterTujuanBbm;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Foundation\Auth\User as AuthUser;
 
 class MasterTujuanBbmPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
-        return true; // Data global, dapat diakses oleh semua pengguna
+        return $authUser->can('ViewAny:MasterTujuanBbm');
     }
 
     public function view(AuthUser $authUser, MasterTujuanBbm $masterTujuanBbm): bool
     {
-        return true; // Data global, dapat diakses oleh semua pengguna
+        return $authUser->can('View:MasterTujuanBbm');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return true; // Dapat ditambahkan langsung di form pengajuan oleh siapa saja
+        return $authUser->can('Create:MasterTujuanBbm');
     }
 
     public function update(AuthUser $authUser, MasterTujuanBbm $masterTujuanBbm): bool
     {
-        return true;
+        return $authUser->can('Update:MasterTujuanBbm');
     }
 
     public function delete(AuthUser $authUser, MasterTujuanBbm $masterTujuanBbm): bool
     {
-        return $authUser->hasAnyRole(['super_admin', 'admin', 'ppk', 'pa']);
+        return $authUser->can('Delete:MasterTujuanBbm');
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
-        return $authUser->hasAnyRole(['super_admin', 'admin', 'ppk', 'pa']);
+        return $authUser->can('DeleteAny:MasterTujuanBbm');
     }
+
 }
