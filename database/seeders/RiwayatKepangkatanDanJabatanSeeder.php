@@ -203,3 +203,4 @@ class RiwayatKepangkatanDanJabatanSeeder extends Seeder
         }
     }
 }
+

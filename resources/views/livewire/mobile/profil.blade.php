@@ -421,6 +421,26 @@
                     <span class="text-slate-400 font-medium block mb-1">Alamat Domisili</span>
                     <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
                 </div>
+
+                <div class="pt-3 border-t border-slate-100 space-y-2">
+                    <h4 class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Administrasi & Jaminan Sosial</h4>
+                    <div class="flex justify-between py-1 text-xs">
+                        <span class="text-slate-400 font-medium">Eselon</span>
+                        <span class="font-bold text-slate-800">{{ $user->eselon?->value ?? $user->eselon ?? 'Non Eselon' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs">
+                        <span class="text-slate-400 font-medium">NPWP</span>
+                        <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs">
+                        <span class="text-slate-400 font-medium">BPJS Kesehatan</span>
+                        <span class="font-bold font-mono text-slate-800">{{ $user->no_bpjs ?? '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs">
+                        <span class="text-slate-400 font-medium">Nomor Taspen</span>
+                        <span class="font-bold font-mono text-slate-800">{{ $user->no_taspen ?? '-' }}</span>
+                    </div>
+                </div>
             </div>
         @endif
 
@@ -485,27 +505,6 @@
                         <p class="text-xs text-slate-400 italic">Belum ada data riwayat pangkat/golongan.</p>
                     </div>
                 @endforelse
-
-                <!-- Data Administrasi Pelengkap -->
-                <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5 mt-4">
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Administrasi Kepegawaian</h3>
-                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                        <span class="text-slate-400 font-medium">Eselon</span>
-                        <span class="font-bold text-slate-800">{{ $user->eselon?->value ?? $user->eselon ?? 'Non Eselon' }}</span>
-                    </div>
-                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                        <span class="text-slate-400 font-medium">NPWP</span>
-                        <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                        <span class="text-slate-400 font-medium">BPJS Kesehatan</span>
-                        <span class="font-bold font-mono text-slate-800">{{ $user->no_bpjs ?? '-' }}</span>
-                    </div>
-                    <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                        <span class="text-slate-400 font-medium">Nomor Taspen</span>
-                        <span class="font-bold font-mono text-slate-800">{{ $user->no_taspen ?? '-' }}</span>
-                    </div>
-                </div>
             </div>
         @endif
 

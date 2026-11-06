@@ -48,3 +48,4 @@ class RiwayatJabatan extends Model
         return Storage::disk('public')->url($this->file_sk_jabatan);
     }
 }
+

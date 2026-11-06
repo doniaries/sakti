@@ -23,6 +23,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class UserForm
 {
@@ -187,6 +188,38 @@ class UserForm
                                                     ->columnSpanFull(),
                                             ]),
                                     ]),
+
+                                Section::make('Nomor Administrasi Kepegawaian & Jaminan Sosial')
+                                    ->icon('heroicon-o-document-text')
+                                    ->columns(2)
+                                    ->schema([
+                                        Select::make('eselon')
+                                            ->label('Eselon')
+                                            ->options(Eselon::class)
+                                            ->placeholder('Non Eselon')
+                                            ->columnSpanFull(),
+
+                                        TextInput::make('npwp')
+                                            ->label('Nomor NPWP')
+                                            ->placeholder('Contoh: 15.988.184.6-203.000')
+                                            ->mask('99.999.999.9-999.999')
+                                            ->helperText('Format standar: 99.999.999.9-999.999')
+                                            ->maxLength(30),
+
+                                        DatePicker::make('tanggal_npwp')
+                                            ->label('Tanggal NPWP')
+                                            ->displayFormat('d/m/Y'),
+
+                                        TextInput::make('no_bpjs')
+                                            ->label('Nomor BPJS Kesehatan')
+                                            ->placeholder('Nomor Kartu BPJS...')
+                                            ->maxLength(30),
+
+                                        TextInput::make('no_taspen')
+                                            ->label('Nomor Taspen')
+                                            ->placeholder('Nomor Kartu Taspen...')
+                                            ->maxLength(30),
+                                    ]),
                             ]),
 
                         // Tab 2: Golongan & Pangkat (MyASN Style)
@@ -259,49 +292,22 @@ class UserForm
                                                         ->inline(false),
 
                                                     FileUpload::make('file_sk_golongan')
-                                                        ->label('Berkas SK Pangkat (PDF)')
+                                                        ->label('Berkas SK Pangkat (Wajib PDF, Maks. 2 MB)')
                                                         ->acceptedFileTypes(['application/pdf'])
+                                                        ->rules(['file', 'mimes:pdf', 'max:2048'])
+                                                        ->maxSize(2048)
+                                                        ->required()
                                                         ->disk('public')
                                                         ->directory('dokumen_golongan')
-                                                        ->maxSize(5120)
+                                                        ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
+                                                            return (string) str('sk-golongan-' . str()->random(16) . '.pdf');
+                                                        })
                                                         ->downloadable()
                                                         ->openable()
                                                         ->columnSpanFull()
-                                                        ->helperText('Unggah berkas scan PDF SK Kenaikan Pangkat (Maks. 5 MB) agar dapat diunduh kapan saja.'),
+                                                        ->helperText('Wajib unggah berkas scan PDF asli SK Kenaikan Pangkat resmi (Maksimal 2 MB).'),
                                                 ]),
                                             ]),
-                                    ]),
-
-                                Section::make('Nomor Administrasi Kepegawaian & Jaminan Sosial')
-                                    ->icon('heroicon-o-document-text')
-                                    ->columns(2)
-                                    ->schema([
-                                        Select::make('eselon')
-                                            ->label('Eselon')
-                                            ->options(Eselon::class)
-                                            ->placeholder('Non Eselon')
-                                            ->columnSpanFull(),
-
-                                        TextInput::make('npwp')
-                                            ->label('Nomor NPWP')
-                                            ->placeholder('Contoh: 15.988.184.6-203.000')
-                                            ->mask('99.999.999.9-999.999')
-                                            ->helperText('Format standar: 99.999.999.9-999.999')
-                                            ->maxLength(30),
-
-                                        DatePicker::make('tanggal_npwp')
-                                            ->label('Tanggal NPWP')
-                                            ->displayFormat('d/m/Y'),
-
-                                        TextInput::make('no_bpjs')
-                                            ->label('Nomor BPJS Kesehatan')
-                                            ->placeholder('Nomor Kartu BPJS...')
-                                            ->maxLength(30),
-
-                                        TextInput::make('no_taspen')
-                                            ->label('Nomor Taspen')
-                                            ->placeholder('Nomor Kartu Taspen...')
-                                            ->maxLength(30),
                                     ]),
                             ]),
 
@@ -461,15 +467,20 @@ class UserForm
                                                         ->inline(false),
 
                                                     FileUpload::make('file_sk_jabatan')
-                                                        ->label('Berkas SK Jabatan (PDF)')
+                                                        ->label('Berkas SK Jabatan (Wajib PDF, Maks. 2 MB)')
                                                         ->acceptedFileTypes(['application/pdf'])
+                                                        ->rules(['file', 'mimes:pdf', 'max:2048'])
+                                                        ->maxSize(2048)
+                                                        ->required()
                                                         ->disk('public')
                                                         ->directory('dokumen_jabatan')
-                                                        ->maxSize(5120)
+                                                        ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
+                                                            return (string) str('sk-jabatan-' . str()->random(16) . '.pdf');
+                                                        })
                                                         ->downloadable()
                                                         ->openable()
                                                         ->columnSpanFull()
-                                                        ->helperText('Unggah berkas scan PDF SK Jabatan (Maks. 5 MB) agar dapat diunduh kapan saja.'),
+                                                        ->helperText('Wajib unggah berkas scan PDF asli SK Jabatan / Pelantikan resmi (Maksimal 2 MB).'),
                                                 ]),
                                             ]),
                                     ]),
@@ -546,15 +557,20 @@ class UserForm
                                                             ->maxLength(100),
 
                                                         FileUpload::make('file_ijazah')
-                                                            ->label('Berkas Ijazah Asli (PDF)')
+                                                            ->label('Berkas Ijazah Asli (Wajib PDF, Maks. 2 MB)')
                                                             ->acceptedFileTypes(['application/pdf'])
+                                                            ->rules(['file', 'mimes:pdf', 'max:2048'])
+                                                            ->maxSize(2048)
+                                                            ->required()
                                                             ->disk('public')
                                                             ->directory('dokumen_pendidikan')
-                                                            ->maxSize(5120)
+                                                            ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
+                                                                return (string) str('ijazah-' . str()->random(16) . '.pdf');
+                                                            })
                                                             ->downloadable()
                                                             ->openable()
                                                             ->columnSpan(2)
-                                                            ->helperText('Unggah berkas ijazah resmi berformat PDF (Maks. 5 MB) agar dapat diunduh kapan saja.'),
+                                                            ->helperText('Wajib unggah berkas ijazah resmi berformat PDF (Maksimal 2 MB).'),
 
                                                         Toggle::make('is_pendidikan_terakhir')
                                                             ->label('Pendidikan Terakhir / Diakui')

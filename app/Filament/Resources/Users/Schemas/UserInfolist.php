@@ -204,6 +204,12 @@ class UserInfolist
                                                 ->icon('heroicon-m-building-library')
                                                 ->copyable()
                                                 ->placeholder('-'),
+
+                                            TextEntry::make('eselon')
+                                                ->label('Eselon')
+                                                ->badge()
+                                                ->color('warning')
+                                                ->placeholder('Non Eselon'),
                                         ]),
                                 ]),
                             ]),
@@ -259,21 +265,6 @@ class UserInfolist
                                                         ->url(fn ($record) => $record->file_sk_golongan ? Storage::disk('public')->url($record->file_sk_golongan) : null, shouldOpenInNewTab: true),
                                                 ]),
                                             ]),
-                                    ]),
-
-                                Section::make('Informasi Tambahan & Administrasi')
-                                    ->columns(2)
-                                    ->schema([
-                                        TextEntry::make('eselon')
-                                            ->label('Eselon')
-                                            ->badge()
-                                            ->color('warning')
-                                            ->placeholder('Non Eselon'),
-
-                                        TextEntry::make('created_at')
-                                            ->label('Terdaftar Sejak')
-                                            ->date('d F Y')
-                                            ->icon('heroicon-m-calendar'),
                                     ]),
                             ]),
 
