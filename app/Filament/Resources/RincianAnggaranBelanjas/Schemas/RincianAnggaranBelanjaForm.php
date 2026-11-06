@@ -2,13 +2,15 @@
 
 namespace App\Filament\Resources\RincianAnggaranBelanjas\Schemas;
 
+use App\Enums\SumberDana;
 use App\Models\Bidang;
 use App\Models\KodeRekening;
 use App\Models\MasterBarang;
 use App\Models\MasterSubKegiatan;
 use App\Models\Satuan;
+use App\Support\FormatHelper;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -29,9 +31,9 @@ class RincianAnggaranBelanjaForm
         return $schema
             ->columns(1)
             ->components([
-                // Section 1: Pembebanan Sub Kegiatan
+                // Section 1: Pembebanan Sub Kegiatan & Sumber Pendanaan
                 Section::make('Sub Kegiatan & Pembebanan Anggaran')
-                    ->description('Tentukan tahun anggaran, bidang pengampu, dan sub kegiatan sesuai Dokumen Pelaksanaan Anggaran (DPA/RKA).')
+                    ->description('Tentukan tahun anggaran, bidang pengampu, sumber pendanaan, dan sub kegiatan sesuai Dokumen Pelaksanaan Anggaran (DPA/RKA).')
                     ->icon('heroicon-o-building-office-2')
                     ->schema([
                         Grid::make([
@@ -43,14 +45,20 @@ class RincianAnggaranBelanjaForm
                                 ->options($years)
                                 ->default($currentYear)
                                 ->required()
-                                ->live(),
+                                ->live(onBlur: true),
 
                             Select::make('bidang_id')
                                 ->label('Bidang Pengampu')
                                 ->options(fn () => Bidang::pluck('nama', 'id')->all())
                                 ->default(fn () => Bidang::where('nama', 'LIKE', '%Pemasaran%')->value('id') ?? Bidang::first()?->id)
                                 ->required()
-                                ->live(),
+                                ->live(onBlur: true),
+
+                            Select::make('sumber_dana')
+                                ->label('Sumber Pendanaan')
+                                ->options(SumberDana::class)
+                                ->default(SumberDana::DAU->value)
+                                ->required(),
 
                             Select::make('sub_kegiatan_id')
                                 ->label('Sub Kegiatan')
@@ -66,11 +74,7 @@ class RincianAnggaranBelanjaForm
                                         ->all();
                                 })
                                 ->searchable()
-                                ->required()
-                                ->columnSpan([
-                                    'default' => 1,
-                                    'md' => 2,
-                                ]),
+                                ->required(),
                         ]),
                     ]),
 
@@ -85,11 +89,11 @@ class RincianAnggaranBelanjaForm
                                 ->options(fn () => KodeRekening::all()->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])->all())
                                 ->searchable()
                                 ->required()
-                                ->live(),
+                                ->live(onBlur: true),
 
                             Select::make('master_barang_id')
                                 ->label('Komponen Belanja')
-                                ->helperText('Pilih komponen/produk belanja (BBM, Kertas & Cover, Natura, ATK). Transaksi SPJ akan mengurangi volume pagu komponen ini.')
+                                ->helperText('Pilih komponen/produk belanja. Transaksi SPJ akan mengurangi volume pagu komponen ini.')
                                 ->options(function (Get $get) {
                                     $rekId = $get('kode_rekening_id');
                                     return MasterBarang::query()
@@ -100,14 +104,12 @@ class RincianAnggaranBelanjaForm
                                         ->all();
                                 })
                                 ->searchable()
-                                ->live()
-                                ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function ($state, Set $set) {
                                     if ($state) {
                                         $barang = MasterBarang::with('satuan')->find($state);
                                         if ($barang) {
-                                            if (blank($get('nama_item'))) {
-                                                $set('nama_item', $barang->nama_barang);
-                                            }
+                                            $set('nama_item', $barang->nama_barang);
                                             if ($barang->satuan) {
                                                 $set('satuan', $barang->satuan->nama);
                                             }
@@ -115,20 +117,17 @@ class RincianAnggaranBelanjaForm
                                     }
                                 }),
 
-                            TextInput::make('nama_item')
-                                ->label('Uraian Belanja [-]')
-                                ->required()
-                                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
-                                ->placeholder('Contoh: KERTAS HVS F4, NASI GORENG, BBM PERTAMAX'),
+                            Hidden::make('nama_item')
+                                ->dehydrated(),
 
                             TextInput::make('spesifikasi')
                                 ->label('Spesifikasi Teknis / Merk Barang')
-                                ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram'),
+                                ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram / Pertamax')
+                                ->columnSpanFull(),
                         ]),
                     ]),
 
-                // Section 3: Kalkulasi Koefisien & Pagu Anggaran
+                // Section 3: Kalkulasi Koefisien Volume & Pagu Anggaran
                 Section::make('Kalkulasi Koefisien Volume & Pagu Anggaran')
                     ->description('Hitung total pagu anggaran berdasarkan koefisien volume dan harga satuan standar belanja.')
                     ->icon('heroicon-o-calculator')
@@ -142,11 +141,12 @@ class RincianAnggaranBelanjaForm
                                 ->numeric()
                                 ->default(1)
                                 ->required()
-                                ->live()
+                                ->live(onBlur: true)
                                 ->afterStateUpdated(function (Get $get, Set $set) {
                                     $vol = (float) ($get('volume') ?? 0);
-                                    $harga = (float) ($get('harga_satuan') ?? 0);
-                                    $set('pagu_total', $vol * $harga);
+                                    $harga = FormatHelper::parseRupiah($get('harga_satuan'));
+                                    $pagu = $vol * $harga;
+                                    $set('pagu_total', number_format($pagu, 0, ',', '.'));
                                 }),
 
                             Select::make('satuan')
@@ -156,39 +156,26 @@ class RincianAnggaranBelanjaForm
                                 ->searchable()
                                 ->required(),
 
-                            TextInput::make('harga_satuan')
-                                ->label('Harga Satuan Standar')
-                                ->numeric()
-                                ->prefix('Rp')
+                            FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan Standar')
                                 ->required()
-                                ->live()
+                                ->live(onBlur: true)
                                 ->afterStateUpdated(function (Get $get, Set $set) {
                                     $vol = (float) ($get('volume') ?? 0);
-                                    $harga = (float) ($get('harga_satuan') ?? 0);
-                                    $set('pagu_total', $vol * $harga);
+                                    $harga = FormatHelper::parseRupiah($get('harga_satuan'));
+                                    $pagu = $vol * $harga;
+                                    $set('pagu_total', number_format($pagu, 0, ',', '.'));
                                 }),
 
                             TextInput::make('pagu_total')
                                 ->label('Total Pagu Anggaran')
-                                ->numeric()
                                 ->prefix('Rp')
                                 ->readOnly()
-                                ->dehydrated()
+                                ->formatStateUsing(fn ($state) => filled($state) ? number_format(FormatHelper::parseRupiah($state), 0, ',', '.') : '0')
+                                ->dehydrateStateUsing(fn ($state) => FormatHelper::parseRupiah($state))
+                                ->extraInputAttributes(['class' => 'font-bold text-amber-500'])
                                 ->helperText('Kalkulasi otomatis (Volume x Harga Satuan)'),
-                        ]),
-
-                        Grid::make(2)->schema([
-                            TextInput::make('sumber_dana')
-                                ->label('Sumber Pendanaan')
-                                ->default('Dana Alokasi Umum (DAU)')
-                                ->required(),
-
-                            TextInput::make('keterangan')
-                                ->label('Catatan Tambahan / Peruntukan')
-                                ->placeholder('Contoh: Kegiatan Sosialisasi Pariwisata Triwulan I'),
                         ]),
                     ]),
             ]);
     }
 }
-

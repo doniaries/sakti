@@ -99,12 +99,12 @@ class RincianAnggaranBelanjasTable
 
                 TextColumn::make('harga_satuan')
                     ->label('Harga Standar')
-                    ->money('IDR', locale: 'id')
+                    ->formatStateUsing(fn ($state) => \App\Support\FormatHelper::rupiah((float) $state))
                     ->sortable(),
 
                 TextColumn::make('pagu_total')
                     ->label('Total Pagu Anggaran')
-                    ->money('IDR', locale: 'id')
+                    ->formatStateUsing(fn ($state) => \App\Support\FormatHelper::rupiah((float) $state))
                     ->weight('bold')
                     ->sortable(),
 

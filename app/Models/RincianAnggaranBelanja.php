@@ -44,6 +44,9 @@ class RincianAnggaranBelanja extends Model
     protected static function booted(): void
     {
         static::saving(function (RincianAnggaranBelanja $model) {
+            if (empty($model->nama_item) && $model->master_barang_id) {
+                $model->nama_item = $model->masterBarang?->nama_barang ?? 'BELANJA';
+            }
             if ($model->volume !== null && $model->harga_satuan !== null) {
                 $model->pagu_total = (float) $model->volume * (float) $model->harga_satuan;
             }
