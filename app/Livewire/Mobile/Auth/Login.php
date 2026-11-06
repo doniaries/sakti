@@ -11,13 +11,19 @@ use Livewire\Component;
 #[Title('Login - Absensi LHK Mobile')]
 class Login extends Component
 {
-    public $email = '';
-    public $password = '';
-    public $remember = false;
+    public string $email = '';
+    public string $password = '';
+    public bool $remember = false;
 
-    protected $rules = [
+    protected array $rules = [
         'email' => 'required|email',
         'password' => 'required',
+    ];
+
+    protected array $messages = [
+        'email.required' => 'Alamat email wajib diisi.',
+        'email.email' => 'Format alamat email tidak valid.',
+        'password.required' => 'Kata sandi wajib diisi.',
     ];
 
     public function mount()
@@ -36,7 +42,7 @@ class Login extends Component
             return redirect()->intended(route('mobile.dashboard'));
         }
 
-        $this->addError('email', 'Akun tidak cocok dengan data kami.');
+        $this->addError('email', 'Email atau kata sandi yang Anda masukkan salah. Silakan periksa kembali.');
     }
 
     public function render()

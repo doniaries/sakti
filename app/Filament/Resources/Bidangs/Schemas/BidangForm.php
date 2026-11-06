@@ -16,7 +16,8 @@ class BidangForm
             ->components([
                 TextInput::make('nama')
                     ->label('Nama Bidang')
-                    ->placeholder('tambahkan tanpa menggunakan kata bidang')
+                    ->placeholder('Contoh: Pemasaran Pariwisata, Sekretariat')
+                    ->helperText('Masukkan nama bidang dinas tanpa awalan kata "Bidang".')
                     ->required()
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn(callable $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
@@ -26,7 +27,7 @@ class BidangForm
 
                 Select::make('kepala_id')
                     ->label('Kepala Bidang / Sekretaris')
-                    ->relationship('kepala', 'name', fn($query) => $query->bukanSuperAdmin())
+                    ->relationship('kepala', 'name', fn($query) => $query->where('aktif', true))
                     ->searchable()
                     ->preload(),
             ]);

@@ -22,8 +22,8 @@ class StrukturOrganisasiSeeder extends Seeder
         );
 
         $bidangPemasaran = Bidang::firstOrCreate(
-            ['slug' => 'bidang-pemasaran-pariwisata'],
-            ['nama' => 'Bidang Pemasaran Pariwisata']
+            ['slug' => 'pemasaran-pariwisata'],
+            ['nama' => 'Pemasaran Pariwisata']
         );
 
         $bidangDestinasi = Bidang::firstOrCreate(

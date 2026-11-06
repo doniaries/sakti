@@ -50,7 +50,7 @@ class ListMasterKegiatans extends ListRecords
         foreach ($bidangs as $bidang) {
             $icon = match ($bidang->slug) {
                 'sekretariat' => 'heroicon-m-building-office',
-                'bidang-pemasaran-pariwisata' => 'heroicon-m-megaphone',
+                'pemasaran-pariwisata', 'bidang-pemasaran-pariwisata' => 'heroicon-m-megaphone',
                 'pengembangan-destinasi-pariwisata' => 'heroicon-m-map-pin',
                 'pemuda-dan-olahraga' => 'heroicon-m-trophy',
                 default => 'heroicon-m-briefcase',

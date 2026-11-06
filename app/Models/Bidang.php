@@ -110,7 +110,7 @@ class Bidang extends Model
                         ->orWhere('nama', 'LIKE', '%Pelatih%')
                         ->orWhere('nama', 'LIKE', '%Layanan Operasional%')
                         ->orWhere('nama', 'LIKE', '%Perkantoran%');
-                } elseif ($slug === 'bidang-pemasaran-pariwisata') {
+                } elseif (in_array($slug, ['pemasaran-pariwisata', 'bidang-pemasaran-pariwisata'])) {
                     $query->where('nama', 'LIKE', '%Pemasaran%')
                         ->orWhere('nama', 'LIKE', '%Ekonomi Kreatif%')
                         ->orWhere('nama', 'LIKE', '%Adyatama%')

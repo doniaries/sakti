@@ -55,5 +55,12 @@ class Login extends BaseLogin
             ])->render()
         );
     }
+
+    protected function throwFailureValidationException(): never
+    {
+        throw \Illuminate\Validation\ValidationException::withMessages([
+            'data.email' => __('filament-panels::auth/pages/login.messages.failed'),
+        ]);
+    }
 }
 
