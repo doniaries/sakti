@@ -396,6 +396,43 @@ class PengajuanSpjSeeder extends Seeder
                     ]);
                 }
 
+                // Pastikan file simulasi PDF & JPG benar-benar tersedia di storage publik
+                if ($spj->file_nota_penjual && ! \Illuminate\Support\Facades\Storage::disk('public')->exists($spj->file_nota_penjual)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->makeDirectory('simulasi');
+                    $pdfContent = \Barryvdh\DomPDF\Facade\Pdf::loadHTML("
+                        <h2 style='text-align:center;'>{$toko->nama_toko}</h2>
+                        <p style='text-align:center;'>{$toko->alamat} | Telp: {$toko->telepon}</p>
+                        <hr>
+                        <h3 style='text-align:center; text-decoration:underline;'>FAKTUR / NOTA ASLI TOKO PENJUAL</h3>
+                        <p>No. Faktur: FKT/" . date('Y/m/') . str_pad((string)$counter, 4, '0', STR_PAD_LEFT) . "<br>
+                        Tanggal: " . date('d F Y') . "<br>
+                        Kegiatan SPJ: {$spj->nomor_pengajuan}</p>
+                        <div style='margin-top:20px; border:2px solid #0056b3; color:#0056b3; font-weight:bold; width:140px; text-align:center; padding:8px; border-radius:6px;'>
+                            LUNAS / VERIFIED
+                        </div>
+                    ")->output();
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($spj->file_nota_penjual, $pdfContent);
+                }
+
+                if ($spj->file_dokumentasi_barang && ! \Illuminate\Support\Facades\Storage::disk('public')->exists($spj->file_dokumentasi_barang)) {
+                    $img = imagecreatetruecolor(800, 600);
+                    $bg = imagecolorallocate($img, 240, 245, 250);
+                    $hdr = imagecolorallocate($img, 15, 76, 129);
+                    $txt = imagecolorallocate($img, 33, 37, 41);
+                    $wht = imagecolorallocate($img, 255, 255, 255);
+                    imagefill($img, 0, 0, $bg);
+                    imagefilledrectangle($img, 15, 15, 785, 75, $hdr);
+                    imagestring($img, 5, 30, 25, "DOKUMENTASI FISIK BARANG DITERIMA", $wht);
+                    imagestring($img, 3, 30, 48, "Kegiatan: " . $spj->nomor_pengajuan, $wht);
+                    imagestring($img, 4, 40, 200, "Serah terima barang pesanan kondisi 100% baik dan lengkap.", $txt);
+                    imagestring($img, 3, 40, 240, "Lokasi: Kantor Dinas Pariwisata Pemuda dan Olah Raga Kab. Sijunjung", $txt);
+                    ob_start();
+                    imagejpeg($img, null, 85);
+                    $imgData = ob_get_clean();
+                    imagedestroy($img);
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($spj->file_dokumentasi_barang, $imgData);
+                }
+
                 $counter++;
             }
         }

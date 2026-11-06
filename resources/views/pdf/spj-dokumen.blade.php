@@ -229,30 +229,35 @@
         html, body {
             background-color: #525659;
             margin: 0;
-            padding: 16px 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 14px 10px;
+            box-sizing: border-box;
+            display: block;
+            width: 100%;
+            overflow-x: hidden;
         }
         .page {
             background-color: #ffffff;
-            margin: 0 auto 20px auto;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            margin: 0 auto 24px auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
             box-sizing: border-box;
-            border-radius: 2px;
+            border-radius: 3px;
             position: relative;
+            width: 100%;
+            max-width: 780px;
         }
         .page-pesanan, .page-npd, .page-f4-portrait {
-            width: 215mm;
-            min-height: 330mm;
-            max-width: 100%;
-            padding: 0.8cm 1.2cm;
+            width: 100%;
+            max-width: 780px;
+            min-height: auto;
+            padding: 24px 32px;
+            box-sizing: border-box;
         }
         .page-kwitansi {
-            width: 215mm;
-            min-height: 165mm;
-            max-width: 100%;
-            padding: 0.5cm 0.8cm;
+            width: 100%;
+            max-width: 780px;
+            min-height: auto;
+            padding: 18px 24px;
+            box-sizing: border-box;
         }
         .kwitansi-watermark-wrapper {
             pointer-events: none !important;
@@ -274,6 +279,16 @@
                 padding: 0 !important;
                 width: 100% !important;
                 min-height: auto !important;
+            }
+            .page-pesanan, .page-npd, .page-f4-portrait {
+                width: 215mm !important;
+                min-height: 330mm !important;
+                padding: 0.8cm 1.2cm !important;
+            }
+            .page-kwitansi {
+                width: 215mm !important;
+                min-height: 165mm !important;
+                padding: 0.5cm 0.8cm !important;
             }
             .page-break {
                 page-break-after: always !important;

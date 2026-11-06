@@ -19,9 +19,11 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
@@ -381,7 +383,7 @@ class PengajuanSpjsTable
                             }
                         }
 
-                        // Kasus 4: Pilihan Keputusan Pemeriksaan (Setuju atau Kembalikan/Revisi)
+                        // Kasus 4: Checklist & Keputusan Pemeriksaan Pejabat
                         $isPemeriksaanStage = in_array($record->status, [
                             'diajukan',
                             'menunggu_verifikasi_pptk',
@@ -393,19 +395,7 @@ class PengajuanSpjsTable
                             'revisi_bendahara',
                         ], true);
 
-                        if ($isPemeriksaanStage) {
-                            $schema[] = Radio::make('keputusan')
-                                ->label('Keputusan Pemeriksaan Dokumen SPJ')
-                                ->options([
-                                    'setuju' => '✓ Setujui Dokumen SPJ & Teruskan ke Tahapan Berikutnya',
-                                    'revisi' => '⚠️ Kembalikan Berkas SPJ untuk Diperbaiki (Revisi)',
-                                ])
-                                ->default('setuju')
-                                ->live()
-                                ->required();
-                        }
-
-                        // Checklist Pejabat Pemeriksa sesuai dokumen spesifik tahapan aktif
+                        // Daftar butir uji kepatuhan dokumen spesifik tahapan aktif
                         $checklistOptions = match ($record->status) {
                             'diajukan' => [
                                 'sp1' => '[Surat Pesanan] Kesesuaian jenis barang / jasa dengan kebutuhan kegiatan DPA/RKA',
@@ -442,61 +432,127 @@ class PengajuanSpjsTable
                             default => [],
                         };
 
-                        if (! empty($checklistOptions)) {
-                            $schema[] = CheckboxList::make('checklist')
-                                ->label('Daftar Checklist Uji Kepatuhan Dokumen (Wajib Dicentang)')
-                                ->options($checklistOptions)
-                                ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi')
-                                ->required(fn(Get $get): bool => $get('keputusan') !== 'revisi');
+                        // LANGKAH 1: DAFTAR CHECKLIST UJI KEPATUHAN (DITAMPILKAN PERTAMA DI ATAS DENGAN CENTANG ✓ DAN SILANG ✗)
+                        if ($isPemeriksaanStage && ! empty($checklistOptions)) {
+                            $checklistFields = [];
+                            foreach ($checklistOptions as $key => $label) {
+                                $checklistFields[] = ToggleButtons::make("checklist.{$key}")
+                                    ->label($label)
+                                    ->options([
+                                        'sesuai' => 'Sesuai',
+                                        'tidak_sesuai' => 'Tidak Sesuai',
+                                    ])
+                                    ->icons([
+                                        'sesuai' => 'heroicon-m-check-circle',
+                                        'tidak_sesuai' => 'heroicon-m-x-circle',
+                                    ])
+                                    ->colors([
+                                        'sesuai' => 'success',
+                                        'tidak_sesuai' => 'danger',
+                                    ])
+                                    ->inline()
+                                    ->default('sesuai')
+                                    ->live()
+                                    ->afterStateUpdated(function (Set $set, $state, Get $get) use ($checklistOptions) {
+                                        if ($state === 'tidak_sesuai') {
+                                            $set('keputusan', 'revisi');
+                                        } else {
+                                            $allSesuai = true;
+                                            foreach (array_keys($checklistOptions) as $otherKey) {
+                                                if ($get("checklist.{$otherKey}") === 'tidak_sesuai') {
+                                                    $allSesuai = false;
+                                                    break;
+                                                }
+                                            }
+                                            if ($allSesuai) {
+                                                $set('keputusan', 'setuju');
+                                            }
+                                        }
+                                    });
+                            }
+
+                            $schema[] = Section::make('Daftar Checklist Uji Kepatuhan Dokumen')
+                                ->description('Tandai Centang (✓) atau Silang (✗) berdasarkan dokumen di sebelah kanan:')
+                                ->compact()
+                                ->schema($checklistFields);
+                        }
+
+                        // LANGKAH 2: KEPUTUSAN HASIL PEMERIKSAAN (DITAMPILKAN SETELAH CHECKLIST)
+                        if ($isPemeriksaanStage) {
+                            $schema[] = Section::make('Keputusan Hasil Pemeriksaan')
+                                ->compact()
+                                ->schema([
+                                    Radio::make('keputusan')
+                                        ->label('Pilihan Keputusan')
+                                        ->options([
+                                            'setuju' => '✓ Setujui Dokumen SPJ & Teruskan ke Tahapan Berikutnya',
+                                            'revisi' => '⚠️ Kembalikan Berkas SPJ untuk Diperbaiki (Revisi)',
+                                        ])
+                                        ->default('setuju')
+                                        ->live()
+                                        ->required(),
+
+                                    Textarea::make('catatan_revisi')
+                                        ->label('Keterangan Alasan Pengembalian & Instruksi Perbaikan (Wajib Diisi)')
+                                        ->placeholder('Sebutkan secara rinci butir yang tidak sesuai, kekurangan berkas, atau petunjuk yang wajib diperbaiki pemohon...')
+                                        ->rows(4)
+                                        ->visible(fn(Get $get): bool => $get('keputusan') === 'revisi')
+                                        ->required(fn(Get $get): bool => $get('keputusan') === 'revisi'),
+
+                                    Textarea::make('catatan')
+                                        ->label('Catatan Pemeriksaan / Keterangan (Opsional)')
+                                        ->placeholder('Tambahkan catatan atau paraf keterangan bila diperlukan...')
+                                        ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi'),
+                                ]);
                         }
 
                         // Kasus 5: Saat Bendahara mencairkan dana, wajib isi Nomor BKU & Tanggal Cair
                         if (in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara'], true)) {
-                            $schema[] = TextInput::make('nomor_bku')
-                                ->label('Nomor Buku Kas Umum (BKU)')
-                                ->default($record->nomor_bku)
-                                ->placeholder('Contoh: BKU/2026/11/0045')
+                            $schema[] = Section::make('Pencairan Kas & Buku Kas Umum')
+                                ->compact()
                                 ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi')
-                                ->required(fn(Get $get): bool => $get('keputusan') !== 'revisi');
+                                ->schema([
+                                    TextInput::make('nomor_bku')
+                                        ->label('Nomor Buku Kas Umum (BKU)')
+                                        ->default($record->nomor_bku)
+                                        ->placeholder('Contoh: BKU/2026/11/0045')
+                                        ->required(fn(Get $get): bool => $get('keputusan') !== 'revisi'),
 
-                            $schema[] = DatePicker::make('tanggal_dicairkan')
-                                ->label('Tanggal Pencairan Kas')
-                                ->default($record->tanggal_dicairkan ?? now())
-                                ->displayFormat('d/m/Y')
-                                ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi')
-                                ->required(fn(Get $get): bool => $get('keputusan') !== 'revisi');
+                                    DatePicker::make('tanggal_dicairkan')
+                                        ->label('Tanggal Pencairan Kas')
+                                        ->default($record->tanggal_dicairkan ?? now())
+                                        ->displayFormat('d/m/Y')
+                                        ->required(fn(Get $get): bool => $get('keputusan') !== 'revisi'),
+                                ]);
                         }
-
-                        if ($isPemeriksaanStage) {
-                            $schema[] = Textarea::make('catatan_revisi')
-                                ->label('Keterangan Alasan Pengembalian & Instruksi Perbaikan (Wajib Diisi)')
-                                ->placeholder('Sebutkan secara rinci dokumen yang kurang lengkap, kesalahan nilai/pajak, atau petunjuk yang wajib diperbaiki pemohon...')
-                                ->rows(4)
-                                ->visible(fn(Get $get): bool => $get('keputusan') === 'revisi')
-                                ->required(fn(Get $get): bool => $get('keputusan') === 'revisi');
-                        }
-
-                        $schema[] = Textarea::make('catatan')
-                            ->label('Catatan Tindakan / Keterangan')
-                            ->placeholder('Tambahkan catatan pemeriksaan atau keterangan tahapan ini...')
-                            ->visible(fn(Get $get): bool => $get('keputusan') !== 'revisi');
 
                         if ($record->status !== 'draft') {
                             return [
                                 Grid::make([
                                     'default' => 1,
+                                    'lg' => 12,
                                     'xl' => 12,
                                 ])
                                     ->schema([
+                                        // KOLOM KIRI (5 kolom): FORMULIR EVALUASI, CHECKLIST, & KEPUTUSAN
+                                        Group::make($schema)
+                                            ->columnSpan([
+                                                'default' => 1,
+                                                'lg' => 5,
+                                                'xl' => 5,
+                                            ]),
+
+                                        // KOLOM KANAN (7 kolom): DOKUMEN SPJ (KONSISTEN DENGAN POSISI PREVIEW CETAK)
                                         Group::make([
                                             View::make('filament.components.pedoman-verifikasi-spj')
                                                 ->viewData([
                                                     'record' => $record,
                                                 ]),
-                                        ])->columnSpan(['xl' => 7]),
-
-                                        Group::make($schema)
-                                            ->columnSpan(['xl' => 5]),
+                                        ])->columnSpan([
+                                            'default' => 1,
+                                            'lg' => 7,
+                                            'xl' => 7,
+                                        ]),
                                     ]),
                             ];
                         }

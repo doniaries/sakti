@@ -1334,11 +1334,11 @@ class PengajuanSpjForm
                         ]),
 
                     // =========================================================================
-                    // STEP 3: PEMBUATAN NPD & SPESIMEN TTD PEJABAT
+                    // STEP 3: PEMBUATAN NPD & PENCAIRAN KAS
                     // =========================================================================
                     Step::make('3. Pembuatan NPD')
                         ->icon('heroicon-o-banknotes')
-                        ->description('Nota Pencairan Dana (NPD), spesimen TTD, & pencairan kas')
+                        ->description('Nota Pencairan Dana (NPD) & pencairan kas BKU')
                         ->visible($isKwitansiDiproses)
                         ->schema([
                             Section::make('Rincian Nota Pencairan Dana (NPD)')

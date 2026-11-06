@@ -248,6 +248,14 @@
             >
                 +
             </button>
+            <button
+                type="button"
+                @click="zoomReset()"
+                class="px-1.5 py-0.5 rounded text-[10px] text-gray-500 hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 font-mono"
+                title="Reset Zoom 100%"
+            >
+                100%
+            </button>
             <a
                 :href="isImage ? imageUrl : previewUrl"
                 target="_blank"
@@ -273,8 +281,8 @@
 
     {{-- BARIS 3: CONTAINER PRATINJAU DOKUMEN (IFRAME / GAMBAR) --}}
     <div
-        class="w-full rounded-xl border border-gray-200 bg-white overflow-hidden dark:border-white/10 dark:bg-gray-900 shadow-inner"
-        style="height: 520px; min-height: 460px; position: relative;"
+        class="w-full rounded-xl border border-gray-300 dark:border-white/10 overflow-hidden shadow-inner"
+        style="height: calc(85vh - 200px); min-height: 580px; position: relative; background-color: #525659;"
     >
         {{-- VIEW MODE 1: GAMBAR FOTO / NOTA ASLI --}}
         <template x-if="isImage">
@@ -290,12 +298,12 @@
 
         {{-- VIEW MODE 2: PDF / HTML DOKUMEN CETAK --}}
         <template x-if="!isImage">
-            <div class="w-full h-full overflow-hidden bg-neutral-100 dark:bg-neutral-900">
+            <div class="w-full h-full overflow-auto bg-[#525659]">
                 <iframe
                     id="pedoman-preview-frame-{{ $record->id }}"
                     :src="previewUrl"
-                    class="w-full h-full border-0"
-                    :style="'transform: scale(' + (zoom / 100) + '); transform-origin: top center; width: ' + (10000 / zoom) + '%; height: ' + (10000 / zoom) + '%;'"
+                    class="w-full h-full border-0 block"
+                    :style="zoom === 100 ? 'width: 100%; height: 100%; border: none; display: block; background-color: #525659;' : 'transform: scale(' + (zoom / 100) + '); transform-origin: top center; width: ' + (10000 / zoom) + '%; height: ' + (10000 / zoom) + '%; border: none; display: block; background-color: #525659;'"
                     title="Pratinjau Dokumen SPJ"
                 ></iframe>
             </div>
