@@ -244,12 +244,23 @@ class PengajuanSpj extends Model
             }
         }
 
-        // Hitung nomor urut mandiri khusus untuk bidang ini pada tahun anggaran berjalan (terpisah per bidang)
+        // Ambil nomor urut tertinggi khusus untuk bidang ini pada tahun anggaran berjalan (terpisah per bidang)
         $query = static::whereYear('tanggal_pengajuan', $tahunAnggaran);
         if ($bidangId) {
             $query->where('bidang_id', $bidangId);
         }
-        $count = $query->count() + 1;
+
+        $existingNumbers = $query->pluck('nomor_pengajuan')->all();
+        $maxUrut = 0;
+        foreach ($existingNumbers as $num) {
+            $parts = explode('/', (string) $num);
+            $last = end($parts);
+            if (is_numeric($last)) {
+                $maxUrut = max($maxUrut, (int) $last);
+            }
+        }
+
+        $count = max($query->count(), $maxUrut) + 1;
         $urut = str_pad((string) $count, 4, '0', STR_PAD_LEFT);
 
         return "{$prefix}/{$inisial}/{$bulan}/{$tahunAnggaran}/{$urut}";

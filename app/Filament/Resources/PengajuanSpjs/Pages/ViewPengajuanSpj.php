@@ -6,10 +6,13 @@ use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Enums\Width;
 
 class ViewPengajuanSpj extends ViewRecord
 {
     protected static string $resource = PengajuanSpjResource::class;
+
+    protected Width | string | null $maxContentWidth = Width::Full;
 
     protected function getHeaderActions(): array
     {

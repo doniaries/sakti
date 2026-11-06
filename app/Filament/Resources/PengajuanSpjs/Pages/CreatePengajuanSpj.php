@@ -10,7 +10,7 @@ class CreatePengajuanSpj extends CreateRecord
 {
     protected static string $resource = PengajuanSpjResource::class;
 
-    protected Width | string | null $maxContentWidth = Width::FiveExtraLarge;
+    protected Width | string | null $maxContentWidth = Width::Full;
 
     protected function getRedirectUrl(): string
     {
