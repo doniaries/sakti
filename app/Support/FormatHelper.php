@@ -34,13 +34,22 @@ class FormatHelper
             return 0.0;
         }
 
-        if (is_numeric($value)) {
+        if (is_int($value) || is_float($value)) {
             return (float) $value;
         }
 
-        $cleaned = preg_replace('/[^\d]/', '', (string) $value);
+        $str = str_replace(['Rp', 'rp', 'RP', ' '], '', (string) $value);
 
-        return (float) ($cleaned ?: 0);
+        if (str_contains($str, '.') && str_contains($str, ',')) {
+            $str = str_replace('.', '', $str);
+            $str = str_replace(',', '.', $str);
+        } elseif (str_contains($str, '.')) {
+            $str = str_replace('.', '', $str);
+        } elseif (str_contains($str, ',')) {
+            $str = str_replace(',', '.', $str);
+        }
+
+        return (float) ($str ?: 0);
     }
 
     /**
