@@ -9,13 +9,15 @@
     $cleanPageUrl = $this->getCleanPageUrl();
 
     $currentYear = (int) date('Y');
-    $daftarTahun = [
-        $currentYear - 2,
-        $currentYear - 1,
-        $currentYear,
-        $currentYear + 1,
-        $currentYear + 2,
-    ];
+    $daftarTahun = \App\Models\MasterKegiatan::query()
+        ->distinct()
+        ->orderBy('tahun_anggaran', 'desc')
+        ->pluck('tahun_anggaran')
+        ->toArray();
+
+    if (empty($daftarTahun)) {
+        $daftarTahun = [$currentYear];
+    }
 @endphp
 
 <x-filament-widgets::widget

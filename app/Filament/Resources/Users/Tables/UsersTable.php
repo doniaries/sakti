@@ -757,18 +757,6 @@ class UsersTable
                     ->icon('heroicon-o-user-plus')
                     ->color('primary')
                     ->url(\App\Filament\Resources\Users\UserResource::getUrl('create')),
-
-                Action::make('kelola_bidang')
-                    ->label('Kelola Bidang')
-                    ->icon('heroicon-o-building-office-2')
-                    ->color('gray')
-                    ->url(\App\Filament\Resources\Bidangs\BidangResource::getUrl('index')),
-
-                Action::make('kelola_jabatan')
-                    ->label('Kelola Jabatan')
-                    ->icon('heroicon-o-tag')
-                    ->color('gray')
-                    ->url(\App\Filament\Resources\Jabatans\JabatanResource::getUrl('index')),
             ]);
     }
 }

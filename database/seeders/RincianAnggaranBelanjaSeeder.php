@@ -19,7 +19,7 @@ class RincianAnggaranBelanjaSeeder extends Seeder
         RincianAnggaranBelanja::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $tahunList = [2026, 2027];
+        $tahunList = [2026];
 
         $rekeningCache = KodeRekening::all()->keyBy('kode_lengkap');
         $barangCache = MasterBarang::all()->keyBy('nama_barang');

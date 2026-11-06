@@ -20,18 +20,6 @@ class ListJabatans extends ListRecords
                 ->label('Tambah Jabatan')
                 ->icon('heroicon-o-plus')
                 ->color('primary'),
-
-            Action::make('kelola_bidang')
-                ->label('Kelola Bidang')
-                ->icon('heroicon-o-building-office-2')
-                ->color('gray')
-                ->url(fn (): string => BidangResource::getUrl('index')),
-
-            Action::make('data_pegawai')
-                ->label('Data Pegawai')
-                ->icon('heroicon-o-users')
-                ->color('gray')
-                ->url(fn (): string => UserResource::getUrl('index')),
         ];
     }
 }

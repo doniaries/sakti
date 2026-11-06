@@ -21,18 +21,6 @@ class ListMasterTokos extends ListRecords
                 ->label('Tambah Toko / Rekanan')
                 ->icon('heroicon-o-plus-circle')
                 ->color('primary'),
-
-            Action::make('kelola_barang')
-                ->label('Master Barang')
-                ->icon('heroicon-o-cube')
-                ->color('gray')
-                ->url(fn (): string => MasterBarangResource::getUrl('index')),
-
-            Action::make('kelola_spj')
-                ->label('SPJ Belanja')
-                ->icon('heroicon-o-document-currency-dollar')
-                ->color('gray')
-                ->url(fn (): string => PengajuanSpjResource::getUrl('index')),
         ];
     }
 }

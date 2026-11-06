@@ -22,30 +22,6 @@ class ListMasterPrograms extends ListRecords
                 ->label('Tambah Program')
                 ->icon('heroicon-o-plus-circle')
                 ->color('primary'),
-
-            Action::make('kelola_kegiatan')
-                ->label('Kelola Kegiatan')
-                ->icon('heroicon-o-queue-list')
-                ->color('gray')
-                ->url(fn (): string => MasterKegiatanResource::getUrl('index')),
-
-            Action::make('kelola_sub_kegiatan')
-                ->label('Kelola Sub-Kegiatan')
-                ->icon('heroicon-o-rectangle-stack')
-                ->color('gray')
-                ->url(fn (): string => MasterSubKegiatanResource::getUrl('index')),
-
-            Action::make('kelola_rekening')
-                ->label('Kode Rekening')
-                ->icon('heroicon-o-clipboard-document-list')
-                ->color('gray')
-                ->url(fn (): string => KodeRekeningResource::getUrl('index')),
-
-            Action::make('kelola_spj')
-                ->label('SPJ Belanja')
-                ->icon('heroicon-o-document-currency-dollar')
-                ->color('gray')
-                ->url(fn (): string => PengajuanSpjResource::getUrl('index')),
         ];
     }
 }

@@ -23,7 +23,7 @@ class KegiatanSubKegiatanSeeder extends Seeder
         MasterProgram::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $tahunList = [2026, 2027];
+        $tahunList = [2026];
 
         // Cari bidang-bidang dinas
         $sekretariat = Bidang::where('nama', 'LIKE', '%Sekretariat%')->first();

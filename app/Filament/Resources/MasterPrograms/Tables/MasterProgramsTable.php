@@ -93,6 +93,9 @@ class MasterProgramsTable
                 DeleteAction::make(),
             ])
             ->toolbarActions([
+                \Filament\Actions\Action::make('select_tahun_anggaran')
+                    ->view('filament.tables.toolbar.tahun-anggaran-select'),
+
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

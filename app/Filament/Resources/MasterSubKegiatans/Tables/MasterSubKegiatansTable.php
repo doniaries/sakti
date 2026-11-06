@@ -17,9 +17,15 @@ class MasterSubKegiatansTable
     public static function configure(Table $table): Table
     {
         $currentYear = (int) date('Y');
-        $years = [];
-        for ($y = $currentYear - 2; $y <= $currentYear + 2; $y++) {
-            $years[$y] = "Tahun {$y}";
+        $years = \App\Models\MasterSubKegiatan::query()
+            ->distinct()
+            ->orderBy('tahun_anggaran', 'desc')
+            ->pluck('tahun_anggaran', 'tahun_anggaran')
+            ->map(fn ($y) => "Tahun {$y}" . ((int) $y === $currentYear ? ' (Aktif)' : ''))
+            ->toArray();
+
+        if (empty($years)) {
+            $years = [$currentYear => "Tahun {$currentYear} (Aktif)"];
         }
 
         return $table
@@ -108,6 +114,9 @@ class MasterSubKegiatansTable
                 DeleteAction::make(),
             ])
             ->toolbarActions([
+                \Filament\Actions\Action::make('select_tahun_anggaran')
+                    ->view('filament.tables.toolbar.tahun-anggaran-select'),
+
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

@@ -20,9 +20,9 @@ class MasterTujuanBbmResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTruck;
 
-    protected static ?string $modelLabel = 'Standar Kuota BBM';
+    protected static ?string $modelLabel = 'Standar BBM';
 
-    protected static ?string $pluralModelLabel = 'Standar Kuota BBM';
+    protected static ?string $pluralModelLabel = 'Standar BBM';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
@@ -47,4 +47,3 @@ class MasterTujuanBbmResource extends Resource
         ];
     }
 }
-

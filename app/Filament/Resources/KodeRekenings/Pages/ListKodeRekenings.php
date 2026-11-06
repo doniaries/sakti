@@ -22,30 +22,6 @@ class ListKodeRekenings extends ListRecords
                 ->label('Tambah Kode Rekening')
                 ->icon('heroicon-o-plus-circle')
                 ->color('primary'),
-
-            Action::make('kelola_sub_kegiatan')
-                ->label('Sub-Kegiatan')
-                ->icon('heroicon-o-rectangle-stack')
-                ->color('gray')
-                ->url(fn (): string => MasterSubKegiatanResource::getUrl('index')),
-
-            Action::make('kelola_kegiatan')
-                ->label('Kegiatan')
-                ->icon('heroicon-o-queue-list')
-                ->color('gray')
-                ->url(fn (): string => MasterKegiatanResource::getUrl('index')),
-
-            Action::make('kelola_program')
-                ->label('Program')
-                ->icon('heroicon-o-folder')
-                ->color('gray')
-                ->url(fn (): string => MasterProgramResource::getUrl('index')),
-
-            Action::make('kelola_spj')
-                ->label('SPJ Belanja')
-                ->icon('heroicon-o-document-currency-dollar')
-                ->color('gray')
-                ->url(fn (): string => PengajuanSpjResource::getUrl('index')),
         ];
     }
 }
