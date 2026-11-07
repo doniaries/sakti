@@ -6,15 +6,10 @@ use App\Filament\Resources\MasterSyaratBelanjas\MasterSyaratBelanjaResource;
 use App\Models\MasterSyaratBelanja;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Artisan;
@@ -58,7 +53,6 @@ class ListMasterSyaratBelanjas extends ListRecords
             'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM)' => 'SPTJM kebenaran belanja dan bukti pengeluaran riil',
         ];
 
-        // Tambahkan dokumen kustom yang pernah dibuat user di database
         $customDocs = MasterSyaratBelanja::query()
             ->select('nama_syarat', 'keterangan')
             ->distinct()
@@ -105,146 +99,31 @@ class ListMasterSyaratBelanjas extends ListRecords
 
         return $schema
             ->statePath('shieldData')
-            ->components([
-                $this->getShieldTabsComponent(),
-            ]);
+            ->components(
+                $this->getShieldSections()
+            );
     }
 
-    public function getShieldTabsComponent(): Component
+    public function getShieldSections(): array
     {
         $categories = $this->getCategoriesDefinition();
         $masterDocs = static::getMasterDokumenLibrary();
+        $options = array_combine(array_keys($masterDocs), array_keys($masterDocs));
 
-        $aktifSections = [];
-        $wajibSections = [];
+        $sections = [];
 
         foreach ($categories as $catKey => $cat) {
-            $headerActions = [
-                Action::make("tambah_{$catKey}")
-                    ->label('Tambah Dokumen')
-                    ->icon('heroicon-o-plus')
-                    ->color('primary')
-                    ->modalHeading("Tambah Dokumen Baku - {$cat['label']}")
-                    ->modalDescription('Tambahkan nama dokumen baku ke master. Dokumen ini dapat digunakan di berbagai urusan.')
-                    ->modalWidth('md')
-                    ->form([
-                        TextInput::make('nama_syarat')
-                            ->label('Nama Dokumen Baku')
-                            ->placeholder('Contoh: Kwitansi / Tanda Terima Honor')
-                            ->required()
-                            ->maxLength(255),
-                        Textarea::make('keterangan')
-                            ->label('Petunjuk / Keterangan Dokumen')
-                            ->placeholder('Contoh: Scan bukti kwitansi asli bermaterai dan bertandatangan')
-                            ->rows(2),
-                        CheckboxList::make('kategori_urusan')
-                            ->label('Pilih Urusan Belanja yang Menggunakan Dokumen Ini')
-                            ->options([
-                                'barang_jasa' => 'Belanja Barang & Jasa',
-                                'makan_minum' => 'Makan & Minum Rapat',
-                                'sppd' => 'Perjalanan Dinas (SPPD)',
-                                'bbm' => 'Bahan Bakar Minyak (BBM)',
-                                'e_katalog' => 'E-Katalog LKPP',
-                                'semua' => 'Dokumen Umum (Semua Urusan)',
-                            ])
-                            ->default([$catKey])
-                            ->columns(2)
-                            ->bulkToggleable()
-                            ->required(),
-                        Toggle::make('is_required')
-                            ->label('Wajib Diunggah')
-                            ->default(true),
-                    ])
-                    ->action(function (array $data) {
-                        $nama = trim($data['nama_syarat']);
-                        $ket = $data['keterangan'] ?? null;
-                        $isRequired = (bool) ($data['is_required'] ?? true);
-                        $kategoriList = (array) ($data['kategori_urusan'] ?? []);
-
-                        foreach ($kategoriList as $kategori) {
-                            $jenisBelanja = match ($kategori) {
-                                'barang_jasa' => 'barang_jasa',
-                                'makan_minum' => 'makan_minum',
-                                'sppd' => 'sppd',
-                                'bbm' => 'bbm',
-                                default => 'semua',
-                            };
-                            $metode = ($kategori === 'e_katalog') ? 'e_katalog' : 'non_katalog';
-
-                            MasterSyaratBelanja::updateOrCreate(
-                                [
-                                    'jenis_belanja' => $jenisBelanja,
-                                    'metode_pengadaan' => $metode,
-                                    'nama_syarat' => $nama,
-                                ],
-                                [
-                                    'keterangan' => $ket,
-                                    'aktif' => true,
-                                    'is_required' => $isRequired,
-                                    'urutan' => (int) MasterSyaratBelanja::where('jenis_belanja', $jenisBelanja)->max('urutan') + 1,
-                                ]
-                            );
-                        }
-
-                        $this->loadShieldData();
-
-                        Notification::make()
-                            ->title('Dokumen Baku Berhasil Ditambahkan')
-                            ->body("Dokumen \"{$nama}\" telah ditambahkan ke master dan dicentang pada urusan yang dipilih.")
-                            ->success()
-                            ->send();
-                    }),
-
-                Action::make("edit_{$catKey}")
-                    ->label('Edit Dokumen')
-                    ->icon('heroicon-o-pencil-square')
-                    ->color('gray')
-                    ->modalHeading("Pilih & Atur Dokumen - {$cat['label']}")
-                    ->modalDescription('Centang dokumen apa saja yang akan digunakan dan diwajibkan untuk urusan ini.')
-                    ->modalWidth('xl')
-                    ->fillForm(function () use ($catKey): array {
-                        return [
-                            'dokumen_dipakai' => $this->shieldData["aktif_{$catKey}"] ?? [],
-                            'dokumen_wajib' => $this->shieldData["wajib_{$catKey}"] ?? [],
-                        ];
-                    })
-                    ->form([
-                        CheckboxList::make('dokumen_dipakai')
-                            ->label('Pilih Dokumen yang Digunakan untuk Urusan Ini')
-                            ->helperText('Dokumen yang dicentang akan menjadi checklist berkas bagi staf saat mengajukan SPJ ini.')
-                            ->options(array_combine(array_keys($masterDocs), array_keys($masterDocs)))
-                            ->descriptions($masterDocs)
-                            ->columns(['default' => 1, 'sm' => 2])
-                            ->bulkToggleable()
-                            ->searchable(),
-
-                        CheckboxList::make('dokumen_wajib')
-                            ->label('Dari Dokumen yang Digunakan, Centang yang Berstatus Wajib (Harus Upload)')
-                            ->helperText('Dokumen yang tidak dicentang di sini akan berstatus Opsional.')
-                            ->options(array_combine(array_keys($masterDocs), array_keys($masterDocs)))
-                            ->columns(['default' => 1, 'sm' => 2])
-                            ->bulkToggleable()
-                            ->searchable(),
-                    ])
-                    ->action(function (array $data) use ($catKey) {
-                        $this->syncAktifCategory($catKey, $data['dokumen_dipakai'] ?? []);
-                        $this->syncWajibCategory($catKey, $data['dokumen_wajib'] ?? []);
-
-                        Notification::make()
-                            ->title('Pengaturan Dokumen Disimpan')
-                            ->body("Daftar dokumen untuk urusan {$catKey} berhasil diperbarui.")
-                            ->success()
-                            ->send();
-                    }),
-            ];
-
-            $options = array_combine(array_keys($masterDocs), array_keys($masterDocs));
-
-            $aktifSections[] = Section::make($cat['label'])
+            $sections[] = Section::make(fn () => "{$cat['label']} (" . count($this->shieldData["aktif_{$catKey}"] ?? []) . " Syarat)")
                 ->description($cat['description'])
                 ->compact()
                 ->collapsible()
-                ->headerActions($headerActions)
+                ->headerActions([
+                    Action::make("simpan_{$catKey}")
+                        ->label('Simpan Dokumen')
+                        ->icon('heroicon-o-check')
+                        ->color('primary')
+                        ->action(fn () => $this->saveCategory($catKey)),
+                ])
                 ->schema([
                     CheckboxList::make("aktif_{$catKey}")
                         ->hiddenLabel()
@@ -254,46 +133,30 @@ class ListMasterSyaratBelanjas extends ListRecords
                         ->searchable()
                         ->columns(['default' => 1, 'sm' => 2, 'lg' => 3])
                         ->live()
-                        ->afterStateUpdated(fn ($state) => $this->syncAktifCategory($catKey, $state)),
-                ]);
-
-            $wajibSections[] = Section::make($cat['label'])
-                ->description($cat['description'])
-                ->compact()
-                ->collapsible()
-                ->headerActions($headerActions)
-                ->schema([
-                    CheckboxList::make("wajib_{$catKey}")
-                        ->hiddenLabel()
-                        ->options($options)
-                        ->descriptions($masterDocs)
-                        ->bulkToggleable()
-                        ->searchable()
-                        ->columns(['default' => 1, 'sm' => 2, 'lg' => 3])
-                        ->live()
-                        ->afterStateUpdated(fn ($state) => $this->syncWajibCategory($catKey, $state)),
+                        ->afterStateUpdated(fn ($state) => $this->syncAktifCategory($catKey, $state, false)),
                 ]);
         }
 
-        $totalAktif = MasterSyaratBelanja::where('aktif', true)->count();
-        $totalWajib = MasterSyaratBelanja::where('is_required', true)->count();
-
-        return Tabs::make('SyaratDokumen')
-            ->contained()
-            ->tabs([
-                Tab::make('aktif')
-                    ->label('Centang Dokumen yang Digunakan per Urusan')
-                    ->badge($totalAktif)
-                    ->schema($aktifSections),
-
-                Tab::make('wajib')
-                    ->label('Centang Dokumen yang Wajib Diunggah')
-                    ->badge($totalWajib)
-                    ->schema($wajibSections),
-            ]);
+        return $sections;
     }
 
-    protected function syncAktifCategory(string $catKey, mixed $state): void
+    public function saveCategory(string $catKey): void
+    {
+        $selectedDocs = (array) ($this->shieldData["aktif_{$catKey}"] ?? []);
+        $this->syncAktifCategory($catKey, $selectedDocs, false);
+
+        $categories = $this->getCategoriesDefinition();
+        $label = $categories[$catKey]['label'] ?? 'Dokumen';
+        $count = count($selectedDocs);
+
+        Notification::make()
+            ->title('Syarat Dokumen Disimpan')
+            ->body("Sebanyak {$count} syarat dokumen untuk {$label} berhasil disimpan.")
+            ->success()
+            ->send();
+    }
+
+    protected function syncAktifCategory(string $catKey, mixed $state, bool $notify = false): void
     {
         $selectedDocs = collect($state ?? [])->map(fn ($doc) => (string) $doc)->all();
         $masterDocs = static::getMasterDokumenLibrary();
@@ -307,8 +170,12 @@ class ListMasterSyaratBelanjas extends ListRecords
         };
         $metode = ($catKey === 'e_katalog') ? 'e_katalog' : 'non_katalog';
 
-        // 1. Aktifkan atau buat dokumen yang dicentang
         foreach ($selectedDocs as $docName) {
+            $existing = MasterSyaratBelanja::where('jenis_belanja', $jenisBelanja)
+                ->where('metode_pengadaan', $metode)
+                ->where('nama_syarat', $docName)
+                ->first();
+
             MasterSyaratBelanja::updateOrCreate(
                 [
                     'jenis_belanja' => $jenisBelanja,
@@ -318,17 +185,25 @@ class ListMasterSyaratBelanjas extends ListRecords
                 [
                     'keterangan' => $masterDocs[$docName] ?? null,
                     'aktif' => true,
+                    'is_required' => $existing ? $existing->is_required : true,
                 ]
             );
         }
 
-        // 2. Nonaktifkan dokumen yang tidak dicentang untuk kategori ini
         MasterSyaratBelanja::where('jenis_belanja', $jenisBelanja)
             ->where('metode_pengadaan', $metode)
             ->whereNotIn('nama_syarat', $selectedDocs)
             ->update(['aktif' => false]);
 
         $this->shieldData["aktif_{$catKey}"] = $selectedDocs;
+
+        if ($notify) {
+            Notification::make()
+                ->title('Status Dokumen Diperbarui')
+                ->body('Perubahan centang dokumen berhasil disimpan.')
+                ->success()
+                ->send();
+        }
     }
 
     protected function syncWajibCategory(string $catKey, mixed $state): void
@@ -344,19 +219,23 @@ class ListMasterSyaratBelanjas extends ListRecords
         };
         $metode = ($catKey === 'e_katalog') ? 'e_katalog' : 'non_katalog';
 
-        // Set is_required true untuk yang dicentang
         MasterSyaratBelanja::where('jenis_belanja', $jenisBelanja)
             ->where('metode_pengadaan', $metode)
             ->whereIn('nama_syarat', $selectedDocs)
             ->update(['is_required' => true]);
 
-        // Set is_required false untuk yang tidak dicentang
         MasterSyaratBelanja::where('jenis_belanja', $jenisBelanja)
             ->where('metode_pengadaan', $metode)
             ->whereNotIn('nama_syarat', $selectedDocs)
             ->update(['is_required' => false]);
 
         $this->shieldData["wajib_{$catKey}"] = $selectedDocs;
+
+        Notification::make()
+            ->title('Kewajiban Dokumen Diperbarui')
+            ->body('Perubahan kewajiban dokumen berhasil disimpan.')
+            ->success()
+            ->send();
     }
 
     protected function getHeaderActions(): array
