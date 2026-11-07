@@ -60,5 +60,32 @@
             patchSidebarStoreAccordion();
             syncSidebarAccordionOnLoad();
         });
+
+        // Section Accordion: Otomatis menutup section lain saat satu pekerjaan dibuka di halaman Syarat Dokumen SPJ
+        document.addEventListener('click', function (e) {
+            const header = e.target.closest('.fi-section-header');
+            if (!header) return;
+
+            const tabsContainer = header.closest('.syarat-accordion-tabs') || header.closest('.fi-tabs');
+            if (!tabsContainer) return;
+
+            const currentSection = header.closest('section.fi-section');
+            if (!currentSection) return;
+
+            setTimeout(function () {
+                if (!window.Alpine) return;
+                const currentData = window.Alpine.$data(currentSection);
+                if (currentData && !currentData.isCollapsed) {
+                    tabsContainer.querySelectorAll('section.fi-section').forEach(function (other) {
+                        if (other !== currentSection) {
+                            const otherData = window.Alpine.$data(other);
+                            if (otherData && !otherData.isCollapsed) {
+                                otherData.isCollapsed = true;
+                            }
+                        }
+                    });
+                }
+            }, 60);
+        });
     })();
 </script>

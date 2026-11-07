@@ -11,6 +11,7 @@ use App\Models\KodeRekening;
 use App\Models\MasterBarang;
 use App\Models\MasterKegiatan;
 use App\Models\MasterSubKegiatan;
+use App\Models\MasterSyaratBelanja;
 use App\Models\MasterToko;
 use App\Models\MasterTujuanBbm;
 use App\Models\PengajuanSpj;
@@ -166,13 +167,27 @@ class PengajuanSpjForm
                                                             ->live(),
 
                                                         Select::make('jenis_belanja')
-                                                            ->label('Jenis Belanja')
-                                                            ->options([
-                                                                'barang_jasa' => 'Belanja Barang & Jasa',
-                                                                'makan_minum' => 'Makan & Minum Rapat',
-                                                                'sppd' => 'Perjalanan Dinas (SPPD)',
-                                                                'bbm' => 'BBM (Bahan Bakar Minyak)',
-                                                            ])
+                                                            ->label('Jenis Belanja / Pekerjaan')
+                                                            ->options(function () {
+                                                                $base = [
+                                                                    'barang_jasa' => 'Belanja Barang & Jasa',
+                                                                    'makan_minum' => 'Makan & Minum Rapat',
+                                                                    'sppd' => 'Perjalanan Dinas (SPPD)',
+                                                                    'bbm' => 'BBM (Bahan Bakar Minyak)',
+                                                                ];
+
+                                                                $customs = MasterSyaratBelanja::query()
+                                                                    ->select('jenis_belanja')
+                                                                    ->whereNotIn('jenis_belanja', ['barang_jasa', 'makan_minum', 'sppd', 'bbm', 'semua'])
+                                                                    ->distinct()
+                                                                    ->pluck('jenis_belanja');
+
+                                                                foreach ($customs as $customKey) {
+                                                                    $base[$customKey] = ucwords(str_replace('_', ' ', $customKey));
+                                                                }
+
+                                                                return $base;
+                                                            })
                                                             ->default('barang_jasa')
                                                             ->required()
                                                             ->live(),
@@ -1255,6 +1270,41 @@ class PengajuanSpjForm
                                         ->label('Penerima Pembayaran')
                                         ->content(fn(callable $get): string => ($get('nama_toko') ?: '-') . ' — ' . ($get('penerima_nama') ?: '-'))
                                         ->columnSpan(['default' => 12, 'md' => 4]),
+
+                                    // BANNER SYARAT SOP TERPADU (SINKRON 100% DENGAN MASTER SYARAT BELANJA)
+                                    Placeholder::make('pedoman_syarat_sop')
+                                        ->label('Daftar Syarat Dokumen Sesuai SOP')
+                                        ->content(function (callable $get): \Illuminate\Support\HtmlString {
+                                            $jenis = $get('jenis_belanja') ?: 'barang_jasa';
+                                            $metode = $get('metode_pengadaan') ?: 'non_katalog';
+
+                                            $syarats = MasterSyaratBelanja::where('aktif', true)
+                                                ->where('metode_pengadaan', $metode)
+                                                ->where(function ($q) use ($jenis) {
+                                                    $q->where('jenis_belanja', $jenis)->orWhere('jenis_belanja', 'semua');
+                                                })
+                                                ->orderBy('urutan')
+                                                ->get();
+
+                                            if ($syarats->isEmpty()) {
+                                                return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-500">Tidak ada persyaratan khusus.</span>');
+                                            }
+
+                                            $html = '<div class="rounded-lg border border-amber-200 bg-amber-50/60 p-2.5 dark:border-amber-900/40 dark:bg-amber-950/20 text-xs">';
+                                            $html .= '<div class="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5"><span>📋</span> Standar Syarat Dokumen yang Wajib Disiapkan:</div>';
+                                            $html .= '<ol class="space-y-1 pl-4 list-decimal text-gray-700 dark:text-gray-300">';
+                                            foreach ($syarats as $s) {
+                                                $badge = $s->is_required
+                                                    ? '<span class="ml-1 text-[10px] font-bold text-amber-700 dark:text-amber-400 font-mono">[Wajib]</span>'
+                                                    : '<span class="ml-1 text-[10px] font-medium text-gray-500 font-mono">[Opsional]</span>';
+                                                $keterangan = $s->keterangan ? " <span class=\"text-gray-500 text-[11px]\">({$s->keterangan})</span>" : '';
+                                                $html .= "<li><span class=\"font-semibold text-gray-900 dark:text-gray-100\">{$s->nama_syarat}</span>{$badge}{$keterangan}</li>";
+                                            }
+                                            $html .= '</ol></div>';
+
+                                            return new \Illuminate\Support\HtmlString($html);
+                                        })
+                                        ->columnSpanFull(),
 
                                     // 1. FAKTUR / NOTA ASLI (Menyesuaikan Otomatis dengan Jenis Belanja)
                                     FileUpload::make('file_nota_penjual')
