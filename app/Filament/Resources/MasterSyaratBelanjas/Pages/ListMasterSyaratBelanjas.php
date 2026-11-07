@@ -43,6 +43,8 @@ class ListMasterSyaratBelanjas extends ListRecords
             'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM) E-Purchasing' => '[E-Katalog] SPTJM kebenaran pengadaan e-purchasing dan penerimaan barang bermaterai.',
 
             // 2. DOKUMEN NON-KATALOG (PENGADAAN LANGSUNG TOKO FISIK & KEDINASAN)
+            'Scan Nota Pesanan Bertandatangan Basah (PPTK & Toko)' => '[Non-Katalog] Scan lembar fisik Nota Pesanan resmi yang telah ditandatangani basah oleh PPTK (Kabid) dan dicap/ditandatangani Rekanan Toko.',
+            'Scan Kwitansi Bertandatangan Basah (Rekanan & PPTK)' => '[Non-Katalog] Scan lembar fisik Kwitansi Pembayaran yang telah ditandatangani basah oleh Rekanan Toko (bermaterai) dan PPTK (Kabid).',
             'Faktur / Nota Asli Penjual' => '[Non-Katalog] Nota atau faktur fisik asli berstempel basah dari toko rekanan yang memuat rincian pembelian barang.',
             'Foto Fisik Barang / Pengadaan' => '[Non-Katalog] Foto dokumentasi fisik barang yang dibeli di toko rekanan (wajib jika nilai belanja > Rp 2.000.000,-).',
             'Berita Acara Serah Terima (BAST) Rekanan' => '[Non-Katalog] BAST fisik pekerjaan atau serah terima barang dari toko rekanan/penyedia offline.',

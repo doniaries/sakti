@@ -43,10 +43,28 @@ class MasterSyaratBelanjaSeeder extends Seeder
             [
                 'jenis_belanja' => 'barang_jasa',
                 'metode_pengadaan' => 'non_katalog',
+                'nama_syarat' => 'Scan Nota Pesanan Bertandatangan Basah (PPTK & Toko)',
+                'keterangan' => '[Non-Katalog] Scan lembar fisik Nota Pesanan resmi yang telah ditandatangani basah oleh PPTK (Kabid) dan dicap/ditandatangani Rekanan Toko.',
+                'is_required' => true,
+                'urutan' => 1,
+                'aktif' => true,
+            ],
+            [
+                'jenis_belanja' => 'barang_jasa',
+                'metode_pengadaan' => 'non_katalog',
+                'nama_syarat' => 'Scan Kwitansi Bertandatangan Basah (Rekanan & PPTK)',
+                'keterangan' => '[Non-Katalog] Scan lembar fisik Kwitansi Pembayaran yang telah ditandatangani basah oleh Rekanan Toko (bermaterai) dan PPTK (Kabid).',
+                'is_required' => true,
+                'urutan' => 2,
+                'aktif' => true,
+            ],
+            [
+                'jenis_belanja' => 'barang_jasa',
+                'metode_pengadaan' => 'non_katalog',
                 'nama_syarat' => 'Faktur / Nota Asli Penjual',
                 'keterangan' => 'Nota/faktur asli dari toko rekanan yang memuat rincian pembelian',
                 'is_required' => true,
-                'urutan' => 1,
+                'urutan' => 3,
                 'aktif' => true,
             ],
             [
@@ -55,7 +73,7 @@ class MasterSyaratBelanjaSeeder extends Seeder
                 'nama_syarat' => 'Foto Fisik Barang / Pengadaan',
                 'keterangan' => 'Foto dokumentasi barang yang telah dibeli',
                 'is_required' => true,
-                'urutan' => 2,
+                'urutan' => 4,
                 'aktif' => true,
             ],
             [
@@ -64,7 +82,7 @@ class MasterSyaratBelanjaSeeder extends Seeder
                 'nama_syarat' => 'Berita Acara Serah Terima (BAST) Rekanan',
                 'keterangan' => 'Jika ada BAST terpisah dari rekanan/toko',
                 'is_required' => false,
-                'urutan' => 3,
+                'urutan' => 5,
                 'aktif' => true,
             ],
 

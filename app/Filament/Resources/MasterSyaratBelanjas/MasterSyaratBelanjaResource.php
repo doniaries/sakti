@@ -28,6 +28,14 @@ class MasterSyaratBelanjaResource extends Resource
 
     protected static ?int $navigationSort = 8;
 
+    public static function canViewAny(): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        return (bool) $user?->hasAnyRole(['super_admin', 'admin']);
+    }
+
     public static function getNavigationBadge(): ?string
     {
         return (string) MasterSyaratBelanja::where('aktif', true)->count();

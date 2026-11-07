@@ -721,6 +721,62 @@ Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Sing
 
 ---
 
+### G.1. Alur Cetak Fisik, Tanda Tangan Basah & Unggah Hasil Scan (Hybrid Wet-Signature & Audit Trail)
+
+Untuk menjamin kepatuhan penuh terhadap regulasi pengelolaan keuangan daerah (Permendagri 77/2020) di mana berkas pertanggungjawaban fisik tetap mewajibkan **Tanda Tangan Basah & Cap Stempel**, SAKTI menerapkan mekanisme hybrid: cetak dari sistem ➔ tanda tangan basah di dunia nyata ➔ scan berkas ➔ upload kembali ke sistem untuk verifikasi berjenjang.
+
+Berikut alur posisi tahapan yang paling efektif dan tertib:
+
+```mermaid
+flowchart TD
+    A["1. Status 'menunggu_realisasi'<br>(PPTK setujui pesanan)"] --> B["Cetak Nota Pesanan dari SAKTI"]
+    B --> C["PPTK & Rekanan TTD Basah + Cap Stempel Toko"]
+    C --> D["Staf Scan Nota Pesanan TTD Basah"]
+    D --> E["Staf Belanja & Buka Step 2 (Kwitansi)<br>Upload: Scan Nota Pesanan + Faktur Asli + Foto Barang"]
+    
+    E --> F["2. Status 'menunggu_verifikasi_pptk'<br>(PPTK periksa realisasi)"]
+    F --> G["Cetak Kwitansi Pembayaran & NPD dari SAKTI"]
+    G --> H["Rekanan TTD Basah (Materai) & PPTK TTD Basah"]
+    H --> I["Staf Scan Kwitansi TTD Basah (Rekanan & PPTK)"]
+    I --> J["Staf Upload Scan Kwitansi ke Berkas SPJ"]
+    
+    J --> K["3. Status 'menunggu_verifikasi_ppk'<br>(PPK Kasubag Keuangan uji berkas digital)"]
+    K --> L["PPK Loloskan Verifikasi Berkas & Pagu Anggaran"]
+    L --> M["4. Status 'menunggu_persetujuan_pa'<br>(Kepala Dinas periksa & TTD Basah Kwitansi/NPD)"]
+    M --> N["5. Status 'menunggu_verifikasi_bendahara'<br>(Bendahara uji kas, potong PPN/PPh, TTD Lunas & Cairkan)"]
+    N --> O["Status 'dicairkan' & Arsip Scan Kwitansi Lengkap 4 TTD"]
+```
+
+#### Rincian Titik Scan & Aktor Penanggung Jawab:
+
+1. **Titik Scan 1: Scan Nota Pesanan TTD Basah (Staf Pengaju)**:
+   - **Kapan**: Saat status `menunggu_realisasi` setelah belanja dilaksanakan.
+   - **Dokumen yang Discan**: Lembar Nota Pesanan yang telah ditandatangani basah oleh **Kepala Bidang (PPTK)** dan dibubuhi cap/tanda tangan **Rekanan Toko**.
+   - **Diunggah Pada**: Step 2 (Pembuatan Kwitansi & Unggah Bukti) atau slot dokumen syarat SPJ.
+   - **Tujuan**: Membuktikan kepada PPK dan PA bahwa pesanan barang/jasa resmi disepakati sebelum pembelian fisik dilakukan.
+
+2. **Titik Scan 2: Scan Kwitansi TTD Basah Rekanan & PPTK (Staf Pengaju)**:
+   - **Kapan**: Saat status `menunggu_verifikasi_pptk` sebelum diteruskan ke PPK.
+   - **Dokumen yang Discan**: Lembar Surat Kwitansi Pembayaran yang telah ditandatangani basah oleh **Penyedia/Rekanan** (di atas materai jika nominal $\ge$ Rp 5.000.000) dan ditandatangani basah oleh **PPTK (Kabid)**.
+   - **Diunggah Pada**: Slot dokumen persyaratan SPJ (bagian `dokumen_syarat_files` atau berkas Kwitansi TTD).
+   - **Tujuan**: Menjadi dokumen primer bagi **PPK (Kasubag Keuangan)** untuk menguji keabsahan belanja dan memverifikasi ketersediaan pagu sebelum diteruskan ke Kepala Dinas.
+
+3. **Titik Verifikasi Digital PPK (Kasubag Keuangan)**:
+   - PPK tidak perlu meminta berkas fisik ke staf secara berulang; PPK cukup membuka antarmuka SAKTI dan memeriksa:
+     - Scan Nota Pesanan (sudah TTD basah PPTK + Toko).
+     - Scan Kwitansi (sudah TTD basah Rekanan + PPTK).
+     - Faktur / Nota Toko Asli & Foto Fisik Barang.
+     - Kebenaran pemotongan pajak (PPN 11% & PPh 22 1,5% jika belanja > Rp 2 Jt).
+
+4. **Titik Pengesahan Final PA (Kepala Dinas)**:
+   - Kepala Dinas (PA) memeriksa hasil telaah digital PPK dan menandatangani basah lembar fisik Kwitansi serta membubuhkan persetujuan di SAKTI.
+
+5. **Titik Pencairan & TTD Lunas Bendahara Pengeluaran**:
+   - Bendahara memeriksa kelengkapan fisik, mencairkan uang kas/transfer, menandatangani basah kolom "Lunas Dibayar", mencatat No. BKU, dan mengubah status ke `dicairkan`.
+   - File scan Kwitansi paripurna (memuat 4 TTD lengkap: Rekanan, PPTK, PA, Bendahara) dapat diunggah sebagai **Arsip SPJ Permanen** yang siap diaudit BPK/Inspektorat kapan saja.
+
+---
+
 ### H. Audit Trail, Keamanan, & Hak Akses (RBAC)
 
 1. **Jejak Audit Menyeluruh (`riwayat_status_spj`)**:
@@ -736,6 +792,13 @@ Sistem wajib menghasilkan 3 dokumen resmi dari satu sumber data transaksi (*Sing
    - **Staf Bidang**: Hanya dapat melihat, mengedit, dan mengunggah bukti untuk transaksi pada bidangnya sendiri (`bidang_id` user).
    - **Pejabat Pemeriksa (PPTK, PPK, PA, Bendahara)**: Hanya dapat melihat antrean dan mengeksekusi tombol aksi approval/revisi sesuai dengan tahap kewenangannya yang aktif.
    - **Proteksi Anti-Bypass**: Seluruh aksi perubahan status wajib divalidasi ketat pada backend melalui Laravel Policy / Gate authorization. Dilarang mengandalkan proteksi tombol tampilan (UI-only) atau mengizinkan manipulasi parameter via URL / REST API / Livewire public property tampering.
+3. **Eksklusivitas Pengaturan Master Syarat Dokumen (`MasterSyaratBelanja`)**:
+   - Panel matriks checklist **Syarat Dokumen SPJ (`MasterSyaratBelanjaResource`)** **HANYA DAPAT DIAKSES DAN DIATUR OLEH `super_admin` DAN `admin`**.
+   - Peran lain (`staf`, `pptk`, `ppk`, `pa`, `bendahara`) **DILARANG MENGAKSES DAN TIDAK DAPAT MELIHAT MENU INI PADA SIDEBAR** (diproteksi penuh via `MasterSyaratBelanjaPolicy` dan `canViewAny()`).
+   - Peran operasional hanya menjalankan (*executor only*):
+     - **Staf Pengaju**: Melihat kartu syarat yang telah diaktifkan admin pada formulir SPJ dan mengunggah berkas yang diminta.
+     - **PPTK & PPK**: Menguji kepatuhan dokumen berdasarkan butir syarat yang telah diaktifkan admin.
+     - **PA & Bendahara**: Mengesahkan dan mencairkan SPJ berdasarkan hasil verifikasi tersebut.
 
 ---
 
