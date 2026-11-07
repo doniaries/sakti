@@ -28,6 +28,16 @@ class MasterSyaratBelanjaResource extends Resource
 
     protected static ?int $navigationSort = 8;
 
+    public static function getNavigationBadge(): ?string
+    {
+        return (string) MasterSyaratBelanja::where('aktif', true)->count();
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Jumlah syarat dokumen SPJ aktif';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return MasterSyaratBelanjaForm::configure($schema);
@@ -47,4 +57,3 @@ class MasterSyaratBelanjaResource extends Resource
         ];
     }
 }
-

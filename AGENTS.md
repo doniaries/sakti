@@ -100,7 +100,18 @@ protected function getRedirectUrl(): string
   use Filament\Forms\Components\Radio;
   ```
 
-### B. Aturan Format Tanggal & Validasi
+### B. Prinsip Anti-Over-Engineering & Filament Native Murni (WAJIB)
+1. **DILARANG Membuat Blade Custom untuk Halaman / Form Standar**:
+   - Seluruh form, halaman settings, matrix, dan tabel wajib dibangun 100% menggunakan PHP Declarative API bawaan Filament (`Schema`, `Tabs`, `Section`, `Grid`, `CheckboxList`, `Table`).
+   - Dilarang membuat file Blade custom yang memuat HTML/Tailwind manual, banner gradient, kartu statistik ekstra, atau tombol buatan sendiri jika tidak diminta secara spesifik oleh user.
+2. **Gunakan Primitif Native Filament Secara Penuh**:
+   - **Antarmuka Gaya Shield / Matrix**: Cukup gunakan `Tabs::make()->contained()` + `Section::make()->headerActions()` + `CheckboxList::make()->bulkToggleable()->descriptions()`.
+   - **Editing Cepat di Tabel**: Cukup gunakan `ToggleColumn`, `TextInputColumn`, atau modal `Action`.
+3. **Percayakan pada Design System Filament (Less is More)**:
+   - Hindari membuat styling CSS custom, warna-warni berlebihan, atau box informasi raksasa yang membuat antarmuka menjadi padat dan berat.
+   - Jika kebutuhan user dapat diselesaikan dengan 1 komponen native Filament (seperti `CheckboxList`), jangan pernah membuat 200 baris Blade custom.
+
+### C. Aturan Format Tanggal & Validasi
 1. **Komponen Native**: Gunakan komponen native Filament di atas, hindari custom HTML manual.
 2. **Format Tanggal Indonesia (Wajib)**:
    - Form `DatePicker`: Selalu sertakan `->displayFormat('d/m/Y')`
