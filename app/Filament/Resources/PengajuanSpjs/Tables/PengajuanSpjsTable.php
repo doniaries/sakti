@@ -255,11 +255,88 @@ class PengajuanSpjsTable
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup'),
 
-                // Aksi 2: Proses Tahapan Secara Bertahap (Kontekstual sesuai Status SPJ)
+                // Aksi 2.A: Ajukan Pesanan Langsung (Konfirmasi Cepat 1-Klik tanpa Modal Form Simpan)
+                Action::make('ajukan_pesanan')
+                    ->label('Ajukan Pesanan')
+                    ->tooltip('Ajukan draf surat pesanan ke PPTK / Kepala Bidang')
+                    ->icon('heroicon-o-paper-airplane')
+                    ->color('warning')
+                    ->visible(function (PengajuanSpj $record): bool {
+                        if ($record->status !== 'draft') {
+                            return false;
+                        }
+
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        if (! $user) {
+                            return false;
+                        }
+
+                        return $user->hasAnyRole(['super_admin', 'admin', 'jf', 'pegawai']) || $user->id === $record->user_id;
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Ajukan Surat Pesanan ke PPTK?')
+                    ->modalDescription(fn(PengajuanSpj $record): string => "Surat Pesanan {$record->nomor_pengajuan} senilai Rp " . number_format((float) $record->total_nilai_rencana, 0, ',', '.') . " akan langsung diajukan ke PPTK untuk diteliti dan disetujui. Pastikan rincian pesanan sudah sesuai.")
+                    ->modalSubmitActionLabel('Ya, Ajukan Pesanan')
+                    ->modalCancelActionLabel('Batal')
+                    ->action(function (PengajuanSpj $record, SpjWorkflowService $workflowService): void {
+                        $workflowService->transition(
+                            $record,
+                            'diajukan',
+                            'Surat pesanan diajukan oleh pemohon ke PPTK.',
+                            'staf'
+                        );
+
+                        Notification::make()
+                            ->title('Surat Pesanan Berhasil Diajukan')
+                            ->body("Surat Pesanan {$record->nomor_pengajuan} berhasil diteruskan ke PPTK.")
+                            ->success()
+                            ->send();
+                    }),
+
+                // Aksi 2.B: Batalkan Pengajuan (Tarik Kembali ke Status Draft jika belum disetujui PPTK)
+                Action::make('batalkan_pengajuan')
+                    ->label('Tarik ke Draft')
+                    ->tooltip('Batalkan pengajuan ini dan kembalikan ke status Draft untuk diedit kembali')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('gray')
+                    ->visible(function (PengajuanSpj $record): bool {
+                        if ($record->status !== 'diajukan') {
+                            return false;
+                        }
+
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        if (! $user) {
+                            return false;
+                        }
+
+                        return $user->hasAnyRole(['super_admin', 'admin']) || $user->id === $record->user_id;
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading('Batalkan Pengajuan Surat Pesanan?')
+                    ->modalDescription(fn(PengajuanSpj $record): string => "Apakah Anda yakin ingin membatalkan pengajuan Surat Pesanan {$record->nomor_pengajuan}? Berkas akan dikembalikan ke status Draft sehingga dapat Anda perbaiki kembali.")
+                    ->modalSubmitActionLabel('Ya, Tarik ke Draft')
+                    ->modalCancelActionLabel('Batal')
+                    ->action(function (PengajuanSpj $record, SpjWorkflowService $workflowService): void {
+                        $workflowService->transition(
+                            $record,
+                            'draft',
+                            'Pengajuan ditarik kembali oleh pemohon ke status draft.',
+                            'staf'
+                        );
+
+                        Notification::make()
+                            ->title('Pengajuan Berhasil Ditarik')
+                            ->body("Surat Pesanan {$record->nomor_pengajuan} telah dikembalikan ke status Draft.")
+                            ->info()
+                            ->send();
+                    }),
+
+                // Aksi 2.C: Proses Tahapan Secara Bertahap (Kontekstual sesuai Status SPJ)
                 Action::make('proses_approval')
                     ->label(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'draft' => 'Ajukan Pesanan',
                             'diajukan' => 'Setujui Pesanan',
                             'menunggu_realisasi', 'revisi_pptk' => 'Lengkapi SPJ',
                             'menunggu_verifikasi_pptk' => 'Verifikasi PPTK',
@@ -271,7 +348,6 @@ class PengajuanSpjsTable
                     })
                     ->tooltip(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'draft' => 'Ajukan draf surat pesanan ke PPTK / Kepala Bidang',
                             'diajukan' => 'Persetujuan & Tanda Tangan Surat Pesanan oleh PPTK',
                             'menunggu_realisasi', 'revisi_pptk' => 'Unggah faktur toko, dokumentasi barang, dan lengkapi berkas SPJ',
                             'menunggu_verifikasi_pptk' => 'Pemeriksaan kepatuhan berkas SPJ lengkap oleh PPTK',
@@ -282,7 +358,6 @@ class PengajuanSpjsTable
                         };
                     })
                     ->modalHeading(fn(PengajuanSpj $record): string => match ($record->status) {
-                        'draft' => 'Ajukan Surat Pesanan ke PPTK (Kabid)',
                         'diajukan' => 'Persetujuan & TTD Surat Pesanan (PPTK)',
                         'menunggu_realisasi', 'revisi_pptk' => 'Proses Kelengkapan Berkas SPJ',
                         'menunggu_verifikasi_pptk' => 'Verifikasi Berkas Dokumen SPJ (PPTK)',
@@ -293,7 +368,6 @@ class PengajuanSpjsTable
                     })
                     ->icon(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'draft' => 'heroicon-o-paper-airplane',
                             'diajukan' => 'heroicon-o-pencil-square',
                             'menunggu_realisasi', 'revisi_pptk' => 'heroicon-o-receipt-percent',
                             'menunggu_verifikasi_bendahara', 'revisi_bendahara' => 'heroicon-o-banknotes',
@@ -302,7 +376,6 @@ class PengajuanSpjsTable
                     })
                     ->color(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'draft' => 'warning',
                             'diajukan' => 'info',
                             'menunggu_realisasi', 'revisi_pptk' => 'primary',
                             default => 'success',
@@ -310,7 +383,7 @@ class PengajuanSpjsTable
                     })
                     ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
                     ->visible(function (PengajuanSpj $record): bool {
-                        if (in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)) {
+                        if (in_array($record->status, ['draft', 'disetujui', 'dicairkan', 'ditolak'], true)) {
                             return false;
                         }
 
@@ -332,7 +405,6 @@ class PengajuanSpjsTable
                             && ($user->id === $record->pptk_user_id || ((int) $user->bidang_id > 0 && (int) $user->bidang_id === (int) $record->bidang_id) || (int) $record->bidang?->kepala_id === (int) $user->id || $user->hasRole('super_admin'));
 
                         return match ($record->status) {
-                            'draft' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
                             'diajukan' => $isPptkThisRecord,
                             'menunggu_realisasi', 'revisi_pptk' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
                             'menunggu_verifikasi_pptk' => $isPptkThisRecord,
@@ -400,74 +472,87 @@ class PengajuanSpjsTable
 
                         $isEkatalog = $record->metode_pengadaan === 'e_katalog';
 
-                        // Daftar butir uji kepatuhan dokumen spesifik tahapan aktif
-                        $checklistOptions = match ($record->status) {
-                            'diajukan' => $isEkatalog ? [
+                        // Ambil daftar syarat resmi dari MasterSyaratBelanja sesuai metode & jenis belanja transaksi ini
+                        $masterSyaratList = \App\Models\MasterSyaratBelanja::query()
+                            ->where('aktif', true)
+                            ->where(function ($q) use ($record) {
+                                $q->where('metode_pengadaan', $record->metode_pengadaan)
+                                    ->orWhere('metode_pengadaan', 'semua');
+                            })
+                            ->where(function ($q) use ($record) {
+                                $q->where('jenis_belanja', $record->jenis_belanja)
+                                    ->orWhere('jenis_belanja', 'semua');
+                            })
+                            ->orderBy('urutan')
+                            ->get();
+
+                        $checklistOptions = [];
+
+                        // 1. Tahap Surat Pesanan (saat diajukan ke PPTK)
+                        if ($record->status === 'diajukan') {
+                            $checklistOptions = $isEkatalog ? [
                                 'sp1' => '[E-Katalog LKPP] Kesesuaian paket E-Purchasing LKPP dengan program kegiatan DPA/RKA',
                                 'sp2' => '[E-Katalog LKPP] Ketersediaan pagu anggaran dinas dan total nilai paket pemesanan',
                                 'sp3' => '[E-Katalog LKPP] Persetujuan dan otorisasi pemesanan paket pada sistem E-Katalog LKPP',
                             ] : [
-                                'sp1' => '[Surat Pesanan] Kesesuaian jenis barang / jasa dengan kebutuhan kegiatan DPA/RKA',
+                                'sp1' => '[Surat Pesanan] Kesesuaian rincian barang/jasa dengan kebutuhan kegiatan DPA/RKA',
                                 'sp2' => '[Surat Pesanan] Ketersediaan pagu anggaran dan kewajaran kuantitas/harga pesanan',
                                 'sp3' => '[Surat Pesanan] Persetujuan penerbitan dan penandatanganan Surat Pesanan kepada rekanan',
-                            ],
-                            'menunggu_verifikasi_pptk' => $isEkatalog ? [
-                                'c1' => '[E-Katalog LKPP] Memeriksa keabsahan file PDF Bundel E-Purchasing resmi hasil unduhan portal E-Katalog LKPP',
-                                'c2' => '[BAST & Invoice E-Proc] Memeriksa kesesuaian BAST elektronik dan invoice resmi portal LKPP dengan barang pesanan',
-                                'c3' => '[Fisik Barang E-Katalog] Memeriksa kondisi fisik barang pesanan e-katalog telah tiba dan sesuai spesifikasi paket',
-                                'c4' => '[Foto Penerimaan Barang] Memeriksa foto dokumentasi saat barang e-katalog diterima di kantor dinas',
-                                'c5' => '[Nota Pencairan Dana / NPD] Memeriksa draf pengajuan NPD untuk pencairan anggaran e-purchasing dinas',
-                            ] : [
-                                'c1' => '[Surat Pesanan] Memeriksa kesesuaian rincian barang fisik yang dibeli dengan Surat Pesanan resmi',
-                                'c2' => '[Faktur / Nota Rekanan] Memeriksa keaslian faktur/nota toko rekanan dan keabsahan cap/tanda tangan penyedia',
-                                'c3' => '[Fisik Barang] Memeriksa kondisi barang fisik telah diterima utuh, baik, dan sesuai spesifikasi',
-                                'c4' => '[Foto Dokumentasi] Memeriksa foto dokumentasi fisik barang (wajib jika nilai belanja > Rp 2.000.000)',
-                                'c5' => '[Kwitansi Pembayaran] Memeriksa kesesuaian uraian pembayaran, identitas penerima, dan nominal pada Kwitansi',
-                                'c6' => '[Nota Pencairan Dana / NPD] Memeriksa draf pengajuan NPD untuk pencairan anggaran kegiatan',
-                            ],
-                            'menunggu_verifikasi_ppk', 'revisi_ppk' => [
-                                'p1' => $isEkatalog
-                                    ? '[Kelengkapan Berkas E-Katalog] Memeriksa kelengkapan berkas: Bundel E-Purchasing LKPP, Bukti Penerimaan, dan NPD'
-                                    : '[Kelengkapan Berkas SPJ] Memeriksa kelengkapan berkas: Surat Pesanan, Kwitansi, NPD, Nota Toko, dan Foto Barang',
-                                'p2' => '[Kesesuaian DPA/RKA] Memeriksa keselarasan pembebanan Program, Kegiatan, dan Subkegiatan DPA dinas',
-                                'p3' => '[Kode Rekening Belanja] Memeriksa ketepatan pembebanan kode rekening belanja daerah',
-                                'p4' => '[Ketersediaan Pagu] Memeriksa ketersediaan sisa pagu anggaran kas dinas',
-                                'p5' => '[Perhitungan Perpajakan] Memeriksa kebenaran pemotongan pajak (PPN 11% dan PPh 22 sebesar 1,5% jika > Rp 2 Jt)',
-                                'p6' => '[Kesesuaian Nominal Dokumen] Memeriksa kesesuaian nominal antara Pesanan, Faktur, Kwitansi, dan NPD',
-                            ],
-                            'menunggu_persetujuan_pa', 'revisi_pa' => [
+                            ];
+                        }
+                        // 2. Tahap Verifikasi Dokumen SPJ Lengkap oleh PPTK (100% SINKRON DENGAN MASTER SYARAT BELANJA)
+                        elseif ($record->status === 'menunggu_verifikasi_pptk') {
+                            $checklistOptions['core_pesanan'] = '[Surat Pesanan] Kesesuaian fisik barang yang diterima dengan Surat Pesanan resmi SAKTI';
+
+                            if ($masterSyaratList->isNotEmpty()) {
+                                foreach ($masterSyaratList as $ms) {
+                                    $tag = $ms->is_required ? '[Wajib]' : '[Opsional]';
+                                    $checklistOptions["syarat_{$ms->id}"] = "{$tag} {$ms->nama_syarat}";
+                                }
+                            } else {
+                                // Fallback jika master syarat belum disetting
+                                $checklistOptions['c_nota'] = '[Faktur/Nota] Memeriksa keaslian bukti faktur/nota dari toko penyedia';
+                                $checklistOptions['c_kwitansi'] = '[Kwitansi] Memeriksa kesesuaian kwitansi pembayaran dan stempel lunas';
+                                $checklistOptions['c_foto'] = '[Foto Barang] Memeriksa dokumentasi fisik barang pengadaan';
+                            }
+
+                            $checklistOptions['core_npd'] = '[Nota Pencairan Dana] Kesesuaian draf NPD dengan total pengeluaran belanja';
+                        }
+                        // 3. Tahap Verifikasi Dokumen SPJ & Kepatuhan Anggaran oleh PPK (100% SINKRON DENGAN MASTER SYARAT BELANJA)
+                        elseif (in_array($record->status, ['menunggu_verifikasi_ppk', 'revisi_ppk'], true)) {
+                            $checklistOptions['core_pesanan'] = '[Surat Pesanan] Kesesuaian berkas SPJ lengkap dengan Surat Pesanan resmi';
+
+                            if ($masterSyaratList->isNotEmpty()) {
+                                foreach ($masterSyaratList as $ms) {
+                                    $tag = $ms->is_required ? '[Wajib]' : '[Opsional]';
+                                    $checklistOptions["syarat_{$ms->id}"] = "{$tag} {$ms->nama_syarat}";
+                                }
+                            } else {
+                                $checklistOptions['p_berkas'] = '[Kelengkapan Berkas SPJ] Memeriksa keabsahan bukti faktur toko dan foto dokumentasi';
+                            }
+
+                            $checklistOptions['p_dpa'] = '[Kesesuaian DPA/RKA] Keselarasan pembebanan Program, Kegiatan, dan Subkegiatan DPA dinas';
+                            $checklistOptions['p_rekening'] = '[Kode Rekening Belanja] Ketepatan pembebanan kode rekening belanja daerah';
+                            $checklistOptions['p_pagu'] = '[Ketersediaan Pagu] Memeriksa ketersediaan sisa pagu anggaran kas dinas';
+                            $checklistOptions['p_pajak'] = '[Perhitungan Perpajakan] Memeriksa kebenaran pemotongan pajak (PPN 11% dan PPh 22 jika > Rp 2 Jt)';
+                            $checklistOptions['core_npd'] = '[Nota Pencairan Dana] Kesesuaian nominal draf NPD antara Pesanan, Faktur, dan Kwitansi';
+                        }
+                        // 4. Tahap Pengesahan Akhir oleh PA (Kepala Dinas)
+                        elseif (in_array($record->status, ['menunggu_persetujuan_pa', 'revisi_pa'], true)) {
+                            $checklistOptions = [
                                 'pa1' => '[Verifikasi Bertingkat] Memeriksa hasil penelitian dan pengesahan berjenjang dari PPTK dan PPK',
                                 'pa2' => '[Kebenaran Beban APBD] Meneliti keabsahan belanja sebagai beban APBD dinas untuk kepentingan kedinasan',
                                 'pa3' => '[Pengesahan Dokumen SPJ] Persetujuan dan penandatanganan Kwitansi Pembayaran dan Nota Pencairan Dana (NPD)',
-                            ],
-                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => [
+                            ];
+                        }
+                        // 5. Tahap Uji Kas & Pencairan oleh Bendahara Pengeluaran
+                        elseif (in_array($record->status, ['menunggu_verifikasi_bendahara', 'revisi_bendahara'], true)) {
+                            $checklistOptions = [
                                 'b1' => '[Keabsahan Tanda Tangan] Memeriksa keabsahan seluruh tanda tangan pejabat (PPTK, PPK, PA/Kadis, dan Rekanan)',
                                 'b2' => '[Kelengkapan Bukti SPJ] Memeriksa kelengkapan fisik dokumen pertanggungjawaban belanja (SPJ)',
                                 'b3' => '[Pungutan Pajak Negara] Meneliti pungutan pajak (PPN/PPh) yang disetorkan ke Kas Negara',
                                 'b4' => '[Ketersediaan Kas Daerah] Memeriksa ketersediaan saldo kas pengeluaran dan mencatat pada Buku Kas Umum (BKU)',
-                            ],
-                            default => [],
-                        };
-
-                        // Sinkronisasi Butir Syarat Dinamis dari MasterSyaratBelanja
-                        if ($isPemeriksaanStage && in_array($record->status, ['menunggu_verifikasi_pptk', 'menunggu_verifikasi_ppk', 'revisi_ppk'], true)) {
-                            $masterSyaratList = \App\Models\MasterSyaratBelanja::query()
-                                ->where('aktif', true)
-                                ->where(function ($q) use ($record) {
-                                    $q->where('metode_pengadaan', $record->metode_pengadaan)
-                                        ->orWhere('metode_pengadaan', 'semua');
-                                })
-                                ->where(function ($q) use ($record) {
-                                    $q->where('jenis_belanja', $record->jenis_belanja)
-                                        ->orWhere('jenis_belanja', 'semua');
-                                })
-                                ->orderBy('urutan')
-                                ->get();
-
-                            foreach ($masterSyaratList as $ms) {
-                                $reqTag = $ms->is_required ? '[SOP Wajib]' : '[SOP Opsional]';
-                                $checklistOptions["syarat_{$ms->id}"] = "{$reqTag} Memeriksa dokumen: {$ms->nama_syarat}";
-                            }
+                            ];
                         }
 
                         // LANGKAH 1: DAFTAR CHECKLIST UJI KEPATUHAN (DITAMPILKAN PERTAMA DI ATAS DENGAN CENTANG ✓ DAN SILANG ✗)
