@@ -20,6 +20,10 @@ Route::post('/portal/logout', function () {
     return redirect()->route('portal');
 })->name('portal.logout');
 
+// Route Pelacakan & Verifikasi Keaslian Dokumen Transaksi via QR Code (Akses Publik)
+Route::get('/lacak-dokumen/{kode?}', [\App\Http\Controllers\DokumenTrackingController::class, 'track'])
+    ->name('dokumen.tracking');
+
 Route::prefix('mobile')->group(function () {
     Route::get('/login', Login::class)->name('mobile.login');
     Route::get('/masuk', Login::class)->name('login');

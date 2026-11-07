@@ -144,6 +144,39 @@
             display: block;
         }
 
+        /* QR Code Tracking Dokumen Kanan Atas */
+        .qr-tracking-top-right {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            width: 58px;
+            text-align: center;
+            background: #ffffff;
+            padding: 2px 3px;
+            border: 0.8px solid #94a3b8;
+            border-radius: 3px;
+            z-index: 100;
+        }
+        .qr-tracking-top-right img {
+            width: 48px;
+            height: 48px;
+            display: block;
+            margin: 0 auto;
+        }
+        .qr-tracking-top-right .qr-title {
+            font-size: 4.8pt;
+            font-weight: bold;
+            color: #0f172a;
+            margin-top: 1px;
+            line-height: 1.1;
+            text-transform: uppercase;
+        }
+        .qr-tracking-top-right .qr-desc {
+            font-size: 4.2pt;
+            color: #475569;
+            line-height: 1.05;
+        }
+
         /* Styling Khusus Kwitansi Sijunjung (F4 Bagi 2 Landscape: 215mm x 165mm) */
         .kwitansi-watermark-wrapper {
             position: absolute;
@@ -354,6 +387,8 @@
     $logoWatermark = file_exists($logoWatermarkPath)
         ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoWatermarkPath))
         : ($logoKabupaten ?: null);
+
+    $qrTracking = $spj->getQrTrackingBase64();
 @endphp
 
     {{-- ==================== HALAMAN 1: SURAT PESANAN BARANG (F4 PORTRAIT) ==================== --}}
@@ -362,7 +397,15 @@
         $hasMorePagesAfterPesanan = ($tipeDokumen ?? 'semua') === 'semua';
     @endphp
     <div class="page page-pesanan {{ $hasMorePagesAfterPesanan ? 'page-break' : '' }}">
-        <div class="header-kop">
+        @if ($qrTracking)
+            <div class="qr-tracking-top-right">
+                <img src="{{ $qrTracking }}" alt="QR Tracking Dokumen">
+                <div class="qr-title">TRACKING RESMI</div>
+                <div class="qr-desc">Pindai Verifikasi</div>
+            </div>
+        @endif
+
+        <div class="header-kop" style="padding-left: 65px; padding-right: 65px;">
             @if ($logoKabupaten)
                 <div class="kop-logo-container">
                     <img src="{{ $logoKabupaten }}" class="kop-logo" alt="Logo Kabupaten Sijunjung">
@@ -502,6 +545,14 @@
 
     @foreach ($daftarKwitansi as $indexKwitansi => $judulKwitansi)
     <div class="page page-kwitansi page-break">
+        @if ($qrTracking)
+            <div class="qr-tracking-top-right" style="top: 0px; right: 0px;">
+                <img src="{{ $qrTracking }}" alt="QR Tracking Dokumen">
+                <div class="qr-title">TRACKING RESMI</div>
+                <div class="qr-desc">Pindai Verifikasi</div>
+            </div>
+        @endif
+
         @if ($logoWatermark)
             <div class="kwitansi-watermark-wrapper">
                 <img src="{{ $logoWatermark }}" class="kwitansi-watermark-img" alt="Watermark Sijunjung">
@@ -510,11 +561,11 @@
 
         <table style="width: 100%; font-size: 8pt; margin-bottom: 2px;">
             <tr>
-                <td style="width: 50%; vertical-align: top;">
+                <td style="width: 45%; vertical-align: top;">
                     PP.<br>
                     No. .........................................
                 </td>
-                <td style="width: 50%; text-align: right; vertical-align: top;">
+                <td style="width: 55%; text-align: right; vertical-align: top; padding-right: 68px;">
                     No. pada s.p.d.<br>
                     <strong>Kode Rek. {{ $kodeRekeningUtama }}</strong>
                 </td>
@@ -678,9 +729,16 @@
     @if (!in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi', 'menunggu_verifikasi_pptk', 'revisi_pptk'], true) && in_array($tipeDokumen ?? 'semua', ['semua', 'npd'], true))
     {{-- ==================== HALAMAN 4: NOTA PENCAIRAN DANA / NPD (F4 PORTRAIT) ==================== --}}
     <div class="page page-npd">
+        @if ($qrTracking)
+            <div class="qr-tracking-top-right" style="top: 4px; right: 4px;">
+                <img src="{{ $qrTracking }}" alt="QR Tracking Dokumen">
+                <div class="qr-title">TRACKING RESMI</div>
+                <div class="qr-desc">Pindai Verifikasi</div>
+            </div>
+        @endif
         <table class="npd-outer-box">
             <tr>
-                <td class="npd-header-cell">
+                <td class="npd-header-cell" style="padding-left: 70px; padding-right: 70px;">
                     KAB. SIJUNJUNG<br>
                     NOTA PENCAIRAN DANA (NPD)<br>
                     TAHUN ANGGARAN {{ $tahunAnggaran }}

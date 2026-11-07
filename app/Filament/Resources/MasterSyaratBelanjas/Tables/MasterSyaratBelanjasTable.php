@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -26,26 +27,26 @@ class MasterSyaratBelanjasTable
                     ->label('No.')
                     ->sortable()
                     ->alignCenter()
-                    ->width('75px'),
+                    ->width('70px'),
 
                 TextColumn::make('nama_syarat')
                     ->label('Nama Dokumen Persyaratan')
                     ->searchable()
                     ->sortable()
-                    ->weight('medium')
+                    ->weight('bold')
                     ->description(fn (MasterSyaratBelanja $record): ?string => $record->keterangan)
                     ->wrap(),
 
                 TextColumn::make('jenis_belanja')
-                    ->label('Jenis Belanja')
+                    ->label('Jenis Pekerjaan')
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'semua' => 'Semua Belanja',
+                        'semua' => 'Dokumen Umum',
                         'barang_jasa' => 'Barang & Jasa',
                         'makan_minum' => 'Makan Minum',
                         'sppd' => 'SPPD',
                         'bbm' => 'BBM',
-                        default => $state,
+                        default => ucwords(str_replace('_', ' ', $state)),
                     })
                     ->color(fn (string $state): string => match ($state) {
                         'semua' => 'gray',
@@ -53,7 +54,7 @@ class MasterSyaratBelanjasTable
                         'makan_minum' => 'warning',
                         'sppd' => 'success',
                         'bbm' => 'danger',
-                        default => 'secondary',
+                        default => 'info',
                     })
                     ->sortable(),
 
@@ -83,23 +84,28 @@ class MasterSyaratBelanjasTable
                     ->alignCenter()
                     ->sortable(),
             ])
+            ->groups([
+                Group::make('jenis_belanja')
+                    ->label('Kelompok Pekerjaan')
+                    ->getTitleFromRecordUsing(fn (MasterSyaratBelanja $record): string => match ($record->jenis_belanja) {
+                        'semua' => 'Dokumen Umum / Lampiran Tambahan',
+                        'barang_jasa' => 'Non-Katalog: Belanja Barang & Jasa',
+                        'makan_minum' => 'Non-Katalog: Makan & Minum Rapat',
+                        'sppd' => 'Non-Katalog: Perjalanan Dinas (SPPD)',
+                        'bbm' => 'Non-Katalog: Bahan Bakar Minyak (BBM)',
+                        default => 'Pekerjaan: ' . ucwords(str_replace('_', ' ', $record->jenis_belanja)),
+                    })
+                    ->collapsible(),
+            ])
+            ->defaultGroup('jenis_belanja')
+            ->reorderable('urutan')
+            ->defaultSort('urutan')
             ->filters([
-                SelectFilter::make('jenis_belanja')
-                    ->label('Jenis Belanja')
-                    ->options([
-                        'semua' => 'Semua Jenis',
-                        'barang_jasa' => 'Barang & Jasa',
-                        'makan_minum' => 'Makan Minum',
-                        'sppd' => 'SPPD',
-                        'bbm' => 'BBM',
-                    ]),
-
                 SelectFilter::make('metode_pengadaan')
                     ->label('Metode Pengadaan')
                     ->options([
-                        'semua' => 'Semua Metode',
-                        'e_katalog' => 'E-Katalog',
-                        'non_katalog' => 'Non-Katalog',
+                        'non_katalog' => 'Non-Katalog (Pengadaan Langsung)',
+                        'e_katalog' => 'E-Katalog LKPP (E-Purchasing)',
                     ]),
 
                 TernaryFilter::make('is_required')
@@ -146,7 +152,6 @@ class MasterSyaratBelanjasTable
 
                     DeleteBulkAction::make(),
                 ]),
-            ])
-            ->defaultSort('urutan');
+            ]);
     }
 }

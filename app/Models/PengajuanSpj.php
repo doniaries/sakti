@@ -322,6 +322,58 @@ class PengajuanSpj extends Model
         };
     }
 
+    public function getMetodePengadaanLabelAttribute(): string
+    {
+        return match ($this->metode_pengadaan) {
+            'e_katalog' => 'E-Katalog',
+            'non_katalog' => 'Non-Katalog (Pengadaan Langsung)',
+            default => ucfirst(str_replace('_', ' ', (string) $this->metode_pengadaan)),
+        };
+    }
+
+    public function getJenisBelanjaLabelAttribute(): string
+    {
+        return match ($this->jenis_belanja) {
+            'barang_jasa' => 'Belanja Barang dan Jasa',
+            'makan_minum' => 'Belanja Makan & Minum Rapat',
+            'sppd' => 'Perjalanan Dinas (SPPD)',
+            'bbm' => 'Bahan Bakar Minyak (BBM)',
+            default => ucfirst(str_replace('_', ' ', (string) $this->jenis_belanja)),
+        };
+    }
+
+    /**
+     * Dapatkan URL publik untuk pelacakan / verifikasi keaslian dokumen transaksi
+     */
+    public function getTrackingUrl(): string
+    {
+        return route('dokumen.tracking', ['nomor' => $this->nomor_pengajuan]);
+    }
+
+    /**
+     * Generate base64 data URI PNG untuk QR Code tracking dokumen
+     */
+    public function getQrTrackingBase64(): ?string
+    {
+        try {
+            $url = $this->getTrackingUrl();
+
+            $options = new \chillerlan\QRCode\QROptions([
+                'version'          => \chillerlan\QRCode\QRCode::VERSION_AUTO,
+                'outputType'       => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
+                'eccLevel'         => \chillerlan\QRCode\QRCode::ECC_M,
+                'scale'            => 4,
+                'imageBase64'      => true,
+                'imageTransparent' => false,
+            ]);
+
+            return (new \chillerlan\QRCode\QRCode($options))->render($url);
+        } catch (\Throwable $e) {
+            report($e);
+            return null;
+        }
+    }
+
     /**
      * Ambil spesimen gambar tanda tangan (Base64 URI) untuk DomPDF berdasarkan peran pejabat (pptk, ppk, pa, bendahara).
      */
