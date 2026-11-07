@@ -414,6 +414,63 @@ class PengajuanSpjForm
                                                     ->default(fn() => Auth::id()),
                                             ]),
 
+                                        // 1.A SYARAT DOKUMEN SPJ DINAMIS (TERHUBUNG KE MASTER SYARAT BELANJA)
+                                        Section::make('Syarat Dokumen Pengajuan (SOP SPJ)')
+                                            ->description('Daftar syarat kelengkapan berkas yang wajib dan opsional disiapkan sesuai metode pengadaan dan jenis belanja.')
+                                            ->compact()
+                                            ->collapsible()
+                                            ->schema([
+                                                Placeholder::make('daftar_syarat_sop_preview')
+                                                    ->hiddenLabel()
+                                                    ->content(function (callable $get): \Illuminate\Support\HtmlString {
+                                                        $jenis = $get('jenis_belanja') ?: 'barang_jasa';
+                                                        $metode = $get('metode_pengadaan') ?: 'non_katalog';
+
+                                                        $syarats = \App\Models\MasterSyaratBelanja::query()
+                                                            ->where('aktif', true)
+                                                            ->where(function ($q) use ($metode) {
+                                                                $q->where('metode_pengadaan', $metode)
+                                                                    ->orWhere('metode_pengadaan', 'semua');
+                                                            })
+                                                            ->where(function ($q) use ($jenis) {
+                                                                $q->where('jenis_belanja', $jenis)
+                                                                    ->orWhere('jenis_belanja', 'semua');
+                                                            })
+                                                            ->orderBy('urutan')
+                                                            ->get();
+
+                                                        if ($syarats->isEmpty()) {
+                                                            return new \Illuminate\Support\HtmlString('<p class="text-sm text-gray-500 italic py-1">Belum ada syarat dokumen yang diaktifkan untuk kombinasi belanja ini.</p>');
+                                                        }
+
+                                                        $infoMetode = ($metode === 'e_katalog')
+                                                            ? '<div class="mb-3 p-2.5 rounded-lg bg-info-50 text-info-800 dark:bg-info-950 dark:text-info-300 text-xs border border-info-200 dark:border-info-800">🌐 <strong>Metode E-Katalog LKPP:</strong> Berkas Surat Pesanan, BAST, dan Faktur/Invoice merupakan <strong>hasil unduhan resmi langsung dari sistem E-Katalog LKPP</strong>. Unggah berkas PDF bundel resmi tersebut pada formulir di bawah.</div>'
+                                                            : '<div class="mb-3 p-2.5 rounded-lg bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-xs border border-amber-200 dark:border-amber-800">🏪 <strong>Metode Non-Katalog (Pengadaan Langsung):</strong> Berkas bersumber dari toko rekanan fisik offline (Faktur/Nota Toko Asli, BAST Rekanan, dll). SAKTI akan men-generate Surat Pesanan dan Kwitansi resmi.</div>';
+
+                                                        $itemsHtml = '';
+                                                        foreach ($syarats as $i => $syarat) {
+                                                            $badge = $syarat->is_required
+                                                                ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Wajib Diunggah</span>'
+                                                                : '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20">Opsional</span>';
+
+                                                            $itemsHtml .= "
+                                                                <div class='flex items-start gap-2.5 p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10'>
+                                                                    <span class='flex-shrink-0 text-xs font-bold text-primary-600 dark:text-primary-400 mt-0.5'>#" . ($i + 1) . "</span>
+                                                                    <div class='flex-1 min-w-0'>
+                                                                        <div class='flex items-center justify-between gap-2 flex-wrap'>
+                                                                            <span class='text-sm font-semibold text-gray-900 dark:text-white'>{$syarat->nama_syarat}</span>
+                                                                            {$badge}
+                                                                        </div>
+                                                                        " . ($syarat->keterangan ? "<p class='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>{$syarat->keterangan}</p>" : "") . "
+                                                                    </div>
+                                                                </div>
+                                                            ";
+                                                        }
+
+                                                        return new \Illuminate\Support\HtmlString("{$infoMetode}<div class='space-y-2'>{$itemsHtml}</div>");
+                                                    }),
+                                            ]),
+
                                         // 1.B KHUSUS E-KATALOG (E-PURCHASING LKPP)
                                         Section::make('Bundel Dokumen E-Purchasing (E-Katalog LKPP)')
                                             ->description('Untuk belanja via E-Katalog, Surat Pesanan, BAST, dan Kwitansi diterbitkan resmi oleh LKPP/E-Proc. Unggah dokumen bundel resmi PDF tersebut di sini.')
@@ -1257,21 +1314,53 @@ class PengajuanSpjForm
                                         ->columnSpan(['default' => 12, 'md' => 4]),
 
                                     FileUpload::make('file_nota_penjual')
-                                        ->label('Faktur / Nota Asli Toko')
+                                        ->label(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
+                                            ? 'Faktur / Invoice Resmi E-Katalog LKPP'
+                                            : 'Faktur / Nota Asli Toko Rekanan (Non-Katalog)')
+                                        ->helperText(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
+                                            ? 'Unduh tagihan/invoice resmi dari portal E-Katalog LKPP, lalu unggah di sini jika terpisah dari bundel PDF.'
+                                            : 'Wajib nota atau faktur fisik asli berstempel basah dari toko rekanan yang memuat rincian pembelian.')
                                         ->directory('spj/nota-penjual')
                                         ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(5120)
                                         ->columnSpan(['default' => 12, 'md' => 6]),
 
                                     FileUpload::make('file_dokumentasi_barang')
-                                        ->label('Foto Dokumentasi Barang (Wajib jika > Rp 2 Jt)')
+                                        ->label(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
+                                            ? 'Foto Bukti Fisik Penerimaan Barang E-Katalog'
+                                            : 'Foto Dokumentasi Fisik Barang / Pengadaan (Wajib jika > Rp 2 Jt)')
+                                        ->helperText(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
+                                            ? 'Dokumentasi foto fisik saat paket barang e-katalog tiba di dinas dan diperiksa kelengkapannya.'
+                                            : 'Foto fisik barang yang dibeli di toko rekanan offline (Wajib jika total belanja melebihi Rp 2.000.000,-).')
                                         ->directory('spj/dokumentasi-barang')
                                         ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(5120)
                                         ->columnSpan(['default' => 12, 'md' => 6]),
 
                                     FileUpload::make('dokumen_syarat_files')
-                                        ->label('Berkas Persyaratan Tambahan (Scan SPT, SPPD, Notulen, Daftar Hadir, dsb.)')
+                                        ->label(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
+                                            ? 'Lampiran Berkas E-Katalog Tambahan (SPTJM, BAST Terpisah, dsb.)'
+                                            : 'Berkas Persyaratan Tambahan (Scan SPT, SPPD, Notulen, Daftar Hadir, Struk BBM, dsb.)')
+                                        ->helperText(function (callable $get): string {
+                                            $jenis = $get('jenis_belanja') ?: 'barang_jasa';
+                                            $metode = $get('metode_pengadaan') ?: 'non_katalog';
+                                            $activeDocs = \App\Models\MasterSyaratBelanja::query()
+                                                ->where('aktif', true)
+                                                ->where(function ($q) use ($metode) {
+                                                    $q->where('metode_pengadaan', $metode)->orWhere('metode_pengadaan', 'semua');
+                                                })
+                                                ->where(function ($q) use ($jenis) {
+                                                    $q->where('jenis_belanja', $jenis)->orWhere('jenis_belanja', 'semua');
+                                                })
+                                                ->pluck('nama_syarat')
+                                                ->all();
+
+                                            if (empty($activeDocs)) {
+                                                return 'Unggah dokumen pendukung SPJ yang diperlukan.';
+                                            }
+
+                                            return 'Checklist Dokumen SOP Aktif: ' . implode(' • ', $activeDocs);
+                                        })
                                         ->multiple()
                                         ->disk('public')
                                         ->directory('spj/dokumen-syarat')

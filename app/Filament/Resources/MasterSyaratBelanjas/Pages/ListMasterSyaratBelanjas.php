@@ -34,23 +34,31 @@ class ListMasterSyaratBelanjas extends ListRecords
     public static function getMasterDokumenLibrary(): array
     {
         $defaultMaster = [
-            'Kwitansi / Bukti Pembayaran Asli' => 'Kwitansi atau bukti bayar asli bertandatangan dan berstempel lunas dari penyedia/toko',
-            'Faktur / Nota Asli Penjual' => 'Faktur atau nota rincian item pembelian barang/jasa dari toko rekanan',
-            'Foto Fisik Barang / Pengadaan' => 'Foto dokumentasi fisik barang yang telah dibeli atau serah terima di kantor',
-            'Berita Acara Serah Terima (BAST) Rekanan' => 'BAST resmi pekerjaan atau penyerahan barang dari rekanan/penyedia',
-            'Surat Undangan / Nota Dinas Rapat' => 'Surat undangan resmi atau nota dinas pelaksanaan rapat kedinasan',
-            'Daftar Hadir Peserta Rapat (Bertandatangan)' => 'Scan lembar daftar hadir peserta rapat lengkap dengan tanda tangan',
-            'Notulensi Hasil Rapat' => 'Laporan atau risalah ringkas hasil pembahasan rapat kedinasan',
-            'Foto Dokumentasi Pelaksanaan Rapat' => 'Foto suasana rapat dinas dan konsumsi snack/makan yang disajikan',
-            'Surat Perintah Tugas (SPT)' => 'SPT resmi bertandatangan Kepala Dinas / Pimpinan',
-            'Lembar SPPD Bertandatangan & Cap Tujuan' => 'Lembar SPPD halaman belakang dicap dan ditandatangani pejabat instansi tujuan',
-            'Laporan Hasil Perjalanan Dinas' => 'Laporan pertanggungjawaban pelaksanaan tugas perjalanan dinas',
-            'Tiket Transportasi / Boarding Pass / Bukti Penginapan' => 'Kuitansi hotel/penginapan, karcis travel, atau boarding pass transportasi',
-            'Struk / Kupon Asli Pembelian BBM' => 'Struk SPBU atau kupon resmi BBM sesuai kuota liter yang disetujui',
-            'Foto Odometer & Kendaraan Dinas' => 'Foto plat nomor dinas dan angka odometer sebelum dan sesudah tugas',
-            'Bundel Dokumen E-Purchasing LKPP (Surat Pesanan, BAST & Invoice E-Proc)' => 'Bundel dokumen resmi PDF lengkap dari portal E-Katalog / E-Purchasing LKPP',
-            'Foto / Bukti Penerimaan Barang' => 'Foto dokumentasi fisik saat barang e-katalog diterima di dinas',
-            'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM)' => 'SPTJM kebenaran belanja dan bukti pengeluaran riil',
+            // 1. DOKUMEN KHUSUS E-KATALOG (DIUNDUH DARI SISTEM E-KATALOG / E-PROC LKPP)
+            'Bundel Dokumen E-Purchasing LKPP (Surat Pesanan, BAST & Invoice E-Proc)' => '[E-Katalog] File PDF bundel resmi lengkap hasil unduh langsung dari sistem E-Katalog LKPP (mencakup Surat Pesanan, BAST, dan Faktur E-Proc).',
+            'Foto / Bukti Penerimaan Barang E-Katalog' => '[E-Katalog] Foto dokumentasi fisik saat barang e-katalog tiba dan diperiksa oleh tim penerima barang di kantor dinas.',
+            'Surat Pesanan Resmi E-Katalog LKPP' => '[E-Katalog] Surat Pesanan elektronik resmi unduhan portal e-proc LKPP jika diunggah per dokumen terpisah.',
+            'Berita Acara Serah Terima (BAST) E-Purchasing LKPP' => '[E-Katalog] BAST elektronik resmi unduhan portal E-Katalog LKPP bertandatangan penyedia portal.',
+            'Faktur / Invoice Resmi E-Procurement LKPP' => '[E-Katalog] Invoice / tagihan resmi elektronik dari penyedia di sistem E-Katalog LKPP.',
+            'Surat Pernyataan Tanggung Jawab Mutlak (SPTJM) E-Purchasing' => '[E-Katalog] SPTJM kebenaran pengadaan e-purchasing dan penerimaan barang bermaterai.',
+
+            // 2. DOKUMEN NON-KATALOG (PENGADAAN LANGSUNG TOKO FISIK & KEDINASAN)
+            'Faktur / Nota Asli Penjual' => '[Non-Katalog] Nota atau faktur fisik asli berstempel basah dari toko rekanan yang memuat rincian pembelian barang.',
+            'Foto Fisik Barang / Pengadaan' => '[Non-Katalog] Foto dokumentasi fisik barang yang dibeli di toko rekanan (wajib jika nilai belanja > Rp 2.000.000,-).',
+            'Berita Acara Serah Terima (BAST) Rekanan' => '[Non-Katalog] BAST fisik pekerjaan atau serah terima barang dari toko rekanan/penyedia offline.',
+            'Kwitansi / Bukti Pembayaran Asli' => '[Non-Katalog] Kwitansi fisik atau bukti bayar asli bertandatangan dan berstempel lunas dari penyedia/toko.',
+            'Surat Undangan / Nota Dinas Rapat' => '[Non-Katalog] Surat undangan resmi atau nota dinas pelaksanaan rapat kedinasan dinas.',
+            'Daftar Hadir Peserta Rapat (Bertandatangan)' => '[Non-Katalog] Scan lembar daftar hadir peserta rapat lengkap dengan tanda tangan asli peserta.',
+            'Notulensi Hasil Rapat' => '[Non-Katalog] Risalah ringkas atau laporan tertulis hasil pembahasan rapat kedinasan.',
+            'Foto Dokumentasi Pelaksanaan Rapat' => '[Non-Katalog] Foto suasana rapat dinas dan sajian konsumsi makan/snack box di ruangan.',
+            'Nota / Kwitansi Rumah Makan / Katering' => '[Non-Katalog] Nota rincian jumlah snack box atau nasi kotak dari rumah makan/katering penyedia.',
+            'Surat Perintah Tugas (SPT)' => '[Non-Katalog] SPT resmi bertandatangan Kepala Dinas / Pimpinan sebagai dasar perjalanan dinas.',
+            'Lembar SPPD Bertandatangan & Cap Tujuan' => '[Non-Katalog] Lembar SPPD halaman belakang dicap dan ditandatangani pejabat instansi tujuan.',
+            'Laporan Hasil Perjalanan Dinas' => '[Non-Katalog] Laporan pertanggungjawaban pelaksanaan tugas perjalanan dinas oleh pelaksana tugas.',
+            'Foto Dokumentasi Kegiatan di Lokasi Tujuan' => '[Non-Katalog] Foto dokumentasi kegiatan pelaksanaan tugas kedinasan di tempat tujuan.',
+            'Tiket Transportasi / Boarding Pass / Bukti Penginapan' => '[Non-Katalog] Kuitansi hotel/penginapan, karcis travel resmi, atau boarding pass transportasi.',
+            'Struk / Kupon Asli Pembelian BBM' => '[Non-Katalog] Struk SPBU asli atau kupon resmi BBM sesuai kuota liter yang disetujui.',
+            'Foto Odometer & Kendaraan Dinas' => '[Non-Katalog] Foto plat nomor kendaraan dinas dan angka odometer sebelum dan sesudah tugas.',
         ];
 
         $customDocs = MasterSyaratBelanja::query()
@@ -154,6 +162,8 @@ class ListMasterSyaratBelanjas extends ListRecords
             ->body("Sebanyak {$count} syarat dokumen untuk {$label} berhasil disimpan.")
             ->success()
             ->send();
+
+        $this->redirect($this->getResource()::getUrl('index'));
     }
 
     protected function syncAktifCategory(string $catKey, mixed $state, bool $notify = false): void
@@ -272,34 +282,34 @@ class ListMasterSyaratBelanjas extends ListRecords
     public function getCategoriesDefinition(): array
     {
         return [
-            'barang_jasa' => [
-                'label' => 'Belanja Barang & Jasa',
-                'description' => 'Persyaratan pertanggungjawaban untuk belanja ATK, cetak, perlengkapan kantor, dan barang operasional dinas.',
-                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'barang_jasa'),
-            ],
-            'makan_minum' => [
-                'label' => 'Makan & Minum Rapat',
-                'description' => 'Persyaratan pertanggungjawaban konsumsi rapat dinas, snack box, makan siang, dan notulensi kegiatan.',
-                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'makan_minum'),
-            ],
-            'sppd' => [
-                'label' => 'Perjalanan Dinas (SPPD)',
-                'description' => 'Persyaratan pertanggungjawaban perjalanan dinas dalam daerah, luar kabupaten, dan luar provinsi.',
-                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'sppd'),
-            ],
-            'bbm' => [
-                'label' => 'Bahan Bakar Minyak (BBM)',
-                'description' => 'Persyaratan pertanggungjawaban pembelian BBM kendaraan dinas sesuai standar kuota liter.',
-                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'bbm'),
-            ],
             'e_katalog' => [
                 'label' => 'E-Katalog LKPP (E-Purchasing)',
-                'description' => 'Persyaratan pertanggungjawaban pengadaan barang/jasa melalui portal resmi E-Katalog / E-Purchasing LKPP.',
+                'description' => 'Persyaratan pengadaan melalui portal resmi E-Katalog / E-Proc LKPP. File diunggah langsung dari berkas hasil unduhan sistem E-Katalog (Surat Pesanan, BAST & Invoice E-Proc).',
                 'query' => fn (Builder $q) => $q->where('metode_pengadaan', 'e_katalog'),
             ],
+            'barang_jasa' => [
+                'label' => 'Non-Katalog: Belanja Barang & Jasa',
+                'description' => 'Pengadaan langsung offline kepada toko rekanan fisik untuk ATK, cetak, dan perlengkapan kantor (Nota Fisik Toko, Foto Barang, BAST Rekanan).',
+                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'barang_jasa')->where('metode_pengadaan', 'non_katalog'),
+            ],
+            'makan_minum' => [
+                'label' => 'Non-Katalog: Makan & Minum Rapat',
+                'description' => 'Persyaratan jamuan rapat dinas offline (Nota Katering, Surat Undangan Rapat, Daftar Hadir bertandatangan, Notulensi, dan Foto Rapat).',
+                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'makan_minum')->where('metode_pengadaan', 'non_katalog'),
+            ],
+            'sppd' => [
+                'label' => 'Non-Katalog: Perjalanan Dinas (SPPD)',
+                'description' => 'Persyaratan perjalanan dinas resmi (Surat Perintah Tugas / SPT, Lembar SPPD dicap pejabat tujuan, Laporan Perjalanan, dan Tiket/Kuitansi Hotel).',
+                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'sppd')->where('metode_pengadaan', 'non_katalog'),
+            ],
+            'bbm' => [
+                'label' => 'Non-Katalog: Bahan Bakar Minyak (BBM)',
+                'description' => 'Persyaratan BBM kendaraan operasional dinas (Struk SPBU asli atau kupon resmi BBM sesuai kuota liter pagu, dan Foto Odometer Kendaraan).',
+                'query' => fn (Builder $q) => $q->where('jenis_belanja', 'bbm')->where('metode_pengadaan', 'non_katalog'),
+            ],
             'semua' => [
-                'label' => 'Dokumen Umum (Semua Belanja)',
-                'description' => 'Persyaratan umum yang berlaku untuk seluruh transaksi belanja SPJ.',
+                'label' => 'Dokumen Umum / Lampiran Tambahan',
+                'description' => 'Persyaratan pendukung umum yang berlaku lintas transaksi SPJ (Surat Pernyataan Tanggung Jawab Mutlak / SPTJM, dsb.).',
                 'query' => fn (Builder $q) => $q->where('jenis_belanja', 'semua')->where('metode_pengadaan', '!=', 'e_katalog'),
             ],
         ];

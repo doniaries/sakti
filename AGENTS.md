@@ -577,12 +577,20 @@ SAKTI membagi pengajuan pengeluaran kas dinas ke dalam 2 dimensi mandiri:
 
 1. **Metode Pengadaan (`metode_pengadaan`)**:
    - **`e_katalog` (E-Purchasing LKPP)**:
-     - Dokumen Surat Pesanan, BAST Rekanan, dan Kwitansi sudah terbit resmi dari portal E-Katalog/E-Proc LKPP.
-     - Staf **TIDAK PERLU** menginput rincian barang per unit satu per satu; cukup menginput total nilai paket dan **mengunggah PDF Bundel E-Katalog**.
-     - Sistem SAKTI hanya memproses verifikasi berjenjang dan menerbitkan **Nota Pencairan Dana (NPD)** resmi.
-   - **`non_katalog` (Pengadaan Langsung)**:
-     - Pengadaan barang/jasa langsung melalui toko/rekanan fisik.
-     - SAKTI men-generate seluruh dokumen resmi: Surat Pesanan Barang, Kwitansi 4-Rangkap, BAST, dan NPD.
+     - Dokumen Surat Pesanan, BAST Rekanan, dan Kwitansi/Invoice **sudah terbit resmi dari portal E-Katalog/E-Proc LKPP**.
+     - Staf **TIDAK PERLU** menginput rincian barang per unit satu per satu dan **TIDAK PERLU** membuat kwitansi/surat pesanan baru di SAKTI.
+     - Dokumen persyaratan bersumber dari **unduhan sistem E-Katalog LKPP**:
+       1. **Bundel Dokumen E-Purchasing LKPP (PDF)**: File bundel lengkap PDF yang diunduh langsung dari portal E-Katalog (memuat Surat Pesanan, BAST E-Proc, dan Invoice E-Katalog).
+       2. **Foto / Bukti Penerimaan Barang**: Foto fisik saat barang pesanan e-katalog tiba dan diperiksa di kantor dinas.
+     - Sistem SAKTI hanya memproses verifikasi berjenjang (PPTK ➔ PPK ➔ PA ➔ Bendahara) dan menerbitkan **Nota Pencairan Dana (NPD)** resmi.
+   - **`non_katalog` (Pengadaan Langsung Offline)**:
+     - Pengadaan barang/jasa langsung melalui toko rekanan fisik / penyedia lokal (offline).
+     - Dokumen persyaratan bersumber dari **rekanan fisik & dokumen kedinasan**:
+       1. **Faktur / Nota Asli Penjual**: Nota asli fisik berstempel toko rekanan dengan rincian pembelian.
+       2. **Foto Fisik Barang / Pengadaan**: Foto fisik dokumentasi barang yang dibeli di toko.
+       3. **BAST Rekanan Fisik**: Jika ada serah terima terpisah dari toko rekanan.
+       4. **Dokumen Pendukung Spesifik**: Undangan & Daftar Hadir (Makan Minum), SPT & SPPD dicap (Perjalanan Dinas), Struk SPBU & Odometer (BBM).
+     - Sistem SAKTI men-generate seluruh dokumen resmi kedinasan: **Surat Pesanan Barang**, **Kwitansi 4-Rangkap**, dan **Nota Pencairan Dana (NPD)**.
 
 2. **Jenis Belanja (`jenis_belanja`)**:
    - **`barang_jasa`**: Belanja ATK, perlengkapan kantor, cetak penggandaan, dan pemeliharaan.

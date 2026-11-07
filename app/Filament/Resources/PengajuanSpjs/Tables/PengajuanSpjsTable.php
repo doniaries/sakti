@@ -395,14 +395,26 @@ class PengajuanSpjsTable
                             'revisi_bendahara',
                         ], true);
 
+                        $isEkatalog = $record->metode_pengadaan === 'e_katalog';
+
                         // Daftar butir uji kepatuhan dokumen spesifik tahapan aktif
                         $checklistOptions = match ($record->status) {
-                            'diajukan' => [
+                            'diajukan' => $isEkatalog ? [
+                                'sp1' => '[E-Katalog LKPP] Kesesuaian paket E-Purchasing LKPP dengan program kegiatan DPA/RKA',
+                                'sp2' => '[E-Katalog LKPP] Ketersediaan pagu anggaran dinas dan total nilai paket pemesanan',
+                                'sp3' => '[E-Katalog LKPP] Persetujuan dan otorisasi pemesanan paket pada sistem E-Katalog LKPP',
+                            ] : [
                                 'sp1' => '[Surat Pesanan] Kesesuaian jenis barang / jasa dengan kebutuhan kegiatan DPA/RKA',
                                 'sp2' => '[Surat Pesanan] Ketersediaan pagu anggaran dan kewajaran kuantitas/harga pesanan',
                                 'sp3' => '[Surat Pesanan] Persetujuan penerbitan dan penandatanganan Surat Pesanan kepada rekanan',
                             ],
-                            'menunggu_verifikasi_pptk' => [
+                            'menunggu_verifikasi_pptk' => $isEkatalog ? [
+                                'c1' => '[E-Katalog LKPP] Memeriksa keabsahan file PDF Bundel E-Purchasing resmi hasil unduhan portal E-Katalog LKPP',
+                                'c2' => '[BAST & Invoice E-Proc] Memeriksa kesesuaian BAST elektronik dan invoice resmi portal LKPP dengan barang pesanan',
+                                'c3' => '[Fisik Barang E-Katalog] Memeriksa kondisi fisik barang pesanan e-katalog telah tiba dan sesuai spesifikasi paket',
+                                'c4' => '[Foto Penerimaan Barang] Memeriksa foto dokumentasi saat barang e-katalog diterima di kantor dinas',
+                                'c5' => '[Nota Pencairan Dana / NPD] Memeriksa draf pengajuan NPD untuk pencairan anggaran e-purchasing dinas',
+                            ] : [
                                 'c1' => '[Surat Pesanan] Memeriksa kesesuaian rincian barang fisik yang dibeli dengan Surat Pesanan resmi',
                                 'c2' => '[Faktur / Nota Rekanan] Memeriksa keaslian faktur/nota toko rekanan dan keabsahan cap/tanda tangan penyedia',
                                 'c3' => '[Fisik Barang] Memeriksa kondisi barang fisik telah diterima utuh, baik, dan sesuai spesifikasi',
@@ -411,7 +423,9 @@ class PengajuanSpjsTable
                                 'c6' => '[Nota Pencairan Dana / NPD] Memeriksa draf pengajuan NPD untuk pencairan anggaran kegiatan',
                             ],
                             'menunggu_verifikasi_ppk', 'revisi_ppk' => [
-                                'p1' => '[Kelengkapan Berkas SPJ] Memeriksa kelengkapan berkas: Surat Pesanan, Kwitansi, NPD, Nota Toko, dan Foto Barang',
+                                'p1' => $isEkatalog
+                                    ? '[Kelengkapan Berkas E-Katalog] Memeriksa kelengkapan berkas: Bundel E-Purchasing LKPP, Bukti Penerimaan, dan NPD'
+                                    : '[Kelengkapan Berkas SPJ] Memeriksa kelengkapan berkas: Surat Pesanan, Kwitansi, NPD, Nota Toko, dan Foto Barang',
                                 'p2' => '[Kesesuaian DPA/RKA] Memeriksa keselarasan pembebanan Program, Kegiatan, dan Subkegiatan DPA dinas',
                                 'p3' => '[Kode Rekening Belanja] Memeriksa ketepatan pembebanan kode rekening belanja daerah',
                                 'p4' => '[Ketersediaan Pagu] Memeriksa ketersediaan sisa pagu anggaran kas dinas',
@@ -431,6 +445,27 @@ class PengajuanSpjsTable
                             ],
                             default => [],
                         };
+
+                        // Sinkronisasi Butir Syarat Dinamis dari MasterSyaratBelanja
+                        if ($isPemeriksaanStage && in_array($record->status, ['menunggu_verifikasi_pptk', 'menunggu_verifikasi_ppk', 'revisi_ppk'], true)) {
+                            $masterSyaratList = \App\Models\MasterSyaratBelanja::query()
+                                ->where('aktif', true)
+                                ->where(function ($q) use ($record) {
+                                    $q->where('metode_pengadaan', $record->metode_pengadaan)
+                                        ->orWhere('metode_pengadaan', 'semua');
+                                })
+                                ->where(function ($q) use ($record) {
+                                    $q->where('jenis_belanja', $record->jenis_belanja)
+                                        ->orWhere('jenis_belanja', 'semua');
+                                })
+                                ->orderBy('urutan')
+                                ->get();
+
+                            foreach ($masterSyaratList as $ms) {
+                                $reqTag = $ms->is_required ? '[SOP Wajib]' : '[SOP Opsional]';
+                                $checklistOptions["syarat_{$ms->id}"] = "{$reqTag} Memeriksa dokumen: {$ms->nama_syarat}";
+                            }
+                        }
 
                         // LANGKAH 1: DAFTAR CHECKLIST UJI KEPATUHAN (DITAMPILKAN PERTAMA DI ATAS DENGAN CENTANG ✓ DAN SILANG ✗)
                         if ($isPemeriksaanStage && ! empty($checklistOptions)) {
