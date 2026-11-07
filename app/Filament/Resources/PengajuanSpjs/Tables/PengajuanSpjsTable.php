@@ -68,7 +68,10 @@ class PengajuanSpjsTable
                         : (int) (Bidang::where('kepala_id', $user->id)->value('id') ?? 0);
 
                     if ($userBidangId > 0) {
-                        $query->where('bidang_id', $userBidangId);
+                        $query->where(function (Builder $q) use ($user, $userBidangId) {
+                            $q->where('bidang_id', $userBidangId)
+                              ->orWhere('user_id', $user->id);
+                        });
                     }
                 }
 

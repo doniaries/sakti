@@ -79,33 +79,65 @@ class ListPengajuanSpjs extends ListRecords
         // Hitung badge antrean khusus tugas user aktif
         $antreanSayaQuery = $baseQuery();
         if ($user) {
-            if ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
-                $antreanSayaQuery->where('status', 'menunggu_verifikasi_ppk');
-            } elseif ($user->hasRole('pa') || $anggaranRole === 'PA') {
-                $antreanSayaQuery->where('status', 'menunggu_persetujuan_pa');
-            } elseif ($user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA') {
-                $antreanSayaQuery->where('status', 'menunggu_verifikasi_bendahara');
-            } elseif ($user->hasRole('pptk') || $anggaranRole === 'PPTK') {
-                $antreanSayaQuery->whereIn('status', ['diajukan', 'menunggu_verifikasi_pptk']);
-                if (filled($user->bidang_id)) {
-                    $antreanSayaQuery->where('bidang_id', $user->bidang_id);
-                }
-            } elseif ($user->hasAnyRole(['super_admin', 'admin'])) {
+            if ($user->hasAnyRole(['super_admin', 'admin'])) {
                 $antreanSayaQuery->whereIn('status', [
+                    'draft',
                     'diajukan',
+                    'menunggu_realisasi',
                     'menunggu_verifikasi_pptk',
                     'menunggu_verifikasi_ppk',
                     'menunggu_persetujuan_pa',
                     'menunggu_verifikasi_bendahara',
+                    'revisi_pptk',
+                    'revisi_ppk',
+                    'revisi_pa',
+                    'revisi_bendahara',
                 ]);
+            } elseif ($user->hasRole('pptk') || $anggaranRole === 'PPTK') {
+                $antreanSayaQuery->where(function (Builder $sub) use ($user) {
+                    $sub->where(function (Builder $pptk) use ($user) {
+                        $pptk->whereIn('status', ['diajukan', 'menunggu_verifikasi_pptk']);
+                        if (filled($user->bidang_id)) {
+                            $pptk->where('bidang_id', $user->bidang_id);
+                        }
+                    })->orWhere(function (Builder $own) use ($user) {
+                        $own->where('user_id', $user->id)
+                            ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                    });
+                });
+            } elseif ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
+                $antreanSayaQuery->where(function (Builder $sub) use ($user) {
+                    $sub->where('status', 'menunggu_verifikasi_ppk')
+                        ->orWhere(function (Builder $own) use ($user) {
+                            $own->where('user_id', $user->id)
+                                ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                        });
+                });
+            } elseif ($user->hasRole('pa') || $anggaranRole === 'PA') {
+                $antreanSayaQuery->where(function (Builder $sub) use ($user) {
+                    $sub->where('status', 'menunggu_persetujuan_pa')
+                        ->orWhere(function (Builder $own) use ($user) {
+                            $own->where('user_id', $user->id)
+                                ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                        });
+                });
+            } elseif ($user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA') {
+                $antreanSayaQuery->where(function (Builder $sub) use ($user) {
+                    $sub->where('status', 'menunggu_verifikasi_bendahara')
+                        ->orWhere(function (Builder $own) use ($user) {
+                            $own->where('user_id', $user->id)
+                                ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                        });
+                });
             } else {
                 $antreanSayaQuery->where('user_id', $user->id)
-                    ->whereIn('status', ['draft', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                    ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
             }
         }
         $antreanSayaCount = $antreanSayaQuery->count();
 
         // Hitung total berkas per tahapan untuk badge tab sesuai tahun aktif
+        $draftCount = $baseQuery()->where('status', 'draft')->count();
         $semuaCount = $baseQuery()->count();
         $ppkCount = $baseQuery()->where('status', 'menunggu_verifikasi_ppk')->count();
         $paCount = $baseQuery()->where('status', 'menunggu_persetujuan_pa')->count();
@@ -114,11 +146,11 @@ class ListPengajuanSpjs extends ListRecords
         $cairCount = $baseQuery()->where('status', 'dicairkan')->count();
 
         $labelAntreanSaya = match (true) {
+            $user?->hasAnyRole(['super_admin', 'admin']) => 'Semua Antrean & Draft',
             $user?->hasRole('ppk') || $anggaranRole === 'PPK' => 'Perlu Diperiksa PPK',
             $user?->hasRole('pa') || $anggaranRole === 'PA' => 'Perlu Persetujuan PA',
             $user?->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' => 'Perlu Uji Kas Bendahara',
-            $user?->hasRole('pptk') || $anggaranRole === 'PPTK' => 'Perlu Verifikasi PPTK',
-            $user?->hasAnyRole(['super_admin', 'admin']) => 'Semua Antrean Verifikasi',
+            $user?->hasRole('pptk') || $anggaranRole === 'PPTK' => 'Antrean PPTK & Draft Saya',
             default => 'Tugas & Draft Saya',
         };
 
@@ -132,28 +164,69 @@ class ListPengajuanSpjs extends ListRecords
                         $query->where('bidang_id', (int) $selectedBidang);
                     }
                     if (! $user) return;
-                    if ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
-                        $query->where('status', 'menunggu_verifikasi_ppk');
-                    } elseif ($user->hasRole('pa') || $anggaranRole === 'PA') {
-                        $query->where('status', 'menunggu_persetujuan_pa');
-                    } elseif ($user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA') {
-                        $query->where('status', 'menunggu_verifikasi_bendahara');
-                    } elseif ($user->hasRole('pptk') || $anggaranRole === 'PPTK') {
-                        $query->whereIn('status', ['diajukan', 'menunggu_verifikasi_pptk']);
-                        if (filled($user->bidang_id)) {
-                            $query->where('bidang_id', $user->bidang_id);
-                        }
-                    } elseif ($user->hasAnyRole(['super_admin', 'admin'])) {
+                    if ($user->hasAnyRole(['super_admin', 'admin'])) {
                         $query->whereIn('status', [
+                            'draft',
                             'diajukan',
+                            'menunggu_realisasi',
                             'menunggu_verifikasi_pptk',
                             'menunggu_verifikasi_ppk',
                             'menunggu_persetujuan_pa',
                             'menunggu_verifikasi_bendahara',
+                            'revisi_pptk',
+                            'revisi_ppk',
+                            'revisi_pa',
+                            'revisi_bendahara',
                         ]);
+                    } elseif ($user->hasRole('pptk') || $anggaranRole === 'PPTK') {
+                        $query->where(function (Builder $sub) use ($user) {
+                            $sub->where(function (Builder $pptk) use ($user) {
+                                $pptk->whereIn('status', ['diajukan', 'menunggu_verifikasi_pptk']);
+                                if (filled($user->bidang_id)) {
+                                    $pptk->where('bidang_id', $user->bidang_id);
+                                }
+                            })->orWhere(function (Builder $own) use ($user) {
+                                $own->where('user_id', $user->id)
+                                    ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                            });
+                        });
+                    } elseif ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
+                        $query->where(function (Builder $sub) use ($user) {
+                            $sub->where('status', 'menunggu_verifikasi_ppk')
+                                ->orWhere(function (Builder $own) use ($user) {
+                                    $own->where('user_id', $user->id)
+                                        ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                                });
+                        });
+                    } elseif ($user->hasRole('pa') || $anggaranRole === 'PA') {
+                        $query->where(function (Builder $sub) use ($user) {
+                            $sub->where('status', 'menunggu_persetujuan_pa')
+                                ->orWhere(function (Builder $own) use ($user) {
+                                    $own->where('user_id', $user->id)
+                                        ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                                });
+                        });
+                    } elseif ($user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA') {
+                        $query->where(function (Builder $sub) use ($user) {
+                            $sub->where('status', 'menunggu_verifikasi_bendahara')
+                                ->orWhere(function (Builder $own) use ($user) {
+                                    $own->where('user_id', $user->id)
+                                        ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                                });
+                        });
                     } else {
                         $query->where('user_id', $user->id)
-                            ->whereIn('status', ['draft', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                            ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                    }
+                }),
+
+            'draft' => Tab::make('Draft Baru')
+                ->badge($draftCount)
+                ->badgeColor($draftCount > 0 ? 'warning' : 'gray')
+                ->modifyQueryUsing(function (Builder $query) use ($tahunAktif, $selectedBidang) {
+                    $query->where('tahun_anggaran', $tahunAktif)->where('status', 'draft');
+                    if (filled($selectedBidang)) {
+                        $query->where('bidang_id', (int) $selectedBidang);
                     }
                 }),
 
