@@ -414,63 +414,6 @@ class PengajuanSpjForm
                                                     ->default(fn() => Auth::id()),
                                             ]),
 
-                                        // 1.A SYARAT DOKUMEN SPJ DINAMIS (TERHUBUNG KE MASTER SYARAT BELANJA)
-                                        Section::make('Syarat Dokumen Pengajuan (SOP SPJ)')
-                                            ->description('Daftar syarat kelengkapan berkas yang wajib dan opsional disiapkan sesuai metode pengadaan dan jenis belanja.')
-                                            ->compact()
-                                            ->collapsible()
-                                            ->schema([
-                                                Placeholder::make('daftar_syarat_sop_preview')
-                                                    ->hiddenLabel()
-                                                    ->content(function (callable $get): \Illuminate\Support\HtmlString {
-                                                        $jenis = $get('jenis_belanja') ?: 'barang_jasa';
-                                                        $metode = $get('metode_pengadaan') ?: 'non_katalog';
-
-                                                        $syarats = \App\Models\MasterSyaratBelanja::query()
-                                                            ->where('aktif', true)
-                                                            ->where(function ($q) use ($metode) {
-                                                                $q->where('metode_pengadaan', $metode)
-                                                                    ->orWhere('metode_pengadaan', 'semua');
-                                                            })
-                                                            ->where(function ($q) use ($jenis) {
-                                                                $q->where('jenis_belanja', $jenis)
-                                                                    ->orWhere('jenis_belanja', 'semua');
-                                                            })
-                                                            ->orderBy('urutan')
-                                                            ->get();
-
-                                                        if ($syarats->isEmpty()) {
-                                                            return new \Illuminate\Support\HtmlString('<p class="text-sm text-gray-500 italic py-1">Belum ada syarat dokumen yang diaktifkan untuk kombinasi belanja ini.</p>');
-                                                        }
-
-                                                        $infoMetode = ($metode === 'e_katalog')
-                                                            ? '<div class="mb-3 p-2.5 rounded-lg bg-info-50 text-info-800 dark:bg-info-950 dark:text-info-300 text-xs border border-info-200 dark:border-info-800">🌐 <strong>Metode E-Katalog LKPP:</strong> Berkas Surat Pesanan, BAST, dan Faktur/Invoice merupakan <strong>hasil unduhan resmi langsung dari sistem E-Katalog LKPP</strong>. Unggah berkas PDF bundel resmi tersebut pada formulir di bawah.</div>'
-                                                            : '<div class="mb-3 p-2.5 rounded-lg bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-xs border border-amber-200 dark:border-amber-800">🏪 <strong>Metode Non-Katalog (Pengadaan Langsung):</strong> Berkas bersumber dari toko rekanan fisik offline (Faktur/Nota Toko Asli, BAST Rekanan, dll). SAKTI akan men-generate Surat Pesanan dan Kwitansi resmi.</div>';
-
-                                                        $itemsHtml = '';
-                                                        foreach ($syarats as $i => $syarat) {
-                                                            $badge = $syarat->is_required
-                                                                ? '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Wajib Diunggah</span>'
-                                                                : '<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-500/10 text-gray-600 dark:text-gray-400 border border-gray-500/20">Opsional</span>';
-
-                                                            $itemsHtml .= "
-                                                                <div class='flex items-start gap-2.5 p-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10'>
-                                                                    <span class='flex-shrink-0 text-xs font-bold text-primary-600 dark:text-primary-400 mt-0.5'>#" . ($i + 1) . "</span>
-                                                                    <div class='flex-1 min-w-0'>
-                                                                        <div class='flex items-center justify-between gap-2 flex-wrap'>
-                                                                            <span class='text-sm font-semibold text-gray-900 dark:text-white'>{$syarat->nama_syarat}</span>
-                                                                            {$badge}
-                                                                        </div>
-                                                                        " . ($syarat->keterangan ? "<p class='text-xs text-gray-500 dark:text-gray-400 mt-0.5'>{$syarat->keterangan}</p>" : "") . "
-                                                                    </div>
-                                                                </div>
-                                                            ";
-                                                        }
-
-                                                        return new \Illuminate\Support\HtmlString("{$infoMetode}<div class='space-y-2'>{$itemsHtml}</div>");
-                                                    }),
-                                            ]),
-
                                         // 1.B KHUSUS E-KATALOG (E-PURCHASING LKPP)
                                         Section::make('Bundel Dokumen E-Purchasing (E-Katalog LKPP)')
                                             ->description('Untuk belanja via E-Katalog, Surat Pesanan, BAST, dan Kwitansi diterbitkan resmi oleh LKPP/E-Proc. Unggah dokumen bundel resmi PDF tersebut di sini.')
@@ -1313,54 +1256,133 @@ class PengajuanSpjForm
                                         ->content(fn(callable $get): string => ($get('nama_toko') ?: '-') . ' — ' . ($get('penerima_nama') ?: '-'))
                                         ->columnSpan(['default' => 12, 'md' => 4]),
 
+                                    // 1. FAKTUR / NOTA ASLI (Menyesuaikan Otomatis dengan Jenis Belanja)
                                     FileUpload::make('file_nota_penjual')
-                                        ->label(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
-                                            ? 'Faktur / Invoice Resmi E-Katalog LKPP'
-                                            : 'Faktur / Nota Asli Toko Rekanan (Non-Katalog)')
-                                        ->helperText(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
-                                            ? 'Unduh tagihan/invoice resmi dari portal E-Katalog LKPP, lalu unggah di sini jika terpisah dari bundel PDF.'
-                                            : 'Wajib nota atau faktur fisik asli berstempel basah dari toko rekanan yang memuat rincian pembelian.')
+                                        ->label(fn(callable $get): string => match ($get('jenis_belanja')) {
+                                            'makan_minum' => 'Nota / Kwitansi Asli Rumah Makan / Katering',
+                                            'sppd' => 'Kuitansi Penginapan / Tiket Transportasi Asli',
+                                            'bbm' => 'Nota Pembelian / Kwitansi BBM',
+                                            default => ($get('metode_pengadaan') === 'e_katalog'
+                                                ? 'Faktur / Invoice Resmi E-Katalog LKPP'
+                                                : 'Faktur / Nota Asli Toko Rekanan (Non-Katalog)'),
+                                        })
+                                        ->helperText(fn(callable $get): string => match ($get('jenis_belanja')) {
+                                            'makan_minum' => 'Wajib nota asli berstempel katering/rumah makan yang memuat rincian jumlah snack box / nasi kotak.',
+                                            'sppd' => 'Kuitansi hotel/penginapan dan bukti transportasi tiket perjalanan dinas.',
+                                            'bbm' => 'Kwitansi atau bukti bayar BBM bertandatangan dan berstempel.',
+                                            default => ($get('metode_pengadaan') === 'e_katalog'
+                                                ? 'Invoice/tagihan resmi unduhan portal E-Katalog LKPP jika terpisah dari bundel PDF.'
+                                                : 'Wajib nota/faktur fisik asli berstempel basah dari toko rekanan yang memuat rincian pembelian.'),
+                                        })
                                         ->directory('spj/nota-penjual')
                                         ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(5120)
                                         ->columnSpan(['default' => 12, 'md' => 6]),
 
+                                    // 2. FOTO DOKUMENTASI FISIK / PENERIMAAN
                                     FileUpload::make('file_dokumentasi_barang')
-                                        ->label(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
-                                            ? 'Foto Bukti Fisik Penerimaan Barang E-Katalog'
-                                            : 'Foto Dokumentasi Fisik Barang / Pengadaan (Wajib jika > Rp 2 Jt)')
-                                        ->helperText(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
-                                            ? 'Dokumentasi foto fisik saat paket barang e-katalog tiba di dinas dan diperiksa kelengkapannya.'
-                                            : 'Foto fisik barang yang dibeli di toko rekanan offline (Wajib jika total belanja melebihi Rp 2.000.000,-).')
+                                        ->label(fn(callable $get): string => match ($get('jenis_belanja')) {
+                                            'makan_minum' => 'Foto Dokumentasi Rapat & Sajian Konsumsi',
+                                            'sppd' => 'Foto Dokumentasi Pelaksanaan Tugas di Lokasi Tujuan',
+                                            'bbm' => 'Foto Angka Odometer & Plat Nomor Dinas',
+                                            default => ($get('metode_pengadaan') === 'e_katalog'
+                                                ? 'Foto Bukti Fisik Penerimaan Barang E-Katalog'
+                                                : 'Foto Dokumentasi Fisik Barang / Pengadaan (Wajib jika > Rp 2 Jt)'),
+                                        })
+                                        ->helperText(fn(callable $get): string => match ($get('jenis_belanja')) {
+                                            'makan_minum' => 'Foto suasana pertemuan rapat dinas dan penyajian snack box / makan siang di ruangan.',
+                                            'sppd' => 'Foto kegiatan pelaksanaan tugas kedinasan di instansi tujuan perjalanan dinas.',
+                                            'bbm' => 'Foto angka speedometer/odometer kendaraan dinas sebelum dan sesudah pelaksanaan tugas.',
+                                            default => ($get('metode_pengadaan') === 'e_katalog'
+                                                ? 'Dokumentasi foto fisik saat paket barang e-katalog tiba dan diperiksa di kantor dinas.'
+                                                : 'Foto fisik barang yang dibeli di toko rekanan offline (Wajib jika total belanja melebihi Rp 2.000.000,-).'),
+                                        })
                                         ->directory('spj/dokumentasi-barang')
                                         ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
                                         ->maxSize(5120)
                                         ->columnSpan(['default' => 12, 'md' => 6]),
 
-                                    FileUpload::make('dokumen_syarat_files')
-                                        ->label(fn(callable $get): string => $get('metode_pengadaan') === 'e_katalog'
-                                            ? 'Lampiran Berkas E-Katalog Tambahan (SPTJM, BAST Terpisah, dsb.)'
-                                            : 'Berkas Persyaratan Tambahan (Scan SPT, SPPD, Notulen, Daftar Hadir, Struk BBM, dsb.)')
-                                        ->helperText(function (callable $get): string {
-                                            $jenis = $get('jenis_belanja') ?: 'barang_jasa';
-                                            $metode = $get('metode_pengadaan') ?: 'non_katalog';
-                                            $activeDocs = \App\Models\MasterSyaratBelanja::query()
-                                                ->where('aktif', true)
-                                                ->where(function ($q) use ($metode) {
-                                                    $q->where('metode_pengadaan', $metode)->orWhere('metode_pengadaan', 'semua');
-                                                })
-                                                ->where(function ($q) use ($jenis) {
-                                                    $q->where('jenis_belanja', $jenis)->orWhere('jenis_belanja', 'semua');
-                                                })
-                                                ->pluck('nama_syarat')
-                                                ->all();
+                                    // 3. SMART SLOTS KHUSUS: MAKAN & MINUM
+                                    FileUpload::make('dokumen_syarat_files.daftar_hadir')
+                                        ->label('Daftar Hadir & Undangan Rapat (Bertandatangan)')
+                                        ->helperText('Scan lembar daftar hadir peserta rapat lengkap dengan tanda tangan asli dan surat undangan resmi.')
+                                        ->directory('spj/makan-minum/daftar-hadir')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('jenis_belanja') === 'makan_minum'),
 
-                                            if (empty($activeDocs)) {
-                                                return 'Unggah dokumen pendukung SPJ yang diperlukan.';
-                                            }
+                                    FileUpload::make('dokumen_syarat_files.notulen_rapat')
+                                        ->label('Notulensi Hasil Rapat Kedinasan')
+                                        ->helperText('Laporan tertulis atau risalah ringkas hasil pembahasan materi rapat kedinasan.')
+                                        ->directory('spj/makan-minum/notulen')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('jenis_belanja') === 'makan_minum'),
 
-                                            return 'Checklist Dokumen SOP Aktif: ' . implode(' • ', $activeDocs);
-                                        })
+                                    // 4. SMART SLOTS KHUSUS: SPPD (PERJALANAN DINAS)
+                                    FileUpload::make('dokumen_syarat_files.scan_spt_sppd')
+                                        ->label('Scan SPT & Lembar SPPD Dicap Pejabat Tujuan')
+                                        ->helperText('Scan lembar SPPD halaman belakang yang telah dicap basah dan ditandatangani pejabat instansi tujuan.')
+                                        ->directory('spj/sppd/spt-sppd')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('jenis_belanja') === 'sppd'),
+
+                                    FileUpload::make('dokumen_syarat_files.laporan_sppd')
+                                        ->label('Laporan Hasil Pelaksanaan Perjalanan Dinas')
+                                        ->helperText('Laporan tertulis pertanggungjawaban hasil pelaksanaan tugas kedinasan di daerah tujuan.')
+                                        ->directory('spj/sppd/laporan')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('jenis_belanja') === 'sppd'),
+
+                                    // 5. SMART SLOTS KHUSUS: BBM
+                                    FileUpload::make('dokumen_syarat_files.struk_bbm')
+                                        ->label('Struk Asli Pembelian SPBU / Kupon BBM')
+                                        ->helperText('Struk SPBU asli atau kupon resmi BBM sesuai kuota liter yang telah disetujui.')
+                                        ->directory('spj/bbm/struk')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('jenis_belanja') === 'bbm'),
+
+                                    // 6. SMART SLOTS KHUSUS: BARANG & JASA NON-KATALOG
+                                    FileUpload::make('dokumen_syarat_files.bast_rekanan')
+                                        ->label('Berita Acara Serah Terima (BAST) Rekanan Fisik')
+                                        ->helperText('BAST fisik pekerjaan atau penyerahan barang dari toko rekanan (Opsional jika ada).')
+                                        ->directory('spj/barang-jasa/bast')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('jenis_belanja') === 'barang_jasa' && $get('metode_pengadaan') !== 'e_katalog'),
+
+                                    // 7. SLOT SCAN TANDA TANGAN BASAH (HYBRID ALUR PERMENDAGRI 77)
+                                    FileUpload::make('dokumen_syarat_files.scan_nota_pesanan')
+                                        ->label('Scan Nota Pesanan TTD Basah (PPTK & Toko)')
+                                        ->helperText('Lembar Nota Pesanan dari SAKTI yang telah ditandatangani basah oleh PPTK dan dicap toko rekanan.')
+                                        ->directory('spj/scan-ttd/nota-pesanan')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('metode_pengadaan') !== 'e_katalog'),
+
+                                    FileUpload::make('dokumen_syarat_files.scan_kwitansi')
+                                        ->label('Scan Kwitansi TTD Basah (Rekanan & PPTK)')
+                                        ->helperText('Lembar Surat Kwitansi dari SAKTI yang telah ditandatangani basah oleh Rekanan Toko (materai) dan PPTK.')
+                                        ->directory('spj/scan-ttd/kwitansi')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->columnSpan(['default' => 12, 'md' => 6])
+                                        ->visible(fn(callable $get) => $get('metode_pengadaan') !== 'e_katalog'),
+
+                                    // 8. SLOT DOKUMEN TAMBAHAN / LAMPIRAN LAINNYA
+                                    FileUpload::make('dokumen_syarat_files.lampiran_tambahan')
+                                        ->label('Berkas Lampiran Tambahan Lainnya (Opsional)')
+                                        ->helperText('Unggah berkas pendukung lain yang disyaratkan khusus oleh dinas (PDF/Gambar).')
                                         ->multiple()
                                         ->disk('public')
                                         ->directory('spj/dokumen-syarat')
