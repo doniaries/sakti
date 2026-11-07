@@ -21,7 +21,7 @@ class RincianAnggaranBelanjaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentChartBar;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Master Keuangan';
+    protected static string|UnitEnum|null $navigationGroup = 'Keuangan';
 
     protected static ?string $navigationLabel = 'Rincian Belanja (RKA)';
 
@@ -29,7 +29,7 @@ class RincianAnggaranBelanjaResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Rincian Belanja (RKA)';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

@@ -18,10 +18,10 @@ class HariLiburResource extends Resource
 {
     protected static ?string $model = HariLibur::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kepegawaian';
     protected static ?string $modelLabel = 'Hari Libur';
     protected static ?string $pluralModelLabel = 'Hari Libur & Cuti Bersama';
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 6;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 

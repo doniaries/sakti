@@ -23,7 +23,7 @@ class JadwalKerjaResource extends Resource
     protected static ?string $modelLabel = 'Jadwal Kerja';
     protected static ?string $pluralModelLabel = 'Jadwal / Shift Kerja';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kepegawaian';
     protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema

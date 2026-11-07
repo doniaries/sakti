@@ -23,7 +23,7 @@ class BidangResource extends Resource
     protected static ?string $modelLabel = 'Bidang';
 
     protected static ?string $pluralModelLabel = 'Bidang';
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kepegawaian';
     protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema

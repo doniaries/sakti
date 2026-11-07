@@ -26,7 +26,7 @@ class PengajuanSpjResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Pengajuan & SPJ Belanja';
 
-    protected static string|\UnitEnum|null $navigationGroup = null;
+    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
     protected static ?int $navigationSort = 1;
 

@@ -23,8 +23,8 @@ class JenisIzinResource extends Resource
     protected static ?string $modelLabel = 'Izin, Sakit & Cuti';
     protected static ?string $pluralModelLabel = 'Izin, Sakit & Cuti';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
-    protected static ?int $navigationSort = 6;
+    protected static string|\UnitEnum|null $navigationGroup = 'Kepegawaian';
+    protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema
     {

@@ -67,11 +67,11 @@ class AdminPanelProvider extends PanelProvider
                     ->sort(2),
             ])
             ->navigationGroups([
-                NavigationGroup::make('Master Keuangan')
+                NavigationGroup::make('Keuangan')
                     ->icon('heroicon-o-banknotes')
                     ->collapsed(),
-                NavigationGroup::make('Master Data')
-                    ->icon('heroicon-o-circle-stack')
+                NavigationGroup::make('Kepegawaian')
+                    ->icon('heroicon-o-user-group')
                     ->collapsed(),
                 NavigationGroup::make('Absensi')
                     ->icon('heroicon-o-calendar-days')

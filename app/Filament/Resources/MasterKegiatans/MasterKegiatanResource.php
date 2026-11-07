@@ -24,9 +24,9 @@ class MasterKegiatanResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Kegiatan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
 
     public static function form(Schema $schema): Schema
     {

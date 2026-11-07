@@ -30,9 +30,18 @@
     $fileDokumentasiUrl = $record->file_dokumentasi_barang
         ? \Illuminate\Support\Facades\Storage::url($record->file_dokumentasi_barang)
         : null;
+    $fileEkatalogUrl = $record->file_ekatalog_bundel
+        ? \Illuminate\Support\Facades\Storage::url($record->file_ekatalog_bundel)
+        : null;
 
-    $isNotaImage = $fileNotaUrl && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileNotaUrl);
-    $isDokumentasiImage = $fileDokumentasiUrl && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileDokumentasiUrl);
+    $isNotaPdf = $fileNotaUrl && (bool) preg_match('/\.pdf$/i', $fileNotaUrl);
+    $isNotaImage = $fileNotaUrl && (bool) preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileNotaUrl);
+
+    $isDokumentasiPdf = $fileDokumentasiUrl && (bool) preg_match('/\.pdf$/i', $fileDokumentasiUrl);
+    $isDokumentasiImage = $fileDokumentasiUrl && (bool) preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileDokumentasiUrl);
+
+    $isEkatalogPdf = $fileEkatalogUrl && (bool) preg_match('/\.pdf$/i', $fileEkatalogUrl);
+    $isEkatalogImage = $fileEkatalogUrl && (bool) preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileEkatalogUrl);
 
     // Tentukan dokumen default saat pertama dibuka
     $defaultDoc = match ($status) {
@@ -50,28 +59,37 @@
 <div
     class="flex flex-col gap-3 w-full"
     x-data="{
+        recordId: '{{ $record->id }}',
         activeTab: '{{ $defaultDoc }}',
         activeTitle: '{{ $defaultTitle }}',
         previewUrl: '{{ $previewBaseUrl }}?tipe={{ $defaultDoc }}',
         downloadUrl: '{{ $downloadBaseUrl }}?tipe={{ $defaultDoc }}',
-        isImage: false,
-        imageUrl: '',
+        viewMode: 'iframe', // 'iframe' | 'image' | 'pdf'
+        activeImageUrl: '',
+        activePdfUrl: '',
+        pdfLoading: false,
+        pdfError: null,
         zoom: 100,
         zoomIn() {
-            if (this.zoom < 140) this.zoom += 10;
+            if (this.zoom < 160) this.zoom += 10;
         },
         zoomOut() {
-            if (this.zoom > 70) this.zoom -= 10;
+            if (this.zoom > 60) this.zoom -= 10;
         },
         zoomReset() {
             this.zoom = 100;
         },
-        setDocument(type, title, url, isImg = false) {
+        setDocument(type, title, url, mode = 'iframe') {
             this.activeTab = type;
             this.activeTitle = title;
-            this.isImage = isImg;
-            if (isImg) {
-                this.imageUrl = url;
+            this.viewMode = mode;
+            if (mode === 'image') {
+                this.activeImageUrl = url;
+            } else if (mode === 'pdf') {
+                this.activePdfUrl = url;
+                this.$nextTick(() => {
+                    this.renderPdf(url);
+                });
             } else {
                 this.previewUrl = url;
                 this.downloadUrl = '{{ $downloadBaseUrl }}?tipe=' + (type === 'semua' || type === 'pesanan' || type === 'kwitansi' || type === 'npd' ? type : 'semua');
@@ -81,13 +99,76 @@
                 }
             }
         },
-        printIframe() {
-            const frame = document.getElementById('pedoman-preview-frame-{{ $record->id }}');
-            if (frame && frame.contentWindow) {
-                frame.contentWindow.focus();
-                frame.contentWindow.print();
+        renderPdf(url) {
+            if (!url) return;
+            this.pdfLoading = true;
+            this.pdfError = null;
+            const container = document.getElementById('pedoman-pdf-container-{{ $record->id }}');
+            if (container) container.innerHTML = '';
+
+            const executeRender = () => {
+                try {
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = '{{ asset('js/pdf.worker.min.js') }}';
+                    window.pdfjsLib.getDocument(url).promise.then((pdf) => {
+                        this.pdfLoading = false;
+                        const totalPages = pdf.numPages;
+                        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                            pdf.getPage(pageNum).then((page) => {
+                                const viewport = page.getViewport({ scale: 1.5 });
+                                const canvas = document.createElement('canvas');
+                                canvas.className = 'shadow-2xl rounded-lg mb-4 max-w-full block bg-white mx-auto border border-gray-400';
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+                                const ctx = canvas.getContext('2d');
+                                page.render({
+                                    canvasContext: ctx,
+                                    viewport: viewport
+                                });
+                                if (container) container.appendChild(canvas);
+                            });
+                        }
+                    }).catch((err) => {
+                        console.error('PDF.js error:', err);
+                        this.pdfLoading = false;
+                        this.pdfError = 'Gagal memuat pratinjau PDF: ' + (err.message || 'Format tidak terbaca.');
+                    });
+                } catch (e) {
+                    console.error('PDF.js execution error:', e);
+                    this.pdfLoading = false;
+                    this.pdfError = 'Kesalahan saat merender PDF.';
+                }
+            };
+
+            if (typeof window.pdfjsLib !== 'undefined') {
+                executeRender();
             } else {
-                window.open(this.previewUrl, '_blank');
+                const script = document.createElement('script');
+                script.src = '{{ asset('js/pdf.min.js') }}';
+                script.onload = () => executeRender();
+                script.onerror = () => {
+                    this.pdfLoading = false;
+                    this.pdfError = 'Gagal memuat engine render PDF. Silakan gunakan tombol Buka di Tab Baru.';
+                };
+                document.head.appendChild(script);
+            }
+        },
+        printIframe() {
+            if (this.viewMode === 'iframe') {
+                const frame = document.getElementById('pedoman-preview-frame-{{ $record->id }}');
+                if (frame && frame.contentWindow) {
+                    frame.contentWindow.focus();
+                    frame.contentWindow.print();
+                } else {
+                    window.open(this.previewUrl, '_blank');
+                }
+            } else if (this.viewMode === 'pdf') {
+                window.open(this.activePdfUrl, '_blank');
+            } else if (this.viewMode === 'image') {
+                const win = window.open('', '_blank');
+                if (win) {
+                    win.document.write('<html><head><title>Cetak Gambar</title></head><body style=\"margin:0;display:flex;justify-content:center;align-items:center;\"><img src=\"' + this.activeImageUrl + '\" style=\"max-width:100%;height:auto;\" onload=\"window.print();\" /></body></html>');
+                    win.document.close();
+                }
             }
         }
     }"
@@ -157,7 +238,7 @@
             {{-- Tab 1: Semua Dokumen --}}
             <button
                 type="button"
-                @click="setDocument('semua', 'Semua Dokumen SPJ', '{{ $previewBaseUrl }}?tipe=semua', false)"
+                @click="setDocument('semua', 'Semua Dokumen SPJ', '{{ $previewBaseUrl }}?tipe=semua', 'iframe')"
                 :class="activeTab === 'semua' ? 'bg-white text-primary-700 shadow-xs font-bold dark:bg-gray-700 dark:text-primary-300' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200'"
                 class="px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5"
             >
@@ -168,7 +249,7 @@
             {{-- Tab 2: Surat Pesanan --}}
             <button
                 type="button"
-                @click="setDocument('pesanan', 'Surat Pesanan Barang', '{{ $previewBaseUrl }}?tipe=pesanan', false)"
+                @click="setDocument('pesanan', 'Surat Pesanan Barang', '{{ $previewBaseUrl }}?tipe=pesanan', 'iframe')"
                 :class="activeTab === 'pesanan' ? 'bg-white text-primary-700 shadow-xs font-bold dark:bg-gray-700 dark:text-primary-300' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200'"
                 class="px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5"
             >
@@ -180,7 +261,7 @@
             @if ($hasKwitansi)
                 <button
                     type="button"
-                    @click="setDocument('kwitansi', 'Kwitansi Pembayaran', '{{ $previewBaseUrl }}?tipe=kwitansi', false)"
+                    @click="setDocument('kwitansi', 'Kwitansi Pembayaran', '{{ $previewBaseUrl }}?tipe=kwitansi', 'iframe')"
                     :class="activeTab === 'kwitansi' ? 'bg-white text-primary-700 shadow-xs font-bold dark:bg-gray-700 dark:text-primary-300' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200'"
                     class="px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5"
                 >
@@ -193,7 +274,7 @@
             @if ($hasNpd)
                 <button
                     type="button"
-                    @click="setDocument('npd', 'Nota Pencairan Dana (NPD)', '{{ $previewBaseUrl }}?tipe=npd', false)"
+                    @click="setDocument('npd', 'Nota Pencairan Dana (NPD)', '{{ $previewBaseUrl }}?tipe=npd', 'iframe')"
                     :class="activeTab === 'npd' ? 'bg-white text-primary-700 shadow-xs font-bold dark:bg-gray-700 dark:text-primary-300' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200'"
                     class="px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5"
                 >
@@ -202,11 +283,14 @@
                 </button>
             @endif
 
-            {{-- Tab 5: Faktur / Nota Toko --}}
+            {{-- Tab 5: Faktur / Nota Toko (Otomatis Deteksi PDF vs Gambar) --}}
             @if ($fileNotaUrl)
+                @php
+                    $notaMode = $isNotaPdf ? 'pdf' : ($isNotaImage ? 'image' : 'iframe');
+                @endphp
                 <button
                     type="button"
-                    @click="setDocument('nota', 'Faktur / Nota Rekanan', '{{ $fileNotaUrl }}', {{ $isNotaImage ? 'true' : 'false' }})"
+                    @click="setDocument('nota', 'Faktur / Nota Rekanan', '{{ $fileNotaUrl }}', '{{ $notaMode }}')"
                     :class="activeTab === 'nota' ? 'bg-white text-primary-700 shadow-xs font-bold dark:bg-gray-700 dark:text-primary-300' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200'"
                     class="px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5"
                 >
@@ -215,16 +299,35 @@
                 </button>
             @endif
 
-            {{-- Tab 6: Foto Fisik Barang --}}
+            {{-- Tab 6: Foto Fisik Barang (Otomatis Deteksi PDF vs Gambar) --}}
             @if ($fileDokumentasiUrl)
+                @php
+                    $dokMode = $isDokumentasiPdf ? 'pdf' : ($isDokumentasiImage ? 'image' : 'iframe');
+                @endphp
                 <button
                     type="button"
-                    @click="setDocument('foto', 'Foto Dokumentasi Fisik Barang', '{{ $fileDokumentasiUrl }}', {{ $isDokumentasiImage ? 'true' : 'false' }})"
+                    @click="setDocument('foto', 'Foto Dokumentasi Fisik Barang', '{{ $fileDokumentasiUrl }}', '{{ $dokMode }}')"
                     :class="activeTab === 'foto' ? 'bg-white text-primary-700 shadow-xs font-bold dark:bg-gray-700 dark:text-primary-300' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200'"
                     class="px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5"
                 >
                     <span>📸</span>
                     <span>Foto Barang</span>
+                </button>
+            @endif
+
+            {{-- Tab 7: Dokumen / Bundel E-Katalog --}}
+            @if ($fileEkatalogUrl)
+                @php
+                    $ekatMode = $isEkatalogPdf ? 'pdf' : ($isEkatalogImage ? 'image' : 'iframe');
+                @endphp
+                <button
+                    type="button"
+                    @click="setDocument('ekatalog', 'Dokumen / Bundel E-Katalog', '{{ $fileEkatalogUrl }}', '{{ $ekatMode }}')"
+                    :class="activeTab === 'ekatalog' ? 'bg-white text-primary-700 shadow-xs font-bold dark:bg-gray-700 dark:text-primary-300' : 'text-gray-600 hover:text-gray-900 hover:bg-white/50 dark:text-gray-400 dark:hover:text-gray-200'"
+                    class="px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1.5"
+                >
+                    <span>🛍️</span>
+                    <span>Bundel E-Katalog</span>
                 </button>
             @endif
         </div>
@@ -257,7 +360,7 @@
                 100%
             </button>
             <a
-                :href="isImage ? imageUrl : previewUrl"
+                :href="viewMode === 'image' ? activeImageUrl : (viewMode === 'pdf' ? activePdfUrl : previewUrl)"
                 target="_blank"
                 class="ml-1 p-1 rounded text-gray-600 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700"
                 title="Buka Dokumen di Tab Baru"
@@ -279,35 +382,47 @@
         </div>
     </div>
 
-    {{-- BARIS 3: CONTAINER PRATINJAU DOKUMEN (IFRAME / GAMBAR) --}}
+    {{-- BARIS 3: CONTAINER PRATINJAU DOKUMEN (IFRAME / GAMBAR / PDF CANVAS) --}}
     <div
         class="w-full rounded-xl border border-gray-300 dark:border-white/10 overflow-hidden shadow-inner"
         style="height: calc(85vh - 200px); min-height: 580px; position: relative; background-color: #525659;"
     >
         {{-- VIEW MODE 1: GAMBAR FOTO / NOTA ASLI --}}
-        <template x-if="isImage">
-            <div class="w-full h-full flex items-center justify-center p-3 bg-gray-950/40 overflow-auto">
-                <img
-                    :src="imageUrl"
-                    :style="'transform: scale(' + (zoom / 100) + '); transform-origin: center center; transition: transform 0.15s ease; max-height: 100%;'"
-                    class="rounded-lg shadow-md object-contain border border-white/10"
-                    alt="Pratinjau Berkas"
-                />
-            </div>
-        </template>
+        <div x-show="viewMode === 'image'" class="w-full h-full flex items-center justify-center p-3 bg-gray-950/40 overflow-auto">
+            <img
+                :src="activeImageUrl"
+                :style="'transform: scale(' + (zoom / 100) + '); transform-origin: center center; transition: transform 0.15s ease; max-height: 100%;'"
+                class="rounded-lg shadow-md object-contain border border-white/10"
+                alt="Pratinjau Berkas Gambar"
+            />
+        </div>
 
-        {{-- VIEW MODE 2: PDF / HTML DOKUMEN CETAK --}}
-        <template x-if="!isImage">
-            <div class="w-full h-full overflow-auto bg-[#525659]">
-                <iframe
-                    id="pedoman-preview-frame-{{ $record->id }}"
-                    :src="previewUrl"
-                    class="w-full h-full border-0 block"
-                    :style="zoom === 100 ? 'width: 100%; height: 100%; border: none; display: block; background-color: #525659;' : 'transform: scale(' + (zoom / 100) + '); transform-origin: top center; width: ' + (10000 / zoom) + '%; height: ' + (10000 / zoom) + '%; border: none; display: block; background-color: #525659;'"
-                    title="Pratinjau Dokumen SPJ"
-                ></iframe>
+        {{-- VIEW MODE 2: PDF ASLI (FAKTUR TOKO / DOKUMEN E-KATALOG) DIRENDER OLEH PDF.JS PADA CANVAS (ANTI-DOWNLOAD) --}}
+        <div x-show="viewMode === 'pdf'" class="w-full h-full overflow-auto bg-[#525659] p-4 text-center">
+            <div x-show="pdfLoading" class="py-16 flex flex-col items-center justify-center text-gray-200">
+                <svg class="animate-spin h-8 w-8 text-amber-400 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span class="text-xs font-semibold">Memuat dan merender pratinjau dokumen PDF...</span>
             </div>
-        </template>
+            <div x-show="pdfError" class="py-12 text-rose-300 text-xs px-4" x-text="pdfError"></div>
+            <div
+                id="pedoman-pdf-container-{{ $record->id }}"
+                class="inline-block transition-transform duration-150"
+                :style="'transform: scale(' + (zoom / 100) + '); transform-origin: top center;'"
+            ></div>
+        </div>
+
+        {{-- VIEW MODE 3: IFRAME HTML DOKUMEN SPJ (SEMUA, PESANAN, KWITANSI, NPD) --}}
+        <div x-show="viewMode === 'iframe'" class="w-full h-full overflow-auto bg-[#525659]">
+            <iframe
+                id="pedoman-preview-frame-{{ $record->id }}"
+                :src="previewUrl"
+                class="w-full h-full border-0 block"
+                :style="zoom === 100 ? 'width: 100%; height: 100%; border: none; display: block; background-color: #525659;' : 'transform: scale(' + (zoom / 100) + '); transform-origin: top center; width: ' + (10000 / zoom) + '%; height: ' + (10000 / zoom) + '%; border: none; display: block; background-color: #525659;'"
+                title="Pratinjau Dokumen SPJ"
+            ></iframe>
+        </div>
     </div>
 </div>
-

@@ -30,9 +30,18 @@
     $fileDokumentasiUrl = $record->file_dokumentasi_barang
         ? \Illuminate\Support\Facades\Storage::url($record->file_dokumentasi_barang)
         : null;
+    $fileEkatalogUrl = $record->file_ekatalog_bundel
+        ? \Illuminate\Support\Facades\Storage::url($record->file_ekatalog_bundel)
+        : null;
 
-    $isNotaImage = $fileNotaUrl && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileNotaUrl);
-    $isDokumentasiImage = $fileDokumentasiUrl && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileDokumentasiUrl);
+    $isNotaPdf = $fileNotaUrl && (bool) preg_match('/\.pdf$/i', $fileNotaUrl);
+    $isNotaImage = $fileNotaUrl && (bool) preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileNotaUrl);
+
+    $isDokumentasiPdf = $fileDokumentasiUrl && (bool) preg_match('/\.pdf$/i', $fileDokumentasiUrl);
+    $isDokumentasiImage = $fileDokumentasiUrl && (bool) preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileDokumentasiUrl);
+
+    $isEkatalogPdf = $fileEkatalogUrl && (bool) preg_match('/\.pdf$/i', $fileEkatalogUrl);
+    $isEkatalogImage = $fileEkatalogUrl && (bool) preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $fileEkatalogUrl);
 
     $rawBank = $record->nama_bank ?: $record->masterToko?->nama_bank;
     $bankName = $rawBank instanceof \BackedEnum ? $rawBank->value : ($rawBank ?: '-');
@@ -41,15 +50,19 @@
 <div
     style="display: flex; flex-direction: row; gap: 14px; width: 100%; height: 72vh; max-height: 580px; min-height: 460px; align-items: stretch;"
     x-data="{
+        recordId: '{{ $record->id }}',
         activeTab: 'semua',
         activeTitle: 'Semua Dokumen SPJ Lengkap',
         previewUrl: '{{ $previewBaseUrl }}?tipe=semua',
         downloadUrl: '{{ $downloadBaseUrl }}?tipe=semua',
-        isImage: false,
-        imageUrl: '',
+        viewMode: 'iframe', // 'iframe' | 'image' | 'pdf'
+        activeImageUrl: '',
+        activePdfUrl: '',
+        pdfLoading: false,
+        pdfError: null,
         zoom: 100,
         zoomIn() {
-            if (this.zoom < 150) this.zoom += 10;
+            if (this.zoom < 160) this.zoom += 10;
         },
         zoomOut() {
             if (this.zoom > 60) this.zoom -= 10;
@@ -57,12 +70,17 @@
         zoomReset() {
             this.zoom = 100;
         },
-        setDocument(type, title, url, isImg = false) {
+        setDocument(type, title, url, mode = 'iframe') {
             this.activeTab = type;
             this.activeTitle = title;
-            this.isImage = isImg;
-            if (isImg) {
-                this.imageUrl = url;
+            this.viewMode = mode;
+            if (mode === 'image') {
+                this.activeImageUrl = url;
+            } else if (mode === 'pdf') {
+                this.activePdfUrl = url;
+                this.$nextTick(() => {
+                    this.renderPdf(url);
+                });
             } else {
                 this.previewUrl = url;
                 this.downloadUrl = '{{ $downloadBaseUrl }}?tipe=' + (type === 'semua' || type === 'pesanan' || type === 'kwitansi' || type === 'npd' ? type : 'semua');
@@ -72,13 +90,76 @@
                 }
             }
         },
-        printIframe() {
-            const frame = document.getElementById('spj-preview-frame-{{ $record->id }}');
-            if (frame && frame.contentWindow) {
-                frame.contentWindow.focus();
-                frame.contentWindow.print();
+        renderPdf(url) {
+            if (!url) return;
+            this.pdfLoading = true;
+            this.pdfError = null;
+            const container = document.getElementById('modal-pdf-container-{{ $record->id }}');
+            if (container) container.innerHTML = '';
+
+            const executeRender = () => {
+                try {
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = '{{ asset('js/pdf.worker.min.js') }}';
+                    window.pdfjsLib.getDocument(url).promise.then((pdf) => {
+                        this.pdfLoading = false;
+                        const totalPages = pdf.numPages;
+                        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+                            pdf.getPage(pageNum).then((page) => {
+                                const viewport = page.getViewport({ scale: 1.5 });
+                                const canvas = document.createElement('canvas');
+                                canvas.className = 'shadow-2xl rounded-lg mb-4 max-w-full block bg-white mx-auto border border-gray-400';
+                                canvas.height = viewport.height;
+                                canvas.width = viewport.width;
+                                const ctx = canvas.getContext('2d');
+                                page.render({
+                                    canvasContext: ctx,
+                                    viewport: viewport
+                                });
+                                if (container) container.appendChild(canvas);
+                            });
+                        }
+                    }).catch((err) => {
+                        console.error('PDF.js error:', err);
+                        this.pdfLoading = false;
+                        this.pdfError = 'Gagal memuat pratinjau PDF: ' + (err.message || 'Format tidak terbaca.');
+                    });
+                } catch (e) {
+                    console.error('PDF.js execution error:', e);
+                    this.pdfLoading = false;
+                    this.pdfError = 'Kesalahan sistem saat memproses berkas PDF.';
+                }
+            };
+
+            if (typeof window.pdfjsLib !== 'undefined') {
+                executeRender();
             } else {
-                window.open(this.previewUrl, '_blank');
+                const script = document.createElement('script');
+                script.src = '{{ asset('js/pdf.min.js') }}';
+                script.onload = () => executeRender();
+                script.onerror = () => {
+                    this.pdfLoading = false;
+                    this.pdfError = 'Gagal memuat engine render PDF. Silakan gunakan tombol Buka di Tab Baru.';
+                };
+                document.head.appendChild(script);
+            }
+        },
+        printIframe() {
+            if (this.viewMode === 'iframe') {
+                const frame = document.getElementById('spj-preview-frame-{{ $record->id }}');
+                if (frame && frame.contentWindow) {
+                    frame.contentWindow.focus();
+                    frame.contentWindow.print();
+                } else {
+                    window.open(this.previewUrl, '_blank');
+                }
+            } else if (this.viewMode === 'pdf') {
+                window.open(this.activePdfUrl, '_blank');
+            } else if (this.viewMode === 'image') {
+                const win = window.open('', '_blank');
+                if (win) {
+                    win.document.write('<html><head><title>Cetak Gambar</title></head><body style=\"margin:0;display:flex;justify-content:center;align-items:center;\"><img src=\"' + this.activeImageUrl + '\" style=\"max-width:100%;height:auto;\" onload=\"window.print();\" /></body></html>');
+                    win.document.close();
+                }
             }
         }
     }"
@@ -128,7 +209,7 @@
             {{-- 1. Semua Dokumen --}}
             <button
                 type="button"
-                @click="setDocument('semua', 'Semua Dokumen SPJ Lengkap', '{{ $previewBaseUrl }}?tipe=semua', false)"
+                @click="setDocument('semua', 'Semua Dokumen SPJ Lengkap', '{{ $previewBaseUrl }}?tipe=semua', 'iframe')"
                 :class="activeTab === 'semua' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                 class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
             >
@@ -142,7 +223,7 @@
             {{-- 2. Surat Pesanan --}}
             <button
                 type="button"
-                @click="setDocument('pesanan', 'Surat Pesanan Barang (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=pesanan', false)"
+                @click="setDocument('pesanan', 'Surat Pesanan Barang (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=pesanan', 'iframe')"
                 :class="activeTab === 'pesanan' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                 class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
             >
@@ -157,7 +238,7 @@
             @if ($hasKwitansi)
                 <button
                     type="button"
-                    @click="setDocument('kwitansi', 'Kwitansi Pembayaran (F4 Bagi 2 Landscape - 4 Rangkap)', '{{ $previewBaseUrl }}?tipe=kwitansi', false)"
+                    @click="setDocument('kwitansi', 'Kwitansi Pembayaran (F4 Bagi 2 Landscape - 4 Rangkap)', '{{ $previewBaseUrl }}?tipe=kwitansi', 'iframe')"
                     :class="activeTab === 'kwitansi' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                     class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
@@ -173,7 +254,7 @@
             @if ($hasNpd)
                 <button
                     type="button"
-                    @click="setDocument('npd', 'Nota Pencairan Dana (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=npd', false)"
+                    @click="setDocument('npd', 'Nota Pencairan Dana (F4 Portrait)', '{{ $previewBaseUrl }}?tipe=npd', 'iframe')"
                     :class="activeTab === 'npd' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                     class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
@@ -185,11 +266,14 @@
                 </button>
             @endif
 
-            {{-- 5. Faktur Toko --}}
+            {{-- 5. Faktur Toko (Otomatis Deteksi PDF vs Gambar) --}}
             @if ($fileNotaUrl)
+                @php
+                    $notaMode = $isNotaPdf ? 'pdf' : ($isNotaImage ? 'image' : 'iframe');
+                @endphp
                 <button
                     type="button"
-                    @click="setDocument('nota_toko', 'Faktur / Nota Toko Asli', '{{ $fileNotaUrl }}', {{ $isNotaImage ? 'true' : 'false' }})"
+                    @click="setDocument('nota_toko', 'Faktur / Nota Toko Asli', '{{ $fileNotaUrl }}', '{{ $notaMode }}')"
                     :class="activeTab === 'nota_toko' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                     class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
@@ -201,11 +285,14 @@
                 </button>
             @endif
 
-            {{-- 6. Dokumentasi Barang --}}
+            {{-- 6. Dokumentasi Barang (Otomatis Deteksi PDF vs Gambar) --}}
             @if ($fileDokumentasiUrl)
+                @php
+                    $dokMode = $isDokumentasiPdf ? 'pdf' : ($isDokumentasiImage ? 'image' : 'iframe');
+                @endphp
                 <button
                     type="button"
-                    @click="setDocument('foto_barang', 'Foto Fisik Barang', '{{ $fileDokumentasiUrl }}', {{ $isDokumentasiImage ? 'true' : 'false' }})"
+                    @click="setDocument('foto_barang', 'Foto Fisik Barang', '{{ $fileDokumentasiUrl }}', '{{ $dokMode }}')"
                     :class="activeTab === 'foto_barang' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
                     class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
                 >
@@ -214,6 +301,25 @@
                         <span class="font-bold text-xs truncate">Foto Fisik Barang</span>
                     </div>
                     <span x-show="activeTab === 'foto_barang'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
+                </button>
+            @endif
+
+            {{-- 7. Dokumen / Bundel E-Katalog --}}
+            @if ($fileEkatalogUrl)
+                @php
+                    $ekatMode = $isEkatalogPdf ? 'pdf' : ($isEkatalogImage ? 'image' : 'iframe');
+                @endphp
+                <button
+                    type="button"
+                    @click="setDocument('ekatalog', 'Dokumen / Bundel E-Katalog', '{{ $fileEkatalogUrl }}', '{{ $ekatMode }}')"
+                    :class="activeTab === 'ekatalog' ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-950/70 dark:text-primary-300 dark:border-primary-500 font-bold' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800/80 dark:text-gray-300 dark:hover:bg-gray-800'"
+                    class="w-full flex items-center justify-between rounded-lg border p-2 text-xs transition cursor-pointer text-left"
+                >
+                    <div class="flex items-center gap-2 truncate">
+                        <span class="text-base">🛍️</span>
+                        <span class="font-bold text-xs truncate">Bundel E-Katalog</span>
+                    </div>
+                    <span x-show="activeTab === 'ekatalog'" class="text-primary-600 dark:text-primary-400 font-bold text-xs">✓</span>
                 </button>
             @endif
         </div>
@@ -239,7 +345,7 @@
             </a>
         </div>
 
-        {{-- CARD 4: KETENTUAN PERPAJAKAN & PEMBAYARAN BERSIH (LENGKAP SEPERTI DI KWITANSI) --}}
+        {{-- CARD 4: KETENTUAN PERPAJAKAN & PEMBAYARAN BERSIH --}}
         @php
             $subtotalBarang = (float) $totalNominal;
             $ppnPersen = (float) ($record->ppn_persen ?? 0);
@@ -258,55 +364,49 @@
                     <span class="text-xs font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                         <span class="text-sm">⚠️</span> Wajib Pungut Pajak
                     </span>
-                    <span class="text-[10px] font-mono font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
-                        PPN {{ $ppnPersen }}% + PPh {{ $pphPersen }}%
+                    <span class="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 font-bold px-1.5 py-0.5 rounded">
+                        > Rp 2.000.000
                     </span>
                 </div>
 
-                <div class="space-y-1.5 text-xs font-mono">
-                    <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                        <span>Subtotal Barang (DPP):</span>
-                        <span class="font-bold text-gray-800 dark:text-gray-200">Rp {{ number_format($subtotalBarang, 0, ',', '.') }}</span>
+                <div class="space-y-1 text-xs">
+                    <div class="flex justify-between items-center text-gray-500 dark:text-gray-400">
+                        <span>Dasar Pengenaan Pajak (DPP):</span>
+                        <span class="font-semibold text-gray-800 dark:text-gray-200">Rp {{ number_format($subtotalBarang, 0, ',', '.') }}</span>
                     </div>
 
-                    <div class="flex justify-between text-gray-600 dark:text-gray-400">
-                        <span>PPN ({{ $ppnPersen }}%):</span>
-                        <span class="font-bold text-gray-800 dark:text-gray-200">+ Rp {{ number_format($nilaiPpn, 0, ',', '.') }}</span>
-                    </div>
-
-                    <div class="flex justify-between items-center py-1 border-y border-dashed border-gray-200 dark:border-white/10 font-bold bg-gray-50/70 dark:bg-gray-800/40 px-1 rounded">
-                        <span class="text-gray-700 dark:text-gray-300 font-sans font-semibold">Total Pesanan (Bruto):</span>
-                        <span class="text-gray-900 dark:text-white">Rp {{ number_format($totalBruto, 0, ',', '.') }}</span>
-                    </div>
-
-                    <div class="pt-1 space-y-1">
-                        <div class="flex justify-between text-[11px] text-gray-500 dark:text-gray-400">
-                            <span>• Potongan PPN ({{ $ppnPersen }}%):</span>
-                            <span class="text-danger-600 dark:text-danger-400 font-semibold">- Rp {{ number_format($nilaiPpn, 0, ',', '.') }}</span>
+                    @if ($nilaiPpn > 0)
+                        <div class="flex justify-between items-center text-amber-700 dark:text-amber-400">
+                            <span>PPN ({{ $ppnPersen }}%):</span>
+                            <span class="font-bold">+ Rp {{ number_format($nilaiPpn, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between text-[11px] text-gray-500 dark:text-gray-400">
-                            <span>• Potongan PPh 22 ({{ $pphPersen }}%):</span>
-                            <span class="text-danger-600 dark:text-danger-400 font-semibold">- Rp {{ number_format($nilaiPph, 0, ',', '.') }}</span>
+                    @endif
+
+                    @if ($nilaiPph > 0)
+                        <div class="flex justify-between items-center text-rose-600 dark:text-rose-400">
+                            <span>PPh 22 ({{ $pphPersen }}%):</span>
+                            <span class="font-bold">- Rp {{ number_format($nilaiPph, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between text-xs text-danger-700 dark:text-danger-400 font-bold">
-                            <span>Total Potongan Kas:</span>
-                            <span>- Rp {{ number_format($totalPajak, 0, ',', '.') }}</span>
-                        </div>
+                    @endif
+
+                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-100 dark:border-white/5 text-[11px] font-bold text-gray-600 dark:text-gray-400">
+                        <span>Total Pajak Disetor:</span>
+                        <span class="text-amber-600 dark:text-amber-400 font-mono">Rp {{ number_format($totalPajak, 0, ',', '.') }}</span>
                     </div>
 
-                    <div class="flex justify-between items-baseline pt-2 border-t-2 border-gray-200 dark:border-white/10 font-bold">
-                        <span class="text-xs text-gray-700 dark:text-gray-200 font-sans font-bold">Diterima Bersih:</span>
-                        <span class="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-200 dark:border-white/10 text-xs font-extrabold">
+                        <span class="text-gray-900 dark:text-white">Diterima Bersih Toko:</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 text-sm font-black font-mono">
                             Rp {{ number_format($nilaiBersih, 0, ',', '.') }}
                         </span>
                     </div>
                 </div>
             @else
-                <div class="flex items-center gap-2.5 p-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/80">
-                    <span class="text-lg text-emerald-600 dark:text-emerald-400 font-bold">✓</span>
-                    <div class="flex-1">
-                        <div class="text-xs font-extrabold text-emerald-800 dark:text-emerald-300">
-                            Bebas Pajak (Belanja ≤ Rp 2 Jt)
+                <div class="flex items-start gap-2">
+                    <span class="text-base text-emerald-500">✓</span>
+                    <div>
+                        <div class="text-xs font-bold text-gray-800 dark:text-gray-200">
+                            Bebas Potongan Pajak
                         </div>
                         <div class="text-[11px] text-gray-600 dark:text-gray-400 mt-0.5">
                             Bebas pungutan PPN 0% & PPh 22 0%. Rekanan menerima pembayaran utuh 100%.
@@ -320,7 +420,7 @@
         </div>
     </div>
 
-    {{-- ==================== KOLOM KANAN: PREVIEW DOKUMEN (HTML A4 / IMAGE) DENGAN TOOLBAR ==================== --}}
+    {{-- ==================== KOLOM KANAN: PREVIEW DOKUMEN (HTML A4 / IMAGE / PDF CANVAS) DENGAN TOOLBAR ==================== --}}
     <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; height: 100%;">
         
         {{-- Toolbar Atas --}}
@@ -362,7 +462,7 @@
 
                 {{-- Buka Layar Penuh Tab Baru --}}
                 <a
-                    :href="isImage ? imageUrl : previewUrl"
+                    :href="viewMode === 'image' ? activeImageUrl : (viewMode === 'pdf' ? activePdfUrl : previewUrl)"
                     target="_blank"
                     class="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-2 py-0.5 text-[10.5px] font-semibold text-gray-700 hover:bg-gray-50 dark:border-white/15 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800 shadow-xs cursor-pointer"
                     title="Buka pratinjau di tab baru"
@@ -377,29 +477,42 @@
         <div style="flex: 1; width: 100%; border-radius: 0 0 12px 12px; overflow: hidden; border: 1px solid rgba(156, 163, 175, 0.3); background-color: #525659; position: relative;">
             
             {{-- Tampilan Dokumen HTML A4 (Mencegah Auto-Download) --}}
-            <template x-if="!isImage">
-                <div style="width: 100%; height: 100%; overflow: auto;">
-                    <iframe
-                        id="spj-preview-frame-{{ $record->id }}"
-                        :src="previewUrl"
-                        style="width: 100%; height: 100%; border: none; display: block; background-color: #525659;"
-                        :style="'transform: scale(' + (zoom / 100) + '); transform-origin: top center; width: ' + (10000 / zoom) + '%; height: ' + (10000 / zoom) + '%;'"
-                        allow="fullscreen"
-                    ></iframe>
+            <div x-show="viewMode === 'iframe'" style="width: 100%; height: 100%; overflow: auto;">
+                <iframe
+                    id="spj-preview-frame-{{ $record->id }}"
+                    :src="previewUrl"
+                    style="width: 100%; height: 100%; border: none; display: block; background-color: #525659;"
+                    :style="'transform: scale(' + (zoom / 100) + '); transform-origin: top center; width: ' + (10000 / zoom) + '%; height: ' + (10000 / zoom) + '%;'"
+                    allow="fullscreen"
+                ></iframe>
+            </div>
+
+            {{-- Tampilan Dokumen PDF Asli (Faktur Toko / Bundel E-Katalog) via Canvas PDF.js (Anti-Download) --}}
+            <div x-show="viewMode === 'pdf'" style="width: 100%; height: 100%; overflow: auto; padding: 16px; background-color: #525659; text-align: center;">
+                <div x-show="pdfLoading" class="py-16 flex flex-col items-center justify-center text-gray-200">
+                    <svg class="animate-spin h-8 w-8 text-amber-400 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span class="text-xs font-semibold">Memuat dan merender pratinjau dokumen PDF...</span>
                 </div>
-            </template>
+                <div x-show="pdfError" class="py-12 text-rose-300 text-xs px-4" x-text="pdfError"></div>
+                <div
+                    id="modal-pdf-container-{{ $record->id }}"
+                    class="inline-block transition-transform duration-150"
+                    :style="'transform: scale(' + (zoom / 100) + '); transform-origin: top center;'"
+                ></div>
+            </div>
 
             {{-- Tampilan Bukti Gambar (Foto Nota / Fisik Barang) --}}
-            <template x-if="isImage">
-                <div style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; overflow: auto; padding: 20px; background-color: #2b2e31;">
-                    <img
-                        :src="imageUrl"
-                        alt="Bukti Lampiran SPJ"
-                        style="max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); transition: transform 0.2s;"
-                        :style="'transform: scale(' + (zoom / 100) + ');'"
-                    />
-                </div>
-            </template>
+            <div x-show="viewMode === 'image'" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; overflow: auto; padding: 20px; background-color: #2b2e31;">
+                <img
+                    :src="activeImageUrl"
+                    alt="Bukti Lampiran SPJ"
+                    style="max-width: 95%; max-height: 95%; object-fit: contain; border-radius: 8px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); transition: transform 0.2s;"
+                    :style="'transform: scale(' + (zoom / 100) + ');'"
+                />
+            </div>
         </div>
     </div>
 </div>

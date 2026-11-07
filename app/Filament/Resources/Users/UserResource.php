@@ -20,7 +20,7 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
+    protected static string|\UnitEnum|null $navigationGroup = 'Kepegawaian';
     protected static ?string $modelLabel = 'Data Pegawai';
     protected static ?string $pluralModelLabel = 'Data Pegawai';
     protected static ?int $navigationSort = 1;
