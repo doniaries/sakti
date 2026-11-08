@@ -238,7 +238,7 @@ class RincianAnggaranBelanjasTable
                         ->color('warning')
                         ->form([
                             Select::make('bidang_id')
-                                ->label('Pilih Bidang Pengampu')
+                                ->label('Pilih Bidang ')
                                 ->options(fn() => Bidang::pluck('nama', 'id')->all())
                                 ->searchable()
                                 ->required(),

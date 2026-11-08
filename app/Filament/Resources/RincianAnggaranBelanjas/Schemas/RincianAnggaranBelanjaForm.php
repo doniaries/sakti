@@ -50,7 +50,7 @@ class RincianAnggaranBelanjaForm
                 Section::make('Formulir Rincian Belanja RKA')
                     ->icon('heroicon-o-document-text')
                     ->schema([
-                        // Baris 1: Tahun Anggaran, Sumber Pendanaan, dan Bidang Pengampu (Readonly kecuali superadmin)
+                        // Baris 1: Tahun Anggaran, Sumber Pendanaan, dan Bidang  (Readonly kecuali superadmin)
                         Grid::make([
                             'default' => 1,
                             'md' => 3,
@@ -69,7 +69,7 @@ class RincianAnggaranBelanjaForm
                                 ->required(),
 
                             Select::make('bidang_id')
-                                ->label('Bidang Pengampu')
+                                ->label('Bidang ')
                                 ->options(fn() => Bidang::pluck('nama', 'id')->all())
                                 ->default(fn() => $userBidangId ?? Bidang::first()?->id)
                                 ->disabled(! $isSuperAdmin)

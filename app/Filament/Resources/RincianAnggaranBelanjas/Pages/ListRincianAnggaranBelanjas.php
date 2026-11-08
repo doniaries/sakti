@@ -43,13 +43,13 @@ class ListRincianAnggaranBelanjas extends ListRecords
                         ->acceptedFileTypes(['application/pdf'])
                         ->disk('public')
                         ->directory('temp_rka_imports')
-                        ->getUploadedFileNameForStorageUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => (string) \Illuminate\Support\Str::uuid() . '.pdf')
+                        ->getUploadedFileNameForStorageUsing(fn(\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => (string) \Illuminate\Support\Str::uuid() . '.pdf')
                         ->helperText('Sistem otomatis mengekstrak Program, Kegiatan, Sub Kegiatan, Kode Rekening, Item Belanja, Koefisien, dan Harga.')
                         ->required(),
 
                     Select::make('bidang_id')
-                        ->label('Bidang Pengampu (Opsional)')
-                        ->options(fn () => Bidang::pluck('nama', 'id')->all())
+                        ->label('Bidang  (Opsional)')
+                        ->options(fn() => Bidang::pluck('nama', 'id')->all())
                         ->placeholder('Pilih Bidang (atau biarkan kosong untuk pembagian kerja manual)')
                         ->helperText('Jika dikosongkan, data akan berstatus "Belum Ditugaskan" agar Kadis/Sekretaris dapat membagikannya secara manual.')
                         ->nullable(),
@@ -134,7 +134,7 @@ class ListRincianAnggaranBelanjas extends ListRecords
                     $bidang->slug ?: 'bidang_' . $bidang->id => Tab::make($bidang->nama)
                         ->icon('heroicon-m-briefcase')
                         ->badge($count)
-                        ->modifyQueryUsing(fn (Builder $query) => $query->where('bidang_id', $bidang->id)),
+                        ->modifyQueryUsing(fn(Builder $query) => $query->where('bidang_id', $bidang->id)),
                 ];
             }
         }
@@ -149,7 +149,7 @@ class ListRincianAnggaranBelanjas extends ListRecords
                 ->icon('heroicon-m-clock')
                 ->badge(RincianAnggaranBelanja::where('tahun_anggaran', (int) $selectedTahun)->whereNull('bidang_id')->count())
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('bidang_id')),
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('bidang_id')),
         ];
 
         $bidangs = Bidang::query()->orderBy('nama')->get();
@@ -169,7 +169,7 @@ class ListRincianAnggaranBelanjas extends ListRecords
             $tabs[$bidang->slug ?: 'bidang_' . $bidang->id] = Tab::make($bidang->nama)
                 ->icon($icon)
                 ->badge($count)
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('bidang_id', $bidang->id));
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('bidang_id', $bidang->id));
         }
 
         return $tabs;

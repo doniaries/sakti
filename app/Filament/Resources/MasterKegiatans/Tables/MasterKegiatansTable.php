@@ -60,19 +60,19 @@ class MasterKegiatansTable
                     ->sortable(),
 
                 TextColumn::make('bidang.nama')
-                    ->label('Bidang Pengampu')
+                    ->label('Bidang ')
                     ->badge()
-                    ->color(fn (?string $state): string => Bidang::badgeColor($state))
+                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('program.nama_program')
                     ->label('Program Induk')
-                    ->description(fn ($record) => $record->program?->kode_program)
+                    ->description(fn($record) => $record->program?->kode_program)
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kode_kegiatan')
                     ->label('Kode Kegiatan')
@@ -85,7 +85,7 @@ class MasterKegiatansTable
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('pagu_anggaran')
                     ->label('Jumlah Uang Kegiatan')

@@ -62,16 +62,16 @@ class MasterSubKegiatansTable
                 TextColumn::make('kegiatan.bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    ->color(fn (?string $state): string => Bidang::badgeColor($state))
+                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
                     ->sortable(),
 
                 TextColumn::make('kegiatan.nama_kegiatan')
                     ->label('Kegiatan Induk')
-                    ->description(fn ($record) => $record->kegiatan?->kode_kegiatan)
+                    ->description(fn($record) => $record->kegiatan?->kode_kegiatan)
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kode_sub_kegiatan')
                     ->label('Kode Sub Kegiatan')
@@ -84,13 +84,13 @@ class MasterSubKegiatansTable
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('jf.name')
-                    ->label('JF Pengampu')
+                    ->label('JF ')
                     ->placeholder('Belum Ditugaskan')
                     ->badge()
-                    ->color(fn ($state) => $state ? 'info' : 'gray')
+                    ->color(fn($state) => $state ? 'info' : 'gray')
                     ->searchable()
                     ->sortable(),
 

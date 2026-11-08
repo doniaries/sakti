@@ -396,7 +396,7 @@ class PengajuanSpjForm
                                                                     ->required()
                                                                     ->maxLength(255),
                                                                 Select::make('jf_id')
-                                                                    ->label('JF Pengampu')
+                                                                    ->label('JF ')
                                                                     ->placeholder('Pilih Pejabat Fungsional (Opsional)')
                                                                     ->options(function (callable $get) {
                                                                         $kegiatanId = $get('kegiatan_id');

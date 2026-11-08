@@ -208,7 +208,7 @@ class SipdRkaImporterService
                 }
             }
 
-            // Bidang pengampu RKA: null jika belum ditugaskan (pembagian kerja manual di dinas)
+            // Bidang  RKA: null jika belum ditugaskan (pembagian kerja manual di dinas)
             $bidangId = $targetBidangId;
 
             $importedItems = 0;

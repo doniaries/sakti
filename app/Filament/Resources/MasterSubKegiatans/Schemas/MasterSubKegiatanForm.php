@@ -27,7 +27,7 @@ class MasterSubKegiatanForm
                 Select::make('tahun_anggaran')
                     ->label('Tahun Anggaran')
                     ->options($years)
-                    ->default(fn () => (int) (request()->query('tahun') ?? $currentYear))
+                    ->default(fn() => (int) (request()->query('tahun') ?? $currentYear))
                     ->searchable()
                     ->required(),
 
@@ -40,7 +40,7 @@ class MasterSubKegiatanForm
                             $query->where('bidang_id', $user->bidang_id);
                         }
                     })
-                    ->getOptionLabelFromRecordUsing(fn (MasterKegiatan $record) => $record->label)
+                    ->getOptionLabelFromRecordUsing(fn(MasterKegiatan $record) => $record->label)
                     ->searchable()
                     ->preload()
                     ->live()
@@ -69,9 +69,9 @@ class MasterSubKegiatanForm
                     ->required(),
 
                 Select::make('jf_id')
-                    ->label('Pejabat Fungsional (JF) Pengampu')
+                    ->label('Pejabat Fungsional (JF) ')
                     ->placeholder('Pilih Pejabat Fungsional (JF)')
-                    ->helperText(fn (Get $get) => $get('kegiatan_id')
+                    ->helperText(fn(Get $get) => $get('kegiatan_id')
                         ? 'Hanya menampilkan Pejabat Fungsional (JF) yang berada di bidang bersangkutan.'
                         : 'Pilih Kegiatan Induk terlebih dahulu agar daftar JF terfilter sesuai bidang.')
                     ->default(function () {
@@ -93,7 +93,7 @@ class MasterSubKegiatanForm
                         $query = \App\Models\User::query()
                             ->where('aktif', true)
                             ->where('bidang_id', $bidangId)
-                            ->whereHas('roles', fn ($q) => $q->where('name', 'jf'));
+                            ->whereHas('roles', fn($q) => $q->where('name', 'jf'));
 
                         if ($record?->jf_id) {
                             $query->orWhere('id', $record->jf_id);
@@ -122,7 +122,7 @@ class MasterSubKegiatanForm
                     ->label('Nomenklatur Sub Kegiatan')
                     ->placeholder('Contoh: Fasilitasi penguatan Kekayaan Intelektual')
                     ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
+                    ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                     ->required()
                     ->columnSpanFull(),
             ]);

@@ -33,7 +33,7 @@ class MasterKegiatanForm
                 Section::make('Informasi Kegiatan DPA')
                     ->icon('heroicon-o-briefcase')
                     ->schema([
-                        // Baris 1: Tahun Anggaran & Bidang Pengampu
+                        // Baris 1: Tahun Anggaran & Bidang 
                         Grid::make([
                             'default' => 1,
                             'md' => 3,
@@ -48,7 +48,7 @@ class MasterKegiatanForm
                                 ->columnSpan(['default' => 1, 'md' => 1]),
 
                             Select::make('bidang_id')
-                                ->label('Bidang Pengampu Kegiatan')
+                                ->label('Bidang  Kegiatan')
                                 ->default(function (): ?int {
                                     /** @var \App\Models\User|null $user */
                                     $user = Auth::user();
@@ -130,7 +130,7 @@ class MasterKegiatanForm
                                 ->label('Nomenklatur Kegiatan')
                                 ->placeholder('Contoh: PENGEMBANGAN EKOSISTEM EKONOMI KREATIF')
                                 ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
+                                ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                                 ->required()
                                 ->columnSpan(['default' => 1, 'md' => 2]),
                         ]),
