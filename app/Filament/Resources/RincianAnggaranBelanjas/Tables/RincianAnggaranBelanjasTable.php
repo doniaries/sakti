@@ -6,10 +6,12 @@ use App\Models\Bidang;
 use App\Models\KodeRekening;
 use App\Models\MasterSubKegiatan;
 use App\Models\RincianAnggaranBelanja;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -165,8 +167,19 @@ class RincianAnggaranBelanjasTable
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    ReplicateAction::make()
+                        ->label('Duplikasi RKA')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->color('info')
+                        ->successNotificationTitle('Rincian Belanja RKA berhasil diduplikasi!')
+                        ->beforeReplicaSaved(function (RincianAnggaranBelanja $replica): void {
+                            $replica->volume_realisasi = 0;
+                            $replica->nilai_realisasi = 0;
+                        }),
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
