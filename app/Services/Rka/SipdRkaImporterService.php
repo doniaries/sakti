@@ -43,19 +43,19 @@ class SipdRkaImporterService
 
         // 1. Ekstrak Metadata DPA
         preg_match('/Tahun Anggaran\s+(\d{4})/', $fullText, $tahunM);
-        preg_match('/Program\s*:\s*([0-9\.]+)\s+(.+)/', $fullText, $progM);
-        preg_match('/Kegiatan\s*:\s*([0-9\.]+)\s+(.+)/', $fullText, $kegM);
-        preg_match('/Sub Kegiatan\s*:\s*([0-9\.]+)\s+(.+)/', $fullText, $subM);
-        preg_match('/Sumber Pendanaan\s*:\s*(.+)/', $fullText, $sumberM);
+        preg_match('/Program\s*:\s*([0-9\.]+)\s+([^\r\n]+)/', $fullText, $progM);
+        preg_match('/Kegiatan\s*:\s*([0-9\.]+)\s+([^\r\n]+)/', $fullText, $kegM);
+        preg_match('/Sub Kegiatan\s*:\s*([0-9\.]+)\s+([^\r\n]+)/', $fullText, $subM);
+        preg_match('/Sumber Pendanaan\s*:\s*([^\r\n]+)/', $fullText, $sumberM);
 
         $tahun = (int) ($tahunM[1] ?? date('Y'));
         $programKode = trim($progM[1] ?? '');
-        $programNama = trim($progM[2] ?? '');
+        $programNama = trim(preg_replace('/\s+/u', ' ', $progM[2] ?? ''));
         $kegiatanKode = trim($kegM[1] ?? '');
-        $kegiatanNama = trim($kegM[2] ?? '');
+        $kegiatanNama = trim(preg_replace('/\s+/u', ' ', $kegM[2] ?? ''));
         $subKegiatanKode = trim($subM[1] ?? '');
-        $subKegiatanNama = trim($subM[2] ?? '');
-        $sumberDana = trim($sumberM[1] ?? 'Dana Alokasi Umum (DAU)');
+        $subKegiatanNama = trim(preg_replace('/\s+/u', ' ', $subM[2] ?? ''));
+        $sumberDana = trim(preg_replace('/\s+/u', ' ', $sumberM[1] ?? 'Dana Alokasi Umum (DAU)'));
 
         // 2. Ekstrak Baris Rincian Belanja
         $lines = explode("\n", $fullText);
@@ -115,7 +115,7 @@ class SipdRkaImporterService
             $skipZeroItems,
             $targetBidangId
         ) {
-            // 1. Program
+            // 1. Program (firstOrCreate berdasarkan tahun_anggaran & kode_program: jika sudah ada dari RKA lain, TIDAK DIBUAT ULANG)
             $program = null;
             if (! empty($programKode)) {
                 $program = MasterProgram::firstOrCreate(
@@ -127,36 +127,42 @@ class SipdRkaImporterService
                         'nama_program' => mb_strtoupper($programNama ?: 'PROGRAM PARIWISATA', 'UTF-8'),
                     ]
                 );
+
+                if ($programNama && empty($program->nama_program)) {
+                    $program->update(['nama_program' => mb_strtoupper($programNama, 'UTF-8')]);
+                }
             }
 
-            // 2. Sub Kegiatan & Kegiatan
-            $subKegiatan = MasterSubKegiatan::where('kode_sub_kegiatan', $subKegiatanKode)
-                ->orWhere('kode_sub_kegiatan', 'like', '%' . $subKegiatanKode . '%')
-                ->first();
-
-            $kegiatan = $subKegiatan?->kegiatan;
-
-            // Jika user memilih bidang secara eksplisit saat import
-            $bidangId = $targetBidangId;
-
-            // Jika kegiatan belum ada, buatkan master kegiatannya
-            if (! $kegiatan && ! empty($kegiatanKode)) {
+            // 2. Kegiatan (firstOrCreate berdasarkan tahun_anggaran & kode_kegiatan: jika sudah ada dari RKA lain, TIDAK DIBUAT ULANG)
+            $kegiatan = null;
+            if (! empty($kegiatanKode)) {
                 $kegiatan = MasterKegiatan::firstOrCreate(
                     [
                         'tahun_anggaran' => $tahun,
                         'kode_kegiatan' => $kegiatanKode,
                     ],
                     [
-                        'bidang_id' => $bidangId,
                         'program_id' => $program?->id,
+                        'bidang_id' => $targetBidangId,
                         'nama_kegiatan' => mb_strtoupper($kegiatanNama ?: 'KEGIATAN PARIWISATA', 'UTF-8'),
-                        'pagu_anggaran' => array_sum(array_column($rawItems, 'pagu_total')),
+                        'pagu_anggaran' => 0,
                     ]
                 );
+
+                // Hubungkan ke program jika sebelumnya program_id masih kosong
+                if ($program && ! $kegiatan->program_id) {
+                    $kegiatan->update(['program_id' => $program->id]);
+                }
+
+                // Jika user menentukan target bidang dan kegiatan belum memiliki bidang
+                if ($targetBidangId && ! $kegiatan->bidang_id) {
+                    $kegiatan->update(['bidang_id' => $targetBidangId]);
+                }
             }
 
-            // Jika sub kegiatan belum ada, buatkan master sub kegiatannya
-            if (! $subKegiatan && ! empty($subKegiatanKode)) {
+            // 3. Sub Kegiatan (firstOrCreate berdasarkan tahun_anggaran & kode_sub_kegiatan: jika sudah ada, TIDAK DIBUAT ULANG)
+            $subKegiatan = null;
+            if (! empty($subKegiatanKode)) {
                 $subKegiatan = MasterSubKegiatan::firstOrCreate(
                     [
                         'tahun_anggaran' => $tahun,
@@ -167,7 +173,15 @@ class SipdRkaImporterService
                         'nama_sub_kegiatan' => $subKegiatanNama ?: 'Sub Kegiatan',
                     ]
                 );
+
+                // Hubungkan ke kegiatan jika sebelumnya kegiatan_id belum sesuai
+                if ($kegiatan && (! $subKegiatan->kegiatan_id || $subKegiatan->kegiatan_id !== $kegiatan->id)) {
+                    $subKegiatan->update(['kegiatan_id' => $kegiatan->id]);
+                }
             }
+
+            // Bidang pengampu RKA: null jika belum ditugaskan (pembagian kerja manual di dinas)
+            $bidangId = $targetBidangId;
 
             $importedItems = 0;
             $totalPaguImported = 0.0;
