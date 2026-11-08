@@ -219,11 +219,6 @@ class RincianAnggaranBelanjaForm
 
                             Hidden::make('nama_item')
                                 ->dehydrated(),
-
-                            TextInput::make('spesifikasi')
-                                ->label('Spesifikasi Teknis / Merk Barang')
-                                ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram / Pertamax')
-                                ->columnSpanFull(),
                         ]),
                     ]),
 
