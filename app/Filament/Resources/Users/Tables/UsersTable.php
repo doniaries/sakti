@@ -37,8 +37,8 @@ class UsersTable
                 \Filament\Tables\Columns\ImageColumn::make('avatar_url')
                     ->disk('public')
                     ->label('Avatar')
-                    ->circular()
-                    ->sticky(),
+                    ->circular(),
+                /* ->sticky(), */
 
                 \Filament\Tables\Columns\TextColumn::make('name')
                     ->label('Nama Pegawai')

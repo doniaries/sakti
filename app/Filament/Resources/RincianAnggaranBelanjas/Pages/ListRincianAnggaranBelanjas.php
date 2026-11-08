@@ -25,5 +25,12 @@ class ListRincianAnggaranBelanjas extends ListRecords
                 ->color('primary'),
         ];
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\RincianAnggaranBelanjas\Widgets\RkaOverviewWidget::class,
+        ];
+    }
 }
 

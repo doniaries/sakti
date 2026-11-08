@@ -55,56 +55,58 @@ class RincianAnggaranBelanjasTable
                 TextColumn::make('tahun_anggaran')
                     ->label('Tahun')
                     ->badge()
+                    ->sticky()
                     ->color('primary')
                     ->sortable(),
 
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    ->color(fn (?string $state): string => Bidang::badgeColor($state))
+                    ->sticky()
+                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
                     ->sortable(),
 
                 TextColumn::make('subKegiatan.nama_sub_kegiatan')
                     ->label('Sub Kegiatan')
-                    ->description(fn (RincianAnggaranBelanja $r) => $r->subKegiatan?->kode_sub_kegiatan)
+                    ->description(fn(RincianAnggaranBelanja $r) => $r->subKegiatan?->kode_sub_kegiatan)
                     ->searchable()
                     ->sortable()
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kodeRekening.uraian')
                     ->label('Rekening Belanja')
-                    ->description(fn (RincianAnggaranBelanja $r) => $r->kodeRekening?->kode_lengkap)
+                    ->description(fn(RincianAnggaranBelanja $r) => $r->kodeRekening?->kode_lengkap)
                     ->searchable()
                     ->badge()
                     ->color('gray')
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('nama_item')
                     ->label('Uraian Barang / Belanja RKA')
-                    ->description(fn (RincianAnggaranBelanja $r) => $r->spesifikasi)
+                    ->description(fn(RincianAnggaranBelanja $r) => $r->spesifikasi)
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
                     ->wrap()
-                    ->formatStateUsing(fn (?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('pagu_volume')
                     ->label('Pagu Volume')
-                    ->state(fn (RincianAnggaranBelanja $r) => number_format((float) $r->volume, 0, ',', '.') . ' ' . $r->satuan)
+                    ->state(fn(RincianAnggaranBelanja $r) => number_format((float) $r->volume, 0, ',', '.') . ' ' . $r->satuan)
                     ->badge()
                     ->color('info')
                     ->sortable(),
 
                 TextColumn::make('harga_satuan')
                     ->label('Harga Standar')
-                    ->formatStateUsing(fn ($state) => \App\Support\FormatHelper::rupiah((float) $state))
+                    ->formatStateUsing(fn($state) => \App\Support\FormatHelper::rupiah((float) $state))
                     ->sortable(),
 
                 TextColumn::make('pagu_total')
                     ->label('Total Pagu Anggaran')
-                    ->formatStateUsing(fn ($state) => \App\Support\FormatHelper::rupiah((float) $state))
+                    ->formatStateUsing(fn($state) => \App\Support\FormatHelper::rupiah((float) $state))
                     ->weight('bold')
                     ->sortable(),
 
@@ -116,7 +118,7 @@ class RincianAnggaranBelanjasTable
                         return "{$vol} ({$rp})";
                     })
                     ->badge()
-                    ->color(fn (RincianAnggaranBelanja $r) => (float) $r->volume_realisasi > 0 ? 'warning' : 'gray'),
+                    ->color(fn(RincianAnggaranBelanja $r) => (float) $r->volume_realisasi > 0 ? 'warning' : 'gray'),
 
                 TextColumn::make('sisa_pagu')
                     ->label('Sisa Pagu (Volume & Rp)')
@@ -126,13 +128,13 @@ class RincianAnggaranBelanjasTable
                         return "{$sisaVol} ({$sisaRp})";
                     })
                     ->badge()
-                    ->color(fn (RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'success' : 'danger'),
+                    ->color(fn(RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'success' : 'danger'),
 
                 TextColumn::make('persen_realisasi')
                     ->label('Penyerapan')
-                    ->state(fn (RincianAnggaranBelanja $r): string => $r->persen_realisasi . '%')
+                    ->state(fn(RincianAnggaranBelanja $r): string => $r->persen_realisasi . '%')
                     ->badge()
-                    ->color(fn (RincianAnggaranBelanja $r): string => match (true) {
+                    ->color(fn(RincianAnggaranBelanja $r): string => match (true) {
                         $r->persen_realisasi >= 100 => 'danger',
                         $r->persen_realisasi >= 75 => 'warning',
                         $r->persen_realisasi > 0 => 'info',
@@ -153,12 +155,12 @@ class RincianAnggaranBelanjasTable
 
                 SelectFilter::make('sub_kegiatan_id')
                     ->label('Filter Sub Kegiatan')
-                    ->options(fn () => MasterSubKegiatan::all()->pluck('nama_sub_kegiatan', 'id')->all())
+                    ->options(fn() => MasterSubKegiatan::all()->pluck('nama_sub_kegiatan', 'id')->all())
                     ->searchable(),
 
                 SelectFilter::make('kode_rekening_id')
                     ->label('Filter Kode Rekening')
-                    ->options(fn () => KodeRekening::all()->pluck('uraian', 'id')->all())
+                    ->options(fn() => KodeRekening::all()->pluck('uraian', 'id')->all())
                     ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -173,4 +175,3 @@ class RincianAnggaranBelanjasTable
             ]);
     }
 }
-
