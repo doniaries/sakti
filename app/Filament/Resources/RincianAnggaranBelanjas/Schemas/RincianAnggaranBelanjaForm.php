@@ -33,7 +33,7 @@ class RincianAnggaranBelanjaForm
             ->components([
                 // Section 1: Pembebanan Sub Kegiatan & Sumber Pendanaan
                 Section::make('Sub Kegiatan & Pembebanan Anggaran')
-                    ->description('Tentukan tahun anggaran, bidang pengampu, sumber pendanaan, dan sub kegiatan sesuai Dokumen Pelaksanaan Anggaran (DPA/RKA).')
+                    ->description('Tentukan tahun anggaran, bidang pengampu, sub kegiatan, dan sumber pendanaan sesuai Dokumen Pelaksanaan Anggaran (DPA/RKA).')
                     ->icon('heroicon-o-building-office-2')
                     ->schema([
                         Grid::make([
@@ -45,47 +45,52 @@ class RincianAnggaranBelanjaForm
                                 ->options($years)
                                 ->default($currentYear)
                                 ->required()
-                                ->live(onBlur: true),
+                                ->live(onBlur: true)
+                                ->columnSpan(['default' => 1, 'md' => 1]),
 
                             Select::make('bidang_id')
                                 ->label('Bidang Pengampu')
                                 ->options(fn() => Bidang::pluck('nama', 'id')->all())
                                 ->default(fn() => Bidang::where('nama', 'LIKE', '%Pemasaran%')->value('id') ?? Bidang::first()?->id)
                                 ->required()
-                                ->live(onBlur: true),
+                                ->live(onBlur: true)
+                                ->columnSpan(['default' => 1, 'md' => 2]),
+
+                            Select::make('sub_kegiatan_id')
+                                ->label('Sub Kegiatan')
+                                ->placeholder('Pilih Sub Kegiatan Belanja...')
+                                ->options(function (Get $get) {
+                                    $tahun = $get('tahun_anggaran') ?? (int) date('Y');
+                                    $bidangId = $get('bidang_id');
+
+                                    return MasterSubKegiatan::query()
+                                        ->where('tahun_anggaran', $tahun)
+                                        ->when($bidangId, fn($q) => $q->whereHas('kegiatan', fn($k) => $k->where('bidang_id', $bidangId)))
+                                        ->get()
+                                        ->mapWithKeys(fn($item) => [$item->id => "{$item->kode_sub_kegiatan} - {$item->nama_sub_kegiatan}"])
+                                        ->all();
+                                })
+                                ->searchable()
+                                ->live()
+                                ->required()
+                                ->helperText('Pilih sub kegiatan yang menaungi alokasi anggaran belanja ini.')
+                                ->columnSpan(['default' => 1, 'md' => 2]),
 
                             Select::make('sumber_dana')
                                 ->label('Sumber Pendanaan')
                                 ->options(SumberDana::class)
                                 ->default(SumberDana::DAU->value)
-                                ->required(),
+                                ->required()
+                                ->columnSpan(['default' => 1, 'md' => 1]),
                         ]),
-
-                        Select::make('sub_kegiatan_id')
-                            ->label('Sub Kegiatan')
-                            ->placeholder('Pilih Sub Kegiatan Belanja...')
-                            ->options(function (Get $get) {
-                                $tahun = $get('tahun_anggaran') ?? (int) date('Y');
-                                $bidangId = $get('bidang_id');
-
-                                return MasterSubKegiatan::query()
-                                    ->where('tahun_anggaran', $tahun)
-                                    ->when($bidangId, fn($q) => $q->whereHas('kegiatan', fn($k) => $k->where('bidang_id', $bidangId)))
-                                    ->get()
-                                    ->mapWithKeys(fn($item) => [$item->id => "{$item->kode_sub_kegiatan} - {$item->nama_sub_kegiatan}"])
-                                    ->all();
-                            })
-                            ->searchable()
-                            ->live()
-                            ->required()
-                            ->helperText('Pilih sub kegiatan yang menaungi alokasi anggaran belanja ini.'),
                     ]),
 
-                // Section 2: Objek & Komponen Belanja SIPD RI
-                Section::make('Rincian Objek & Komponen Belanja')
-                    ->description('Pilih rincian objek belanja dan komponen barang yang akan dibebankan sesuai rincian SIPD.')
+                // Section 2: Objek Belanja, Komponen & Kalkulasi Pagu Anggaran
+                Section::make('Rincian Komponen & Kalkulasi Pagu Anggaran')
+                    ->description('Pilih rincian objek belanja, komponen barang/jasa, serta tentukan koefisien volume dan harga standar belanja.')
                     ->icon('heroicon-o-shopping-bag')
                     ->schema([
+                        // Baris 1: Rincian Objek & Komponen Belanja
                         Grid::make([
                             'default' => 1,
                             'md' => 2,
@@ -220,13 +225,8 @@ class RincianAnggaranBelanjaForm
                             Hidden::make('nama_item')
                                 ->dehydrated(),
                         ]),
-                    ]),
 
-                // Section 3: Kalkulasi Koefisien Volume & Pagu Anggaran
-                Section::make('Kalkulasi Koefisien Volume & Pagu Anggaran')
-                    ->description('Hitung total pagu anggaran berdasarkan koefisien volume dan harga satuan standar belanja.')
-                    ->icon('heroicon-o-calculator')
-                    ->schema([
+                        // Baris 2: Koefisien Volume, Satuan, Harga Satuan & Total Pagu
                         Grid::make([
                             'default' => 1,
                             'sm' => 2,
