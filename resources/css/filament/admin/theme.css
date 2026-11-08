@@ -349,6 +349,19 @@ html:not(.dark) .laporan-table thead tr th {
     z-index: 40 !important;
 }
 
+/* Modal Fit di Layar Penuh untuk Pratinjau Dokumen */
+.fi-modal-window:has(iframe) {
+    width: 98vw !important;
+    max-width: 98vw !important;
+    max-height: 96vh !important;
+    margin: 1vh auto !important;
+    border-radius: 16px !important;
+}
+.fi-modal-window:has(iframe) .fi-modal-content {
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+}
+
 /* Background Solid Sticky Cells di Body */
 html:not(.dark) .laporan-table tbody td.sticky-col-1,
 html:not(.dark) .laporan-table tbody td.sticky-col-2,

@@ -75,9 +75,36 @@
             vertical-align: top;
             text-align: center;
         }
+
+        @media screen {
+            body {
+                background-color: #3f3f46;
+                padding: 20px 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .page-sheet {
+                background: #ffffff;
+                width: 100%;
+                max-width: 1250px;
+                box-sizing: border-box;
+                padding: 12mm 15mm;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+                border-radius: 6px;
+            }
+        }
+        @media print {
+            .page-sheet {
+                width: 100%;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="page-sheet">
 
     <div class="header-title">
         <h2 class="uppercase">LAPORAN PERTANGGUNGJAWABAN BENDAHARA PENGELUARAN (LPJ FUNGSIONAL)</h2>
@@ -210,6 +237,7 @@
         </tr>
     </table>
 
+    </div>
 </body>
 </html>
 

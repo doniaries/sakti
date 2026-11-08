@@ -90,7 +90,7 @@ class LaporanFungsional extends Page
                 ->color('primary')
                 ->modalHeading('Pratinjau Dokumen LPJ Fungsional (Kertas F4 Landscape)')
                 ->modalDescription('Periksa seluruh halaman laporan pertanggungjawaban bendahara sebelum dicetak atau diunduh:')
-                ->modalWidth(Width::SevenExtraLarge)
+                ->modalWidth(Width::Screen)
                 ->form([
                     Grid::make(1)->schema([
                         Select::make('modal_bulan')

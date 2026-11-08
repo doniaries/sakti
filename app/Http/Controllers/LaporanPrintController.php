@@ -26,12 +26,13 @@ class LaporanPrintController extends Controller
     {
         $tahun = (int) ($request->query('tahun') ?: date('Y'));
         $bulan = (int) ($request->query('bulan') ?: date('n'));
-        $bidangId = $request->query('bidang') ? (int) $request->query('bidang') : null;
         $tipe = (string) ($request->query('tipe') ?: 'lengkap');
+        $penandatangan = (string) ($request->query('penandatangan') ?: 'sekretaris');
 
-        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, $bidangId);
-        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, $bidangId);
-        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, $bidangId);
+        // Rekapan data selalu satu dinas utuh (bidangId = null)
+        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, null);
+        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, null);
+        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, null);
 
         $instansi = Instansi::first() ?? PengaturanAplikasi::first();
         $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
@@ -39,7 +40,8 @@ class LaporanPrintController extends Controller
         $tglCetak = Carbon::now()->locale('id')->translatedFormat('d F Y');
 
         $kadis = User::role('pa')->first();
-        $sekretaris = User::role('pptk')->whereHas('bidang', fn ($b) => $b->where('nama', 'like', '%Sekretariat%'))->first();
+        $sekretaris = User::where('name', 'like', '%Desmawati%')->first()
+            ?? User::role('pptk')->whereHas('bidang', fn ($b) => $b->where('nama', 'like', '%Sekretariat%'))->first();
         $bendahara = User::role('bendahara')->first();
 
         return view('pdf.laporan-lrfk', [
@@ -53,6 +55,7 @@ class LaporanPrintController extends Controller
             'lampiran1' => $lampiran1,
             'kemajuan' => $kemajuan,
             'tipe' => $tipe,
+            'penandatangan' => $penandatangan,
             'kadis' => $kadis,
             'sekretaris' => $sekretaris,
             'bendahara' => $bendahara,
@@ -67,12 +70,13 @@ class LaporanPrintController extends Controller
     {
         $tahun = (int) ($request->query('tahun') ?: date('Y'));
         $bulan = (int) ($request->query('bulan') ?: date('n'));
-        $bidangId = $request->query('bidang') ? (int) $request->query('bidang') : null;
         $tipe = (string) ($request->query('tipe') ?: 'lengkap'); // 'matriks', 'lampiran1', 'kemajuan', 'lengkap'
+        $penandatangan = (string) ($request->query('penandatangan') ?: 'sekretaris');
 
-        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, $bidangId);
-        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, $bidangId);
-        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, $bidangId);
+        // Rekapan data selalu satu dinas utuh (bidangId = null)
+        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, null);
+        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, null);
+        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, null);
 
         $instansi = Instansi::first() ?? PengaturanAplikasi::first();
         $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
@@ -80,7 +84,8 @@ class LaporanPrintController extends Controller
         $tglCetak = Carbon::now()->locale('id')->translatedFormat('d F Y');
 
         $kadis = User::role('pa')->first();
-        $sekretaris = User::role('pptk')->whereHas('bidang', fn ($b) => $b->where('nama', 'like', '%Sekretariat%'))->first();
+        $sekretaris = User::where('name', 'like', '%Desmawati%')->first()
+            ?? User::role('pptk')->whereHas('bidang', fn ($b) => $b->where('nama', 'like', '%Sekretariat%'))->first();
         $bendahara = User::role('bendahara')->first();
 
         $pdf = Pdf::loadView('pdf.laporan-lrfk', [
@@ -94,6 +99,7 @@ class LaporanPrintController extends Controller
             'lampiran1' => $lampiran1,
             'kemajuan' => $kemajuan,
             'tipe' => $tipe,
+            'penandatangan' => $penandatangan,
             'kadis' => $kadis,
             'sekretaris' => $sekretaris,
             'bendahara' => $bendahara,
@@ -105,6 +111,38 @@ class LaporanPrintController extends Controller
         $filename = "LRFK_{$namaBulan}_{$tahun}.pdf";
 
         return $pdf->stream($filename);
+    }
+
+    /**
+     * Pratinjau Dokumen HTML LPJ Fungsional untuk Iframe (Bebas Intersepsi IDM)
+     */
+    public function previewLpjFungsional(Request $request): \Illuminate\Contracts\View\View
+    {
+        $tahun = (int) ($request->query('tahun') ?: date('Y'));
+        $bulan = (int) ($request->query('bulan') ?: date('n'));
+
+        $data = $this->calculationService->getLpjFungsional($tahun, $bulan);
+
+        $instansi = Instansi::first() ?? PengaturanAplikasi::first();
+        $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
+        $tglKondisi = Carbon::create($tahun, $bulan)->endOfMonth()->locale('id')->translatedFormat('d F Y');
+        $tglCetak = Carbon::now()->locale('id')->translatedFormat('d F Y');
+
+        $kadis = User::role('pa')->first();
+        $bendahara = User::role('bendahara')->first();
+
+        return view('pdf.laporan-fungsional', [
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'namaBulan' => $namaBulan,
+            'tglKondisi' => $tglKondisi,
+            'tglCetak' => $tglCetak,
+            'instansi' => $instansi,
+            'data' => $data,
+            'kadis' => $kadis,
+            'bendahara' => $bendahara,
+            'isPreview' => true,
+        ]);
     }
 
     /**

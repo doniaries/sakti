@@ -37,8 +37,6 @@ class LaporanLrfk extends Page
 
     public int $bulan;
 
-    public ?int $bidangId = null;
-
     public string $activeTab = 'lampiran1';
 
     public static function canAccess(): bool
@@ -62,14 +60,6 @@ class LaporanLrfk extends Page
         $defaultTahun = RincianAnggaranBelanja::max('tahun_anggaran') ?? (int) date('Y');
         $this->tahun = (int) (request()->query('tahun') ?: $defaultTahun);
         $this->bulan = (int) (request()->query('bulan') ?: date('n'));
-
-        /** @var \App\Models\User|null $user */
-        $user = Auth::user();
-        if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
-            $this->bidangId = $user->bidang_id;
-        } else {
-            $this->bidangId = request()->query('bidang') ? (int) request()->query('bidang') : null;
-        }
     }
 
     public function setTab(string $tab): void
@@ -95,11 +85,6 @@ class LaporanLrfk extends Page
         ];
     }
 
-    public function getDaftarBidang(): Collection
-    {
-        return Bidang::query()->orderBy('nama')->get();
-    }
-
     protected function getHeaderActions(): array
     {
         return [
@@ -108,8 +93,7 @@ class LaporanLrfk extends Page
                 ->icon('heroicon-o-printer')
                 ->color('primary')
                 ->modalHeading('Pratinjau Dokumen LRFK (Kertas F4 Landscape)')
-                ->modalDescription('Periksa seluruh halaman laporan sebelum mencetak atau mengunduh dokumen. Navigasi thumbnail di samping kiri dapat digunakan untuk melompat antarhalaman:')
-                ->modalWidth(Width::SevenExtraLarge)
+                ->modalWidth(Width::Screen)
                 ->form([
                     Grid::make(3)->schema([
                         Select::make('modal_bulan')
@@ -119,24 +103,21 @@ class LaporanLrfk extends Page
                             ->live()
                             ->required(),
 
-                        Select::make('modal_bidang_id')
-                            ->label('Bidang Dinas')
-                            ->options(function () {
-                                $opts = ['' => 'Semua Bidang (Rekap OPD Dinas)'];
-                                foreach (Bidang::orderBy('nama')->pluck('nama', 'id') as $id => $nama) {
-                                    $opts[$id] = $nama;
-                                }
-                                return $opts;
-                            })
-                            ->default(fn () => $this->bidangId ? (string) $this->bidangId : '')
+                        Select::make('modal_penandatangan')
+                            ->label('Penandatangan Dokumen')
+                            ->options([
+                                'sekretaris' => 'a.n. Kepala Dinas (Sekretaris)',
+                                'kepala_dinas' => 'Kepala Dinas Langsung',
+                            ])
+                            ->default('sekretaris')
                             ->live()
-                            ->selectablePlaceholder(false),
+                            ->required(),
 
                         Select::make('modal_tipe')
                             ->label('Pilihan Lembar Laporan')
                             ->options([
                                 'lengkap' => 'Buku LRFK Lengkap (Semua Halaman 1, 2, 3)',
-                                'lampiran1' => 'Halaman 1: Laporan Realisasi Belanja (Lampiran 1)',
+                                'lampiran1' => 'Halaman 1: Laporan Realisasi Belanja',
                                 'kemajuan' => 'Halaman 2: Laporan Kemajuan Pekerjaan',
                                 'matriks' => 'Halaman 3: Laporan Realisasi Fisik dan Keuangan (LRFK)',
                             ])
@@ -155,12 +136,11 @@ class LaporanLrfk extends Page
                 ->modalCancelActionLabel('Tutup')
                 ->action(function (array $data) {
                     $bulanPilihan = (int) ($data['modal_bulan'] ?? $this->bulan);
-                    $bidangPilihan = !empty($data['modal_bidang_id']) ? (int) $data['modal_bidang_id'] : null;
+                    $penandatanganPilihan = (string) ($data['modal_penandatangan'] ?? 'sekretaris');
                     $tipePilihan = (string) ($data['modal_tipe'] ?? 'lengkap');
 
                     // Sinkronkan state halaman agar tampilan tabel di layar ikut sinkron seketika
                     $this->bulan = $bulanPilihan;
-                    $this->bidangId = $bidangPilihan;
                     if (in_array($tipePilihan, ['matriks', 'lampiran1', 'kemajuan'], true)) {
                         $this->activeTab = $tipePilihan;
                     }
@@ -168,7 +148,7 @@ class LaporanLrfk extends Page
                     $url = route('admin.laporan.lrfk.cetak', [
                         'tahun' => $this->tahun,
                         'bulan' => $bulanPilihan,
-                        'bidang' => $bidangPilihan,
+                        'penandatangan' => $penandatanganPilihan,
                         'tipe' => $tipePilihan,
                     ]);
 
@@ -183,11 +163,10 @@ class LaporanLrfk extends Page
         $service = app(LrfkCalculationService::class);
 
         return [
-            'matriks' => $service->getMatriksLrfkKegiatan($this->tahun, $this->bulan, $this->bidangId),
-            'lampiran1' => $service->getLampiran1JenisBelanja($this->tahun, $this->bulan, $this->bidangId),
-            'kemajuan' => $service->getKemajuanPekerjaanFisik($this->tahun, $this->bulan, $this->bidangId),
+            'matriks' => $service->getMatriksLrfkKegiatan($this->tahun, $this->bulan, null),
+            'lampiran1' => $service->getLampiran1JenisBelanja($this->tahun, $this->bulan, null),
+            'kemajuan' => $service->getKemajuanPekerjaanFisik($this->tahun, $this->bulan, null),
             'daftarBulan' => $this->getDaftarBulan(),
-            'daftarBidang' => $this->getDaftarBidang(),
             'namaBulanAktif' => $this->getDaftarBulan()[$this->bulan] ?? '',
         ];
     }
