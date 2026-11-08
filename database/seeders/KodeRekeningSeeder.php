@@ -10,10 +10,6 @@ class KodeRekeningSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        KodeRekening::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
         $kodeRekeningData = [
             [
                 'akun' => '5',
@@ -150,7 +146,7 @@ class KodeRekeningSeeder extends Seeder
         ];
 
         foreach ($kodeRekeningData as $data) {
-            KodeRekening::firstOrCreate(['kode_lengkap' => $data['kode_lengkap']], $data);
+            KodeRekening::updateOrCreate(['kode_lengkap' => $data['kode_lengkap']], $data);
         }
 
         $this->command->info('Kode Rekening berhasil disimpan.');

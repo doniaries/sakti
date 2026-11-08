@@ -228,7 +228,7 @@ akun,kelompok,jenis,objek,rincian_objek,sub_rincian_objek,sub_sub_rincian_objek,
 5,1,02,01,01,,,5.1.02.01.01,Belanja Barang Pakai Habis
 5,1,02,01,01,0001,,5.1.02.01.01.0001,Belanja Bahan-Bahan Bangunan danKonstruksi
 5,1,02,01,01,0002,,5.1.02.01.01.0002,Belanja Bahan-Bahan Kimia
-5,1,02,01,01,0004,,5.1.02.01.01.0004,Belanja Bahan-Bahan Bakar dan Pelumas
+5,1,02,01,001,00004,,5.1.02.01.001.00004,Belanja Bahan-Bahan Bakar dan Pelumas
 5,1,02,01,01,0005,,5.1.02.01.01.0005,Belanja Bahan-Bahan Baku
 5,1,02,01,01,0006,,5.1.02.01.01.0006,Belanja Bahan-Bahan Kimia Nuklir
 5,1,02,01,01,0007,,5.1.02.01.01.0007,Belanja Bahan-Barang dalam Proses
@@ -247,13 +247,13 @@ akun,kelompok,jenis,objek,rincian_objek,sub_rincian_objek,sub_sub_rincian_objek,
 5,1,02,01,01,0020,,5.1.02.01.01.0020,Belanja Suku Cadang-Suku Cadang AlatBengkel
 5,1,02,01,01,0022,,5.1.02.01.01.0022,Belanja Suku Cadang-Persediaan dariBelanja Bantuan Sosial
 5,1,02,01,01,0023,,5.1.02.01.01.0023,Belanja Suku Cadang-Suku Cadang Lainnya
-5,1,02,01,01,0024,,5.1.02.01.01.0024,Belanja Alat/Bahan untuk Kegiatan Kantor- Alat Tulis Kantor
-5,1,02,01,01,0025,,5.1.02.01.01.0025,Belanja Alat/Bahan untuk Kegiatan Kantor-Kertas dan Cover pada belanja alat/bahan untuk kegiatan kantor- kertas dan cover
-5,1,02,01,01,0026,,5.1.02.01.01.0026,Belanja Alat/Bahan untuk Kegiatan Kantor-Bahan Cetak
+5,1,02,01,001,00024,,5.1.02.01.001.00024,Belanja Alat/Bahan untuk Kegiatan Kantor- Alat Tulis Kantor
+5,1,02,01,001,00025,,5.1.02.01.001.00025,Belanja Alat/Bahan untuk Kegiatan Kantor- Kertas dan Cover
+5,1,02,01,001,00026,,5.1.02.01.001.00026,Belanja Alat/Bahan untuk Kegiatan Kantor-Bahan Cetak
 5,1,02,01,01,0027,,5.1.02.01.01.0027,Belanja Alat/Bahan untuk Kegiatan Kantor- Benda Pos
 5,1,02,01,01,0028,,5.1.02.01.01.0028,Belanja Alat/Bahan untuk Kegiatan Kantor-Persediaan Dokumen/Administrasi Tender
-5,1,02,01,01,0029,,5.1.02.01.01.0029,Belanja Alat/Bahan untuk Kegiatan Kantor- Bahan Komputer
-5,1,02,01,01,0030,,5.1.02.01.01.0030,Belanja Alat/Bahan untuk Kegiatan Kantor-Perabot Kantor
+5,1,02,01,001,00029,,5.1.02.01.001.00029,Belanja Alat/Bahan untuk Kegiatan Kantor- Bahan Komputer
+5,1,02,01,001,00030,,5.1.02.01.001.00030,Belanja Alat/Bahan untuk Kegiatan Kantor-Perabot Kantor
 5,1,02,01,01,0031,,5.1.02.01.01.0031,Belanja Alat/Bahan untuk Kegiatan Kantor- Alat Listrik
 5,1,02,01,01,0032,,5.1.02.01.01.0032,Belanja Alat/Bahan untuk Kegiatan Kantor-Perlengkapan Dinas
 5,1,02,01,01,0033,,5.1.02.01.01.0033,Belanja Alat/Bahan untuk Kegiatan Kantor- Kaporlap dan Perlengkapa
@@ -266,7 +266,7 @@ akun,kelompok,jenis,objek,rincian_objek,sub_rincian_objek,sub_sub_rincian_objek,
 5,1,02,01,01,0040,,5.1.02.01.01.0040,Belanja Barang untuk Dijual/Diserahkan kepada Pihak Ketiga/Pihak Lai
 5,1,02,01,01,0041,,5.1.02.01.01.0041,Belanja Persediaan untuk Tujuan Strategis/Berjaga-jaga-Persediaan un
 5,1,02,01,01,0042,,5.1.02.01.01.0042,Belanja Persediaan untuk TujuanStrategis/Berjaga-jaga-Persediaan untukTujuan Strategis/Berjaga-jaga Lainnya
-5,1,02,01,01,0043,,5.1.02.01.01.0043,Belanja Natura dan Pakan-Natura
+5,1,02,01,001,00043,,5.1.02.01.001.00043,Belanja Natura dan Pakan-Natura
 5,1,02,01,01,0044,,5.1.02.01.01.0044,Belanja Natura dan Pakan-Pakan
 5,1,02,01,01,0045,,5.1.02.01.01.0045,Belanja Natura dan Pakan-Natura dan PakanLainnya
 5,1,02,01,01,0046,,5.1.02.01.01.0046,Belanja Persediaan Penelitian-PersediaanPenelitian Biologi
@@ -275,13 +275,13 @@ akun,kelompok,jenis,objek,rincian_objek,sub_rincian_objek,sub_sub_rincian_objek,
 5,1,02,01,01,0049,,5.1.02.01.01.0049,Belanja Persediaan Penelitian-PersediaanPenelitian Lainnya
 5,1,02,01,01,0050,,5.1.02.01.01.0050,Belanja Persediaan Dalam Proses-PersediaanDalam Proses
 5,1,02,01,01,0051,,5.1.02.01.01.0051,Belanja Persediaan Dalam Proses-PersediaanDalam Proses Lainnya
-5,1,02,01,01,0052,,5.1.02.01.01.0052,Belanja Makanan dan Minuman Rapat
+5,1,02,01,001,00052,,5.1.02.01.001.00052,Belanja Makanan dan Minuman Rapat
 5,1,02,01,01,0053,,5.1.02.01.01.0053,Belanja Makanan dan Minuman JamuanTamu
 5,1,02,01,01,0054,,5.1.02.01.01.0054,Belanja Penambah Daya Tahan Tubuh
 5,1,02,01,01,0055,,5.1.02.01.01.0055,Belanja Makanan dan Minuman pada Fasilitas Pelayanan Urusan Pendidikan
 5,1,02,01,01,0056,,5.1.02.01.01.0056,Belanja Makanan dan Minuman pada Fasilitas Pelayanan Urusan Kesehatan
 5,1,02,01,01,0057,,5.1.02.01.01.0057,Belanja Makanan dan Minuman pada Fasilitas Pelayanan Urusan Sosia
-5,1,02,01,01,0058,,5.1.02.01.01.0058,Belanja Makanan dan Minuman AktivitasLapangan
+5,1,02,01,001,00058,,5.1.02.01.001.00058,Belanja Makanan dan Minuman Aktivitas Lapangan
 5,1,02,01,01,0059,,5.1.02.01.01.0059,Belanja Pakaian Dinas KDH dan WKDH
 5,1,02,01,01,0060,,5.1.02.01.01.0060,Belanja Pakaian Dinas dan Atribut Pimpinan dan Anggota DPRD
 5,1,02,01,01,0061,,5.1.02.01.01.0061,Belanja Pakaian Sipil Harian (PSH)
@@ -346,7 +346,7 @@ akun,kelompok,jenis,objek,rincian_objek,sub_rincian_objek,sub_sub_rincian_objek,
 5,1,02,02,01,0022,,5.1.02.02.01.0022,Belanja Jasa Tenaga Perhubungan
 5,1,02,02,01,0023,,5.1.02.02.01.0023,Belanja Jasa Tenaga Teknis Pertanian dan Pangan
 5,1,02,02,01,0024,,5.1.02.02.01.0024,Belanja Jasa Tenaga Arsip dan Perpustakaan
-5,1,02,02,01,0025,,5.1.02.02.01.0025,Belanja Jasa Tenaga Kesenian dan Kebudayaan
+5,1,02,02,001,00025,,5.1.02.02.001.00025,Belanja Jasa Tenaga Kesenian dan Kebudayaan
 5,1,02,02,01,0026,,5.1.02.02.01.0026,Belanja Jasa Tenaga Administrasi
 5,1,02,02,01,0027,,5.1.02.02.01.0027,Belanja Jasa Tenaga Operator Komputer
 5,1,02,02,01,0028,,5.1.02.02.01.0028,Belanja Jasa Tenaga Pelayanan Umum
@@ -369,7 +369,7 @@ akun,kelompok,jenis,objek,rincian_objek,sub_rincian_objek,sub_sub_rincian_objek,
 5,1,02,02,01,0045,,5.1.02.02.01.0045,Belanja Jasa Pelayanan Kearsipan
 5,1,02,02,01,0046,,5.1.02.02.01.0046,Belanja Jasa Konversi Aplikasi/Sistem Informasi
 5,1,02,02,01,0047,,5.1.02.02.01.0047,Belanja Jasa Penyelenggaraan Acara
-5,1,02,02,01,0048,,5.1.02.02.01.0048,Belanja Jasa Kontribusi Asosiasi
+5,1,02,02,001,00048,,5.1.02.02.001.00048,Belanja Jasa Kontribusi Asosiasi
 5,1,02,02,01,0049,,5.1.02.02.01.0049,"Belanja Jasa Pencucian Pakaian, AlatKesenian dan Kebudayaan, serta Alat Rumah Tangga"
 5,1,02,02,01,0050,,5.1.02.02.01.0050,Belanja Jasa Kalibrasi
 5,1,02,02,01,0051,,5.1.02.02.01.0051,Belanja Jasa Pengolahan Sampah
@@ -2123,7 +2123,7 @@ akun,kelompok,jenis,objek,rincian_objek,sub_rincian_objek,sub_sub_rincian_objek,
 5,1,02,04,01,,,5.1.02.04.01,Belanja Perjalanan Dinas Dalam Negeri
 5,1,02,04,01,0001,,5.1.02.04.01.0001,Belanja Perjalanan Dinas Biasa
 5,1,02,04,01,0002,,5.1.02.04.01.0002,Belanja Perjalanan Dinas Tetap
-5,1,02,04,01,0003,,5.1.02.04.01.0003,Belanja Perjalanan Dinas Dalam Kota
+5,1,02,04,001,00003,,5.1.02.04.001.00003,Belanja Perjalanan Dinas Dalam Kota
 5,1,02,04,01,0004,,5.1.02.04.01.0004,Belanja Perjalanan Dinas Paket MeetingDalam Kota
 5,1,02,04,01,0005,,5.1.02.04.01.0005,Belanja Perjalanan Dinas Paket Meeting LuarKota
 5,1,02,04,02,,,5.1.02.04.02,Belanja Perjalanan Dinas Luar Negeri
