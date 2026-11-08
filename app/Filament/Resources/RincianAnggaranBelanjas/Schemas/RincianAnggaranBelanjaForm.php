@@ -89,19 +89,59 @@ class RincianAnggaranBelanjaForm
                         Grid::make(2)->schema([
                             Select::make('kode_rekening_id')
                                 ->label('Kode Rekening Belanja (SIPD RI)')
-                                ->helperText('Ketik kode atau nama rekening belanja (misal: "Bahan Bakar", "ATK", atau "5.1.02").')
+                                ->helperText('Pilih atau ketik rekening belanja terakhir (Sub Rincian) yang dibebankan pada RKA.')
                                 ->searchable()
-                                ->getSearchResultsUsing(fn (string $search): array => KodeRekening::query()
-                                    ->where('kode_lengkap', 'like', "%{$search}%")
-                                    ->orWhere('uraian', 'like', "%{$search}%")
-                                    ->limit(50)
-                                    ->get()
-                                    ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
-                                    ->all()
-                                )
+                                ->options(function () {
+                                    return KodeRekening::hanyaSubRincian()
+                                        ->orderBy('kode_lengkap')
+                                        ->limit(100)
+                                        ->get()
+                                        ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
+                                        ->all();
+                                })
+                                ->getSearchResultsUsing(function (string $search): array {
+                                    $tokens = explode(' ', trim($search));
+                                    return KodeRekening::hanyaSubRincian()
+                                        ->where(function ($q) use ($tokens, $search) {
+                                            $q->where('kode_lengkap', 'like', "%{$search}%");
+                                            $q->orWhere(function ($sub) use ($tokens) {
+                                                foreach ($tokens as $token) {
+                                                    if (filled($token)) {
+                                                        $sub->where('uraian', 'like', "%{$token}%");
+                                                    }
+                                                }
+                                            });
+                                        })
+                                        ->orderBy('kode_lengkap')
+                                        ->limit(50)
+                                        ->get()
+                                        ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
+                                        ->all();
+                                })
                                 ->getOptionLabelUsing(fn ($value): ?string => ($r = KodeRekening::find($value)) ? "{$r->kode_lengkap} - {$r->uraian}" : null)
                                 ->required()
-                                ->live(),
+                                ->live()
+                                ->afterStateUpdated(function ($state, Set $set) {
+                                    if ($state) {
+                                        $rek = KodeRekening::find($state);
+                                        if ($rek) {
+                                            $h = $rek->getHierarkiSipd();
+                                            $set('sipd_akun', $h['akun']);
+                                            $set('sipd_kelompok', $h['kelompok']);
+                                            $set('sipd_jenis', $h['jenis']);
+                                            $set('sipd_objek', $h['objek']);
+                                            $set('sipd_rincian_objek', $h['rincian_objek']);
+                                            $set('sipd_sub_rincian', $h['sub_rincian']);
+                                        }
+                                    } else {
+                                        $set('sipd_akun', null);
+                                        $set('sipd_kelompok', null);
+                                        $set('sipd_jenis', null);
+                                        $set('sipd_objek', null);
+                                        $set('sipd_rincian_objek', null);
+                                        $set('sipd_sub_rincian', null);
+                                    }
+                                }),
 
                             Select::make('master_barang_id')
                                 ->label('Komponen Belanja')
@@ -158,37 +198,43 @@ class RincianAnggaranBelanjaForm
                                 ])->schema([
                                     TextInput::make('sipd_akun')
                                         ->label('Akun Belanja')
-                                        ->formatStateUsing(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['akun'] ?? '5 - BELANJA DAERAH')
+                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['akun'] ?? '5 - BELANJA DAERAH')
+                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_akun', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['akun'] ?? '5 - BELANJA DAERAH'))
                                         ->readOnly()
                                         ->dehydrated(false),
 
                                     TextInput::make('sipd_kelompok')
                                         ->label('Kelompok Belanja')
-                                        ->formatStateUsing(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['kelompok'] ?? '-')
+                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['kelompok'] ?? '-')
+                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_kelompok', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['kelompok'] ?? '-'))
                                         ->readOnly()
                                         ->dehydrated(false),
 
                                     TextInput::make('sipd_jenis')
                                         ->label('Jenis Belanja')
-                                        ->formatStateUsing(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['jenis'] ?? '-')
+                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['jenis'] ?? '-')
+                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_jenis', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['jenis'] ?? '-'))
                                         ->readOnly()
                                         ->dehydrated(false),
 
                                     TextInput::make('sipd_objek')
                                         ->label('Objek Belanja')
-                                        ->formatStateUsing(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['objek'] ?? '-')
+                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['objek'] ?? '-')
+                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_objek', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['objek'] ?? '-'))
                                         ->readOnly()
                                         ->dehydrated(false),
 
                                     TextInput::make('sipd_rincian_objek')
                                         ->label('Rincian Objek Belanja')
-                                        ->formatStateUsing(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['rincian_objek'] ?? '-')
+                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['rincian_objek'] ?? '-')
+                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_rincian_objek', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['rincian_objek'] ?? '-'))
                                         ->readOnly()
                                         ->dehydrated(false),
 
                                     TextInput::make('sipd_sub_rincian')
                                         ->label('Sub Rincian (Rekening Terpilih)')
-                                        ->formatStateUsing(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['sub_rincian'] ?? '-')
+                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['sub_rincian'] ?? '-')
+                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_sub_rincian', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['sub_rincian'] ?? '-'))
                                         ->readOnly()
                                         ->extraInputAttributes(['class' => '!font-bold !text-amber-600 dark:!text-amber-400'])
                                         ->dehydrated(false),

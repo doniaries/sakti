@@ -96,6 +96,11 @@ class KodeRekening extends Model
         return $this->level >= 5;
     }
 
+    public function scopeHanyaSubRincian(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 5");
+    }
+
     /**
      * Dapatkan rincian hierarki berjenjang kode rekening sesuai standar SIPD RI
      * (Akun -> Kelompok -> Jenis -> Objek -> Rincian Objek -> Sub Rincian)
