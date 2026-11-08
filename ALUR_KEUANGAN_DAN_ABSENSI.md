@@ -145,3 +145,101 @@ flowchart TD
 4. **Pegawai WFH**:
    Pegawai dengan `status_kerja = 'wfh'` dibebaskan dari pembatasan radius geofencing kantor.
 
+---
+
+## 3. Modul Pelaporan Eksekutif: LRFK & Laporan Fungsional Bendahara
+
+Modul ini mengotomatiskan penerbitan laporan pertanggungjawaban fisik dan keuangan daerah sesuai standar Bappeda, Bagian Administrasi Pembangunan, dan BPKAD Kabupaten Sijunjung, tanpa membutuhkan input data manual berulang.
+
+```mermaid
+flowchart TD
+    classDef input fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b;
+    classDef proses fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a;
+    classDef kalkulasi fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef output fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+
+    subgraph DATA["1. Sumber Data Transaksional Otomatis"]
+        D1["DPA / RKA SIPD<br/>• Pagu Kegiatan & Sub Kegiatan<br/>• Item RKA & Pagu Volume"]:::input
+        D2["Transaksi SPJ Dicairkan<br/>• Tanggal Cair & Nomor BKU<br/>• Kuantitas Barang & Subtotal SPJ<br/>• Bukti BAST / Foto Fisik"]:::input
+        D3["Target ROPK Bulanan<br/>• Target Kumulatif Fisik %<br/>• Target Anggaran Kas Rp"]:::input
+    end
+
+    subgraph ENGINE["2. Otomasi Perhitungan (Kalkulasi Sistem)"]
+        E1["Realisasi Keuangan<br/>Akumulasi SPJ Cair per Kegiatan & Rekening"]:::kalkulasi
+        E2["Realisasi Fisik Tertimbang<br/>Bobot Item x % Capaian Volume RKA"]:::kalkulasi
+        E3["Evaluasi Deviasi & Kinerja<br/>Capaian Fisik % & Serapan Anggaran %"]:::kalkulasi
+    end
+
+    subgraph LAPORAN["3. Output Menu Laporan Eksekutif (Cetak PDF)"]
+        L1["Laporan Realisasi Fisik & Keuangan (LRFK)<br/>• Matriks Utama LRFK Bulanan<br/>• Lampiran 1: Realisasi Belanja Operasi/Modal<br/>• Kemajuan Pekerjaan Fisik & Kontrak"]:::output
+        L2["Laporan Fungsional Bendahara<br/>• Buku Kas Umum (BKU)<br/>• Realisasi Anggaran per Kode Rekening<br/>• Rekapitulasi Pajak & Saldo Kas"]:::output
+    end
+
+    D1 --> E1
+    D1 --> E2
+    D2 --> E1
+    D2 --> E2
+    D3 --> E3
+    E1 --> E3
+    E2 --> E3
+    E1 --> L1
+    E2 --> L1
+    E3 --> L1
+    E1 --> L2
+    D2 --> L2
+```
+
+---
+
+### A. Metodologi & Rumus Perhitungan 100% Otomatis
+
+Sistem menghitung seluruh indikator realisasi secara otomatis dari data transaksi SPJ yang telah dicairkan:
+
+#### 1. Perhitungan Realisasi Keuangan
+Realisasi keuangan dihitung berdasarkan jumlah rupiah yang benar-benar telah dicairkan oleh Bendahara Pengeluaran dibandingkan dengan total pagu DPA:
+
+$$\text{Realisasi Keuangan (Rp)} = \sum \text{Nilai SPJ Dicairkan s/d Bulan Laporan}$$
+
+$$\text{Realisasi Keuangan (\%)} = \left(\frac{\text{Realisasi Keuangan (Rp)}}{\text{Pagu Anggaran DPA (Rp)}}\right) \times 100\%$$
+
+$$\text{Serapan Anggaran (\%)} = \left(\frac{\text{Realisasi Keuangan (Rp)}}{\text{Target Keuangan ROPK (Rp)}}\right) \times 100\%$$
+
+#### 2. Perhitungan Realisasi Fisik (Metode Pembobotan Proporsional Item)
+Realisasi fisik mencerminkan tingkat kemajuan pelaksanaan barang/jasa di lapangan. Sistem menghitung secara otomatis melalui pembobotan item rincian belanja (RKA):
+
+- **Bobot Item Belanja**:
+  $$\text{Bobot Item}_i = \left(\frac{\text{Pagu Total Item}_i}{\text{Total Pagu Kegiatan}}\right) \times 100\%$$
+
+- **Progres Fisik Item (% Volume Terealisasi)**:
+  Untuk setiap item belanja yang telah diverifikasi fisik dan dicairkan:
+  $$\% \text{Progres Item}_i = \min\left(100\%, \frac{\text{Volume SPJ Selesai}_i}{\text{Pagu Volume RKA}_i} \times 100\%\right)$$
+
+- **Realisasi Fisik Tertimbang Sub-Kegiatan / Kegiatan**:
+  $$\text{Realisasi Fisik Tertimbang} = \sum_{i=1}^n \left(\text{Bobot Item}_i \times \% \text{Progres Item}_i\right)$$
+
+- **Tingkat Capaian Fisik (%) terhadap ROPK**:
+  $$\text{Capaian Fisik (\%)} = \left(\frac{\text{Realisasi Fisik (\%)}}{\text{Target Fisik ROPK (\%)}}\right) \times 100\%$$
+
+---
+
+### B. Struktur Menu Laporan yang Akan Dibangun
+
+Di panel admin Filament, ditambahkan grup navigasi khusus **"Laporan Eksekutif"**:
+
+1. **Menu `Laporan LRFK (Realisasi Fisik & Keuangan)`**:
+   - **Filter**: Pilihan Bulan (Januari s.d Desember) & Tahun Anggaran.
+   - **Tampilan Tab Interaktif**:
+     - **Tab 1: Matriks LRFK Kegiatan**: Tabel komparasi lengkap (Pagu, Target Fisik/Keuangan, Realisasi Fisik/Keuangan, Capaian Fisik %, Serapan Anggaran %).
+     - **Tab 2: Lampiran 1 (Jenis Belanja)**: Rekapitulasi per kelompok akun (Belanja Pegawai, Belanja Barang dan Jasa, Belanja Modal Peralatan/Gedung/Jalan).
+     - **Tab 3: Kemajuan Fisik Pekerjaan**: Khusus paket kontraktual/belanja modal (Nilai Kontrak, Rekanan, Nomor SPK/Kontrak, Bobot Rencana vs Realisasi, Deviasi).
+   - **Aksi Cetak**: Tombol **"Cetak LRFK (PDF Landscape)"** dan **"Ekspor Excel (.xlsx)"** yang menghasilkan format identik dengan dokumen resmi dinas.
+
+2. **Menu `Laporan Pertanggungjawaban Fungsional (LPJ Fungsional)`**:
+   - Dikelola oleh **Bendahara Pengeluaran** dan dapat dipantau oleh PPK, PA, dan Auditor.
+   - Memuat:
+     - Realisasi belanja per Kode Rekening Belanja (DPA, Realisasi s/d Bulan Lalu, Realisasi Bulan Ini, Total s/d Bulan Ini, Sisa Pagu).
+     - Register SP2D dan Kas Bank/Tunai.
+     - Rekapitulasi Pemotongan dan Penyetoran Pajak (PPN, PPh 21, PPh 22, PPh 23).
+   - **Aksi Cetak**: Cetak Buku Kas Umum (BKU) dan LPJ Fungsional format resmi Permendagri 77/2020.
+
+
