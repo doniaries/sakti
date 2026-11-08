@@ -74,14 +74,14 @@ class RincianAnggaranBelanjasTable
                 TextColumn::make('tahun_anggaran')
                     ->label('Tahun')
                     ->badge()
-                    ->sticky()
+                    // ->sticky()
                     ->color('primary')
                     ->sortable(),
 
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    ->sticky()
+                    // ->sticky()
                     ->default('Belum Ditugaskan')
                     ->color(fn(?string $state): string => filled($state) ? Bidang::badgeColor($state) : 'warning')
                     ->sortable(),
@@ -91,6 +91,7 @@ class RincianAnggaranBelanjasTable
                     ->description(fn(RincianAnggaranBelanja $r) => $r->subKegiatan?->kode_sub_kegiatan)
                     ->searchable()
                     ->sortable()
+                    ->sticky()
                     ->wrap()
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
