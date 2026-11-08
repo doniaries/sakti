@@ -24,9 +24,9 @@ class MasterTokoResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Data Toko / Rekanan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

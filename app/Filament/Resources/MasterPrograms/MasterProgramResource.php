@@ -26,9 +26,9 @@ class MasterProgramResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Program';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Program & Kegiatan';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {

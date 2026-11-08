@@ -9,15 +9,12 @@
     >
         @php
             $currentYear = (int) date('Y');
-            $years = \App\Models\MasterKegiatan::query()
-                ->distinct()
-                ->orderBy('tahun_anggaran', 'desc')
-                ->pluck('tahun_anggaran', 'tahun_anggaran')
-                ->map(fn ($y) => "Tahun {$y}" . ((int) $y === $currentYear ? ' (Aktif)' : ''))
-                ->toArray();
+            $maxYear = $currentYear + 1; // Batasi maksimal ke 2027 jika sekarang 2026
+            $minYear = $currentYear - 2;
 
-            if (empty($years)) {
-                $years = [$currentYear => "Tahun {$currentYear} (Aktif)"];
+            $years = [];
+            for ($y = $maxYear; $y >= $minYear; $y--) {
+                $years[$y] = (string) $y;
             }
         @endphp
         @foreach ($years as $val => $label)
@@ -25,4 +22,3 @@
         @endforeach
     </select>
 </div>
-

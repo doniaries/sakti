@@ -14,9 +14,12 @@ class MasterSubKegiatanForm
     public static function configure(Schema $schema): Schema
     {
         $currentYear = (int) date('Y');
+        $maxYear = $currentYear + 1; // Batasi maksimal ke 2027 jika tahun sekarang 2026
+        $minYear = $currentYear - 2;
+
         $years = [];
-        for ($y = $currentYear - 2; $y <= $currentYear + 2; $y++) {
-            $years[$y] = "Tahun Anggaran {$y}";
+        for ($y = $maxYear; $y >= $minYear; $y--) {
+            $years[$y] = (string) $y;
         }
 
         return $schema

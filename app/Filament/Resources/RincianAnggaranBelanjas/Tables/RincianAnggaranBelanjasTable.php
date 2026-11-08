@@ -23,9 +23,12 @@ class RincianAnggaranBelanjasTable
     public static function configure(Table $table): Table
     {
         $currentYear = (int) date('Y');
+        $maxYear = $currentYear + 1; // Batasi maksimal ke 2027 jika sekarang 2026
+        $minYear = $currentYear - 2;
+
         $years = [];
-        for ($y = $currentYear - 2; $y <= $currentYear + 2; $y++) {
-            $years[$y] = "Tahun {$y}";
+        for ($y = $maxYear; $y >= $minYear; $y--) {
+            $years[$y] = (string) $y;
         }
 
         return $table

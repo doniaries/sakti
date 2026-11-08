@@ -60,11 +60,11 @@ class FormatHelper
         return TextInput::make($name)
             ->label($label)
             ->prefix('Rp')
-            ->placeholder('0')
+            ->placeholder(null)
             ->mask(RawJs::make('$money($input, \',\', \'.\', 0)'))
             ->stripCharacters('.')
             ->formatStateUsing(function ($state) {
-                if (blank($state)) {
+                if (blank($state) || (float) $state === 0.0) {
                     return null;
                 }
                 return number_format((float) $state, 0, ',', '.');
