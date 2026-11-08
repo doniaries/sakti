@@ -144,27 +144,27 @@
             display: block;
         }
 
-        /* QR Code Tracking Dokumen Kanan Atas */
+        /* QR Code Tracking Dokumen Kanan Atas - Menjorok ke Dalam (Aman dari margin fisik printer) */
         .qr-tracking-top-right {
             position: absolute;
-            top: 0px;
-            right: 0px;
-            width: 58px;
+            top: 8px;
+            right: 14px;
+            width: 52px;
             text-align: center;
             background: #ffffff;
-            padding: 2px 3px;
+            padding: 2px 2px 3px 2px;
             border: 0.8px solid #94a3b8;
             border-radius: 3px;
             z-index: 100;
         }
         .qr-tracking-top-right img {
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
             display: block;
             margin: 0 auto;
         }
         .qr-tracking-top-right .qr-title {
-            font-size: 4.8pt;
+            font-size: 4.5pt;
             font-weight: bold;
             color: #0f172a;
             margin-top: 1px;
@@ -172,7 +172,7 @@
             text-transform: uppercase;
         }
         .qr-tracking-top-right .qr-desc {
-            font-size: 4.2pt;
+            font-size: 3.8pt;
             color: #475569;
             line-height: 1.05;
         }
@@ -398,14 +398,14 @@
     @endphp
     <div class="page page-pesanan {{ $hasMorePagesAfterPesanan ? 'page-break' : '' }}">
         @if ($qrTracking)
-            <div class="qr-tracking-top-right">
+            <div class="qr-tracking-top-right" style="top: 8px; right: 14px;">
                 <img src="{{ $qrTracking }}" alt="QR Tracking Dokumen">
                 <div class="qr-title">TRACKING RESMI</div>
                 <div class="qr-desc">Pindai Verifikasi</div>
             </div>
         @endif
 
-        <div class="header-kop" style="padding-left: 65px; padding-right: 65px;">
+        <div class="header-kop" style="padding-left: 75px; padding-right: 75px;">
             @if ($logoKabupaten)
                 <div class="kop-logo-container">
                     <img src="{{ $logoKabupaten }}" class="kop-logo" alt="Logo Kabupaten Sijunjung">
@@ -546,7 +546,7 @@
     @foreach ($daftarKwitansi as $indexKwitansi => $judulKwitansi)
     <div class="page page-kwitansi page-break">
         @if ($qrTracking)
-            <div class="qr-tracking-top-right" style="top: 0px; right: 0px;">
+            <div class="qr-tracking-top-right" style="top: 6px; right: 14px;">
                 <img src="{{ $qrTracking }}" alt="QR Tracking Dokumen">
                 <div class="qr-title">TRACKING RESMI</div>
                 <div class="qr-desc">Pindai Verifikasi</div>
@@ -565,7 +565,7 @@
                     PP.<br>
                     No. .........................................
                 </td>
-                <td style="width: 55%; text-align: right; vertical-align: top; padding-right: 68px;">
+                <td style="width: 55%; text-align: right; vertical-align: top; padding-right: 74px;">
                     No. pada s.p.d.<br>
                     <strong>Kode Rek. {{ $kodeRekeningUtama }}</strong>
                 </td>
@@ -730,7 +730,7 @@
     {{-- ==================== HALAMAN 4: NOTA PENCAIRAN DANA / NPD (F4 PORTRAIT) ==================== --}}
     <div class="page page-npd">
         @if ($qrTracking)
-            <div class="qr-tracking-top-right" style="top: 4px; right: 4px;">
+            <div class="qr-tracking-top-right" style="top: 8px; right: 14px;">
                 <img src="{{ $qrTracking }}" alt="QR Tracking Dokumen">
                 <div class="qr-title">TRACKING RESMI</div>
                 <div class="qr-desc">Pindai Verifikasi</div>
@@ -738,7 +738,7 @@
         @endif
         <table class="npd-outer-box">
             <tr>
-                <td class="npd-header-cell" style="padding-left: 70px; padding-right: 70px;">
+                <td class="npd-header-cell" style="padding-left: 80px; padding-right: 80px;">
                     KAB. SIJUNJUNG<br>
                     NOTA PENCAIRAN DANA (NPD)<br>
                     TAHUN ANGGARAN {{ $tahunAnggaran }}

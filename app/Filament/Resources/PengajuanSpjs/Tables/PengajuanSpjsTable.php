@@ -28,6 +28,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -114,14 +115,10 @@ class PengajuanSpjsTable
 
                 return $query;
             })
+            ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
+            ->recordActionsColumnLabel('Aksi')
             ->stickyableColumns()
             ->columns([
-                TextColumn::make('tahun_anggaran')
-                    ->label('Tahun')
-                    ->badge()
-                    ->color('primary')
-                    ->sortable(),
-
                 TextColumn::make('nomor_pengajuan')
                     ->label('No. Pengajuan')
                     ->searchable()
@@ -129,10 +126,31 @@ class PengajuanSpjsTable
                     ->weight('bold')
                     ->sticky(),
 
-                TextColumn::make('tanggal_pengajuan')
-                    ->label('Tgl Pengajuan')
-                    ->date('d/m/Y')
+                TextColumn::make('status')
+                    ->label('Status SPJ')
+                    ->badge()
+                    ->color(fn(PengajuanSpj $record): string => $record->status_color)
+                    ->formatStateUsing(fn(PengajuanSpj $record): string => $record->status_label)
                     ->sortable(),
+
+                TextColumn::make('total_nilai_realisasi')
+                    ->label('Nilai Kwitansi')
+                    ->money('IDR', locale: 'id')
+                    ->placeholder('-')
+                    ->sortable(),
+
+                TextColumn::make('total_nilai_rencana')
+                    ->label('Nilai Pesanan')
+                    ->money('IDR', locale: 'id')
+                    ->sortable(),
+
+                TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
+                    ->searchable()
+                    ->sortable()
+                    ->stickyable(),
 
                 TextColumn::make('metode_pengadaan')
                     ->label('Metode')
@@ -168,37 +186,23 @@ class PengajuanSpjsTable
                     ->sortable()
                     ->toggleable(),
 
-                TextColumn::make('bidang.nama')
-                    ->label('Bidang')
-                    ->badge()
-                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
-                    ->searchable()
-                    ->sortable()
-                    ->stickyable(),
-
                 TextColumn::make('kegiatan.nama_kegiatan')
                     ->label('Kegiatan')
                     ->searchable()
                     ->wrap()
                     ->limit(40),
 
-                TextColumn::make('total_nilai_rencana')
-                    ->label('Nilai Pesanan')
-                    ->money('IDR', locale: 'id')
+                TextColumn::make('tanggal_pengajuan')
+                    ->label('Tgl Pengajuan')
+                    ->date('d/m/Y')
                     ->sortable(),
 
-                TextColumn::make('total_nilai_realisasi')
-                    ->label('Nilai Kwitansi')
-                    ->money('IDR', locale: 'id')
-                    ->placeholder('-')
-                    ->sortable(),
-
-                TextColumn::make('status')
-                    ->label('Status SPJ')
+                TextColumn::make('tahun_anggaran')
+                    ->label('Tahun')
                     ->badge()
-                    ->color(fn(PengajuanSpj $record): string => $record->status_color)
-                    ->formatStateUsing(fn(PengajuanSpj $record): string => $record->status_label)
-                    ->sortable(),
+                    ->color('primary')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('tahun_anggaran')
