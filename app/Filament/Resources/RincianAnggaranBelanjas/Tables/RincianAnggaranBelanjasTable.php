@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\RincianAnggaranBelanjas\Tables;
 
+use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
 use App\Models\Bidang;
 use App\Models\KodeRekening;
 use App\Models\MasterSubKegiatan;
 use App\Models\RincianAnggaranBelanja;
+use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -180,9 +182,40 @@ class RincianAnggaranBelanjasTable
                     ->label('Filter Kode Rekening')
                     ->options(fn() => KodeRekening::all()->pluck('uraian', 'id')->all())
                     ->searchable(),
+
+                SelectFilter::make('status_pagu')
+                    ->label('Instrumen Sisa Anggaran')
+                    ->options([
+                        'tersedia' => '🟢 Masih Ada Sisa Pagu (> Rp 0)',
+                        'habis' => '🔴 Sudah Habis / Terealisasi 100%',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        if (($data['value'] ?? null) === 'tersedia') {
+                            $query->whereRaw('(pagu_total - IFNULL(nilai_realisasi, 0)) > 0');
+                        } elseif (($data['value'] ?? null) === 'habis') {
+                            $query->whereRaw('(pagu_total - IFNULL(nilai_realisasi, 0)) <= 0');
+                        }
+                    }),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
+                Action::make('buat_spj')
+                    ->label('Buat SPJ')
+                    ->icon('heroicon-o-document-plus')
+                    ->color(fn(RincianAnggaranBelanja $r): string => ($r->sisa_volume <= 0 || $r->sisa_anggaran <= 0) ? 'gray' : 'success')
+                    ->tooltip(fn(RincianAnggaranBelanja $r): string => ($r->sisa_volume <= 0 || $r->sisa_anggaran <= 0)
+                        ? 'Anggaran / kuota item ini sudah habis terealisasi (Rp 0)'
+                        : 'Buat pengajuan SPJ langsung untuk item belanja ini')
+                    ->disabled(fn(RincianAnggaranBelanja $r): bool => $r->sisa_volume <= 0 || $r->sisa_anggaran <= 0)
+                    ->url(function (RincianAnggaranBelanja $r): ?string {
+                        if ($r->sisa_volume <= 0 || $r->sisa_anggaran <= 0) {
+                            return null;
+                        }
+                        return PengajuanSpjResource::getUrl('create', [
+                            'rka_id' => $r->id,
+                        ]);
+                    }),
+
                 ActionGroup::make([
                     EditAction::make(),
                     ReplicateAction::make()

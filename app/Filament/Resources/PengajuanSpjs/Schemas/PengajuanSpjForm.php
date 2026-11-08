@@ -713,8 +713,12 @@ class PengajuanSpjForm
                                                                     return $rkaItems->mapWithKeys(function ($rka) {
                                                                         $sisaVol = number_format($rka->sisa_volume, 0, ',', '.');
                                                                         $harga = number_format((float) $rka->harga_satuan, 0, ',', '.');
+                                                                        $isHabis = $rka->sisa_volume <= 0 || $rka->sisa_anggaran <= 0;
+                                                                        $prefix = $isHabis ? "🔴 [HABIS] " : "📋 ";
+                                                                        $statusSisa = $isHabis ? "Pagu Habis (Rp 0)" : "Sisa: {$sisaVol} {$rka->satuan} | Rp {$harga}";
+
                                                                         return [
-                                                                            $rka->id => "📋 {$rka->nama_item} ({$rka->satuan}) — [Sisa Pagu: {$sisaVol} {$rka->satuan} | Rp {$harga}]",
+                                                                            $rka->id => "{$prefix}{$rka->nama_item} ({$rka->satuan}) — [{$statusSisa}]",
                                                                         ];
                                                                     })->all();
                                                                 }
@@ -844,7 +848,9 @@ class PengajuanSpjForm
                                                                                 $rka = RincianAnggaranBelanja::find($rkaId);
                                                                                 if ($rka) {
                                                                                     $sisa = (float) $rka->sisa_volume;
-                                                                                    if ((float) $value > $sisa) {
+                                                                                    if ($sisa <= 0) {
+                                                                                        $fail("Ditolak Sistem: Alokasi anggaran untuk item '{$rka->nama_item}' sudah terealisasi penuh (Pagu Habis / Sisa: 0).");
+                                                                                    } elseif ((float) $value > $sisa) {
                                                                                         $fail("Ditolak Sistem (Over Budget): Jumlah pesanan ({$value} {$rka->satuan}) melebihi sisa pagu RKA yang tersedia ({$sisa} {$rka->satuan})!");
                                                                                     }
                                                                                 }
