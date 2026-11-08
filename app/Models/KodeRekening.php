@@ -60,6 +60,42 @@ class KodeRekening extends Model
         return "{$this->kode_lengkap} - {$this->uraian}";
     }
 
+    public function getLevelAttribute(): int
+    {
+        return substr_count((string) $this->kode_lengkap, '.') + 1;
+    }
+
+    public function getNamaLevelAttribute(): string
+    {
+        return match ($this->level) {
+            1 => 'Akun',
+            2 => 'Kelompok',
+            3 => 'Jenis',
+            4 => 'Objek',
+            5 => 'Rincian Objek',
+            6 => 'Sub Rincian (Item RKA/SPJ)',
+            default => 'Sub Tingkat',
+        };
+    }
+
+    public function getWarnaLevelAttribute(): string
+    {
+        return match ($this->level) {
+            1 => 'danger',
+            2 => 'warning',
+            3 => 'info',
+            4 => 'primary',
+            5 => 'gray',
+            6 => 'success',
+            default => 'secondary',
+        };
+    }
+
+    public function getIsItemBelanjaAttribute(): bool
+    {
+        return $this->level >= 5;
+    }
+
     /**
      * Dapatkan rincian hierarki berjenjang kode rekening sesuai standar SIPD RI
      * (Akun -> Kelompok -> Jenis -> Objek -> Rincian Objek -> Sub Rincian)

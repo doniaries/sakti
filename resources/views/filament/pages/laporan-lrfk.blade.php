@@ -57,10 +57,6 @@
                         <strong>{{ $namaBulanAktif }} {{ $tahun }}</strong>
                     </p>
                 </div>
-                {{-- <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:!bg-emerald-950/80 text-emerald-800 dark:!text-emerald-300 border border-emerald-300 dark:!border-emerald-700/60 w-fit">
-                    ● Halaman 1 Resmi
-                </span> --}}
             </div>
 
             <div class="overflow-auto max-h-[720px] relative">
@@ -145,10 +141,6 @@
                         {{ $tahun }}
                     </p>
                 </div>
-                <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 dark:!bg-blue-950/80 text-blue-800 dark:!text-blue-300 border border-blue-300 dark:!border-blue-700/60 w-fit">
-                    ● Halaman 2 Resmi
-                </span>
             </div>
 
             <div class="overflow-auto max-h-[720px] relative">
@@ -288,10 +280,6 @@
                         <strong>{{ $namaBulanAktif }} {{ $tahun }}</strong>
                     </p>
                 </div>
-                <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:!bg-emerald-950/80 text-emerald-800 dark:!text-emerald-300 border border-emerald-300 dark:!border-emerald-700/60 w-fit">
-                    ● Halaman 3 Resmi
-                </span>
             </div>
 
             <div class="overflow-auto max-h-[720px] relative">

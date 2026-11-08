@@ -359,18 +359,28 @@ class LrfkCalculationService
             $paguPekerjaan = $spj->subKegiatan?->rincianAnggarans()->sum('pagu_total') ?: $nilaiKontrak;
             $sisaDana = max(0, $paguPekerjaan - $nilaiKontrak);
 
-            // Cek apakah SPJ sudah dicairkan s/d bulan laporan
-            $isCair = $spj->status === 'dicairkan' && ($spj->tanggal_dicairkan <= $batasTanggal);
-            $realisasiKeuRp = $isCair ? $nilaiKontrak : 0.0;
+            // Cek apakah SPJ masuk dalam periode bulan laporan
+            $tglAcuan = $spj->tanggal_dicairkan ?: $spj->tanggal_pengajuan;
+            $isDalamPeriode = $tglAcuan ? (Carbon::parse($tglAcuan)->toDateString() <= $batasTanggal) : true;
+
+            // Realisasi Keuangan (Kolom 13 & 14):
+            // Sesuai format resmi Laporan Kemajuan Pekerjaan Kabupaten Sijunjung,
+            // SPJ belanja/pekerjaan yang terlaksana menampilkan nilai realisasi belanja aktualnya.
+            if ($isDalamPeriode && !in_array($spj->status, ['ditolak', 'batal'])) {
+                $realisasiKeuRp = (float) ($spj->total_nilai_realisasi > 0 ? $spj->total_nilai_realisasi : $nilaiKontrak);
+            } elseif ($spj->status === 'dicairkan') {
+                $realisasiKeuRp = (float) ($spj->total_nilai_realisasi > 0 ? $spj->total_nilai_realisasi : $nilaiKontrak);
+            } else {
+                $realisasiKeuRp = 0.0;
+            }
+
             $realisasiKeuPersen = $nilaiKontrak > 0 ? round(($realisasiKeuRp / $nilaiKontrak) * 100.0, 2) : 0.0;
 
-            // Bobot Fisik: 100% jika dicairkan / barang diterima, 50% jika disetujui, 0% jika draft
-            $bobotRencana = $targetFisik;
+            // Bobot Fisik: 100% jika pekerjaan/pengadaan barang sudah terealisasi/berjalan
+            $bobotRencana = 100.0;
             $bobotRealisasi = match ($spj->status) {
-                'dicairkan' => 100.0,
-                'disetujui', 'menunggu_verifikasi_bendahara', 'menunggu_persetujuan_pa' => 85.0,
-                'menunggu_verifikasi_ppk', 'menunggu_verifikasi_pptk' => 50.0,
-                default => 20.0,
+                'dicairkan', 'disetujui', 'menunggu_verifikasi_bendahara', 'menunggu_persetujuan_pa', 'menunggu_verifikasi_ppk', 'menunggu_verifikasi_pptk' => 100.0,
+                default => ($spj->total_nilai_realisasi > 0 ? 100.0 : $targetFisik),
             };
 
             $deviasi = round($bobotRealisasi - $bobotRencana, 2);

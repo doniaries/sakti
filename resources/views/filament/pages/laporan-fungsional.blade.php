@@ -48,9 +48,6 @@
                     Periode: s/d <strong>{{ $namaBulanAktif }} {{ $tahun }}</strong> (Standar Permendagri 77/2020)
                 </p>
             </div>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 dark:!bg-emerald-950/80 text-emerald-800 dark:!text-emerald-300 border border-emerald-300 dark:!border-emerald-700/60 w-fit">
-                ● 100% Otomatis dari BKU & SPJ
-            </span>
         </div>
 
         {{-- TABEL DENGAN STICKY HEADER & STICKY COLUMNS --}}
