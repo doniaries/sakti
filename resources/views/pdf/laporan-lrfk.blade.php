@@ -108,8 +108,14 @@
 
         .ttd-box {
             float: right;
-            width: 320px;
+            width: 380px;
             text-align: center;
+        }
+
+        .ttd-title {
+            font-weight: bold;
+            white-space: nowrap;
+            font-size: 8.5pt;
         }
 
         @media screen {
