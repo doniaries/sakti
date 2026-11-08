@@ -55,6 +55,13 @@
 /* Filament Notifications: container notifikasi mengambang wajib selalu di atas topbar dan tidak tertutupi navbar */
 .fi-notifications {
     z-index: 99999 !important;
+    padding-top: 2rem !important;
+    padding-right: 1.5rem !important;
+}
+
+.fi-notification {
+    margin-top: 0.5rem !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* Background solid dropdown pada dark mode agar teks pilihan tidak tembus pandang/bertumpuk */

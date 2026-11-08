@@ -105,7 +105,7 @@ class RincianAnggaranBelanjaForm
                             'md' => 2,
                         ])->schema([
                             Select::make('kode_rekening_id')
-                                ->label('Rincian Objek Belanja (SIPD RI)')
+                                ->label('Rincian Objek Belanja')
                                 ->placeholder('Pilih nomor atau nama Rincian Objek...')
                                 ->default($defaultKodeRekeningId)
                                 ->searchable()
