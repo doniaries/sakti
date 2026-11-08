@@ -81,27 +81,27 @@ class RincianAnggaranBelanjaForm
                     ]),
 
                 // Section 2: Objek & Komponen Belanja (Muncul bertahap setelah Sub Kegiatan dipilih)
-                Section::make('Objek & Komponen Belanja SIPD')
-                    ->description('Pilih rekening belanja dan komponen belanja yang akan dibebankan sesuai rincian SIPD.')
+                Section::make('Rincian Objek & Komponen Belanja')
+                    ->description('Pilih rincian objek belanja dan komponen barang yang akan dibebankan sesuai rincian SIPD.')
                     ->icon('heroicon-o-shopping-bag')
                     ->visible(fn(Get $get): bool => filled($get('sub_kegiatan_id')))
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('kode_rekening_id')
-                                ->label('Kode Rekening Belanja (SIPD RI)')
-                                ->helperText('Pilih atau ketik rekening belanja terakhir (Sub Rincian) yang dibebankan pada RKA.')
+                                ->label('Rincian Objek Belanja')
+                                ->helperText('Nomor rekening tidak ditampilkan di layar, namun tetap tersimpan otomatis di sistem.')
                                 ->searchable()
                                 ->options(function () {
-                                    return KodeRekening::hanyaSubRincian()
-                                        ->orderBy('kode_lengkap')
+                                    return KodeRekening::hanyaRincianObjek()
+                                        ->orderBy('uraian')
                                         ->limit(100)
                                         ->get()
-                                        ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
+                                        ->mapWithKeys(fn ($r) => [$r->id => $r->uraian])
                                         ->all();
                                 })
                                 ->getSearchResultsUsing(function (string $search): array {
                                     $tokens = explode(' ', trim($search));
-                                    return KodeRekening::hanyaSubRincian()
+                                    return KodeRekening::hanyaRincianObjek()
                                         ->where(function ($q) use ($tokens, $search) {
                                             $q->where('kode_lengkap', 'like', "%{$search}%");
                                             $q->orWhere(function ($sub) use ($tokens) {
@@ -112,40 +112,19 @@ class RincianAnggaranBelanjaForm
                                                 }
                                             });
                                         })
-                                        ->orderBy('kode_lengkap')
+                                        ->orderBy('uraian')
                                         ->limit(50)
                                         ->get()
-                                        ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
+                                        ->mapWithKeys(fn ($r) => [$r->id => $r->uraian])
                                         ->all();
                                 })
-                                ->getOptionLabelUsing(fn ($value): ?string => ($r = KodeRekening::find($value)) ? "{$r->kode_lengkap} - {$r->uraian}" : null)
+                                ->getOptionLabelUsing(fn ($value): ?string => ($r = KodeRekening::find($value)) ? $r->uraian : null)
                                 ->required()
-                                ->live()
-                                ->afterStateUpdated(function ($state, Set $set) {
-                                    if ($state) {
-                                        $rek = KodeRekening::find($state);
-                                        if ($rek) {
-                                            $h = $rek->getHierarkiSipd();
-                                            $set('sipd_akun', $h['akun']);
-                                            $set('sipd_kelompok', $h['kelompok']);
-                                            $set('sipd_jenis', $h['jenis']);
-                                            $set('sipd_objek', $h['objek']);
-                                            $set('sipd_rincian_objek', $h['rincian_objek']);
-                                            $set('sipd_sub_rincian', $h['sub_rincian']);
-                                        }
-                                    } else {
-                                        $set('sipd_akun', null);
-                                        $set('sipd_kelompok', null);
-                                        $set('sipd_jenis', null);
-                                        $set('sipd_objek', null);
-                                        $set('sipd_rincian_objek', null);
-                                        $set('sipd_sub_rincian', null);
-                                    }
-                                }),
+                                ->live(),
 
                             Select::make('master_barang_id')
-                                ->label('Komponen Belanja')
-                                ->helperText('Pilih komponen/produk belanja. Transaksi SPJ akan mengurangi volume pagu komponen ini.')
+                                ->label('Komponen Belanja / Barang')
+                                ->helperText('Pilih atau tambahkan komponen barang untuk mengisi rincian objek ini.')
                                 ->visible(fn(Get $get): bool => filled($get('kode_rekening_id')))
                                 ->options(function (Get $get) {
                                     $rekId = $get('kode_rekening_id');
@@ -157,6 +136,29 @@ class RincianAnggaranBelanjaForm
                                         ->all();
                                 })
                                 ->searchable()
+                                ->preload()
+                                ->createOptionForm([
+                                    TextInput::make('nama_barang')
+                                        ->label('Nama Komponen Barang')
+                                        ->placeholder('Contoh: Kertas HVS Sidu F4 75 gram / Pertamax')
+                                        ->required(),
+                                    Select::make('satuan_id')
+                                        ->label('Satuan')
+                                        ->options(Satuan::pluck('nama', 'id')->all())
+                                        ->searchable()
+                                        ->preload()
+                                        ->required(),
+                                    TextInput::make('harga_satuan')
+                                        ->label('Harga Satuan Standar (Rp)')
+                                        ->numeric()
+                                        ->prefix('Rp')
+                                        ->default(0),
+                                ])
+                                ->createOptionUsing(function (array $data, Get $get): int {
+                                    $data['kode_rekening_id'] = $get('kode_rekening_id');
+                                    $barang = MasterBarang::create($data);
+                                    return $barang->id;
+                                })
                                 ->live()
                                 ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                     if ($state) {
@@ -185,61 +187,6 @@ class RincianAnggaranBelanjaForm
                                 ->visible(fn(Get $get): bool => filled($get('master_barang_id')))
                                 ->columnSpanFull(),
                         ]),
-
-                        // Tampilan Berjenjang Otomatis Kode Rekening SIPD RI (Read Only)
-                        Section::make('Struktur Berjenjang Nomor Rekening (Standar SIPD RI)')
-                            ->description('Klasifikasi hierarki belanja otomatis sesuai format baku Dokumen RKA/DPA Satuan Kerja.')
-                            ->icon('heroicon-o-list-bullet')
-                            ->visible(fn (Get $get): bool => filled($get('kode_rekening_id')))
-                            ->schema([
-                                Grid::make([
-                                    'default' => 1,
-                                    'md' => 3,
-                                ])->schema([
-                                    TextInput::make('sipd_akun')
-                                        ->label('Akun Belanja')
-                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['akun'] ?? '5 - BELANJA DAERAH')
-                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_akun', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['akun'] ?? '5 - BELANJA DAERAH'))
-                                        ->readOnly()
-                                        ->dehydrated(false),
-
-                                    TextInput::make('sipd_kelompok')
-                                        ->label('Kelompok Belanja')
-                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['kelompok'] ?? '-')
-                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_kelompok', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['kelompok'] ?? '-'))
-                                        ->readOnly()
-                                        ->dehydrated(false),
-
-                                    TextInput::make('sipd_jenis')
-                                        ->label('Jenis Belanja')
-                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['jenis'] ?? '-')
-                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_jenis', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['jenis'] ?? '-'))
-                                        ->readOnly()
-                                        ->dehydrated(false),
-
-                                    TextInput::make('sipd_objek')
-                                        ->label('Objek Belanja')
-                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['objek'] ?? '-')
-                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_objek', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['objek'] ?? '-'))
-                                        ->readOnly()
-                                        ->dehydrated(false),
-
-                                    TextInput::make('sipd_rincian_objek')
-                                        ->label('Rincian Objek Belanja')
-                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['rincian_objek'] ?? '-')
-                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_rincian_objek', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['rincian_objek'] ?? '-'))
-                                        ->readOnly()
-                                        ->dehydrated(false),
-
-                                    TextInput::make('sipd_sub_rincian')
-                                        ->label('Sub Rincian (Rekening Terpilih)')
-                                        ->default(fn (Get $get) => KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['sub_rincian'] ?? '-')
-                                        ->afterStateHydrated(fn (Set $set, Get $get) => $set('sipd_sub_rincian', KodeRekening::find($get('kode_rekening_id'))?->getHierarkiSipd()['sub_rincian'] ?? '-'))
-                                        ->readOnly()
-                                        ->extraInputAttributes(['class' => '!font-bold !text-amber-600 dark:!text-amber-400'])
-                                        ->dehydrated(false),
-                                ]),
-                            ]),
                     ]),
 
                 // Section 3: Kalkulasi Koefisien Volume & Pagu Anggaran (Muncul bertahap setelah Komponen Belanja dipilih)

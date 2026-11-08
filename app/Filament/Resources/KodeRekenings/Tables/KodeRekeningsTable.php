@@ -56,8 +56,8 @@ class KodeRekeningsTable
                 TextColumn::make('status_rka')
                     ->label('Peruntukan')
                     ->badge()
-                    ->state(fn (KodeRekening $record): string => $record->level >= 5 ? 'Item Belanja RKA' : 'Kategori Induk')
-                    ->color(fn (KodeRekening $record): string => $record->level >= 5 ? 'success' : 'gray')
+                    ->state(fn (KodeRekening $record): string => $record->level >= 6 ? 'Rincian Objek (RKA)' : 'Kategori Induk')
+                    ->color(fn (KodeRekening $record): string => $record->level >= 6 ? 'success' : 'gray')
                     ->toggleable(),
 
                 TextColumn::make('created_at')
@@ -74,9 +74,9 @@ class KodeRekeningsTable
                         '1' => 'Level 1 - Akun Utama (5 - Belanja Daerah)',
                         '2' => 'Level 2 - Kelompok (5.1 Belanja Operasi, 5.2 Modal, dst)',
                         '3' => 'Level 3 - Jenis (5.1.01 Pegawai, 5.1.02 Barang & Jasa, dst)',
-                        '4' => 'Level 4 - Objek Belanja',
-                        '5' => 'Level 5 - Rincian Objek',
-                        '6' => 'Level 6 - Sub Rincian (Item Belanja Siap Pakai di RKA/SPJ)',
+                        '4' => 'Level 4 - Objek (5.1.02.01 Belanja Barang, dst)',
+                        '5' => 'Level 5 - Jenis Objek (5.1.02.01.01 Belanja Barang Pakai Habis, dst)',
+                        '6' => 'Level 6 - Rincian Objek (Item Belanja Siap Pakai di RKA/SPJ)',
                     ])
                     ->query(function (Builder $query, array $data) {
                         if (filled($data['value'])) {

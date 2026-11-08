@@ -22,7 +22,7 @@ class KodeRekeningForm
                     ->schema([
                         Select::make('parent_kode')
                             ->label('Rekening Induk (Opsional)')
-                            ->helperText('Pilih kategori/rekening induk untuk mengisi otomatis awalan kode rekening baru.')
+                            ->helperText('Pilih rekening induk (Akun Utama, Kelompok, Jenis, Objek, atau Jenis Objek) untuk mengisi otomatis awalan kode rekening baru.')
                             ->searchable()
                             ->options(function () {
                                 return KodeRekening::query()
