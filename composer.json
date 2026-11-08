@@ -19,6 +19,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
         "leek/filament-header-filters": "^2.0",
+        "owenvoke/blade-fontawesome": "^3.3",
         "rats/zkteco": "^002.0",
         "swisnl/filament-backgrounds": "^2.0",
         "watheqalshowaiter/filament-sticky-table-header": "*",

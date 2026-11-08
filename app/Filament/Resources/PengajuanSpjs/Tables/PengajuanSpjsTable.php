@@ -248,7 +248,10 @@ class PengajuanSpjsTable
                         'menunggu_realisasi' => 'Cetak Surat Pesanan Barang (F4)',
                         default => 'Cek & Pratinjau Dokumen SPJ Lengkap',
                     })
-                    ->icon('heroicon-o-document-magnifying-glass')
+                    ->icon(fn(PengajuanSpj $record): string => match ($record->status) {
+                        'menunggu_realisasi' => 'fas-print',
+                        default => 'fas-file-lines',
+                    })
                     ->iconButton()
                     ->color('info')
                     ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true))
@@ -264,7 +267,7 @@ class PengajuanSpjsTable
                 Action::make('ajukan_pesanan')
                     ->label('Ajukan Pesanan')
                     ->tooltip('Ajukan Pesanan: Teruskan draf ke PPTK / Kabid')
-                    ->icon('heroicon-o-paper-airplane')
+                    ->icon('fas-paper-plane')
                     ->iconButton()
                     ->color('warning')
                     ->visible(function (PengajuanSpj $record): bool {
@@ -304,7 +307,7 @@ class PengajuanSpjsTable
                 Action::make('batalkan_pengajuan')
                     ->label('Tarik ke Draft')
                     ->tooltip('Tarik ke Draft: Batalkan pengajuan dan kembalikan ke status draf')
-                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->icon('fas-rotate-left')
                     ->iconButton()
                     ->color('gray')
                     ->visible(function (PengajuanSpj $record): bool {
@@ -375,10 +378,13 @@ class PengajuanSpjsTable
                     })
                     ->icon(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'diajukan' => 'heroicon-o-pencil-square',
-                            'menunggu_realisasi', 'revisi_pptk' => 'heroicon-o-receipt-percent',
-                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => 'heroicon-o-banknotes',
-                            default => 'heroicon-o-check-circle',
+                            'diajukan' => 'fas-file-signature',
+                            'menunggu_realisasi', 'revisi_pptk' => 'fas-receipt',
+                            'menunggu_verifikasi_pptk' => 'fas-list-check',
+                            'menunggu_verifikasi_ppk', 'revisi_ppk' => 'fas-stamp',
+                            'menunggu_persetujuan_pa', 'revisi_pa' => 'fas-signature',
+                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => 'fas-money-bill-wave',
+                            default => 'fas-circle-check',
                         };
                     })
                     ->iconButton()
@@ -779,7 +785,7 @@ class PengajuanSpjsTable
                     ->modalHeading(fn(PengajuanSpj $record): string => "Kembalikan Berkas SPJ untuk Diperbaiki — {$record->nomor_pengajuan}")
                     ->modalDescription('Dokumen SPJ akan dikembalikan ke pembuat pengajuan / tahapan sebelumnya beserta instruksi perbaikan yang Anda masukkan.')
                     ->modalSubmitActionLabel('Kembalikan Berkas (Revisi)')
-                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->icon('fas-reply')
                     ->iconButton()
                     ->color('danger')
                     ->visible(function (PengajuanSpj $record): bool {
@@ -860,10 +866,12 @@ class PengajuanSpjsTable
                 // Aksi Menu Tambahan (Ubah, Lihat, Hapus) dirangkum rapi ke dalam ActionGroup Menu Titik Tiga
                 ActionGroup::make([
                     ViewAction::make()
-                        ->label('Lihat Detail'),
+                        ->label('Lihat Detail')
+                        ->icon('fas-eye'),
 
                     EditAction::make()
                         ->label('Ubah Berkas')
+                        ->icon('fas-pen-to-square')
                         ->visible(function (PengajuanSpj $record): bool {
                             if (in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)) {
                                 return false;
@@ -900,16 +908,17 @@ class PengajuanSpjsTable
 
                     DeleteAction::make()
                         ->label('Hapus Draf')
+                        ->icon('fas-trash-can')
                         ->visible(fn(PengajuanSpj $record): bool => $record->status === 'draft'),
                 ])
                     ->tooltip('Menu Aksi Lainnya')
-                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->icon('fas-ellipsis-vertical')
                     ->color('gray'),
             ])
             ->headerActions([
                 CreateAction::make()
                     ->label('Buat Pengajuan SPJ')
-                    ->icon('heroicon-o-plus-circle')
+                    ->icon('fas-circle-plus')
                     ->color('primary')
                     ->url(\App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource::getUrl('create')),
             ])
