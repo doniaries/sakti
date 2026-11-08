@@ -9,6 +9,7 @@ use App\Services\Rka\SipdRkaImporterService;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -35,14 +36,22 @@ class ListRincianAnggaranBelanjas extends ListRecords
                 ->modalHeading('Import Rincian Belanja dari PDF SIPD RI')
                 ->modalDescription('Unggah dokumen resmi "Cetak RKA Rincian Belanja" format PDF yang diunduh langsung dari portal SIPD RI.')
                 ->modalSubmitActionLabel('Mulai Ekstraksi & Import')
-                ->form([
+                ->schema([
                     FileUpload::make('file_pdf')
                         ->label('Dokumen PDF RKA SIPD')
                         ->acceptedFileTypes(['application/pdf'])
-                        ->disk('local')
+                        ->disk('public')
                         ->directory('temp_rka_imports')
+                        ->getUploadedFileNameForStorageUsing(fn (\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => (string) \Illuminate\Support\Str::uuid() . '.pdf')
                         ->helperText('Sistem otomatis mengekstrak Program, Kegiatan, Sub Kegiatan, Kode Rekening, Item Belanja, Koefisien, dan Harga.')
                         ->required(),
+
+                    Select::make('bidang_id')
+                        ->label('Bidang Pengampu (Opsional)')
+                        ->options(fn () => Bidang::pluck('nama', 'id')->all())
+                        ->placeholder('Pilih Bidang (atau biarkan kosong untuk pembagian kerja manual)')
+                        ->helperText('Jika dikosongkan, data akan berstatus "Belum Ditugaskan" agar Kadis/Sekretaris dapat membagikannya secara manual.')
+                        ->nullable(),
                 ])
                 ->action(function (array $data): void {
                     $filePath = is_array($data['file_pdf']) ? (array_values($data['file_pdf'])[0] ?? null) : $data['file_pdf'];
@@ -50,9 +59,10 @@ class ListRincianAnggaranBelanjas extends ListRecords
                         Notification::make()->title('File PDF tidak ditemukan')->danger()->send();
                         return;
                     }
-                    $path = Storage::disk('local')->path($filePath);
+                    $path = Storage::disk('public')->path($filePath);
                     try {
-                        $result = SipdRkaImporterService::import($path);
+                        $targetBidangId = filled($data['bidang_id'] ?? null) ? (int) $data['bidang_id'] : null;
+                        $result = SipdRkaImporterService::import($path, true, $targetBidangId);
                         Notification::make()
                             ->title('Import RKA Berhasil!')
                             ->body("Berhasil mengimpor {$result['imported_items']} item rincian belanja untuk Sub Kegiatan: [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} (Total Pagu: Rp " . number_format($result['total_pagu'], 0, ',', '.') . ")")
@@ -83,7 +93,7 @@ class ListRincianAnggaranBelanjas extends ListRecords
     /**
      * Tab Filter Bidang:
      * - PPTK (Kepala Bidang) & Staf Bidang: Hanya melihat tab nama bidangnya saja.
-     * - Pemeriksa (PPK, PA, Bendahara, Super Admin): Melihat tab 'Semua' dan seluruh bidang.
+     * - Pemeriksa (PPK, PA, Bendahara, Super Admin): Melihat tab 'Semua', seluruh bidang, dan 'Belum Ditugaskan'.
      *
      * @return array<string, Tab>
      */
@@ -94,8 +104,9 @@ class ListRincianAnggaranBelanjas extends ListRecords
         $canViewAll = $user?->canViewAllBidangKeuangan() ?? false;
 
         $selectedTahun = request()->query('tahun')
+            ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
             ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
-            ?? (int) date('Y');
+            ?? (RincianAnggaranBelanja::query()->max('tahun_anggaran') ?? (int) date('Y'));
 
         // Jika PPTK / non-pemeriksa, kunci hanya pada bidang miliknya
         if (! $canViewAll && $user?->bidang_id) {
@@ -119,6 +130,12 @@ class ListRincianAnggaranBelanjas extends ListRecords
             'semua' => Tab::make('Semua Bidang')
                 ->icon('heroicon-m-squares-2x2')
                 ->badge(RincianAnggaranBelanja::where('tahun_anggaran', (int) $selectedTahun)->count()),
+
+            'belum_ditugaskan' => Tab::make('Belum Ditugaskan')
+                ->icon('heroicon-m-clock')
+                ->badge(RincianAnggaranBelanja::where('tahun_anggaran', (int) $selectedTahun)->whereNull('bidang_id')->count())
+                ->badgeColor('warning')
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('bidang_id')),
         ];
 
         $bidangs = Bidang::query()->orderBy('nama')->get();

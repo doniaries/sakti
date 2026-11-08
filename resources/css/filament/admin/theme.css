@@ -53,15 +53,16 @@
 }
 
 /* Filament Notifications: container notifikasi mengambang wajib selalu di atas topbar dan tidak tertutupi navbar */
-.fi-notifications {
+.fi-no {
     z-index: 99999 !important;
-    padding-top: 2rem !important;
-    padding-right: 1.5rem !important;
+    top: 4.5rem !important; /* Posisikan persis di bawah topbar agar judul notifikasi tidak tertutup navbar */
+    pointer-events: none !important;
 }
 
-.fi-notification {
+.fi-no-notification {
+    pointer-events: auto !important;
     margin-top: 0.5rem !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.7) !important;
 }
 
 /* Background solid dropdown pada dark mode agar teks pilihan tidak tembus pandang/bertumpuk */

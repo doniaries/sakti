@@ -23,7 +23,7 @@ class SipdRkaImporterService
      * @param bool $skipZeroItems Skip items with 0 total budget
      * @return array Summary of import operation
      */
-    public static function import(string $pdfPath, bool $skipZeroItems = true): array
+    public static function import(string $pdfPath, bool $skipZeroItems = true, ?int $targetBidangId = null): array
     {
         if (! file_exists($pdfPath)) {
             throw new \RuntimeException("Berkas PDF tidak ditemukan: {$pdfPath}");
@@ -112,7 +112,8 @@ class SipdRkaImporterService
             $subKegiatanNama,
             $sumberDana,
             $rawItems,
-            $skipZeroItems
+            $skipZeroItems,
+            $targetBidangId
         ) {
             // 1. Program
             $program = null;
@@ -134,52 +135,38 @@ class SipdRkaImporterService
                 ->first();
 
             $kegiatan = $subKegiatan?->kegiatan;
-            $bidangId = $kegiatan?->bidang_id;
 
+            // Jika user memilih bidang secara eksplisit saat import
+            $bidangId = $targetBidangId;
+
+            // Jika kegiatan belum ada, buatkan master kegiatannya
             if (! $kegiatan && ! empty($kegiatanKode)) {
-                $kegiatan = MasterKegiatan::where('kode_kegiatan', $kegiatanKode)->first();
-                if ($kegiatan) {
-                    $bidangId = $kegiatan->bidang_id;
-                }
+                $kegiatan = MasterKegiatan::firstOrCreate(
+                    [
+                        'tahun_anggaran' => $tahun,
+                        'kode_kegiatan' => $kegiatanKode,
+                    ],
+                    [
+                        'bidang_id' => $bidangId,
+                        'program_id' => $program?->id,
+                        'nama_kegiatan' => mb_strtoupper($kegiatanNama ?: 'KEGIATAN PARIWISATA', 'UTF-8'),
+                        'pagu_anggaran' => array_sum(array_column($rawItems, 'pagu_total')),
+                    ]
+                );
             }
 
-            // Smart Bidang Resolver
-            if (! $bidangId) {
-                $haystack = strtolower("{$programNama} {$kegiatanNama} {$subKegiatanNama}");
-                foreach (Bidang::all() as $b) {
-                    if (str_contains($haystack, strtolower($b->nama))) {
-                        $bidangId = $b->id;
-                        break;
-                    }
-                }
-
-                if (! $bidangId && auth()->check() && auth()->user()?->bidang_id) {
-                    $bidangId = (int) auth()->user()->bidang_id;
-                }
-
-                if (! $bidangId) {
-                    $bidangId = Bidang::first()?->id ?? 1;
-                }
-            }
-
-            if (! $kegiatan && ! empty($kegiatanKode)) {
-                $kegiatan = MasterKegiatan::create([
-                    'tahun_anggaran' => $tahun,
-                    'bidang_id' => $bidangId,
-                    'program_id' => $program?->id,
-                    'kode_kegiatan' => $kegiatanKode,
-                    'nama_kegiatan' => mb_strtoupper($kegiatanNama ?: 'KEGIATAN PARIWISATA', 'UTF-8'),
-                    'pagu_anggaran' => array_sum(array_column($rawItems, 'pagu_total')),
-                ]);
-            }
-
+            // Jika sub kegiatan belum ada, buatkan master sub kegiatannya
             if (! $subKegiatan && ! empty($subKegiatanKode)) {
-                $subKegiatan = MasterSubKegiatan::create([
-                    'tahun_anggaran' => $tahun,
-                    'kegiatan_id' => $kegiatan?->id,
-                    'kode_sub_kegiatan' => $subKegiatanKode,
-                    'nama_sub_kegiatan' => $subKegiatanNama ?: 'Sub Kegiatan',
-                ]);
+                $subKegiatan = MasterSubKegiatan::firstOrCreate(
+                    [
+                        'tahun_anggaran' => $tahun,
+                        'kode_sub_kegiatan' => $subKegiatanKode,
+                    ],
+                    [
+                        'kegiatan_id' => $kegiatan?->id,
+                        'nama_sub_kegiatan' => $subKegiatanNama ?: 'Sub Kegiatan',
+                    ]
+                );
             }
 
             $importedItems = 0;
@@ -221,25 +208,42 @@ class SipdRkaImporterService
                     ]
                 );
 
-                RincianAnggaranBelanja::create([
-                    'tahun_anggaran' => $tahun,
-                    'bidang_id' => $bidangId,
-                    'sub_kegiatan_id' => $subKegiatan->id,
-                    'kode_rekening_id' => $rek->id,
-                    'master_barang_id' => $masterBarang->id,
-                    'nama_item' => $namaItem,
-                    'sumber_dana' => $sumberDana,
-                    'volume' => max(1, (int) round($vol)),
-                    'satuan' => $satuanNama ?: 'Unit',
-                    'harga_satuan' => $hargaSatuan,
-                    'pagu_total' => $paguTotal,
-                    'volume_realisasi' => 0,
-                    'nilai_realisasi' => 0,
-                    'keterangan' => $item['paket'] ? ('Paket: ' . $item['paket']) : null,
-                ]);
+                $existingRka = RincianAnggaranBelanja::where('tahun_anggaran', $tahun)
+                    ->where('sub_kegiatan_id', $subKegiatan->id)
+                    ->where('kode_rekening_id', $rek->id)
+                    ->where('nama_item', $namaItem)
+                    ->first();
+
+                $finalBidangId = $bidangId ?? $existingRka?->bidang_id;
+
+                RincianAnggaranBelanja::updateOrCreate(
+                    [
+                        'tahun_anggaran' => $tahun,
+                        'sub_kegiatan_id' => $subKegiatan->id,
+                        'kode_rekening_id' => $rek->id,
+                        'nama_item' => $namaItem,
+                    ],
+                    [
+                        'bidang_id' => $finalBidangId, // Null jika baru & belum ditugaskan
+                        'master_barang_id' => $masterBarang->id,
+                        'sumber_dana' => $sumberDana,
+                        'volume' => max(1, (int) round($vol)),
+                        'satuan' => $satuanNama ?: 'Unit',
+                        'harga_satuan' => $hargaSatuan,
+                        'pagu_total' => $paguTotal,
+                        'keterangan' => $item['paket'] ? ('Paket: ' . $item['paket']) : null,
+                    ]
+                );
 
                 $importedItems++;
                 $totalPaguImported += $paguTotal;
+            }
+
+            // Sinkronkan pagu anggaran pada kegiatan berdasarkan total seluruh RKA di bawah sub kegiatan terkait
+            if ($kegiatan) {
+                $subKegiatanIds = MasterSubKegiatan::where('kegiatan_id', $kegiatan->id)->pluck('id');
+                $actualPaguKegiatan = (float) RincianAnggaranBelanja::whereIn('sub_kegiatan_id', $subKegiatanIds)->sum('pagu_total');
+                $kegiatan->update(['pagu_anggaran' => $actualPaguKegiatan]);
             }
 
             return [

@@ -7,15 +7,19 @@ use App\Models\KodeRekening;
 use App\Models\MasterSubKegiatan;
 use App\Models\RincianAnggaranBelanja;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ReplicateAction;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class RincianAnggaranBelanjasTable
@@ -76,7 +80,8 @@ class RincianAnggaranBelanjasTable
                     ->label('Bidang')
                     ->badge()
                     ->sticky()
-                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
+                    ->default('Belum Ditugaskan')
+                    ->color(fn(?string $state): string => filled($state) ? Bidang::badgeColor($state) : 'warning')
                     ->sortable(),
 
                 TextColumn::make('subKegiatan.nama_sub_kegiatan')
@@ -194,6 +199,34 @@ class RincianAnggaranBelanjasTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('assign_bidang')
+                        ->label('Tugaskan ke Bidang')
+                        ->icon('heroicon-o-arrows-pointing-in')
+                        ->color('warning')
+                        ->form([
+                            Select::make('bidang_id')
+                                ->label('Pilih Bidang Pengampu')
+                                ->options(fn() => Bidang::pluck('nama', 'id')->all())
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $bidang = Bidang::find($data['bidang_id']);
+                            $count = $records->count();
+                            foreach ($records as $r) {
+                                $r->update(['bidang_id' => $data['bidang_id']]);
+                                if ($r->subKegiatan?->kegiatan && ! $r->subKegiatan->kegiatan->bidang_id) {
+                                    $r->subKegiatan->kegiatan->update(['bidang_id' => $data['bidang_id']]);
+                                }
+                            }
+                            Notification::make()
+                                ->title('Penugasan Bidang Berhasil!')
+                                ->body("{$count} item rincian belanja berhasil dihubungkan ke Bidang: {$bidang?->nama}")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     DeleteBulkAction::make(),
                 ]),
             ]);
