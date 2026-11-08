@@ -32,7 +32,7 @@ class ListMasterSubKegiatans extends ListRecords
 
         $selectedTahun = request()->query('tahun')
             ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
-            ?? (int) date('Y');
+            ?? (MasterSubKegiatan::query()->max('tahun_anggaran') ?? (int) date('Y'));
 
         // Jika PPTK / non-pemeriksa, tampilkan HANYA tab nama bidangnya saja
         if (! $isGlobal && $user?->bidang_id) {

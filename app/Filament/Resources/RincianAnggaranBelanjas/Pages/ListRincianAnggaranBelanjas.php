@@ -10,6 +10,7 @@ use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -52,6 +53,11 @@ class ListRincianAnggaranBelanjas extends ListRecords
                         ->placeholder('Pilih Bidang (atau biarkan kosong untuk pembagian kerja manual)')
                         ->helperText('Jika dikosongkan, data akan berstatus "Belum Ditugaskan" agar Kadis/Sekretaris dapat membagikannya secara manual.')
                         ->nullable(),
+
+                    Toggle::make('timpa_jika_ada')
+                        ->label('Perbarui jika sudah pernah diimpor (Revisi RKA)')
+                        ->default(false)
+                        ->helperText('Jika dinonaktifkan, sistem akan otomatis menolak dan memperingatkan jika dokumen RKA Sub Kegiatan ini sudah pernah diunggah sebelumnya.'),
                 ])
                 ->action(function (array $data): void {
                     $filePath = is_array($data['file_pdf']) ? (array_values($data['file_pdf'])[0] ?? null) : $data['file_pdf'];
@@ -62,11 +68,19 @@ class ListRincianAnggaranBelanjas extends ListRecords
                     $path = Storage::disk('public')->path($filePath);
                     try {
                         $targetBidangId = filled($data['bidang_id'] ?? null) ? (int) $data['bidang_id'] : null;
-                        $result = SipdRkaImporterService::import($path, true, $targetBidangId);
+                        $allowOverwrite = (bool) ($data['timpa_jika_ada'] ?? false);
+                        $result = SipdRkaImporterService::import($path, true, $targetBidangId, $allowOverwrite);
                         Notification::make()
                             ->title('Import RKA Berhasil!')
                             ->body("Berhasil mengimpor {$result['imported_items']} item rincian belanja untuk Sub Kegiatan: [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} (Total Pagu: Rp " . number_format($result['total_pagu'], 0, ',', '.') . ")")
                             ->success()
+                            ->send();
+                    } catch (\DomainException $e) {
+                        Notification::make()
+                            ->title('RKA Sudah Pernah Diimpor!')
+                            ->body($e->getMessage())
+                            ->warning()
+                            ->persistent()
                             ->send();
                     } catch (\Throwable $e) {
                         Notification::make()

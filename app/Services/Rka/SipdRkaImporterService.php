@@ -23,7 +23,7 @@ class SipdRkaImporterService
      * @param bool $skipZeroItems Skip items with 0 total budget
      * @return array Summary of import operation
      */
-    public static function import(string $pdfPath, bool $skipZeroItems = true, ?int $targetBidangId = null): array
+    public static function import(string $pdfPath, bool $skipZeroItems = true, ?int $targetBidangId = null, bool $allowOverwrite = false): array
     {
         if (! file_exists($pdfPath)) {
             throw new \RuntimeException("Berkas PDF tidak ditemukan: {$pdfPath}");
@@ -56,6 +56,34 @@ class SipdRkaImporterService
         $subKegiatanKode = trim($subM[1] ?? '');
         $subKegiatanNama = trim(preg_replace('/\s+/u', ' ', $subM[2] ?? ''));
         $sumberDana = trim(preg_replace('/\s+/u', ' ', $sumberM[1] ?? 'Dana Alokasi Umum (DAU)'));
+
+        // 2. Deteksi apakah RKA Sub Kegiatan ini sudah pernah diimpor di tahun anggaran tersebut
+        if (! $allowOverwrite && ! empty($subKegiatanKode)) {
+            $existingSub = MasterSubKegiatan::where('tahun_anggaran', $tahun)
+                ->where(function ($q) use ($subKegiatanKode) {
+                    $q->where('kode_sub_kegiatan', $subKegiatanKode)
+                        ->orWhere('kode_sub_kegiatan', 'like', '%' . $subKegiatanKode . '%');
+                })
+                ->first();
+
+            if ($existingSub) {
+                $existingRkaCount = RincianAnggaranBelanja::where('tahun_anggaran', $tahun)
+                    ->where('sub_kegiatan_id', $existingSub->id)
+                    ->count();
+
+                if ($existingRkaCount > 0) {
+                    $lastUpdated = RincianAnggaranBelanja::where('tahun_anggaran', $tahun)
+                        ->where('sub_kegiatan_id', $existingSub->id)
+                        ->latest('updated_at')
+                        ->value('updated_at');
+
+                    $tglFormatted = $lastUpdated ? \Carbon\Carbon::parse($lastUpdated)->translatedFormat('d F Y H:i') : null;
+                    $waktuInfo = $tglFormatted ? " pada {$tglFormatted} WIB" : '';
+
+                    throw new \DomainException("Dokumen RKA untuk Sub Kegiatan [{$subKegiatanKode}] {$existingSub->nama_sub_kegiatan} (TA {$tahun}) sudah pernah diunggah sebelumnya ({$existingRkaCount} item belanja{$waktuInfo}). Sistem mencegah pengunggahan berulang. Aktifkan opsi 'Perbarui jika sudah pernah diimpor' apabila Anda ingin merevisi data ini.");
+                }
+            }
+        }
 
         // 2. Ekstrak Baris Rincian Belanja
         $lines = explode("\n", $fullText);

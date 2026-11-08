@@ -16,9 +16,10 @@ class MasterKegiatansTable
 {
     public static function configure(Table $table): Table
     {
+        $defaultYear = \App\Models\MasterKegiatan::query()->max('tahun_anggaran') ?? (int) date('Y');
         $currentYear = (int) date('Y');
-        $maxYear = $currentYear + 1; // Batasi maksimal ke 2027 jika sekarang 2026
-        $minYear = $currentYear - 2;
+        $maxYear = max($defaultYear, $currentYear + 1);
+        $minYear = min($defaultYear, $currentYear - 2);
 
         $years = [];
         for ($y = $maxYear; $y >= $minYear; $y--) {
@@ -26,7 +27,7 @@ class MasterKegiatansTable
         }
 
         return $table
-            ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
+            ->modifyQueryUsing(function (Builder $query, Table $table) use ($defaultYear): Builder {
                 $query->with(['bidang', 'program'])->withCount('subKegiatans');
 
                 $livewire = $table->getLivewire();
@@ -45,7 +46,7 @@ class MasterKegiatansTable
                         ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
                 }
 
-                $selectedTahun = filled($selectedTahun) ? (int) $selectedTahun : (int) date('Y');
+                $selectedTahun = filled($selectedTahun) ? (int) $selectedTahun : $defaultYear;
 
                 $query->where('tahun_anggaran', $selectedTahun);
 
@@ -108,7 +109,7 @@ class MasterKegiatansTable
                 SelectFilter::make('tahun_anggaran')
                     ->label('Tahun Anggaran')
                     ->options($years)
-                    ->default((int) date('Y')),
+                    ->default($defaultYear),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
