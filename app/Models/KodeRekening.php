@@ -45,6 +45,11 @@ class KodeRekening extends Model
         return $this->hasMany(MasterBarang::class, 'kode_rekening_id');
     }
 
+    public function rincianAnggarans(): HasMany
+    {
+        return $this->hasMany(RincianAnggaranBelanja::class, 'kode_rekening_id');
+    }
+
     public function detailPengajuanSpjs(): HasMany
     {
         return $this->hasMany(DetailPengajuanSpj::class, 'kode_rekening_id');

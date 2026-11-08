@@ -49,6 +49,10 @@ Route::middleware('auth')->group(function () {
         ->name('admin.pengajuan-spj.preview');
     Route::get('/admin/pengajuan-spj/{record}/cetak', [\App\Http\Controllers\SpjPrintController::class, 'print'])
         ->name('admin.pengajuan-spj.cetak');
+    Route::get('/admin/laporan/lrfk/cetak', [\App\Http\Controllers\LaporanPrintController::class, 'cetakLrfk'])
+        ->name('admin.laporan.lrfk.cetak');
+    Route::get('/admin/laporan/fungsional/cetak', [\App\Http\Controllers\LaporanPrintController::class, 'cetakLpjFungsional'])
+        ->name('admin.laporan.fungsional.cetak');
 });
 
 // Fallback jika browser melakukan GET pada endpoint livewire/update
