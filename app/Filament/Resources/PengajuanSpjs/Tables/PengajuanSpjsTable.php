@@ -238,17 +238,18 @@ class PengajuanSpjsTable
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
-                // Aksi 1: Preview & Cetak Dokumen Bertahap dengan Modal Preview Interaktif
+                // Aksi 1: Preview & Cetak Dokumen Bertahap dengan Modal Preview Interaktif (Icon Button dengan Tooltip)
                 Action::make('cetak_dokumen')
                     ->label(fn(PengajuanSpj $record): string => match ($record->status) {
                         'menunggu_realisasi' => 'Cetak Pesanan',
                         default => 'Cek SPJ',
                     })
                     ->tooltip(fn(PengajuanSpj $record): string => match ($record->status) {
-                        'menunggu_realisasi' => 'Pratinjau & Cetak Surat Pesanan Barang (F4)',
-                        default => 'Pratinjau & Cetak Dokumen SPJ Lengkap (Pesanan, Kwitansi, NPD)',
+                        'menunggu_realisasi' => 'Cetak Surat Pesanan Barang (F4)',
+                        default => 'Cek & Pratinjau Dokumen SPJ Lengkap',
                     })
                     ->icon('heroicon-o-document-magnifying-glass')
+                    ->iconButton()
                     ->color('info')
                     ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true))
                     ->modalHeading(fn(PengajuanSpj $record): string => "Pratinjau Dokumen SPJ — {$record->nomor_pengajuan}")
@@ -262,8 +263,9 @@ class PengajuanSpjsTable
                 // Aksi 2.A: Ajukan Pesanan Langsung (Konfirmasi Cepat 1-Klik tanpa Modal Form Simpan)
                 Action::make('ajukan_pesanan')
                     ->label('Ajukan Pesanan')
-                    ->tooltip('Ajukan draf surat pesanan ke PPTK / Kepala Bidang')
+                    ->tooltip('Ajukan Pesanan: Teruskan draf ke PPTK / Kabid')
                     ->icon('heroicon-o-paper-airplane')
+                    ->iconButton()
                     ->color('warning')
                     ->visible(function (PengajuanSpj $record): bool {
                         if ($record->status !== 'draft') {
@@ -301,8 +303,9 @@ class PengajuanSpjsTable
                 // Aksi 2.B: Batalkan Pengajuan (Tarik Kembali ke Status Draft jika belum disetujui PPTK)
                 Action::make('batalkan_pengajuan')
                     ->label('Tarik ke Draft')
-                    ->tooltip('Batalkan pengajuan ini dan kembalikan ke status Draft untuk diedit kembali')
+                    ->tooltip('Tarik ke Draft: Batalkan pengajuan dan kembalikan ke status draf')
                     ->icon('heroicon-o-arrow-uturn-left')
+                    ->iconButton()
                     ->color('gray')
                     ->visible(function (PengajuanSpj $record): bool {
                         if ($record->status !== 'diajukan') {
@@ -352,12 +355,12 @@ class PengajuanSpjsTable
                     })
                     ->tooltip(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'diajukan' => 'Persetujuan & Tanda Tangan Surat Pesanan oleh PPTK',
-                            'menunggu_realisasi', 'revisi_pptk' => 'Unggah faktur toko, dokumentasi barang, dan lengkapi berkas SPJ',
-                            'menunggu_verifikasi_pptk' => 'Pemeriksaan kepatuhan berkas SPJ lengkap oleh PPTK',
-                            'menunggu_verifikasi_ppk', 'revisi_ppk' => 'Verifikasi berkas SPJ, kode rekening, dan perpajakan oleh PPK',
-                            'menunggu_persetujuan_pa', 'revisi_pa' => 'Persetujuan akhir dan pengesahan SPJ oleh Pengguna Anggaran (Kadis)',
-                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => 'Pemeriksaan uji kas dan pencairan dana belanja oleh Bendahara',
+                            'diajukan' => 'Setujui Pesanan: Tanda Tangan Surat Pesanan oleh PPTK',
+                            'menunggu_realisasi', 'revisi_pptk' => 'Lengkapi SPJ: Unggah faktur toko, dokumentasi barang, dan kelengkapan berkas',
+                            'menunggu_verifikasi_pptk' => 'Verifikasi PPTK: Pemeriksaan kepatuhan berkas SPJ lengkap',
+                            'menunggu_verifikasi_ppk', 'revisi_ppk' => 'Verifikasi PPK: Uji berkas SPJ, kode rekening, dan perpajakan',
+                            'menunggu_persetujuan_pa', 'revisi_pa' => 'Pengesahan PA: Persetujuan akhir & pengesahan SPJ oleh Kepala Dinas',
+                            'menunggu_verifikasi_bendahara', 'revisi_bendahara' => 'Uji Kas & Cairkan: Pemeriksaan kas & pencairan dana oleh Bendahara',
                             default => 'Proses tahapan berkas SPJ ini',
                         };
                     })
@@ -378,6 +381,7 @@ class PengajuanSpjsTable
                             default => 'heroicon-o-check-circle',
                         };
                     })
+                    ->iconButton()
                     ->color(function (PengajuanSpj $record): string {
                         return match ($record->status) {
                             'diajukan' => 'info',
@@ -771,11 +775,12 @@ class PengajuanSpjsTable
                 // Aksi 3: Kembalikan untuk Revisi (Hanya muncul saat di meja pemeriksa)
                 Action::make('kembalikan_revisi')
                     ->label(fn(PengajuanSpj $record): string => $record->status === 'diajukan' ? 'Revisi Pesanan' : 'Kembalikan')
-                    ->tooltip('Kembalikan berkas SPJ ke pemohon / tahapan sebelumnya untuk diperbaiki')
+                    ->tooltip(fn(PengajuanSpj $record): string => $record->status === 'diajukan' ? 'Revisi Pesanan: Kembalikan berkas ke pemohon' : 'Kembalikan Berkas: Minta perbaikan / revisi SPJ')
                     ->modalHeading(fn(PengajuanSpj $record): string => "Kembalikan Berkas SPJ untuk Diperbaiki — {$record->nomor_pengajuan}")
                     ->modalDescription('Dokumen SPJ akan dikembalikan ke pembuat pengajuan / tahapan sebelumnya beserta instruksi perbaikan yang Anda masukkan.')
                     ->modalSubmitActionLabel('Kembalikan Berkas (Revisi)')
                     ->icon('heroicon-o-arrow-uturn-left')
+                    ->iconButton()
                     ->color('danger')
                     ->visible(function (PengajuanSpj $record): bool {
                         if (! in_array($record->status, [
