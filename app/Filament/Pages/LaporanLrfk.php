@@ -9,7 +9,11 @@ use App\Models\RincianAnggaranBelanja;
 use App\Services\Laporan\LrfkCalculationService;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\View;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +39,7 @@ class LaporanLrfk extends Page
 
     public ?int $bidangId = null;
 
-    public string $activeTab = 'matriks';
+    public string $activeTab = 'lampiran1';
 
     public static function canAccess(): bool
     {
@@ -99,33 +103,77 @@ class LaporanLrfk extends Page
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('cetak_tab')
-                ->label(fn () => match ($this->activeTab) {
-                    'lampiran1' => 'Cetak Lampiran 1 (PDF)',
-                    'kemajuan' => 'Cetak Kemajuan Fisik (PDF)',
-                    default => 'Cetak Matriks LRFK (PDF)',
-                })
+            Action::make('cetak_lrfk')
+                ->label('Pratinjau & Cetak LRFK (PDF)')
                 ->icon('heroicon-o-printer')
                 ->color('primary')
-                ->url(fn (): string => route('admin.laporan.lrfk.cetak', [
-                    'tahun' => $this->tahun,
-                    'bulan' => $this->bulan,
-                    'bidang' => $this->bidangId,
-                    'tipe' => $this->activeTab,
-                ]))
-                ->openUrlInNewTab(),
+                ->modalHeading('Pratinjau Dokumen LRFK (Kertas F4 Landscape)')
+                ->modalDescription('Periksa seluruh halaman laporan sebelum mencetak atau mengunduh dokumen. Navigasi thumbnail di samping kiri dapat digunakan untuk melompat antarhalaman:')
+                ->modalWidth(Width::SevenExtraLarge)
+                ->form([
+                    Grid::make(3)->schema([
+                        Select::make('modal_bulan')
+                            ->label('Periode s/d Bulan')
+                            ->options($this->getDaftarBulan())
+                            ->default(fn () => $this->bulan)
+                            ->live()
+                            ->required(),
 
-            Action::make('cetak_lengkap')
-                ->label('Cetak Buku LRFK Lengkap (PDF)')
-                ->icon('heroicon-o-document-arrow-down')
-                ->color('success')
-                ->url(fn (): string => route('admin.laporan.lrfk.cetak', [
-                    'tahun' => $this->tahun,
-                    'bulan' => $this->bulan,
-                    'bidang' => $this->bidangId,
-                    'tipe' => 'lengkap',
-                ]))
-                ->openUrlInNewTab(),
+                        Select::make('modal_bidang_id')
+                            ->label('Bidang Dinas')
+                            ->options(function () {
+                                $opts = ['' => 'Semua Bidang (Rekap OPD Dinas)'];
+                                foreach (Bidang::orderBy('nama')->pluck('nama', 'id') as $id => $nama) {
+                                    $opts[$id] = $nama;
+                                }
+                                return $opts;
+                            })
+                            ->default(fn () => $this->bidangId ? (string) $this->bidangId : '')
+                            ->live()
+                            ->selectablePlaceholder(false),
+
+                        Select::make('modal_tipe')
+                            ->label('Pilihan Lembar Laporan')
+                            ->options([
+                                'lengkap' => 'Buku LRFK Lengkap (Semua Halaman 1, 2, 3)',
+                                'lampiran1' => 'Halaman 1: Laporan Realisasi Belanja (Lampiran 1)',
+                                'kemajuan' => 'Halaman 2: Laporan Kemajuan Pekerjaan',
+                                'matriks' => 'Halaman 3: Laporan Realisasi Fisik dan Keuangan (LRFK)',
+                            ])
+                            ->default(fn () => $this->activeTab === 'lampiran1' ? 'lengkap' : $this->activeTab)
+                            ->live()
+                            ->required(),
+                    ]),
+
+                    View::make('filament.components.pdf-preview-embed')
+                        ->viewData([
+                            'tahun' => $this->tahun,
+                            'jenis' => 'lrfk',
+                        ]),
+                ])
+                ->modalSubmitActionLabel('Buka di Tab Penuh')
+                ->modalCancelActionLabel('Tutup')
+                ->action(function (array $data) {
+                    $bulanPilihan = (int) ($data['modal_bulan'] ?? $this->bulan);
+                    $bidangPilihan = !empty($data['modal_bidang_id']) ? (int) $data['modal_bidang_id'] : null;
+                    $tipePilihan = (string) ($data['modal_tipe'] ?? 'lengkap');
+
+                    // Sinkronkan state halaman agar tampilan tabel di layar ikut sinkron seketika
+                    $this->bulan = $bulanPilihan;
+                    $this->bidangId = $bidangPilihan;
+                    if (in_array($tipePilihan, ['matriks', 'lampiran1', 'kemajuan'], true)) {
+                        $this->activeTab = $tipePilihan;
+                    }
+
+                    $url = route('admin.laporan.lrfk.cetak', [
+                        'tahun' => $this->tahun,
+                        'bulan' => $bulanPilihan,
+                        'bidang' => $bidangPilihan,
+                        'tipe' => $tipePilihan,
+                    ]);
+
+                    $this->js("window.open('{$url}', '_blank')");
+                }),
         ];
     }
 
@@ -144,4 +192,3 @@ class LaporanLrfk extends Page
         ];
     }
 }
-

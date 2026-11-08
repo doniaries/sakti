@@ -20,6 +20,47 @@ class LaporanPrintController extends Controller
     ) {}
 
     /**
+     * Pratinjau Dokumen HTML LRFK untuk Iframe (Bebas Intersepsi IDM)
+     */
+    public function previewLrfk(Request $request): \Illuminate\Contracts\View\View
+    {
+        $tahun = (int) ($request->query('tahun') ?: date('Y'));
+        $bulan = (int) ($request->query('bulan') ?: date('n'));
+        $bidangId = $request->query('bidang') ? (int) $request->query('bidang') : null;
+        $tipe = (string) ($request->query('tipe') ?: 'lengkap');
+
+        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, $bidangId);
+        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, $bidangId);
+        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, $bidangId);
+
+        $instansi = Instansi::first() ?? PengaturanAplikasi::first();
+        $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
+        $tglKondisi = Carbon::create($tahun, $bulan)->endOfMonth()->locale('id')->translatedFormat('d F Y');
+        $tglCetak = Carbon::now()->locale('id')->translatedFormat('d F Y');
+
+        $kadis = User::role('pa')->first();
+        $sekretaris = User::role('pptk')->whereHas('bidang', fn ($b) => $b->where('nama', 'like', '%Sekretariat%'))->first();
+        $bendahara = User::role('bendahara')->first();
+
+        return view('pdf.laporan-lrfk', [
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'namaBulan' => $namaBulan,
+            'tglKondisi' => $tglKondisi,
+            'tglCetak' => $tglCetak,
+            'instansi' => $instansi,
+            'matriks' => $matriks,
+            'lampiran1' => $lampiran1,
+            'kemajuan' => $kemajuan,
+            'tipe' => $tipe,
+            'kadis' => $kadis,
+            'sekretaris' => $sekretaris,
+            'bendahara' => $bendahara,
+            'isPreview' => true,
+        ]);
+    }
+
+    /**
      * Cetak Laporan Realisasi Fisik dan Keuangan (LRFK) Landscape PDF
      */
     public function cetakLrfk(Request $request): Response

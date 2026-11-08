@@ -88,119 +88,7 @@
 <body>
 
     {{-- ======================================================== --}}
-    {{-- BAGIAN 1: MATRIKS UTAMA LRFK (SESUAI GAMBAR 2)           --}}
-    {{-- ======================================================== --}}
-    @if(in_array($tipe, ['matriks', 'lengkap']))
-    <div>
-        <div class="header-title">
-            <h2 class="uppercase">LAPORAN REALISASI FISIK DAN KEUANGAN (LRFK)</h2>
-            <h3>KABUPATEN SIJUNJUNG - TAHUN ANGGARAN {{ $tahun }}</h3>
-        </div>
-
-        <table class="header-meta">
-            <tr>
-                <td style="width: 60%; font-weight: bold;">OPD: {{ strtoupper($instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA') }}</td>
-                <td style="width: 40%; text-align: right; font-weight: bold;">Kondisi s.d Bulan : {{ $tglKondisi }}</td>
-            </tr>
-        </table>
-
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th rowspan="3" style="width: 25px;">NO</th>
-                    <th rowspan="3">KEGIATAN</th>
-                    <th rowspan="3" style="width: 95px;">PAGU (Rp.)</th>
-                    <th colspan="8">REALISASI (sampai bulan ini)</th>
-                    <th rowspan="3" style="width: 65px;">KET</th>
-                </tr>
-                <tr>
-                    <th colspan="3">FISIK (%)</th>
-                    <th colspan="4">KEUANGAN (Rp.)</th>
-                    <th rowspan="2" style="width: 60px;">Serapan<br>Anggaran (%)<br><span style="font-size: 6.5pt;">(9/7)*100</span></th>
-                </tr>
-                <tr>
-                    <th style="width: 48px;">TARGET<br><span style="font-size: 6.5pt;">(ROPK)</span></th>
-                    <th style="width: 50px;">REALISASI</th>
-                    <th style="width: 50px;">Capaian (%)<br><span style="font-size: 6.5pt;">(5/4)*100</span></th>
-                    <th style="width: 85px;">TARGET Rp.<br><span style="font-size: 6.5pt;">(ROPK)</span></th>
-                    <th style="width: 38px;">%<br><span style="font-size: 6.5pt;">(7/3)*100</span></th>
-                    <th style="width: 85px;">REALISASI Rp.</th>
-                    <th style="width: 38px;">%<br><span style="font-size: 6.5pt;">(9/3)*100</span></th>
-                </tr>
-                <tr style="background-color: #e5e7eb; font-size: 7pt;">
-                    <th>1</th>
-                    <th>2</th>
-                    <th>3</th>
-                    <th>4</th>
-                    <th>5</th>
-                    <th>6</th>
-                    <th>7</th>
-                    <th>8</th>
-                    <th>9</th>
-                    <th>10</th>
-                    <th>11</th>
-                    <th>12</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($matriks['rows'] as $index => $row)
-                    <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td>
-                            <div class="font-bold">{{ $row['kode'] }}</div>
-                            <div>{{ $row['nama'] }}</div>
-                        </td>
-                        <td class="text-right font-bold">{{ number_format($row['pagu'], 0, ',', '.') }}</td>
-                        <td class="text-center">{{ number_format($row['target_fisik'], 2, ',', '.') }}</td>
-                        <td class="text-center font-bold">{{ number_format($row['realisasi_fisik'], 2, ',', '.') }}</td>
-                        <td class="text-center font-bold">{{ number_format($row['capaian_fisik'], 2, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($row['target_keu_rp'], 0, ',', '.') }}</td>
-                        <td class="text-center">{{ number_format($row['target_keu_persen'], 2, ',', '.') }}</td>
-                        <td class="text-right font-bold">{{ number_format($row['realisasi_keu_rp'], 0, ',', '.') }}</td>
-                        <td class="text-center font-bold">{{ number_format($row['realisasi_keu_persen'], 2, ',', '.') }}</td>
-                        <td class="text-center font-bold">{{ number_format($row['serapan_anggaran'], 2, ',', '.') }}</td>
-                        <td class="text-center" style="font-size: 7.5pt;">{{ $row['keterangan'] }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="12" class="text-center" style="padding: 15px;">Belum ada data kegiatan pada tahun {{ $tahun }}.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-            <tfoot>
-                <tr class="bg-total">
-                    <td colspan="2" class="text-center font-bold">JUMLAH TOTAL</td>
-                    <td class="text-right font-bold">{{ number_format($matriks['summary']['total_pagu'], 0, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ number_format($matriks['summary']['target_fisik'], 2, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ number_format($matriks['summary']['realisasi_fisik'], 2, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ number_format($matriks['summary']['capaian_fisik'], 2, ',', '.') }}</td>
-                    <td class="text-right font-bold">{{ number_format($matriks['summary']['target_keu_rp'], 0, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ number_format($matriks['summary']['target_keu_persen'], 2, ',', '.') }}</td>
-                    <td class="text-right font-bold">{{ number_format($matriks['summary']['realisasi_keu_rp'], 0, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ number_format($matriks['summary']['realisasi_keu_persen'], 2, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ number_format($matriks['summary']['serapan_anggaran'], 2, ',', '.') }}</td>
-                    <td class="text-center">-</td>
-                </tr>
-            </tfoot>
-        </table>
-
-        {{-- Blok Tanda Tangan Sekretaris Sesuai Gambar 3 & Excel Acuan --}}
-        <div class="ttd-container">
-            <div class="ttd-box">
-                <div>Muaro Sijunjung, {{ $tglCetak }}</div>
-                <div class="font-bold">a.n. KEPALA DINAS PARIWISATA PEMUDA DAN OLAHRAGA</div>
-                <div class="font-bold">SEKRETARIS</div>
-                <div style="height: 50px;"></div>
-                <div class="font-bold" style="text-decoration: underline;">{{ $sekretaris?->name ?? 'DESMAWATI, SE. M.Si' }}</div>
-                <div>NIP. {{ $sekretaris?->nip ?? '19691224 199503 2 002' }}</div>
-            </div>
-            <div style="clear: both;"></div>
-        </div>
-    </div>
-    @endif
-
-    {{-- ======================================================== --}}
-    {{-- BAGIAN 2: LAMPIRAN 1 - REALISASI BELANJA (SESUAI GAMBAR 4) --}}
+    {{-- BAGIAN 1: LAMPIRAN 1 - REALISASI BELANJA (SESUAI EXCEL)  --}}
     {{-- ======================================================== --}}
     @if(in_array($tipe, ['lampiran1', 'lengkap']))
     <div class="{{ $tipe === 'lengkap' ? 'page-break' : '' }}">
@@ -278,10 +166,122 @@
     @endif
 
     {{-- ======================================================== --}}
-    {{-- BAGIAN 3: KEMAJUAN PEKERJAAN FISIK (SESUAI GAMBAR 3)      --}}
+    {{-- BAGIAN 2: MATRIKS UTAMA LRFK (SESUAI SHEET SEP 2026)      --}}
+    {{-- ======================================================== --}}
+    @if(in_array($tipe, ['matriks', 'lengkap']))
+    <div class="{{ $tipe === 'lengkap' ? 'page-break' : '' }}">
+        <div class="header-title">
+            <h2 class="uppercase">LAPORAN REALISASI FISIK DAN KEUANGAN (LRFK)</h2>
+            <h3>KABUPATEN SIJUNJUNG - TAHUN ANGGARAN {{ $tahun }}</h3>
+        </div>
+
+        <table class="header-meta">
+            <tr>
+                <td style="width: 60%; font-weight: bold;">OPD: {{ strtoupper($instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA') }}</td>
+                <td style="width: 40%; text-align: right; font-weight: bold;">Kondisi s.d Bulan : {{ $tglKondisi }}</td>
+            </tr>
+        </table>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th rowspan="3" style="width: 25px;">NO</th>
+                    <th rowspan="3">KEGIATAN</th>
+                    <th rowspan="3" style="width: 95px;">PAGU (Rp.)</th>
+                    <th colspan="8">REALISASI (sampai bulan ini)</th>
+                    <th rowspan="3" style="width: 65px;">KET</th>
+                </tr>
+                <tr>
+                    <th colspan="3">FISIK (%)</th>
+                    <th colspan="4">KEUANGAN (Rp.)</th>
+                    <th rowspan="2" style="width: 60px;">Serapan<br>Anggaran (%)<br><span style="font-size: 6.5pt;">(9/7)*100</span></th>
+                </tr>
+                <tr>
+                    <th style="width: 48px;">TARGET<br><span style="font-size: 6.5pt;">(ROPK)</span></th>
+                    <th style="width: 50px;">REALISASI</th>
+                    <th style="width: 50px;">Capaian (%)<br><span style="font-size: 6.5pt;">(5/4)*100</span></th>
+                    <th style="width: 85px;">TARGET Rp.<br><span style="font-size: 6.5pt;">(ROPK)</span></th>
+                    <th style="width: 38px;">%<br><span style="font-size: 6.5pt;">(7/3)*100</span></th>
+                    <th style="width: 85px;">REALISASI Rp.</th>
+                    <th style="width: 38px;">%<br><span style="font-size: 6.5pt;">(9/3)*100</span></th>
+                </tr>
+                <tr style="background-color: #e5e7eb; font-size: 7pt;">
+                    <th>1</th>
+                    <th>2</th>
+                    <th>3</th>
+                    <th>4</th>
+                    <th>5</th>
+                    <th>6</th>
+                    <th>7</th>
+                    <th>8</th>
+                    <th>9</th>
+                    <th>10</th>
+                    <th>11</th>
+                    <th>12</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($matriks['rows'] as $idx => $row)
+                    <tr>
+                        <td class="text-center">{{ $idx + 1 }}</td>
+                        <td>
+                            <div style="font-size: 7pt; color: #4b5563;">{{ $row['kode'] }}</div>
+                            <div class="font-bold">{{ $row['nama'] }}</div>
+                        </td>
+                        <td class="text-right font-bold">{{ number_format($row['pagu'], 0, ',', '.') }}</td>
+                        <td class="text-center">{{ number_format($row['target_fisik'], 2, ',', '.') }}</td>
+                        <td class="text-center font-bold">{{ number_format($row['realisasi_fisik'], 2, ',', '.') }}</td>
+                        <td class="text-center font-bold">{{ number_format($row['capaian_fisik'], 1, ',', '.') }}</td>
+                        <td class="text-right">{{ number_format($row['target_keu_rp'], 0, ',', '.') }}</td>
+                        <td class="text-center">{{ number_format($row['target_keu_persen'], 1, ',', '.') }}</td>
+                        <td class="text-right font-bold">{{ number_format($row['realisasi_keu_rp'], 0, ',', '.') }}</td>
+                        <td class="text-center font-bold">{{ number_format($row['realisasi_keu_persen'], 1, ',', '.') }}</td>
+                        <td class="text-center font-bold">{{ number_format($row['serapan_anggaran'], 2, ',', '.') }}</td>
+                        <td class="text-center">{{ $row['keterangan'] ?: '-' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="12" class="text-center" style="padding: 15px;">Belum ada data kegiatan DPA pada tahun {{ $tahun }}.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            <tfoot>
+                <tr class="bg-total">
+                    <td colspan="2" class="text-center font-bold">TOTAL / RATA-RATA OPD</td>
+                    <td class="text-right font-bold">{{ number_format($matriks['summary']['total_pagu'], 0, ',', '.') }}</td>
+                    <td class="text-center font-bold">{{ number_format($matriks['summary']['target_fisik'], 2, ',', '.') }}</td>
+                    <td class="text-center font-bold">{{ number_format($matriks['summary']['realisasi_fisik'], 2, ',', '.') }}</td>
+                    <td class="text-center font-bold">{{ number_format($matriks['summary']['capaian_fisik'], 1, ',', '.') }}</td>
+                    <td class="text-right font-bold">{{ number_format($matriks['summary']['target_keu_rp'], 0, ',', '.') }}</td>
+                    <td class="text-center font-bold">{{ number_format($matriks['summary']['target_keu_persen'], 2, ',', '.') }}</td>
+                    <td class="text-right font-bold">{{ number_format($matriks['summary']['realisasi_keu_rp'], 0, ',', '.') }}</td>
+                    <td class="text-center font-bold">{{ number_format($matriks['summary']['realisasi_keu_persen'], 2, ',', '.') }}</td>
+                    <td class="text-center font-bold">{{ number_format($matriks['summary']['serapan_anggaran'], 2, ',', '.') }}</td>
+                    <td class="text-center">-</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        {{-- KOLOM TANDA TANGAN RESMI (SEKRETARIS & PIMPINAN) --}}
+        <div class="ttd-container">
+            <div class="ttd-box">
+                <div>Muaro Sijunjung, {{ $tglCetak }}</div>
+                <div class="font-bold">a.n. KEPALA DINAS PARIWISATA PEMUDA DAN OLAHRAGA</div>
+                <div class="font-bold">SEKRETARIS</div>
+                <div style="height: 50px;"></div>
+                <div class="font-bold" style="text-decoration: underline;">{{ $sekretaris?->name ?? 'DESMAWATI, SE. M.Si' }}</div>
+                <div>NIP. {{ $sekretaris?->nip ?? '19691224 199503 2 002' }}</div>
+            </div>
+            <div style="clear: both;"></div>
+        </div>
+    </div>
+    @endif
+
+    {{-- ======================================================== --}}
+    {{-- BAGIAN 3: KEMAJUAN PEKERJAAN FISIK (SESUAI EXCEL)        --}}
     {{-- ======================================================== --}}
     @if(in_array($tipe, ['kemajuan', 'lengkap']))
-    <div class="{{ $tipe === 'lengkap' ? 'page-break' : '' }}">
+    <div>
         <div class="header-title">
             <h2 class="uppercase">LAPORAN KEMAJUAN PEKERJAAN TA {{ $tahun }}</h2>
         </div>
@@ -396,4 +396,3 @@
 
 </body>
 </html>
-

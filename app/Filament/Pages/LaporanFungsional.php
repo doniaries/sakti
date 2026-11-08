@@ -8,7 +8,11 @@ use App\Models\RincianAnggaranBelanja;
 use App\Services\Laporan\LrfkCalculationService;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\View;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use UnitEnum;
@@ -80,15 +84,44 @@ class LaporanFungsional extends Page
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('cetak_lpj')
-                ->label('Cetak LPJ Fungsional (PDF)')
+            Action::make('preview_cetak_fungsional')
+                ->label('Pratinjau & Cetak LPJ (PDF)')
                 ->icon('heroicon-o-printer')
                 ->color('primary')
-                ->url(fn (): string => route('admin.laporan.fungsional.cetak', [
-                    'tahun' => $this->tahun,
-                    'bulan' => $this->bulan,
-                ]))
-                ->openUrlInNewTab(),
+                ->modalHeading('Pratinjau Dokumen LPJ Fungsional (Kertas F4 Landscape)')
+                ->modalDescription('Periksa seluruh halaman laporan pertanggungjawaban bendahara sebelum dicetak atau diunduh:')
+                ->modalWidth(Width::SevenExtraLarge)
+                ->form([
+                    Grid::make(1)->schema([
+                        Select::make('modal_bulan')
+                            ->label('Filter Periode s/d Bulan')
+                            ->options($this->getDaftarBulan())
+                            ->default(fn () => $this->bulan)
+                            ->live()
+                            ->required(),
+                    ]),
+
+                    View::make('filament.components.pdf-preview-embed')
+                        ->viewData([
+                            'tahun' => $this->tahun,
+                            'jenis' => 'fungsional',
+                        ]),
+                ])
+                ->modalSubmitActionLabel('Buka di Tab Penuh')
+                ->modalCancelActionLabel('Tutup')
+                ->action(function (array $data) {
+                    $bulanPilihan = (int) ($data['modal_bulan'] ?? $this->bulan);
+
+                    // Update state halaman jika user memilih bulan berbeda
+                    $this->bulan = $bulanPilihan;
+
+                    $url = route('admin.laporan.fungsional.cetak', [
+                        'tahun' => $this->tahun,
+                        'bulan' => $bulanPilihan,
+                    ]);
+
+                    $this->js("window.open('{$url}', '_blank')");
+                }),
         ];
     }
 
@@ -104,4 +137,3 @@ class LaporanFungsional extends Page
         ];
     }
 }
-

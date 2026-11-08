@@ -188,7 +188,7 @@ class LrfkCalculationService
     {
         $batasTanggal = Carbon::create($tahun, $bulan)->endOfMonth()->toDateString();
 
-        // Kategori Baku Permendagri / LRFK Sijunjung
+        // Kategori Baku Sesuai Lampiran 1 (Permendagri / LRFK Kabupaten Sijunjung)
         $kategoriDef = [
             '5.1' => [
                 'kode' => '1',
@@ -197,7 +197,6 @@ class LrfkCalculationService
                     '5.1.01' => 'Belanja Pegawai',
                     '5.1.02' => 'Belanja Barang dan Jasa',
                     '5.1.05' => 'Belanja Hibah',
-                    '5.1.06' => 'Belanja Bantuan Sosial',
                 ],
             ],
             '5.2' => [
@@ -215,9 +214,7 @@ class LrfkCalculationService
             '5.3' => [
                 'kode' => '3',
                 'uraian' => 'BELANJA TAK TERDUGA',
-                'sub' => [
-                    '5.3.01' => 'Belanja Tidak Terduga',
-                ],
+                'sub' => [],
             ],
             '5.4' => [
                 'kode' => '4',
@@ -238,20 +235,18 @@ class LrfkCalculationService
             $kelompokRealisasi = 0.0;
             $subRows = [];
 
-            foreach ($kelompok['sub'] as $prefixSub => $namaSub) {
-                // Pagu DPA RKA dengan kode rekening prefix bersangkutan
+            if (empty($kelompok['sub'])) {
+                // Kategori tanpa sub-rincian (misal 5.3 Belanja Tak Terduga)
                 $paguQuery = RincianAnggaranBelanja::query()
                     ->where('tahun_anggaran', $tahun)
-                    ->whereHas('kodeRekening', fn ($q) => $q->where('kode_lengkap', 'like', "{$prefixSub}%"));
-
+                    ->whereHas('kodeRekening', fn ($q) => $q->where('kode_lengkap', 'like', "{$prefixKelompok}%"));
                 if ($bidangId) {
                     $paguQuery->where('bidang_id', $bidangId);
                 }
-                $subPagu = (float) $paguQuery->sum('pagu_total');
+                $kelompokPagu = (float) $paguQuery->sum('pagu_total');
 
-                // Realisasi dari SPJ Dicairkan
                 $realisasiQuery = DetailPengajuanSpj::query()
-                    ->whereHas('kodeRekening', fn ($q) => $q->where('kode_lengkap', 'like', "{$prefixSub}%"))
+                    ->whereHas('kodeRekening', fn ($q) => $q->where('kode_lengkap', 'like', "{$prefixKelompok}%"))
                     ->whereHas('pengajuanSpj', function ($q) use ($tahun, $batasTanggal, $bidangId) {
                         $q->where('tahun_anggaran', $tahun)
                             ->where('status', 'dicairkan')
@@ -260,20 +255,47 @@ class LrfkCalculationService
                             $q->where('bidang_id', $bidangId);
                         }
                     });
+                $kelompokRealisasi = (float) $realisasiQuery->sum('subtotal');
+            } else {
+                foreach ($kelompok['sub'] as $prefixSub => $namaSub) {
+                    $altPrefix = str_replace('.0', '.', $prefixSub);
 
-                $subRealisasi = (float) $realisasiQuery->sum('subtotal');
-                $subPersen = $subPagu > 0 ? round(($subRealisasi / $subPagu) * 100.0, 2) : 0.0;
+                    // Pagu DPA RKA dengan kode rekening prefix bersangkutan
+                    $paguQuery = RincianAnggaranBelanja::query()
+                        ->where('tahun_anggaran', $tahun)
+                        ->whereHas('kodeRekening', fn ($q) => $q->where(fn ($w) => $w->where('kode_lengkap', 'like', "{$prefixSub}%")->orWhere('kode_lengkap', 'like', "{$altPrefix}%")));
 
-                $subRows[] = [
-                    'prefix' => $prefixSub,
-                    'nama' => $namaSub,
-                    'anggaran' => $subPagu,
-                    'realisasi' => $subRealisasi,
-                    'persen' => $subPersen,
-                ];
+                    if ($bidangId) {
+                        $paguQuery->where('bidang_id', $bidangId);
+                    }
+                    $subPagu = (float) $paguQuery->sum('pagu_total');
 
-                $kelompokPagu += $subPagu;
-                $kelompokRealisasi += $subRealisasi;
+                    // Realisasi dari SPJ Dicairkan
+                    $realisasiQuery = DetailPengajuanSpj::query()
+                        ->whereHas('kodeRekening', fn ($q) => $q->where(fn ($w) => $w->where('kode_lengkap', 'like', "{$prefixSub}%")->orWhere('kode_lengkap', 'like', "{$altPrefix}%")))
+                        ->whereHas('pengajuanSpj', function ($q) use ($tahun, $batasTanggal, $bidangId) {
+                            $q->where('tahun_anggaran', $tahun)
+                                ->where('status', 'dicairkan')
+                                ->whereDate('tanggal_dicairkan', '<=', $batasTanggal);
+                            if ($bidangId) {
+                                $q->where('bidang_id', $bidangId);
+                            }
+                        });
+
+                    $subRealisasi = (float) $realisasiQuery->sum('subtotal');
+                    $subPersen = $subPagu > 0 ? round(($subRealisasi / $subPagu) * 100.0, 2) : 0.0;
+
+                    $subRows[] = [
+                        'prefix' => $prefixSub,
+                        'nama' => $namaSub,
+                        'anggaran' => $subPagu,
+                        'realisasi' => $subRealisasi,
+                        'persen' => $subPersen,
+                    ];
+
+                    $kelompokPagu += $subPagu;
+                    $kelompokRealisasi += $subRealisasi;
+                }
             }
 
             $kelompokPersen = $kelompokPagu > 0 ? round(($kelompokRealisasi / $kelompokPagu) * 100.0, 2) : 0.0;
