@@ -52,6 +52,11 @@
     pointer-events: auto !important;
 }
 
+/* Filament Notifications: container notifikasi mengambang wajib selalu di atas topbar dan tidak tertutupi navbar */
+.fi-notifications {
+    z-index: 99999 !important;
+}
+
 /* Background solid dropdown pada dark mode agar teks pilihan tidak tembus pandang/bertumpuk */
 .dark .fi-dropdown-panel,
 .dark .fi-dropdown-list {

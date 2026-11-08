@@ -38,10 +38,10 @@ class RincianAnggaranBelanjaForm
                     ->schema([
                         Grid::make([
                             'default' => 1,
-                            'md' => 4,
+                            'md' => 3,
                         ])->schema([
                             Select::make('tahun_anggaran')
-                                ->label('Tahun')
+                                ->label('Tahun Anggaran')
                                 ->options($years)
                                 ->default($currentYear)
                                 ->required()
@@ -59,44 +59,48 @@ class RincianAnggaranBelanjaForm
                                 ->options(SumberDana::class)
                                 ->default(SumberDana::DAU->value)
                                 ->required(),
-
-                            Select::make('sub_kegiatan_id')
-                                ->label('Sub Kegiatan')
-                                ->visible(fn(Get $get): bool => filled($get('bidang_id')))
-                                ->options(function (Get $get) {
-                                    $tahun = $get('tahun_anggaran') ?? (int) date('Y');
-                                    $bidangId = $get('bidang_id');
-
-                                    return MasterSubKegiatan::query()
-                                        ->where('tahun_anggaran', $tahun)
-                                        ->when($bidangId, fn($q) => $q->whereHas('kegiatan', fn($k) => $k->where('bidang_id', $bidangId)))
-                                        ->get()
-                                        ->mapWithKeys(fn($item) => [$item->id => "{$item->kode_sub_kegiatan} - {$item->nama_sub_kegiatan}"])
-                                        ->all();
-                                })
-                                ->searchable()
-                                ->live()
-                                ->required(),
                         ]),
+
+                        Select::make('sub_kegiatan_id')
+                            ->label('Sub Kegiatan')
+                            ->placeholder('Pilih Sub Kegiatan Belanja...')
+                            ->options(function (Get $get) {
+                                $tahun = $get('tahun_anggaran') ?? (int) date('Y');
+                                $bidangId = $get('bidang_id');
+
+                                return MasterSubKegiatan::query()
+                                    ->where('tahun_anggaran', $tahun)
+                                    ->when($bidangId, fn($q) => $q->whereHas('kegiatan', fn($k) => $k->where('bidang_id', $bidangId)))
+                                    ->get()
+                                    ->mapWithKeys(fn($item) => [$item->id => "{$item->kode_sub_kegiatan} - {$item->nama_sub_kegiatan}"])
+                                    ->all();
+                            })
+                            ->searchable()
+                            ->live()
+                            ->required()
+                            ->helperText('Pilih sub kegiatan yang menaungi alokasi anggaran belanja ini.'),
                     ]),
 
-                // Section 2: Objek & Komponen Belanja (Muncul bertahap setelah Sub Kegiatan dipilih)
+                // Section 2: Objek & Komponen Belanja SIPD RI
                 Section::make('Rincian Objek & Komponen Belanja')
                     ->description('Pilih rincian objek belanja dan komponen barang yang akan dibebankan sesuai rincian SIPD.')
                     ->icon('heroicon-o-shopping-bag')
-                    ->visible(fn(Get $get): bool => filled($get('sub_kegiatan_id')))
                     ->schema([
-                        Grid::make(2)->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'md' => 2,
+                        ])->schema([
                             Select::make('kode_rekening_id')
-                                ->label('Rincian Objek Belanja')
-                                ->helperText('Nomor rekening tidak ditampilkan di layar, namun tetap tersimpan otomatis di sistem.')
+                                ->label('Rincian Objek Belanja (SIPD RI)')
+                                ->placeholder('Pilih nomor dan nama Rincian Objek...')
+                                ->helperText('Pilih atau ketik nomor rekening atau uraian Rincian Objek belanja.')
                                 ->searchable()
                                 ->options(function () {
                                     return KodeRekening::hanyaRincianObjek()
-                                        ->orderBy('uraian')
+                                        ->orderBy('kode_lengkap')
                                         ->limit(100)
                                         ->get()
-                                        ->mapWithKeys(fn ($r) => [$r->id => $r->uraian])
+                                        ->mapWithKeys(fn($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
                                         ->all();
                                 })
                                 ->getSearchResultsUsing(function (string $search): array {
@@ -112,31 +116,66 @@ class RincianAnggaranBelanjaForm
                                                 }
                                             });
                                         })
-                                        ->orderBy('uraian')
+                                        ->orderBy('kode_lengkap')
                                         ->limit(50)
                                         ->get()
-                                        ->mapWithKeys(fn ($r) => [$r->id => $r->uraian])
+                                        ->mapWithKeys(fn($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
                                         ->all();
                                 })
-                                ->getOptionLabelUsing(fn ($value): ?string => ($r = KodeRekening::find($value)) ? $r->uraian : null)
+                                ->getOptionLabelUsing(fn($value): ?string => ($r = KodeRekening::find($value)) ? "{$r->kode_lengkap} - {$r->uraian}" : null)
                                 ->required()
-                                ->live(),
+                                ->live()
+                                ->afterStateUpdated(fn (Set $set) => $set('master_barang_id', null)),
 
                             Select::make('master_barang_id')
                                 ->label('Komponen Belanja / Barang')
-                                ->helperText('Pilih atau tambahkan komponen barang untuk mengisi rincian objek ini.')
-                                ->visible(fn(Get $get): bool => filled($get('kode_rekening_id')))
+                                ->placeholder(fn(Get $get): string => filled($get('kode_rekening_id')) ? 'Pilih komponen barang belanja...' : 'Pilih Rincian Objek terlebih dahulu')
+                                ->helperText(function (Get $get): string {
+                                    $rekId = $get('kode_rekening_id');
+                                    if (! $rekId) {
+                                        return 'Pilih Rincian Objek belanja terlebih dahulu.';
+                                    }
+                                    $count = MasterBarang::where('kode_rekening_id', $rekId)->count();
+                                    if ($count === 0) {
+                                        return '⚠️ Belum ada komponen barang untuk rincian objek ini. Klik tombol (+) di samping untuk menambahkan.';
+                                    }
+                                    return "Menampilkan {$count} komponen barang berkaitan.";
+                                })
                                 ->options(function (Get $get) {
                                     $rekId = $get('kode_rekening_id');
+                                    if (! $rekId) {
+                                        return [];
+                                    }
+
                                     return MasterBarang::query()
-                                        ->when($rekId, fn($q) => $q->where('kode_rekening_id', $rekId))
+                                        ->where('kode_rekening_id', $rekId)
                                         ->with('satuan')
+                                        ->orderBy('nama_barang')
                                         ->get()
                                         ->mapWithKeys(fn($b) => [$b->id => "📦 {$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
                                         ->all();
                                 })
+                                ->getSearchResultsUsing(function (string $search, Get $get): array {
+                                    $rekId = $get('kode_rekening_id');
+                                    if (! $rekId) {
+                                        return [];
+                                    }
+
+                                    return MasterBarang::query()
+                                        ->where('kode_rekening_id', $rekId)
+                                        ->with('satuan')
+                                        ->where(function ($q) use ($search) {
+                                            $q->where('nama_barang', 'like', "%{$search}%")
+                                                ->orWhere('uraian', 'like', "%{$search}%");
+                                        })
+                                        ->orderBy('nama_barang')
+                                        ->limit(50)
+                                        ->get()
+                                        ->mapWithKeys(fn($b) => [$b->id => "📦 {$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
+                                        ->all();
+                                })
+                                ->getOptionLabelUsing(fn($value): ?string => ($b = MasterBarang::with('satuan')->find($value)) ? "📦 {$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '') : null)
                                 ->searchable()
-                                ->preload()
                                 ->createOptionForm([
                                     TextInput::make('nama_barang')
                                         ->label('Nama Komponen Barang')
@@ -184,20 +223,19 @@ class RincianAnggaranBelanjaForm
                             TextInput::make('spesifikasi')
                                 ->label('Spesifikasi Teknis / Merk Barang')
                                 ->placeholder('Contoh: Kertas HVS Sidu, ukuran F4, 75 gram / Pertamax')
-                                ->visible(fn(Get $get): bool => filled($get('master_barang_id')))
                                 ->columnSpanFull(),
                         ]),
                     ]),
 
-                // Section 3: Kalkulasi Koefisien Volume & Pagu Anggaran (Muncul bertahap setelah Komponen Belanja dipilih)
+                // Section 3: Kalkulasi Koefisien Volume & Pagu Anggaran
                 Section::make('Kalkulasi Koefisien Volume & Pagu Anggaran')
                     ->description('Hitung total pagu anggaran berdasarkan koefisien volume dan harga satuan standar belanja.')
                     ->icon('heroicon-o-calculator')
-                    ->visible(fn(Get $get): bool => filled($get('master_barang_id')))
                     ->schema([
                         Grid::make([
                             'default' => 1,
-                            'md' => 4,
+                            'sm' => 2,
+                            'lg' => 4,
                         ])->schema([
                             TextInput::make('volume')
                                 ->label('Koefisien / Volume Pagu')
