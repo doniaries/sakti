@@ -164,10 +164,9 @@
             } else if (this.viewMode === 'pdf') {
                 window.open(this.activePdfUrl, '_blank');
             } else if (this.viewMode === 'image') {
-                const win = window.open('', '_blank');
+                const win = window.open(this.activeImageUrl, '_blank');
                 if (win) {
-                    win.document.write('<html><head><title>Cetak Gambar</title></head><body style=\"margin:0;display:flex;justify-content:center;align-items:center;\"><img src=\"' + this.activeImageUrl + '\" style=\"max-width:100%;height:auto;\" onload=\"window.print();\" /></body></html>');
-                    win.document.close();
+                    win.focus();
                 }
             }
         }
@@ -418,6 +417,7 @@
         <div x-show="viewMode === 'iframe'" class="w-full h-full overflow-auto bg-[#525659]">
             <iframe
                 id="pedoman-preview-frame-{{ $record->id }}"
+                src="{{ $previewBaseUrl }}?tipe=semua"
                 :src="previewUrl"
                 class="w-full h-full border-0 block"
                 :style="zoom === 100 ? 'width: 100%; height: 100%; border: none; display: block; background-color: #525659;' : 'transform: scale(' + (zoom / 100) + '); transform-origin: top center; width: ' + (10000 / zoom) + '%; height: ' + (10000 / zoom) + '%; border: none; display: block; background-color: #525659;'"

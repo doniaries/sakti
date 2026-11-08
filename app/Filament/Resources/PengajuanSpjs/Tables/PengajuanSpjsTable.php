@@ -70,7 +70,7 @@ class PengajuanSpjsTable
                     if ($userBidangId > 0) {
                         $query->where(function (Builder $q) use ($user, $userBidangId) {
                             $q->where('bidang_id', $userBidangId)
-                              ->orWhere('user_id', $user->id);
+                                ->orWhere('user_id', $user->id);
                         });
                     }
                 }
@@ -137,11 +137,11 @@ class PengajuanSpjsTable
                 TextColumn::make('metode_pengadaan')
                     ->label('Metode')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                    ->formatStateUsing(fn(?string $state): string => match ($state) {
                         'e_katalog' => 'E-Katalog',
                         default => 'Non-Katalog',
                     })
-                    ->color(fn (?string $state): string => match ($state) {
+                    ->color(fn(?string $state): string => match ($state) {
                         'e_katalog' => 'info',
                         default => 'gray',
                     })
@@ -151,14 +151,14 @@ class PengajuanSpjsTable
                 TextColumn::make('jenis_belanja')
                     ->label('Jenis Belanja')
                     ->badge()
-                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                    ->formatStateUsing(fn(?string $state): string => match ($state) {
                         'barang_jasa' => 'Barang & Jasa',
                         'makan_minum' => 'Makan Minum',
                         'sppd' => 'SPPD',
                         'bbm' => 'BBM',
                         default => 'Barang & Jasa',
                     })
-                    ->color(fn (?string $state): string => match ($state) {
+                    ->color(fn(?string $state): string => match ($state) {
                         'barang_jasa' => 'primary',
                         'makan_minum' => 'warning',
                         'sppd' => 'success',
@@ -238,7 +238,7 @@ class PengajuanSpjsTable
                 Action::make('cetak_dokumen')
                     ->label(fn(PengajuanSpj $record): string => match ($record->status) {
                         'menunggu_realisasi' => 'Cetak Pesanan',
-                        default => 'Cetak SPJ',
+                        default => 'Cek SPJ',
                     })
                     ->tooltip(fn(PengajuanSpj $record): string => match ($record->status) {
                         'menunggu_realisasi' => 'Pratinjau & Cetak Surat Pesanan Barang (F4)',
@@ -893,9 +893,9 @@ class PengajuanSpjsTable
                         ->label('Hapus Draf')
                         ->visible(fn(PengajuanSpj $record): bool => $record->status === 'draft'),
                 ])
-                ->tooltip('Menu Aksi Lainnya')
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->color('gray'),
+                    ->tooltip('Menu Aksi Lainnya')
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->color('gray'),
             ])
             ->headerActions([
                 CreateAction::make()
