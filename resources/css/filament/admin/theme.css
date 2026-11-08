@@ -159,3 +159,52 @@ html:not(.dark) .fi-dropdown-list {
     filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));
 }
 
+/* ==========================================================================
+   Table Sticky Header & Columns Synchronization (Anti Tertutup & Anti Hilang)
+   ========================================================================== */
+
+/* Thead wajib sticky di paling atas dengan z-index di atas baris data */
+.fi-ta-table thead,
+.fi-ta-table thead tr {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 40 !important;
+}
+
+/* Seluruh th di header tabel wajib sticky ke top: 0 dengan latar solid */
+.fi-ta-table thead th {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 40 !important;
+    background-color: #18181b !important;
+}
+
+/* Kolom sticky di header (Checkbox, Aksi, No. Pengajuan) mendapat z-index 50 (tertinggi) */
+.fi-ta-table thead th[data-sticky-applied],
+.fi-ta-table thead th[data-sticky],
+.fi-ta-table thead th.fi-ta-actions-header-cell,
+.fi-ta-table thead th.fi-ta-selection-cell {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+    background-color: #18181b !important;
+}
+
+/* Penyesuaian mode terang (Light Mode) */
+html:not(.dark) .fi-ta-table thead th,
+html:not(.dark) .fi-ta-table thead th[data-sticky-applied],
+html:not(.dark) .fi-ta-table thead th[data-sticky],
+html:not(.dark) .fi-ta-table thead th.fi-ta-actions-header-cell,
+html:not(.dark) .fi-ta-table thead th.fi-ta-selection-cell {
+    background-color: #ffffff !important;
+}
+
+/* Body cells yang sticky horizontal (td) wajib dibatasi z-index: 15 agar selalu lewat DI BAWAH header */
+.fi-ta-table tbody td[data-sticky-applied],
+.fi-ta-table tbody td[data-sticky],
+.fi-ta-table tbody td.fi-ta-actions-cell,
+.fi-ta-table tbody td.fi-ta-selection-cell {
+    z-index: 15 !important;
+}
+
+

@@ -1291,7 +1291,9 @@
 
                                         @if ($isSelectionEnabled && $recordCheckboxPosition === RecordCheckboxPosition::BeforeCells)
                                             <th
-                                                class="fi-ta-cell fi-ta-selection-cell"
+                                                data-sticky="left"
+                                                data-sticky-z-index="50"
+                                                class="fi-ta-cell fi-ta-selection-cell px-3 py-2"
                                             >
                                                 @if ($maxSelectableRecords !== 1)
                                                     <input
@@ -1332,11 +1334,19 @@
 
                                         @if (count($defaultRecordActions) && $recordActionsPosition === RecordActionsPosition::BeforeColumns)
                                             @if ($recordActionsColumnLabel)
-                                                <th class="fi-ta-header-cell">
-                                                    {{ $recordActionsColumnLabel }}
+                                                <th
+                                                    data-sticky="left"
+                                                    data-sticky-z-index="50"
+                                                    class="fi-ta-header-cell fi-ta-actions-header-cell px-4 py-2"
+                                                >
+                                                    <span class="fi-ta-header-cell-label text-xs font-semibold text-gray-950 dark:text-white">
+                                                        {{ $recordActionsColumnLabel }}
+                                                    </span>
                                                 </th>
                                             @else
                                                 <th
+                                                    data-sticky="left"
+                                                    data-sticky-z-index="50"
                                                     aria-label="{{ trans_choice('filament-tables::table.columns.actions.label', $flatRecordActionsCount) }}"
                                                     class="fi-ta-actions-header-cell fi-ta-empty-header-cell"
                                                 ></th>
@@ -1824,6 +1834,8 @@
 
                                                 @if ($isSelectionEnabled && ($recordCheckboxPosition === RecordCheckboxPosition::BeforeCells) && (! $isReordering))
                                                     <td
+                                                        data-sticky="left"
+                                                        data-sticky-z-index="15"
                                                         class="fi-ta-cell fi-ta-selection-cell"
                                                     >
                                                         @if ($isRecordSelectable($record))
@@ -1848,7 +1860,11 @@
                                                 @endif
 
                                                 @if (count($defaultRecordActions) && $recordActionsPosition === RecordActionsPosition::BeforeColumns && (! $isReordering))
-                                                    <td class="fi-ta-cell">
+                                                    <td
+                                                        data-sticky="left"
+                                                        data-sticky-z-index="15"
+                                                        class="fi-ta-cell fi-ta-actions-cell"
+                                                    >
                                                         <div
                                                             @class([
                                                                 'fi-ta-actions',

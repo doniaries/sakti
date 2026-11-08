@@ -827,7 +827,7 @@ class PengajuanSpjForm
                                                                     ->default(1)
                                                                     ->minValue(1)
                                                                     ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
-                                                                    ->live(onBlur: true)
+                                                                    ->live(debounce: 350)
                                                                     ->helperText(function (callable $get) {
                                                                         $qty = (float) ($get('kuantitas') ?: 0);
                                                                         $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
@@ -852,7 +852,7 @@ class PengajuanSpjForm
                                                                         },
                                                                     ])
                                                                     ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = max(1, (int) ($state ?: 1));
+                                                                        $qty = (float) ($state ?: 0);
                                                                         $harga = FormatHelper::parseRupiah($get('harga_satuan'));
                                                                         $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
 
@@ -864,7 +864,7 @@ class PengajuanSpjForm
                                                                                 ->send();
                                                                         }
 
-                                                                        $subtotal = $qty * $harga;
+                                                                        $subtotal = (int) round($qty * $harga);
                                                                         $set('subtotal', $subtotal);
                                                                         $set('kuantitas_realisasi', $qty);
                                                                         $set('harga_realisasi', $harga);
@@ -875,11 +875,11 @@ class PengajuanSpjForm
 
                                                                 FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan')
                                                                     ->required()
-                                                                    ->live(onBlur: true)
+                                                                    ->live(debounce: 350)
                                                                     ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = (int) ($get('kuantitas') ?: 0);
+                                                                        $qty = (float) ($get('kuantitas') ?: 0);
                                                                         $harga = FormatHelper::parseRupiah($state);
-                                                                        $subtotal = $qty * $harga;
+                                                                        $subtotal = (int) round($qty * $harga);
                                                                         $set('subtotal', $subtotal);
                                                                         $set('harga_realisasi', $harga);
                                                                         $set('subtotal_realisasi', $subtotal);
@@ -888,7 +888,7 @@ class PengajuanSpjForm
 
                                                                 FormatHelper::rupiahInput('subtotal', 'Subtotal Pesanan')
                                                                     ->readOnly()
-                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500'])
+                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
                                                                     ->columnSpan(['default' => 12, 'md' => 5]),
 
                                                                 TextInput::make('kuantitas_realisasi')
@@ -897,28 +897,28 @@ class PengajuanSpjForm
                                                                     ->default(1)
                                                                     ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
                                                                     ->visible($isPesananDisetujui)
-                                                                    ->live(onBlur: true)
+                                                                    ->live(debounce: 350)
                                                                     ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = (int) ($state ?: 0);
+                                                                        $qty = (float) ($state ?: 0);
                                                                         $harga = FormatHelper::parseRupiah($get('harga_realisasi'));
-                                                                        $set('subtotal_realisasi', $qty * $harga);
+                                                                        $set('subtotal_realisasi', (int) round($qty * $harga));
                                                                     })
                                                                     ->columnSpan(['default' => 12, 'md' => 3]),
 
                                                                 FormatHelper::rupiahInput('harga_realisasi', 'Harga Realisasi (Faktur)')
                                                                     ->visible($isPesananDisetujui)
-                                                                    ->live(onBlur: true)
+                                                                    ->live(debounce: 350)
                                                                     ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = (int) ($get('kuantitas_realisasi') ?: 0);
+                                                                        $qty = (float) ($get('kuantitas_realisasi') ?: 0);
                                                                         $harga = FormatHelper::parseRupiah($state);
-                                                                        $set('subtotal_realisasi', $qty * $harga);
+                                                                        $set('subtotal_realisasi', (int) round($qty * $harga));
                                                                     })
                                                                     ->columnSpan(['default' => 12, 'md' => 4]),
 
                                                                 FormatHelper::rupiahInput('subtotal_realisasi', 'Subtotal Realisasi')
                                                                     ->visible($isPesananDisetujui)
                                                                     ->readOnly()
-                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500'])
+                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
                                                                     ->columnSpan(['default' => 12, 'md' => 5]),
 
                                                                 // Notifikasi Peringatan Over Budget (Muncul langsung di bawah baris input)
