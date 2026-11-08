@@ -25,7 +25,7 @@ class RincianAnggaranBelanjaForm
         $currentYear = (int) date('Y');
         $years = [];
         for ($y = $currentYear - 2; $y <= $currentYear + 2; $y++) {
-            $years[$y] = "Tahun {$y}";
+            $years[$y] = (string) $y;
         }
 
         return $schema
@@ -41,7 +41,7 @@ class RincianAnggaranBelanjaForm
                             'md' => 4,
                         ])->schema([
                             Select::make('tahun_anggaran')
-                                ->label('Tahun Anggaran')
+                                ->label('Tahun')
                                 ->options($years)
                                 ->default($currentYear)
                                 ->required()

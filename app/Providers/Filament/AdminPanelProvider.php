@@ -70,6 +70,9 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Keuangan')
                     ->icon('heroicon-o-banknotes')
                     ->collapsed(),
+                NavigationGroup::make('Laporan')
+                    ->icon('heroicon-o-document-chart-bar')
+                    ->collapsed(),
                 NavigationGroup::make('Kepegawaian')
                     ->icon('heroicon-o-user-group')
                     ->collapsed(),

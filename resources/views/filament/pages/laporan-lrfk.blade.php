@@ -3,23 +3,22 @@
     <div class="laporan-card p-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun
-                    Anggaran</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun</label>
                 <select wire:model.live="tahun"
                     class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
                     @for ($y = (int) date('Y') - 1; $y <= (int) date('Y') + 2; $y++)
-                        <option value="{{ $y }}">Tahun Anggaran {{ $y }}</option>
+                        <option value="{{ $y }}">{{ $y }}</option>
                     @endfor
                 </select>
             </div>
 
             <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Kondisi s/d
-                    Bulan (Rekapitulasi 1 Dinas Penuh)</label>
+                    Bulan</label>
                 <select wire:model.live="bulan"
                     class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
                     @foreach ($daftarBulan as $bKey => $bVal)
-                        <option value="{{ $bKey }}">{{ $bVal }} (s/d Akhir Bulan)</option>
+                        <option value="{{ $bKey }}">{{ $bVal }}</option>
                     @endforeach
                 </select>
             </div>
@@ -118,14 +117,14 @@
                         @endforeach
                     </tbody>
                     <tfoot>
-                        <tr class="font-bold border-t-2 sticky bottom-0 z-20">
-                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r">TOTAL BELANJA
+                        <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
+                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">TOTAL BELANJA
                             </td>
-                            <td class="p-3 text-right text-amber-600 dark:!text-amber-400 font-mono border-r">Rp
+                            <td class="p-3 text-right text-amber-600 dark:!text-amber-400 font-mono border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($lampiran1['total_anggaran'], 2, ',', '.') }}</td>
-                            <td class="p-3 text-right text-emerald-600 dark:!text-emerald-400 font-mono border-r">Rp
+                            <td class="p-3 text-right text-emerald-600 dark:!text-emerald-400 font-mono border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($lampiran1['total_realisasi'], 2, ',', '.') }}</td>
-                            <td class="p-3 text-center">{{ number_format($lampiran1['persen'], 2, ',', '.') }}%</td>
+                            <td class="p-3 text-center bg-slate-100 dark:!bg-zinc-900">{{ number_format($lampiran1['persen'], 2, ',', '.') }}%</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -251,24 +250,24 @@
                         @endforelse
                     </tbody>
                     <tfoot>
-                        <tr class="font-bold border-t-2 sticky bottom-0 z-20">
-                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r">JUMLAH</td>
-                            <td class="p-3 text-right font-mono text-gray-900 dark:!text-zinc-100 border-r">Rp
+                        <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
+                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">JUMLAH</td>
+                            <td class="p-3 text-right font-mono text-gray-900 dark:!text-zinc-100 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_pagu'], 0, ',', '.') }}</td>
-                            <td class="p-3 text-right font-mono text-amber-600 dark:!text-amber-400 border-r">Rp
+                            <td class="p-3 text-right font-mono text-amber-600 dark:!text-amber-400 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_kontrak'], 0, ',', '.') }}</td>
-                            <td class="p-3 text-right font-mono text-gray-700 dark:!text-zinc-300 border-r">Rp
+                            <td class="p-3 text-right font-mono text-gray-700 dark:!text-zinc-300 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_sisa'], 0, ',', '.') }}</td>
-                            <td colspan="4" class="p-3 text-center border-r">-</td>
-                            <td class="p-3 text-center border-r">0.00</td>
-                            <td class="p-3 text-center border-r">0.00</td>
-                            <td class="p-3 text-center border-r">0.00</td>
-                            <td class="p-3 text-right font-mono text-emerald-600 dark:!text-emerald-400 border-r">Rp
+                            <td colspan="4" class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">-</td>
+                            <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">0.00</td>
+                            <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">0.00</td>
+                            <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">0.00</td>
+                            <td class="p-3 text-right font-mono text-emerald-600 dark:!text-emerald-400 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_realisasi_keu'], 0, ',', '.') }}</td>
-                            <td class="p-3 text-center font-bold border-r">
+                            <td class="p-3 text-center font-bold border-r bg-slate-100 dark:!bg-zinc-900">
                                 {{ $kemajuan['summary']['total_kontrak'] > 0 ? number_format(($kemajuan['summary']['total_realisasi_keu'] / $kemajuan['summary']['total_kontrak']) * 100, 2, ',', '.') : '100.00' }}
                             </td>
-                            <td class="p-3 text-center">-</td>
+                            <td class="p-3 text-center bg-slate-100 dark:!bg-zinc-900">-</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -393,36 +392,36 @@
                         @endforelse
                     </tbody>
                     <tfoot>
-                        <tr class="font-bold border-t-2 sticky bottom-0 z-20">
-                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r">TOTAL</td>
-                            <td class="p-3 text-right border-r font-mono text-amber-600 dark:!text-amber-400">
+                        <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
+                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">TOTAL</td>
+                            <td class="p-3 text-right border-r font-mono text-amber-600 dark:!text-amber-400 bg-slate-100 dark:!bg-zinc-900">
                                 Rp {{ number_format($matriks['summary']['total_pagu'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-center border-r">
+                            <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['target_fisik'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-center border-r text-blue-600 dark:!text-blue-400">
+                            <td class="p-3 text-center border-r text-blue-600 dark:!text-blue-400 bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['realisasi_fisik'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-center border-r text-emerald-600 dark:!text-emerald-400">
+                            <td class="p-3 text-center border-r text-emerald-600 dark:!text-emerald-400 bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['capaian_fisik'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-right border-r font-mono">
+                            <td class="p-3 text-right border-r font-mono bg-slate-100 dark:!bg-zinc-900">
                                 Rp {{ number_format($matriks['summary']['target_keu_rp'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-center border-r">
+                            <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['target_keu_persen'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-right border-r text-emerald-600 dark:!text-emerald-400 font-mono">
+                            <td class="p-3 text-right border-r text-emerald-600 dark:!text-emerald-400 font-mono bg-slate-100 dark:!bg-zinc-900">
                                 Rp {{ number_format($matriks['summary']['realisasi_keu_rp'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-center border-r text-emerald-600 dark:!text-emerald-400">
+                            <td class="p-3 text-center border-r text-emerald-600 dark:!text-emerald-400 bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['realisasi_keu_persen'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-center border-r">
+                            <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['serapan_anggaran'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-center">-</td>
+                            <td class="p-3 text-center bg-slate-100 dark:!bg-zinc-900">-</td>
                         </tr>
                     </tfoot>
                 </table>

@@ -21,13 +21,13 @@ class LaporanFungsional extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|UnitEnum|null $navigationGroup = 'Laporan';
 
     protected static ?string $navigationLabel = 'Laporan Fungsional';
 
     protected static ?string $title = 'Laporan Pertanggungjawaban Fungsional (LPJ)';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
 
     protected string $view = 'filament.pages.laporan-fungsional';
 

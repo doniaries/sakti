@@ -23,13 +23,13 @@ class LaporanLrfk extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBarSquare;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Keuangan';
+    protected static string|UnitEnum|null $navigationGroup = 'Laporan';
 
     protected static ?string $navigationLabel = 'Laporan LRFK';
 
     protected static ?string $title = 'Laporan Realisasi Fisik dan Keuangan (LRFK)';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     protected string $view = 'filament.pages.laporan-lrfk';
 

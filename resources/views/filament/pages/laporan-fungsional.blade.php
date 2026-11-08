@@ -3,21 +3,21 @@
     <div class="laporan-card p-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
             <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun Anggaran</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun</label>
                 <select wire:model.live="tahun"
                     class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
                     @for($y = (int) date('Y') - 1; $y <= (int) date('Y') + 2; $y++)
-                        <option value="{{ $y }}">Tahun Anggaran {{ $y }}</option>
+                        <option value="{{ $y }}">{{ $y }}</option>
                     @endfor
                 </select>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Periode s/d Bulan</label>
+                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Bulan</label>
                 <select wire:model.live="bulan"
                     class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
                     @foreach($daftarBulan as $bKey => $bVal)
-                        <option value="{{ $bKey }}">{{ $bVal }} (s/d Akhir Bulan)</option>
+                        <option value="{{ $bKey }}">{{ $bVal }}</option>
                     @endforeach
                 </select>
             </div>
@@ -114,30 +114,30 @@
                     @endforelse
                 </tbody>
                 <tfoot>
-                    <tr class="font-bold border-t-2 sticky bottom-0 z-20">
+                    <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
                         {{-- Sticky Footer Col 1 & 2 --}}
-                        <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r">
+                        <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">
                             TOTAL
                         </td>
-                        <td class="p-3 text-left border-r uppercase">
+                        <td class="p-3 text-left border-r uppercase bg-slate-100 dark:!bg-zinc-900">
                             Pengeluaran Belanja Daerah
                         </td>
-                        <td class="p-3 text-right font-mono text-amber-600 dark:!text-amber-400 border-r">
+                        <td class="p-3 text-right font-mono text-amber-600 dark:!text-amber-400 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_pagu'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-gray-700 dark:!text-zinc-300 border-r">
+                        <td class="p-3 text-right font-mono text-gray-700 dark:!text-zinc-300 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_lalu'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-blue-600 dark:!text-blue-400 border-r">
+                        <td class="p-3 text-right font-mono text-blue-600 dark:!text-blue-400 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_ini'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-emerald-600 dark:!text-emerald-400 border-r">
+                        <td class="p-3 text-right font-mono text-emerald-600 dark:!text-emerald-400 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_sd_ini'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-gray-800 dark:!text-zinc-200 border-r">
+                        <td class="p-3 text-right font-mono text-gray-800 dark:!text-zinc-200 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_sisa'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-center text-gray-900 dark:!text-white">
+                        <td class="p-3 text-center text-gray-900 dark:!text-white bg-slate-100 dark:!bg-zinc-900">
                             {{ number_format($data['summary']['persen'], 2, ',', '.') }}%
                         </td>
                     </tr>
