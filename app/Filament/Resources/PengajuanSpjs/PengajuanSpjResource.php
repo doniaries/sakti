@@ -47,6 +47,25 @@ class PengajuanSpjResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        /** @var \App\Models\User|null $user */
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user && ! $user->canViewAllBidangKeuangan()) {
+            $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+            $query->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($user, $userBidangId) {
+                if ($userBidangId > 0) {
+                    $q->where('bidang_id', $userBidangId);
+                }
+                $q->orWhere('user_id', $user->id);
+            });
+        }
+
+        return $query;
+    }
+
     public static function getPages(): array
     {
         return [

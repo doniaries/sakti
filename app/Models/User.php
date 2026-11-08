@@ -353,6 +353,24 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
+     * Apakah user berhak melihat seluruh data lintas bidang untuk urusan keuangan / anggaran (Pemeriksa)
+     * PPK, PA, Bendahara, dan Super Admin dapat melihat seluruh bidang sebagai pemeriksa.
+     */
+    public function canViewAllBidangKeuangan(): bool
+    {
+        return $this->hasAnyRole(['super_admin', 'pa', 'ppk', 'bendahara']);
+    }
+
+    /**
+     * Apakah user berhak melihat seluruh data lintas bidang untuk urusan kepegawaian
+     * Kasubag Kepegawaian (Admin), PA (Kepala Dinas), dan Super Admin dapat melihat seluruh bidang.
+     */
+    public function canViewAllBidangKepegawaian(): bool
+    {
+        return $this->hasAnyRole(['super_admin', 'admin', 'pa']);
+    }
+
+    /**
      * URL direct chat WhatsApp
      */
     public function getWhatsappUrlAttribute(): ?string

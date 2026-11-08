@@ -30,17 +30,11 @@ class LhkResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'pimpinan', 'ppk'])) {
-            // Jika Kepala Bidang / Atasan langsung
-            $isKabid = filled($user->bidang_id) && (bool) \App\Models\Bidang::where('kepala_id', $user->id)->exists();
-            if ($isKabid) {
-                $subordinateIds = \App\Models\User::where('bidang_id', $user->bidang_id)
-                    ->orWhere('atasan_id', $user->id)
-                    ->pluck('id')
-                    ->all();
-                $subordinateIds[] = $user->id;
-                $query->whereIn('user_id', $subordinateIds);
-            } elseif ($user->hasRole('pegawai')) {
+        if ($user && ! $user->canViewAllBidangKepegawaian()) {
+            if ($user->hasRole('pptk') || filled($user->bidang_id)) {
+                $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+                $query->whereHas('user', fn ($uq) => $uq->where('bidang_id', $userBidangId)->orWhere('atasan_id', $user->id));
+            } else {
                 $query->where('user_id', $user->id);
             }
         }

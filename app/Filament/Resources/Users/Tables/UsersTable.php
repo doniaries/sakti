@@ -28,6 +28,11 @@ class UsersTable
                     $query->bukanSuperAdmin();
                 }
 
+                if ($user && ! $user->canViewAllBidangKepegawaian()) {
+                    $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+                    $query->where('bidang_id', $userBidangId);
+                }
+
                 if ($jenjang = request()->query('jenjang')) {
                     $query->where('jenjang_pendidikan', '=', $jenjang);
                 }

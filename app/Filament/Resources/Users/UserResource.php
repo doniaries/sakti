@@ -51,7 +51,12 @@ class UserResource extends Resource
 
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user && !$user->hasRole('super_admin')) {
+        if ($user && ! $user->canViewAllBidangKepegawaian()) {
+            $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+            $query->where('bidang_id', $userBidangId);
+        }
+
+        if ($user && ! $user->hasRole('super_admin')) {
             $query->whereDoesntHave('roles', function ($q) {
                 $q->where('name', 'super_admin');
             });

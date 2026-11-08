@@ -43,6 +43,33 @@ class ListUsers extends ListRecords
      */
     public function getTabs(): array
     {
+        /** @var \App\Models\User|null $user */
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $canViewAll = $user?->canViewAllBidangKepegawaian() ?? false;
+
+        // Jika Kepala Bidang / PPTK, HANYA tampilkan tab bidang miliknya saja
+        if (! $canViewAll && $user?->bidang_id) {
+            $bidang = Bidang::withCount('users')->find($user->bidang_id);
+            if ($bidang) {
+                $icon = match ($bidang->slug) {
+                    'sekretariat' => 'heroicon-m-building-office',
+                    'pemasaran-pariwisata', 'bidang-pemasaran-pariwisata' => 'heroicon-m-megaphone',
+                    'pengembangan-destinasi-pariwisata' => 'heroicon-m-map-pin',
+                    'pemuda-dan-olahraga' => 'heroicon-m-trophy',
+                    default => 'heroicon-m-briefcase',
+                };
+
+                return [
+                    $bidang->slug => Tab::make($bidang->nama)
+                        ->icon($icon)
+                        ->badge($bidang->users_count)
+                        ->badgeColor('primary')
+                        ->modifyQueryUsing(fn (Builder $query) => $query->where('bidang_id', $bidang->id)),
+                ];
+            }
+        }
+
+        // Untuk Kasubag Kepegawaian (Admin), PA (Kadis), dan Super Admin: Tampilkan semua
         $tabs = [
             'semua' => Tab::make('Semua Pegawai')
                 ->icon('heroicon-m-user-group')

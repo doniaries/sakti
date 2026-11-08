@@ -54,14 +54,9 @@ class RincianAnggaranBelanjaResource extends Resource
 
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
-            $query->where(function ($q) use ($user) {
-                if ($user->bidang_id) {
-                    $q->where('bidang_id', $user->bidang_id)
-                        ->orWhereHas('subKegiatan.kegiatan', fn ($kq) => $kq->where('bidang_id', $user->bidang_id));
-                }
-                $q->orWhereHas('subKegiatan', fn ($sq) => $sq->where('jf_id', $user->id));
-            });
+        if ($user && ! $user->canViewAllBidangKeuangan()) {
+            $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+            $query->where('bidang_id', $userBidangId);
         }
 
         return $query;

@@ -16,6 +16,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class RincianAnggaranBelanjasTable
 {
@@ -49,6 +50,13 @@ class RincianAnggaranBelanjasTable
 
                 if (filled($selectedTahun)) {
                     $query->where('tahun_anggaran', (int) $selectedTahun);
+                }
+
+                /** @var \App\Models\User|null $user */
+                $user = Auth::user();
+                if ($user && ! $user->canViewAllBidangKeuangan()) {
+                    $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+                    $query->where('bidang_id', $userBidangId);
                 }
 
                 return $query;

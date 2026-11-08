@@ -28,16 +28,38 @@ class ListMasterSubKegiatans extends ListRecords
     {
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        $isGlobal = ! $user || $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara', 'pimpinan']);
+        $isGlobal = $user && $user->canViewAllBidangKeuangan();
 
         $selectedTahun = request()->query('tahun')
             ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
             ?? (int) date('Y');
 
-        $baseQuery = MasterSubKegiatan::query()->where('tahun_anggaran', (int) $selectedTahun);
-        if (! $isGlobal && $user->bidang_id) {
-            $baseQuery->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $user->bidang_id));
+        // Jika PPTK / non-pemeriksa, tampilkan HANYA tab nama bidangnya saja
+        if (! $isGlobal && $user?->bidang_id) {
+            $bidang = Bidang::find($user->bidang_id);
+            if ($bidang) {
+                $icon = match ($bidang->slug) {
+                    'sekretariat' => 'heroicon-m-building-office',
+                    'pemasaran-pariwisata', 'bidang-pemasaran-pariwisata' => 'heroicon-m-megaphone',
+                    'pengembangan-destinasi-pariwisata' => 'heroicon-m-map-pin',
+                    'pemuda-dan-olahraga' => 'heroicon-m-trophy',
+                    default => 'heroicon-m-briefcase',
+                };
+
+                $count = MasterSubKegiatan::where('tahun_anggaran', (int) $selectedTahun)
+                    ->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidang->id))
+                    ->count();
+
+                return [
+                    $bidang->slug ?: 'bidang_' . $bidang->id => Tab::make($bidang->nama)
+                        ->icon($icon)
+                        ->badge($count)
+                        ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidang->id))),
+                ];
+            }
         }
+
+        $baseQuery = MasterSubKegiatan::query()->where('tahun_anggaran', (int) $selectedTahun);
 
         $tabs = [
             'semua' => Tab::make('Semua')
@@ -46,9 +68,6 @@ class ListMasterSubKegiatans extends ListRecords
         ];
 
         $bidangQuery = Bidang::query()->orderBy('nama');
-        if (! $isGlobal && $user->bidang_id) {
-            $bidangQuery->where('id', $user->bidang_id);
-        }
         $bidangs = $bidangQuery->get();
 
         foreach ($bidangs as $bidang) {

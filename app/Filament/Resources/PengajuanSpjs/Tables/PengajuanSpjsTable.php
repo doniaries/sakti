@@ -63,29 +63,14 @@ class PengajuanSpjsTable
 
                 /** @var \App\Models\User|null $user */
                 $user = Auth::user();
-                $canViewAllBidang = $user !== null && $user->can('viewAny', Bidang::class);
-
-                $anggaranRole = $user?->anggaran_role instanceof \App\Enums\AnggaranRole
-                    ? $user->anggaran_role->value
-                    : $user?->anggaran_role;
-
-                $isGlobalRole = in_array($anggaranRole, ['PA', 'PPK', 'BENDAHARA', 'PPTK'], true)
-                    || ($user !== null && $user->hasAnyRole(['pa', 'ppk', 'pptk', 'bendahara', 'super_admin', 'admin']))
-                    || str_contains(strtolower($user?->jabatan ?? ''), 'kepala dinas')
-                    || str_contains(strtolower($user?->jabatan ?? ''), 'sekretaris')
-                    || str_contains(strtolower($user?->jabatan ?? ''), 'kepala bidang');
-
-                if (! $canViewAllBidang && ! $isGlobalRole && $user !== null) {
-                    $userBidangId = filled($user->bidang_id)
-                        ? (int) $user->bidang_id
-                        : (int) (Bidang::where('kepala_id', $user->id)->value('id') ?? 0);
-
-                    if ($userBidangId > 0) {
-                        $query->where(function (Builder $q) use ($user, $userBidangId) {
-                            $q->where('bidang_id', $userBidangId)
-                                ->orWhere('user_id', $user->id);
-                        });
-                    }
+                if ($user && ! $user->canViewAllBidangKeuangan()) {
+                    $userBidangId = (int) ($user->bidang_id ?: (Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+                    $query->where(function (Builder $q) use ($user, $userBidangId) {
+                        if ($userBidangId > 0) {
+                            $q->where('bidang_id', $userBidangId);
+                        }
+                        $q->orWhere('user_id', $user->id);
+                    });
                 }
 
                 // Sinkronisasi filter bidang dari parameter URL / Tab Widget Bidang (sesuai Rule 8 AGENTS.md)

@@ -36,8 +36,13 @@ class AbsensiHarianResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'pa', 'pptk', 'ppk'])) {
-            $query->where('user_id', $user->id);
+        if ($user && ! $user->canViewAllBidangKepegawaian()) {
+            if ($user->hasRole('pptk') || filled($user->bidang_id)) {
+                $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+                $query->whereHas('user', fn ($uq) => $uq->where('bidang_id', $userBidangId));
+            } else {
+                $query->where('user_id', $user->id);
+            }
         }
 
         return $query;
