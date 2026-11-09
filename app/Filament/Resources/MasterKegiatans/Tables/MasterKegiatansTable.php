@@ -94,7 +94,6 @@ class MasterKegiatansTable
 
                 TextColumn::make('sub_kegiatans_count')
                     ->label('Jml Sub Kegiatan')
-                    ->counts('subKegiatans')
                     ->badge()
                     ->color('info')
                     ->sortable(),

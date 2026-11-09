@@ -53,12 +53,28 @@ class MasterSubKegiatan extends Model
 
     public function getTotalPaguAttribute(): float
     {
-        return (float) ($this->total_pagu ?? $this->rincian_anggarans_sum_pagu_total ?? $this->rincianAnggarans()->sum('pagu_total'));
+        if (array_key_exists('total_pagu', $this->attributes)) {
+            return (float) ($this->attributes['total_pagu'] ?? 0);
+        }
+
+        if (array_key_exists('rincian_anggarans_sum_pagu_total', $this->attributes)) {
+            return (float) ($this->attributes['rincian_anggarans_sum_pagu_total'] ?? 0);
+        }
+
+        return (float) $this->rincianAnggarans()->sum('pagu_total');
     }
 
     public function getTotalRealisasiAttribute(): float
     {
-        return (float) ($this->total_realisasi ?? $this->rincian_anggarans_sum_nilai_realisasi ?? $this->rincianAnggarans()->sum('nilai_realisasi'));
+        if (array_key_exists('total_realisasi', $this->attributes)) {
+            return (float) ($this->attributes['total_realisasi'] ?? 0);
+        }
+
+        if (array_key_exists('rincian_anggarans_sum_nilai_realisasi', $this->attributes)) {
+            return (float) ($this->attributes['rincian_anggarans_sum_nilai_realisasi'] ?? 0);
+        }
+
+        return (float) $this->rincianAnggarans()->sum('nilai_realisasi');
     }
 
     public function getSisaPaguAttribute(): float

@@ -39,7 +39,13 @@ class RincianAnggaranBelanjasTable
 
         return $table
             ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
-                $query->with(['bidang', 'subKegiatan.kegiatan', 'subKegiatan.jf', 'kodeRekening', 'masterBarang']);
+                $query->with(['bidang', 'subKegiatan.kegiatan', 'subKegiatan.jf', 'kodeRekening', 'masterBarang.satuan'])
+                    ->withSum(['spjDetails as volume_teralokasi' => function ($q) {
+                        $q->whereHas('pengajuanSpj', fn ($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
+                    }], 'kuantitas')
+                    ->withSum(['spjDetails as nilai_teralokasi' => function ($q) {
+                        $q->whereHas('pengajuanSpj', fn ($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
+                    }], 'subtotal');
 
                 $livewire = $table->getLivewire();
                 $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;

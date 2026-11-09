@@ -70,6 +70,12 @@ class ListMasterKegiatans extends ListRecords
         $bidangQuery = Bidang::query()->orderBy('nama');
         $bidangs = $bidangQuery->get();
 
+        $countsPerBidang = MasterKegiatan::query()
+            ->where('tahun_anggaran', (int) $selectedTahun)
+            ->groupBy('bidang_id')
+            ->selectRaw('bidang_id, count(*) as aggregate')
+            ->pluck('aggregate', 'bidang_id');
+
         foreach ($bidangs as $bidang) {
             $icon = match ($bidang->slug) {
                 'sekretariat' => 'heroicon-m-building-office',
@@ -79,9 +85,7 @@ class ListMasterKegiatans extends ListRecords
                 default => 'heroicon-m-briefcase',
             };
 
-            $count = MasterKegiatan::where('tahun_anggaran', (int) $selectedTahun)
-                ->where('bidang_id', $bidang->id)
-                ->count();
+            $count = (int) ($countsPerBidang[$bidang->id] ?? 0);
 
             $tabs[$bidang->slug ?: 'bidang_' . $bidang->id] = Tab::make($bidang->nama)
                 ->icon($icon)

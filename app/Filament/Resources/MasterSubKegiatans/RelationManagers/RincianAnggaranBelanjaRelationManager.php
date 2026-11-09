@@ -27,6 +27,7 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class RincianAnggaranBelanjaRelationManager extends RelationManager
 {
@@ -233,6 +234,15 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActionsColumnLabel('Aksi')
             ->stickyableColumns()
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                return $query->with(['kodeRekening', 'masterBarang.satuan'])
+                    ->withSum(['spjDetails as volume_teralokasi' => function ($q) {
+                        $q->whereHas('pengajuanSpj', fn ($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
+                    }], 'kuantitas')
+                    ->withSum(['spjDetails as nilai_teralokasi' => function ($q) {
+                        $q->whereHas('pengajuanSpj', fn ($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
+                    }], 'subtotal');
+            })
             ->columns([
                 TextColumn::make('nama_item')
                     ->label('Uraian Barang / Belanja')

@@ -80,6 +80,10 @@ class RincianAnggaranBelanja extends Model
 
     public function getVolumeTeralokasiAttribute(): float
     {
+        if (array_key_exists('volume_teralokasi', $this->attributes)) {
+            return (float) ($this->attributes['volume_teralokasi'] ?? 0);
+        }
+
         return (float) $this->spjDetails()
             ->whereHas('pengajuanSpj', fn ($q) => $q->whereNotIn('status', ['draft', 'ditolak']))
             ->sum('kuantitas');
@@ -87,6 +91,10 @@ class RincianAnggaranBelanja extends Model
 
     public function getNilaiTeralokasiAttribute(): float
     {
+        if (array_key_exists('nilai_teralokasi', $this->attributes)) {
+            return (float) ($this->attributes['nilai_teralokasi'] ?? 0);
+        }
+
         return (float) $this->spjDetails()
             ->whereHas('pengajuanSpj', fn ($q) => $q->whereNotIn('status', ['draft', 'ditolak']))
             ->sum('subtotal');

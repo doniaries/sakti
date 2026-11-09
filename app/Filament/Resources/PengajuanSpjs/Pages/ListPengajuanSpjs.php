@@ -136,14 +136,19 @@ class ListPengajuanSpjs extends ListRecords
         }
         $antreanSayaCount = $antreanSayaQuery->count();
 
-        // Hitung total berkas per tahapan untuk badge tab sesuai tahun aktif
-        $draftCount = $baseQuery()->where('status', 'draft')->count();
-        $semuaCount = $baseQuery()->count();
-        $ppkCount = $baseQuery()->where('status', 'menunggu_verifikasi_ppk')->count();
-        $paCount = $baseQuery()->where('status', 'menunggu_persetujuan_pa')->count();
-        $bendaharaCount = $baseQuery()->where('status', 'menunggu_verifikasi_bendahara')->count();
-        $revisiCount = $baseQuery()->whereIn('status', ['revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara'])->count();
-        $cairCount = $baseQuery()->where('status', 'dicairkan')->count();
+        // Hitung total berkas per tahapan dalam 1 single grouped query (Anti N+1)
+        $statusCounts = $baseQuery()
+            ->groupBy('status')
+            ->selectRaw('status, count(*) as aggregate')
+            ->pluck('aggregate', 'status');
+
+        $draftCount = (int) ($statusCounts['draft'] ?? 0);
+        $semuaCount = (int) $statusCounts->sum();
+        $ppkCount = (int) ($statusCounts['menunggu_verifikasi_ppk'] ?? 0);
+        $paCount = (int) ($statusCounts['menunggu_persetujuan_pa'] ?? 0);
+        $bendaharaCount = (int) ($statusCounts['menunggu_verifikasi_bendahara'] ?? 0);
+        $revisiCount = (int) (($statusCounts['revisi_pptk'] ?? 0) + ($statusCounts['revisi_ppk'] ?? 0) + ($statusCounts['revisi_pa'] ?? 0) + ($statusCounts['revisi_bendahara'] ?? 0));
+        $cairCount = (int) ($statusCounts['dicairkan'] ?? 0);
 
         $labelAntreanSaya = match (true) {
             $user?->hasAnyRole(['super_admin', 'admin']) => 'Semua Antrean & Draft',
