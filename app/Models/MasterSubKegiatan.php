@@ -50,5 +50,20 @@ class MasterSubKegiatan extends Model
     {
         return "{$this->kode_sub_kegiatan} - {$this->nama_sub_kegiatan}";
     }
+
+    public function getTotalPaguAttribute(): float
+    {
+        return (float) ($this->total_pagu ?? $this->rincian_anggarans_sum_pagu_total ?? $this->rincianAnggarans()->sum('pagu_total'));
+    }
+
+    public function getTotalRealisasiAttribute(): float
+    {
+        return (float) ($this->total_realisasi ?? $this->rincian_anggarans_sum_nilai_realisasi ?? $this->rincianAnggarans()->sum('nilai_realisasi'));
+    }
+
+    public function getSisaPaguAttribute(): float
+    {
+        return max(0, $this->total_pagu - $this->total_realisasi);
+    }
 }
 

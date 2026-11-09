@@ -18,15 +18,17 @@ class MasterSubKegiatanResource extends Resource
 {
     protected static ?string $model = MasterSubKegiatan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentChartBar;
 
-    protected static ?string $modelLabel = 'Sub Kegiatan';
+    protected static ?string $navigationLabel = 'RKA Sub Kegiatan';
 
-    protected static ?string $pluralModelLabel = 'Sub Kegiatan';
+    protected static ?string $modelLabel = 'RKA Sub Kegiatan';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Program & Kegiatan';
+    protected static ?string $pluralModelLabel = 'RKA Sub Kegiatan';
 
-    protected static ?int $navigationSort = 3;
+    protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
@@ -50,6 +52,13 @@ class MasterSubKegiatanResource extends Resource
         }
 
         return $query;
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\RincianAnggaranBelanjaRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
