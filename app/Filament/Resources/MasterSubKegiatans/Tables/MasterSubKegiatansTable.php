@@ -134,7 +134,6 @@ class MasterSubKegiatansTable
                     ->alignEnd(),
 
                 TextColumn::make('rincian_anggarans_count')
-                    ->counts('rincianAnggarans')
                     ->label('Item Belanja')
                     ->badge()
                     ->color(fn ($state) => (int) $state > 0 ? 'success' : 'gray')

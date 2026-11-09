@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\MasterSubKegiatans\Pages\EditMasterSubKegiatan;
+use App\Filament\Resources\MasterSubKegiatans\Pages\ListMasterSubKegiatans;
 use App\Filament\Resources\MasterSubKegiatans\RelationManagers\RincianAnggaranBelanjaRelationManager;
 use App\Models\KodeRekening;
 use App\Models\MasterBarang;
@@ -71,5 +72,14 @@ class SubKegiatanRkaRelationTest extends TestCase
 
         // 5. Bersihkan data test
         $item->delete();
+    }
+
+    public function test_list_sub_kegiatan_renders_correctly(): void
+    {
+        $user = User::role('super_admin')->first();
+        $this->actingAs($user);
+
+        $testList = Livewire::test(ListMasterSubKegiatans::class);
+        $testList->assertSuccessful();
     }
 }
