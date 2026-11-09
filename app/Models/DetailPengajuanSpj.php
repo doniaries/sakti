@@ -19,6 +19,7 @@ class DetailPengajuanSpj extends Model
         'master_barang_id',
         'nama_item_belanja',
         'satuan',
+        'keterangan',
         'kuantitas',
         'harga_satuan',
         'subtotal',

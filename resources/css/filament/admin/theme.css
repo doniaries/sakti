@@ -220,27 +220,19 @@ html:not(.dark) .fi-ta-table thead th.fi-ta-selection-cell {
     z-index: 15 !important;
 }
 
-/* Pastikan cell aksi dan baris tabel tidak memotong dropdown menu */
-.fi-ta-table tbody td.fi-ta-actions-cell,
-.fi-ta-table tbody td.fi-ta-actions-cell[data-sticky-applied],
-.fi-ta-table tbody td.fi-ta-actions-cell[data-sticky] {
+/* Pastikan cell aksi tidak memotong dropdown menu tanpa merusak sticky positioning */
+.fi-ta-table tbody td.fi-ta-actions-cell {
     overflow: visible !important;
-    -webkit-transform: none !important;
-    transform: none !important;
 }
 
-/* Tinggikan z-index baris & cell yang sedang membuka dropdown agar berada di atas baris di bawahnya */
+/* Tinggikan z-index baris & cell HANYA saat dropdown menu aktif terbuka */
 .fi-ta-table tbody tr:has([aria-expanded="true"]),
-.fi-ta-table tbody tr:has(.fi-dropdown-panel),
-.fi-ta-table tbody tr:focus-within,
-.fi-ta-table tbody td:has([aria-expanded="true"]),
-.fi-ta-table tbody td.fi-ta-actions-cell:has([aria-expanded="true"]),
-.fi-ta-table tbody td.fi-ta-actions-cell:focus-within {
-    z-index: 60 !important;
-    position: relative !important;
-    overflow: visible !important;
-    -webkit-transform: none !important;
-    transform: none !important;
+.fi-ta-table tbody tr:has(.fi-dropdown-panel) {
+    z-index: 35 !important;
+}
+
+.fi-ta-table tbody td.fi-ta-actions-cell:has([aria-expanded="true"]) {
+    z-index: 40 !important;
 }
 
 /* Pastikan panel dropdown di dalam tabel selalu memiliki z-index tinggi, solid, dan tidak terpotong */

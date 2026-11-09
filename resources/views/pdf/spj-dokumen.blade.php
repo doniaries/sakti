@@ -499,11 +499,11 @@
                     <tr>
                         <th style="width: 5%;">No.</th>
                         <th style="width: 31%;">Nama Barang / Spesifikasi</th>
-                        <th style="width: 14%;">Kode/SKU</th>
+                        <th style="width: 18%;">Keterangan</th>
                         <th style="width: 8%;">Jumlah</th>
-                        <th style="width: 10%;">Satuan</th>
-                        <th style="width: 16%;">Harga Satuan (Rp)</th>
-                        <th style="width: 16%;">Total Harga (Rp)</th>
+                        <th style="width: 8%;">Satuan</th>
+                        <th style="width: 15%;">Harga Satuan (Rp)</th>
+                        <th style="width: 15%;">Total Harga (Rp)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -517,11 +517,11 @@
                                         style="font-size: 8pt; color: #333;">{{ $item->masterBarang->spesifikasi }}</span>
                                 @endif
                             </td>
-                            <td class="text-center">
-                                {{ $item->masterBarang?->kode_barang ?? ($item->kodeRekening?->kode_lengkap ?? '-') }}
+                            <td>
+                                {{ $item->keterangan ?: '-' }}
                             </td>
                             <td class="text-center">{{ $item->kuantitas }}</td>
-                            <td class="text-center">{{ $item->masterBarang?->satuan?->nama ?? 'Unit' }}</td>
+                            <td class="text-center">{{ $item->masterBarang?->satuan?->nama ?? ($item->satuan ?? 'Unit') }}</td>
                             <td class="text-right">{{ number_format((float) $item->harga_satuan, 0, ',', '.') }}</td>
                             <td class="text-right">{{ number_format((float) $item->subtotal, 0, ',', '.') }}</td>
                         </tr>
@@ -559,20 +559,9 @@
                 </tfoot>
             </table>
 
-            <div style="font-size: 9pt; margin-top: 6px; margin-bottom: 8px; line-height: 1.35;">
-                <strong>Ketentuan Pengiriman &amp; Pembayaran:</strong>
-                <ul style="margin: 3px 0 5px 16px; padding: 0;">
-                    <li><strong>Lokasi Pengiriman:</strong> Barang mohon dikirimkan ke alamat kantor kami di
-                        {{ $alamatKantor }} ({{ $spj->bidang?->nama ?? $namaDinas }}).</li>
-                    <li><strong>Waktu Pengiriman:</strong> Paling lambat barang sudah diterima pada
-                        {{ $tanggalBatasKirim }}.</li>
-                    <li><strong>Metode Pembayaran:</strong> Pembayaran akan dilakukan via {{ $metodeBayar }} ke
-                        rekening resmi perusahaan
-                        Anda{{ $spj->penerima_identitas ? ' (' . ($namaBankToko ? $namaBankToko . ' — ' : '') . 'No. Rek: ' . $spj->penerima_identitas . ')' : '' }}.
-                    </li>
-                </ul>
+            <p style="font-size: 9pt; margin-top: 10px; margin-bottom: 12px; line-height: 1.35;">
                 Demikian surat pesanan ini kami sampaikan. Atas perhatian dan kerja samanya, kami ucapkan terima kasih.
-            </div>
+            </p>
 
             <table class="signature-table" style="margin-top: 14px;">
                 <tr>

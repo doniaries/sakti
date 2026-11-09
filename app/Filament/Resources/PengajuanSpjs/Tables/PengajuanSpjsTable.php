@@ -254,6 +254,7 @@ class PengajuanSpjsTable
                     ->visible(fn(PengajuanSpj $record): bool => ! in_array($record->status, ['draft', 'diajukan', 'ditolak'], true))
                     ->modalHeading(fn(PengajuanSpj $record): string => "Pratinjau Dokumen SPJ — {$record->nomor_pengajuan}")
                     ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
+                    ->modalAutofocus(false)
                     ->modalContent(fn(PengajuanSpj $record) => view('filament.pages.preview-spj-modal', [
                         'record' => $record,
                     ]))
@@ -401,6 +402,7 @@ class PengajuanSpjsTable
                         };
                     })
                     ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
+                    ->modalAutofocus(false)
                     ->visible(function (PengajuanSpj $record): bool {
                         if (in_array($record->status, ['draft', 'disetujui', 'dicairkan', 'ditolak'], true)) {
                             return false;

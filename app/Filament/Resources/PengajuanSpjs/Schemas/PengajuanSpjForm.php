@@ -920,6 +920,12 @@ class PengajuanSpjForm
                                                                     ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
                                                                     ->columnSpan(['default' => 12, 'md' => 4]),
 
+                                                                TextInput::make('keterangan')
+                                                                    ->label('Keterangan Pesanan')
+                                                                    ->placeholder('Contoh: Spesifikasi khusus / catatan barang pesanan')
+                                                                    ->maxLength(255)
+                                                                    ->columnSpan(12),
+
                                                                 TextInput::make('kuantitas_realisasi')
                                                                     ->label('Jumlah Realisasi (Faktur)')
                                                                     ->numeric()
