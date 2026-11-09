@@ -41,151 +41,145 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                Section::make('Rincian Item Belanja RKA')
-                    ->description('Kelola rekening belanja, komponen barang/jasa, volume, dan harga standar.')
+                Section::make('Rekening & Komponen Belanja')
+                    ->description('Kelola rekening belanja dan master barang')
                     ->schema([
-                        Grid::make(['default' => 1, 'md' => 12])
-                            ->schema([
-                                Select::make('sumber_dana')
-                                    ->label('Sumber Pendanaan')
-                                    ->options(SumberDana::class)
-                                    ->default(SumberDana::DAU->value)
-                                    ->columnSpan(['default' => 12, 'md' => 4])
-                                    ->required(),
+                        Select::make('sumber_dana')
+                            ->label('Sumber Pendanaan')
+                            ->options(SumberDana::class)
+                            ->default(SumberDana::DAU->value)
+                            ->required(),
 
-                                Select::make('kode_rekening_id')
-                                    ->label('Sub Rincian Obyek (Rekening Belanja)')
-                                    ->placeholder('Pilih Sub Rincian Obyek Belanja...')
-                                    ->columnSpan(['default' => 12, 'md' => 8])
+                        Select::make('kode_rekening_id')
+                            ->label('Sub Rincian Obyek (Rekening Belanja)')
+                            ->placeholder('Pilih Sub Rincian Obyek Belanja...')
+                            ->searchable()
+                            ->preload()
+                            ->options(function () {
+                                return KodeRekening::hanyaSubRincianObyek()
+                                    ->where('kode_lengkap', 'like', '5.1.02%')
+                                    ->orderBy('kode_lengkap')
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
+                                    ->all();
+                            })
+                            ->getSearchResultsUsing(function (string $search): array {
+                                $tokens = explode(' ', trim($search));
+
+                                return KodeRekening::hanyaSubRincianObyek()
+                                    ->where(function ($q) use ($tokens, $search) {
+                                        $q->where('kode_lengkap', 'like', "%{$search}%");
+                                        $q->orWhere(function ($sub) use ($tokens) {
+                                            foreach ($tokens as $token) {
+                                                if (filled($token)) {
+                                                    $sub->where('uraian', 'like', "%{$token}%");
+                                                }
+                                            }
+                                        });
+                                    })
+                                    ->orderBy('kode_lengkap')
+                                    ->limit(40)
+                                    ->get()
+                                    ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
+                                    ->all();
+                            })
+                            ->getOptionLabelUsing(fn ($value): ?string => ($r = KodeRekening::find($value)) ? "{$r->kode_lengkap} - {$r->uraian}" : null)
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                $set('master_barang_id', null);
+                            }),
+
+                        Select::make('master_barang_id')
+                            ->label('Komponen Belanja / Barang')
+                            ->placeholder(fn (Get $get): string => filled($get('kode_rekening_id')) ? 'Pilih komponen barang...' : 'Pilih Sub Rincian Obyek terlebih dahulu')
+                            ->options(function (Get $get) {
+                                $rekId = $get('kode_rekening_id');
+                                if (! $rekId) {
+                                    return [];
+                                }
+
+                                return MasterBarang::where('kode_rekening_id', $rekId)
+                                    ->with('satuan')
+                                    ->orderBy('nama_barang')
+                                    ->get()
+                                    ->mapWithKeys(fn ($b) => [$b->id => "{$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
+                                    ->all();
+                            })
+                            ->getSearchResultsUsing(function (string $search, Get $get): array {
+                                $rekId = $get('kode_rekening_id');
+                                if (! $rekId) {
+                                    return [];
+                                }
+
+                                return MasterBarang::where('kode_rekening_id', $rekId)
+                                    ->with('satuan')
+                                    ->where('nama_barang', 'like', "%{$search}%")
+                                    ->orderBy('nama_barang')
+                                    ->limit(30)
+                                    ->get()
+                                    ->mapWithKeys(fn ($b) => [$b->id => "{$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
+                                    ->all();
+                            })
+                            ->getOptionLabelUsing(fn ($value): ?string => ($b = MasterBarang::with('satuan')->find($value)) ? "{$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '') : null)
+                            ->searchable()
+                            ->createOptionForm([
+                                TextInput::make('nama_barang')
+                                    ->label('Nama Komponen Barang')
+                                    ->placeholder('Contoh: Kertas HVS Sidu F4 75 gram')
+                                    ->required(),
+                                Select::make('satuan_id')
+                                    ->label('Satuan')
+                                    ->options(Satuan::pluck('nama', 'id')->all())
                                     ->searchable()
                                     ->preload()
-                                    ->options(function () {
-                                        return KodeRekening::hanyaSubRincianObyek()
-                                            ->where('kode_lengkap', 'like', '5.1.02%')
-                                            ->orderBy('kode_lengkap')
-                                            ->limit(50)
-                                            ->get()
-                                            ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
-                                            ->all();
-                                    })
-                                    ->getSearchResultsUsing(function (string $search): array {
-                                        $tokens = explode(' ', trim($search));
-
-                                        return KodeRekening::hanyaSubRincianObyek()
-                                            ->where(function ($q) use ($tokens, $search) {
-                                                $q->where('kode_lengkap', 'like', "%{$search}%");
-                                                $q->orWhere(function ($sub) use ($tokens) {
-                                                    foreach ($tokens as $token) {
-                                                        if (filled($token)) {
-                                                            $sub->where('uraian', 'like', "%{$token}%");
-                                                        }
-                                                    }
-                                                });
-                                            })
-                                            ->orderBy('kode_lengkap')
-                                            ->limit(40)
-                                            ->get()
-                                            ->mapWithKeys(fn ($r) => [$r->id => "{$r->kode_lengkap} - {$r->uraian}"])
-                                            ->all();
-                                    })
-                                    ->getOptionLabelUsing(fn ($value): ?string => ($r = KodeRekening::find($value)) ? "{$r->kode_lengkap} - {$r->uraian}" : null)
-                                    ->required()
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, Set $set) {
-                                        $set('master_barang_id', null);
-                                    }),
-                            ]),
-
-                        Grid::make(['default' => 1, 'md' => 12])
-                            ->schema([
-                                Select::make('master_barang_id')
-                                    ->label('Komponen Belanja / Barang')
-                                    ->placeholder(fn (Get $get): string => filled($get('kode_rekening_id')) ? 'Pilih komponen barang...' : 'Pilih Sub Rincian Obyek terlebih dahulu')
-                                    ->columnSpan(['default' => 12, 'md' => 6])
-                                    ->options(function (Get $get) {
-                                        $rekId = $get('kode_rekening_id');
-                                        if (! $rekId) {
-                                            return [];
-                                        }
-
-                                        return MasterBarang::where('kode_rekening_id', $rekId)
-                                            ->with('satuan')
-                                            ->orderBy('nama_barang')
-                                            ->get()
-                                            ->mapWithKeys(fn ($b) => [$b->id => "{$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
-                                            ->all();
-                                    })
-                                    ->getSearchResultsUsing(function (string $search, Get $get): array {
-                                        $rekId = $get('kode_rekening_id');
-                                        if (! $rekId) {
-                                            return [];
-                                        }
-
-                                        return MasterBarang::where('kode_rekening_id', $rekId)
-                                            ->with('satuan')
-                                            ->where('nama_barang', 'like', "%{$search}%")
-                                            ->orderBy('nama_barang')
-                                            ->limit(30)
-                                            ->get()
-                                            ->mapWithKeys(fn ($b) => [$b->id => "{$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '')])
-                                            ->all();
-                                    })
-                                    ->getOptionLabelUsing(fn ($value): ?string => ($b = MasterBarang::with('satuan')->find($value)) ? "{$b->nama_barang}" . ($b->satuan ? " ({$b->satuan->nama})" : '') : null)
-                                    ->searchable()
-                                    ->createOptionForm([
-                                        TextInput::make('nama_barang')
-                                            ->label('Nama Komponen Barang')
-                                            ->placeholder('Contoh: Kertas HVS Sidu F4 75 gram')
-                                            ->required(),
-                                        Select::make('satuan_id')
-                                            ->label('Satuan')
-                                            ->options(Satuan::pluck('nama', 'id')->all())
-                                            ->searchable()
-                                            ->preload()
-                                            ->required(),
-                                        TextInput::make('harga_satuan')
-                                            ->label('Harga Satuan Standar (Rp)')
-                                            ->numeric()
-                                            ->prefix('Rp')
-                                            ->default(0),
-                                    ])
-                                    ->createOptionUsing(function (array $data, Get $get): int {
-                                        $data['kode_rekening_id'] = $get('kode_rekening_id');
-                                        $barang = MasterBarang::create($data);
-
-                                        return $barang->id;
-                                    })
-                                    ->live()
-                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                        if ($state) {
-                                            $barang = MasterBarang::with('satuan')->find($state);
-                                            if ($barang) {
-                                                $set('nama_item', $barang->nama_barang);
-                                                if ($barang->satuan) {
-                                                    $set('satuan', $barang->satuan->nama);
-                                                }
-                                                $harga = (float) $barang->harga_satuan;
-                                                $set('harga_satuan', $harga);
-                                                $vol = max(1, (float) ($get('volume') ?: 1));
-                                                $set('volume', $vol);
-                                                $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
-                                            }
-                                        }
-                                    })
                                     ->required(),
+                                TextInput::make('harga_satuan')
+                                    ->label('Harga Satuan Standar (Rp)')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->default(0),
+                            ])
+                            ->createOptionUsing(function (array $data, Get $get): int {
+                                $data['kode_rekening_id'] = $get('kode_rekening_id');
+                                $barang = MasterBarang::create($data);
 
-                                TextInput::make('nama_item')
-                                    ->label('Nama Item / Uraian RKA')
-                                    ->columnSpan(['default' => 12, 'md' => 6])
-                                    ->required(),
-                            ]),
+                                return $barang->id;
+                            })
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                if ($state) {
+                                    $barang = MasterBarang::with('satuan')->find($state);
+                                    if ($barang) {
+                                        $set('nama_item', $barang->nama_barang);
+                                        if ($barang->satuan) {
+                                            $set('satuan', $barang->satuan->nama);
+                                        }
+                                        $harga = (float) $barang->harga_satuan;
+                                        $set('harga_satuan', $harga);
+                                        $vol = max(1, (float) ($get('volume') ?: 1));
+                                        $set('volume', $vol);
+                                        $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
+                                    }
+                                }
+                            })
+                            ->required(),
+
+                        TextInput::make('nama_item')
+                            ->label('Nama Item / Uraian RKA')
+                            ->required(),
 
                         TextInput::make('spesifikasi')
                             ->label('Spesifikasi Teknis (Opsional)')
                             ->placeholder('Contoh: Warna Putih, 75 GSM, Ukuran Folio')
                             ->maxLength(255),
+                    ]),
 
-                        Grid::make(['default' => 1, 'sm' => 2, 'lg' => 4])
+                Section::make('Kalkulasi Pagu & Catatan')
+                    ->description('Volume, harga satuan standar, dan pagu anggaran')
+                    ->schema([
+                        Grid::make(2)
                             ->schema([
                                 TextInput::make('volume')
                                     ->label('Volume / Koefisien')
@@ -203,29 +197,30 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                     ->label('Satuan')
                                     ->placeholder('Rim / Kotak / Lembar')
                                     ->required(),
-
-                                TextInput::make('harga_satuan')
-                                    ->label('Harga Standar Satuan')
-                                    ->numeric()
-                                    ->prefix('Rp')
-                                    ->required()
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(function ($state, Set $set, Get $get) {
-                                        $vol = (float) ($get('volume') ?: 0);
-                                        $harga = (float) ($state ?: 0);
-                                        $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
-                                    }),
-
-                                TextInput::make('pagu_total')
-                                    ->label('Total Pagu Anggaran')
-                                    ->prefix('Rp')
-                                    ->disabled()
-                                    ->dehydrated(false),
                             ]),
+
+                        TextInput::make('harga_satuan')
+                            ->label('Harga Standar Satuan')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                $vol = (float) ($get('volume') ?: 0);
+                                $harga = (float) ($state ?: 0);
+                                $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
+                            }),
+
+                        TextInput::make('pagu_total')
+                            ->label('Total Pagu Anggaran')
+                            ->prefix('Rp')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->formatStateUsing(fn ($state, ?RincianAnggaranBelanja $record) => $record ? number_format((float) $record->pagu_total, 0, ',', '.') : $state),
 
                         Textarea::make('keterangan')
                             ->label('Catatan Tambahan (Opsional)')
-                            ->rows(2),
+                            ->rows(3),
                     ]),
             ]);
     }
