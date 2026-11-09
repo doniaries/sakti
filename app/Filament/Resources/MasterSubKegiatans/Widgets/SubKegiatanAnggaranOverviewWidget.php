@@ -46,10 +46,9 @@ class SubKegiatanAnggaranOverviewWidget extends StatsOverviewWidget
                 ->color($realisasi > 0 ? 'warning' : 'gray'),
 
             Stat::make('Sisa Anggaran', FormatHelper::rupiah($sisa))
-                ->description($sisa > 0 ? 'Siap Dibelanjakan' : 'Pagu Habis / Terpenuhi')
+                ->description($sisa > 0 ? 'Bisa Dibelanjakan' : 'Pagu Habis / Terpenuhi')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color($sisa > 0 ? 'success' : 'danger'),
         ];
     }
 }
-

@@ -4,6 +4,7 @@ namespace App\Filament\Resources\MasterSubKegiatans\Tables;
 
 use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
 use App\Models\Bidang;
+use App\Models\MasterKegiatan;
 use App\Models\MasterSubKegiatan;
 use App\Models\User;
 use App\Support\FormatHelper;
@@ -13,9 +14,14 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
@@ -36,6 +42,8 @@ class MasterSubKegiatansTable
         }
 
         return $table
+            ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
+            ->recordActionsColumnLabel('Aksi')
             ->stickyableColumns()
             ->recordUrl(fn(MasterSubKegiatan $record): string => MasterSubKegiatanResource::getUrl('edit', ['record' => $record]))
             ->modifyQueryUsing(function (Builder $query, Table $table) use ($defaultYear): Builder {
@@ -72,12 +80,12 @@ class MasterSubKegiatansTable
                     ->description(fn(MasterSubKegiatan $record): string => ($record->kode_sub_kegiatan ? "[{$record->kode_sub_kegiatan}] " : '') . ($record->kegiatan?->nama_kegiatan ? "Kegiatan: {$record->kegiatan->nama_kegiatan}" : ''))
                     ->searchable()
                     ->sortable()
-                    ->sticky()
                     ->weight('bold')
                     ->wrap()
-                    ->extraAttributes(['style' => 'min-width: 320px;'])
-                    ->extraHeaderAttributes(['style' => 'min-width: 320px;'])
-                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                    ->extraAttributes(['style' => 'min-width: 320px;'], merge: true)
+                    ->extraHeaderAttributes(['style' => 'min-width: 320px;'], merge: true)
+                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
+                    ->sticky(),
 
                 TextColumn::make('jf.name')
                     ->label('Penanggung Jawab (JF)')
@@ -202,7 +210,62 @@ class MasterSubKegiatansTable
                     ->color('primary')
                     ->url(fn(MasterSubKegiatan $record): string => MasterSubKegiatanResource::getUrl('edit', ['record' => $record])),
 
-                EditAction::make()->label('Ubah'),
+                EditAction::make()
+                    ->label('Ubah')
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('warning')
+                    ->slideOver()
+                    ->modalWidth('4xl')
+                    ->modalHeading(fn(MasterSubKegiatan $record): string => "Ubah Sub Kegiatan: {$record->kode_sub_kegiatan}")
+                    ->modalDescription('Perbarui data identitas Sub Kegiatan & penugasan JF secara cepat tanpa meninggalkan halaman.')
+                    ->form([
+                        Grid::make(['default' => 1, 'sm' => 2])
+                            ->schema([
+                                TextInput::make('kode_sub_kegiatan')
+                                    ->label('Kode Sub Kegiatan')
+                                    ->mask('9.99.99.9.99.9999')
+                                    ->required(),
+
+                                Select::make('tahun_anggaran')
+                                    ->label('Tahun Anggaran')
+                                    ->options($years)
+                                    ->required(),
+                            ]),
+
+                        Select::make('kegiatan_id')
+                            ->label('Kegiatan Induk')
+                            ->relationship('kegiatan', 'nama_kegiatan')
+                            ->getOptionLabelFromRecordUsing(fn(MasterKegiatan $record) => "[{$record->kode_kegiatan}] {$record->nama_kegiatan}")
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+
+                        Select::make('jf_id')
+                            ->label('Penanggung Jawab (JF)')
+                            ->placeholder('Pilih Pejabat Fungsional (Opsional)')
+                            ->options(function (Get $get, ?MasterSubKegiatan $record) {
+                                $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
+                                $bidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : null;
+
+                                return User::query()
+                                    ->where('aktif', true)
+                                    ->when($bidangId, fn($q) => $q->where('bidang_id', $bidangId))
+                                    ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']))
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->all();
+                            })
+                            ->searchable()
+                            ->preload()
+                            ->helperText('Hanya menampilkan Pejabat Fungsional (JF) yang berada di bidang kegiatan induk.'),
+
+                        Textarea::make('nama_sub_kegiatan')
+                            ->label('Nomenklatur Sub Kegiatan')
+                            ->rows(3)
+                            ->extraInputAttributes(['style' => 'text-transform: uppercase; font-weight: 600;'])
+                            ->required(),
+                    ])
+                    ->successNotificationTitle('Identitas Sub Kegiatan berhasil diperbarui'),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

@@ -112,6 +112,22 @@ class ListMasterSubKegiatans extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereHas('kegiatan', fn($q) => $q->where('bidang_id', $bidang->id)));
         }
 
+        $countBelumAdaBidang = (clone $baseQuery)->where(function ($q) {
+            $q->whereDoesntHave('kegiatan')
+                ->orWhereHas('kegiatan', fn($kq) => $kq->whereNull('bidang_id'));
+        })->count();
+
+        if ($countBelumAdaBidang > 0) {
+            $tabs['belum_ada_bidang'] = Tab::make('Belum Ditugaskan Bidang')
+                ->icon('heroicon-m-exclamation-triangle')
+                ->badge($countBelumAdaBidang)
+                ->badgeColor('warning')
+                ->modifyQueryUsing(fn(Builder $query) => $query->where(function ($q) {
+                    $q->whereDoesntHave('kegiatan')
+                        ->orWhereHas('kegiatan', fn($kq) => $kq->whereNull('bidang_id'));
+                }));
+        }
+
         return $tabs;
     }
 

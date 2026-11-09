@@ -44,17 +44,19 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                 Section::make('Rincian Item Belanja RKA')
                     ->description('Kelola rekening belanja, komponen barang/jasa, volume, dan harga standar.')
                     ->schema([
-                        Grid::make(['default' => 1, 'md' => 2])
+                        Grid::make(['default' => 1, 'md' => 12])
                             ->schema([
                                 Select::make('sumber_dana')
                                     ->label('Sumber Pendanaan')
                                     ->options(SumberDana::class)
                                     ->default(SumberDana::DAU->value)
+                                    ->columnSpan(['default' => 12, 'md' => 4])
                                     ->required(),
 
                                 Select::make('kode_rekening_id')
-                                    ->label('Sub Rincian Obyek')
+                                    ->label('Sub Rincian Obyek (Rekening Belanja)')
                                     ->placeholder('Pilih Sub Rincian Obyek Belanja...')
+                                    ->columnSpan(['default' => 12, 'md' => 8])
                                     ->searchable()
                                     ->preload()
                                     ->options(function () {
@@ -94,11 +96,12 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                     }),
                             ]),
 
-                        Grid::make(['default' => 1, 'md' => 2])
+                        Grid::make(['default' => 1, 'md' => 12])
                             ->schema([
                                 Select::make('master_barang_id')
                                     ->label('Komponen Belanja / Barang')
                                     ->placeholder(fn (Get $get): string => filled($get('kode_rekening_id')) ? 'Pilih komponen barang...' : 'Pilih Sub Rincian Obyek terlebih dahulu')
+                                    ->columnSpan(['default' => 12, 'md' => 6])
                                     ->options(function (Get $get) {
                                         $rekId = $get('kode_rekening_id');
                                         if (! $rekId) {
@@ -173,6 +176,7 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
 
                                 TextInput::make('nama_item')
                                     ->label('Nama Item / Uraian RKA')
+                                    ->columnSpan(['default' => 12, 'md' => 6])
                                     ->required(),
                             ]),
 
@@ -304,6 +308,7 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                     ->label('Tambah Item Belanja RKA')
                     ->icon('heroicon-o-plus')
                     ->slideOver()
+                    ->modalWidth('5xl')
                     ->mutateFormDataUsing(function (array $data): array {
                         /** @var MasterSubKegiatan $owner */
                         $owner = $this->getOwnerRecord();
@@ -317,7 +322,9 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
-                EditAction::make()->slideOver(),
+                EditAction::make()
+                    ->slideOver()
+                    ->modalWidth('5xl'),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
