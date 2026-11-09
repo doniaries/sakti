@@ -89,7 +89,7 @@ class MasterKegiatansTable
 
                 TextColumn::make('pagu_anggaran')
                     ->label('Jumlah Uang Kegiatan')
-                    ->money('IDR', locale: 'id')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format((float) $state, 0, ',', '.') : '-')
                     ->sortable(),
 
                 TextColumn::make('sub_kegiatans_count')

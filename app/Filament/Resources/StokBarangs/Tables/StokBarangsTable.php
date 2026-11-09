@@ -124,14 +124,14 @@ class StokBarangsTable
 
                 TextColumn::make('masterBarang.harga_satuan')
                     ->label('Harga Standar')
-                    ->money('IDR', locale: 'id')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format((float) $state, 0, ',', '.') : '-')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('nilai_persediaan')
                     ->label('Estimasi Nilai')
                     ->state(fn (StokBarang $record): float => (float) ($record->stok_tersedia * ($record->masterBarang?->harga_satuan ?? 0)))
-                    ->money('IDR', locale: 'id')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format((float) $state, 0, ',', '.') : '-')
                     ->sortable(),
 
                 TextColumn::make('updated_at')

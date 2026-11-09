@@ -120,6 +120,8 @@ class PengajuanSpjsTable
                     ->label('No. Pengajuan')
                     ->searchable()
                     ->sortable()
+                    ->copyable()
+                    ->copyMessage('Nomor pengajuan berhasil disalin')
                     ->weight('bold')
                     ->sticky(),
 
@@ -132,13 +134,12 @@ class PengajuanSpjsTable
 
                 TextColumn::make('total_nilai_realisasi')
                     ->label('Nilai Kwitansi')
-                    ->money('IDR', locale: 'id')
-                    ->placeholder('-')
+                    ->formatStateUsing(fn ($state) => $state !== null && (float) $state > 0 ? 'Rp ' . number_format((float) $state, 0, ',', '.') : '-')
                     ->sortable(),
 
                 TextColumn::make('total_nilai_rencana')
                     ->label('Nilai Pesanan')
-                    ->money('IDR', locale: 'id')
+                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format((float) $state, 0, ',', '.') : '-')
                     ->sortable(),
 
                 TextColumn::make('bidang.nama')
@@ -344,7 +345,7 @@ class PengajuanSpjsTable
                 Action::make('proses_approval')
                     ->label(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'diajukan' => 'Setujui Pesanan',
+                            'diajukan' => 'Cek Dokumen',
                             'menunggu_realisasi', 'revisi_pptk' => 'Lengkapi SPJ',
                             'menunggu_verifikasi_pptk' => 'Verifikasi PPTK',
                             'menunggu_verifikasi_ppk', 'revisi_ppk' => 'Verifikasi PPK',
@@ -355,7 +356,7 @@ class PengajuanSpjsTable
                     })
                     ->tooltip(function (PengajuanSpj $record): string {
                         return match ($record->status) {
-                            'diajukan' => 'Setujui Pesanan: Tanda Tangan Surat Pesanan oleh PPTK',
+                            'diajukan' => 'Cek Dokumen: Periksa dan verifikasi kelengkapan pesanan SPJ',
                             'menunggu_realisasi', 'revisi_pptk' => 'Lengkapi SPJ: Unggah faktur toko, dokumentasi barang, dan kelengkapan berkas',
                             'menunggu_verifikasi_pptk' => 'Verifikasi PPTK: Pemeriksaan kepatuhan berkas SPJ lengkap',
                             'menunggu_verifikasi_ppk', 'revisi_ppk' => 'Verifikasi PPK: Uji berkas SPJ, kode rekening, dan perpajakan',
@@ -365,7 +366,7 @@ class PengajuanSpjsTable
                         };
                     })
                     ->modalHeading(fn(PengajuanSpj $record): string => match ($record->status) {
-                        'diajukan' => 'Persetujuan & TTD Surat Pesanan (PPTK)',
+                        'diajukan' => 'Pemeriksaan Dokumen & Persetujuan Pesanan (PPTK)',
                         'menunggu_realisasi', 'revisi_pptk' => 'Proses Kelengkapan Berkas SPJ',
                         'menunggu_verifikasi_pptk' => 'Verifikasi Berkas Dokumen SPJ (PPTK)',
                         'menunggu_verifikasi_ppk', 'revisi_ppk' => 'Verifikasi Berkas Dokumen SPJ (PPK)',
@@ -783,91 +784,6 @@ class PengajuanSpjsTable
                             ->send();
                     }),
 
-                // Aksi 3: Kembalikan untuk Revisi (Hanya muncul saat di meja pemeriksa)
-                Action::make('kembalikan_revisi')
-                    ->label(fn(PengajuanSpj $record): string => $record->status === 'diajukan' ? 'Revisi Pesanan' : 'Kembalikan')
-                    ->tooltip(fn(PengajuanSpj $record): string => $record->status === 'diajukan' ? 'Revisi Pesanan: Kembalikan berkas ke pemohon' : 'Kembalikan Berkas: Minta perbaikan / revisi SPJ')
-                    ->modalHeading(fn(PengajuanSpj $record): string => "Kembalikan Berkas SPJ untuk Diperbaiki — {$record->nomor_pengajuan}")
-                    ->modalDescription('Dokumen SPJ akan dikembalikan ke pembuat pengajuan / tahapan sebelumnya beserta instruksi perbaikan yang Anda masukkan.')
-                    ->modalSubmitActionLabel('Kembalikan Berkas (Revisi)')
-                    ->icon(static::safeIcon('fas-reply', 'heroicon-o-arrow-uturn-left'))
-                    ->iconButton()
-                    ->color('danger')
-                    ->visible(function (PengajuanSpj $record): bool {
-                        if (! in_array($record->status, [
-                            'diajukan',
-                            'menunggu_verifikasi_pptk',
-                            'menunggu_verifikasi_ppk',
-                            'menunggu_persetujuan_pa',
-                            'menunggu_verifikasi_bendahara',
-                        ], true)) {
-                            return false;
-                        }
-
-                        /** @var \App\Models\User|null $user */
-                        $user = Auth::user();
-                        if (! $user) {
-                            return false;
-                        }
-
-                        if ($user->hasAnyRole(['super_admin', 'admin'])) {
-                            return true;
-                        }
-
-                        $anggaranRole = $user->anggaran_role instanceof \App\Enums\AnggaranRole
-                            ? $user->anggaran_role->value
-                            : $user->anggaran_role;
-
-                        $isPptkThisRecord = ($user->hasRole('pptk') || $anggaranRole === 'PPTK')
-                            && ($user->id === $record->pptk_user_id || ((int) $user->bidang_id > 0 && (int) $user->bidang_id === (int) $record->bidang_id) || (int) $record->bidang?->kepala_id === (int) $user->id || $user->hasRole('super_admin'));
-
-                        return match ($record->status) {
-                            'diajukan', 'menunggu_verifikasi_pptk' => $isPptkThisRecord,
-                            'menunggu_verifikasi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
-                            'menunggu_persetujuan_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,
-                            'menunggu_verifikasi_bendahara' => $user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' || $user->id === $record->bendahara_user_id,
-                            default => true,
-                        };
-                    })
-                    ->form([
-                        Textarea::make('catatan_revisi')
-                            ->label('Keterangan Alasan Pengembalian & Instruksi Perbaikan (Wajib Diisi)')
-                            ->placeholder('Sebutkan secara rinci item pesanan, berkas lampiran, atau perhitungan pajak/nominal yang harus diperbaiki...')
-                            ->rows(4)
-                            ->required(),
-                    ])
-                    ->action(function (PengajuanSpj $record, array $data, SpjWorkflowService $workflowService): void {
-                        $revisiStatus = match ($record->status) {
-                            'diajukan' => 'draft',
-                            'menunggu_verifikasi_pptk' => 'revisi_pptk',
-                            'menunggu_verifikasi_ppk' => 'revisi_ppk',
-                            'menunggu_persetujuan_pa' => 'revisi_pa',
-                            'menunggu_verifikasi_bendahara' => 'revisi_bendahara',
-                            default => 'draft',
-                        };
-
-                        $peran = match ($record->status) {
-                            'diajukan', 'menunggu_verifikasi_pptk' => 'pptk',
-                            'menunggu_verifikasi_ppk' => 'ppk',
-                            'menunggu_persetujuan_pa' => 'pa',
-                            'menunggu_verifikasi_bendahara' => 'bendahara',
-                            default => 'pemeriksa',
-                        };
-
-                        $workflowService->transition(
-                            $record,
-                            $revisiStatus,
-                            $data['catatan_revisi'],
-                            $peran
-                        );
-
-                        Notification::make()
-                            ->title('Berkas SPJ Berhasil Dikembalikan')
-                            ->body("Dokumen telah berstatus: {$record->fresh()->status_label}")
-                            ->warning()
-                            ->send();
-                    }),
-
                 // Aksi Menu Tambahan (Ubah, Lihat, Hapus) dirangkum rapi ke dalam ActionGroup Menu Titik Tiga
                 ActionGroup::make([
                     ViewAction::make()
@@ -916,6 +832,7 @@ class PengajuanSpjsTable
                         ->icon(static::safeIcon('fas-trash-can', 'heroicon-o-trash'))
                         ->visible(fn(PengajuanSpj $record): bool => $record->status === 'draft'),
                 ])
+                    ->dropdownPlacement('bottom-start')
                     ->tooltip('Menu Aksi Lainnya')
                     ->icon(static::safeIcon('fas-ellipsis-vertical', 'heroicon-m-ellipsis-vertical'))
                     ->color('gray'),

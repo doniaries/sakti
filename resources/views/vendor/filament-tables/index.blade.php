@@ -1079,30 +1079,47 @@
                                                         }}
                                                     @endforeach
                                                 </a>
-                                            @elseif ($recordAction)
+                                            @elseif (filled($recordAction))
                                                 @php
-                                                    $recordWireClickAction = $getRecordAction($record)
-                                                        ? "mountTableAction('{$recordAction}', '{$recordKey}')"
-                                                        : $recordWireClickAction = "{$recordAction}('{$recordKey}')";
+                                                    $actionName = $recordAction instanceof \Filament\Actions\Action ? $recordAction->getName() : (is_string($recordAction) ? $recordAction : null);
+                                                    $recordWireClickAction = filled($actionName)
+                                                        ? ($this->getTable()->getAction($actionName)
+                                                            ? "mountTableAction('{$actionName}', '{$recordKey}')"
+                                                            : "{$actionName}('{$recordKey}')")
+                                                        : null;
                                                 @endphp
 
-                                                <button
-                                                    type="button"
-                                                    wire:click="{{ $recordWireClickAction }}"
-                                                    wire:loading.attr="disabled"
-                                                    wire:target="{{ $recordWireClickAction }}"
-                                                    class="fi-ta-record-content"
-                                                >
-                                                    @foreach ($columnsLayout as $columnsLayoutComponent)
-                                                        {{
-                                                            $columnsLayoutComponent
-                                                                ->record($record)
-                                                                ->recordKey($recordKey)
-                                                                ->rowLoop($loop)
-                                                                ->renderInLayout()
-                                                        }}
-                                                    @endforeach
-                                                </button>
+                                                @if (filled($recordWireClickAction))
+                                                    <button
+                                                        type="button"
+                                                        wire:click="{{ $recordWireClickAction }}"
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="{{ $recordWireClickAction }}"
+                                                        class="fi-ta-record-content"
+                                                    >
+                                                        @foreach ($columnsLayout as $columnsLayoutComponent)
+                                                            {{
+                                                                $columnsLayoutComponent
+                                                                    ->record($record)
+                                                                    ->recordKey($recordKey)
+                                                                    ->rowLoop($loop)
+                                                                    ->renderInLayout()
+                                                            }}
+                                                        @endforeach
+                                                    </button>
+                                                @else
+                                                    <div class="fi-ta-record-content">
+                                                        @foreach ($columnsLayout as $columnsLayoutComponent)
+                                                            {{
+                                                                $columnsLayoutComponent
+                                                                    ->record($record)
+                                                                    ->recordKey($recordKey)
+                                                                    ->rowLoop($loop)
+                                                                    ->renderInLayout()
+                                                            }}
+                                                        @endforeach
+                                                    </div>
+                                                @endif
                                             @else
                                                 <div
                                                     class="fi-ta-record-content"
@@ -1902,15 +1919,18 @@
                                                         };
 
                                                         if ($columnWrapperTag === 'button') {
-                                                            if ($columnAction instanceof \Filament\Actions\Action) {
+                                                            if ($columnAction instanceof \Filament\Actions\Action && filled($columnAction->getName())) {
                                                                 $columnWireClickAction = "mountTableAction('{$columnAction->getName()}', '{$recordKey}')";
-                                                            } elseif ($columnAction) {
+                                                            } elseif (filled($columnAction) && is_string($columnAction)) {
                                                                 $columnWireClickAction = "callTableColumnAction('{$column->getName()}', '{$recordKey}')";
                                                             } else {
-                                                                if ($this->getTable()->getAction($recordAction)) {
-                                                                    $columnWireClickAction = "mountTableAction('{$recordAction}', '{$recordKey}')";
+                                                                $actionName = $recordAction instanceof \Filament\Actions\Action ? $recordAction->getName() : (is_string($recordAction) ? $recordAction : null);
+                                                                if (filled($actionName)) {
+                                                                    $columnWireClickAction = $this->getTable()->getAction($actionName)
+                                                                        ? "mountTableAction('{$actionName}', '{$recordKey}')"
+                                                                        : "{$actionName}('{$recordKey}')";
                                                                 } else {
-                                                                    $columnWireClickAction = "{$recordAction}('{$recordKey}')";
+                                                                    $columnWrapperTag = 'div';
                                                                 }
                                                             }
                                                         }
