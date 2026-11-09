@@ -39,7 +39,7 @@ class RincianAnggaranBelanjasTable
 
         return $table
             ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
-                $query->with(['bidang', 'subKegiatan.kegiatan', 'kodeRekening', 'masterBarang']);
+                $query->with(['bidang', 'subKegiatan.kegiatan', 'subKegiatan.jf', 'kodeRekening', 'masterBarang']);
 
                 $livewire = $table->getLivewire();
                 $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
@@ -74,17 +74,17 @@ class RincianAnggaranBelanjasTable
                 TextColumn::make('tahun_anggaran')
                     ->label('Tahun')
                     ->badge()
-                    // ->sticky()
                     ->color('primary')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
-                    // ->sticky()
                     ->default('Belum Ditugaskan')
                     ->color(fn(?string $state): string => filled($state) ? Bidang::badgeColor($state) : 'warning')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('subKegiatan.nama_sub_kegiatan')
                     ->label('Sub Kegiatan')
@@ -96,6 +96,15 @@ class RincianAnggaranBelanjasTable
                     ->extraAttributes(['style' => 'min-width: 320px;'])
                     ->extraHeaderAttributes(['style' => 'min-width: 320px;'])
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+
+                TextColumn::make('subKegiatan.jf.name')
+                    ->label('Penanggung Jawab (JF)')
+                    ->placeholder('Belum Ditugaskan')
+                    ->badge()
+                    ->color(fn ($state) => $state ? 'success' : 'danger')
+                    ->icon(fn ($state) => $state ? 'heroicon-m-user-check' : 'heroicon-m-exclamation-triangle')
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('kodeRekening.uraian')
                     ->label('Rekening Belanja')
@@ -135,25 +144,24 @@ class RincianAnggaranBelanjasTable
                     ->weight('bold')
                     ->sortable(),
 
+                TextColumn::make('sisa_volume')
+                    ->label('Sisa Stok')
+                    ->state(fn(RincianAnggaranBelanja $r) => number_format($r->sisa_volume, 0, ',', '.') . ' ' . $r->satuan)
+                    ->badge()
+                    ->color(fn(RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'success' : 'danger')
+                    ->icon(fn(RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'heroicon-m-cube' : 'heroicon-m-exclamation-circle'),
+
                 TextColumn::make('realisasi')
                     ->label('Realisasi SPJ')
-                    ->state(function (RincianAnggaranBelanja $r): string {
-                        $vol = number_format((float) $r->volume_realisasi, 0, ',', '.') . ' ' . $r->satuan;
-                        $rp = 'Rp ' . number_format((float) $r->nilai_realisasi, 0, ',', '.');
-                        return "{$vol} ({$rp})";
-                    })
-                    ->badge()
-                    ->color(fn(RincianAnggaranBelanja $r) => (float) $r->volume_realisasi > 0 ? 'warning' : 'gray'),
+                    ->state(fn(RincianAnggaranBelanja $r) => \App\Support\FormatHelper::rupiah((float) $r->nilai_realisasi))
+                    ->alignEnd(),
 
-                TextColumn::make('sisa_pagu')
-                    ->label('Sisa Pagu (Volume & Rp)')
-                    ->state(function (RincianAnggaranBelanja $r): string {
-                        $sisaVol = number_format($r->sisa_volume, 0, ',', '.') . ' ' . $r->satuan;
-                        $sisaRp = 'Rp ' . number_format($r->sisa_anggaran, 0, ',', '.');
-                        return "{$sisaVol} ({$sisaRp})";
-                    })
-                    ->badge()
-                    ->color(fn(RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'success' : 'danger'),
+                TextColumn::make('sisa_anggaran')
+                    ->label('Sisa Anggaran')
+                    ->state(fn(RincianAnggaranBelanja $r) => \App\Support\FormatHelper::rupiah($r->sisa_anggaran))
+                    ->color(fn(RincianAnggaranBelanja $r) => $r->sisa_anggaran > 0 ? 'success' : 'danger')
+                    ->weight('bold')
+                    ->alignEnd(),
 
                 TextColumn::make('persen_realisasi')
                     ->label('Penyerapan')

@@ -19,7 +19,10 @@ class RincianAnggaranBelanjaResource extends Resource
 {
     protected static ?string $model = RincianAnggaranBelanja::class;
 
-    protected static bool $shouldRegisterNavigation = false;
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentChartBar;
 

@@ -46,12 +46,31 @@ class MasterSubKegiatanResource extends Resource
 
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user && ! $user->canViewAllBidangKeuangan()) {
-            $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
-            $query->whereHas('kegiatan', fn ($kq) => $kq->where('bidang_id', $userBidangId));
+        if (! $user) {
+            return $query;
         }
 
-        return $query;
+        // 1. Role Pemeriksa Global & Super Admin / Admin / PA / PPK / Bendahara
+        if ($user->canViewAllBidangKeuangan() || $user->hasRole('admin')) {
+            return $query;
+        }
+
+        // 2. Role JF (Pejabat Fungsional / Pengampu):
+        // HANYA melihat Sub Kegiatan yang ditugaskan kepada dirinya sendiri (jf_id == user->id).
+        // RKA bidang yang sama milik rekan lain maupun bidang lain TIDAK TAMPAK.
+        if ($user->hasRole('jf') && ! $user->hasRole('pptk')) {
+            return $query->where('jf_id', $user->id);
+        }
+
+        // 3. Role PPTK (Kepala Bidang):
+        // Melihat SELURUH Sub Kegiatan / RKA di bidangnya.
+        $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+        if ($userBidangId > 0) {
+            return $query->whereHas('kegiatan', fn ($kq) => $kq->where('bidang_id', $userBidangId));
+        }
+
+        // Fallback untuk pegawai biasa: hanya yang ditugaskan kepadanya
+        return $query->where('jf_id', $user->id);
     }
 
     public static function getRelations(): array

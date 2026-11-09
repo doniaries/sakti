@@ -82,4 +82,134 @@ class SubKegiatanRkaRelationTest extends TestCase
         $testList = Livewire::test(ListMasterSubKegiatans::class);
         $testList->assertSuccessful();
     }
+
+    public function test_pptk_and_jf_role_scoping_and_permissions(): void
+    {
+        $subKegiatan1 = MasterSubKegiatan::with('kegiatan.bidang')->first();
+        $this->assertNotNull($subKegiatan1);
+        $bidangId = $subKegiatan1->kegiatan?->bidang_id;
+        $this->assertNotNull($bidangId);
+
+        $pptk = User::role('pptk')->where('bidang_id', $bidangId)->first();
+        if (! $pptk) {
+            $pptk = User::factory()->create(['bidang_id' => $bidangId, 'aktif' => true]);
+            $pptk->assignRole('pptk');
+        }
+
+        $jf = User::role('jf')->where('bidang_id', $bidangId)->first();
+        if (! $jf) {
+            $jf = User::factory()->create([
+                'bidang_id' => $bidangId,
+                'aktif' => true,
+            ]);
+            $jf->assignRole('jf');
+        }
+
+        $otherJf = User::factory()->create([
+            'bidang_id' => $bidangId,
+            'aktif' => true,
+        ]);
+        $otherJf->assignRole('jf');
+
+        $subKegiatan1->update(['jf_id' => $jf->id]);
+
+        $subKegiatan2 = MasterSubKegiatan::whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidangId))
+            ->where('id', '!=', $subKegiatan1->id)
+            ->first();
+
+        if ($subKegiatan2) {
+            $subKegiatan2->update(['jf_id' => $otherJf->id]);
+        }
+
+        // 1. Verifikasi PPTK: Bisa melihat seluruh Sub Kegiatan di bidangnya
+        $this->actingAs($pptk);
+        $pptkQuery = \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getEloquentQuery();
+        $this->assertTrue($pptkQuery->where('id', $subKegiatan1->id)->exists());
+        if ($subKegiatan2) {
+            $this->assertTrue($pptkQuery->where('id', $subKegiatan2->id)->exists());
+        }
+        $this->assertTrue($pptk->can('create', MasterSubKegiatan::class));
+
+        // 2. Verifikasi JF: HANYA bisa melihat Sub Kegiatan miliknya sendiri
+        $this->actingAs($jf);
+        $jfQuery = \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getEloquentQuery();
+        $this->assertTrue($jfQuery->where('id', $subKegiatan1->id)->exists());
+        if ($subKegiatan2) {
+            $this->assertFalse($jfQuery->where('id', $subKegiatan2->id)->exists());
+        }
+
+        // 3. Verifikasi Policy JF: Tidak bisa membuat atau menghapus Sub Kegiatan
+        $this->assertFalse($jf->can('create', MasterSubKegiatan::class));
+        $this->assertFalse($jf->can('delete', $subKegiatan1));
+        $this->assertTrue($jf->can('view', $subKegiatan1));
+        $this->assertTrue($jf->can('update', $subKegiatan1));
+
+        // 4. Bersihkan data test user tambahan
+        $otherJf->delete();
+    }
+
+    public function test_pptk_and_jf_role_scoping_and_permissions(): void
+    {
+        $subKegiatan1 = MasterSubKegiatan::with('kegiatan.bidang')->first();
+        $this->assertNotNull($subKegiatan1);
+        $bidangId = $subKegiatan1->kegiatan?->bidang_id;
+        $this->assertNotNull($bidangId);
+
+        $pptk = User::role('pptk')->where('bidang_id', $bidangId)->first();
+        if (! $pptk) {
+            $pptk = User::factory()->create(['bidang_id' => $bidangId, 'aktif' => true]);
+            $pptk->assignRole('pptk');
+        }
+
+        $jf = User::role('jf')->where('bidang_id', $bidangId)->first();
+        if (! $jf) {
+            $jf = User::factory()->create([
+                'bidang_id' => $bidangId,
+                'aktif' => true,
+            ]);
+            $jf->assignRole('jf');
+        }
+
+        $otherJf = User::factory()->create([
+            'bidang_id' => $bidangId,
+            'aktif' => true,
+        ]);
+        $otherJf->assignRole('jf');
+
+        $subKegiatan1->update(['jf_id' => $jf->id]);
+
+        $subKegiatan2 = MasterSubKegiatan::whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidangId))
+            ->where('id', '!=', $subKegiatan1->id)
+            ->first();
+
+        if ($subKegiatan2) {
+            $subKegiatan2->update(['jf_id' => $otherJf->id]);
+        }
+
+        // 1. Verifikasi PPTK: Bisa melihat seluruh Sub Kegiatan di bidangnya
+        $this->actingAs($pptk);
+        $pptkQuery = \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getEloquentQuery();
+        $this->assertTrue($pptkQuery->where('id', $subKegiatan1->id)->exists());
+        if ($subKegiatan2) {
+            $this->assertTrue($pptkQuery->where('id', $subKegiatan2->id)->exists());
+        }
+        $this->assertTrue($pptk->can('create', MasterSubKegiatan::class));
+
+        // 2. Verifikasi JF: HANYA bisa melihat Sub Kegiatan miliknya sendiri
+        $this->actingAs($jf);
+        $jfQuery = \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getEloquentQuery();
+        $this->assertTrue($jfQuery->where('id', $subKegiatan1->id)->exists());
+        if ($subKegiatan2) {
+            $this->assertFalse($jfQuery->where('id', $subKegiatan2->id)->exists());
+        }
+
+        // 3. Verifikasi Policy JF: Tidak bisa membuat atau menghapus Sub Kegiatan
+        $this->assertFalse($jf->can('create', MasterSubKegiatan::class));
+        $this->assertFalse($jf->can('delete', $subKegiatan1));
+        $this->assertTrue($jf->can('view', $subKegiatan1));
+        $this->assertTrue($jf->can('update', $subKegiatan1));
+
+        // 4. Bersihkan data test user tambahan
+        $otherJf->delete();
+    }
 }

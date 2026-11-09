@@ -40,7 +40,21 @@ class ListMasterSubKegiatans extends ListRecords
             ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
             ?? (MasterSubKegiatan::query()->max('tahun_anggaran') ?? (int) date('Y'));
 
-        // Jika PPTK / non-pemeriksa, tampilkan HANYA tab nama bidangnya saja
+        // 1. Khusus JF: Hanya tampilkan tab tugasnya sendiri
+        if (! $isGlobal && $user && $user->hasRole('jf') && ! $user->hasRole('pptk')) {
+            $count = MasterSubKegiatan::where('tahun_anggaran', (int) $selectedTahun)
+                ->where('jf_id', $user->id)
+                ->count();
+
+            return [
+                'tugas_saya' => Tab::make('RKA Tugas Saya')
+                    ->icon('heroicon-m-user')
+                    ->badge($count)
+                    ->modifyQueryUsing(fn (Builder $query) => $query->where('jf_id', $user->id)),
+            ];
+        }
+
+        // 2. PPTK / Kepala Bidang: Tampilkan HANYA tab nama bidangnya saja
         if (! $isGlobal && $user?->bidang_id) {
             $bidang = Bidang::find($user->bidang_id);
             if ($bidang) {
@@ -104,12 +118,14 @@ class ListMasterSubKegiatans extends ListRecords
             CreateAction::make()
                 ->label('Tambah Sub Kegiatan')
                 ->icon('heroicon-o-plus-circle')
-                ->color('primary'),
+                ->color('primary')
+                ->visible(fn () => static::getResource()::canCreate()),
 
             Action::make('import_pdf_rka')
                 ->label('Import RKA (PDF SIPD)')
                 ->icon('heroicon-o-document-arrow-up')
                 ->color('success')
+                ->visible(fn () => static::getResource()::canCreate())
                 ->modalHeading('Import RKA Sub Kegiatan dari PDF SIPD RI')
                 ->modalDescription('Unggah dokumen resmi "Cetak RKA Rincian Belanja" format PDF yang diunduh langsung dari portal SIPD RI. Sistem otomatis mengekstrak Program, Kegiatan, Sub Kegiatan, dan seluruh rincian belanja.')
                 ->modalSubmitActionLabel('Mulai Ekstraksi & Import')

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MasterSubKegiatans\Pages;
 
 use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
+use App\Filament\Resources\MasterSubKegiatans\Widgets\SubKegiatanAnggaranOverviewWidget;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
@@ -11,6 +12,13 @@ use Illuminate\Contracts\Support\Htmlable;
 class EditMasterSubKegiatan extends EditRecord
 {
     protected static string $resource = MasterSubKegiatanResource::class;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            SubKegiatanAnggaranOverviewWidget::class,
+        ];
+    }
 
     public function getTitle(): string|Htmlable
     {

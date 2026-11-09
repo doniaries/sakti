@@ -142,7 +142,7 @@ class RkaOverviewWidget extends StatsOverviewWidget
                 ->url(MasterKegiatanResource::getUrl('index', $filterParams)),
 
             Stat::make('Sub Kegiatan', $totalSubKegiatan . ' Sub Kegiatan')
-                ->description("{$subKegiatanDenganRka} teralokasi ({$countItemRka} RKA)")
+                ->description("{$subKegiatanDenganRka} teralokasi ({$countItemRka} Item)")
                 ->descriptionIcon('heroicon-m-rectangle-stack')
                 ->color('warning')
                 ->url(MasterSubKegiatanResource::getUrl('index', $filterParams)),

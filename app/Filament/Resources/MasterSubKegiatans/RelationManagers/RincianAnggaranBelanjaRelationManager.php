@@ -255,8 +255,15 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                 TextColumn::make('volume')
                     ->label('Pagu Volume')
                     ->state(fn (RincianAnggaranBelanja $r): string => number_format((float) $r->volume, 0, ',', '.') . ' ' . $r->satuan)
+                    ->color('gray')
+                    ->alignCenter(),
+
+                TextColumn::make('sisa_volume')
+                    ->label('Sisa Stok')
+                    ->state(fn (RincianAnggaranBelanja $r): string => number_format($r->sisa_volume, 0, ',', '.') . ' ' . $r->satuan)
                     ->badge()
-                    ->color('info')
+                    ->color(fn (RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'success' : 'danger')
+                    ->icon(fn (RincianAnggaranBelanja $r) => $r->sisa_volume > 0 ? 'heroicon-m-cube' : 'heroicon-m-exclamation-circle')
                     ->alignCenter(),
 
                 TextColumn::make('harga_satuan')
@@ -286,7 +293,7 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                     ),
 
                 TextColumn::make('sisa_anggaran')
-                    ->label('Sisa Pagu')
+                    ->label('Sisa Anggaran')
                     ->state(fn (RincianAnggaranBelanja $r): string => FormatHelper::rupiah($r->sisa_anggaran))
                     ->color(fn (RincianAnggaranBelanja $r): string => $r->sisa_anggaran > 0 ? 'success' : 'danger')
                     ->weight('bold')

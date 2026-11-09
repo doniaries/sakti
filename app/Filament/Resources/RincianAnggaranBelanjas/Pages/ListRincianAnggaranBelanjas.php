@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\RincianAnggaranBelanjas\Pages;
 
+use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
 use App\Filament\Resources\RincianAnggaranBelanjas\RincianAnggaranBelanjaResource;
 use App\Models\Bidang;
 use App\Models\RincianAnggaranBelanja;
@@ -21,6 +22,11 @@ use Illuminate\Support\Facades\Storage;
 class ListRincianAnggaranBelanjas extends ListRecords
 {
     protected static string $resource = RincianAnggaranBelanjaResource::class;
+
+    public function mount(): void
+    {
+        redirect()->to(MasterSubKegiatanResource::getUrl('index'));
+    }
 
     protected function getHeaderActions(): array
     {
