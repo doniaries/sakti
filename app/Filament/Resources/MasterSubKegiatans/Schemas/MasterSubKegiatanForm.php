@@ -90,8 +90,9 @@ class MasterSubKegiatanForm
         return $schema
             ->components([
                 Section::make('Informasi Sub Kegiatan')
+                    ->description('Kelola identitas Sub Kegiatan, tahun anggaran, dan penugasan JF.')
                     ->compact()
-                    ->schema(static::getFields(disabled: true)),
+                    ->schema(static::getFields(disabled: false)),
             ]);
     }
 }
