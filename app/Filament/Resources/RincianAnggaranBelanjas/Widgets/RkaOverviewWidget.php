@@ -36,22 +36,8 @@ class RkaOverviewWidget extends StatsOverviewWidget
         $user = Auth::user();
         $isRestrictedJf = $user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara']);
 
-        // Deteksi filter tahun aktif dari request/tableFilters atau default tahun berjalan / RKA terbaru
-        $selectedTahun = request()->query('tahun')
-            ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
-            ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value');
-
-        if (blank($selectedTahun) && request()->header('Referer')) {
-            $refererQuery = [];
-            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-            $selectedTahun = $refererQuery['tahun']
-                ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
-                ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
-        }
-
-        $tahun = filled($selectedTahun)
-            ? (int) $selectedTahun
-            : (RincianAnggaranBelanja::query()->max('tahun_anggaran') ?? (int) date('Y'));
+        // Tahun anggaran aktif sistem
+        $tahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
 
         // Query RKA sesuai tahun & role scope
         $rkaQuery = RincianAnggaranBelanja::query()->where('tahun_anggaran', $tahun);

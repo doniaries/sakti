@@ -64,7 +64,7 @@ class ListUsers extends ListRecords
                         ->icon($icon)
                         ->badge($bidang->users_count)
                         ->badgeColor('primary')
-                        ->modifyQueryUsing(fn (Builder $query) => $query->where('bidang_id', $bidang->id)),
+                        ->modifyQueryUsing(fn(Builder $query) => $query->where('bidang_id', $bidang->id)),
                 ];
             }
         }
@@ -91,16 +91,16 @@ class ListUsers extends ListRecords
                 ->icon($icon)
                 ->badge($bidang->users_count)
                 ->badgeColor('primary')
-                ->modifyQueryUsing(fn (Builder $query) => $query->where('bidang_id', $bidang->id));
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('bidang_id', $bidang->id));
         }
 
         $tanpaBidangCount = User::whereNull('bidang_id')->count();
         if ($tanpaBidangCount > 0) {
-            $tabs['tanpa_bidang'] = Tab::make('Pimpinan / Tanpa Bidang')
+            $tabs['tanpa_bidang'] = Tab::make('Kepala Dinas')
                 ->icon('heroicon-m-user')
                 ->badge($tanpaBidangCount)
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereNull('bidang_id'));
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('bidang_id'));
         }
 
         return $tabs;

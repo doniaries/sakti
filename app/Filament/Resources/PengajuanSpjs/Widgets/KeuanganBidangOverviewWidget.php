@@ -43,23 +43,12 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             ?? data_get(request()->query('filters'), 'bidang_id.value')
             ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
 
-        $queryTahun = request()->query('tahun')
-            ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
-            ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value');
-
-        if ((blank($queryBidang) || blank($queryTahun)) && request()->header('Referer')) {
+        if (blank($queryBidang) && request()->header('Referer')) {
             $refererQuery = [];
             parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-            if (blank($queryBidang)) {
-                $queryBidang = $refererQuery['bidang']
-                    ?? data_get($refererQuery, 'filters.bidang_id.value')
-                    ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
-            }
-            if (blank($queryTahun)) {
-                $queryTahun = $refererQuery['tahun']
-                    ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
-                    ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
-            }
+            $queryBidang = $refererQuery['bidang']
+                ?? data_get($refererQuery, 'filters.bidang_id.value')
+                ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
         }
 
         if (filled($queryBidang)) {
@@ -70,7 +59,7 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             $this->selectedBidangId = null;
         }
 
-        $this->selectedTahun = filled($queryTahun) ? (int) $queryTahun : (int) date('Y');
+        $this->selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
     }
 
     public function getCleanPageUrl(): string

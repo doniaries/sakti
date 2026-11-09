@@ -29,9 +29,11 @@ class MasterSubKegiatanPolicy
             return true;
         }
 
-        // JF: HANYA melihat sub kegiatan yang ditugaskan kepada dirinya sendiri
+        // JF: melihat sub kegiatan yang ditugaskan kepada dirinya sendiri atau di bidang tugasnya
         if ($authUser->hasRole('jf') && ! $authUser->hasRole('pptk')) {
-            return (int) $masterSubKegiatan->jf_id === (int) $authUser->id;
+            $userBidangId = (int) ($authUser->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $authUser->id)->value('id') ?? 0));
+            return (int) $masterSubKegiatan->jf_id === (int) $authUser->id
+                || ($userBidangId > 0 && (int) $masterSubKegiatan->kegiatan?->bidang_id === $userBidangId && (is_null($masterSubKegiatan->jf_id) || (int) $masterSubKegiatan->jf_id === (int) $authUser->id));
         }
 
         // PPTK (Kabid): Melihat seluruh sub kegiatan di bidangnya
@@ -65,9 +67,11 @@ class MasterSubKegiatanPolicy
             return true;
         }
 
-        // JF: hanya dapat mengelola sub kegiatan yang ditugaskan kepada dirinya
+        // JF: mengelola sub kegiatan yang ditugaskan kepada dirinya atau di bidang tugasnya
         if ($authUser->hasRole('jf') && ! $authUser->hasRole('pptk')) {
-            return (int) $masterSubKegiatan->jf_id === (int) $authUser->id;
+            $userBidangId = (int) ($authUser->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $authUser->id)->value('id') ?? 0));
+            return (int) $masterSubKegiatan->jf_id === (int) $authUser->id
+                || ($userBidangId > 0 && (int) $masterSubKegiatan->kegiatan?->bidang_id === $userBidangId && (is_null($masterSubKegiatan->jf_id) || (int) $masterSubKegiatan->jf_id === (int) $authUser->id));
         }
 
         // PPTK (Kabid): di bidangnya

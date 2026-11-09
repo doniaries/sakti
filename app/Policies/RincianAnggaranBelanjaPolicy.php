@@ -29,9 +29,12 @@ class RincianAnggaranBelanjaPolicy
             return true;
         }
 
-        // JF: hanya melihat item di sub kegiatannya sendiri
+        // JF: melihat item di sub kegiatannya sendiri atau di bidang tugasnya
         if ($authUser->hasRole('jf') && ! $authUser->hasRole('pptk')) {
-            return (int) $rincianAnggaranBelanja->subKegiatan?->jf_id === (int) $authUser->id;
+            $userBidangId = (int) ($authUser->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $authUser->id)->value('id') ?? 0));
+            $subKeg = $rincianAnggaranBelanja->subKegiatan;
+            return (int) $subKeg?->jf_id === (int) $authUser->id
+                || ($userBidangId > 0 && (int) $rincianAnggaranBelanja->bidang_id === $userBidangId && (is_null($subKeg?->jf_id) || (int) $subKeg?->jf_id === (int) $authUser->id));
         }
 
         // PPTK (Kabid): di bidangnya
@@ -59,9 +62,12 @@ class RincianAnggaranBelanjaPolicy
             return true;
         }
 
-        // JF: mengelola item di sub kegiatannya
+        // JF: mengelola item di sub kegiatannya atau di bidang tugasnya
         if ($authUser->hasRole('jf') && ! $authUser->hasRole('pptk')) {
-            return (int) $rincianAnggaranBelanja->subKegiatan?->jf_id === (int) $authUser->id;
+            $userBidangId = (int) ($authUser->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $authUser->id)->value('id') ?? 0));
+            $subKeg = $rincianAnggaranBelanja->subKegiatan;
+            return (int) $subKeg?->jf_id === (int) $authUser->id
+                || ($userBidangId > 0 && (int) $rincianAnggaranBelanja->bidang_id === $userBidangId && (is_null($subKeg?->jf_id) || (int) $subKeg?->jf_id === (int) $authUser->id));
         }
 
         // PPTK: di bidangnya

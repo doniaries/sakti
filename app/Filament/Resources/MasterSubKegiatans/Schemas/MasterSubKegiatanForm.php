@@ -25,7 +25,7 @@ class MasterSubKegiatanForm
      */
     public static function getFields(bool $disabled = false): array
     {
-        $currentYear = (int) date('Y');
+        $currentYear = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
         $years = [];
         for ($y = $currentYear + 1; $y >= $currentYear - 2; $y--) {
             $years[$y] = (string) $y;

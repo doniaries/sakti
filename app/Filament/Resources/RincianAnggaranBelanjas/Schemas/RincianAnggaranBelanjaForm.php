@@ -23,7 +23,7 @@ class RincianAnggaranBelanjaForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $currentYear = (int) date('Y');
+        $currentYear = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
         $maxYear = $currentYear + 1; // Batasi maksimal ke 2027 jika tahun sekarang 2026
         $minYear = $currentYear - 2;
 

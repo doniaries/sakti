@@ -281,7 +281,7 @@ class PengajuanSpj extends Model
         return match ($this->status) {
             'draft' => 'Draft Surat Pesanan',
             'diajukan' => 'Surat Pesanan Menunggu TTD (PPTK)',
-            'menunggu_realisasi' => 'Pesanan Disetujui',
+            'menunggu_realisasi' => 'Pesanan Disetujui (PPTK)ui',
             'menunggu_verifikasi_pptk' => 'SPJ Menunggu Verifikasi (PPTK)',
             'revisi_pptk' => 'SPJ Perlu Revisi (PPTK)',
             'menunggu_verifikasi_ppk' => 'SPJ Menunggu Verifikasi (PPK)',

@@ -198,7 +198,7 @@ class PengajuanSpjForm
                                                                 2027 => '2027',
                                                                 2028 => '2028',
                                                             ])
-                                                            ->default(fn() => (int) (request()->query('tahun') ?? 2027))
+                                                            ->default(fn() => (int) (request()->query('tahun') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif()))
                                                             ->required()
                                                             ->live()
                                                             ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
@@ -328,7 +328,7 @@ class PengajuanSpjForm
                                                                     return [];
                                                                 }
 
-                                                                $tahun = (int) ($get('tahun_anggaran') ?? 2027);
+                                                                $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
 
                                                                 return MasterKegiatan::where('bidang_id', $bidangId)
                                                                     ->where(function ($q) use ($tahun) {
@@ -384,7 +384,7 @@ class PengajuanSpjForm
                                                                     return [];
                                                                 }
 
-                                                                $tahun = (int) ($get('tahun_anggaran') ?? 2027);
+                                                                $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
 
                                                                 $query = MasterSubKegiatan::where('kegiatan_id', $kegiatanId)
                                                                     ->where(function ($q) use ($tahun) {

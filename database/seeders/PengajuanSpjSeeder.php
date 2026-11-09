@@ -391,7 +391,7 @@ class PengajuanSpjSeeder extends Seeder
                             'sp2' => 'Ketersediaan stok barang dan kewajaran volume pesanan',
                             'sp3' => 'Persetujuan penandatanganan Surat Pesanan / Nota Pesanan',
                         ],
-                        'catatan' => 'Surat pesanan disetujui untuk dibelanjakan ke rekanan penyedia.',
+                        'catatan' => 'Surat Pesanan Disetujui (PPTK)ui untuk dibelanjakan ke rekanan penyedia.',
                         'created_at' => $tglPengajuan->copy()->addHours(2),
                     ]);
                 }

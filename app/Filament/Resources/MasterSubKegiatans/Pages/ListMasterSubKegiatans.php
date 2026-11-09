@@ -39,18 +39,25 @@ class ListMasterSubKegiatans extends ListRecords
         $user = \Illuminate\Support\Facades\Auth::user();
         $isGlobal = $user && $user->canViewAllBidangKeuangan();
 
-        $selectedTahun = request()->query('tahun')
-            ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
-            ?? (MasterSubKegiatan::query()->max('tahun_anggaran') ?? (int) date('Y'));
+        $selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
 
         // 1. Khusus JF: Hanya tampilkan tab tugasnya sendiri
         if (! $isGlobal && $user && $user->hasRole('jf') && ! $user->hasRole('pptk')) {
+            $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
             $count = MasterSubKegiatan::where('tahun_anggaran', (int) $selectedTahun)
-                ->where('jf_id', $user->id)
+                ->where(function ($q) use ($user, $userBidangId) {
+                    $q->where('jf_id', $user->id);
+                    if ($userBidangId > 0) {
+                        $q->orWhere(function ($subQ) use ($userBidangId, $user) {
+                            $subQ->whereHas('kegiatan', fn ($kq) => $kq->where('bidang_id', $userBidangId))
+                                 ->where(fn ($sq) => $sq->whereNull('jf_id')->orWhere('jf_id', $user->id));
+                        });
+                    }
+                })
                 ->count();
 
             return [
-                'tugas_saya' => Tab::make('RKA Tugas Saya')
+                'tugas_saya' => Tab::make('Sub Kegiatan')
                     ->icon('heroicon-m-user')
                     ->badge($count)
                     ->modifyQueryUsing(fn(Builder $query) => $query->where('jf_id', $user->id)),
@@ -143,7 +150,7 @@ class ListMasterSubKegiatans extends ListRecords
                 ->label('Buka / Kunci DPA Global')
                 ->icon('heroicon-o-lock-closed')
                 ->color('warning')
-                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
+                ->visible(fn(): bool => auth()->user()?->hasRole('super_admin') ?? false)
                 ->modalHeading('Kelola Kunci DPA & RKA (Tingkat Global)')
                 ->modalDescription('Fitur khusus Super Admin untuk mengunci atau membuka kunci seluruh DPA/RKA Sub Kegiatan secara serentak per tahun anggaran (misal: saat periode pergeseran anggaran atau penetapan DPA).')
                 ->schema([
@@ -157,7 +164,7 @@ class ListMasterSubKegiatans extends ListRecords
                             krsort($years);
                             return $years;
                         })
-                        ->default(fn () => request()->query('tahun') ?? (MasterSubKegiatan::max('tahun_anggaran') ?? (int) date('Y')))
+                        ->default(fn() => request()->query('tahun') ?? (MasterSubKegiatan::max('tahun_anggaran') ?? (int) date('Y')))
                         ->required(),
 
                     Select::make('tindakan')

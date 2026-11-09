@@ -28,44 +28,18 @@ class RincianAnggaranBelanjasTable
 {
     public static function configure(Table $table): Table
     {
-        $currentYear = (int) date('Y');
-        $maxYear = $currentYear + 1; // Batasi maksimal ke 2027 jika sekarang 2026
-        $minYear = $currentYear - 2;
-
-        $years = [];
-        for ($y = $maxYear; $y >= $minYear; $y--) {
-            $years[$y] = (string) $y;
-        }
-
         return $table
-            ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
+
                 $query->with(['bidang', 'subKegiatan.kegiatan', 'subKegiatan.jf', 'kodeRekening', 'masterBarang.satuan'])
                     ->withSum(['spjDetails as volume_teralokasi' => function ($q) {
                         $q->whereHas('pengajuanSpj', fn($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
                     }], 'kuantitas')
                     ->withSum(['spjDetails as nilai_teralokasi' => function ($q) {
                         $q->whereHas('pengajuanSpj', fn($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
-                    }], 'subtotal');
-
-                $livewire = $table->getLivewire();
-                $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
-
-                $selectedTahun = request()->query('tahun')
-                    ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
-                    ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
-                    ?? data_get($livewireFilters, 'tahun_anggaran.value');
-
-                if (blank($selectedTahun) && request()->header('Referer')) {
-                    $refererQuery = [];
-                    parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-                    $selectedTahun = $refererQuery['tahun']
-                        ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
-                        ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
-                }
-
-                if (filled($selectedTahun)) {
-                    $query->where('tahun_anggaran', (int) $selectedTahun);
-                }
+                    }], 'subtotal')
+                    ->where('tahun_anggaran', $tahunAktif);
 
                 /** @var \App\Models\User|null $user */
                 $user = Auth::user();
@@ -198,11 +172,6 @@ class RincianAnggaranBelanjasTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('tahun_anggaran')
-                    ->label('Pilih Tahun')
-                    ->options($years)
-                    ->placeholder('Semua Tahun'),
-
                 SelectFilter::make('sub_kegiatan_id')
                     ->label('Filter Sub Kegiatan')
                     ->options(fn() => MasterSubKegiatan::all()->pluck('nama_sub_kegiatan', 'id')->all())

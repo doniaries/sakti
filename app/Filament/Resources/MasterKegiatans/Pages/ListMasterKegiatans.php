@@ -30,9 +30,7 @@ class ListMasterKegiatans extends ListRecords
         $user = \Illuminate\Support\Facades\Auth::user();
         $isGlobal = $user && $user->canViewAllBidangKeuangan();
 
-        $selectedTahun = request()->query('tahun')
-            ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
-            ?? (MasterKegiatan::query()->max('tahun_anggaran') ?? (int) date('Y'));
+        $selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
 
         // Jika PPTK / non-pemeriksa, tampilkan HANYA tab nama bidangnya saja
         if (! $isGlobal && $user?->bidang_id) {

@@ -187,8 +187,17 @@ class PengaturanAplikasiForm
                     ->description('Rincian versi sistem, pihak pembuat, serta kontak bantuan resmi.')
                     ->icon('heroicon-o-information-circle')
                     ->schema([
-                        Grid::make(3)
+                        Grid::make(['default' => 1, 'md' => 4])
                             ->schema([
+                                TextInput::make('tahun_anggaran_aktif')
+                                    ->label('Tahun Anggaran Aktif')
+                                    ->helperText('Modul DPA, RKA, & SPJ otomatis mengacu ke tahun ini.')
+                                    ->numeric()
+                                    ->minValue(2020)
+                                    ->maxValue(2099)
+                                    ->required()
+                                    ->default((int) date('Y')),
+
                                 TextInput::make('versi_aplikasi')
                                     ->label('Versi Aplikasi')
                                     ->placeholder('Contoh: v1.0.0')

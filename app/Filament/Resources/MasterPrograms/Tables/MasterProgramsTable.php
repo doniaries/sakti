@@ -16,39 +16,10 @@ class MasterProgramsTable
 {
     public static function configure(Table $table): Table
     {
-        $defaultYear = \App\Models\MasterProgram::query()->max('tahun_anggaran') ?? (int) date('Y');
-        $currentYear = (int) date('Y');
-        $maxYear = max($defaultYear, $currentYear + 1);
-        $minYear = min($defaultYear, $currentYear - 2);
-
-        $years = [];
-        for ($y = $maxYear; $y >= $minYear; $y--) {
-            $years[$y] = (string) $y;
-        }
-
         return $table
-            ->modifyQueryUsing(function (Builder $query, Table $table) use ($defaultYear): Builder {
-                $query->withCount('kegiatans');
-
-                $livewire = $table->getLivewire();
-                $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
-
-                $selectedTahun = request()->query('tahun')
-                    ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
-                    ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
-                    ?? data_get($livewireFilters, 'tahun_anggaran.value');
-
-                if (blank($selectedTahun) && request()->header('Referer')) {
-                    $refererQuery = [];
-                    parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-                    $selectedTahun = $refererQuery['tahun']
-                        ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
-                        ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
-                }
-
-                $selectedTahun = filled($selectedTahun) ? (int) $selectedTahun : $defaultYear;
-
-                $query->where('tahun_anggaran', $selectedTahun);
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                $query->withCount('kegiatans')
+                    ->where('tahun_anggaran', \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
 
                 return $query;
             })
@@ -86,10 +57,6 @@ class MasterProgramsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('tahun_anggaran')
-                    ->label('Pilih Tahun')
-                    ->options($years)
-                    ->default($defaultYear),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([

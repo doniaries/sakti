@@ -57,7 +57,7 @@ class LaporanLrfk extends Page
 
     public function mount(): void
     {
-        $defaultTahun = RincianAnggaranBelanja::max('tahun_anggaran') ?? (int) date('Y');
+        $defaultTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
         $this->tahun = (int) (request()->query('tahun') ?: $defaultTahun);
         $this->bulan = (int) (request()->query('bulan') ?: date('n'));
     }

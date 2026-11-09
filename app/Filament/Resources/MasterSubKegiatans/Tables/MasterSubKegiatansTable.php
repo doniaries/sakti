@@ -32,46 +32,19 @@ class MasterSubKegiatansTable
 {
     public static function configure(Table $table): Table
     {
-        $defaultYear = MasterSubKegiatan::query()->max('tahun_anggaran') ?? (int) date('Y');
-        $currentYear = (int) date('Y');
-        $maxYear = max($defaultYear, $currentYear + 1);
-        $minYear = min($defaultYear, $currentYear - 2);
-
-        $years = [];
-        for ($y = $maxYear; $y >= $minYear; $y--) {
-            $years[$y] = (string) $y;
-        }
-
         return $table
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActionsColumnLabel('Aksi')
             ->stickyableColumns()
             ->recordUrl(fn(MasterSubKegiatan $record): string => MasterSubKegiatanResource::getUrl('edit', ['record' => $record]))
-            ->modifyQueryUsing(function (Builder $query, Table $table) use ($defaultYear): Builder {
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
+
                 $query->with(['kegiatan.bidang', 'kegiatan.program', 'jf'])
                     ->withSum('rincianAnggarans as total_pagu', 'pagu_total')
                     ->withSum('rincianAnggarans as total_realisasi', 'nilai_realisasi')
-                    ->withCount('rincianAnggarans');
-
-                $livewire = $table->getLivewire();
-                $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
-
-                $selectedTahun = request()->query('tahun')
-                    ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
-                    ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value')
-                    ?? data_get($livewireFilters, 'tahun_anggaran.value');
-
-                if (blank($selectedTahun) && request()->header('Referer')) {
-                    $refererQuery = [];
-                    parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-                    $selectedTahun = $refererQuery['tahun']
-                        ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
-                        ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
-                }
-
-                $selectedTahun = filled($selectedTahun) ? (int) $selectedTahun : $defaultYear;
-
-                $query->where('tahun_anggaran', $selectedTahun);
+                    ->withCount('rincianAnggarans')
+                    ->where('tahun_anggaran', $tahunAktif);
 
                 return $query;
             })
@@ -195,11 +168,6 @@ class MasterSubKegiatansTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('tahun_anggaran')
-                    ->label('Tahun Anggaran')
-                    ->options($years)
-                    ->default($defaultYear),
-
                 TernaryFilter::make('penugasan_jf')
                     ->label('Status Penugasan JF')
                     ->placeholder('Semua Sub Kegiatan')

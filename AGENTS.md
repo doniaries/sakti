@@ -156,7 +156,7 @@ protected function getRedirectUrl(): string
     - **Aturan Pimpinan / Kadis**: Kepala Dinas merupakan pimpinan tertinggi di dinas sehingga:
         - `bidang_id` = `null` (tidak terikat bidang).
         - `atasan_id` = `null` (tidak memiliki atasan langsung di internal dinas).
-        - Tab khusus di List Pegawai: "Pimpinan / Tanpa Bidang".
+        - Tab khusus di List Pegawai: "Kepala Dinas.
     - **Tipe Kerja Pegawai**:
         - `status_kerja`: `wfo` (Work From Office) atau `wfh` (Work From Home).
         - Pegawai `wfh` dapat melakukan absensi secara fleksibel (lokasi/koordinat bebas tanpa batasan geofencing kantor).
@@ -907,63 +907,73 @@ flowchart TD
 > **ATURAN EFISIENSI TOKEN (HEMAT TOKEN):** Dilarang mencetak ulang seluruh isi file kode yang panjang. AI cukup menjelaskan file yang diubah dan potongan kode spesifik yang dimodifikasi secara to-the-point dan ringkas agar hemat token.
 
 ### File
+
 ```txt
 app/...
 ```
 
 ### Penjelasan Perubahan & Kode Ringkas
-Jelaskan poin-poin perubahan dan tampilkan hanya potongan kode (*diff* / *snippet*) yang relevan, bukan seluruh file.
+
+Jelaskan poin-poin perubahan dan tampilkan hanya potongan kode (_diff_ / _snippet_) yang relevan, bukan seluruh file.
 
 ### Command
+
 ```bash
 php artisan optimize:clear
 ```
-*(Tambahkan `php artisan migrate`, dsb. bila diperlukan)*
+
+_(Tambahkan `php artisan migrate`, dsb. bila diperlukan)_
 
 ### Migration
+
 ```txt
 Ya / Tidak
 ```
 
 ### Dampak
+
 #### Backend
+
 - ...
+
 #### Frontend
+
 - ...
 
 ### Git Commit (WAJIB)
+
 ```bash
 git add .
 git commit -m "type(scope): deskripsi perubahan"
 ```
-*(Dilarang mengakhiri jawaban tanpa bagian Git Commit)*
+
+_(Dilarang mengakhiri jawaban tanpa bagian Git Commit)_
 
 ---
 
 ## 14. Prinsip User-Friendly, Nomenklatur Baku & Anti-Overengineering (WAJIB DIPATUHI)
 
-Setiap pengembangan fitur, form, tabel, dan penamaan di seluruh modul wajib mematuhi kaidah antarmuka ramah pengguna (*user-friendly*) berikut:
+Setiap pengembangan fitur, form, tabel, dan penamaan di seluruh modul wajib mematuhi kaidah antarmuka ramah pengguna (_user-friendly_) berikut:
 
 1. **Istilah Resmi & Baku (Anti-Berlebihan / Anti-Overcomplicated)**:
-   - Gunakan nama dan tingkat resmi persis sesuai dokumen pedoman/lampiran kedinasan resmi (contoh Bagan Akun Standar Kode 5: **Akun**, **Kelompok**, **Jenis**, **Obyek**, **Rincian Obyek**, **Sub Rincian Obyek**).
-   - **DILARANG KERAS** menambahkan istilah asumsi buatan sendiri atau embel-embel berlebihan (seperti menambahkan frasa `(RKA/SPJ)`, `(Item Belanja Siap Pakai)`, dsb.) yang membuat pengguna bingung.
+    - Gunakan nama dan tingkat resmi persis sesuai dokumen pedoman/lampiran kedinasan resmi (contoh Bagan Akun Standar Kode 5: **Akun**, **Kelompok**, **Jenis**, **Obyek**, **Rincian Obyek**, **Sub Rincian Obyek**).
+    - **DILARANG KERAS** menambahkan istilah asumsi buatan sendiri atau embel-embel berlebihan (seperti menambahkan frasa `(RKA/SPJ)`, `(Item Belanja Siap Pakai)`, dsb.) yang membuat pengguna bingung.
 
 2. **Sederhanakan Formulir & Hilangkan Input Redundan**:
-   - Jika suatu nilai dapat di-generate otomatis oleh model/sistem (seperti kode slug sistem atau parsing segmen hierarki), jangan tampilkan input teknis tersebut di form agar pengguna tidak bingung.
-   - Hilangkan dropdown pembantu teknis (seperti *"Rekening Induk (Opsional)"*) karena sistem sudah otomatis memetakan hierarki dari pemisah titik.
-   - Pada formulir persyaratan dokumen SPJ, hanya gunakan status **Wajib** dan **Tidak Wajib (Opsional)**; dilarang membuat toggle ganda *"Aktif"* yang membingungkan.
+    - Jika suatu nilai dapat di-generate otomatis oleh model/sistem (seperti kode slug sistem atau parsing segmen hierarki), jangan tampilkan input teknis tersebut di form agar pengguna tidak bingung.
+    - Hilangkan dropdown pembantu teknis (seperti _"Rekening Induk (Opsional)"_) karena sistem sudah otomatis memetakan hierarki dari pemisah titik.
+    - Pada formulir persyaratan dokumen SPJ, hanya gunakan status **Wajib** dan **Tidak Wajib (Opsional)**; dilarang membuat toggle ganda _"Aktif"_ yang membingungkan.
 
 3. **Input Masking Otomatis untuk Kode Terstruktur**:
-   - Untuk nomor rekening dan kodefikasi (contoh: `5.1.01.01.01.0001` atau sub kegiatan), selalu gunakan `->mask('9.9.99.99.99.9999')` agar tanda titik otomatis terbentuk saat pengguna mengetik angka sehingga tidak terjadi salah ketik atau kurang digit.
-   - Validasi keunikan (`unique`) difokuskan pada kode lengkap tingkat akhir (`kode_lengkap`) agar tidak terjadi duplikasi rekening transaksi, sementara kode induk tetap dapat menginduk banyak sub.
+    - Untuk nomor rekening dan kodefikasi (contoh: `5.1.01.01.01.0001` atau sub kegiatan), selalu gunakan `->mask('9.9.99.99.99.9999')` agar tanda titik otomatis terbentuk saat pengguna mengetik angka sehingga tidak terjadi salah ketik atau kurang digit.
+    - Validasi keunikan (`unique`) difokuskan pada kode lengkap tingkat akhir (`kode_lengkap`) agar tidak terjadi duplikasi rekening transaksi, sementara kode induk tetap dapat menginduk banyak sub.
 
 4. **Tampilan Tabel Default Siap Pakai & Filter Tab**:
-   - Pada tabel data berjenjang (seperti Kode Rekening), tampilkan default tingkatan paling akhir yang langsung digunakan untuk transaksi operasional (**Sub Rincian Obyek**).
-   - Sediakan filter tab berjenjang di bagian atas tabel untuk memudahkan pengguna mencari dan merubah data rekening pada tingkatan lainnya.
+    - Pada tabel data berjenjang (seperti Kode Rekening), tampilkan default tingkatan paling akhir yang langsung digunakan untuk transaksi operasional (**Sub Rincian Obyek**).
+    - Sediakan filter tab berjenjang di bagian atas tabel untuk memudahkan pengguna mencari dan merubah data rekening pada tingkatan lainnya.
 
 5. **Kenyamanan Tabel & Keterbacaan Kolom (No Squished / Narrow Columns)**:
-   - Kolom yang memuat kalimat panjang (seperti *Sub Kegiatan* atau *Uraian Rekening*) wajib diberi lebar yang memadai (`min-width: 300px;` s.d. `320px;` pada atribut sel dan header) agar kalimat terbaca nyaman dan tidak tertekuk sempit menjadi 1 kata per baris.
+    - Kolom yang memuat kalimat panjang (seperti _Sub Kegiatan_ atau _Uraian Rekening_) wajib diberi lebar yang memadai (`min-width: 300px;` s.d. `320px;` pada atribut sel dan header) agar kalimat terbaca nyaman dan tidak tertekuk sempit menjadi 1 kata per baris.
 
 6. **Tata Kelola RKA Per Sub Kegiatan (Relation Manager Pattern)**:
-   - Pengelolaan Rincian Anggaran Belanja (RKA) dikelola terpusat per Sub Kegiatan menggunakan `RelationManager` di menu Sub Kegiatan agar konteks anggaran terkunci, tidak mengulang kolom Sub Kegiatan/Bidang/Tahun di setiap baris, serta mencegah kesalahan pemilihan sub kegiatan oleh staf.
-
+    - Pengelolaan Rincian Anggaran Belanja (RKA) dikelola terpusat per Sub Kegiatan menggunakan `RelationManager` di menu Sub Kegiatan agar konteks anggaran terkunci, tidak mengulang kolom Sub Kegiatan/Bidang/Tahun di setiap baris, serta mencegah kesalahan pemilihan sub kegiatan oleh staf.

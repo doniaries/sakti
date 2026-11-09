@@ -24,15 +24,22 @@
     overflow: visible !important;
 }
 
-/* Toolbar tabel: berada di atas indikator seleksi (z-10), tetapi selalu di bawah topbar (z-70) */
-.fi-ta-header-toolbar {
+/* Toolbar tabel & indikator seleksi: wajib berada di atas sticky table header (z-50) agar dropdown Tindakan/Aksi tidak terpotong */
+.fi-ta-header-toolbar,
+.fi-ta-selection-indicator,
+.fi-ta-header-ctn,
+.fi-ta-actions-ctn {
     position: relative;
-    z-index: 25 !important;
+    z-index: 60 !important;
 }
 
-.fi-ta-selection-indicator {
-    position: relative;
-    z-index: 10 !important;
+.fi-ta-header-toolbar:has([aria-expanded="true"]),
+.fi-ta-header-toolbar:has(.fi-dropdown-panel),
+.fi-ta-selection-indicator:has([aria-expanded="true"]),
+.fi-ta-selection-indicator:has(.fi-dropdown-panel),
+.fi-ta-header-ctn:has([aria-expanded="true"]),
+.fi-ta-actions-ctn:has([aria-expanded="true"]) {
+    z-index: 65 !important;
 }
 
 /* Dropdown menu (User Menu, Tindakan massal, ActionGroup, filter popover) selalu di lapisan tertinggi */
@@ -298,14 +305,14 @@ html:not(.dark) .fi-ta-table thead th.fi-ta-selection-cell {
     overflow: visible !important;
 }
 
-/* Tinggikan z-index baris & cell HANYA saat dropdown menu aktif terbuka */
+/* Tinggikan z-index baris & cell HANYA saat dropdown menu aktif terbuka agar selalu di atas header (z-50) */
 .fi-ta-table tbody tr:has([aria-expanded="true"]),
 .fi-ta-table tbody tr:has(.fi-dropdown-panel) {
-    z-index: 35 !important;
+    z-index: 55 !important;
 }
 
 .fi-ta-table tbody td.fi-ta-actions-cell:has([aria-expanded="true"]) {
-    z-index: 40 !important;
+    z-index: 60 !important;
 }
 
 /* Pastikan panel dropdown di dalam tabel selalu memiliki z-index tinggi, solid, dan tidak terpotong */

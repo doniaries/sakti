@@ -25,6 +25,7 @@ class PengaturanAplikasi extends Model
         'alamat_kantor',
         'logo',
         'versi_aplikasi',
+        'tahun_anggaran_aktif',
         'pembuat_aplikasi',
         'kontak_bantuan',
         'deskripsi',
@@ -123,6 +124,12 @@ class PengaturanAplikasi extends Model
             } catch (\Throwable $e) {
                 // Abaikan jika tabel instansis belum siap
             }
+
+            \Illuminate\Support\Facades\Cache::forget('pengaturan_tahun_anggaran_aktif');
+        });
+
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('pengaturan_tahun_anggaran_aktif');
         });
     }
 
@@ -130,7 +137,23 @@ class PengaturanAplikasi extends Model
         'latitude_kantor' => 'float',
         'longitude_kantor' => 'float',
         'radius_meter' => 'integer',
+        'tahun_anggaran_aktif' => 'integer',
     ];
+
+    /**
+     * Dapatkan tahun anggaran aktif sistem (di-cache untuk performa maksimal 0 ms overhead)
+     */
+    public static function getTahunAnggaranAktif(): int
+    {
+        return (int) \Illuminate\Support\Facades\Cache::rememberForever('pengaturan_tahun_anggaran_aktif', function (): int {
+            try {
+                $tahun = (int) static::query()->value('tahun_anggaran_aktif');
+                return $tahun > 0 ? $tahun : (int) date('Y');
+            } catch (\Throwable $e) {
+                return (int) date('Y');
+            }
+        });
+    }
 
     /**
      * Singleton helper untuk mendapatkan pengaturan aplikasi aktif

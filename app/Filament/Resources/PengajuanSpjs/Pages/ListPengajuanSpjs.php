@@ -45,31 +45,20 @@ class ListPengajuanSpjs extends ListRecords
             ? $user->anggaran_role->value
             : $user?->anggaran_role;
 
-        // Ambil filter tahun & bidang aktif dari request / referer
-        $selectedTahun = request()->query('tahun')
-            ?? data_get(request()->query('filters'), 'tahun_anggaran.value')
-            ?? data_get(request()->query('tableFilters'), 'tahun_anggaran.value');
-
+        // Ambil filter bidang aktif dari request / referer
         $selectedBidang = request()->query('bidang')
             ?? data_get(request()->query('filters'), 'bidang_id.value')
             ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
 
-        if ((blank($selectedTahun) || blank($selectedBidang)) && request()->header('Referer')) {
+        if (blank($selectedBidang) && request()->header('Referer')) {
             $refererQuery = [];
             parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-            if (blank($selectedTahun)) {
-                $selectedTahun = $refererQuery['tahun']
-                    ?? data_get($refererQuery, 'filters.tahun_anggaran.value')
-                    ?? data_get($refererQuery, 'tableFilters.tahun_anggaran.value');
-            }
-            if (blank($selectedBidang)) {
-                $selectedBidang = $refererQuery['bidang']
-                    ?? data_get($refererQuery, 'filters.bidang_id.value')
-                    ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
-            }
+            $selectedBidang = $refererQuery['bidang']
+                ?? data_get($refererQuery, 'filters.bidang_id.value')
+                ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
         }
 
-        $tahunAktif = (int) ($selectedTahun ?: date('Y'));
+        $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
 
         // Base query yang konsisten mengunci tahun anggaran dan bidang terpilih
         $baseQuery = fn () => PengajuanSpj::query()

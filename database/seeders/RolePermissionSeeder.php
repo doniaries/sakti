@@ -194,18 +194,8 @@ class RolePermissionSeeder extends Seeder
             'Delete:PengajuanSpj',
             'ViewAny:MasterProgram',
             'View:MasterProgram',
-            'Create:MasterProgram',
-            'Update:MasterProgram',
-            'Delete:MasterProgram',
-            'ViewAny:MasterProgram',
-            'View:MasterProgram',
-            'Create:MasterProgram',
-            'Update:MasterProgram',
             'ViewAny:MasterKegiatan',
             'View:MasterKegiatan',
-            'Create:MasterKegiatan',
-            'Update:MasterKegiatan',
-            'Delete:MasterKegiatan',
             'ViewAny:MasterSubKegiatan',
             'View:MasterSubKegiatan',
             'Update:MasterSubKegiatan',
@@ -235,6 +225,9 @@ class RolePermissionSeeder extends Seeder
             'View:MasterTujuanBbm',
             'Create:MasterTujuanBbm',
             'Update:MasterTujuanBbm',
+            'ViewAny:Bidang',
+            'View:Bidang',
+            'ViewAny:User',
         ]))->get();
         $jfRole->syncPermissions($jfPermissions);
 
