@@ -134,12 +134,11 @@ class PengajuanSpjsTable
 
                 TextColumn::make('total_nilai_realisasi')
                     ->label('Nilai Kwitansi')
-                    ->formatStateUsing(fn ($state) => $state !== null && (float) $state > 0 ? 'Rp ' . number_format((float) $state, 0, ',', '.') : '-')
-                    ->sortable(),
-
-                TextColumn::make('total_nilai_rencana')
-                    ->label('Nilai Pesanan')
-                    ->formatStateUsing(fn ($state) => $state !== null ? 'Rp ' . number_format((float) $state, 0, ',', '.') : '-')
+                    ->weight('bold')
+                    ->formatStateUsing(function (PengajuanSpj $record): string {
+                        $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
+                        return $nominal > 0 ? 'Rp ' . number_format($nominal, 0, ',', '.') : '-';
+                    })
                     ->sortable(),
 
                 TextColumn::make('bidang.nama')
