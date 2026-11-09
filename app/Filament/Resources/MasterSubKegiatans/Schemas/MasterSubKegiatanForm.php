@@ -29,7 +29,7 @@ class MasterSubKegiatanForm
         }
 
         return [
-            Grid::make(['default' => 1, 'sm' => 2])
+            Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])
                 ->schema([
                     TextInput::make('kode_sub_kegiatan')
                         ->label('Kode Sub Kegiatan')
@@ -43,6 +43,26 @@ class MasterSubKegiatanForm
                         ->default(fn () => (int) (request()->query('tahun') ?? $currentYear))
                         ->disabled($disabled)
                         ->required(),
+
+                    Select::make('jf_id')
+                        ->label('Penanggung Jawab (JF)')
+                        ->placeholder('Pilih Pejabat Fungsional (Opsional)')
+                        ->options(function (Get $get, ?MasterSubKegiatan $record) {
+                            $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
+                            $bidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : null;
+
+                            return User::query()
+                                ->where('aktif', true)
+                                ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                                ->whereDoesntHave('roles', fn ($q) => $q->whereIn('name', ['pa', 'ppk']))
+                                ->orderBy('name')
+                                ->pluck('name', 'id')
+                                ->all();
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->helperText('Hanya menampilkan Pejabat Fungsional (JF) yang berada di bidang kegiatan induk.')
+                        ->disabled($disabled),
                 ]),
 
             Select::make('kegiatan_id')
@@ -55,31 +75,11 @@ class MasterSubKegiatanForm
                 ->columnSpanFull()
                 ->required(),
 
-            Select::make('jf_id')
-                ->label('Penanggung Jawab (JF)')
-                ->placeholder('Pilih Pejabat Fungsional (Opsional)')
-                ->options(function (Get $get, ?MasterSubKegiatan $record) {
-                    $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
-                    $bidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : null;
-
-                    return User::query()
-                        ->where('aktif', true)
-                        ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
-                        ->whereDoesntHave('roles', fn ($q) => $q->whereIn('name', ['pa', 'ppk']))
-                        ->orderBy('name')
-                        ->pluck('name', 'id')
-                        ->all();
-                })
-                ->searchable()
-                ->preload()
-                ->helperText('Hanya menampilkan Pejabat Fungsional (JF) yang berada di bidang kegiatan induk.')
-                ->disabled($disabled),
-
             Textarea::make('nama_sub_kegiatan')
                 ->label('Nomenklatur Sub Kegiatan')
                 ->disabled($disabled)
                 ->extraInputAttributes(['style' => 'text-transform: uppercase; font-weight: 600;'])
-                ->rows(3)
+                ->rows(2)
                 ->columnSpanFull()
                 ->required(),
         ];
@@ -90,9 +90,9 @@ class MasterSubKegiatanForm
         return $schema
             ->components([
                 Section::make('Informasi Sub Kegiatan')
-                    ->description('Kelola identitas Sub Kegiatan, tahun anggaran, dan penugasan JF.')
-                    ->compact()
-                    ->schema(static::getFields(disabled: false)),
+                    ->description('Identitas Sub Kegiatan, tahun anggaran, dan penugasan JF (Read-Only).')
+                    ->columnSpanFull()
+                    ->schema(static::getFields(disabled: true)),
             ]);
     }
 }

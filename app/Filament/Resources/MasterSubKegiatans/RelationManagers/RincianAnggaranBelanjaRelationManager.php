@@ -25,6 +25,7 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Table;
 
 class RincianAnggaranBelanjaRelationManager extends RelationManager
@@ -229,7 +230,21 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('nama_item')
+            ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
+            ->recordActionsColumnLabel('Aksi')
+            ->stickyableColumns()
             ->columns([
+                TextColumn::make('nama_item')
+                    ->label('Uraian Barang / Belanja')
+                    ->description(fn (RincianAnggaranBelanja $r): ?string => $r->spesifikasi)
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->wrap()
+                    ->extraAttributes(['style' => 'min-width: 280px;'], merge: true)
+                    ->extraHeaderAttributes(['style' => 'min-width: 280px;'], merge: true)
+                    ->sticky(),
+
                 TextColumn::make('kodeRekening.uraian')
                     ->label('Sub Rincian Obyek')
                     ->description(fn (RincianAnggaranBelanja $r): ?string => $r->kodeRekening?->kode_lengkap)
@@ -240,16 +255,6 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                     ->wrap()
                     ->extraAttributes(['style' => 'min-width: 240px;'])
                     ->extraHeaderAttributes(['style' => 'min-width: 240px;']),
-
-                TextColumn::make('nama_item')
-                    ->label('Uraian Barang / Belanja')
-                    ->description(fn (RincianAnggaranBelanja $r): ?string => $r->spesifikasi)
-                    ->searchable()
-                    ->sortable()
-                    ->weight('bold')
-                    ->wrap()
-                    ->extraAttributes(['style' => 'min-width: 220px;'])
-                    ->extraHeaderAttributes(['style' => 'min-width: 220px;']),
 
                 TextColumn::make('volume')
                     ->label('Pagu Volume')
