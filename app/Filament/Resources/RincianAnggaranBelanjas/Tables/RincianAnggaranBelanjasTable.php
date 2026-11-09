@@ -93,6 +93,8 @@ class RincianAnggaranBelanjasTable
                     ->sortable()
                     ->sticky()
                     ->wrap()
+                    ->extraAttributes(['style' => 'min-width: 320px;'])
+                    ->extraHeaderAttributes(['style' => 'min-width: 320px;'])
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('kodeRekening.uraian')
@@ -102,6 +104,8 @@ class RincianAnggaranBelanjasTable
                     ->badge()
                     ->color('gray')
                     ->wrap()
+                    ->extraAttributes(['style' => 'min-width: 260px;'])
+                    ->extraHeaderAttributes(['style' => 'min-width: 260px;'])
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('nama_item')
