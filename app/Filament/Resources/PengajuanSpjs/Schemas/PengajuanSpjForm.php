@@ -195,16 +195,29 @@ class PengajuanSpjForm
                                                                 2027 => '2027',
                                                                 2028 => '2028',
                                                             ])
-                                                            ->default(fn() => (int) (request()->query('tahun') ?? date('Y')))
+                                                            ->default(fn() => (int) (request()->query('tahun') ?? 2027))
                                                             ->required()
                                                             ->live()
                                                             ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
                                                                 if (! $record) {
                                                                     $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
                                                                         $get('bidang_id'),
-                                                                        (int) ($state ?? date('Y')),
+                                                                        (int) ($state ?? 2027),
                                                                         $get('tanggal_pengajuan')
                                                                     ));
+                                                                }
+
+                                                                // Reset seluruh rantai anggaran agar data antar tahun tidak tercampur
+                                                                $set('kegiatan_id', null);
+                                                                $set('sub_kegiatan_id', null);
+                                                                $details = $get('details') ?? [];
+                                                                foreach (array_keys($details) as $uuid) {
+                                                                    $set("details.{$uuid}.kode_rekening_id", null);
+                                                                    $set("details.{$uuid}.rincian_anggaran_belanja_id", null);
+                                                                    $set("details.{$uuid}.master_barang_id", null);
+                                                                    $set("details.{$uuid}.stok_tersedia", 0);
+                                                                    $set("details.{$uuid}.harga_satuan", 0);
+                                                                    $set("details.{$uuid}.subtotal", 0);
                                                                 }
                                                             }),
                                                     ]),
@@ -312,7 +325,13 @@ class PengajuanSpjForm
                                                                     return [];
                                                                 }
 
+                                                                $tahun = (int) ($get('tahun_anggaran') ?? 2027);
+
                                                                 return MasterKegiatan::where('bidang_id', $bidangId)
+                                                                    ->where(function ($q) use ($tahun) {
+                                                                        $q->where('tahun_anggaran', $tahun)
+                                                                            ->orWhereNull('tahun_anggaran');
+                                                                    })
                                                                     ->get()
                                                                     ->pluck('label', 'id')
                                                                     ->all();
@@ -362,7 +381,14 @@ class PengajuanSpjForm
                                                                     return [];
                                                                 }
 
-                                                                $query = MasterSubKegiatan::where('kegiatan_id', $kegiatanId)->with('jf');
+                                                                $tahun = (int) ($get('tahun_anggaran') ?? 2027);
+
+                                                                $query = MasterSubKegiatan::where('kegiatan_id', $kegiatanId)
+                                                                    ->where(function ($q) use ($tahun) {
+                                                                        $q->where('tahun_anggaran', $tahun)
+                                                                            ->orWhereNull('tahun_anggaran');
+                                                                    })
+                                                                    ->with('jf');
 
                                                                 /** @var \App\Models\User|null $user */
                                                                 $user = auth()->user();
@@ -619,8 +645,16 @@ class PengajuanSpjForm
                                                                     ?: $get('../../../sub_kegiatan_id')
                                                                     ?: $get('../../../../sub_kegiatan_id');
 
+                                                                $tahunAnggaran = (int) ($get('/data.tahun_anggaran')
+                                                                    ?: $get('tahun_anggaran')
+                                                                    ?: $get('../../tahun_anggaran')
+                                                                    ?: $get('../../../tahun_anggaran')
+                                                                    ?: $get('../../../../tahun_anggaran')
+                                                                    ?: 2027);
+
                                                                 if ($subKegiatanId) {
                                                                     $rekIds = RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
+                                                                        ->where('tahun_anggaran', $tahunAnggaran)
                                                                         ->pluck('kode_rekening_id')
                                                                         ->unique();
 
@@ -697,10 +731,18 @@ class PengajuanSpjForm
                                                                     ?: $get('../../../sub_kegiatan_id')
                                                                     ?: $get('../../../../sub_kegiatan_id');
 
-                                                                // 1. Cek RKA Belanja untuk Sub Kegiatan & Rekening ini
+                                                                $tahunAnggaran = (int) ($get('/data.tahun_anggaran')
+                                                                    ?: $get('tahun_anggaran')
+                                                                    ?: $get('../../tahun_anggaran')
+                                                                    ?: $get('../../../tahun_anggaran')
+                                                                    ?: $get('../../../../tahun_anggaran')
+                                                                    ?: 2027);
+
+                                                                // 1. Cek RKA Belanja HANYA untuk Sub Kegiatan, Rekening, dan Tahun Anggaran SPJ ini
                                                                 $rkaItems = RincianAnggaranBelanja::query()
                                                                     ->where('sub_kegiatan_id', $subKegiatanId)
                                                                     ->where('kode_rekening_id', $kodeRekeningId)
+                                                                    ->where('tahun_anggaran', $tahunAnggaran)
                                                                     ->get();
 
                                                                 if ($rkaItems->isNotEmpty()) {
@@ -868,6 +910,18 @@ class PengajuanSpjForm
                                                                             if ($rkaId && ! str_starts_with((string) $rkaId, 'mb_')) {
                                                                                 $rka = RincianAnggaranBelanja::find($rkaId);
                                                                                 if ($rka) {
+                                                                                    $tahunSpj = (int) ($get('/data.tahun_anggaran')
+                                                                                        ?: $get('tahun_anggaran')
+                                                                                        ?: $get('../../tahun_anggaran')
+                                                                                        ?: $get('../../../tahun_anggaran')
+                                                                                        ?: $get('../../../../tahun_anggaran')
+                                                                                        ?: 2027);
+
+                                                                                    if ((int) $rka->tahun_anggaran !== $tahunSpj) {
+                                                                                        $fail("Ditolak Sistem: Item RKA ini dialokasikan untuk Tahun Anggaran {$rka->tahun_anggaran}, tidak dapat digunakan pada pengajuan SPJ Tahun {$tahunSpj}!");
+                                                                                        return;
+                                                                                    }
+
                                                                                     $sisa = (float) $rka->sisa_volume;
                                                                                     if ($sisa <= 0) {
                                                                                         $fail("Ditolak Sistem: Alokasi anggaran untuk item '{$rka->nama_item}' sudah terealisasi penuh (Pagu Habis / Sisa: 0).");
