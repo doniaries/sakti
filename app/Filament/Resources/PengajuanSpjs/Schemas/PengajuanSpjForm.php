@@ -136,23 +136,17 @@ class PengajuanSpjForm
             ->components([
                 Wizard::make([
                     // =========================================================================
-                    // STEP 1: PENGAJUAN NOTA PESANAN / SURAT PESANAN (LAYOUT 2/3 dan 1/3)
+                    // STEP 1: PENGAJUAN NOTA PESANAN / SURAT PESANAN (LAYOUT FULL WIDTH)
                     // =========================================================================
                     Step::make('1. Pengajuan Nota Pesanan')
                         ->icon('heroicon-o-document-text')
                         ->description('Data kegiatan, daftar barang pesanan, dan toko penyedia')
                         ->schema([
-                            Grid::make(['default' => 1, 'lg' => 3])
+                            // 1. IDENTITAS KEGIATAN & SURAT PESANAN (FULL WIDTH)
+                            Section::make('Identitas Kegiatan & Surat Pesanan')
+                                ->description('Lengkapi klasifikasi pengadaan dan rantai hierarki anggaran kegiatan SIPD.')
+                                ->compact()
                                 ->schema([
-                                    // -------------------------------------------------------------
-                                    // SISI KIRI (2/3): Identitas Kegiatan, Rantai SIPD & Rincian Barang
-                                    // -------------------------------------------------------------
-                                    Group::make([
-                                        // 1. IDENTITAS KEGIATAN & SURAT PESANAN
-                                        Section::make('Identitas Kegiatan & Surat Pesanan')
-                                            ->description('Lengkapi klasifikasi pengadaan dan rantai hierarki anggaran kegiatan SIPD.')
-                                            ->compact()
-                                            ->schema([
                                                 // BARIS 1: 3 Kolom (Metode, Jenis Belanja, Tahun Anggaran)
                                                 Grid::make(['default' => 1, 'md' => 3])
                                                     ->schema([
@@ -827,18 +821,45 @@ class PengajuanSpjForm
                                                             ->schema([
                                                                 TextInput::make('kuantitas')
                                                                     ->label('Jumlah Dipesan')
+                                                                    ->hint(function (callable $get): ?string {
+                                                                        $sisa = $get('stok_tersedia');
+                                                                        if ($sisa === null) return null;
+                                                                        $satuan = $get('satuan') ?: 'Unit';
+                                                                        return "Sisa Pagu: " . number_format((float) $sisa, 0, ',', '.') . " {$satuan}";
+                                                                    })
+                                                                    ->hintIcon('heroicon-m-archive-box')
+                                                                    ->hintColor(function (callable $get): string {
+                                                                        $qty = (float) ($get('kuantitas') ?: 0);
+                                                                        $sisa = (float) ($get('stok_tersedia') ?: 0);
+                                                                        return ($sisa > 0 && $qty > $sisa) ? 'danger' : 'success';
+                                                                    })
+                                                                    ->placeholder(function (callable $get): string {
+                                                                        $sisa = $get('stok_tersedia');
+                                                                        $satuan = $get('satuan') ?: 'Unit';
+                                                                        return $sisa !== null ? 'Maks: ' . number_format((float) $sisa, 0, ',', '.') . " {$satuan}" : '0';
+                                                                    })
                                                                     ->numeric()
-                                                                    ->default(1)
                                                                     ->minValue(1)
                                                                     ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
-                                                                    ->live(debounce: 350)
+                                                                    ->live(debounce: 250)
                                                                     ->helperText(function (callable $get) {
-                                                                        $qty = (float) ($get('kuantitas') ?: 0);
                                                                         $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                                        $qty = (float) ($get('kuantitas') ?: 0);
                                                                         $satuan = $get('satuan') ?: 'Unit';
+
                                                                         if ($sisaPagu > 0 && $qty > $sisaPagu) {
-                                                                            return new HtmlString("<span class='text-danger-600 dark:text-danger-400 font-semibold'>⚠️ Over budget! Sisa pagu: {$sisaPagu} {$satuan}</span>");
+                                                                            $selisih = $qty - $sisaPagu;
+                                                                            return new HtmlString("<span class='text-danger-600 dark:text-danger-400 font-bold flex items-center gap-1 text-xs'>⚠️ MELEBIHI KUOTA! Lebih {$selisih} {$satuan} dari batas sisa pagu ({$sisaPagu} {$satuan}).</span>");
                                                                         }
+
+                                                                        if ($sisaPagu > 0) {
+                                                                            if ($qty > 0) {
+                                                                                $sisaSetelah = $sisaPagu - $qty;
+                                                                                return new HtmlString("<span class='text-success-600 dark:text-success-400 text-xs font-medium'>Sisa pagu tersedia: <strong>{$sisaPagu} {$satuan}</strong> (Tersisa nanti: {$sisaSetelah} {$satuan})</span>");
+                                                                            }
+                                                                            return new HtmlString("<span class='text-primary-600 dark:text-primary-400 text-xs font-medium'>Sisa alokasi pagu RKA: <strong>{$sisaPagu} {$satuan}</strong></span>");
+                                                                        }
+
                                                                         return null;
                                                                     })
                                                                     ->rules([
@@ -861,12 +882,14 @@ class PengajuanSpjForm
                                                                         $qty = (float) ($state ?: 0);
                                                                         $harga = FormatHelper::parseRupiah($get('harga_satuan'));
                                                                         $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                                        $satuan = $get('satuan') ?: 'Unit';
 
                                                                         if ($sisaPagu > 0 && $qty > $sisaPagu) {
                                                                             Notification::make()
                                                                                 ->title('Peringatan: Over Budget!')
-                                                                                ->body("Jumlah yang diinput ({$qty}) melebihi sisa pagu RKA ({$sisaPagu}). Pengajuan akan ditolak oleh sistem.")
-                                                                                ->warning()
+                                                                                ->body("Jumlah yang diinput ({$qty} {$satuan}) melebihi sisa pagu RKA ({$sisaPagu} {$satuan}). Pengajuan akan ditolak oleh sistem.")
+                                                                                ->danger()
+                                                                                ->persistent()
                                                                                 ->send();
                                                                         }
 
@@ -877,7 +900,7 @@ class PengajuanSpjForm
                                                                         $set('subtotal_realisasi', $subtotal);
                                                                     })
                                                                     ->required()
-                                                                    ->columnSpan(['default' => 12, 'md' => 3]),
+                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
 
                                                                 FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan')
                                                                     ->required()
@@ -895,7 +918,7 @@ class PengajuanSpjForm
                                                                 FormatHelper::rupiahInput('subtotal', 'Subtotal Pesanan')
                                                                     ->readOnly()
                                                                     ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
-                                                                    ->columnSpan(['default' => 12, 'md' => 5]),
+                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
 
                                                                 TextInput::make('kuantitas_realisasi')
                                                                     ->label('Jumlah Realisasi (Faktur)')
@@ -960,14 +983,13 @@ class PengajuanSpjForm
                                                     ->defaultItems(1)
                                                     ->addActionLabel('Tambah Barang Belanja'),
                                             ]),
-                                    ])
-                                        ->columnSpan(['default' => 1, 'lg' => 2]),
 
-                                    // -------------------------------------------------------------
-                                    // SISI KANAN (1/3): Data Toko / Rekanan Penyedia & Ketentuan Belanja
-                                    // -------------------------------------------------------------
-                                    Group::make([
-                                        Section::make('Data Toko / Rekanan')
+                            // -------------------------------------------------------------
+                            // BAGIAN BAWAH: Data Toko / Rekanan & Ketentuan Perpajakan (Grid 2 Kolom)
+                            // -------------------------------------------------------------
+                            Grid::make(['default' => 1, 'lg' => 2])
+                                ->schema([
+                                    Section::make('Data Toko / Rekanan')
                                             ->description('Pilih toko rekanan dari master data tersimpan.')
                                             ->compact()
                                             ->schema([
@@ -1240,9 +1262,7 @@ class PengajuanSpjForm
                                                 ])
                                                     ->visible(fn (callable $get, mixed $record = null): bool => $calculateTotalPesanan($get, $record) > 2000000),
                                             ]),
-                                    ])
-                                        ->columnSpan(['default' => 1, 'lg' => 1]),
-                                ]),
+                                    ]),
                         ]),
 
                     // =========================================================================
