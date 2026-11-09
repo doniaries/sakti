@@ -3,12 +3,14 @@
 namespace App\Filament\Resources\MasterSubKegiatans\RelationManagers;
 
 use App\Enums\SumberDana;
+use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
 use App\Models\KodeRekening;
 use App\Models\MasterBarang;
 use App\Models\MasterSubKegiatan;
 use App\Models\RincianAnggaranBelanja;
 use App\Models\Satuan;
 use App\Support\FormatHelper;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -231,7 +233,7 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
         /** @var MasterSubKegiatan|null $owner */
         $owner = $this->getOwnerRecord();
         if ($owner?->is_locked) {
-            return '🔒 Status RKA: TERKUNCI (Baku Sesuai DPA). Rincian belanja terkunci dari penambahan, pengeditan, atau penghapusan. Gunakan tombol "Buka Kunci RKA" di atas jika ada perubahan harga, volume, atau pergeseran anggaran.';
+            return '🔒 Status RKA: TERKUNCI (Baku Sesuai DPA). Rincian belanja terkunci dari perubahan data. User hanya dapat memproses Pengajuan SPJ dari item belanja ini.';
         }
 
         return '🔓 Status RKA: TERBUKA (Mode Perubahan / Pergeseran Anggaran). Anda dapat menambah item belanja, menyesuaikan harga satuan, volume, atau merevisi data belanja.';
@@ -353,6 +355,14 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                     }),
             ])
             ->recordActions([
+                Action::make('ajukan_spj')
+                    ->label('Ajukan SPJ')
+                    ->icon('heroicon-o-document-currency-dollar')
+                    ->color('success')
+                    ->url(fn (RincianAnggaranBelanja $record): string => PengajuanSpjResource::getUrl('create', ['rka_id' => $record->id]))
+                    ->openUrlInNewTab()
+                    ->visible(fn (RincianAnggaranBelanja $record): bool => $record->sisa_volume > 0 && $record->sisa_anggaran > 0),
+
                 EditAction::make()
                     ->slideOver()
                     ->modalWidth('4xl')

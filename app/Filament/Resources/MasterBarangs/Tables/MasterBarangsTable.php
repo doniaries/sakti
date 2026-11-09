@@ -63,7 +63,8 @@ class MasterBarangsTable
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->slideOver(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

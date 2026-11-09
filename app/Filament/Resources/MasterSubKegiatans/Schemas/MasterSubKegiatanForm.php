@@ -121,6 +121,7 @@ class MasterSubKegiatanForm
                             ->label(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'Buka Kunci RKA' : 'Kunci RKA')
                             ->icon(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'heroicon-o-lock-open' : 'heroicon-o-lock-closed')
                             ->color(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'success' : 'danger')
+                            ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
                             ->requiresConfirmation()
                             ->modalHeading(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'Buka Kunci RKA Sub Kegiatan?' : 'Kunci RKA Sub Kegiatan?')
                             ->modalDescription(fn (?MasterSubKegiatan $record): string => $record?->is_locked

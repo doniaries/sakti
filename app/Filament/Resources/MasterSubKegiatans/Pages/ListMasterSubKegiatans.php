@@ -139,6 +139,55 @@ class ListMasterSubKegiatans extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('global_lock_dpa')
+                ->label('Buka / Kunci DPA Global')
+                ->icon('heroicon-o-lock-closed')
+                ->color('warning')
+                ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
+                ->modalHeading('Kelola Kunci DPA & RKA (Tingkat Global)')
+                ->modalDescription('Fitur khusus Super Admin untuk mengunci atau membuka kunci seluruh DPA/RKA Sub Kegiatan secara serentak per tahun anggaran (misal: saat periode pergeseran anggaran atau penetapan DPA).')
+                ->schema([
+                    Select::make('tahun_anggaran')
+                        ->label('Tahun Anggaran')
+                        ->options(function () {
+                            $years = MasterSubKegiatan::distinct()->pluck('tahun_anggaran', 'tahun_anggaran')->all();
+                            $current = (int) date('Y');
+                            $years[$current] = (string) $current;
+                            $years[$current + 1] = (string) ($current + 1);
+                            krsort($years);
+                            return $years;
+                        })
+                        ->default(fn () => request()->query('tahun') ?? (MasterSubKegiatan::max('tahun_anggaran') ?? (int) date('Y')))
+                        ->required(),
+
+                    Select::make('tindakan')
+                        ->label('Tindakan Kunci')
+                        ->options([
+                            'unlock_all' => '🔓 BUKA KUNCI SEMUA (Izinkan Perubahan/Pergeseran Anggaran)',
+                            'lock_all' => '🔒 KUNCI SEMUA (Proteksi Baku Sesuai DPA Resmi)',
+                        ])
+                        ->default('unlock_all')
+                        ->required(),
+
+                    Toggle::make('konfirmasi')
+                        ->label('Saya memahami bahwa tindakan ini akan mengubah status proteksi seluruh Sub Kegiatan pada tahun anggaran yang dipilih.')
+                        ->required()
+                        ->accepted(),
+                ])
+                ->action(function (array $data): void {
+                    $tahun = (int) $data['tahun_anggaran'];
+                    $isLock = ($data['tindakan'] === 'lock_all');
+
+                    $affected = MasterSubKegiatan::where('tahun_anggaran', $tahun)
+                        ->update(['is_locked' => $isLock]);
+
+                    Notification::make()
+                        ->title($isLock ? "Berhasil Mengunci {$affected} Sub Kegiatan DPA ({$tahun})" : "Berhasil Membuka Kunci {$affected} Sub Kegiatan DPA ({$tahun})")
+                        ->body($isLock ? 'Seluruh DPA telah dikunci dan diproteksi sesuai dokumen resmi.' : 'Seluruh DPA telah dibuka untuk mode perubahan / pergeseran anggaran.')
+                        ->color($isLock ? 'danger' : 'success')
+                        ->send();
+                }),
+
             CreateAction::make()
                 ->label('Tambah Sub Kegiatan')
                 ->icon('heroicon-o-plus-circle')
