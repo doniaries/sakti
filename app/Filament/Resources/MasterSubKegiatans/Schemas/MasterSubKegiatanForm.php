@@ -51,12 +51,19 @@ class MasterSubKegiatanForm
                         ->label('Penanggung Jawab (JF)')
                         ->placeholder('Pilih Pejabat Fungsional (Opsional)')
                         ->options(function (Get $get, ?MasterSubKegiatan $record) {
+                            /** @var \App\Models\User|null $user */
+                            $user = auth()->user();
+                            $userBidangId = $user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null);
+
                             $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
-                            $bidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : null;
+                            $kegiatanBidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : $record?->kegiatan?->bidang_id;
+
+                            // Prioritaskan bidang dari user aktif jika user terikat bidang (PPTK/Staff)
+                            $targetBidangId = $userBidangId ?: $kegiatanBidangId;
 
                             return User::query()
                                 ->where('aktif', true)
-                                ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                                ->when($targetBidangId, fn ($q) => $q->where('bidang_id', $targetBidangId))
                                 ->whereDoesntHave('roles', fn ($q) => $q->whereIn('name', ['pa', 'ppk']))
                                 ->orderBy('name')
                                 ->pluck('name', 'id')
@@ -64,7 +71,7 @@ class MasterSubKegiatanForm
                         })
                         ->searchable()
                         ->preload()
-                        ->helperText('Hanya menampilkan Pejabat Fungsional (JF) yang berada di bidang kegiatan induk.')
+                        ->helperText('Hanya menampilkan pegawai di bidang yang sama dengan akun Anda.')
                         ->disabled($disabled),
                 ]),
 

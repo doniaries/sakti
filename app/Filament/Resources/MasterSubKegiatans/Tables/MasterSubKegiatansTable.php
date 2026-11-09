@@ -105,11 +105,14 @@ class MasterSubKegiatansTable
                                 Select::make('jf_id')
                                     ->label('Pejabat Fungsional (JF)')
                                     ->options(function (MasterSubKegiatan $record): array {
-                                        $bidangId = $record->kegiatan?->bidang_id;
+                                        /** @var \App\Models\User|null $user */
+                                        $user = auth()->user();
+                                        $userBidangId = $user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null);
+                                        $targetBidangId = $userBidangId ?: $record->kegiatan?->bidang_id;
 
                                         return User::query()
                                             ->where('aktif', true)
-                                            ->when($bidangId, fn($q) => $q->where('bidang_id', $bidangId))
+                                            ->when($targetBidangId, fn($q) => $q->where('bidang_id', $targetBidangId))
                                             ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']))
                                             ->orderBy('name')
                                             ->pluck('name', 'id')
@@ -118,6 +121,7 @@ class MasterSubKegiatansTable
                                     ->default(fn(MasterSubKegiatan $record) => $record->jf_id)
                                     ->searchable()
                                     ->preload()
+                                    ->helperText('Hanya menampilkan pegawai di bidang yang sama dengan akun Anda.')
                                     ->required(),
                             ])
                             ->action(function (MasterSubKegiatan $record, array $data): void {
@@ -198,7 +202,19 @@ class MasterSubKegiatansTable
 
                 SelectFilter::make('jf_id')
                     ->label('Filter JF')
-                    ->options(fn() => User::where('aktif', true)->whereHas('roles', fn($q) => $q->where('name', 'jf'))->orderBy('name')->pluck('name', 'id')->all())
+                    ->options(function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = auth()->user();
+                        $userBidangId = $user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null);
+
+                        return User::query()
+                            ->where('aktif', true)
+                            ->when($userBidangId, fn($q) => $q->where('bidang_id', $userBidangId))
+                            ->whereHas('roles', fn($q) => $q->where('name', 'jf'))
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->all();
+                    })
                     ->searchable()
                     ->placeholder('Semua JF'),
             ])
