@@ -7,11 +7,14 @@ use App\Filament\Resources\MasterSubKegiatans\Widgets\SubKegiatanAnggaranOvervie
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
 use Illuminate\Contracts\Support\Htmlable;
 
 class EditMasterSubKegiatan extends EditRecord
 {
     protected static string $resource = MasterSubKegiatanResource::class;
+
+    protected Width | string | null $maxContentWidth = Width::Full;
 
     protected function getHeaderWidgets(): array
     {

@@ -11,11 +11,13 @@ use App\Models\MasterSubKegiatan;
 use App\Models\RincianAnggaranBelanja;
 use App\Models\Satuan;
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Livewire\Livewire;
 use Tests\TestCase;
 
 class SubKegiatanRkaRelationTest extends TestCase
 {
+    use DatabaseTransactions;
     public function test_sub_kegiatan_rka_relation_manager_lifecycle(): void
     {
         $user = User::role('super_admin')->first();
@@ -124,18 +126,18 @@ class SubKegiatanRkaRelationTest extends TestCase
         // 1. Verifikasi PPTK: Bisa melihat seluruh Sub Kegiatan di bidangnya
         $this->actingAs($pptk);
         $pptkQuery = \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getEloquentQuery();
-        $this->assertTrue($pptkQuery->where('id', $subKegiatan1->id)->exists());
+        $this->assertTrue((clone $pptkQuery)->where('id', $subKegiatan1->id)->exists());
         if ($subKegiatan2) {
-            $this->assertTrue($pptkQuery->where('id', $subKegiatan2->id)->exists());
+            $this->assertTrue((clone $pptkQuery)->where('id', $subKegiatan2->id)->exists());
         }
         $this->assertTrue($pptk->can('create', MasterSubKegiatan::class));
 
         // 2. Verifikasi JF: HANYA bisa melihat Sub Kegiatan miliknya sendiri
         $this->actingAs($jf);
         $jfQuery = \App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource::getEloquentQuery();
-        $this->assertTrue($jfQuery->where('id', $subKegiatan1->id)->exists());
+        $this->assertTrue((clone $jfQuery)->where('id', $subKegiatan1->id)->exists());
         if ($subKegiatan2) {
-            $this->assertFalse($jfQuery->where('id', $subKegiatan2->id)->exists());
+            $this->assertFalse((clone $jfQuery)->where('id', $subKegiatan2->id)->exists());
         }
 
         // 3. Verifikasi Policy JF: Tidak bisa membuat atau menghapus Sub Kegiatan

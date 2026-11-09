@@ -50,15 +50,16 @@ class MasterSubKegiatanForm
                     Select::make('jf_id')
                         ->label('Penanggung Jawab (JF)')
                         ->placeholder('Pilih Pejabat Fungsional (Opsional)')
-                        ->options(function (Get $get, ?MasterSubKegiatan $record) {
+                        ->options(function (Get $get, ?MasterSubKegiatan $record, $livewire) {
                             /** @var \App\Models\User|null $user */
                             $user = auth()->user();
                             $userBidangId = $user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null);
 
+                            $record = $record ?? ($livewire instanceof \Filament\Resources\Pages\EditRecord ? $livewire->getRecord() : null);
                             $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
                             $kegiatanBidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : $record?->kegiatan?->bidang_id;
 
-                            // Prioritaskan bidang dari user aktif jika user terikat bidang (PPTK/Staff)
+                            // Prioritaskan bidang dari user aktif jika user terikat bidang (PPTK/Staff), jika Super Admin ambil dari kegiatan induk
                             $targetBidangId = $userBidangId ?: $kegiatanBidangId;
 
                             return User::query()
@@ -71,7 +72,7 @@ class MasterSubKegiatanForm
                         })
                         ->searchable()
                         ->preload()
-                        ->helperText('Hanya menampilkan pegawai di bidang yang sama dengan akun Anda.')
+                        ->helperText('Hanya menampilkan pegawai di bidang yang sama dengan kegiatan.')
                         ->disabled($disabled),
                 ]),
 
@@ -81,6 +82,7 @@ class MasterSubKegiatanForm
                 ->getOptionLabelFromRecordUsing(fn (MasterKegiatan $record) => "[{$record->kode_kegiatan}] {$record->nama_kegiatan}")
                 ->searchable()
                 ->preload()
+                ->live()
                 ->disabled($disabled)
                 ->columnSpanFull()
                 ->required(),
@@ -98,6 +100,7 @@ class MasterSubKegiatanForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Informasi Sub Kegiatan')
                     ->description('Identitas Sub Kegiatan, tahun anggaran, dan penugasan JF (Read-Only).')
