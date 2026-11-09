@@ -596,9 +596,9 @@
     @if (
         !in_array($spj->status, ['draft', 'diajukan', 'menunggu_realisasi'], true) &&
             in_array($tipeDokumen ?? 'semua', ['semua', 'kwitansi'], true))
-        {{-- ==================== HALAMAN KWITANSI (4 RANGKAP: KWITANSI 1 S.D. 4 - F4 BAGI 2 LANDSCAPE) ==================== --}}
+        {{-- ==================== HALAMAN KWITANSI (4 RANGKAP: KWITANSI I S.D. IV - F4 BAGI 2 LANDSCAPE) ==================== --}}
         @php
-            $daftarKwitansi = ['KWITANSI 1', 'KWITANSI 2', 'KWITANSI 3', 'KWITANSI 4'];
+            $daftarKwitansi = ['KWITANSI I', 'KWITANSI II', 'KWITANSI III', 'KWITANSI IV'];
         @endphp
 
         @foreach ($daftarKwitansi as $indexKwitansi => $judulKwitansi)
