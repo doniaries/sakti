@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Resources\MasterSyaratBelanjas\Pages\ListMasterSyaratBelanjas;
+use App\Filament\Resources\MasterJenisBelanjas\Pages\EditMasterJenisBelanja;
+use App\Filament\Resources\MasterJenisBelanjas\Pages\ListMasterJenisBelanjas;
+use App\Filament\Resources\MasterJenisBelanjas\RelationManagers\SyaratDokumenRelationManager;
+use App\Models\MasterJenisBelanja;
 use App\Models\MasterSyaratBelanja;
 use App\Models\User;
 use Livewire\Livewire;
@@ -10,79 +13,93 @@ use Tests\TestCase;
 
 class MasterSyaratTest extends TestCase
 {
-    public function test_full_lifecycle_of_master_syarat_belanja(): void
+    public function test_full_lifecycle_of_master_jenis_belanja_and_syarat(): void
     {
         $user = User::role('super_admin')->first();
         $this->actingAs($user);
 
-        // 1. Mount test
-        $test = Livewire::test(ListMasterSyaratBelanjas::class);
-        $test->assertSuccessful();
+        // 1. Mount List Page Master Jenis Belanja
+        $testList = Livewire::test(ListMasterJenisBelanjas::class);
+        $testList->assertSuccessful();
 
-        $slug = 'pemeliharaan_ac_unit';
-
-        // 2. Test Tambah Syarat Baru via CreateAction
-        $test->callAction('create', [
+        // 2. Buat Jenis Pekerjaan Baru via MasterJenisBelanja
+        $job = MasterJenisBelanja::create([
+            'nama' => 'Pemeliharaan AC Kantor Unit',
             'metode_pengadaan' => 'non_katalog',
-            'jenis_belanja' => $slug,
+            'deskripsi' => 'Pengadaan jasa perawatan berkala AC dinas',
+            'aktif' => true,
+        ]);
+
+        $this->assertNotNull($job->id);
+        $this->assertEquals('pemeliharaan_ac_kantor_unit', $job->kode);
+
+        // 3. Mount Edit Page dengan Relation Manager Syarat Dokumen
+        $testEdit = Livewire::test(EditMasterJenisBelanja::class, [
+            'record' => $job->id,
+        ]);
+        $testEdit->assertSuccessful();
+
+        // 4. Test Tambah Syarat Dokumen via Relation Manager
+        $testRel = Livewire::test(SyaratDokumenRelationManager::class, [
+            'ownerRecord' => $job,
+            'pageClass' => EditMasterJenisBelanja::class,
+        ]);
+        $testRel->assertSuccessful();
+
+        $testRel->callTableAction('create', null, [
             'nama_syarat' => 'Nota Servis AC Resmi',
-            'keterangan' => 'Pengadaan jasa perawatan AC berkala',
+            'keterangan' => 'Nota berstempel dari bengkel pendingin resmi',
             'is_required' => true,
             'aktif' => true,
         ]);
-        $test->assertHasNoActionErrors();
+        $testRel->assertHasNoTableActionErrors();
 
-        $item1 = MasterSyaratBelanja::where('jenis_belanja', $slug)->first();
-        $this->assertNotNull($item1, 'Syarat baru harus berhasil tersimpan di DB');
-        $this->assertEquals('Nota Servis AC Resmi', $item1->nama_syarat);
-        $this->assertEquals(1, $item1->urutan, 'Urutan pertama otomatis terisi 1');
-
-        // 3. Test Tambah Syarat Kedua pada pekerjaan yang sama (urutan otomatis jadi 2)
-        $test->callAction('create', [
-            'metode_pengadaan' => 'non_katalog',
-            'jenis_belanja' => $slug,
-            'nama_syarat' => 'Foto Dokumentasi Unit AC',
-            'keterangan' => 'Foto AC sebelum dan setelah dibersihkan',
-            'is_required' => true,
-            'aktif' => true,
-        ]);
-        $test->assertHasNoActionErrors();
-
-        $item2 = MasterSyaratBelanja::where('jenis_belanja', $slug)
-            ->where('nama_syarat', 'Foto Dokumentasi Unit AC')
+        $item1 = MasterSyaratBelanja::where('master_jenis_belanja_id', $job->id)
+            ->where('nama_syarat', 'Nota Servis AC Resmi')
             ->first();
-        $this->assertNotNull($item2, 'Syarat kedua harus berhasil dibuat');
-        $this->assertEquals(2, $item2->urutan, 'Urutan kedua otomatis terisi 2');
 
-        // 4. Test Edit Syarat via Table Record Action (EditAction)
-        $test->callTableAction('edit', $item2, [
-            'nama_syarat' => 'Foto Unit AC dan Faktur Toko',
-            'keterangan' => 'Keterangan diperbarui lengkap',
+        $this->assertNotNull($item1, 'Syarat dokumen harus berhasil tersimpan');
+        $this->assertEquals(1, $item1->urutan);
+        $this->assertEquals($job->kode, $item1->jenis_belanja);
+        $this->assertEquals($job->metode_pengadaan, $item1->metode_pengadaan);
+
+        // 5. Tambah Dokumen Kedua via Relation Manager
+        $testRel->callTableAction('create', null, [
+            'nama_syarat' => 'Foto Dokumentasi Sebelum dan Sesudah',
+            'keterangan' => 'Foto fisik pengerjaan AC',
+            'is_required' => true,
+            'aktif' => true,
+        ]);
+        $testRel->assertHasNoTableActionErrors();
+
+        $item2 = MasterSyaratBelanja::where('master_jenis_belanja_id', $job->id)
+            ->where('nama_syarat', 'Foto Dokumentasi Sebelum dan Sesudah')
+            ->first();
+
+        $this->assertNotNull($item2);
+        $this->assertEquals(2, $item2->urutan);
+
+        // 6. Test Edit Dokumen via Table Action
+        $testRel->callTableAction('edit', $item2, [
+            'nama_syarat' => 'Foto Fisik Unit AC Diperbaiki',
+            'keterangan' => 'Keterangan diperbarui',
             'is_required' => false,
             'aktif' => true,
         ]);
-        $test->assertHasNoActionErrors();
+        $testRel->assertHasNoTableActionErrors();
 
         $item2->refresh();
-        $this->assertEquals('Foto Unit AC dan Faktur Toko', $item2->nama_syarat);
+        $this->assertEquals('Foto Fisik Unit AC Diperbaiki', $item2->nama_syarat);
         $this->assertFalse((bool) $item2->is_required);
 
-        // 5. Test Swap / Reorder
-        $this->assertEquals(1, $item1->fresh()->urutan);
-        $this->assertEquals(2, $item2->fresh()->urutan);
+        // 7. Test Hapus Dokumen via Table Action
+        $testRel->callTableAction('delete', $item2);
+        $testRel->assertHasNoTableActionErrors();
 
-        $test->call('swapUrutan', $item2->id, 'up');
+        $this->assertNull(MasterSyaratBelanja::find($item2->id));
 
-        $this->assertEquals(2, $item1->fresh()->urutan, 'Item 1 harus bergeser ke urutan 2');
-        $this->assertEquals(1, $item2->fresh()->urutan, 'Item 2 harus bergeser naik ke urutan 1');
-
-        // 6. Test Hapus Syarat via Table Record Action (DeleteAction)
-        $test->callTableAction('delete', $item2);
-        $test->assertHasNoActionErrors();
-
-        $this->assertNull(MasterSyaratBelanja::find($item2->id), 'Syarat harus terhapus dari DB');
-
-        // Bersihkan sisa
-        $item1->delete();
+        // 8. Bersihkan data test
+        $job->delete();
+        $this->assertNull(MasterJenisBelanja::find($job->id));
     }
 }

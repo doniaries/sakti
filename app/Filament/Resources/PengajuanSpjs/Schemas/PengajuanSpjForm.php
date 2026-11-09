@@ -162,25 +162,28 @@ class PengajuanSpjForm
 
                                                         Select::make('jenis_belanja')
                                                             ->label('Jenis Belanja / Pekerjaan')
-                                                            ->options(function () {
-                                                                $base = [
-                                                                    'barang_jasa' => 'Belanja Barang & Jasa',
-                                                                    'makan_minum' => 'Makan & Minum Rapat',
-                                                                    'sppd' => 'Perjalanan Dinas (SPPD)',
-                                                                    'bbm' => 'BBM (Bahan Bakar Minyak)',
-                                                                ];
+                                                            ->options(function (callable $get) {
+                                                                $metode = $get('metode_pengadaan') ?: 'non_katalog';
+                                                                $query = \App\Models\MasterJenisBelanja::query()->where('aktif', true);
 
-                                                                $customs = MasterSyaratBelanja::query()
-                                                                    ->select('jenis_belanja')
-                                                                    ->whereNotIn('jenis_belanja', ['barang_jasa', 'makan_minum', 'sppd', 'bbm', 'semua'])
-                                                                    ->distinct()
-                                                                    ->pluck('jenis_belanja');
-
-                                                                foreach ($customs as $customKey) {
-                                                                    $base[$customKey] = ucwords(str_replace('_', ' ', $customKey));
+                                                                if ($metode === 'e_katalog') {
+                                                                    $query->whereIn('metode_pengadaan', ['e_katalog', 'semua']);
+                                                                } else {
+                                                                    $query->whereIn('metode_pengadaan', ['non_katalog', 'semua']);
                                                                 }
 
-                                                                return $base;
+                                                                $options = $query->orderBy('urutan')->pluck('nama', 'kode')->all();
+
+                                                                if (empty($options)) {
+                                                                    return [
+                                                                        'barang_jasa' => 'Belanja Barang & Jasa',
+                                                                        'makan_minum' => 'Makan & Minum Rapat',
+                                                                        'sppd' => 'Perjalanan Dinas (SPPD)',
+                                                                        'bbm' => 'BBM (Bahan Bakar Minyak)',
+                                                                    ];
+                                                                }
+
+                                                                return $options;
                                                             })
                                                             ->default('barang_jasa')
                                                             ->required()
