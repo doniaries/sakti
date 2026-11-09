@@ -43,6 +43,11 @@ class EditMasterSubKegiatan extends EditRecord
         ];
     }
 
+    protected function getFormActions(): array
+    {
+        return [];
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

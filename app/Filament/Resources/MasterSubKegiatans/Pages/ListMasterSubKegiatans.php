@@ -50,7 +50,7 @@ class ListMasterSubKegiatans extends ListRecords
                 'tugas_saya' => Tab::make('RKA Tugas Saya')
                     ->icon('heroicon-m-user')
                     ->badge($count)
-                    ->modifyQueryUsing(fn (Builder $query) => $query->where('jf_id', $user->id)),
+                    ->modifyQueryUsing(fn(Builder $query) => $query->where('jf_id', $user->id)),
             ];
         }
 
@@ -67,14 +67,14 @@ class ListMasterSubKegiatans extends ListRecords
                 };
 
                 $count = MasterSubKegiatan::where('tahun_anggaran', (int) $selectedTahun)
-                    ->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidang->id))
+                    ->whereHas('kegiatan', fn($q) => $q->where('bidang_id', $bidang->id))
                     ->count();
 
                 return [
                     $bidang->slug ?: 'bidang_' . $bidang->id => Tab::make($bidang->nama)
                         ->icon($icon)
                         ->badge($count)
-                        ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidang->id))),
+                        ->modifyQueryUsing(fn(Builder $query) => $query->whereHas('kegiatan', fn($q) => $q->where('bidang_id', $bidang->id))),
                 ];
             }
         }
@@ -100,13 +100,13 @@ class ListMasterSubKegiatans extends ListRecords
             };
 
             $count = MasterSubKegiatan::where('tahun_anggaran', (int) $selectedTahun)
-                ->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidang->id))
+                ->whereHas('kegiatan', fn($q) => $q->where('bidang_id', $bidang->id))
                 ->count();
 
             $tabs[$bidang->slug ?: 'bidang_' . $bidang->id] = Tab::make($bidang->nama)
                 ->icon($icon)
                 ->badge($count)
-                ->modifyQueryUsing(fn (Builder $query) => $query->whereHas('kegiatan', fn ($q) => $q->where('bidang_id', $bidang->id)));
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereHas('kegiatan', fn($q) => $q->where('bidang_id', $bidang->id)));
         }
 
         return $tabs;
@@ -119,13 +119,13 @@ class ListMasterSubKegiatans extends ListRecords
                 ->label('Tambah Sub Kegiatan')
                 ->icon('heroicon-o-plus-circle')
                 ->color('primary')
-                ->visible(fn () => static::getResource()::canCreate()),
+                ->visible(fn() => static::getResource()::canCreate()),
 
             Action::make('import_pdf_rka')
                 ->label('Import RKA (PDF SIPD)')
                 ->icon('heroicon-o-document-arrow-up')
                 ->color('success')
-                ->visible(fn () => static::getResource()::canCreate())
+                ->visible(fn() => static::getResource()::canCreate())
                 ->modalHeading('Import RKA Sub Kegiatan dari PDF SIPD RI')
                 ->modalDescription('Unggah dokumen resmi "Cetak RKA Rincian Belanja" format PDF yang diunduh langsung dari portal SIPD RI. Sistem otomatis mengekstrak Program, Kegiatan, Sub Kegiatan, dan seluruh rincian belanja.')
                 ->modalSubmitActionLabel('Mulai Ekstraksi & Import')
