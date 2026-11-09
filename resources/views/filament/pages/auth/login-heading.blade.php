@@ -24,25 +24,25 @@
 
     {{-- 2. NAMA INSTANSI (Setelah Logo) --}}
     @if (!empty($namaDinas))
-        <div class="text-xs sm:text-sm font-bold text-gray-300 dark:text-gray-300 uppercase tracking-widest leading-tight max-w-sm mt-0.5">
+        <div class="text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest leading-tight max-w-sm mt-0.5">
             {{ $namaDinas }}
         </div>
     @endif
 
     {{-- 3. NAMA APLIKASI (Setelah Nama Instansi) --}}
-    <div class="mt-1 text-2xl sm:text-3xl font-black tracking-wider text-white uppercase drop-shadow-sm leading-tight">
+    <div class="mt-1 text-2xl sm:text-3xl font-black tracking-wider text-slate-900 dark:text-white uppercase drop-shadow-sm leading-tight">
         {{ $namaAplikasi }}
     </div>
 
     {{-- 4. KEPANJANGAN APLIKASI --}}
     @if (!empty($kepanjangan))
-        <div class="mt-0.5 text-xs sm:text-sm font-medium text-amber-400 dark:text-amber-400 max-w-md tracking-normal leading-snug">
+        <div class="mt-0.5 text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 max-w-md tracking-normal leading-snug">
             {{ $kepanjangan }}
         </div>
     @endif
 
     {{-- 5. GARIS PEMISAH & HEADING FORM MASUK --}}
-    <div class="mt-3 pt-2.5 border-t border-white/10 w-full text-base sm:text-lg font-semibold text-gray-200 dark:text-gray-200">
+    <div class="mt-3 pt-2.5 border-t border-slate-200 dark:border-white/10 w-full text-base sm:text-lg font-semibold text-slate-700 dark:text-slate-200">
         {{ $defaultHeading }}
     </div>
 </div>
