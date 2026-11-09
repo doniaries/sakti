@@ -2,12 +2,15 @@
 
 namespace App\Filament\Resources\MasterSubKegiatans\Schemas;
 
+use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
 use App\Models\MasterKegiatan;
 use App\Models\MasterSubKegiatan;
 use App\Models\User;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
@@ -92,6 +95,34 @@ class MasterSubKegiatanForm
                 Section::make('Informasi Sub Kegiatan')
                     ->description('Identitas Sub Kegiatan, tahun anggaran, dan penugasan JF (Read-Only).')
                     ->columnSpanFull()
+                    ->headerActions([
+                        Action::make('ubah_sub_kegiatan')
+                            ->label('Ubah Sub Kegiatan')
+                            ->icon('heroicon-o-pencil-square')
+                            ->color('warning')
+                            ->slideOver()
+                            ->modalWidth('4xl')
+                            ->modalHeading(fn (?MasterSubKegiatan $record): string => 'Ubah Sub Kegiatan: ' . ($record?->kode_sub_kegiatan ?? ''))
+                            ->modalDescription('Perbarui data identitas Sub Kegiatan & penugasan JF via SlideOver.')
+                            ->fillForm(fn (?MasterSubKegiatan $record): array => [
+                                'kode_sub_kegiatan' => $record?->kode_sub_kegiatan,
+                                'tahun_anggaran' => $record?->tahun_anggaran,
+                                'kegiatan_id' => $record?->kegiatan_id,
+                                'jf_id' => $record?->jf_id,
+                                'nama_sub_kegiatan' => $record?->nama_sub_kegiatan,
+                            ])
+                            ->form(static::getFields(disabled: false))
+                            ->action(function (array $data, ?MasterSubKegiatan $record, $livewire): void {
+                                if ($record) {
+                                    $record->update($data);
+                                    Notification::make()
+                                        ->title('Identitas Sub Kegiatan berhasil diperbarui')
+                                        ->success()
+                                        ->send();
+                                    $livewire->redirect(MasterSubKegiatanResource::getUrl('edit', ['record' => $record]));
+                                }
+                            }),
+                    ])
                     ->schema(static::getFields(disabled: true)),
             ]);
     }
