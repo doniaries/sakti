@@ -19,11 +19,13 @@ class MasterSubKegiatan extends Model
         'tahun_anggaran',
         'kode_sub_kegiatan',
         'nama_sub_kegiatan',
+        'is_locked',
     ];
 
     protected $casts = [
         'tahun_anggaran' => 'integer',
         'jf_id' => 'integer',
+        'is_locked' => 'boolean',
     ];
 
     public function kegiatan(): BelongsTo

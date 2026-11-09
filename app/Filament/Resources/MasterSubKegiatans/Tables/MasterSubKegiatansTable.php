@@ -170,6 +170,15 @@ class MasterSubKegiatansTable
                     ->formatStateUsing(fn($state) => "{$state} Item")
                     ->alignCenter(),
 
+                TextColumn::make('is_locked')
+                    ->label('Status RKA')
+                    ->badge()
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Terkunci (DPA)' : 'Terbuka (Revisi)')
+                    ->color(fn (bool $state): string => $state ? 'danger' : 'success')
+                    ->icon(fn (bool $state): string => $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open')
+                    ->alignCenter()
+                    ->sortable(),
+
                 TextColumn::make('tahun_anggaran')
                     ->label('Tahun')
                     ->badge()
@@ -199,6 +208,12 @@ class MasterSubKegiatansTable
                         true: fn(Builder $q) => $q->whereNotNull('jf_id'),
                         false: fn(Builder $q) => $q->whereNull('jf_id'),
                     ),
+
+                TernaryFilter::make('is_locked')
+                    ->label('Status Kunci RKA')
+                    ->placeholder('Semua Status')
+                    ->trueLabel('Terkunci (DPA)')
+                    ->falseLabel('Terbuka (Revisi)'),
 
                 SelectFilter::make('jf_id')
                     ->label('Filter JF')

@@ -50,13 +50,6 @@ class MasterBarangsTable
                     ->sortable()
                     ->placeholder('-'),
 
-                TextColumn::make('harga_satuan')
-                    ->label('Harga Standar (SSH)')
-                    ->formatStateUsing(fn ($state): string => \App\Support\FormatHelper::rupiah((float) $state))
-                    ->alignEnd()
-                    ->sortable()
-                    ->weight('bold'),
-
                 TextColumn::make('kode_barang')
                     ->label('Kode Sistem')
                     ->searchable()

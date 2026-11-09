@@ -25,6 +25,7 @@ class SubKegiatanRkaRelationTest extends TestCase
 
         $subKegiatan = MasterSubKegiatan::first();
         $this->assertNotNull($subKegiatan);
+        $subKegiatan->update(['is_locked' => false]);
 
         // 1. Mount Edit Page Sub Kegiatan
         $testEdit = Livewire::test(EditMasterSubKegiatan::class, [

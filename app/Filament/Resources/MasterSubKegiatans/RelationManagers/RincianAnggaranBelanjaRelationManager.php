@@ -145,13 +145,9 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                             ->searchable()
                                             ->preload()
                                             ->required(),
-                                        FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan Standar (SSH)')
-                                            ->default(0)
-                                            ->required(),
                                     ])
                                     ->createOptionUsing(function (array $data, Get $get): int {
                                         $data['kode_rekening_id'] = $get('kode_rekening_id');
-                                        $data['harga_satuan'] = FormatHelper::parseRupiah($data['harga_satuan'] ?? 0);
                                         $barang = MasterBarang::create($data);
 
                                         return $barang->id;
@@ -165,10 +161,9 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                                 if ($barang->satuan) {
                                                     $set('satuan', $barang->satuan->nama);
                                                 }
-                                                $harga = (float) $barang->harga_satuan;
-                                                $set('harga_satuan', $harga > 0 ? number_format($harga, 0, ',', '.') : 0);
                                                 $vol = max(1, (float) ($get('volume') ?: 1));
                                                 $set('volume', $vol);
+                                                $harga = FormatHelper::parseRupiah($get('harga_satuan') ?: 0);
                                                 $pagu = (int) round($vol * $harga);
                                                 $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                             }
@@ -205,13 +200,10 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                 TextInput::make('satuan')
                                     ->label('Satuan')
                                     ->placeholder('Rim / Kotak / Lembar')
-                                    ->readOnly(fn (Get $get) => filled($get('master_barang_id')))
                                     ->required(),
 
-                                FormatHelper::rupiahInput('harga_satuan', 'Harga Standar Satuan')
+                                FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan (RKA)')
                                     ->required()
-                                    ->readOnly(fn (Get $get) => filled($get('master_barang_id')))
-                                    ->helperText(fn (Get $get) => filled($get('master_barang_id')) ? 'Terkunci otomatis sesuai harga standar Komponen Belanja (SSH). Ubah di menu Komponen Belanja jika ingin merevisi harga acuan.' : null)
                                     ->live(debounce: 350)
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                         $vol = (float) ($get('volume') ?: 0);
@@ -232,6 +224,17 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                             ->columnSpanFull(),
                     ]),
             ]);
+    }
+
+    public function getTableDescription(): ?string
+    {
+        /** @var MasterSubKegiatan|null $owner */
+        $owner = $this->getOwnerRecord();
+        if ($owner?->is_locked) {
+            return '🔒 Status RKA: TERKUNCI (Baku Sesuai DPA). Rincian belanja terkunci dari penambahan, pengeditan, atau penghapusan. Gunakan tombol "Buka Kunci RKA" di atas jika ada perubahan harga, volume, atau pergeseran anggaran.';
+        }
+
+        return '🔓 Status RKA: TERBUKA (Mode Perubahan / Pergeseran Anggaran). Anda dapat menambah item belanja, menyesuaikan harga satuan, volume, atau merevisi data belanja.';
     }
 
     public function table(Table $table): Table
@@ -332,6 +335,7 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                     ->icon('heroicon-o-plus')
                     ->slideOver()
                     ->modalWidth('4xl')
+                    ->visible(fn (): bool => ! (bool) ($this->getOwnerRecord()?->is_locked))
                     ->mutateFormDataUsing(function (array $data): array {
                         /** @var MasterSubKegiatan $owner */
                         $owner = $this->getOwnerRecord();
@@ -352,6 +356,7 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                 EditAction::make()
                     ->slideOver()
                     ->modalWidth('4xl')
+                    ->visible(fn (RincianAnggaranBelanja $record): bool => ! (bool) ($record->subKegiatan?->is_locked ?? $this->getOwnerRecord()?->is_locked))
                     ->mutateFormDataUsing(function (array $data): array {
                         if (empty($data['nama_item']) && ! empty($data['master_barang_id'])) {
                             $data['nama_item'] = MasterBarang::find($data['master_barang_id'])?->nama_barang;
@@ -359,11 +364,13 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
 
                         return $data;
                     }),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn (RincianAnggaranBelanja $record): bool => ! (bool) ($record->subKegiatan?->is_locked ?? $this->getOwnerRecord()?->is_locked)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(fn (): bool => ! (bool) ($this->getOwnerRecord()?->is_locked)),
                 ]),
             ]);
     }

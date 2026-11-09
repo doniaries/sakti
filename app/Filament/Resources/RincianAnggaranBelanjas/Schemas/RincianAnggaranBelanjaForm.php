@@ -255,13 +255,9 @@ class RincianAnggaranBelanjaForm
                                         ->searchable()
                                         ->preload()
                                         ->required(),
-                                    FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan Standar (SSH)')
-                                        ->default(0)
-                                        ->required(),
                                 ])
                                 ->createOptionUsing(function (array $data, Get $get): int {
                                     $data['kode_rekening_id'] = $get('kode_rekening_id');
-                                    $data['harga_satuan'] = FormatHelper::parseRupiah($data['harga_satuan'] ?? 0);
                                     $barang = MasterBarang::create($data);
                                     return $barang->id;
                                 })
@@ -274,10 +270,9 @@ class RincianAnggaranBelanjaForm
                                             if ($barang->satuan) {
                                                 $set('satuan', $barang->satuan->nama);
                                             }
-                                            $harga = (float) $barang->harga_satuan;
-                                            $set('harga_satuan', $harga > 0 ? number_format($harga, 0, ',', '.') : 0);
                                             $vol = max(1, (float) ($get('volume') ?: 1));
                                             $set('volume', $vol);
+                                            $harga = FormatHelper::parseRupiah($get('harga_satuan') ?: 0);
                                             $pagu = (int) round($vol * $harga);
                                             $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                         }
@@ -313,13 +308,10 @@ class RincianAnggaranBelanjaForm
                                 ->options(fn() => Satuan::pluck('nama', 'nama')->all())
                                 ->default('Rim')
                                 ->searchable()
-                                ->readOnly(fn (Get $get) => filled($get('master_barang_id')))
                                 ->required(),
 
-                            FormatHelper::rupiahInput('harga_satuan', 'Harga Standar Satuan')
+                            FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan (RKA)')
                                 ->required()
-                                ->readOnly(fn (Get $get) => filled($get('master_barang_id')))
-                                ->helperText(fn (Get $get) => filled($get('master_barang_id')) ? 'Terkunci otomatis sesuai harga standar Komponen Belanja (SSH). Ubah di menu Komponen Belanja jika ingin merevisi harga acuan.' : null)
                                 ->live(debounce: 350)
                                 ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                     $vol = (float) ($get('volume') ?? 0);

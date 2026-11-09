@@ -108,16 +108,43 @@ class MasterSubKegiatanForm
             ->columns(1)
             ->components([
                 Section::make('Informasi Sub Kegiatan')
-                    ->description('Identitas Sub Kegiatan, tahun anggaran, dan penugasan JF (Read-Only).')
+                    ->description(function (?MasterSubKegiatan $record): string {
+                        if ($record?->is_locked) {
+                            return '🔒 Status RKA: TERKUNCI (Baku Sesuai DPA/RKA). Data rincian belanja & identitas sub kegiatan terlindungi dari perubahan.';
+                        }
+                        return '🔓 Status RKA: TERBUKA (Mode Perubahan / Pergeseran Anggaran). Anda dapat mengubah nama kegiatan, harga satuan, dan volume.';
+                    })
                     ->compact()
                     ->columnSpanFull()
                     ->headerActions([
+                        Action::make('toggle_lock')
+                            ->label(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'Buka Kunci RKA' : 'Kunci RKA')
+                            ->icon(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'heroicon-o-lock-open' : 'heroicon-o-lock-closed')
+                            ->color(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'success' : 'danger')
+                            ->requiresConfirmation()
+                            ->modalHeading(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'Buka Kunci RKA Sub Kegiatan?' : 'Kunci RKA Sub Kegiatan?')
+                            ->modalDescription(fn (?MasterSubKegiatan $record): string => $record?->is_locked
+                                ? 'Membuka kunci memungkinkan penambahan item belanja, penyesuaian harga satuan, volume anggaran, dan pergeseran nomenklatur sub kegiatan.'
+                                : 'Mengunci RKA akan memproteksi seluruh rincian belanja dan identitas sub kegiatan dari perubahan yang tidak disengaja sesuai DPA resmi.')
+                            ->action(function (?MasterSubKegiatan $record, $livewire): void {
+                                if ($record) {
+                                    $newStatus = ! (bool) $record->is_locked;
+                                    $record->update(['is_locked' => $newStatus]);
+                                    Notification::make()
+                                        ->title($newStatus ? 'RKA Berhasil Dikunci (Proteksi DPA Aktif)' : 'Kunci RKA Berhasil Dibuka (Mode Perubahan Aktif)')
+                                        ->color($newStatus ? 'danger' : 'success')
+                                        ->send();
+                                    $livewire->redirect(MasterSubKegiatanResource::getUrl('edit', ['record' => $record]));
+                                }
+                            }),
+
                         Action::make('ubah_sub_kegiatan')
-                            ->label('Ubah Sub Kegiatan')
+                            ->label('Ubah Sub Kegiatan / Pergeseran')
                             ->icon('heroicon-o-pencil-square')
                             ->color('warning')
                             ->slideOver()
                             ->modalWidth('4xl')
+                            ->visible(fn (?MasterSubKegiatan $record): bool => ! (bool) ($record?->is_locked))
                             ->modalHeading(fn (?MasterSubKegiatan $record): string => 'Ubah Sub Kegiatan: ' . ($record?->kode_sub_kegiatan ?? ''))
                             ->modalDescription('Perbarui data identitas Sub Kegiatan & penugasan JF via SlideOver.')
                             ->fillForm(fn (?MasterSubKegiatan $record): array => [

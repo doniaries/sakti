@@ -40,10 +40,6 @@ class MasterBarangForm
                             ->searchable()
                             ->preload()
                             ->required(),
-
-                        FormatHelper::rupiahInput('harga_satuan', 'Harga Standar (SSH)')
-                            ->default(0)
-                            ->required(),
                     ]),
             ]);
     }

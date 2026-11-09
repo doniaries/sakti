@@ -95,7 +95,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeAtk->uraian,
                 'nama_barang' => 'Pena Signo Uniball',
                 'satuan_id' => $satuanBuah->id,
-                'harga_satuan' => 23000,
                 'keterangan' => 'Pena Signo warna hitam'
             ],
             [
@@ -104,7 +103,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeAtk->uraian,
                 'nama_barang' => 'Kertas HVS A4 80 gram',
                 'satuan_id' => $satuanRim->id,
-                'harga_satuan' => 55000,
                 'keterangan' => 'Kertas HVS A4 merk Sinar Dunia'
             ],
             [
@@ -113,7 +111,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeAtk->uraian,
                 'nama_barang' => 'Spidol Whiteboard',
                 'satuan_id' => $satuanPack->id,
-                'harga_satuan' => 75000,
                 'keterangan' => 'Spidol whiteboard merk Snowman isi 12'
             ],
             [
@@ -122,7 +119,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeAtk->uraian,
                 'nama_barang' => 'Tinta Printer',
                 'satuan_id' => $satuanBotol->id,
-                'harga_satuan' => 85000,
                 'keterangan' => 'Tinta printer Epson warna hitam'
             ],
 
@@ -133,7 +129,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeKomputer->uraian,
                 'nama_barang' => 'Flashdisk 32GB',
                 'satuan_id' => $satuanBuah->id,
-                'harga_satuan' => 95000,
                 'keterangan' => 'Flashdisk merk Sandisk'
             ],
             [
@@ -142,7 +137,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeKomputer->uraian,
                 'nama_barang' => 'Mouse Wireless',
                 'satuan_id' => $satuanUnit->id,
-                'harga_satuan' => 150000,
                 'keterangan' => 'Mouse wireless merk Logitech'
             ],
             [
@@ -151,7 +145,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeKomputer->uraian,
                 'nama_barang' => 'Keyboard Mechanical',
                 'satuan_id' => $satuanUnit->id,
-                'harga_satuan' => 550000,
                 'keterangan' => 'Keyboard mechanical gaming'
             ],
             [
@@ -160,7 +153,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeKomputer->uraian,
                 'nama_barang' => 'Harddisk External 1TB',
                 'satuan_id' => $satuanUnit->id,
-                'harga_satuan' => 850000,
                 'keterangan' => 'Harddisk external merk WD 1TB'
             ],
 
@@ -171,7 +163,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerlengkapan->uraian,
                 'nama_barang' => 'Kursi Kerja',
                 'satuan_id' => $satuanUnit->id,
-                'harga_satuan' => 750000,
                 'keterangan' => 'Kursi kerja ergonomis'
             ],
             [
@@ -180,7 +171,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerlengkapan->uraian,
                 'nama_barang' => 'Lemari Arsip',
                 'satuan_id' => $satuanUnit->id,
-                'harga_satuan' => 1500000,
                 'keterangan' => 'Lemari arsip 2 pintu'
             ],
             [
@@ -189,7 +179,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerlengkapan->uraian,
                 'nama_barang' => 'Papan Tulis',
                 'satuan_id' => $satuanUnit->id,
-                'harga_satuan' => 450000,
                 'keterangan' => 'Papan tulis whiteboard 120x80cm'
             ],
             [
@@ -198,7 +187,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerlengkapan->uraian,
                 'nama_barang' => 'Dispenser Air',
                 'satuan_id' => $satuanUnit->id,
-                'harga_satuan' => 350000,
                 'keterangan' => 'Dispenser air panas dan dingin'
             ],
 
@@ -209,7 +197,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeCetakan->uraian,
                 'nama_barang' => 'Kop Surat',
                 'satuan_id' => $satuanRim->id,
-                'harga_satuan' => 150000,
                 'keterangan' => 'Kop surat dinas'
             ],
             [
@@ -218,7 +205,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeCetakan->uraian,
                 'nama_barang' => 'Amplop Dinas',
                 'satuan_id' => $satuanBox->id,
-                'harga_satuan' => 75000,
                 'keterangan' => 'Amplop dinas ukuran A4'
             ],
             [
@@ -227,7 +213,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeCetakan->uraian,
                 'nama_barang' => 'Kartu Nama',
                 'satuan_id' => $satuanBox->id,
-                'harga_satuan' => 100000,
                 'keterangan' => 'Kartu nama dinas isi 100'
             ],
             [
@@ -236,7 +221,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeCetakan->uraian,
                 'nama_barang' => 'Stempel Dinas',
                 'satuan_id' => $satuanBuah->id,
-                'harga_satuan' => 120000,
                 'keterangan' => 'Stempel dinas otomatis'
             ],
 
@@ -250,7 +234,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeBbm->uraian,
                 'nama_barang' => 'BBM - Pertamax',
                 'satuan_id' => $satuanLiter->id,
-                'harga_satuan' => 17000,
                 'keterangan' => 'Bahan Bakar Minyak - Pertamax (Liter)'
             ],
             // 2. ATK & CETAKAN TAMBAHAN (5.1.02.01.001.00024)
@@ -260,7 +243,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeAtk->uraian,
                 'nama_barang' => 'Barang Cetakan - Fotocopy Biasa',
                 'satuan_id' => $satuanLembar->id,
-                'harga_satuan' => 300,
                 'keterangan' => 'Barang Cetakan - Fotocopy Biasa'
             ],
             [
@@ -269,7 +251,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeAtk->uraian,
                 'nama_barang' => 'Kertas HVS Sidu, ukuran F4, 75 gram',
                 'satuan_id' => $satuanRim->id,
-                'harga_satuan' => 65500,
                 'keterangan' => 'Kertas HVS Sidu, ukuran F4, 75 gram'
             ],
             [
@@ -278,7 +259,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeAtk->uraian,
                 'nama_barang' => 'Alat Tulis - Pena My-Gel',
                 'satuan_id' => $satuanLusin->id,
-                'harga_satuan' => 127000,
                 'keterangan' => 'Alat Tulis - Pena My-Gel (Lusin)'
             ],
             // 3. BAHAN KOMPUTER (5.1.02.01.001.00029)
@@ -288,7 +268,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeKomputer->uraian,
                 'nama_barang' => 'Tinta/Toner Printer - Cartridge Printer Brother LC',
                 'satuan_id' => $satuanBuah->id,
-                'harga_satuan' => 160950,
                 'keterangan' => 'Tinta/Toner Printer - Cartridge Printer Brother LC'
             ],
             // 4. MAKANAN & MINUMAN RAPAT (5.1.02.01.001.00052)
@@ -298,7 +277,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeMaminRapat->uraian,
                 'nama_barang' => 'Makanan - Kue Kotak isi 2 kue + air',
                 'satuan_id' => $satuanKotak->id,
-                'harga_satuan' => 10600,
                 'keterangan' => 'Makanan - Kue Kotak isi 2 kue + air'
             ],
             [
@@ -307,7 +285,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeMaminRapat->uraian,
                 'nama_barang' => 'Makanan - Kue Kotak isi 3 kue + air',
                 'satuan_id' => $satuanKotak->id,
-                'harga_satuan' => 13300,
                 'keterangan' => 'Makanan - Kue Kotak isi 3 kue + air'
             ],
             [
@@ -316,7 +293,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeMaminRapat->uraian,
                 'nama_barang' => 'Bahan Masakan/Minuman/Kue - Kopi Cap Rangkiang',
                 'satuan_id' => $satuanKg->id,
-                'harga_satuan' => 157750,
                 'keterangan' => 'Bahan Masakan/Minuman/Kue - Kopi Cap Rangkiang'
             ],
             [
@@ -325,7 +301,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeMaminRapat->uraian,
                 'nama_barang' => 'Bahan Masakan/Minuman/Kue - Gula Pasir',
                 'satuan_id' => $satuanKg->id,
-                'harga_satuan' => 21200,
                 'keterangan' => 'Bahan Masakan/Minuman/Kue - Gula Pasir'
             ],
             [
@@ -334,7 +309,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeMaminRapat->uraian,
                 'nama_barang' => 'Makanan - Nasi Bungkus 1 Protein',
                 'satuan_id' => $satuanBungkus->id,
-                'harga_satuan' => 24000,
                 'keterangan' => 'Makanan - Nasi Bungkus 1 Protein Rapat'
             ],
             // 5. MAKANAN & MINUMAN LAPANGAN (5.1.02.01.001.00058)
@@ -344,7 +318,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeMaminLapangan->uraian,
                 'nama_barang' => 'Makanan - Nasi Goreng Lapangan',
                 'satuan_id' => $satuanBungkus->id,
-                'harga_satuan' => 20200,
                 'keterangan' => 'Makanan - Nasi Goreng Lapangan'
             ],
             // 6. JASA TENAGA KESENIAN (5.1.02.02.001.00025)
@@ -354,7 +327,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodeJasaSeni->uraian,
                 'nama_barang' => 'Beban Jasa Tenaga Kesenian dan Kebudayaan - Upah Pekerja Seni',
                 'satuan_id' => $satuanOrang->id,
-                'harga_satuan' => 120000,
                 'keterangan' => 'Upah Pekerja Seni 120.000 per orang'
             ],
             // 7. PERJALANAN DINAS DALAM KOTA (5.1.02.04.001.00003)
@@ -364,7 +336,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerjadin->uraian,
                 'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (56.000)',
                 'satuan_id' => $satuanOrangKali->id,
-                'harga_satuan' => 56000,
                 'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 56.000'
             ],
             [
@@ -373,7 +344,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerjadin->uraian,
                 'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (84.000)',
                 'satuan_id' => $satuanOrangKali->id,
-                'harga_satuan' => 84000,
                 'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 84.000'
             ],
             [
@@ -382,7 +352,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerjadin->uraian,
                 'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (140.000)',
                 'satuan_id' => $satuanOrangKali->id,
-                'harga_satuan' => 140000,
                 'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 140.000'
             ],
             [
@@ -391,7 +360,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerjadin->uraian,
                 'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (49.000)',
                 'satuan_id' => $satuanOrangKali->id,
-                'harga_satuan' => 49000,
                 'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 49.000'
             ],
             [
@@ -400,7 +368,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerjadin->uraian,
                 'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (70.000)',
                 'satuan_id' => $satuanOrangKali->id,
-                'harga_satuan' => 70000,
                 'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 70.000'
             ],
             [
@@ -409,7 +376,6 @@ class MasterBarangSeeder extends Seeder
                 'uraian' => $kodePerjadin->uraian,
                 'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (35.000)',
                 'satuan_id' => $satuanOrangKali->id,
-                'harga_satuan' => 35000,
                 'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 35.000'
             ],
         ];
