@@ -233,8 +233,9 @@ class SipdRkaImporterService
                 }
 
                 $satuanNama = trim((string) ($item['satuan'] ?? 'Unit'));
+                $satuanModel = null;
                 if ($satuanNama !== '') {
-                    Satuan::firstOrCreate(['nama' => $satuanNama]);
+                    $satuanModel = Satuan::firstOrCreate(['nama' => $satuanNama]);
                 }
 
                 $namaItem = trim((string) ($item['nama_item'] ?? 'Item Belanja'));
@@ -246,9 +247,14 @@ class SipdRkaImporterService
                         'nama_barang' => $namaItem,
                     ],
                     [
+                        'satuan_id' => $satuanModel?->id,
                         'harga_satuan' => $hargaSatuan,
                     ]
                 );
+
+                if (! $masterBarang->satuan_id && $satuanModel) {
+                    $masterBarang->update(['satuan_id' => $satuanModel->id]);
+                }
 
                 $existingRka = RincianAnggaranBelanja::where('tahun_anggaran', $tahun)
                     ->where('sub_kegiatan_id', $subKegiatan->id)

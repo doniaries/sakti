@@ -44,11 +44,18 @@ class MasterBarangsTable
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
 
                 TextColumn::make('satuan.nama')
-                    ->label('Satuan Standar')
+                    ->label('Satuan')
                     ->badge()
                     ->color('info')
                     ->sortable()
                     ->placeholder('-'),
+
+                TextColumn::make('harga_satuan')
+                    ->label('Harga Standar (SSH)')
+                    ->formatStateUsing(fn ($state): string => \App\Support\FormatHelper::rupiah((float) $state))
+                    ->alignEnd()
+                    ->sortable()
+                    ->weight('bold'),
 
                 TextColumn::make('kode_barang')
                     ->label('Kode Sistem')
