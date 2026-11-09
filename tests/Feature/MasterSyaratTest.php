@@ -99,6 +99,7 @@ class MasterSyaratTest extends TestCase
         $this->assertNull(MasterSyaratBelanja::find($item2->id));
 
         // 8. Bersihkan data test
+        $item1->delete();
         $job->delete();
         $this->assertNull(MasterJenisBelanja::find($job->id));
     }

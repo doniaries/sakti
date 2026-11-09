@@ -42,7 +42,6 @@ class MasterJenisBelanjasTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold')
-                    ->description(fn (MasterJenisBelanja $record): ?string => $record->deskripsi)
                     ->wrap(),
 
                 TextColumn::make('syarat_belanjas_count')

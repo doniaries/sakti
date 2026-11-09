@@ -12,11 +12,46 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Radio;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Support\Colors\Color;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListKodeRekenings extends ListRecords
 {
     protected static string $resource = KodeRekeningResource::class;
+
+    public function getDefaultActiveTab(): string|int|null
+    {
+        return 'sub_rincian';
+    }
+
+    public function getTabs(): array
+    {
+        return [
+            'sub_rincian' => Tab::make('Sub Rincian Obyek')
+                ->badge(KodeRekening::query()->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 5")->count())
+                ->badgeColor('success')
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 5")),
+
+            'rincian' => Tab::make('Rincian Obyek')
+                ->badge(KodeRekening::query()->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 4")->count())
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 4")),
+
+            'obyek' => Tab::make('Obyek')
+                ->badge(KodeRekening::query()->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 3")->count())
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 3")),
+
+            'jenis' => Tab::make('Jenis')
+                ->badge(KodeRekening::query()->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 2")->count())
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 2")),
+
+            'kelompok_akun' => Tab::make('Kelompok & Akun')
+                ->badge(KodeRekening::query()->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) <= 1")->count())
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) <= 1")),
+
+            'semua' => Tab::make('Semua')
+                ->badge(KodeRekening::count()),
+        ];
+    }
 
     protected function getHeaderActions(): array
     {

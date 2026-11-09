@@ -28,14 +28,14 @@ class KodeRekening extends Model
     {
         static::saving(function (KodeRekening $model) {
             if ($model->kode_lengkap) {
-                $parts = explode('.', $model->kode_lengkap);
-                $model->akun = filled($model->akun) ? $model->akun : ($parts[0] ?? '5');
-                $model->kelompok = filled($model->kelompok) ? $model->kelompok : ($parts[1] ?? '1');
-                $model->jenis = filled($model->jenis) ? $model->jenis : ($parts[2] ?? '02');
-                $model->objek = filled($model->objek) ? $model->objek : ($parts[3] ?? '01');
-                $model->rincian_objek = filled($model->rincian_objek) ? $model->rincian_objek : ($parts[4] ?? '001');
-                $model->sub_rincian_objek = filled($model->sub_rincian_objek) ? $model->sub_rincian_objek : ($parts[5] ?? '00001');
-                $model->sub_sub_rincian_objek = filled($model->sub_sub_rincian_objek) ? $model->sub_sub_rincian_objek : ($parts[6] ?? '000');
+                $parts = explode('.', trim($model->kode_lengkap));
+                $model->akun = $parts[0] ?? null;
+                $model->kelompok = $parts[1] ?? null;
+                $model->jenis = $parts[2] ?? null;
+                $model->objek = $parts[3] ?? null;
+                $model->rincian_objek = $parts[4] ?? null;
+                $model->sub_rincian_objek = $parts[5] ?? null;
+                $model->sub_sub_rincian_objek = $parts[6] ?? null;
             }
         });
     }
@@ -68,12 +68,12 @@ class KodeRekening extends Model
     public function getNamaLevelAttribute(): string
     {
         return match ($this->level) {
-            1 => 'Akun Utama',
+            1 => 'Akun',
             2 => 'Kelompok',
             3 => 'Jenis',
-            4 => 'Objek',
-            5 => 'Jenis Objek',
-            6 => 'Rincian Objek (Item RKA/SPJ)',
+            4 => 'Obyek',
+            5 => 'Rincian Obyek',
+            6 => 'Sub Rincian Obyek',
             default => 'Sub Tingkat',
         };
     }
@@ -93,28 +93,33 @@ class KodeRekening extends Model
 
     public function getIsItemBelanjaAttribute(): bool
     {
-        return $this->level >= 5;
+        return $this->level >= 6;
     }
 
-    public function scopeHanyaRincianObjek(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    public function scopeHanyaSubRincianObyek(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
         return $query->whereRaw("(LENGTH(kode_lengkap) - LENGTH(REPLACE(kode_lengkap, '.', ''))) = 5");
     }
 
+    public function scopeHanyaRincianObjek(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $this->scopeHanyaSubRincianObyek($query);
+    }
+
     public function scopeHanyaSubRincian(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $this->scopeHanyaRincianObjek($query);
+        return $this->scopeHanyaSubRincianObyek($query);
     }
 
     /**
      * Dapatkan rincian hierarki berjenjang kode rekening sesuai standar SIPD RI
-     * (Akun Utama -> Kelompok -> Jenis -> Objek -> Jenis Objek -> Rincian Objek)
+     * (Akun -> Kelompok -> Jenis -> Obyek -> Rincian Obyek -> Sub Rincian Obyek)
      */
     public function getHierarkiSipd(): array
     {
         $parts = explode('.', $this->kode_lengkap);
 
-        // 1. Akun Utama (5)
+        // 1. Akun (5)
         $akunStr = '5 - BELANJA DAERAH';
 
         // 2. Kelompok (5.1 / 5.2 / 5.3 / 5.4)
@@ -123,12 +128,12 @@ class KodeRekening extends Model
         $kelompokStr = $kelompokModel ? "{$kelompokModel->kode_lengkap} - {$kelompokModel->uraian}" : match ($parts[1] ?? '1') {
             '1' => '5.1 - BELANJA OPERASI',
             '2' => '5.2 - BELANJA MODAL',
-            '3' => '5.3 - BELANJA TAK TERDUGA',
+            '3' => '5.3 - BELANJA TIDAK TERDUGA',
             '4' => '5.4 - BELANJA TRANSFER',
             default => "{$kelompokKode} - Kelompok Belanja",
         };
 
-        // 3. Jenis (5.1.02, dsb)
+        // 3. Jenis (5.1.01, 5.1.02, dsb)
         $jenisStr = '-';
         if (isset($parts[2])) {
             $prefixJenis = $parts[0] . '.' . $parts[1] . '.' . $parts[2];
@@ -136,16 +141,16 @@ class KodeRekening extends Model
             $jenisStr = $parent ? "{$parent->kode_lengkap} - {$parent->uraian}" : "{$prefixJenis} - Jenis Belanja";
         }
 
-        // 4. Objek (5.1.02.01, dsb)
+        // 4. Obyek (5.1.01.01, 5.1.02.01, dsb)
         $objekStr = '-';
         if (isset($parts[3])) {
             $prefixObjek = $parts[0] . '.' . $parts[1] . '.' . $parts[2] . '.' . $parts[3];
             $parent = self::where('kode_lengkap', $prefixObjek)->first();
-            $objekStr = $parent ? "{$parent->kode_lengkap} - {$parent->uraian}" : "{$prefixObjek} - Objek Belanja";
+            $objekStr = $parent ? "{$parent->kode_lengkap} - {$parent->uraian}" : "{$prefixObjek} - Obyek Belanja";
         }
 
-        // 5. Jenis Objek (5.1.02.01.01 atau 5.1.02.01.001)
-        $jenisObjekStr = '-';
+        // 5. Rincian Obyek (5.1.01.01.01 atau 5.1.02.01.001)
+        $rincianObjekStr = '-';
         if (isset($parts[4])) {
             $p4 = $parts[4];
             $candidates = [
@@ -154,20 +159,22 @@ class KodeRekening extends Model
                 $parts[0] . '.' . $parts[1] . '.' . $parts[2] . '.' . $parts[3] . '.' . str_pad(ltrim($p4, '0'), 3, '0', STR_PAD_LEFT),
             ];
             $parent = self::whereIn('kode_lengkap', $candidates)->first();
-            $jenisObjekStr = $parent ? "{$parent->kode_lengkap} - {$parent->uraian}" : "{$parts[0]}.{$parts[1]}.{$parts[2]}.{$parts[3]}.{$p4} - Jenis Objek Belanja";
+            $rincianObjekStr = $parent ? "{$parent->kode_lengkap} - {$parent->uraian}" : "{$parts[0]}.{$parts[1]}.{$parts[2]}.{$parts[3]}.{$p4} - Rincian Obyek Belanja";
         }
 
-        $rincianObjekStr = "{$this->kode_lengkap} - {$this->uraian}";
+        // 6. Sub Rincian Obyek (Item transaksi SPJ / RKA)
+        $subRincianObyekStr = "{$this->kode_lengkap} - {$this->uraian}";
 
         return [
             'akun' => $akunStr,
             'kelompok' => $kelompokStr,
             'jenis' => $jenisStr,
             'objek' => $objekStr,
-            'jenis_objek' => $jenisObjekStr,
             'rincian_objek' => $rincianObjekStr,
-            // Backwards-compatibility alias
-            'sub_rincian' => $rincianObjekStr,
+            'sub_rincian_obyek' => $subRincianObyekStr,
+            // Backwards-compatibility aliases
+            'jenis_objek' => $rincianObjekStr,
+            'sub_rincian' => $subRincianObyekStr,
         ];
     }
 }

@@ -73,11 +73,6 @@ class MasterSyaratBelanjasTable
                     ->label('Wajib')
                     ->alignCenter()
                     ->sortable(),
-
-                ToggleColumn::make('aktif')
-                    ->label('Aktif')
-                    ->alignCenter()
-                    ->sortable(),
             ])
             ->groups([
                 Group::make('jenis_belanja')

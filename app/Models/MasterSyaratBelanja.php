@@ -37,6 +37,8 @@ class MasterSyaratBelanja extends Model
     protected static function booted(): void
     {
         static::creating(function (self $model): void {
+            $model->aktif = true;
+
             if ($model->master_jenis_belanja_id && $parent = $model->masterJenisBelanja) {
                 if (empty($model->jenis_belanja)) {
                     $model->jenis_belanja = $parent->kode;

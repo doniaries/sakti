@@ -42,17 +42,10 @@ class SyaratDokumenRelationManager extends RelationManager
                             ->placeholder('Contoh: Scan dokumen PDF asli bertandatangan dan berstempel')
                             ->rows(2),
 
-                        Grid::make(2)
-                            ->schema([
-                                Toggle::make('is_required')
-                                    ->label('Wajib Diunggah')
-                                    ->helperText('Jika aktif, berkas ini menjadi syarat mutlak verifikasi SPJ.')
-                                    ->default(true),
-
-                                Toggle::make('aktif')
-                                    ->label('Status Aktif')
-                                    ->default(true),
-                            ]),
+                        Toggle::make('is_required')
+                            ->label('Wajib Diunggah')
+                            ->helperText('Jika diaktifkan, berkas ini menjadi syarat mutlak (wajib). Jika tidak, berkas bersifat opsional.')
+                            ->default(true),
                     ]),
             ]);
     }
@@ -73,11 +66,6 @@ class SyaratDokumenRelationManager extends RelationManager
 
                 ToggleColumn::make('is_required')
                     ->label('Wajib')
-                    ->alignCenter()
-                    ->sortable(),
-
-                ToggleColumn::make('aktif')
-                    ->label('Aktif')
                     ->alignCenter()
                     ->sortable(),
             ])

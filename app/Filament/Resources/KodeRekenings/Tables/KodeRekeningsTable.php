@@ -53,13 +53,6 @@ class KodeRekeningsTable
                     ->weight(fn (KodeRekening $record): FontWeight => $record->level <= 2 ? FontWeight::Bold : ($record->level <= 4 ? FontWeight::SemiBold : FontWeight::Normal))
                     ->formatStateUsing(fn (?string $state, KodeRekening $record): string => $record->level <= 2 ? mb_strtoupper((string) $state, 'UTF-8') : (string) $state),
 
-                TextColumn::make('status_rka')
-                    ->label('Peruntukan')
-                    ->badge()
-                    ->state(fn (KodeRekening $record): string => $record->level >= 6 ? 'Rincian Objek (RKA)' : 'Kategori Induk')
-                    ->color(fn (KodeRekening $record): string => $record->level >= 6 ? 'success' : 'gray')
-                    ->toggleable(),
-
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d/m/Y H:i')
@@ -69,14 +62,14 @@ class KodeRekeningsTable
             ->defaultSort('kode_lengkap', 'asc')
             ->filters([
                 SelectFilter::make('tingkat')
-                    ->label('Filter Berdasarkan Tingkat Rekening')
+                    ->label('Tingkat Rekening')
                     ->options([
-                        '1' => 'Level 1 - Akun Utama (5 - Belanja Daerah)',
-                        '2' => 'Level 2 - Kelompok (5.1 Belanja Operasi, 5.2 Modal, dst)',
-                        '3' => 'Level 3 - Jenis (5.1.01 Pegawai, 5.1.02 Barang & Jasa, dst)',
-                        '4' => 'Level 4 - Objek (5.1.02.01 Belanja Barang, dst)',
-                        '5' => 'Level 5 - Jenis Objek (5.1.02.01.01 Belanja Barang Pakai Habis, dst)',
-                        '6' => 'Level 6 - Rincian Objek (Item Belanja Siap Pakai di RKA/SPJ)',
+                        '1' => 'Akun',
+                        '2' => 'Kelompok',
+                        '3' => 'Jenis',
+                        '4' => 'Obyek',
+                        '5' => 'Rincian Obyek',
+                        '6' => 'Sub Rincian Obyek',
                     ])
                     ->query(function (Builder $query, array $data) {
                         if (filled($data['value'])) {
@@ -87,50 +80,11 @@ class KodeRekeningsTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make()
-                    ->before(function (DeleteAction $action, KodeRekening $record) {
-                        $spjCount = $record->detailPengajuanSpjs()->count();
-                        $rkaCount = \App\Models\RincianAnggaranBelanja::where('kode_rekening_id', $record->id)->count();
-                        $mbCount = $record->masterBarangs()->count();
-
-                        if ($spjCount > 0 || $rkaCount > 0 || $mbCount > 0) {
-                            \Filament\Notifications\Notification::make()
-                                ->danger()
-                                ->title('Gagal Menghapus Rekening')
-                                ->body("Kode rekening {$record->kode_lengkap} tidak dapat dihapus karena masih digunakan oleh {$spjCount} transaksi SPJ, {$rkaCount} item RKA, dan {$mbCount} barang persediaan.")
-                                ->persistent()
-                                ->send();
-
-                            $action->cancel();
-                        }
-                    }),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->before(function (DeleteBulkAction $action, \Illuminate\Support\Collection $records) {
-                            $blocked = [];
-                            foreach ($records as $record) {
-                                $spjCount = $record->detailPengajuanSpjs()->count();
-                                $rkaCount = \App\Models\RincianAnggaranBelanja::where('kode_rekening_id', $record->id)->count();
-                                $mbCount = $record->masterBarangs()->count();
-
-                                if ($spjCount > 0 || $rkaCount > 0 || $mbCount > 0) {
-                                    $blocked[] = $record->kode_lengkap;
-                                }
-                            }
-
-                            if (! empty($blocked)) {
-                                \Filament\Notifications\Notification::make()
-                                    ->danger()
-                                    ->title('Gagal Menghapus Beberapa Rekening')
-                                    ->body('Rekening (' . implode(', ', $blocked) . ') tidak dapat dihapus karena masih digunakan pada data transaksi SPJ, RKA, atau barang persediaan.')
-                                    ->persistent()
-                                    ->send();
-
-                                $action->cancel();
-                            }
-                        }),
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

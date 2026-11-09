@@ -31,7 +31,14 @@ class MasterJenisBelanja extends Model
     {
         static::creating(function (self $model): void {
             if (empty($model->kode)) {
-                $model->kode = Str::slug($model->nama, '_');
+                $base = Str::slug($model->nama, '_');
+                $kode = $base ?: 'jenis_' . time();
+                $counter = 1;
+                while (static::where('kode', $kode)->exists()) {
+                    $counter++;
+                    $kode = "{$base}_{$counter}";
+                }
+                $model->kode = $kode;
             }
             if (empty($model->urutan)) {
                 $max = static::max('urutan') ?? 0;
