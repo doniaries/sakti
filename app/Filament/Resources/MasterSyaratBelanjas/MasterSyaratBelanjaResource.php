@@ -24,6 +24,8 @@ class MasterSyaratBelanjaResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Syarat Dokumen SPJ';
 
+    protected static ?string $slug = 'master-syarat-belanja-legacy';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
     protected static ?int $navigationSort = 6;

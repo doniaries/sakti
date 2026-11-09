@@ -13,6 +13,11 @@ class ListMasterSyaratBelanjas extends ListRecords
 {
     protected static string $resource = MasterSyaratBelanjaResource::class;
 
+    public function mount(): void
+    {
+        redirect(\App\Filament\Resources\MasterJenisBelanjas\MasterJenisBelanjaResource::getUrl('index'));
+    }
+
     public function getTabs(): array
     {
         return [

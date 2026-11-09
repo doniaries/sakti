@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MasterJenisBelanjas\Tables;
 
+use App\Filament\Resources\MasterJenisBelanjas\MasterJenisBelanjaResource;
 use App\Models\MasterJenisBelanja;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -19,15 +20,8 @@ class MasterJenisBelanjasTable
         return $table
             ->reorderable('urutan')
             ->defaultSort('urutan')
+            ->recordUrl(fn (MasterJenisBelanja $record): string => MasterJenisBelanjaResource::getUrl('edit', ['record' => $record]))
             ->columns([
-                TextColumn::make('nama')
-                    ->label('Nama Jenis Pekerjaan / Belanja')
-                    ->searchable()
-                    ->sortable()
-                    ->weight('bold')
-                    ->description(fn (MasterJenisBelanja $record): ?string => $record->deskripsi)
-                    ->wrap(),
-
                 TextColumn::make('metode_pengadaan')
                     ->label('Metode Pengadaan')
                     ->badge()
@@ -43,9 +37,17 @@ class MasterJenisBelanjasTable
                     })
                     ->sortable(),
 
+                TextColumn::make('nama')
+                    ->label('Jenis Pekerjaan / Belanja')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->description(fn (MasterJenisBelanja $record): ?string => $record->deskripsi)
+                    ->wrap(),
+
                 TextColumn::make('syarat_belanjas_count')
                     ->counts('syaratBelanjas')
-                    ->label('Syarat Dokumen SOP')
+                    ->label('Syarat Dokumen SOP Terkait')
                     ->badge()
                     ->formatStateUsing(fn ($state): string => "{$state} Dokumen SOP")
                     ->color(fn ($state): string => (int) $state > 0 ? 'success' : 'danger')
@@ -69,9 +71,10 @@ class MasterJenisBelanjasTable
             ])
             ->recordActions([
                 EditAction::make()
-                    ->label('Kelola Syarat')
+                    ->label('Kelola Syarat Dokumen')
                     ->icon('heroicon-o-document-check')
-                    ->color('primary'),
+                    ->color('primary')
+                    ->tooltip('Klik untuk melihat dan mengatur syarat dokumen pekerjaan ini'),
                 DeleteAction::make(),
             ])
             ->toolbarActions([
@@ -79,4 +82,3 @@ class MasterJenisBelanjasTable
             ]);
     }
 }
-
