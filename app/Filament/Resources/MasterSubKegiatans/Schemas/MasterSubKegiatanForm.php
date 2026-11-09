@@ -32,20 +32,43 @@ class MasterSubKegiatanForm
         }
 
         return [
-            Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])
+            Grid::make(['default' => 1, 'md' => 12])
                 ->schema([
+                    // Baris 1: Kode Sub Kegiatan (3), Tahun Anggaran (2), Kegiatan Induk (7)
                     TextInput::make('kode_sub_kegiatan')
                         ->label('Kode Sub Kegiatan')
                         ->mask('9.99.99.9.99.9999')
                         ->disabled($disabled)
-                        ->required(),
+                        ->required()
+                        ->columnSpan(['default' => 12, 'md' => 3]),
 
                     Select::make('tahun_anggaran')
                         ->label('Tahun Anggaran')
                         ->options($years)
                         ->default(fn () => (int) (request()->query('tahun') ?? $currentYear))
                         ->disabled($disabled)
-                        ->required(),
+                        ->required()
+                        ->columnSpan(['default' => 12, 'md' => 2]),
+
+                    Select::make('kegiatan_id')
+                        ->label('Kegiatan Induk')
+                        ->relationship('kegiatan', 'nama_kegiatan')
+                        ->getOptionLabelFromRecordUsing(fn (MasterKegiatan $record) => "[{$record->kode_kegiatan}] {$record->nama_kegiatan}")
+                        ->searchable()
+                        ->preload()
+                        ->live()
+                        ->disabled($disabled)
+                        ->required()
+                        ->columnSpan(['default' => 12, 'md' => 7]),
+
+                    // Baris 2: Nomenklatur Sub Kegiatan (8), Penanggung Jawab JF (4)
+                    Textarea::make('nama_sub_kegiatan')
+                        ->label('Nomenklatur Sub Kegiatan')
+                        ->disabled($disabled)
+                        ->extraInputAttributes(['style' => 'text-transform: uppercase; font-weight: 600;'])
+                        ->rows(2)
+                        ->required()
+                        ->columnSpan(['default' => 12, 'md' => 8]),
 
                     Select::make('jf_id')
                         ->label('Penanggung Jawab (JF)')
@@ -72,28 +95,10 @@ class MasterSubKegiatanForm
                         })
                         ->searchable()
                         ->preload()
-                        ->helperText('Hanya menampilkan pegawai di bidang yang sama dengan kegiatan.')
-                        ->disabled($disabled),
+                        ->helperText($disabled ? null : 'Hanya menampilkan pegawai di bidang yang sama dengan kegiatan.')
+                        ->disabled($disabled)
+                        ->columnSpan(['default' => 12, 'md' => 4]),
                 ]),
-
-            Select::make('kegiatan_id')
-                ->label('Kegiatan Induk')
-                ->relationship('kegiatan', 'nama_kegiatan')
-                ->getOptionLabelFromRecordUsing(fn (MasterKegiatan $record) => "[{$record->kode_kegiatan}] {$record->nama_kegiatan}")
-                ->searchable()
-                ->preload()
-                ->live()
-                ->disabled($disabled)
-                ->columnSpanFull()
-                ->required(),
-
-            Textarea::make('nama_sub_kegiatan')
-                ->label('Nomenklatur Sub Kegiatan')
-                ->disabled($disabled)
-                ->extraInputAttributes(['style' => 'text-transform: uppercase; font-weight: 600;'])
-                ->rows(2)
-                ->columnSpanFull()
-                ->required(),
         ];
     }
 
@@ -104,6 +109,7 @@ class MasterSubKegiatanForm
             ->components([
                 Section::make('Informasi Sub Kegiatan')
                     ->description('Identitas Sub Kegiatan, tahun anggaran, dan penugasan JF (Read-Only).')
+                    ->compact()
                     ->columnSpanFull()
                     ->headerActions([
                         Action::make('ubah_sub_kegiatan')
