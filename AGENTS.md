@@ -937,3 +937,33 @@ git add .
 git commit -m "type(scope): deskripsi perubahan"
 ```
 *(Dilarang mengakhiri jawaban tanpa bagian Git Commit)*
+
+---
+
+## 14. Prinsip User-Friendly, Nomenklatur Baku & Anti-Overengineering (WAJIB DIPATUHI)
+
+Setiap pengembangan fitur, form, tabel, dan penamaan di seluruh modul wajib mematuhi kaidah antarmuka ramah pengguna (*user-friendly*) berikut:
+
+1. **Istilah Resmi & Baku (Anti-Berlebihan / Anti-Overcomplicated)**:
+   - Gunakan nama dan tingkat resmi persis sesuai dokumen pedoman/lampiran kedinasan resmi (contoh Bagan Akun Standar Kode 5: **Akun**, **Kelompok**, **Jenis**, **Obyek**, **Rincian Obyek**, **Sub Rincian Obyek**).
+   - **DILARANG KERAS** menambahkan istilah asumsi buatan sendiri atau embel-embel berlebihan (seperti menambahkan frasa `(RKA/SPJ)`, `(Item Belanja Siap Pakai)`, dsb.) yang membuat pengguna bingung.
+
+2. **Sederhanakan Formulir & Hilangkan Input Redundan**:
+   - Jika suatu nilai dapat di-generate otomatis oleh model/sistem (seperti kode slug sistem atau parsing segmen hierarki), jangan tampilkan input teknis tersebut di form agar pengguna tidak bingung.
+   - Hilangkan dropdown pembantu teknis (seperti *"Rekening Induk (Opsional)"*) karena sistem sudah otomatis memetakan hierarki dari pemisah titik.
+   - Pada formulir persyaratan dokumen SPJ, hanya gunakan status **Wajib** dan **Tidak Wajib (Opsional)**; dilarang membuat toggle ganda *"Aktif"* yang membingungkan.
+
+3. **Input Masking Otomatis untuk Kode Terstruktur**:
+   - Untuk nomor rekening dan kodefikasi (contoh: `5.1.01.01.01.0001` atau sub kegiatan), selalu gunakan `->mask('9.9.99.99.99.9999')` agar tanda titik otomatis terbentuk saat pengguna mengetik angka sehingga tidak terjadi salah ketik atau kurang digit.
+   - Validasi keunikan (`unique`) difokuskan pada kode lengkap tingkat akhir (`kode_lengkap`) agar tidak terjadi duplikasi rekening transaksi, sementara kode induk tetap dapat menginduk banyak sub.
+
+4. **Tampilan Tabel Default Siap Pakai & Filter Tab**:
+   - Pada tabel data berjenjang (seperti Kode Rekening), tampilkan default tingkatan paling akhir yang langsung digunakan untuk transaksi operasional (**Sub Rincian Obyek**).
+   - Sediakan filter tab berjenjang di bagian atas tabel untuk memudahkan pengguna mencari dan merubah data rekening pada tingkatan lainnya.
+
+5. **Kenyamanan Tabel & Keterbacaan Kolom (No Squished / Narrow Columns)**:
+   - Kolom yang memuat kalimat panjang (seperti *Sub Kegiatan* atau *Uraian Rekening*) wajib diberi lebar yang memadai (`min-width: 300px;` s.d. `320px;` pada atribut sel dan header) agar kalimat terbaca nyaman dan tidak tertekuk sempit menjadi 1 kata per baris.
+
+6. **Tata Kelola RKA Per Sub Kegiatan (Relation Manager Pattern)**:
+   - Pengelolaan Rincian Anggaran Belanja (RKA) dikelola terpusat per Sub Kegiatan menggunakan `RelationManager` di menu Sub Kegiatan agar konteks anggaran terkunci, tidak mengulang kolom Sub Kegiatan/Bidang/Tahun di setiap baris, serta mencegah kesalahan pemilihan sub kegiatan oleh staf.
+
