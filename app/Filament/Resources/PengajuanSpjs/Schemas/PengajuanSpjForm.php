@@ -276,8 +276,8 @@ class PengajuanSpjForm
                                                                 (int) ($get('tahun_anggaran') ?? date('Y')),
                                                                 $get('tanggal_pengajuan')
                                                             ))
-                                                            ->required()
-                                                            ->readOnly(),
+                                                            ->helperText('Nomor unik acak otomatis. Dapat disesuaikan bila ada nomor fisik surat pesanan.')
+                                                            ->required(),
 
                                                         DatePicker::make('tanggal_pengajuan')
                                                             ->label('Tanggal Surat Pesanan')
@@ -985,284 +985,150 @@ class PengajuanSpjForm
                                             ]),
 
                             // -------------------------------------------------------------
-                            // BAGIAN BAWAH: Data Toko / Rekanan & Ketentuan Perpajakan (Grid 2 Kolom)
+                            // BAGIAN BAWAH: Data Toko / Rekanan (Full Width, muncul setelah Sub Kegiatan dipilih)
                             // -------------------------------------------------------------
-                            Grid::make(['default' => 1, 'lg' => 2])
+                            Section::make('Data Toko / Rekanan')
+                                ->description('Pilih toko rekanan dari master data tersimpan.')
+                                ->compact()
+                                ->visible(fn(callable $get): bool => filled($get('sub_kegiatan_id')))
                                 ->schema([
-                                    Section::make('Data Toko / Rekanan')
-                                            ->description('Pilih toko rekanan dari master data tersimpan.')
-                                            ->compact()
-                                            ->schema([
-                                                Select::make('master_toko_id')
-                                                    ->label('Toko / Rekanan')
-                                                    ->placeholder('Pilih Toko atau Klik (+) Tambah')
-                                                    ->options(fn() => MasterToko::where('is_active', true)->get()->pluck('label', 'id')->all())
-                                                    ->searchable()
-                                                    ->preload()
-                                                    ->live()
-                                                    ->afterStateUpdated(function (callable $set, ?string $state) {
-                                                        if (! $state) {
-                                                            $set('nama_toko', null);
-                                                            $set('penerima_nama', null);
-                                                            $set('telepon_toko', null);
-                                                            $set('alamat_toko', null);
-                                                            $set('nama_bank', null);
-                                                            $set('penerima_identitas', null);
-                                                            return;
-                                                        }
-                                                        $toko = MasterToko::find((int) $state);
-                                                        if ($toko) {
-                                                            $set('nama_toko', $toko->nama_toko);
-                                                            $set('penerima_nama', $toko->nama_pemilik);
-                                                            $set('telepon_toko', $toko->telepon);
-                                                            $set('alamat_toko', $toko->alamat);
-                                                            $set('nama_bank', $toko->nama_bank?->value ?? $toko->nama_bank);
-                                                            $set('penerima_identitas', $toko->nomor_rekening);
-                                                        }
-                                                    })
-                                                    ->createOptionForm([
-                                                        Grid::make(2)
-                                                            ->schema([
-                                                                TextInput::make('nama_toko')
-                                                                    ->label('Nama Toko / Pemasok')
-                                                                    ->placeholder('Contoh: Toko Rilex Abadi')
-                                                                    ->required()
-                                                                    ->maxLength(255),
+                                    Select::make('master_toko_id')
+                                        ->label('Toko / Rekanan')
+                                        ->placeholder('Pilih Toko atau Klik (+) Tambah')
+                                        ->options(fn() => MasterToko::where('is_active', true)->get()->pluck('label', 'id')->all())
+                                        ->searchable()
+                                        ->preload()
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, ?string $state) {
+                                            if (! $state) {
+                                                $set('nama_toko', null);
+                                                $set('penerima_nama', null);
+                                                $set('telepon_toko', null);
+                                                $set('alamat_toko', null);
+                                                $set('nama_bank', null);
+                                                $set('penerima_identitas', null);
+                                                return;
+                                            }
+                                            $toko = MasterToko::find((int) $state);
+                                            if ($toko) {
+                                                $set('nama_toko', $toko->nama_toko);
+                                                $set('penerima_nama', $toko->nama_pemilik);
+                                                $set('telepon_toko', $toko->telepon);
+                                                $set('alamat_toko', $toko->alamat);
+                                                $set('nama_bank', $toko->nama_bank?->value ?? $toko->nama_bank);
+                                                $set('penerima_identitas', $toko->nomor_rekening);
+                                            }
+                                        })
+                                        ->createOptionForm([
+                                            Grid::make(2)
+                                                ->schema([
+                                                TextInput::make('nama_toko')
+                                                    ->label('Nama Toko / Pemasok')
+                                                    ->placeholder('Contoh: Toko Rilex Abadi')
+                                                    ->required()
+                                                    ->maxLength(255),
 
-                                                                TextInput::make('nama_pemilik')
-                                                                    ->label('Nama Pemilik Toko')
-                                                                    ->placeholder('Contoh: Agusrizal')
-                                                                    ->required()
-                                                                    ->maxLength(255),
+                                                TextInput::make('nama_pemilik')
+                                                    ->label('Nama Pemilik Toko')
+                                                    ->placeholder('Contoh: Agusrizal')
+                                                    ->required()
+                                                    ->maxLength(255),
 
-                                                                TextInput::make('telepon')
-                                                                    ->label('No. Telepon Toko')
-                                                                    ->placeholder('Contoh: 0812-3456-7890')
-                                                                    ->maxLength(50),
+                                                TextInput::make('telepon')
+                                                    ->label('No. Telepon Toko')
+                                                    ->placeholder('Contoh: 0812-3456-7890')
+                                                    ->maxLength(50),
 
-                                                                Select::make('nama_bank')
-                                                                    ->label('Nama Bank')
-                                                                    ->options(NamaBank::class)
-                                                                    ->default(NamaBank::BANK_NAGARI)
-                                                                    ->searchable(),
+                                                Select::make('nama_bank')
+                                                    ->label('Nama Bank')
+                                                    ->options(NamaBank::class)
+                                                    ->default(NamaBank::BANK_NAGARI)
+                                                    ->searchable(),
 
-                                                                TextInput::make('nomor_rekening')
-                                                                    ->label('No. Rekening Bank Toko')
-                                                                    ->placeholder('Contoh: 0700.0210.21699-2')
-                                                                    ->maxLength(100)
-                                                                    ->columnSpan(2),
+                                                TextInput::make('nomor_rekening')
+                                                    ->label('No. Rekening Bank Toko')
+                                                    ->placeholder('Contoh: 0700.0210.21699-2')
+                                                    ->maxLength(100)
+                                                    ->columnSpan(2),
 
-                                                                Textarea::make('alamat')
-                                                                    ->label('Alamat Toko')
-                                                                    ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
-                                                                    ->required()
-                                                                    ->rows(2)
-                                                                    ->columnSpan(2),
-                                                            ]),
-                                                    ])
-                                                    ->createOptionUsing(function (array $data, callable $set): int {
-                                                        $toko = MasterToko::create([
-                                                            'nama_toko' => $data['nama_toko'],
-                                                            'nama_pemilik' => $data['nama_pemilik'] ?? null,
-                                                            'telepon' => $data['telepon'] ?? null,
-                                                            'nama_bank' => $data['nama_bank'] ?? NamaBank::BANK_NAGARI->value,
-                                                            'nomor_rekening' => $data['nomor_rekening'] ?? null,
-                                                            'alamat' => $data['alamat'] ?? null,
-                                                            'is_active' => true,
-                                                        ]);
-
-                                                        $set('nama_toko', $toko->nama_toko);
-                                                        $set('penerima_nama', $toko->nama_pemilik);
-                                                        $set('telepon_toko', $toko->telepon);
-                                                        $set('alamat_toko', $toko->alamat);
-                                                        $set('nama_bank', $toko->nama_bank?->value ?? $toko->nama_bank);
-                                                        $set('penerima_identitas', $toko->nomor_rekening);
-
-                                                        return $toko->id;
-                                                    })
-                                                    ->required(),
-
-                                                Placeholder::make('info_toko_preview')
-                                                    ->label('Rincian Toko Terpilih')
-                                                    ->content(function (callable $get): HtmlString {
-                                                        $masterTokoId = $get('master_toko_id');
-                                                        $toko = $masterTokoId ? MasterToko::find((int) $masterTokoId) : null;
-
-                                                        $namaPemilik = $toko?->nama_pemilik ?: ($get('penerima_nama') ?: '-');
-                                                        $telepon = $toko?->telepon ?: ($get('telepon_toko') ?: '-');
-                                                        $bank = $toko?->nama_bank?->getLabel() ?? ($toko?->nama_bank?->value ?? ($get('nama_bank') ?: '-'));
-                                                        $rekening = $toko?->nomor_rekening ?: ($get('penerima_identitas') ?: '-');
-                                                        $alamat = $toko?->alamat ?: ($get('alamat_toko') ?: '-');
-
-                                                        if (! $masterTokoId && $namaPemilik === '-' && $alamat === '-') {
-                                                            return new HtmlString('<span class="text-xs text-gray-500 italic">Pilih toko untuk menampilkan rincian data penyedia</span>');
-                                                        }
-
-                                                        return new HtmlString("
-                                                            <div class='text-xs space-y-1.5 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-lg border border-gray-200 dark:border-gray-700'>
-                                                                <div><span class='font-medium text-gray-500 dark:text-gray-400'>Pemilik:</span> <span class='font-semibold text-gray-900 dark:text-gray-100'>{$namaPemilik}</span></div>
-                                                                <div><span class='font-medium text-gray-500 dark:text-gray-400'>Telepon:</span> {$telepon}</div>
-                                                                <div><span class='font-medium text-gray-500 dark:text-gray-400'>Bank:</span> {$bank}</div>
-                                                                <div><span class='font-medium text-gray-500 dark:text-gray-400'>No. Rek:</span> <span class='font-mono font-medium text-primary-600 dark:text-primary-400'>{$rekening}</span></div>
-                                                                <div><span class='font-medium text-gray-500 dark:text-gray-400'>Alamat:</span> {$alamat}</div>
-                                                            </div>
-                                                        ");
-                                                    }),
-
-                                                // Field tersimpan otomatis ke database tanpa mengacaukan tampilan form
-                                                Hidden::make('nama_toko'),
-                                                Hidden::make('penerima_nama'),
-                                                Hidden::make('telepon_toko'),
-                                                Hidden::make('nama_bank'),
-                                                Hidden::make('penerima_identitas'),
-                                                Hidden::make('alamat_toko'),
-
-                                                DatePicker::make('tanggal_batas_pengiriman')
-                                                    ->label('Batas Waktu Pengiriman')
-                                                    ->default(fn() => now()->addDays(7))
-                                                    ->displayFormat('d/m/Y'),
-
-                                                TextInput::make('metode_pembayaran')
-                                                    ->label('Metode Pembayaran')
-                                                    ->default('Transfer Bank / Tempo 14 Hari setelah barang diterima')
-                                                    ->placeholder('Contoh: Transfer Bank / Tempo 14 Hari'),
+                                                Textarea::make('alamat')
+                                                    ->label('Alamat Toko')
+                                                    ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
+                                                    ->required()
+                                                    ->rows(2)
+                                                    ->columnSpan(2),
                                             ]),
+                                        ])
+                                        ->createOptionUsing(function (array $data, callable $set): int {
+                                            $toko = MasterToko::create([
+                                                'nama_toko' => $data['nama_toko'],
+                                                'nama_pemilik' => $data['nama_pemilik'] ?? null,
+                                                'telepon' => $data['telepon'] ?? null,
+                                                'nama_bank' => $data['nama_bank'] ?? NamaBank::BANK_NAGARI->value,
+                                                'nomor_rekening' => $data['nomor_rekening'] ?? null,
+                                                'alamat' => $data['alamat'] ?? null,
+                                                'is_active' => true,
+                                            ]);
 
-                                        // 2. KETENTUAN PERPAJAKAN (Informatif & Otomatis Aktif jika Belanja > Rp 2.000.000)
-                                        Section::make('Ketentuan Perpajakan (PPN & PPh)')
-                                            ->description('Informasi dan kebijakan pajak belanja pemerintah.')
-                                            ->compact()
-                                            ->schema([
-                                                Placeholder::make('info_ambang_pajak')
-                                                    ->hiddenLabel()
-                                                    ->content(function (callable $get, mixed $record = null) use ($calculateTotalPesanan): HtmlString {
-                                                        $total = $calculateTotalPesanan($get, $record);
-                                                        $formatted = 'Rp ' . number_format($total, 0, ',', '.');
+                                            $set('nama_toko', $toko->nama_toko);
+                                            $set('penerima_nama', $toko->nama_pemilik);
+                                            $set('telepon_toko', $toko->telepon);
+                                            $set('alamat_toko', $toko->alamat);
+                                            $set('nama_bank', $toko->nama_bank?->value ?? $toko->nama_bank);
+                                            $set('penerima_identitas', $toko->nomor_rekening);
 
-                                                        if ($total > 2000000) {
-                                                            return new HtmlString("
-                                                                <div class='flex items-start gap-2 p-2.5 rounded-lg bg-warning-50 dark:bg-warning-950/40 text-warning-800 dark:text-warning-300 border border-warning-200 dark:border-warning-800 text-xs shadow-sm'>
-                                                                    <span class='text-sm mt-0.5'>⚠️</span>
-                                                                    <div>
-                                                                        <div class='font-semibold'>Total Belanja {$formatted} (> Rp 2 Jt)</div>
-                                                                        <div class='text-[11px] opacity-90 mt-0.5'>Wajib dipungut PPN & PPh sesuai ketentuan instansi pemerintah.</div>
-                                                                    </div>
-                                                                </div>
-                                                            ");
-                                                        }
+                                            return $toko->id;
+                                        })
+                                        ->required(),
 
-                                                        return new HtmlString("
-                                                            <div class='flex items-start gap-2 p-2.5 rounded-lg bg-info-50 dark:bg-info-950/40 text-info-800 dark:text-info-300 border border-info-200 dark:border-info-800 text-xs shadow-sm'>
-                                                                <span class='text-sm mt-0.5'>ℹ️</span>
-                                                                <div>
-                                                                    <div class='font-semibold'>Total Belanja {$formatted} (≤ Rp 2 Jt)</div>
-                                                                    <div class='text-[11px] opacity-90 mt-0.5'>Bebas pungutan pajak pemerintah (PPN 0% & PPh 0%). Formulir rincian pajak akan otomatis aktif jika total belanja melebihi Rp 2.000.000.</div>
-                                                                </div>
-                                                            </div>
-                                                        ");
-                                                    }),
+                                    Placeholder::make('info_toko_preview')
+                                        ->label('Rincian Toko Terpilih')
+                                        ->content(function (callable $get): HtmlString {
+                                            $masterTokoId = $get('master_toko_id');
+                                            $toko = $masterTokoId ? MasterToko::find((int) $masterTokoId) : null;
 
-                                                Group::make([
-                                                    Select::make('skema_pajak')
-                                                        ->label('Skema / Kebijakan Pajak')
-                                                        ->dehydrated(false)
-                                                        ->options([
-                                                            'standar' => 'Standar Belanja Barang (PPN 11% + PPh 22 1,5%)',
-                                                            'ppn12' => 'Kebijakan Baru PPN 12% (PPN 12% + PPh 22 1,5%)',
-                                                            'non_npwp' => 'Rekanan Non-NPWP (PPN 11% + PPh 22 3%)',
-                                                            'jasa_pph23' => 'Jasa / Katering (PPN 11% + PPh 23 2%)',
-                                                            'kustom' => 'Kustom (Atur Persentase Manual)',
-                                                            'bebas' => 'Bebas Pungut Pajak / SKB (0%)',
-                                                        ])
-                                                        ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): string {
-                                                            $spj = $resolveSpjRecord($record);
-                                                            if ($spj) {
-                                                                if ((float) $spj->ppn_persen == 12.0) return 'ppn12';
-                                                                if ((float) $spj->pph22_persen == 3.0) return 'non_npwp';
-                                                                if ((float) $spj->pph22_persen == 2.0) return 'jasa_pph23';
-                                                                if ((float) $spj->ppn_persen == 0 && (float) $spj->pph22_persen == 0) return 'bebas';
-                                                                if ((float) $spj->ppn_persen == 11.0 && (float) $spj->pph22_persen == 1.5) return 'standar';
-                                                                return 'kustom';
-                                                            }
-                                                            return 'standar';
-                                                        })
-                                                        ->live()
-                                                        ->afterStateUpdated(function (?string $state, callable $set) {
-                                                            match ($state) {
-                                                                'standar' => [$set('ppn_persen', 11.0), $set('pph22_persen', 1.5)],
-                                                                'ppn12' => [$set('ppn_persen', 12.0), $set('pph22_persen', 1.5)],
-                                                                'non_npwp' => [$set('ppn_persen', 11.0), $set('pph22_persen', 3.0)],
-                                                                'jasa_pph23' => [$set('ppn_persen', 11.0), $set('pph22_persen', 2.0)],
-                                                                'bebas' => [$set('ppn_persen', 0.0), $set('pph22_persen', 0.0)],
-                                                                default => null,
-                                                            };
-                                                        }),
+                                            $namaPemilik = $toko?->nama_pemilik ?: ($get('penerima_nama') ?: '-');
+                                            $telepon = $toko?->telepon ?: ($get('telepon_toko') ?: '-');
+                                            $bank = $toko?->nama_bank?->getLabel() ?? ($toko?->nama_bank?->value ?? ($get('nama_bank') ?: '-'));
+                                            $rekening = $toko?->nomor_rekening ?: ($get('penerima_identitas') ?: '-');
+                                            $alamat = $toko?->alamat ?: ($get('alamat_toko') ?: '-');
 
-                                                    Grid::make(2)
-                                                        ->schema([
-                                                            TextInput::make('ppn_persen')
-                                                                ->label('PPN (%)')
-                                                                ->numeric()
-                                                                ->minValue(0)
-                                                                ->maxValue(100)
-                                                                ->suffix('%')
-                                                                ->live()
-                                                                ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): float {
-                                                                    $spj = $resolveSpjRecord($record);
-                                                                    if ($spj && $spj->ppn_persen !== null) {
-                                                                        return (float) $spj->ppn_persen;
-                                                                    }
-                                                                    return 11.0;
-                                                                })
-                                                                ->helperText('Dapat diedit bebas'),
+                                            if (! $masterTokoId && $namaPemilik === '-' && $alamat === '-') {
+                                                return new HtmlString('<span class="text-xs text-gray-500 italic">Pilih toko untuk menampilkan rincian data penyedia</span>');
+                                            }
 
-                                                            TextInput::make('pph22_persen')
-                                                                ->label('PPh (%)')
-                                                                ->numeric()
-                                                                ->minValue(0)
-                                                                ->maxValue(100)
-                                                                ->suffix('%')
-                                                                ->live()
-                                                                ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): float {
-                                                                    $spj = $resolveSpjRecord($record);
-                                                                    if ($spj && $spj->pph22_persen !== null) {
-                                                                        return (float) $spj->pph22_persen;
-                                                                    }
-                                                                    return 1.5;
-                                                                })
-                                                                ->helperText('Dapat diedit bebas'),
-                                                        ]),
+                                            return new HtmlString("
+                                                <div class='text-xs space-y-1.5 bg-gray-50 dark:bg-gray-800/80 p-3 rounded-lg border border-gray-200 dark:border-gray-700'>
+                                                    <div><span class='font-medium text-gray-500 dark:text-gray-400'>Pemilik:</span> <span class='font-semibold text-gray-900 dark:text-gray-100'>{$namaPemilik}</span></div>
+                                                    <div><span class='font-medium text-gray-500 dark:text-gray-400'>Telepon:</span> {$telepon}</div>
+                                                    <div><span class='font-medium text-gray-500 dark:text-gray-400'>Bank:</span> {$bank}</div>
+                                                    <div><span class='font-medium text-gray-500 dark:text-gray-400'>No. Rek:</span> <span class='font-mono font-medium text-primary-600 dark:text-primary-400'>{$rekening}</span></div>
+                                                    <div><span class='font-medium text-gray-500 dark:text-gray-400'>Alamat:</span> {$alamat}</div>
+                                                </div>
+                                            ");
+                                        }),
 
-                                                    Placeholder::make('live_preview_pajak')
-                                                        ->label('Estimasi Potongan & Bersih')
-                                                        ->content(function (callable $get, mixed $record = null) use ($calculateTotalPesanan): HtmlString {
-                                                            $total = $calculateTotalPesanan($get, $record);
-                                                            $ppnRate = (float) ($get('ppn_persen') ?? 0);
-                                                            $pphRate = (float) ($get('pph22_persen') ?? 0);
+                                    // Field tersimpan otomatis ke database tanpa mengacaukan tampilan form
+                                    Hidden::make('nama_toko'),
+                                    Hidden::make('penerima_nama'),
+                                    Hidden::make('telepon_toko'),
+                                    Hidden::make('nama_bank'),
+                                    Hidden::make('penerima_identitas'),
+                                    Hidden::make('alamat_toko'),
 
-                                                            $nilaiPpn = round($total * ($ppnRate / 100));
-                                                            $nilaiPph = round($total * ($pphRate / 100));
-                                                            $totalPajak = $nilaiPpn + $nilaiPph;
-                                                            $bersih = max(0, $total - $totalPajak);
+                                    Grid::make(['default' => 1, 'md' => 2])
+                                        ->schema([
+                                            DatePicker::make('tanggal_batas_pengiriman')
+                                                ->label('Batas Waktu Pengiriman')
+                                                ->default(fn() => now()->addDays(7))
+                                                ->displayFormat('d/m/Y'),
 
-                                                            $ppnRp = number_format($nilaiPpn, 0, ',', '.');
-                                                            $pphRp = number_format($nilaiPph, 0, ',', '.');
-                                                            $pajakRp = number_format($totalPajak, 0, ',', '.');
-                                                            $bersihRp = number_format($bersih, 0, ',', '.');
-
-                                                            return new HtmlString("
-                                                                <div class='text-xs space-y-1 bg-gray-50 dark:bg-gray-800/80 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 font-mono'>
-                                                                    <div class='flex justify-between text-gray-500'><span>PPN ({$ppnRate}%):</span><span>Rp {$ppnRp}</span></div>
-                                                                    <div class='flex justify-between text-gray-500'><span>PPh ({$pphRate}%):</span><span>Rp {$pphRp}</span></div>
-                                                                    <div class='flex justify-between font-semibold text-danger-600 dark:text-danger-400 border-t border-gray-200 dark:border-gray-700 pt-1'><span>Total Pajak:</span><span>Rp {$pajakRp}</span></div>
-                                                                    <div class='flex justify-between font-bold text-success-600 dark:text-success-400'><span>Diterima Bersih:</span><span>Rp {$bersihRp}</span></div>
-                                                                </div>
-                                                            ");
-                                                        }),
-                                                ])
-                                                    ->visible(fn (callable $get, mixed $record = null): bool => $calculateTotalPesanan($get, $record) > 2000000),
-                                            ]),
-                                    ]),
+                                            TextInput::make('metode_pembayaran')
+                                                ->label('Metode Pembayaran')
+                                                ->default('Transfer Bank / Tempo 14 Hari setelah barang diterima')
+                                                ->placeholder('Contoh: Transfer Bank / Tempo 14 Hari'),
+                                        ]),
+                                ]),
                         ]),
 
                     // =========================================================================
@@ -1517,6 +1383,82 @@ class PengajuanSpjForm
                                             return "Bruto: Rp " . number_format($total, 0, ',', '.') . " | PPN ({$ppnRate}%): Rp " . number_format($nilaiPpn, 0, ',', '.') . " | PPh 22 ({$pphRate}%): Rp " . number_format($nilaiPph, 0, ',', '.') . " | Total Pajak: Rp " . number_format($totalPajak, 0, ',', '.') . " ➔ DITERIMA BERSIH: Rp " . number_format($netto, 0, ',', '.');
                                         })
                                         ->columnSpan(['default' => 12, 'md' => 6]),
+                                ]),
+
+                            // KETENTUAN PERPAJAKAN (Dialihkan ke Step 2 Kwitansi)
+                            Section::make('Ketentuan Perpajakan (PPN & PPh)')
+                                ->description('Kebijakan pemungutan dan persentase pajak kwitansi belanja.')
+                                ->compact()
+                                ->schema([
+                                    Select::make('skema_pajak')
+                                        ->label('Skema / Kebijakan Pajak')
+                                        ->dehydrated(false)
+                                        ->options([
+                                            'standar' => 'Standar Belanja Barang (PPN 11% + PPh 22 1,5%)',
+                                            'ppn12' => 'Kebijakan Baru PPN 12% (PPN 12% + PPh 22 1,5%)',
+                                            'non_npwp' => 'Rekanan Non-NPWP (PPN 11% + PPh 22 3%)',
+                                            'jasa_pph23' => 'Jasa / Katering (PPN 11% + PPh 23 2%)',
+                                            'kustom' => 'Kustom (Atur Persentase Manual)',
+                                            'bebas' => 'Bebas Pungut Pajak / SKB (0%)',
+                                        ])
+                                        ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): string {
+                                            $spj = $resolveSpjRecord($record);
+                                            if ($spj) {
+                                                if ((float) $spj->ppn_persen == 12.0) return 'ppn12';
+                                                if ((float) $spj->pph22_persen == 3.0) return 'non_npwp';
+                                                if ((float) $spj->pph22_persen == 2.0) return 'jasa_pph23';
+                                                if ((float) $spj->ppn_persen == 0 && (float) $spj->pph22_persen == 0) return 'bebas';
+                                                if ((float) $spj->ppn_persen == 11.0 && (float) $spj->pph22_persen == 1.5) return 'standar';
+                                                return 'kustom';
+                                            }
+                                            return 'standar';
+                                        })
+                                        ->live()
+                                        ->afterStateUpdated(function (?string $state, callable $set) {
+                                            match ($state) {
+                                                'standar' => [$set('ppn_persen', 11.0), $set('pph22_persen', 1.5)],
+                                                'ppn12' => [$set('ppn_persen', 12.0), $set('pph22_persen', 1.5)],
+                                                'non_npwp' => [$set('ppn_persen', 11.0), $set('pph22_persen', 3.0)],
+                                                'jasa_pph23' => [$set('ppn_persen', 11.0), $set('pph22_persen', 2.0)],
+                                                'bebas' => [$set('ppn_persen', 0.0), $set('pph22_persen', 0.0)],
+                                                default => null,
+                                            };
+                                        }),
+
+                                    Grid::make(2)
+                                        ->schema([
+                                            TextInput::make('ppn_persen')
+                                                ->label('PPN (%)')
+                                                ->numeric()
+                                                ->minValue(0)
+                                                ->maxValue(100)
+                                                ->suffix('%')
+                                                ->live()
+                                                ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): float {
+                                                    $spj = $resolveSpjRecord($record);
+                                                    if ($spj && $spj->ppn_persen !== null) {
+                                                        return (float) $spj->ppn_persen;
+                                                    }
+                                                    return 11.0;
+                                                })
+                                                ->helperText('Dapat diedit bebas'),
+
+                                            TextInput::make('pph22_persen')
+                                                ->label('PPh (%)')
+                                                ->numeric()
+                                                ->minValue(0)
+                                                ->maxValue(100)
+                                                ->suffix('%')
+                                                ->live()
+                                                ->default(function (callable $get, mixed $record = null) use ($resolveSpjRecord): float {
+                                                    $spj = $resolveSpjRecord($record);
+                                                    if ($spj && $spj->pph22_persen !== null) {
+                                                        return (float) $spj->pph22_persen;
+                                                    }
+                                                    return 1.5;
+                                                })
+                                                ->helperText('Dapat diedit bebas'),
+                                        ]),
                                 ]),
                         ]),
 

@@ -902,49 +902,38 @@ flowchart TD
 
 ---
 
-## 13. Format Respon AI (MANDATORY / WAJIB)
+## 13. Format Respon AI & Efisiensi Token (MANDATORY / WAJIB)
 
-> **ATURAN KETAT:** Dilarang memberikan narasi/penjelasan panjang yang tidak diminta ("tidak usah jelaskan"). Langsung berikan respon to the point sesuai format wajib berikut:
+> **ATURAN EFISIENSI TOKEN (HEMAT TOKEN):** Dilarang mencetak ulang seluruh isi file kode yang panjang. AI cukup menjelaskan file yang diubah dan potongan kode spesifik yang dimodifikasi secara to-the-point dan ringkas agar hemat token.
 
 ### File
-
 ```txt
 app/...
 ```
 
-### Kode Final
-
-Kode siap pakai.
+### Penjelasan Perubahan & Kode Ringkas
+Jelaskan poin-poin perubahan dan tampilkan hanya potongan kode (*diff* / *snippet*) yang relevan, bukan seluruh file.
 
 ### Command
-
 ```bash
 php artisan optimize:clear
 ```
-
-_(Tambahkan `php artisan migrate`, `php artisan make:...` bila ada penambahan file/skema)_
+*(Tambahkan `php artisan migrate`, dsb. bila diperlukan)*
 
 ### Migration
-
 ```txt
 Ya / Tidak
 ```
 
 ### Dampak
-
 #### Backend
-
 - ...
-
 #### Frontend
-
 - ...
 
 ### Git Commit (WAJIB)
-
 ```bash
 git add .
 git commit -m "type(scope): deskripsi perubahan"
 ```
-
-_(Dilarang mengakhiri jawaban tanpa bagian Git Commit)_
+*(Dilarang mengakhiri jawaban tanpa bagian Git Commit)*

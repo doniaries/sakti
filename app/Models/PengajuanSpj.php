@@ -253,26 +253,14 @@ class PengajuanSpj extends Model
             }
         }
 
-        // Ambil nomor urut tertinggi khusus untuk bidang ini pada tahun anggaran berjalan (terpisah per bidang)
-        $query = static::whereYear('tanggal_pengajuan', $tahunAnggaran);
-        if ($bidangId) {
-            $query->where('bidang_id', $bidangId);
-        }
+        // Generate kode acak unik (4 alfanumerik kapital) agar tidak terjadi bentrok nomor urut
+        // saat input SPJ lama/susulan atau SPJ tahun berjalan
+        do {
+            $kodeUnik = strtoupper(\Illuminate\Support\Str::random(4));
+            $nomor = "{$prefix}/{$inisial}/{$bulan}/{$tahunAnggaran}/{$kodeUnik}";
+        } while (static::where('nomor_pengajuan', $nomor)->exists());
 
-        $existingNumbers = $query->pluck('nomor_pengajuan')->all();
-        $maxUrut = 0;
-        foreach ($existingNumbers as $num) {
-            $parts = explode('/', (string) $num);
-            $last = end($parts);
-            if (is_numeric($last)) {
-                $maxUrut = max($maxUrut, (int) $last);
-            }
-        }
-
-        $count = max($query->count(), $maxUrut) + 1;
-        $urut = str_pad((string) $count, 4, '0', STR_PAD_LEFT);
-
-        return "{$prefix}/{$inisial}/{$bulan}/{$tahunAnggaran}/{$urut}";
+        return $nomor;
     }
 
     public function getNomorSuratPesananAttribute(): string
