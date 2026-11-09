@@ -17,14 +17,14 @@ class EditPengajuanSpj extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('kembali')
+                ->label('Kembali')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(fn (): string => static::getResource()::getUrl('index')),
+
             Action::make('cetak')
-                ->label(function (): string {
-                    return match ($this->record->status) {
-                        'menunggu_realisasi' => 'Preview & Cetak Pesanan',
-                        'menunggu_verifikasi_pptk', 'revisi_pptk' => 'Preview & Cetak Pesanan / Kwitansi',
-                        default => 'Preview & Cetak Dokumen (SPJ / Kwitansi / NPD)',
-                    };
-                })
+                ->label('Preview Dokumen')
                 ->icon('heroicon-o-document-magnifying-glass')
                 ->color('info')
                 ->visible(fn (): bool => ! in_array($this->record->status, ['draft', 'diajukan', 'ditolak'], true))

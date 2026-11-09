@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\MasterSyaratBelanjas\Schemas;
 
+use App\Models\MasterSyaratBelanja;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -21,26 +22,40 @@ class MasterSyaratBelanjaForm
                     ->schema([
                         Grid::make(2)
                             ->schema([
-                                Select::make('jenis_belanja')
-                                    ->label('Jenis Belanja')
-                                    ->options([
-                                        'semua' => 'Semua Jenis Belanja',
-                                        'barang_jasa' => 'Belanja Barang & Jasa',
-                                        'makan_minum' => 'Makan & Minum Rapat',
-                                        'sppd' => 'Perjalanan Dinas (SPPD)',
-                                        'bbm' => 'BBM (Bahan Bakar Minyak)',
-                                    ])
-                                    ->default('barang_jasa')
-                                    ->required(),
-
                                 Select::make('metode_pengadaan')
                                     ->label('Metode Pengadaan')
                                     ->options([
-                                        'semua' => 'Semua Metode (E-Katalog & Non-Katalog)',
-                                        'e_katalog' => 'E-Katalog (E-Purchasing LKPP)',
                                         'non_katalog' => 'Non-Katalog (Pengadaan Langsung)',
+                                        'e_katalog' => 'E-Katalog (E-Purchasing LKPP)',
+                                        'semua' => 'Semua Metode (Lintas Pengadaan)',
                                     ])
                                     ->default('non_katalog')
+                                    ->required(),
+
+                                Select::make('jenis_belanja')
+                                    ->label('Jenis Pekerjaan / Belanja')
+                                    ->options(function () {
+                                        $options = [
+                                            'barang_jasa' => 'Non-Katalog: Belanja Barang & Jasa',
+                                            'makan_minum' => 'Non-Katalog: Makan & Minum Rapat',
+                                            'sppd' => 'Non-Katalog: Perjalanan Dinas (SPPD)',
+                                            'bbm' => 'Non-Katalog: BBM (Bahan Bakar Minyak)',
+                                            'e_katalog' => 'E-Katalog: Pengadaan Paket E-Purchasing',
+                                            'semua' => 'Dokumen Umum / Lintas Belanja',
+                                        ];
+
+                                        $customs = MasterSyaratBelanja::query()
+                                            ->whereNotIn('jenis_belanja', array_keys($options))
+                                            ->distinct()
+                                            ->pluck('jenis_belanja');
+
+                                        foreach ($customs as $c) {
+                                            $options[$c] = 'Pekerjaan: ' . ucwords(str_replace('_', ' ', $c));
+                                        }
+
+                                        return $options;
+                                    })
+                                    ->searchable()
                                     ->required(),
                             ]),
 
@@ -76,4 +91,3 @@ class MasterSyaratBelanjaForm
             ]);
     }
 }
-

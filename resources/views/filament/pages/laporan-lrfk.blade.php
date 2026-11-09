@@ -26,7 +26,7 @@
     </div>
 
     {{-- TAB NAVIGASI LEMBAR LAPORAN (SESUAI PEDOMAN RESMI PAGE 1, 2, 3) --}}
-    <div class="flex items-center gap-2 border-b border-gray-200 dark:!border-zinc-800 pb-2">
+    <div class="laporan-tabs-container mb-2">
         <button type="button" wire:click="setTab('lampiran1')"
             class="laporan-tab-btn {{ $activeTab === 'lampiran1' ? 'active' : '' }}">
             Laporan Realisasi Belanja

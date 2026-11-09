@@ -1231,9 +1231,13 @@ class PengajuanSpjForm
                                             $metode = $get('metode_pengadaan') ?: 'non_katalog';
 
                                             $syarats = MasterSyaratBelanja::where('aktif', true)
-                                                ->where('metode_pengadaan', $metode)
+                                                ->where(function ($q) use ($metode) {
+                                                    $q->where('metode_pengadaan', $metode)
+                                                        ->orWhere('metode_pengadaan', 'semua');
+                                                })
                                                 ->where(function ($q) use ($jenis) {
-                                                    $q->where('jenis_belanja', $jenis)->orWhere('jenis_belanja', 'semua');
+                                                    $q->where('jenis_belanja', $jenis)
+                                                        ->orWhere('jenis_belanja', 'semua');
                                                 })
                                                 ->orderBy('urutan')
                                                 ->get();

@@ -16,6 +16,17 @@ class CreatePengajuanSpj extends CreateRecord
 
     protected Width | string | null $maxContentWidth = Width::Full;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            \Filament\Actions\Action::make('kembali')
+                ->label('Kembali')
+                ->icon('heroicon-o-arrow-left')
+                ->color('gray')
+                ->url(fn (): string => static::getResource()::getUrl('index')),
+        ];
+    }
+
     protected function fillForm(): void
     {
         parent::fillForm();

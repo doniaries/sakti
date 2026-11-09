@@ -197,27 +197,27 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 text-xs">
             <div>
-                <span class="text-gray-500 dark:text-gray-400 block text-[11px]">Rekanan / Toko:</span>
-                <span class="font-bold text-gray-900 dark:text-gray-100 truncate block">
-                    {{ $record->nama_toko ?: ($record->masterToko?->nama_toko ?? '-') }}
+                <span class="text-gray-500 dark:text-gray-400 block text-[11px] font-medium">Kegiatan:</span>
+                <span class="font-bold text-gray-900 dark:text-gray-100 block truncate" title="{{ $record->kegiatan?->nama_kegiatan }}">
+                    {{ $record->kegiatan?->nama_kegiatan ?? '-' }}
                 </span>
             </div>
             <div>
-                <span class="text-gray-500 dark:text-gray-400 block text-[11px]">Sub Kegiatan:</span>
-                <span class="font-bold text-gray-900 dark:text-gray-100 truncate block" title="{{ $record->subKegiatan?->nama_sub_kegiatan }}">
+                <span class="text-gray-500 dark:text-gray-400 block text-[11px] font-medium">Sub Kegiatan:</span>
+                <span class="font-bold text-gray-900 dark:text-gray-100 block truncate" title="{{ $record->subKegiatan?->nama_sub_kegiatan }}">
                     {{ $record->subKegiatan?->nama_sub_kegiatan ?? '-' }}
                 </span>
             </div>
             <div>
-                <span class="text-gray-500 dark:text-gray-400 block text-[11px]">Rekening Belanja:</span>
-                <span class="font-bold text-amber-600 dark:text-amber-400 truncate block font-mono">
-                    {{ $record->details->first()?->kodeRekening?->kode_rekening ?? '-' }}
+                <span class="text-gray-500 dark:text-gray-400 block text-[11px] font-medium">Rekanan / Toko:</span>
+                <span class="font-bold text-gray-900 dark:text-gray-100 block truncate">
+                    {{ $record->nama_toko ?: ($record->masterToko?->nama_toko ?? '-') }}
                 </span>
             </div>
             <div>
-                <span class="text-gray-500 dark:text-gray-400 block text-[11px]">Status Pajak:</span>
+                <span class="text-gray-500 dark:text-gray-400 block text-[11px] font-medium">Status Pajak:</span>
                 @if ($record->is_kena_pajak || $totalNominal > 2000000)
                     <span class="font-bold text-amber-600 dark:text-amber-400 block">
                         Pajak: Rp {{ number_format($record->total_pajak, 0, ',', '.') }}

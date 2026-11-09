@@ -216,7 +216,7 @@ class PengajuanSpjsTable
                     ->options([
                         'draft' => 'Draft Surat Pesanan',
                         'diajukan' => 'Surat Pesanan Menunggu TTD (PPTK)',
-                        'menunggu_realisasi' => 'Pesanan Disetujui / Menyiapkan Berkas SPJ',
+                        'menunggu_realisasi' => 'Pesanan Disetujui',
                         'menunggu_verifikasi_pptk' => 'SPJ Menunggu Verifikasi (PPTK)',
                         'revisi_pptk' => 'SPJ Perlu Revisi (PPTK)',
                         'menunggu_verifikasi_ppk' => 'SPJ Menunggu Verifikasi (PPK)',
@@ -438,7 +438,7 @@ class PengajuanSpjsTable
                     ->form(function (PengajuanSpj $record): array {
                         $schema = [];
 
-                        // Kasus 3: Saat Surat Pesanan sudah di-TTD Kabid, Staf memproses Surat Kwitansi & Upload Bukti
+                        // Kasus 3: Saat Surat Pesanan sudah di-TTD Kabid, Staf memproses Surat Kwitansi & Upload Bukti Syarat Dokumen
                         if (in_array($record->status, ['menunggu_realisasi', 'revisi_pptk'], true)) {
                             $nominalAktif = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
                             $wajibFotoBarang = $nominalAktif > 2000000;
@@ -453,23 +453,69 @@ class PengajuanSpjsTable
                                 ->default($record->penerima_identitas)
                                 ->placeholder('Contoh: Pimpinan Toko / NPWP');
 
-                            $schema[] = FileUpload::make('file_nota_penjual')
-                                ->label('Unggah Faktur / Nota Asli Penjual (Wajib untuk Proses Kwitansi)')
-                                ->directory('spj/nota-penjual')
-                                ->default($record->file_nota_penjual)
-                                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
-                                ->maxSize(5120)
-                                ->required(fn() => empty($record->file_nota_penjual));
+                            // Ambil seluruh syarat dokumen resmi dari MasterSyaratBelanja untuk transaksi ini
+                            $syaratBelanjaList = \App\Models\MasterSyaratBelanja::query()
+                                ->where('aktif', true)
+                                ->where(function ($q) use ($record) {
+                                    $q->where('metode_pengadaan', $record->metode_pengadaan)
+                                        ->orWhere('metode_pengadaan', 'semua');
+                                })
+                                ->where(function ($q) use ($record) {
+                                    $q->where('jenis_belanja', $record->jenis_belanja)
+                                        ->orWhere('jenis_belanja', 'semua');
+                                })
+                                ->orderBy('urutan')
+                                ->get();
 
-                            $schema[] = FileUpload::make('file_dokumentasi_barang')
-                                ->label($wajibFotoBarang
-                                    ? 'Unggah Foto Dokumentasi Fisik Barang (WAJIB karena nilai > Rp 2.000.000)'
-                                    : 'Unggah Foto Dokumentasi Fisik Barang (Opsional)')
-                                ->directory('spj/dokumentasi-barang')
-                                ->default($record->file_dokumentasi_barang)
-                                ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
-                                ->maxSize(5120)
-                                ->required(fn() => $wajibFotoBarang && empty($record->file_dokumentasi_barang));
+                            if ($syaratBelanjaList->isNotEmpty()) {
+                                $uploadSyaratFields = [];
+                                foreach ($syaratBelanjaList as $syarat) {
+                                    $fieldKey = "dokumen_syarat_files.syarat_{$syarat->id}";
+                                    $existingVal = data_get($record->dokumen_syarat_files, "syarat_{$syarat->id}");
+
+                                    if (! $existingVal) {
+                                        if (str_contains(strtolower($syarat->nama_syarat), 'nota') || str_contains(strtolower($syarat->nama_syarat), 'faktur')) {
+                                            $existingVal = $record->file_nota_penjual;
+                                        } elseif (str_contains(strtolower($syarat->nama_syarat), 'foto') || str_contains(strtolower($syarat->nama_syarat), 'dokumentasi')) {
+                                            $existingVal = $record->file_dokumentasi_barang;
+                                        } elseif (str_contains(strtolower($syarat->nama_syarat), 'e-purchasing') || str_contains(strtolower($syarat->nama_syarat), 'katalog')) {
+                                            $existingVal = $record->file_ekatalog_bundel;
+                                        }
+                                    }
+
+                                    $uploadSyaratFields[] = FileUpload::make($fieldKey)
+                                        ->label("Unggah: {$syarat->nama_syarat}" . ($syarat->is_required ? ' (Wajib)' : ' (Opsional)'))
+                                        ->helperText($syarat->keterangan)
+                                        ->directory("spj/syarat-{$record->id}")
+                                        ->default($existingVal)
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(10240)
+                                        ->required((bool) $syarat->is_required && empty($existingVal));
+                                }
+
+                                $schema[] = Section::make('Kelengkapan Berkas & Dokumen SPJ')
+                                    ->description('Unggah dokumen bukti belanja sesuai ketentuan resmi berikut:')
+                                    ->compact()
+                                    ->schema($uploadSyaratFields);
+                            } else {
+                                $schema[] = FileUpload::make('file_nota_penjual')
+                                    ->label('Unggah Faktur / Nota Asli Penjual (Wajib untuk Proses Kwitansi)')
+                                    ->directory('spj/nota-penjual')
+                                    ->default($record->file_nota_penjual)
+                                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                    ->maxSize(5120)
+                                    ->required(fn() => empty($record->file_nota_penjual));
+
+                                $schema[] = FileUpload::make('file_dokumentasi_barang')
+                                    ->label($wajibFotoBarang
+                                        ? 'Unggah Foto Dokumentasi Fisik Barang (WAJIB karena nilai > Rp 2.000.000)'
+                                        : 'Unggah Foto Dokumentasi Fisik Barang (Opsional)')
+                                    ->directory('spj/dokumentasi-barang')
+                                    ->default($record->file_dokumentasi_barang)
+                                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                    ->maxSize(5120)
+                                    ->required(fn() => $wajibFotoBarang && empty($record->file_dokumentasi_barang));
+                            }
 
                             if ((float) $record->total_nilai_realisasi > 0 && (float) $record->total_nilai_realisasi !== (float) $record->total_nilai_rencana) {
                                 $schema[] = Textarea::make('justifikasi_selisih')
@@ -746,6 +792,30 @@ class PengajuanSpjsTable
                                 $extraUpdates[$field] = $data[$field];
                             }
                         }
+
+                        if (! empty($data['dokumen_syarat_files']) && is_array($data['dokumen_syarat_files'])) {
+                            $existingFiles = (array) ($record->dokumen_syarat_files ?? []);
+                            $mergedFiles = array_merge($existingFiles, array_filter($data['dokumen_syarat_files']));
+                            $extraUpdates['dokumen_syarat_files'] = $mergedFiles;
+
+                            foreach ($mergedFiles as $k => $filePath) {
+                                if (str_contains($k, 'syarat_')) {
+                                    $syaratId = (int) str_replace('syarat_', '', $k);
+                                    $syaratItem = \App\Models\MasterSyaratBelanja::find($syaratId);
+                                    if ($syaratItem) {
+                                        $syaratLower = strtolower($syaratItem->nama_syarat);
+                                        if (str_contains($syaratLower, 'nota') || str_contains($syaratLower, 'faktur')) {
+                                            $extraUpdates['file_nota_penjual'] = $filePath;
+                                        } elseif (str_contains($syaratLower, 'foto') || str_contains($syaratLower, 'dokumentasi')) {
+                                            $extraUpdates['file_dokumentasi_barang'] = $filePath;
+                                        } elseif (str_contains($syaratLower, 'e-purchasing') || str_contains($syaratLower, 'katalog')) {
+                                            $extraUpdates['file_ekatalog_bundel'] = $filePath;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         if (! empty($extraUpdates)) {
                             $record->update($extraUpdates);
                         }

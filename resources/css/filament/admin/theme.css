@@ -110,66 +110,139 @@ html:not(.dark) .fi-dropdown-list {
 }
 
 /* ==========================================================================
-   Tabs Styling Enhancement (Warna Tab Kontras & Jelas Tampak)
+   Tabs Styling Enhancement (Reusable & DRY Tab System - Anti Warna Hitam Legam)
    ========================================================================== */
 
-/* Container Tabs */
-.fi-tabs {
+/* Container Tabs (.fi-tabs & .laporan-tabs-container) */
+.fi-tabs,
+.laporan-tabs-container {
     border-radius: 0.75rem !important;
-    padding: 0.375rem !important;
-    background-color: #18181b !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    gap: 0.375rem !important;
-}
-
-/* Tab Item Default (Belum Aktif) */
-.fi-tabs-item {
-    border-radius: 0.5rem !important;
-    padding: 0.5rem 1rem !important;
-    font-weight: 500 !important;
-    border: 1px solid transparent !important;
+    padding: 0.25rem !important;
+    gap: 0.25rem !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
     transition: all 0.2s ease-in-out !important;
 }
 
-.fi-tabs-item .fi-tabs-item-label {
-    color: #a1a1aa !important; /* zinc-400 */
-    transition: color 0.2s ease;
+/* Light Mode: Container Tabs */
+html:not(.dark) .fi-tabs,
+html:not(.dark) .laporan-tabs-container {
+    background-color: #f1f5f9 !important; /* slate-100 */
+    border: 1px solid #e2e8f0 !important; /* slate-200 */
 }
 
-.fi-tabs-item .fi-icon {
-    color: #71717a !important; /* zinc-500 */
-    transition: color 0.2s ease;
+/* Dark Mode: Container Tabs (Transparan halus menyatu dengan panel, bukan hitam pekat) */
+.dark .fi-tabs,
+.dark .laporan-tabs-container {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-/* Tab Item Hover */
-.fi-tabs-item:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
+/* Tab Item Default (Belum Aktif) - Reusable untuk .fi-tabs-item & .laporan-tab-btn */
+.fi-tabs-item,
+.laporan-tab-btn {
+    border-radius: 0.5rem !important;
+    padding: 0.45rem 1rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    border: 1px solid transparent !important;
+    transition: all 0.15s ease-in-out !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.375rem !important;
+    text-decoration: none !important;
 }
 
-.fi-tabs-item:hover .fi-tabs-item-label {
-    color: #f4f4f5 !important;
+/* Light Mode: Inactive Item */
+html:not(.dark) .fi-tabs-item,
+html:not(.dark) .laporan-tab-btn {
+    color: #475569 !important; /* slate-600 */
 }
 
-.fi-tabs-item:hover .fi-icon {
-    color: #f59e0b !important;
+html:not(.dark) .fi-tabs-item .fi-tabs-item-label {
+    color: #475569 !important;
 }
 
-/* Tab Item Aktif (Beri Warna Emas / Amber yang Tampak Jelas) */
-.fi-tabs-item.fi-active {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.12) 100%) !important;
-    border: 1px solid rgba(245, 158, 11, 0.55) !important;
-    box-shadow: 0 0 14px -3px rgba(245, 158, 11, 0.3) !important;
+html:not(.dark) .fi-tabs-item .fi-icon {
+    color: #64748b !important;
 }
 
-.fi-tabs-item.fi-active .fi-tabs-item-label {
-    color: #fbbf24 !important; /* amber-400 cerah */
+html:not(.dark) .fi-tabs-item:hover,
+html:not(.dark) .laporan-tab-btn:hover {
+    background-color: rgba(255, 255, 255, 0.65) !important;
+    color: #0f172a !important;
+}
+
+/* Dark Mode: Inactive Item */
+.dark .fi-tabs-item,
+.dark .laporan-tab-btn {
+    color: #94a3b8 !important; /* slate-400 */
+}
+
+.dark .fi-tabs-item .fi-tabs-item-label {
+    color: #94a3b8 !important;
+}
+
+.dark .fi-tabs-item .fi-icon {
+    color: #64748b !important;
+}
+
+.dark .fi-tabs-item:hover,
+.dark .laporan-tab-btn:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    color: #f8fafc !important;
+}
+
+/* Tab Item Aktif (Light Mode): Bersih, Solid Putih dengan Kontras Tinggi */
+html:not(.dark) .fi-tabs-item.fi-active,
+html:not(.dark) .fi-tabs-item[aria-selected="true"],
+html:not(.dark) .laporan-tab-btn.active {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08) !important;
+}
+
+html:not(.dark) .fi-tabs-item.fi-active .fi-tabs-item-label,
+html:not(.dark) .fi-tabs-item[aria-selected="true"] .fi-tabs-item-label {
+    color: #0f172a !important;
     font-weight: 700 !important;
 }
 
-.fi-tabs-item.fi-active .fi-icon {
-    color: #f59e0b !important; /* amber-500 cerah */
-    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));
+html:not(.dark) .fi-tabs-item.fi-active .fi-icon,
+html:not(.dark) .fi-tabs-item[aria-selected="true"] .fi-icon {
+    color: #d97706 !important; /* amber-600 */
+}
+
+/* Tab Item Aktif (Dark Mode): Highlight Elegan Transparan & Border Berkilau */
+.dark .fi-tabs-item.fi-active,
+.dark .fi-tabs-item[aria-selected="true"],
+.dark .laporan-tab-btn.active {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark .fi-tabs-item.fi-active .fi-tabs-item-label,
+.dark .fi-tabs-item[aria-selected="true"] .fi-tabs-item-label {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.dark .fi-tabs-item.fi-active .fi-icon,
+.dark .fi-tabs-item[aria-selected="true"] .fi-icon {
+    color: #fbbf24 !important; /* amber-400 */
+}
+
+/* Tab Badge */
+.fi-tabs-item .fi-badge,
+.laporan-tab-btn .fi-badge {
+    font-size: 0.75rem !important;
+    padding: 0.15rem 0.5rem !important;
+    border-radius: 9999px !important;
 }
 
 /* ==========================================================================
@@ -246,57 +319,6 @@ html:not(.dark) .fi-ta-table thead th.fi-ta-selection-cell {
 /* ==========================================================================
    Modul Laporan LRFK & Fungsional (High Contrast & Sticky Precision)
    ========================================================================== */
-
-/* 1. Tombol Tab Laporan (Anti Tulisan Hilang di Dark / Light Mode) */
-.laporan-tab-btn {
-    padding: 0.5rem 1.125rem !important;
-    font-size: 0.875rem !important;
-    font-weight: 600 !important;
-    border-radius: 0.5rem !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease-in-out !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 0.375rem !important;
-    text-decoration: none !important;
-}
-
-/* Light Mode: Inactive Tab */
-html:not(.dark) .laporan-tab-btn {
-    background-color: #f1f5f9 !important; /* slate-100 */
-    color: #334155 !important;            /* slate-700 */
-    border: 1px solid #cbd5e1 !important; /* slate-300 */
-}
-html:not(.dark) .laporan-tab-btn:hover {
-    background-color: #e2e8f0 !important;
-    color: #0f172a !important;
-}
-/* Light Mode: Active Tab (Amber solid dengan teks putih kontras tinggi) */
-html:not(.dark) .laporan-tab-btn.active {
-    background-color: #d97706 !important; /* amber-600 */
-    color: #ffffff !important;
-    border: 1px solid #b45309 !important;
-    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.35) !important;
-}
-
-/* Dark Mode: Inactive Tab */
-.dark .laporan-tab-btn {
-    background-color: #27272a !important; /* zinc-800 */
-    color: #d4d4d8 !important;            /* zinc-300 */
-    border: 1px solid #3f3f46 !important; /* zinc-700 */
-}
-.dark .laporan-tab-btn:hover {
-    background-color: #3f3f46 !important;
-    color: #ffffff !important;
-}
-/* Dark Mode: Active Tab (Emas Amber dengan teks gelap untuk kontras maksimal) */
-.dark .laporan-tab-btn.active {
-    background-color: #f59e0b !important; /* amber-500 */
-    color: #09090b !important;            /* zinc-950 */
-    font-weight: 700 !important;
-    border: 1px solid #fbbf24 !important;
-    box-shadow: 0 0 14px rgba(245, 158, 11, 0.4) !important;
-}
 
 /* 2. Container Card & Header */
 .laporan-card {
