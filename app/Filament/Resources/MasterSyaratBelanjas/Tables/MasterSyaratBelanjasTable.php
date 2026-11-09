@@ -9,7 +9,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -22,13 +21,9 @@ class MasterSyaratBelanjasTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->reorderable('urutan')
+            ->defaultSort('urutan')
             ->columns([
-                TextInputColumn::make('urutan')
-                    ->label('No.')
-                    ->sortable()
-                    ->alignCenter()
-                    ->width('70px'),
-
                 TextColumn::make('nama_syarat')
                     ->label('Nama Dokumen Persyaratan')
                     ->searchable()
@@ -98,8 +93,6 @@ class MasterSyaratBelanjasTable
                     ->collapsible(),
             ])
             ->defaultGroup('jenis_belanja')
-            ->reorderable('urutan')
-            ->defaultSort('urutan')
             ->filters([
                 SelectFilter::make('metode_pengadaan')
                     ->label('Metode Pengadaan')

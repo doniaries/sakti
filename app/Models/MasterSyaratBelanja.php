@@ -26,5 +26,16 @@ class MasterSyaratBelanja extends Model
         'aktif' => 'boolean',
         'urutan' => 'integer',
     ];
-}
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $model): void {
+            if (empty($model->urutan)) {
+                $max = static::where('jenis_belanja', $model->jenis_belanja)
+                    ->where('metode_pengadaan', $model->metode_pengadaan)
+                    ->max('urutan') ?? 0;
+                $model->urutan = $max + 1;
+            }
+        });
+    }
+}

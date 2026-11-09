@@ -10,6 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class MasterSyaratBelanjaForm
 {
@@ -18,7 +19,7 @@ class MasterSyaratBelanjaForm
         return $schema
             ->components([
                 Section::make('Informasi Syarat Dokumen Belanja')
-                    ->description('Kelola dokumen persyaratan yang wajib atau opsional diunggah pada pengajuan SPJ.')
+                    ->description('Kelola berkas SOP yang wajib atau opsional dipenuhi staf pada saat pengajuan SPJ.')
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -34,7 +35,7 @@ class MasterSyaratBelanjaForm
 
                                 Select::make('jenis_belanja')
                                     ->label('Jenis Pekerjaan / Belanja')
-                                    ->options(function () {
+                                    ->options(function (?string $state) {
                                         $options = [
                                             'barang_jasa' => 'Non-Katalog: Belanja Barang & Jasa',
                                             'makan_minum' => 'Non-Katalog: Makan & Minum Rapat',
@@ -53,31 +54,45 @@ class MasterSyaratBelanjaForm
                                             $options[$c] = 'Pekerjaan: ' . ucwords(str_replace('_', ' ', $c));
                                         }
 
+                                        if ($state && ! isset($options[$state])) {
+                                            $options[$state] = 'Pekerjaan: ' . ucwords(str_replace('_', ' ', $state));
+                                        }
+
                                         return $options;
                                     })
+                                    ->getOptionLabelUsing(function (?string $value): ?string {
+                                        if (! $value) {
+                                            return null;
+                                        }
+
+                                        return ucwords(str_replace('_', ' ', $value));
+                                    })
                                     ->searchable()
+                                    ->createOptionForm([
+                                        TextInput::make('nama_baru')
+                                            ->label('Nama Jenis Pekerjaan Baru')
+                                            ->placeholder('Contoh: Pemeliharaan Gedung Kantor')
+                                            ->required(),
+                                    ])
+                                    ->createOptionUsing(function (array $data): string {
+                                        return Str::slug($data['nama_baru'], '_');
+                                    })
                                     ->required(),
                             ]),
 
                         TextInput::make('nama_syarat')
                             ->label('Nama Dokumen Syarat')
-                            ->placeholder('Contoh: Daftar Hadir Rapat Bertandatangan')
+                            ->placeholder('Contoh: Faktur / Nota Toko Asli')
                             ->required()
                             ->maxLength(255),
 
                         Textarea::make('keterangan')
-                            ->label('Petunjuk / Keterangan Dokumen')
+                            ->label('Petunjuk / Keterangan Dokumen (Opsional)')
                             ->placeholder('Contoh: Scan dokumen PDF asli bertandatangan dan berstempel')
-                            ->rows(3),
+                            ->rows(2),
 
-                        Grid::make(3)
+                        Grid::make(2)
                             ->schema([
-                                TextInput::make('urutan')
-                                    ->label('Nomor Urut Tampil')
-                                    ->numeric()
-                                    ->default(1)
-                                    ->required(),
-
                                 Toggle::make('is_required')
                                     ->label('Wajib Diunggah')
                                     ->helperText('Jika aktif, berkas ini menjadi syarat mutlak verifikasi SPJ.')
