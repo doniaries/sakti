@@ -29,13 +29,13 @@ class KodeRekening extends Model
         static::saving(function (KodeRekening $model) {
             if ($model->kode_lengkap) {
                 $parts = explode('.', trim($model->kode_lengkap));
-                $model->akun = $parts[0] ?? null;
-                $model->kelompok = $parts[1] ?? null;
-                $model->jenis = $parts[2] ?? null;
-                $model->objek = $parts[3] ?? null;
-                $model->rincian_objek = $parts[4] ?? null;
-                $model->sub_rincian_objek = $parts[5] ?? null;
-                $model->sub_sub_rincian_objek = $parts[6] ?? null;
+                $model->akun = $parts[0] ?? $model->akun;
+                $model->kelompok = $parts[1] ?? $model->kelompok;
+                $model->jenis = $parts[2] ?? $model->jenis;
+                $model->objek = $parts[3] ?? $model->objek;
+                $model->rincian_objek = $parts[4] ?? $model->rincian_objek;
+                $model->sub_rincian_objek = $parts[5] ?? $model->sub_rincian_objek;
+                $model->sub_sub_rincian_objek = $parts[6] ?? ($model->sub_sub_rincian_objek ?: '000');
             }
         });
     }

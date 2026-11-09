@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('objek')->index();
             $table->string('rincian_objek')->index();
             $table->string('sub_rincian_objek')->index();
-            $table->string('sub_sub_rincian_objek')->index();
+            $table->string('sub_sub_rincian_objek')->nullable()->default('000')->index();
             $table->string('kode_lengkap')->index();
             $table->string('uraian')->index();
             $table->timestamps();
