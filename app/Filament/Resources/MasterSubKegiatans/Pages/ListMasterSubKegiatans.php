@@ -20,9 +20,12 @@ use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
+use ZeeshanTariq\FilamentStickyColumns\Concerns\InteractsWithStickyableColumns;
 
 class ListMasterSubKegiatans extends ListRecords
 {
+    use InteractsWithStickyableColumns;
+
     protected static string $resource = MasterSubKegiatanResource::class;
 
     /**

@@ -36,6 +36,7 @@ class MasterSubKegiatansTable
         }
 
         return $table
+            ->stickyableColumns()
             ->recordUrl(fn(MasterSubKegiatan $record): string => MasterSubKegiatanResource::getUrl('edit', ['record' => $record]))
             ->modifyQueryUsing(function (Builder $query, Table $table) use ($defaultYear): Builder {
                 $query->with(['kegiatan.bidang', 'kegiatan.program', 'jf'])
@@ -66,20 +67,6 @@ class MasterSubKegiatansTable
                 return $query;
             })
             ->columns([
-                TextColumn::make('tahun_anggaran')
-                    ->label('Tahun')
-                    ->badge()
-                    ->color('primary')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('kegiatan.bidang.nama')
-                    ->label('Bidang')
-                    ->badge()
-                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('nama_sub_kegiatan')
                     ->label('Sub Kegiatan')
                     ->description(fn(MasterSubKegiatan $record): string => ($record->kode_sub_kegiatan ? "[{$record->kode_sub_kegiatan}] " : '') . ($record->kegiatan?->nama_kegiatan ? "Kegiatan: {$record->kegiatan->nama_kegiatan}" : ''))
@@ -100,7 +87,39 @@ class MasterSubKegiatansTable
                     ->icon(fn($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-exclamation-triangle')
                     ->searchable()
                     ->sortable()
-                    ->wrap(),
+                    ->wrap()
+                    ->action(
+                        Action::make('ganti_jf_inline')
+                            ->modalHeading(fn(MasterSubKegiatan $record): string => "Penugasan JF: {$record->nama_sub_kegiatan}")
+                            ->modalDescription('Pilih Pejabat Fungsional (JF) yang bertanggung jawab atas Sub Kegiatan ini.')
+                            ->visible(fn() => auth()->user()?->hasAnyRole(['pptk', 'super_admin', 'admin', 'pa']))
+                            ->form([
+                                Select::make('jf_id')
+                                    ->label('Pejabat Fungsional (JF)')
+                                    ->options(function (MasterSubKegiatan $record): array {
+                                        $bidangId = $record->kegiatan?->bidang_id;
+
+                                        return User::query()
+                                            ->where('aktif', true)
+                                            ->when($bidangId, fn($q) => $q->where('bidang_id', $bidangId))
+                                            ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']))
+                                            ->orderBy('name')
+                                            ->pluck('name', 'id')
+                                            ->all();
+                                    })
+                                    ->default(fn(MasterSubKegiatan $record) => $record->jf_id)
+                                    ->searchable()
+                                    ->preload()
+                                    ->required(),
+                            ])
+                            ->action(function (MasterSubKegiatan $record, array $data): void {
+                                $record->update(['jf_id' => $data['jf_id']]);
+                                Notification::make()
+                                    ->title('Penugasan JF Berhasil Disimpan')
+                                    ->success()
+                                    ->send();
+                            })
+                    ),
 
                 TextColumn::make('total_pagu')
                     ->label('Pagu Anggaran')
@@ -138,6 +157,20 @@ class MasterSubKegiatansTable
                     ->color(fn($state) => (int) $state > 0 ? 'info' : 'gray')
                     ->formatStateUsing(fn($state) => "{$state} Item")
                     ->alignCenter(),
+
+                TextColumn::make('tahun_anggaran')
+                    ->label('Tahun')
+                    ->badge()
+                    ->color('primary')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('kegiatan.bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('tahun_anggaran')
@@ -168,40 +201,6 @@ class MasterSubKegiatansTable
                     ->icon('heroicon-o-table-cells')
                     ->color('primary')
                     ->url(fn(MasterSubKegiatan $record): string => MasterSubKegiatanResource::getUrl('edit', ['record' => $record])),
-
-                Action::make('tugaskan_jf')
-                    ->label('Tugaskan JF')
-                    ->icon('heroicon-o-user-plus')
-                    ->color('info')
-                    ->visible(fn() => auth()->user()?->hasAnyRole(['pptk', 'super_admin', 'admin', 'pa']))
-                    ->modalHeading(fn(MasterSubKegiatan $record): string => "Bagi Tugas JF: {$record->nama_sub_kegiatan}")
-                    ->modalDescription('Pilih Pejabat Fungsional (JF) yang bertanggung jawab atas Sub Kegiatan ini.')
-                    ->form([
-                        Select::make('jf_id')
-                            ->label('Pejabat Fungsional (JF)')
-                            ->options(function (MasterSubKegiatan $record): array {
-                                $bidangId = $record->kegiatan?->bidang_id;
-
-                                return User::query()
-                                    ->where('aktif', true)
-                                    ->when($bidangId, fn($q) => $q->where('bidang_id', $bidangId))
-                                    ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']))
-                                    ->orderBy('name')
-                                    ->pluck('name', 'id')
-                                    ->all();
-                            })
-                            ->default(fn(MasterSubKegiatan $record) => $record->jf_id)
-                            ->searchable()
-                            ->preload()
-                            ->required(),
-                    ])
-                    ->action(function (MasterSubKegiatan $record, array $data): void {
-                        $record->update(['jf_id' => $data['jf_id']]);
-                        Notification::make()
-                            ->title('Penugasan JF Berhasil Disimpan')
-                            ->success()
-                            ->send();
-                    }),
 
                 EditAction::make()->label('Ubah'),
                 DeleteAction::make(),
