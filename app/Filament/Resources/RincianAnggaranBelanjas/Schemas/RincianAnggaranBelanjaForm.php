@@ -265,6 +265,45 @@ class RincianAnggaranBelanjaForm
                                     $barang = MasterBarang::create($data);
                                     return $barang->id;
                                 })
+                                ->editOptionForm([
+                                    TextInput::make('nama_barang')
+                                        ->label('Nama Komponen Barang')
+                                        ->required(),
+                                    Select::make('satuan_id')
+                                        ->label('Satuan')
+                                        ->options(Satuan::pluck('nama', 'id')->all())
+                                        ->searchable()
+                                        ->preload()
+                                        ->required(),
+                                    FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan Standar (SSH)')
+                                        ->required(),
+                                ])
+                                ->fillEditOptionActionFormUsing(function (Select $component): array {
+                                    $record = MasterBarang::find($component->getState());
+
+                                    return [
+                                        'nama_barang' => $record?->nama_barang,
+                                        'satuan_id' => $record?->satuan_id,
+                                        'harga_satuan' => $record?->harga_satuan,
+                                    ];
+                                })
+                                ->updateOptionUsing(function (array $data, Select $component, Set $set, Get $get): void {
+                                    $barang = MasterBarang::find($component->getState());
+                                    if ($barang) {
+                                        $data['harga_satuan'] = FormatHelper::parseRupiah($data['harga_satuan'] ?? 0);
+                                        $barang->update($data);
+                                        $barang->load('satuan');
+                                        $set('nama_item', $barang->nama_barang);
+                                        if ($barang->satuan) {
+                                            $set('satuan', $barang->satuan->nama);
+                                        }
+                                        $harga = (float) $barang->harga_satuan;
+                                        $set('harga_satuan', $harga > 0 ? number_format($harga, 0, ',', '.') : 0);
+                                        $vol = max(1, (float) ($get('volume') ?: 1));
+                                        $pagu = (int) round($vol * $harga);
+                                        $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
+                                    }
+                                })
                                 ->live()
                                 ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                     if ($state) {
@@ -313,10 +352,13 @@ class RincianAnggaranBelanjaForm
                                 ->options(fn() => Satuan::pluck('nama', 'nama')->all())
                                 ->default('Rim')
                                 ->searchable()
+                                ->readOnly(fn (Get $get) => filled($get('master_barang_id')))
                                 ->required(),
 
                             FormatHelper::rupiahInput('harga_satuan', 'Harga Standar Satuan')
                                 ->required()
+                                ->readOnly(fn (Get $get) => filled($get('master_barang_id')))
+                                ->helperText(fn (Get $get) => filled($get('master_barang_id')) ? 'Terkunci sesuai standar Komponen Belanja (SSH). Klik ikon pensil (✎) di sebelah Komponen Belanja untuk merevisi.' : null)
                                 ->live(debounce: 350)
                                 ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                     $vol = (float) ($get('volume') ?? 0);
