@@ -41,10 +41,10 @@ class RincianAnggaranBelanjasTable
             ->modifyQueryUsing(function (Builder $query, Table $table): Builder {
                 $query->with(['bidang', 'subKegiatan.kegiatan', 'subKegiatan.jf', 'kodeRekening', 'masterBarang.satuan'])
                     ->withSum(['spjDetails as volume_teralokasi' => function ($q) {
-                        $q->whereHas('pengajuanSpj', fn ($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
+                        $q->whereHas('pengajuanSpj', fn($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
                     }], 'kuantitas')
                     ->withSum(['spjDetails as nilai_teralokasi' => function ($q) {
-                        $q->whereHas('pengajuanSpj', fn ($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
+                        $q->whereHas('pengajuanSpj', fn($sq) => $sq->whereNotIn('status', ['draft', 'ditolak']));
                     }], 'subtotal');
 
                 $livewire = $table->getLivewire();
@@ -107,8 +107,8 @@ class RincianAnggaranBelanjasTable
                     ->label('Penanggung Jawab (JF)')
                     ->placeholder('Belum Ditugaskan')
                     ->badge()
-                    ->color(fn ($state) => $state ? 'success' : 'danger')
-                    ->icon(fn ($state) => $state ? 'heroicon-m-user-check' : 'heroicon-m-exclamation-triangle')
+                    ->color(fn($state) => $state ? 'success' : 'danger')
+                    ->icon(fn($state) => $state ? 'heroicon-m-user-check' : 'heroicon-m-exclamation-triangle')
                     ->searchable()
                     ->sortable(),
 
@@ -131,7 +131,23 @@ class RincianAnggaranBelanjasTable
                     ->weight('bold')
                     ->wrap()
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8')),
+                TextColumn::make('sisa_anggaran')
+                    ->label('Sisa Anggaran')
+                    ->state(fn(RincianAnggaranBelanja $r) => FormatHelper::rupiah($r->sisa_anggaran))
+                    ->description(function (RincianAnggaranBelanja $r): string {
+                        $pagu = (float) $r->pagu_total;
+                        $terpakai = max((float) $r->nilai_realisasi, (float) $r->nilai_teralokasi);
+                        $persenSisa = $pagu > 0 ? round(($r->sisa_anggaran / $pagu) * 100) : 0;
 
+                        if ($terpakai <= 0) {
+                            return "100% Pagu Utuh ({$r->sisa_volume} {$r->satuan})";
+                        }
+
+                        return "Tersisa {$persenSisa}% • Terpakai " . FormatHelper::rupiah($terpakai);
+                    })
+                    ->color(fn(RincianAnggaranBelanja $r) => $r->sisa_anggaran > 0 ? 'success' : 'danger')
+                    ->weight('bold')
+                    ->alignEnd(),
                 TextColumn::make('pagu_volume')
                     ->label('Pagu Volume')
                     ->state(fn(RincianAnggaranBelanja $r) => number_format((float) $r->volume, 0, ',', '.') . ' ' . $r->satuan)
@@ -162,12 +178,7 @@ class RincianAnggaranBelanjasTable
                     ->state(fn(RincianAnggaranBelanja $r) => \App\Support\FormatHelper::rupiah((float) $r->nilai_realisasi))
                     ->alignEnd(),
 
-                TextColumn::make('sisa_anggaran')
-                    ->label('Sisa Anggaran')
-                    ->state(fn(RincianAnggaranBelanja $r) => \App\Support\FormatHelper::rupiah($r->sisa_anggaran))
-                    ->color(fn(RincianAnggaranBelanja $r) => $r->sisa_anggaran > 0 ? 'success' : 'danger')
-                    ->weight('bold')
-                    ->alignEnd(),
+
 
                 TextColumn::make('persen_realisasi')
                     ->label('Penyerapan')

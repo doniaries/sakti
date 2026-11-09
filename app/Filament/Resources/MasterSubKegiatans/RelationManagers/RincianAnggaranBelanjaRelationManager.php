@@ -251,26 +251,27 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                     ->sortable()
                     ->weight('bold')
                     ->wrap()
-                    ->extraAttributes(['style' => 'min-width: 280px;'], merge: true)
-                    ->extraHeaderAttributes(['style' => 'min-width: 280px;'], merge: true)
+                    ->extraAttributes(['style' => 'min-width: 260px;'], merge: true)
+                    ->extraHeaderAttributes(['style' => 'min-width: 260px;'], merge: true)
                     ->sticky(),
 
-                TextColumn::make('kodeRekening.uraian')
-                    ->label('Sub Rincian Obyek')
-                    ->description(fn (RincianAnggaranBelanja $r): ?string => $r->kodeRekening?->kode_lengkap)
-                    ->searchable()
-                    ->sortable()
-                    ->badge()
-                    ->color('gray')
-                    ->wrap()
-                    ->extraAttributes(['style' => 'min-width: 240px;'])
-                    ->extraHeaderAttributes(['style' => 'min-width: 240px;']),
+                TextColumn::make('sisa_anggaran')
+                    ->label('Sisa Anggaran')
+                    ->state(fn (RincianAnggaranBelanja $r): string => FormatHelper::rupiah($r->sisa_anggaran))
+                    ->description(function (RincianAnggaranBelanja $r): string {
+                        $pagu = (float) $r->pagu_total;
+                        $terpakai = max((float) $r->nilai_realisasi, (float) $r->nilai_teralokasi);
+                        $persenSisa = $pagu > 0 ? round(($r->sisa_anggaran / $pagu) * 100) : 0;
 
-                TextColumn::make('volume')
-                    ->label('Pagu Volume')
-                    ->state(fn (RincianAnggaranBelanja $r): string => number_format((float) $r->volume, 0, ',', '.') . ' ' . $r->satuan)
-                    ->color('gray')
-                    ->alignCenter(),
+                        if ($terpakai <= 0) {
+                            return "100% Pagu Utuh ({$r->sisa_volume} {$r->satuan})";
+                        }
+
+                        return "Tersisa {$persenSisa}% • Terpakai " . FormatHelper::rupiah($terpakai);
+                    })
+                    ->color(fn (RincianAnggaranBelanja $r): string => $r->sisa_anggaran > 0 ? 'success' : 'danger')
+                    ->weight('bold')
+                    ->alignEnd(),
 
                 TextColumn::make('sisa_volume')
                     ->label('Sisa Stok')
@@ -306,12 +307,17 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                             ->formatStateUsing(fn ($state) => FormatHelper::rupiah((float) $state))
                     ),
 
-                TextColumn::make('sisa_anggaran')
-                    ->label('Sisa Anggaran')
-                    ->state(fn (RincianAnggaranBelanja $r): string => FormatHelper::rupiah($r->sisa_anggaran))
-                    ->color(fn (RincianAnggaranBelanja $r): string => $r->sisa_anggaran > 0 ? 'success' : 'danger')
-                    ->weight('bold')
-                    ->alignEnd(),
+                TextColumn::make('kodeRekening.uraian')
+                    ->label('Sub Rincian Obyek')
+                    ->description(fn (RincianAnggaranBelanja $r): ?string => $r->kodeRekening?->kode_lengkap)
+                    ->searchable()
+                    ->sortable()
+                    ->badge()
+                    ->color('gray')
+                    ->wrap()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->extraAttributes(['style' => 'min-width: 240px;'])
+                    ->extraHeaderAttributes(['style' => 'min-width: 240px;']),
             ])
             ->headerActions([
                 CreateAction::make()
