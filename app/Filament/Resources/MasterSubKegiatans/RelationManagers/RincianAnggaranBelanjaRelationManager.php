@@ -14,6 +14,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -100,7 +101,9 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
 
                                 Select::make('master_barang_id')
                                     ->label('Komponen Belanja / Barang')
-                                    ->placeholder(fn (Get $get): string => filled($get('kode_rekening_id')) ? 'Pilih komponen barang...' : 'Pilih Sub Rincian Obyek terlebih dahulu')
+                                    ->placeholder(fn (Get $get): string => filled($get('kode_rekening_id')) ? 'Pilih komponen barang standar...' : 'Pilih Sub Rincian Obyek terlebih dahulu')
+                                    ->helperText(fn (Get $get): string => filled($get('kode_rekening_id')) ? 'Pilih komponen standar DPA/SSH atau klik (+) untuk menambah barang baru.' : 'Pilih Sub Rincian Obyek terlebih dahulu.')
+                                    ->preload()
                                     ->options(function (Get $get) {
                                         $rekId = $get('kode_rekening_id');
                                         if (! $rekId) {
@@ -172,16 +175,14 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                         }
                                     })
                                     ->required()
-                                    ->columnSpan(['default' => 12, 'md' => 6]),
+                                    ->columnSpan(['default' => 12, 'md' => 12]),
 
-                                TextInput::make('nama_item')
-                                    ->label('Nama Item / Uraian RKA')
-                                    ->required()
-                                    ->columnSpan(['default' => 12, 'md' => 6]),
+                                Hidden::make('nama_item')
+                                    ->dehydrated(true),
 
                                 TextInput::make('spesifikasi')
-                                    ->label('Spesifikasi Teknis (Opsional)')
-                                    ->placeholder('Contoh: Warna Putih, 75 GSM, Ukuran Folio')
+                                    ->label('Spesifikasi / Rincian Teknis (Opsional)')
+                                    ->placeholder('Contoh: Warna Putih, 75 GSM, Ukuran Folio / Rincian kegiatan...')
                                     ->maxLength(255)
                                     ->columnSpan(['default' => 12, 'md' => 12]),
                             ]),
@@ -340,13 +341,24 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                         $data['volume_realisasi'] = 0;
                         $data['nilai_realisasi'] = 0;
 
+                        if (empty($data['nama_item']) && ! empty($data['master_barang_id'])) {
+                            $data['nama_item'] = MasterBarang::find($data['master_barang_id'])?->nama_barang;
+                        }
+
                         return $data;
                     }),
             ])
             ->recordActions([
                 EditAction::make()
                     ->slideOver()
-                    ->modalWidth('4xl'),
+                    ->modalWidth('4xl')
+                    ->mutateFormDataUsing(function (array $data): array {
+                        if (empty($data['nama_item']) && ! empty($data['master_barang_id'])) {
+                            $data['nama_item'] = MasterBarang::find($data['master_barang_id'])?->nama_barang;
+                        }
+
+                        return $data;
+                    }),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

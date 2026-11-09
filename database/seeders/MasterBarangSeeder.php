@@ -49,12 +49,43 @@ class MasterBarangSeeder extends Seeder
             return;
         }
 
+        // SATUAN LENGKAP
         $satuanBuah = Satuan::firstOrCreate(['nama' => 'Buah']);
         $satuanRim = Satuan::firstOrCreate(['nama' => 'Rim']);
         $satuanPack = Satuan::firstOrCreate(['nama' => 'Pack']);
         $satuanBotol = Satuan::firstOrCreate(['nama' => 'Botol']);
         $satuanUnit = Satuan::firstOrCreate(['nama' => 'Unit']);
         $satuanBox = Satuan::firstOrCreate(['nama' => 'Box']);
+        $satuanLiter = Satuan::firstOrCreate(['nama' => 'Liter']);
+        $satuanLembar = Satuan::firstOrCreate(['nama' => 'Lembar']);
+        $satuanLusin = Satuan::firstOrCreate(['nama' => 'Lusin']);
+        $satuanKotak = Satuan::firstOrCreate(['nama' => 'Kotak']);
+        $satuanKg = Satuan::firstOrCreate(['nama' => 'Kg']);
+        $satuanBungkus = Satuan::firstOrCreate(['nama' => 'Bungkus']);
+        $satuanOrang = Satuan::firstOrCreate(['nama' => 'Orang']);
+        $satuanOrangKali = Satuan::firstOrCreate(['nama' => 'Orang / Kali']);
+
+        // KODE REKENING DPA 2027
+        $kodeBbm = KodeRekening::firstOrCreate(
+            ['kode_lengkap' => '5.1.02.01.001.00004'],
+            ['uraian' => 'Belanja Bahan-Bahan Bakar dan Pelumas', 'sub_sub_rincian_objek' => '000']
+        );
+        $kodeMaminRapat = KodeRekening::firstOrCreate(
+            ['kode_lengkap' => '5.1.02.01.001.00052'],
+            ['uraian' => 'Belanja Makanan dan Minuman Rapat', 'sub_sub_rincian_objek' => '000']
+        );
+        $kodeMaminLapangan = KodeRekening::firstOrCreate(
+            ['kode_lengkap' => '5.1.02.01.001.00058'],
+            ['uraian' => 'Belanja Makanan dan Minuman Aktivitas Lapangan', 'sub_sub_rincian_objek' => '000']
+        );
+        $kodeJasaSeni = KodeRekening::firstOrCreate(
+            ['kode_lengkap' => '5.1.02.02.001.00025'],
+            ['uraian' => 'Belanja Jasa Tenaga Kesenian dan Kebudayaan', 'sub_sub_rincian_objek' => '000']
+        );
+        $kodePerjadin = KodeRekening::firstOrCreate(
+            ['kode_lengkap' => '5.1.02.04.001.00003'],
+            ['uraian' => 'Belanja Perjalanan Dinas Dalam Kota', 'sub_sub_rincian_objek' => '000']
+        );
 
         $masterBarangData = [
             // ALAT TULIS KANTOR
@@ -207,6 +238,179 @@ class MasterBarangSeeder extends Seeder
                 'satuan_id' => $satuanBuah->id,
                 'harga_satuan' => 120000,
                 'keterangan' => 'Stempel dinas otomatis'
+            ],
+
+            // =========================================================================
+            // DPA TAHUN 2027 (STANDAR SSH / SIPD KAB. SIJUNJUNG)
+            // =========================================================================
+            // 1. BBM & PELUMAS (5.1.02.01.001.00004)
+            [
+                'kode_rekening_id' => $kodeBbm->id,
+                'kode_barang' => '1.1.7.01.01.01.001',
+                'uraian' => $kodeBbm->uraian,
+                'nama_barang' => 'BBM - Pertamax',
+                'satuan_id' => $satuanLiter->id,
+                'harga_satuan' => 17000,
+                'keterangan' => 'Bahan Bakar Minyak - Pertamax (Liter)'
+            ],
+            // 2. ATK & CETAKAN TAMBAHAN (5.1.02.01.001.00024)
+            [
+                'kode_rekening_id' => $kodeAtk->id,
+                'kode_barang' => '1.1.7.01.01.01.002',
+                'uraian' => $kodeAtk->uraian,
+                'nama_barang' => 'Barang Cetakan - Fotocopy Biasa',
+                'satuan_id' => $satuanLembar->id,
+                'harga_satuan' => 300,
+                'keterangan' => 'Barang Cetakan - Fotocopy Biasa'
+            ],
+            [
+                'kode_rekening_id' => $kodeAtk->id,
+                'kode_barang' => '1.1.7.01.01.01.003',
+                'uraian' => $kodeAtk->uraian,
+                'nama_barang' => 'Kertas HVS Sidu, ukuran F4, 75 gram',
+                'satuan_id' => $satuanRim->id,
+                'harga_satuan' => 65500,
+                'keterangan' => 'Kertas HVS Sidu, ukuran F4, 75 gram'
+            ],
+            [
+                'kode_rekening_id' => $kodeAtk->id,
+                'kode_barang' => '1.1.7.01.01.01.004',
+                'uraian' => $kodeAtk->uraian,
+                'nama_barang' => 'Alat Tulis - Pena My-Gel',
+                'satuan_id' => $satuanLusin->id,
+                'harga_satuan' => 127000,
+                'keterangan' => 'Alat Tulis - Pena My-Gel (Lusin)'
+            ],
+            // 3. BAHAN KOMPUTER (5.1.02.01.001.00029)
+            [
+                'kode_rekening_id' => $kodeKomputer->id,
+                'kode_barang' => '1.1.7.01.02.01.005',
+                'uraian' => $kodeKomputer->uraian,
+                'nama_barang' => 'Tinta/Toner Printer - Cartridge Printer Brother LC',
+                'satuan_id' => $satuanBuah->id,
+                'harga_satuan' => 160950,
+                'keterangan' => 'Tinta/Toner Printer - Cartridge Printer Brother LC'
+            ],
+            // 4. MAKANAN & MINUMAN RAPAT (5.1.02.01.001.00052)
+            [
+                'kode_rekening_id' => $kodeMaminRapat->id,
+                'kode_barang' => '1.1.7.01.05.01.001',
+                'uraian' => $kodeMaminRapat->uraian,
+                'nama_barang' => 'Makanan - Kue Kotak isi 2 kue + air',
+                'satuan_id' => $satuanKotak->id,
+                'harga_satuan' => 10600,
+                'keterangan' => 'Makanan - Kue Kotak isi 2 kue + air'
+            ],
+            [
+                'kode_rekening_id' => $kodeMaminRapat->id,
+                'kode_barang' => '1.1.7.01.05.01.002',
+                'uraian' => $kodeMaminRapat->uraian,
+                'nama_barang' => 'Makanan - Kue Kotak isi 3 kue + air',
+                'satuan_id' => $satuanKotak->id,
+                'harga_satuan' => 13300,
+                'keterangan' => 'Makanan - Kue Kotak isi 3 kue + air'
+            ],
+            [
+                'kode_rekening_id' => $kodeMaminRapat->id,
+                'kode_barang' => '1.1.7.01.05.01.003',
+                'uraian' => $kodeMaminRapat->uraian,
+                'nama_barang' => 'Bahan Masakan/Minuman/Kue - Kopi Cap Rangkiang',
+                'satuan_id' => $satuanKg->id,
+                'harga_satuan' => 157750,
+                'keterangan' => 'Bahan Masakan/Minuman/Kue - Kopi Cap Rangkiang'
+            ],
+            [
+                'kode_rekening_id' => $kodeMaminRapat->id,
+                'kode_barang' => '1.1.7.01.05.01.004',
+                'uraian' => $kodeMaminRapat->uraian,
+                'nama_barang' => 'Bahan Masakan/Minuman/Kue - Gula Pasir',
+                'satuan_id' => $satuanKg->id,
+                'harga_satuan' => 21200,
+                'keterangan' => 'Bahan Masakan/Minuman/Kue - Gula Pasir'
+            ],
+            [
+                'kode_rekening_id' => $kodeMaminRapat->id,
+                'kode_barang' => '1.1.7.01.05.01.005',
+                'uraian' => $kodeMaminRapat->uraian,
+                'nama_barang' => 'Makanan - Nasi Bungkus 1 Protein',
+                'satuan_id' => $satuanBungkus->id,
+                'harga_satuan' => 24000,
+                'keterangan' => 'Makanan - Nasi Bungkus 1 Protein Rapat'
+            ],
+            // 5. MAKANAN & MINUMAN LAPANGAN (5.1.02.01.001.00058)
+            [
+                'kode_rekening_id' => $kodeMaminLapangan->id,
+                'kode_barang' => '1.1.7.01.06.01.001',
+                'uraian' => $kodeMaminLapangan->uraian,
+                'nama_barang' => 'Makanan - Nasi Goreng Lapangan',
+                'satuan_id' => $satuanBungkus->id,
+                'harga_satuan' => 20200,
+                'keterangan' => 'Makanan - Nasi Goreng Lapangan'
+            ],
+            // 6. JASA TENAGA KESENIAN (5.1.02.02.001.00025)
+            [
+                'kode_rekening_id' => $kodeJasaSeni->id,
+                'kode_barang' => '1.1.7.02.01.01.001',
+                'uraian' => $kodeJasaSeni->uraian,
+                'nama_barang' => 'Beban Jasa Tenaga Kesenian dan Kebudayaan - Upah Pekerja Seni',
+                'satuan_id' => $satuanOrang->id,
+                'harga_satuan' => 120000,
+                'keterangan' => 'Upah Pekerja Seni 120.000 per orang'
+            ],
+            // 7. PERJALANAN DINAS DALAM KOTA (5.1.02.04.001.00003)
+            [
+                'kode_rekening_id' => $kodePerjadin->id,
+                'kode_barang' => '1.1.7.04.01.01.001',
+                'uraian' => $kodePerjadin->uraian,
+                'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (56.000)',
+                'satuan_id' => $satuanOrangKali->id,
+                'harga_satuan' => 56000,
+                'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 56.000'
+            ],
+            [
+                'kode_rekening_id' => $kodePerjadin->id,
+                'kode_barang' => '1.1.7.04.01.01.002',
+                'uraian' => $kodePerjadin->uraian,
+                'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (84.000)',
+                'satuan_id' => $satuanOrangKali->id,
+                'harga_satuan' => 84000,
+                'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 84.000'
+            ],
+            [
+                'kode_rekening_id' => $kodePerjadin->id,
+                'kode_barang' => '1.1.7.04.01.01.003',
+                'uraian' => $kodePerjadin->uraian,
+                'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (140.000)',
+                'satuan_id' => $satuanOrangKali->id,
+                'harga_satuan' => 140000,
+                'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 140.000'
+            ],
+            [
+                'kode_rekening_id' => $kodePerjadin->id,
+                'kode_barang' => '1.1.7.04.01.01.004',
+                'uraian' => $kodePerjadin->uraian,
+                'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (49.000)',
+                'satuan_id' => $satuanOrangKali->id,
+                'harga_satuan' => 49000,
+                'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 49.000'
+            ],
+            [
+                'kode_rekening_id' => $kodePerjadin->id,
+                'kode_barang' => '1.1.7.04.01.01.005',
+                'uraian' => $kodePerjadin->uraian,
+                'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (70.000)',
+                'satuan_id' => $satuanOrangKali->id,
+                'harga_satuan' => 70000,
+                'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 70.000'
+            ],
+            [
+                'kode_rekening_id' => $kodePerjadin->id,
+                'kode_barang' => '1.1.7.04.01.01.006',
+                'uraian' => $kodePerjadin->uraian,
+                'nama_barang' => 'Beban Perjalanan Dinas Dalam Kota - Transport Darat Sijunjung (35.000)',
+                'satuan_id' => $satuanOrangKali->id,
+                'harga_satuan' => 35000,
+                'keterangan' => 'Biaya Transportasi Darat Dalam Kota Sijunjung Rp 35.000'
             ],
         ];
 
