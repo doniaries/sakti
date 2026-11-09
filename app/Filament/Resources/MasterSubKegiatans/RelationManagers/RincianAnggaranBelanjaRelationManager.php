@@ -145,14 +145,13 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                             ->searchable()
                                             ->preload()
                                             ->required(),
-                                        TextInput::make('harga_satuan')
-                                            ->label('Harga Satuan Standar (Rp)')
-                                            ->numeric()
-                                            ->prefix('Rp')
-                                            ->default(0),
+                                        FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan Standar (SSH)')
+                                            ->default(0)
+                                            ->required(),
                                     ])
                                     ->createOptionUsing(function (array $data, Get $get): int {
                                         $data['kode_rekening_id'] = $get('kode_rekening_id');
+                                        $data['harga_satuan'] = FormatHelper::parseRupiah($data['harga_satuan'] ?? 0);
                                         $barang = MasterBarang::create($data);
 
                                         return $barang->id;
@@ -167,10 +166,11 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                                     $set('satuan', $barang->satuan->nama);
                                                 }
                                                 $harga = (float) $barang->harga_satuan;
-                                                $set('harga_satuan', $harga);
+                                                $set('harga_satuan', $harga > 0 ? number_format($harga, 0, ',', '.') : 0);
                                                 $vol = max(1, (float) ($get('volume') ?: 1));
                                                 $set('volume', $vol);
-                                                $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
+                                                $pagu = (int) round($vol * $harga);
+                                                $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                             }
                                         }
                                     })
@@ -194,11 +194,12 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                     ->numeric()
                                     ->default(1)
                                     ->required()
-                                    ->live(onBlur: true)
+                                    ->live(debounce: 350)
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                         $vol = (float) ($state ?: 0);
-                                        $harga = (float) ($get('harga_satuan') ?: 0);
-                                        $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
+                                        $harga = FormatHelper::parseRupiah($get('harga_satuan'));
+                                        $pagu = (int) round($vol * $harga);
+                                        $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                     }),
 
                                 TextInput::make('satuan')
@@ -206,24 +207,20 @@ class RincianAnggaranBelanjaRelationManager extends RelationManager
                                     ->placeholder('Rim / Kotak / Lembar')
                                     ->required(),
 
-                                TextInput::make('harga_satuan')
-                                    ->label('Harga Standar Satuan')
-                                    ->numeric()
-                                    ->prefix('Rp')
+                                FormatHelper::rupiahInput('harga_satuan', 'Harga Standar Satuan')
                                     ->required()
-                                    ->live(onBlur: true)
+                                    ->live(debounce: 350)
                                     ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                         $vol = (float) ($get('volume') ?: 0);
-                                        $harga = (float) ($state ?: 0);
-                                        $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
+                                        $harga = FormatHelper::parseRupiah($state);
+                                        $pagu = (int) round($vol * $harga);
+                                        $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                     }),
 
-                                TextInput::make('pagu_total')
-                                    ->label('Total Pagu Anggaran')
-                                    ->prefix('Rp')
-                                    ->disabled()
-                                    ->dehydrated(false)
-                                    ->formatStateUsing(fn ($state, ?RincianAnggaranBelanja $record) => $record ? number_format((float) $record->pagu_total, 0, ',', '.') : $state),
+                                FormatHelper::rupiahInput('pagu_total', 'Total Pagu Anggaran')
+                                    ->readOnly()
+                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
+                                    ->dehydrated(true),
                             ]),
 
                         Textarea::make('keterangan')

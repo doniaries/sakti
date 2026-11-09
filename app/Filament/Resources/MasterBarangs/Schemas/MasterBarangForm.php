@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MasterBarangs\Schemas;
 
 use App\Models\KodeRekening;
+use App\Support\FormatHelper;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -38,6 +39,10 @@ class MasterBarangForm
                             ->relationship('satuan', 'nama')
                             ->searchable()
                             ->preload()
+                            ->required(),
+
+                        FormatHelper::rupiahInput('harga_satuan', 'Harga Standar (SSH)')
+                            ->default(0)
                             ->required(),
                     ]),
             ]);

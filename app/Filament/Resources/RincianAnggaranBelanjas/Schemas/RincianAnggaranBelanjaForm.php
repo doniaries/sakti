@@ -189,10 +189,11 @@ class RincianAnggaranBelanjaForm
                                                 $set('satuan', $barang->satuan->nama);
                                             }
                                             $harga = (float) $barang->harga_satuan;
-                                            $set('harga_satuan', $harga);
+                                            $set('harga_satuan', $harga > 0 ? number_format($harga, 0, ',', '.') : 0);
                                             $vol = max(1, (float) ($get('volume') ?: 1));
                                             $set('volume', $vol);
-                                            $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
+                                            $pagu = (int) round($vol * $harga);
+                                            $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                         }
                                     }
                                 }),
@@ -254,14 +255,13 @@ class RincianAnggaranBelanjaForm
                                         ->searchable()
                                         ->preload()
                                         ->required(),
-                                    TextInput::make('harga_satuan')
-                                        ->label('Harga Satuan Standar (Rp)')
-                                        ->numeric()
-                                        ->prefix('Rp')
-                                        ->default(0),
+                                    FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan Standar (SSH)')
+                                        ->default(0)
+                                        ->required(),
                                 ])
                                 ->createOptionUsing(function (array $data, Get $get): int {
                                     $data['kode_rekening_id'] = $get('kode_rekening_id');
+                                    $data['harga_satuan'] = FormatHelper::parseRupiah($data['harga_satuan'] ?? 0);
                                     $barang = MasterBarang::create($data);
                                     return $barang->id;
                                 })
@@ -275,10 +275,11 @@ class RincianAnggaranBelanjaForm
                                                 $set('satuan', $barang->satuan->nama);
                                             }
                                             $harga = (float) $barang->harga_satuan;
-                                            $set('harga_satuan', $harga);
+                                            $set('harga_satuan', $harga > 0 ? number_format($harga, 0, ',', '.') : 0);
                                             $vol = max(1, (float) ($get('volume') ?: 1));
                                             $set('volume', $vol);
-                                            $set('pagu_total', number_format($vol * $harga, 0, ',', '.'));
+                                            $pagu = (int) round($vol * $harga);
+                                            $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                         }
                                     }
                                 })
@@ -299,12 +300,12 @@ class RincianAnggaranBelanjaForm
                                 ->numeric()
                                 ->default(1)
                                 ->required()
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function (Get $get, Set $set) {
-                                    $vol = (float) ($get('volume') ?? 0);
+                                ->live(debounce: 350)
+                                ->afterStateUpdated(function (Get $get, Set $set, $state) {
+                                    $vol = (float) ($state ?? 0);
                                     $harga = FormatHelper::parseRupiah($get('harga_satuan'));
-                                    $pagu = $vol * $harga;
-                                    $set('pagu_total', number_format($pagu, 0, ',', '.'));
+                                    $pagu = (int) round($vol * $harga);
+                                    $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                 }),
 
                             Select::make('satuan')
@@ -314,23 +315,20 @@ class RincianAnggaranBelanjaForm
                                 ->searchable()
                                 ->required(),
 
-                            FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan')
+                            FormatHelper::rupiahInput('harga_satuan', 'Harga Standar Satuan')
                                 ->required()
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function (Get $get, Set $set) {
+                                ->live(debounce: 350)
+                                ->afterStateUpdated(function (Get $get, Set $set, $state) {
                                     $vol = (float) ($get('volume') ?? 0);
-                                    $harga = FormatHelper::parseRupiah($get('harga_satuan'));
-                                    $pagu = $vol * $harga;
-                                    $set('pagu_total', number_format($pagu, 0, ',', '.'));
+                                    $harga = FormatHelper::parseRupiah($state);
+                                    $pagu = (int) round($vol * $harga);
+                                    $set('pagu_total', $pagu > 0 ? number_format($pagu, 0, ',', '.') : 0);
                                 }),
 
-                            TextInput::make('pagu_total')
-                                ->label('Total Pagu Anggaran')
-                                ->prefix('Rp')
+                            FormatHelper::rupiahInput('pagu_total', 'Total Pagu Anggaran')
                                 ->readOnly()
-                                ->formatStateUsing(fn($state) => filled($state) ? number_format(FormatHelper::parseRupiah($state), 0, ',', '.') : '0')
-                                ->dehydrateStateUsing(fn($state) => FormatHelper::parseRupiah($state))
-                                ->extraInputAttributes(['class' => 'font-bold text-amber-500']),
+                                ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
+                                ->dehydrated(true),
                         ]),
                     ]),
             ]);

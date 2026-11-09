@@ -64,10 +64,11 @@ class FormatHelper
             ->mask(RawJs::make('$money($input, \',\', \'.\', 0)'))
             ->stripCharacters('.')
             ->formatStateUsing(function ($state) {
-                if (blank($state) || (float) $state === 0.0) {
+                if (blank($state)) {
                     return null;
                 }
-                return number_format((float) $state, 0, ',', '.');
+                $num = static::parseRupiah($state);
+                return number_format($num, 0, ',', '.');
             })
             ->dehydrateStateUsing(function ($state) {
                 return static::parseRupiah($state);
