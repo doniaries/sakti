@@ -145,53 +145,33 @@ class ListMasterSubKegiatans extends ListRecords
 
     protected function getHeaderActions(): array
     {
+        $tahunAktif = (int) \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
+        $isAllLocked = ! MasterSubKegiatan::where('tahun_anggaran', $tahunAktif)->where('is_locked', false)->exists();
+
         return [
             Action::make('global_lock_dpa')
-                ->label('Buka / Kunci DPA Global')
-                ->icon('heroicon-o-lock-closed')
-                ->color('warning')
+                ->label($isAllLocked ? "Buka Kunci DPA ({$tahunAktif})" : "Kunci DPA ({$tahunAktif})")
+                ->icon($isAllLocked ? 'heroicon-o-lock-open' : 'heroicon-o-lock-closed')
+                ->color($isAllLocked ? 'success' : 'danger')
                 ->visible(fn(): bool => auth()->user()?->hasRole('super_admin') ?? false)
-                ->modalHeading('Kelola Kunci DPA & RKA (Tingkat Global)')
-                ->modalDescription('Fitur khusus Super Admin untuk mengunci atau membuka kunci seluruh DPA/RKA Sub Kegiatan secara serentak per tahun anggaran (misal: saat periode pergeseran anggaran atau penetapan DPA).')
-                ->schema([
-                    Select::make('tahun_anggaran')
-                        ->label('Tahun Anggaran')
-                        ->options(function () {
-                            $years = MasterSubKegiatan::distinct()->pluck('tahun_anggaran', 'tahun_anggaran')->all();
-                            $current = (int) date('Y');
-                            $years[$current] = (string) $current;
-                            $years[$current + 1] = (string) ($current + 1);
-                            krsort($years);
-                            return $years;
-                        })
-                        ->default(fn() => request()->query('tahun') ?? (MasterSubKegiatan::max('tahun_anggaran') ?? (int) date('Y')))
-                        ->required(),
+                ->requiresConfirmation()
+                ->modalHeading($isAllLocked ? "Buka Kunci Seluruh Sub Kegiatan Tahun {$tahunAktif}?" : "Kunci Seluruh Sub Kegiatan Tahun {$tahunAktif}?")
+                ->modalDescription($isAllLocked
+                    ? "Tindakan ini akan membuka proteksi seluruh Sub Kegiatan Tahun Anggaran {$tahunAktif} agar data belanja RKA dapat disesuaikan / dilakukan pergeseran anggaran."
+                    : "Tindakan ini akan mengunci seluruh Sub Kegiatan Tahun Anggaran {$tahunAktif} sehingga data pagu RKA terlindungi dari perubahan sesuai DPA resmi.")
+                ->modalSubmitActionLabel($isAllLocked ? 'Ya, Buka Kunci DPA' : 'Ya, Kunci DPA Sekarang')
+                ->action(function () use ($tahunAktif, $isAllLocked): void {
+                    $newStatus = ! $isAllLocked;
 
-                    Select::make('tindakan')
-                        ->label('Tindakan Kunci')
-                        ->options([
-                            'unlock_all' => '🔓 BUKA KUNCI SEMUA (Izinkan Perubahan/Pergeseran Anggaran)',
-                            'lock_all' => '🔒 KUNCI SEMUA (Proteksi Baku Sesuai DPA Resmi)',
-                        ])
-                        ->default('unlock_all')
-                        ->required(),
-
-                    Toggle::make('konfirmasi')
-                        ->label('Saya memahami bahwa tindakan ini akan mengubah status proteksi seluruh Sub Kegiatan pada tahun anggaran yang dipilih.')
-                        ->required()
-                        ->accepted(),
-                ])
-                ->action(function (array $data): void {
-                    $tahun = (int) $data['tahun_anggaran'];
-                    $isLock = ($data['tindakan'] === 'lock_all');
-
-                    $affected = MasterSubKegiatan::where('tahun_anggaran', $tahun)
-                        ->update(['is_locked' => $isLock]);
+                    $affected = MasterSubKegiatan::where('tahun_anggaran', $tahunAktif)
+                        ->update(['is_locked' => $newStatus]);
 
                     Notification::make()
-                        ->title($isLock ? "Berhasil Mengunci {$affected} Sub Kegiatan DPA ({$tahun})" : "Berhasil Membuka Kunci {$affected} Sub Kegiatan DPA ({$tahun})")
-                        ->body($isLock ? 'Seluruh DPA telah dikunci dan diproteksi sesuai dokumen resmi.' : 'Seluruh DPA telah dibuka untuk mode perubahan / pergeseran anggaran.')
-                        ->color($isLock ? 'danger' : 'success')
+                        ->title($newStatus ? "Berhasil Mengunci Seluruh DPA ({$tahunAktif})" : "Berhasil Membuka Kunci Seluruh DPA ({$tahunAktif})")
+                        ->body($newStatus
+                            ? "Sebanyak {$affected} Sub Kegiatan Tahun {$tahunAktif} berhasil dikunci dan diproteksi sesuai DPA resmi."
+                            : "Sebanyak {$affected} Sub Kegiatan Tahun {$tahunAktif} berhasil dibuka untuk mode pergeseran anggaran.")
+                        ->color($newStatus ? 'danger' : 'success')
                         ->send();
                 }),
 

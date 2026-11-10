@@ -79,23 +79,27 @@ class MasterSubKegiatansTable
                                 Select::make('jf_id')
                                     ->label('Pejabat Fungsional (JF)')
                                     ->options(function (MasterSubKegiatan $record): array {
-                                        /** @var \App\Models\User|null $user */
-                                        $user = auth()->user();
-                                        $userBidangId = $user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null);
-                                        $targetBidangId = $userBidangId ?: $record->kegiatan?->bidang_id;
+                                        $targetBidangId = $record->kegiatan?->bidang_id;
 
                                         return User::query()
                                             ->where('aktif', true)
                                             ->when($targetBidangId, fn($q) => $q->where('bidang_id', $targetBidangId))
+                                            ->whereNotNull('eselon')
+                                            ->where('eselon', '!=', \App\Enums\Eselon::NON_ESELON)
                                             ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']))
+                                            ->orderBy('eselon')
                                             ->orderBy('name')
-                                            ->pluck('name', 'id')
+                                            ->get()
+                                            ->mapWithKeys(function (User $u) {
+                                                $eselonVal = $u->eselon instanceof \App\Enums\Eselon ? $u->eselon->value : (string) $u->eselon;
+                                                return [$u->id => "{$u->name} (Eselon {$eselonVal})"];
+                                            })
                                             ->all();
                                     })
                                     ->default(fn(MasterSubKegiatan $record) => $record->jf_id)
                                     ->searchable()
                                     ->preload()
-                                    ->helperText('Hanya menampilkan pegawai di bidang yang sama dengan akun Anda.')
+                                    ->helperText('Hanya menampilkan pejabat bereselon di bidang sub kegiatan ini.')
                                     ->required(),
                             ])
                             ->action(function (MasterSubKegiatan $record, array $data): void {
@@ -217,38 +221,6 @@ class MasterSubKegiatansTable
                     ->view('filament.tables.toolbar.tahun-anggaran-select'),
 
                 BulkActionGroup::make([
-                    BulkAction::make('bulk_lock')
-                        ->label('Kunci DPA Terpilih')
-                        ->icon('heroicon-o-lock-closed')
-                        ->color('danger')
-                        ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
-                        ->requiresConfirmation()
-                        ->modalHeading('Kunci DPA Sub Kegiatan Terpilih?')
-                        ->modalDescription('Mengunci seluruh Sub Kegiatan yang dipilih agar data belanja tidak dapat diubah (proteksi DPA).')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records): void {
-                            $records->each->update(['is_locked' => true]);
-                            Notification::make()
-                                ->title('Sub Kegiatan terpilih berhasil dikunci')
-                                ->danger()
-                                ->send();
-                        }),
-
-                    BulkAction::make('bulk_unlock')
-                        ->label('Buka Kunci DPA Terpilih')
-                        ->icon('heroicon-o-lock-open')
-                        ->color('success')
-                        ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
-                        ->requiresConfirmation()
-                        ->modalHeading('Buka Kunci DPA Sub Kegiatan Terpilih?')
-                        ->modalDescription('Membuka kunci seluruh Sub Kegiatan yang dipilih untuk mode perubahan / pergeseran anggaran.')
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records): void {
-                            $records->each->update(['is_locked' => false]);
-                            Notification::make()
-                                ->title('Kunci Sub Kegiatan terpilih berhasil dibuka')
-                                ->success()
-                                ->send();
-                        }),
-
                     DeleteBulkAction::make(),
                 ]),
             ]);

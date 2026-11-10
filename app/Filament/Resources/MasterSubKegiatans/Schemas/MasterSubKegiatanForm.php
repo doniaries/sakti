@@ -74,28 +74,30 @@ class MasterSubKegiatanForm
                         ->label('Penanggung Jawab (JF)')
                         ->placeholder('Pilih Pejabat Fungsional (Opsional)')
                         ->options(function (Get $get, ?MasterSubKegiatan $record, $livewire) {
-                            /** @var \App\Models\User|null $user */
-                            $user = auth()->user();
-                            $userBidangId = $user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null);
-
                             $record = $record ?? ($livewire instanceof \Filament\Resources\Pages\EditRecord ? $livewire->getRecord() : null);
                             $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
-                            $kegiatanBidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : $record?->kegiatan?->bidang_id;
-
-                            // Prioritaskan bidang dari user aktif jika user terikat bidang (PPTK/Staff), jika Super Admin ambil dari kegiatan induk
-                            $targetBidangId = $userBidangId ?: $kegiatanBidangId;
+                            $targetBidangId = $kegiatanId
+                                ? MasterKegiatan::find($kegiatanId)?->bidang_id
+                                : $record?->kegiatan?->bidang_id;
 
                             return User::query()
                                 ->where('aktif', true)
                                 ->when($targetBidangId, fn ($q) => $q->where('bidang_id', $targetBidangId))
+                                ->whereNotNull('eselon')
+                                ->where('eselon', '!=', \App\Enums\Eselon::NON_ESELON)
                                 ->whereDoesntHave('roles', fn ($q) => $q->whereIn('name', ['pa', 'ppk']))
+                                ->orderBy('eselon')
                                 ->orderBy('name')
-                                ->pluck('name', 'id')
+                                ->get()
+                                ->mapWithKeys(function (User $u) {
+                                    $eselonVal = $u->eselon instanceof \App\Enums\Eselon ? $u->eselon->value : (string) $u->eselon;
+                                    return [$u->id => "{$u->name} (Eselon {$eselonVal})"];
+                                })
                                 ->all();
                         })
                         ->searchable()
                         ->preload()
-                        ->helperText($disabled ? null : 'Hanya menampilkan pegawai di bidang yang sama dengan kegiatan.')
+                        ->helperText($disabled ? null : 'Hanya menampilkan pejabat bereselon di bidang sub kegiatan ini.')
                         ->disabled($disabled)
                         ->columnSpan(['default' => 12, 'md' => 4]),
                 ]),
@@ -117,28 +119,6 @@ class MasterSubKegiatanForm
                     ->compact()
                     ->columnSpanFull()
                     ->headerActions([
-                        Action::make('toggle_lock')
-                            ->label(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'Buka Kunci RKA' : 'Kunci RKA')
-                            ->icon(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'heroicon-o-lock-open' : 'heroicon-o-lock-closed')
-                            ->color(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'success' : 'danger')
-                            ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') ?? false)
-                            ->requiresConfirmation()
-                            ->modalHeading(fn (?MasterSubKegiatan $record): string => $record?->is_locked ? 'Buka Kunci RKA Sub Kegiatan?' : 'Kunci RKA Sub Kegiatan?')
-                            ->modalDescription(fn (?MasterSubKegiatan $record): string => $record?->is_locked
-                                ? 'Membuka kunci memungkinkan penambahan item belanja, penyesuaian harga satuan, volume anggaran, dan pergeseran nomenklatur sub kegiatan.'
-                                : 'Mengunci RKA akan memproteksi seluruh rincian belanja dan identitas sub kegiatan dari perubahan yang tidak disengaja sesuai DPA resmi.')
-                            ->action(function (?MasterSubKegiatan $record, $livewire): void {
-                                if ($record) {
-                                    $newStatus = ! (bool) $record->is_locked;
-                                    $record->update(['is_locked' => $newStatus]);
-                                    Notification::make()
-                                        ->title($newStatus ? 'RKA Berhasil Dikunci (Proteksi DPA Aktif)' : 'Kunci RKA Berhasil Dibuka (Mode Perubahan Aktif)')
-                                        ->color($newStatus ? 'danger' : 'success')
-                                        ->send();
-                                    $livewire->redirect(MasterSubKegiatanResource::getUrl('edit', ['record' => $record]));
-                                }
-                            }),
-
                         Action::make('ubah_sub_kegiatan')
                             ->label('Ubah Sub Kegiatan / Pergeseran')
                             ->icon('heroicon-o-pencil-square')
