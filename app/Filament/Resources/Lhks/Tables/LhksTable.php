@@ -19,6 +19,7 @@ class LhksTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->deferLoading()
             ->modifyQueryUsing(fn($query) => $query->with(['user', 'pekerjaans', 'logAbsensiMasuk', 'logAbsensiPulang']))
             ->heading(new \Illuminate\Support\HtmlString('
                 <style>

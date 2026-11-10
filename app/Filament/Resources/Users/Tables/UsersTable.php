@@ -37,6 +37,7 @@ class UsersTable
                     $query->where('jenjang_pendidikan', '=', $jenjang);
                 }
             })
+            ->deferLoading()
             ->defaultPaginationPageOption(10)
             ->paginationPageOptions([5, 10, 25, 50, 100])
             ->stickyableColumns()

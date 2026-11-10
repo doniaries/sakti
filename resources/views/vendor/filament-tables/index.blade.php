@@ -2101,8 +2101,30 @@
                         @endif
                     </table>
                 @elseif ($records === null)
-                    <div class="fi-ta-table-loading-ctn">
-                        {{ \Filament\Support\generate_loading_indicator_html(size: \Filament\Support\Enums\IconSize::TwoExtraLarge) }}
+                    <div class="fi-ta-table-loading-ctn p-6 space-y-4 w-full">
+                        <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-white/5 animate-pulse">
+                            <div class="flex items-center gap-3">
+                                <div class="h-4 w-5 bg-gray-200 dark:bg-gray-700/60 rounded"></div>
+                                <div class="h-4 w-32 bg-gray-200 dark:bg-gray-700/60 rounded"></div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="h-4 w-24 bg-gray-200 dark:bg-gray-700/60 rounded"></div>
+                                <div class="h-4 w-16 bg-gray-200 dark:bg-gray-700/60 rounded"></div>
+                            </div>
+                        </div>
+                        @for ($i = 0; $i < 6; $i++)
+                            <div class="flex items-center gap-4 py-3 border-b border-gray-100/60 dark:border-white/5 animate-pulse" style="animation-duration: 1.5s; animation-delay: {{ $i * 120 }}ms">
+                                <div class="h-4 w-4 bg-gray-200 dark:bg-gray-700/70 rounded shrink-0"></div>
+                                <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700/70 shrink-0"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700/80 rounded" style="width: {{ [65, 45, 55, 75, 50, 60][$i % 6] }}%"></div>
+                                    <div class="h-3 bg-gray-200/70 dark:bg-gray-700/50 rounded" style="width: {{ [35, 25, 30, 40, 28, 32][$i % 6] }}%"></div>
+                                </div>
+                                <div class="hidden sm:block h-6 w-24 bg-gray-200 dark:bg-gray-700/60 rounded-full shrink-0"></div>
+                                <div class="hidden md:block h-4 w-28 bg-gray-200 dark:bg-gray-700/60 rounded shrink-0"></div>
+                                <div class="h-8 w-16 bg-gray-200/80 dark:bg-gray-700/60 rounded-lg shrink-0"></div>
+                            </div>
+                        @endfor
                     </div>
                 @endif
             </div>

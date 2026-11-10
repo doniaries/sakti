@@ -54,6 +54,7 @@ class AbsensiHariansTable
         });
 
         return $table
+            ->deferLoading()
             ->heading(new \Illuminate\Support\HtmlString('
                 <style>
                     @media (min-width: 768px) {

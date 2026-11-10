@@ -23,6 +23,18 @@ class ViewPengajuanSpj extends ViewRecord
                 ->color('gray')
                 ->url(fn(): string => static::getResource()::getUrl('index')),
 
+            Action::make('lacak_posisi')
+                ->label('Lacak Posisi SPJ')
+                ->icon('heroicon-o-queue-list')
+                ->color('primary')
+                ->modalHeading(fn(): string => "Posisi & Alur Perjalanan SPJ — {$this->record->nomor_pengajuan}")
+                ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                ->modalContent(fn() => view('filament.components.timeline-posisi-spj-modal', [
+                    'record' => $this->record,
+                ]))
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Tutup'),
+
             Action::make('cetak')
                 ->label('Preview Dokumen')
                 ->icon('heroicon-o-document-magnifying-glass')

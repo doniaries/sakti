@@ -48,6 +48,60 @@ class PengajuanSpjsTable
         return $hasFontAwesome ? $faIcon : $heroicon;
     }
 
+    /**
+     * Hitung akumulasi berkas pada 6 tahapan alur verifikasi SPJ (Anti N+1, grouped query)
+     *
+     * @return array<string, int>
+     */
+    public static function getTimelineCounts(): array
+    {
+        $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
+
+        $selectedBidang = request()->query('bidang')
+            ?? data_get(request()->query('filters'), 'bidang_id.value')
+            ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
+
+        if (blank($selectedBidang) && request()->header('Referer')) {
+            $refererQuery = [];
+            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
+            $selectedBidang = $refererQuery['bidang']
+                ?? data_get($refererQuery, 'filters.bidang_id.value')
+                ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+        }
+
+        $query = PengajuanSpj::query()->where('tahun_anggaran', $tahunAktif);
+
+        if (filled($selectedBidang)) {
+            $query->where('bidang_id', (int) $selectedBidang);
+        }
+
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        if ($user && ! $user->canViewAllBidangKeuangan()) {
+            $userBidangId = (int) ($user->bidang_id ?: (Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+            $query->where(function (Builder $q) use ($user, $userBidangId) {
+                if ($userBidangId > 0) {
+                    $q->where('bidang_id', $userBidangId);
+                }
+                $q->orWhere('user_id', $user->id);
+            });
+        }
+
+        $counts = $query->groupBy('status')
+            ->selectRaw('status, count(*) as aggregate')
+            ->pluck('aggregate', 'status');
+
+        return [
+            'pemohon' => (int) (($counts['draft'] ?? 0) + ($counts['diajukan'] ?? 0) + ($counts['menunggu_realisasi'] ?? 0)),
+            'pptk' => (int) (($counts['menunggu_verifikasi_pptk'] ?? 0) + ($counts['revisi_pptk'] ?? 0)),
+            'ppk' => (int) (($counts['menunggu_verifikasi_ppk'] ?? 0) + ($counts['revisi_ppk'] ?? 0)),
+            'pa' => (int) (($counts['menunggu_persetujuan_pa'] ?? 0) + ($counts['revisi_pa'] ?? 0)),
+            'bendahara' => (int) (($counts['menunggu_verifikasi_bendahara'] ?? 0) + ($counts['revisi_bendahara'] ?? 0) + ($counts['disetujui'] ?? 0)),
+            'cair' => (int) ($counts['dicairkan'] ?? 0),
+            'total' => (int) $counts->sum(),
+        ];
+    }
+
     public static function configure(Table $table): Table
     {
         return $table
@@ -100,6 +154,10 @@ class PengajuanSpjsTable
 
                 return $query;
             })
+            ->deferLoading()
+            ->heading(fn () => view('filament.components.timeline-alur-spj-header', [
+                'counts' => static::getTimelineCounts(),
+            ]))
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActionsColumnLabel('Aksi')
             ->stickyableColumns()
@@ -213,6 +271,21 @@ class PengajuanSpjsTable
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
+                // Aksi 0: Lacak Posisi & Timeline Berkas SPJ
+                Action::make('lacak_posisi')
+                    ->label('Posisi SPJ')
+                    ->tooltip('Lacak Alur & Posisi Berkas SPJ Saat Ini')
+                    ->icon(static::safeIcon('fas-timeline', 'heroicon-o-queue-list'))
+                    ->iconButton()
+                    ->color('primary')
+                    ->modalHeading(fn(PengajuanSpj $record): string => "Posisi & Alur Perjalanan SPJ — {$record->nomor_pengajuan}")
+                    ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                    ->modalContent(fn(PengajuanSpj $record) => view('filament.components.timeline-posisi-spj-modal', [
+                        'record' => $record,
+                    ]))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup'),
+
                 // Aksi 1: Preview & Cetak Dokumen Bertahap dengan Modal Preview Interaktif (Icon Button dengan Tooltip)
                 Action::make('cetak_dokumen')
                     ->label(fn(PengajuanSpj $record): string => match ($record->status) {
@@ -845,6 +918,18 @@ class PengajuanSpjsTable
 
                 // Aksi Menu Tambahan (Ubah, Lihat, Hapus) dirangkum rapi ke dalam ActionGroup Menu Titik Tiga
                 ActionGroup::make([
+                    Action::make('lacak_posisi_detail')
+                        ->label('Lacak Posisi Berkas')
+                        ->icon(static::safeIcon('fas-timeline', 'heroicon-o-queue-list'))
+                        ->color('primary')
+                        ->modalHeading(fn(PengajuanSpj $record): string => "Posisi & Alur Perjalanan SPJ — {$record->nomor_pengajuan}")
+                        ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                        ->modalContent(fn(PengajuanSpj $record) => view('filament.components.timeline-posisi-spj-modal', [
+                            'record' => $record,
+                        ]))
+                        ->modalSubmitAction(false)
+                        ->modalCancelActionLabel('Tutup'),
+
                     ViewAction::make()
                         ->label('Lihat Detail')
                         ->icon(static::safeIcon('fas-eye', 'heroicon-o-eye')),

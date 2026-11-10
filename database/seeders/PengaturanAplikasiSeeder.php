@@ -20,7 +20,7 @@ class PengaturanAplikasiSeeder extends Seeder
             ['id' => 1],
             [
                 'nama_aplikasi' => 'Sakti',
-                'sub_nama' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
+                'sub_nama' => 'Sistem Administrasi Kinerja Terintegrasi',
                 'kode_instansi' => '3.26.2.19.0.00.01.0000',
                 'nama_dinas' => 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA',
                 'sub_unit_organisasi' => '-',

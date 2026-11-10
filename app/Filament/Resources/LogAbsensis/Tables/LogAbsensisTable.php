@@ -26,6 +26,7 @@ class LogAbsensisTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->deferLoading()
             ->modifyQueryUsing(fn($query) => $query->with(['user', 'mesinAbsensi']))
             ->columns([
                 TextColumn::make('user.name')

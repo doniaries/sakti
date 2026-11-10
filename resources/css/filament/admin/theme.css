@@ -516,4 +516,25 @@ html:not(.dark) .laporan-table tbody tr:hover td {
     overflow-y: visible !important;
 }
 
+/* ==========================================================================
+   Skeleton Loaders & Table Loading Pulse
+   ========================================================================== */
+.fi-ta.fi-loading .fi-ta-content-ctn {
+    opacity: 0.55;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.fi-ta-table-loading-ctn {
+    background: transparent;
+    min-height: 280px;
+}
+
+
+
+
+
+
+
+
+
 
