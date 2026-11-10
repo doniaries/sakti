@@ -168,13 +168,14 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
      */
     public function scopeBukanSuperAdmin(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->where(function ($q) {
-            $q->whereDoesntHave('roles', function ($sub) {
-                $sub->where('name', 'super_admin');
-            })->orWhereHas('roles', function ($sub) {
-                $sub->where('name', 'pegawai');
+        return $query->where('email', '!=', 'superadmin@gmail.com')
+            ->where(function ($q) {
+                $q->whereDoesntHave('roles', function ($sub) {
+                    $sub->where('name', 'super_admin');
+                })->orWhereHas('roles', function ($sub) {
+                    $sub->where('name', 'pegawai');
+                });
             });
-        });
     }
 
     /**
@@ -354,11 +355,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
     /**
      * Apakah user berhak melihat seluruh data lintas bidang untuk urusan keuangan / anggaran (Pemeriksa)
-     * PPK, PA, Bendahara, dan Super Admin dapat melihat seluruh bidang sebagai pemeriksa.
+     * PPK, PA, Bendahara, Admin Dinas, dan Super Admin dapat melihat seluruh bidang sebagai pemeriksa.
      */
     public function canViewAllBidangKeuangan(): bool
     {
-        return $this->hasAnyRole(['super_admin', 'pa', 'ppk', 'bendahara']);
+        return $this->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara']);
     }
 
     /**

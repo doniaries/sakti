@@ -24,9 +24,9 @@ class UsersTable
             ->modifyQueryUsing(function (\Illuminate\Database\Eloquent\Builder $query) {
                 /** @var \App\Models\User|null $user */
                 $user = \Illuminate\Support\Facades\Auth::user();
-                if (! $user || ! $user->hasRole('super_admin')) {
-                    $query->bukanSuperAdmin();
-                }
+
+                // Selalu kecualikan akun teknis Super Admin murni dari daftar pegawai dinas
+                $query->bukanSuperAdmin();
 
                 if ($user && ! $user->canViewAllBidangKepegawaian()) {
                     $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
@@ -37,6 +37,8 @@ class UsersTable
                     $query->where('jenjang_pendidikan', '=', $jenjang);
                 }
             })
+            ->defaultPaginationPageOption(10)
+            ->paginationPageOptions([5, 10, 25, 50, 100])
             ->stickyableColumns()
             ->columns([
                 \Filament\Tables\Columns\ImageColumn::make('avatar_url')

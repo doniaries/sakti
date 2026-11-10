@@ -485,4 +485,35 @@ html:not(.dark) .laporan-table tbody tr:hover td {
     background-color: #27272a !important;
 }
 
+/* ==========================================================================
+   Compact Stats Overview Widgets (Hemat Ruang & Elegan 1 Baris)
+   ========================================================================== */
+.fi-wi-stats-overview-stat {
+    padding: 0.75rem 1rem !important;
+}
+
+.fi-wi-stats-overview-stat .fi-wi-stats-overview-stat-value {
+    font-size: 1.35rem !important;
+    line-height: 1.6rem !important;
+    font-weight: 700 !important;
+}
+
+.fi-wi-stats-overview-stat .fi-wi-stats-overview-stat-label {
+    font-size: 0.8rem !important;
+}
+
+.fi-wi-stats-overview-stat .fi-wi-stats-overview-stat-description {
+    font-size: 0.75rem !important;
+    margin-top: 0.25rem !important;
+}
+
+/* ==========================================================================
+   Table Container Height & Scroll Fix (Anti Cut-Off / Anti Scrollbar Vertikal Dalam Tabel)
+   ========================================================================== */
+.fi-ta-content,
+.fi-ta-content-ctn {
+    max-height: none !important;
+    overflow-y: visible !important;
+}
+
 

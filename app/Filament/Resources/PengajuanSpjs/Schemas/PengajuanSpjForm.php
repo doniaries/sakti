@@ -154,35 +154,16 @@ class PengajuanSpjForm
                                                 ->label('Bidang Pengusul')
                                                 ->placeholder('Pilih Bidang Pengusul')
                                                 ->default(fn(): ?int => $resolveUserBidangId())
-                                                ->options(function () use ($resolveUserBidangId): array {
+                                                ->options(fn(): array => Bidang::pluck('nama', 'id')->all())
+                                                ->visible(function () {
                                                     /** @var \App\Models\User|null $user */
                                                     $user = Auth::user();
-                                                    $canViewAllBidang = $user !== null && (
+
+                                                    return $user !== null && (
                                                         $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
                                                         || $user->can('viewAny', Bidang::class)
                                                     );
-
-                                                    if ($canViewAllBidang) {
-                                                        return Bidang::pluck('nama', 'id')->all();
-                                                    }
-
-                                                    $userBidangId = $resolveUserBidangId();
-
-                                                    return $userBidangId
-                                                        ? Bidang::whereKey($userBidangId)->pluck('nama', 'id')->all()
-                                                        : [];
                                                 })
-                                                ->disabled(function () use ($resolveUserBidangId): bool {
-                                                    /** @var \App\Models\User|null $user */
-                                                    $user = Auth::user();
-                                                    $canViewAllBidang = $user !== null && (
-                                                        $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
-                                                        || $user->can('viewAny', Bidang::class)
-                                                    );
-
-                                                    return ! $canViewAllBidang && $resolveUserBidangId() !== null;
-                                                })
-                                                ->dehydrated()
                                                 ->searchable()
                                                 ->live()
                                                 ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
@@ -206,6 +187,41 @@ class PengajuanSpjForm
                                                     }
                                                 })
                                                 ->required(),
+
+                                            Hidden::make('bidang_id')
+                                                ->default(fn(): ?int => $resolveUserBidangId())
+                                                ->visible(function () {
+                                                    /** @var \App\Models\User|null $user */
+                                                    $user = Auth::user();
+                                                    $canViewAll = $user !== null && (
+                                                        $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                                                        || $user->can('viewAny', Bidang::class)
+                                                    );
+
+                                                    return ! $canViewAll;
+                                                })
+                                                ->dehydrated(),
+
+                                            TextInput::make('bidang_display')
+                                                ->label('Bidang Pengusul')
+                                                ->default(function (?Model $record) use ($resolveUserBidangId): string {
+                                                    $bidangId = $record?->bidang_id ?: $resolveUserBidangId();
+
+                                                    return $bidangId ? (Bidang::whereKey($bidangId)->value('nama') ?? '-') : '-';
+                                                })
+                                                ->readOnly()
+                                                ->dehydrated(false)
+                                                ->helperText('Otomatis sesuai unit kerja bidang Anda.')
+                                                ->visible(function () {
+                                                    /** @var \App\Models\User|null $user */
+                                                    $user = Auth::user();
+                                                    $canViewAll = $user !== null && (
+                                                        $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                                                        || $user->can('viewAny', Bidang::class)
+                                                    );
+
+                                                    return ! $canViewAll;
+                                                }),
                                             Select::make('metode_pengadaan')
                                                 ->label('Metode Pengadaan')
                                                 ->options([

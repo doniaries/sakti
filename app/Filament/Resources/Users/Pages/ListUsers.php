@@ -73,10 +73,10 @@ class ListUsers extends ListRecords
         $tabs = [
             'semua' => Tab::make('Semua Pegawai')
                 ->icon('heroicon-m-user-group')
-                ->badge(User::count()),
+                ->badge(User::query()->bukanSuperAdmin()->count()),
         ];
 
-        $bidangs = Bidang::withCount('users')->orderBy('nama')->get();
+        $bidangs = Bidang::withCount(['users' => fn($q) => $q->bukanSuperAdmin()])->orderBy('nama')->get();
 
         foreach ($bidangs as $bidang) {
             $icon = match ($bidang->slug) {
@@ -94,7 +94,7 @@ class ListUsers extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('bidang_id', $bidang->id));
         }
 
-        $tanpaBidangCount = User::whereNull('bidang_id')->count();
+        $tanpaBidangCount = User::query()->whereNull('bidang_id')->bukanSuperAdmin()->count();
         if ($tanpaBidangCount > 0) {
             $tabs['tanpa_bidang'] = Tab::make('Kepala Dinas')
                 ->icon('heroicon-m-user')

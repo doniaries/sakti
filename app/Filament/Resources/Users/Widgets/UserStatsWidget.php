@@ -8,6 +8,14 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class UserStatsWidget extends StatsOverviewWidget
 {
+    protected int | array | null $columns = [
+        'default' => 2,
+        'sm' => 3,
+        'md' => 6,
+        'lg' => 6,
+        'xl' => 6,
+    ];
+
     protected function getStats(): array
     {
         $baseQuery = User::query()->bukanSuperAdmin();
@@ -21,7 +29,7 @@ class UserStatsWidget extends StatsOverviewWidget
 
         return [
             Stat::make('Total Pegawai', $total)
-                ->description('Seluruh pegawai dinas')
+                ->description('Semua Pegawai')
                 ->descriptionIcon('heroicon-m-user-group')
                 ->color('primary')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index')),
@@ -36,7 +44,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ])),
 
             Stat::make('Pendidikan S2', $s2Count)
-                ->description('Magister / Pascasarjana')
+                ->description('Magister')
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->color('danger')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
@@ -45,7 +53,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ])),
 
             Stat::make('Pendidikan S1', $s1Count)
-                ->description('Sarjana / Diploma IV')
+                ->description('Sarjana')
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->color('success')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
@@ -54,7 +62,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ])),
 
             Stat::make('Pendidikan SLTA', $sltaCount)
-                ->description('SMA / SMK / MA / Sederajat')
+                ->description('SMA / SMK')
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->color('warning')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [
@@ -63,7 +71,7 @@ class UserStatsWidget extends StatsOverviewWidget
                 ])),
 
             Stat::make('Pendidikan SMP', $smpCount)
-                ->description('SMP / MTs / Sederajat')
+                ->description('SMP / MTs')
                 ->descriptionIcon('heroicon-m-academic-cap')
                 ->color('info')
                 ->url(\App\Filament\Resources\Users\UserResource::getUrl('index', [

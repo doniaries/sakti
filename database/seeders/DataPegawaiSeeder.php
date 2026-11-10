@@ -87,8 +87,26 @@ class DataPegawaiSeeder extends Seeder
         }
 
         // --- Atur Akun Khusus & Peran Anggaran (Enum AnggaranRole & Roles Spatie) ---
-        // 1. SuperAdmin Sistem & PPTK Pemasaran Pariwisata (DONI ARIES)
-        // Doni Aries merangkap sebagai SuperAdmin Sistem sekaligus PPTK Pemasaran Pariwisata sehingga tidak perlu akun dummy superadmin terpisah yang menggelembungkan total pegawai.
+        // 0. SuperAdmin Sistem Khusus (Akun Teknis IT murni - Bukan pegawai dinas, tidak dihitung di statistik kepegawaian/presensi)
+        $superAdmin = User::updateOrCreate(
+            ['email' => 'superadmin@gmail.com'],
+            [
+                'name' => 'Super Administrator SAKTI',
+                'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
+                'nip' => null,
+                'nik' => null,
+                'jabatan_id' => null,
+                'bidang_id' => null,
+                'atasan_id' => null,
+                'nomor_absensi' => null,
+                'aktif' => true,
+                'anggaran_role' => null,
+            ]
+        );
+        $superAdmin->syncRoles(['super_admin']);
+
+        // 1. PPTK Pemasaran Pariwisata (DONI ARIES)
+        // Akun resmi kedinasan: PPTK Bidang Pemasaran Pariwisata & Pegawai (Super Admin dipisah ke superadmin@gmail.com)
         $doni = User::query()->where('name', 'LIKE', '%DONI ARIES%')->first();
         if ($doni) {
             $doni->update([
@@ -97,7 +115,7 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
             ]);
-            $doni->syncRoles(['super_admin', 'pptk', 'pegawai']);
+            $doni->syncRoles(['pptk', 'pegawai']);
         }
 
         // 3. Admin Dinas / Kasubag Umum (ZULFITRI)
