@@ -147,856 +147,852 @@ class PengajuanSpjForm
                                 ->description('Lengkapi klasifikasi pengadaan dan rantai hierarki anggaran kegiatan SIPD.')
                                 ->compact()
                                 ->schema([
-                                                // BARIS 1: 3 Kolom (Metode, Jenis Belanja, Tahun Anggaran)
-                                                Grid::make(['default' => 1, 'md' => 3])
-                                                    ->schema([
-                                                        Select::make('metode_pengadaan')
-                                                            ->label('Metode Pengadaan')
-                                                            ->options([
-                                                                'non_katalog' => 'Non-Katalog (Pengadaan Langsung)',
-                                                                'e_katalog' => 'E-Katalog (E-Purchasing LKPP)',
-                                                            ])
-                                                            ->default('non_katalog')
-                                                            ->required()
-                                                            ->live()
-                                                            ->afterStateUpdated(function (callable $set, $state) {
-                                                                $validJenis = \App\Models\MasterJenisBelanja::query()
-                                                                    ->where('aktif', true)
-                                                                    ->where(function ($q) use ($state) {
-                                                                        if ($state === 'e_katalog') {
-                                                                            $q->whereIn('metode_pengadaan', ['e_katalog', 'semua']);
-                                                                        } else {
-                                                                            $q->whereIn('metode_pengadaan', ['non_katalog', 'semua']);
-                                                                        }
-                                                                    })
-                                                                    ->orderBy('urutan')
-                                                                    ->value('kode');
+                                    // BARIS 1: 3 Kolom (Metode, Jenis Belanja, Tahun Anggaran)
+                                    Grid::make(['default' => 1, 'md' => 3])
+                                        ->schema([
+                                            Select::make('bidang_id')
+                                                ->label('Bidang Pengusul')
+                                                ->placeholder('Pilih Bidang Pengusul')
+                                                ->default(fn(): ?int => $resolveUserBidangId())
+                                                ->options(function () use ($resolveUserBidangId): array {
+                                                    /** @var \App\Models\User|null $user */
+                                                    $user = Auth::user();
+                                                    $canViewAllBidang = $user !== null && (
+                                                        $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                                                        || $user->can('viewAny', Bidang::class)
+                                                    );
 
-                                                                $set('jenis_belanja', $validJenis ?: ($state === 'e_katalog' ? 'e_katalog' : 'barang_jasa'));
-                                                            }),
+                                                    if ($canViewAllBidang) {
+                                                        return Bidang::pluck('nama', 'id')->all();
+                                                    }
 
-                                                        Select::make('jenis_belanja')
-                                                            ->label('Jenis Belanja / Pekerjaan')
-                                                            ->options(function (callable $get) {
-                                                                $metode = $get('metode_pengadaan') ?: 'non_katalog';
-                                                                $query = \App\Models\MasterJenisBelanja::query()->where('aktif', true);
+                                                    $userBidangId = $resolveUserBidangId();
 
-                                                                if ($metode === 'e_katalog') {
-                                                                    $query->whereIn('metode_pengadaan', ['e_katalog', 'semua']);
-                                                                } else {
-                                                                    $query->whereIn('metode_pengadaan', ['non_katalog', 'semua']);
-                                                                }
+                                                    return $userBidangId
+                                                        ? Bidang::whereKey($userBidangId)->pluck('nama', 'id')->all()
+                                                        : [];
+                                                })
+                                                ->disabled(function () use ($resolveUserBidangId): bool {
+                                                    /** @var \App\Models\User|null $user */
+                                                    $user = Auth::user();
+                                                    $canViewAllBidang = $user !== null && (
+                                                        $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
+                                                        || $user->can('viewAny', Bidang::class)
+                                                    );
 
-                                                                $options = $query->orderBy('urutan')->pluck('nama', 'kode')->all();
+                                                    return ! $canViewAllBidang && $resolveUserBidangId() !== null;
+                                                })
+                                                ->dehydrated()
+                                                ->searchable()
+                                                ->live()
+                                                ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
+                                                    $set('kegiatan_id', null);
+                                                    $set('sub_kegiatan_id', null);
+                                                    if (! $record) {
+                                                        $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
+                                                            $state,
+                                                            (int) ($get('tahun_anggaran') ?? date('Y')),
+                                                            $get('tanggal_pengajuan')
+                                                        ));
+                                                    }
 
-                                                                if (empty($options)) {
-                                                                    return [
-                                                                        'barang_jasa' => 'Belanja Barang & Jasa',
-                                                                        'makan_minum' => 'Makan & Minum Rapat',
-                                                                        'sppd' => 'Perjalanan Dinas (SPPD)',
-                                                                        'bbm' => 'BBM (Bahan Bakar Minyak)',
-                                                                    ];
-                                                                }
+                                                    $details = $get('details') ?? [];
+                                                    foreach (array_keys($details) as $uuid) {
+                                                        $set("details.{$uuid}.kode_rekening_id", null);
+                                                        $set("details.{$uuid}.master_barang_id", null);
+                                                        $set("details.{$uuid}.stok_tersedia", 0);
+                                                        $set("details.{$uuid}.harga_satuan", 0);
+                                                        $set("details.{$uuid}.subtotal", 0);
+                                                    }
+                                                })
+                                                ->required(),
+                                            Select::make('metode_pengadaan')
+                                                ->label('Metode Pengadaan')
+                                                ->options([
+                                                    'non_katalog' => 'Non-Katalog (Pengadaan Langsung)',
+                                                    'e_katalog' => 'E-Katalog (E-Purchasing LKPP)',
+                                                ])
+                                                ->default('non_katalog')
+                                                ->required()
+                                                ->live()
+                                                ->afterStateUpdated(function (callable $set, $state) {
+                                                    $validJenis = \App\Models\MasterJenisBelanja::query()
+                                                        ->where('aktif', true)
+                                                        ->where(function ($q) use ($state) {
+                                                            if ($state === 'e_katalog') {
+                                                                $q->whereIn('metode_pengadaan', ['e_katalog', 'semua']);
+                                                            } else {
+                                                                $q->whereIn('metode_pengadaan', ['non_katalog', 'semua']);
+                                                            }
+                                                        })
+                                                        ->orderBy('urutan')
+                                                        ->value('kode');
 
-                                                                return $options;
-                                                            })
-                                                            ->default('barang_jasa')
-                                                            ->required()
-                                                            ->live(),
+                                                    $set('jenis_belanja', $validJenis ?: ($state === 'e_katalog' ? 'e_katalog' : 'barang_jasa'));
+                                                }),
 
-                                                        TextInput::make('tahun_anggaran')
-                                                            ->label('Tahun Anggaran')
-                                                            ->default(fn() => (int) \App\Models\PengaturanAplikasi::getTahunAnggaranAktif())
-                                                            ->readOnly()
-                                                            ->helperText('Terkunci pada Tahun Anggaran Aktif sistem.')
-                                                            ->required(),
-                                                    ]),
+                                            Select::make('jenis_belanja')
+                                                ->label('Jenis Belanja / Pekerjaan')
+                                                ->options(function (callable $get) {
+                                                    $metode = $get('metode_pengadaan') ?: 'non_katalog';
+                                                    $query = \App\Models\MasterJenisBelanja::query()->where('aktif', true);
 
-                                                // BARIS 2: 3 Kolom (Bidang Pengusul, Nomor Surat Pesanan, Tanggal Surat Pesanan)
-                                                Grid::make(['default' => 1, 'md' => 3])
-                                                    ->schema([
-                                                        Select::make('bidang_id')
-                                                            ->label('Bidang Pengusul')
-                                                            ->placeholder('Pilih Bidang Pengusul')
-                                                            ->default(fn(): ?int => $resolveUserBidangId())
-                                                            ->options(function () use ($resolveUserBidangId): array {
-                                                                /** @var \App\Models\User|null $user */
-                                                                $user = Auth::user();
-                                                                $canViewAllBidang = $user !== null && (
-                                                                    $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
-                                                                    || $user->can('viewAny', Bidang::class)
-                                                                );
+                                                    if ($metode === 'e_katalog') {
+                                                        $query->whereIn('metode_pengadaan', ['e_katalog', 'semua']);
+                                                    } else {
+                                                        $query->whereIn('metode_pengadaan', ['non_katalog', 'semua']);
+                                                    }
 
-                                                                if ($canViewAllBidang) {
-                                                                    return Bidang::pluck('nama', 'id')->all();
-                                                                }
+                                                    $options = $query->orderBy('urutan')->pluck('nama', 'kode')->all();
 
-                                                                $userBidangId = $resolveUserBidangId();
+                                                    if (empty($options)) {
+                                                        return [
+                                                            'barang_jasa' => 'Belanja Barang & Jasa',
+                                                            'makan_minum' => 'Makan & Minum Rapat',
+                                                            'sppd' => 'Perjalanan Dinas (SPPD)',
+                                                            'bbm' => 'BBM (Bahan Bakar Minyak)',
+                                                        ];
+                                                    }
 
-                                                                return $userBidangId
-                                                                    ? Bidang::whereKey($userBidangId)->pluck('nama', 'id')->all()
-                                                                    : [];
-                                                            })
-                                                            ->disabled(function () use ($resolveUserBidangId): bool {
-                                                                /** @var \App\Models\User|null $user */
-                                                                $user = Auth::user();
-                                                                $canViewAllBidang = $user !== null && (
-                                                                    $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])
-                                                                    || $user->can('viewAny', Bidang::class)
-                                                                );
+                                                    return $options;
+                                                })
+                                                ->default('barang_jasa')
+                                                ->required()
+                                                ->live(),
 
-                                                                return ! $canViewAllBidang && $resolveUserBidangId() !== null;
-                                                            })
-                                                            ->dehydrated()
-                                                            ->searchable()
-                                                            ->live()
-                                                            ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
-                                                                $set('kegiatan_id', null);
-                                                                $set('sub_kegiatan_id', null);
-                                                                if (! $record) {
-                                                                    $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
-                                                                        $state,
-                                                                        (int) ($get('tahun_anggaran') ?? date('Y')),
-                                                                        $get('tanggal_pengajuan')
-                                                                    ));
-                                                                }
+                                            TextInput::make('tahun_anggaran')
+                                                ->label('Tahun Anggaran')
+                                                ->default(fn() => (int) \App\Models\PengaturanAplikasi::getTahunAnggaranAktif())
+                                                ->readOnly()
+                                                ->helperText('Terkunci pada Tahun Anggaran Aktif sistem.')
+                                                ->required(),
+                                            TextInput::make('nomor_pengajuan')
+                                                ->label('Nomor Surat Pesanan')
+                                                ->default(fn(Get $get) => PengajuanSpj::generateNomorPengajuan(
+                                                    $get('bidang_id') ?: $resolveUserBidangId(),
+                                                    (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif()),
+                                                    $get('tanggal_pengajuan')
+                                                ))
+                                                ->readOnly()
+                                                ->helperText('Nomor resmi unik dihasilkan otomatis oleh sistem SAKTI (Terkunci).')
+                                                ->required(),
 
-                                                                $details = $get('details') ?? [];
-                                                                foreach (array_keys($details) as $uuid) {
-                                                                    $set("details.{$uuid}.kode_rekening_id", null);
-                                                                    $set("details.{$uuid}.master_barang_id", null);
-                                                                    $set("details.{$uuid}.stok_tersedia", 0);
-                                                                    $set("details.{$uuid}.harga_satuan", 0);
-                                                                    $set("details.{$uuid}.subtotal", 0);
-                                                                }
-                                                            })
-                                                            ->required(),
+                                            DatePicker::make('tanggal_pengajuan')
+                                                ->label('Tanggal Surat Pesanan')
+                                                ->default(now())
+                                                ->displayFormat('d/m/Y')
+                                                ->required()
+                                                ->live()
+                                                ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
+                                                    if (! $record) {
+                                                        $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
+                                                            $get('bidang_id'),
+                                                            (int) ($get('tahun_anggaran') ?? date('Y')),
+                                                            $state
+                                                        ));
+                                                    }
+                                                }),
+                                        ]),
 
-                                                        TextInput::make('nomor_pengajuan')
-                                                            ->label('Nomor Surat Pesanan')
-                                                            ->default(fn(Get $get) => PengajuanSpj::generateNomorPengajuan(
-                                                                $get('bidang_id') ?: $resolveUserBidangId(),
-                                                                (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif()),
-                                                                $get('tanggal_pengajuan')
-                                                            ))
-                                                            ->readOnly()
-                                                            ->helperText('Nomor resmi unik dihasilkan otomatis oleh sistem SAKTI (Terkunci).')
-                                                            ->required(),
 
-                                                        DatePicker::make('tanggal_pengajuan')
-                                                            ->label('Tanggal Surat Pesanan')
-                                                            ->default(now())
-                                                            ->displayFormat('d/m/Y')
-                                                            ->required()
-                                                            ->live()
-                                                            ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
-                                                                if (! $record) {
-                                                                    $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
-                                                                        $get('bidang_id'),
-                                                                        (int) ($get('tahun_anggaran') ?? date('Y')),
-                                                                        $state
-                                                                    ));
-                                                                }
-                                                            }),
-                                                    ]),
 
-                                                // BARIS 3: Rantai Anggaran SIPD (Kegiatan & Sub Kegiatan)
-                                                Grid::make(['default' => 1, 'md' => 2])
-                                                    ->schema([
+                                    // BARIS 3: Rantai Anggaran SIPD (Kegiatan & Sub Kegiatan)
+                                    Grid::make(['default' => 1, 'md' => 2])
+                                        ->schema([
 
-                                                        Select::make('kegiatan_id')
-                                                            ->label('Kegiatan (SIPD)')
-                                                            ->placeholder(fn(callable $get): string => $resolveBidangId($get)
-                                                                ? 'Pilih Kegiatan'
-                                                                : 'Pilih Bidang Pengusul terlebih dahulu')
-                                                            ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null)
-                                                            ->options(function (callable $get) use ($resolveBidangId): array {
-                                                                $bidangId = $resolveBidangId($get);
-                                                                if (! $bidangId) {
-                                                                    return [];
-                                                                }
+                                            Select::make('kegiatan_id')
+                                                ->label('Kegiatan (SIPD)')
+                                                ->placeholder(fn(callable $get): string => $resolveBidangId($get)
+                                                    ? 'Pilih Kegiatan'
+                                                    : 'Pilih Bidang Pengusul terlebih dahulu')
+                                                ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null)
+                                                ->options(function (callable $get) use ($resolveBidangId): array {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    if (! $bidangId) {
+                                                        return [];
+                                                    }
 
-                                                                $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
+                                                    $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
 
-                                                                return MasterKegiatan::where('bidang_id', $bidangId)
-                                                                    ->where(function ($q) use ($tahun) {
-                                                                        $q->where('tahun_anggaran', $tahun)
-                                                                            ->orWhereNull('tahun_anggaran');
-                                                                    })
-                                                                    ->get()
-                                                                    ->pluck('label', 'id')
-                                                                    ->all();
-                                                            })
-                                                            ->createOptionForm([
-                                                                TextInput::make('kode_kegiatan')
-                                                                    ->label('Kode Kegiatan')
-                                                                    ->placeholder('Contoh: 3.26.03.2.01')
-                                                                    ->mask('9.99.99.9.99')
-                                                                    ->helperText('Format titik otomatis sesuai SIPD (contoh: 3.26.03.2.01)')
-                                                                    ->required()
-                                                                    ->maxLength(50),
-                                                                TextInput::make('nama_kegiatan')
-                                                                    ->label('Nama Kegiatan')
-                                                                    ->required()
-                                                                    ->maxLength(255),
-                                                                TextInput::make('pagu_anggaran')
-                                                                    ->label('Jumlah Uang / Pagu Kegiatan (Rp)')
-                                                                    ->numeric()
-                                                                    ->default(0)
-                                                                    ->prefix('Rp')
-                                                                    ->required(),
-                                                            ])
-                                                            ->createOptionUsing(function (array $data, callable $get) use ($resolveBidangId): int {
-                                                                return MasterKegiatan::create([
-                                                                    'bidang_id' => $resolveBidangId($get),
-                                                                    'kode_kegiatan' => $data['kode_kegiatan'],
-                                                                    'nama_kegiatan' => $data['nama_kegiatan'],
-                                                                    'pagu_anggaran' => (float) ($data['pagu_anggaran'] ?? 0),
-                                                                ])->id;
-                                                            })
-                                                            ->searchable()
-                                                            ->live()
-                                                            ->afterStateUpdated(fn(callable $set) => $set('sub_kegiatan_id', null))
-                                                            ->required(),
+                                                    return MasterKegiatan::where('bidang_id', $bidangId)
+                                                        ->where(function ($q) use ($tahun) {
+                                                            $q->where('tahun_anggaran', $tahun)
+                                                                ->orWhereNull('tahun_anggaran');
+                                                        })
+                                                        ->get()
+                                                        ->pluck('label', 'id')
+                                                        ->all();
+                                                })
+                                                ->createOptionForm([
+                                                    TextInput::make('kode_kegiatan')
+                                                        ->label('Kode Kegiatan')
+                                                        ->placeholder('Contoh: 3.26.03.2.01')
+                                                        ->mask('9.99.99.9.99')
+                                                        ->helperText('Format titik otomatis sesuai SIPD (contoh: 3.26.03.2.01)')
+                                                        ->required()
+                                                        ->maxLength(50),
+                                                    TextInput::make('nama_kegiatan')
+                                                        ->label('Nama Kegiatan')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('pagu_anggaran')
+                                                        ->label('Jumlah Uang / Pagu Kegiatan (Rp)')
+                                                        ->numeric()
+                                                        ->default(0)
+                                                        ->prefix('Rp')
+                                                        ->required(),
+                                                ])
+                                                ->createOptionUsing(function (array $data, callable $get) use ($resolveBidangId): int {
+                                                    return MasterKegiatan::create([
+                                                        'bidang_id' => $resolveBidangId($get),
+                                                        'kode_kegiatan' => $data['kode_kegiatan'],
+                                                        'nama_kegiatan' => $data['nama_kegiatan'],
+                                                        'pagu_anggaran' => (float) ($data['pagu_anggaran'] ?? 0),
+                                                    ])->id;
+                                                })
+                                                ->searchable()
+                                                ->live()
+                                                ->afterStateUpdated(fn(callable $set) => $set('sub_kegiatan_id', null))
+                                                ->required(),
 
-                                                        Select::make('sub_kegiatan_id')
-                                                            ->label('Sub Kegiatan (SIPD)')
-                                                            ->visible(fn (callable $get): bool => filled($get('kegiatan_id')))
-                                                            ->placeholder(fn (callable $get): string => filled($get('kegiatan_id'))
-                                                                ? 'Pilih Sub Kegiatan'
-                                                                : 'Pilih Kegiatan terlebih dahulu')
-                                                            ->disabled(fn(callable $get): bool => blank($get('kegiatan_id')))
-                                                            ->options(function (callable $get): array {
-                                                                $kegiatanId = $get('kegiatan_id');
-                                                                if (! $kegiatanId) {
-                                                                    return [];
-                                                                }
+                                            Select::make('sub_kegiatan_id')
+                                                ->label('Sub Kegiatan (SIPD)')
+                                                ->visible(fn(callable $get): bool => filled($get('kegiatan_id')))
+                                                ->placeholder(fn(callable $get): string => filled($get('kegiatan_id'))
+                                                    ? 'Pilih Sub Kegiatan'
+                                                    : 'Pilih Kegiatan terlebih dahulu')
+                                                ->disabled(fn(callable $get): bool => blank($get('kegiatan_id')))
+                                                ->options(function (callable $get): array {
+                                                    $kegiatanId = $get('kegiatan_id');
+                                                    if (! $kegiatanId) {
+                                                        return [];
+                                                    }
 
-                                                                $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
+                                                    $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
 
-                                                                $query = MasterSubKegiatan::where('kegiatan_id', $kegiatanId)
-                                                                    ->where(function ($q) use ($tahun) {
-                                                                        $q->where('tahun_anggaran', $tahun)
-                                                                            ->orWhereNull('tahun_anggaran');
-                                                                    })
-                                                                    ->with('jf');
+                                                    $query = MasterSubKegiatan::where('kegiatan_id', $kegiatanId)
+                                                        ->where(function ($q) use ($tahun) {
+                                                            $q->where('tahun_anggaran', $tahun)
+                                                                ->orWhereNull('tahun_anggaran');
+                                                        })
+                                                        ->with('jf');
 
-                                                                /** @var \App\Models\User|null $user */
-                                                                $user = auth()->user();
-                                                                if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'pptk'])) {
-                                                                    if ((clone $query)->where('jf_id', $user->id)->exists()) {
-                                                                        $query->where('jf_id', $user->id);
-                                                                    }
-                                                                }
-
-                                                                return $query->get()->mapWithKeys(function ($sk) {
-                                                                    $jfLabel = $sk->jf ? " [JF: {$sk->jf->name}]" : '';
-                                                                    return [$sk->id => "{$sk->label}{$jfLabel}"];
-                                                                })->all();
-                                                            })
-                                                            ->createOptionForm([
-                                                                TextInput::make('kode_sub_kegiatan')
-                                                                    ->label('Kode Sub Kegiatan')
-                                                                    ->placeholder('Contoh: 3.26.03.2.01.0006')
-                                                                    ->mask('9.99.99.9.99.9999')
-                                                                    ->helperText('Format titik otomatis sesuai SIPD (contoh: 3.26.03.2.01.0006)')
-                                                                    ->required()
-                                                                    ->maxLength(50),
-                                                                TextInput::make('nama_sub_kegiatan')
-                                                                    ->label('Nama Sub Kegiatan')
-                                                                    ->required()
-                                                                    ->maxLength(255),
-                                                                Select::make('jf_id')
-                                                                    ->label('JF ')
-                                                                    ->placeholder('Pilih Pejabat Fungsional (Opsional)')
-                                                                    ->options(function (callable $get) {
-                                                                        $kegiatanId = $get('kegiatan_id');
-                                                                        $bidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : null;
-
-                                                                        return User::query()
-                                                                            ->where('aktif', true)
-                                                                            ->whereHas('roles', fn($q) => $q->where('name', 'jf'))
-                                                                            ->when($bidangId, fn($q) => $q->where('bidang_id', $bidangId))
-                                                                            ->pluck('name', 'id')
-                                                                            ->all();
-                                                                    })
-                                                                    ->searchable()
-                                                                    ->nullable(),
-                                                            ])
-                                                            ->createOptionUsing(function (array $data, callable $get): int {
-                                                                return MasterSubKegiatan::create([
-                                                                    'kegiatan_id' => (int) $get('kegiatan_id'),
-                                                                    'jf_id' => $data['jf_id'] ?? (auth()->user()?->hasRole('jf') ? auth()->id() : null),
-                                                                    'kode_sub_kegiatan' => $data['kode_sub_kegiatan'],
-                                                                    'nama_sub_kegiatan' => $data['nama_sub_kegiatan'],
-                                                                ])->id;
-                                                            })
-                                                            ->searchable()
-                                                            ->live()
-                                                            ->required(),
-                                                    ]),
-
-                                                Hidden::make('user_id')
-                                                    ->default(fn() => Auth::id()),
-                                            ]),
-
-                                        // 1.B KHUSUS E-KATALOG (E-PURCHASING LKPP)
-                                        Section::make('Bundel Dokumen E-Purchasing (E-Katalog LKPP)')
-                                            ->description('Untuk belanja via E-Katalog, Surat Pesanan, BAST, dan Kwitansi diterbitkan resmi oleh LKPP/E-Proc. Unggah dokumen bundel resmi PDF tersebut di sini.')
-                                            ->compact()
-                                            ->visible(fn(callable $get) => $get('metode_pengadaan') === 'e_katalog')
-                                            ->schema([
-                                                FileUpload::make('file_ekatalog_bundel')
-                                                    ->label('Unggah Bundel Dokumen E-Katalog LKPP (PDF)')
-                                                    ->disk('public')
-                                                    ->directory('spj/ekatalog')
-                                                    ->acceptedFileTypes(['application/pdf'])
-                                                    ->maxSize(10240)
-                                                    ->openable()
-                                                    ->downloadable()
-                                                    ->columnSpanFull(),
-                                            ]),
-
-                                        // 1.C KHUSUS PERJALANAN DINAS (SPPD)
-                                        Section::make('Rincian Surat Tugas & Perjalanan Dinas (SPPD)')
-                                            ->description('Lengkapi data dasar surat perintah tugas dan tujuan kedinasan.')
-                                            ->compact()
-                                            ->visible(fn(callable $get) => $get('jenis_belanja') === 'sppd')
-                                            ->columns(12)
-                                            ->schema([
-                                                Select::make('tingkat_perjalanan')
-                                                    ->label('Tingkat Perjalanan')
-                                                    ->options([
-                                                        'dalam_kabupaten' => 'Dalam Kabupaten (Per Nagari)',
-                                                        'luar_kabupaten' => 'Luar Kabupaten (Dalam Provinsi)',
-                                                        'luar_provinsi' => 'Luar Provinsi',
-                                                    ])
-                                                    ->default('dalam_kabupaten')
-                                                    ->required(fn(callable $get) => $get('jenis_belanja') === 'sppd')
-                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                TextInput::make('nomor_spt')
-                                                    ->label('Nomor SPT')
-                                                    ->placeholder('Contoh: 090/045/SPT/PARPORA-2026')
-                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                DatePicker::make('tanggal_spt')
-                                                    ->label('Tanggal SPT')
-                                                    ->displayFormat('d/m/Y')
-                                                    ->default(now())
-                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                DatePicker::make('tanggal_berangkat')
-                                                    ->label('Tanggal Berangkat')
-                                                    ->displayFormat('d/m/Y')
-                                                    ->default(now())
-                                                    ->live()
-                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                        $tglPulang = $get('tanggal_kembali');
-                                                        if ($state && $tglPulang) {
-                                                            $days = Carbon::parse($state)->diffInDays(Carbon::parse($tglPulang)) + 1;
-                                                            $set('lama_hari', max(1, $days));
+                                                    /** @var \App\Models\User|null $user */
+                                                    $user = auth()->user();
+                                                    if ($user && $user->hasRole('jf') && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'pptk'])) {
+                                                        if ((clone $query)->where('jf_id', $user->id)->exists()) {
+                                                            $query->where('jf_id', $user->id);
                                                         }
-                                                    })
-                                                    ->columnSpan(['default' => 12, 'md' => 4]),
+                                                    }
 
-                                                DatePicker::make('tanggal_kembali')
-                                                    ->label('Tanggal Kembali')
-                                                    ->displayFormat('d/m/Y')
-                                                    ->default(now())
-                                                    ->live()
-                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                        $tglBerangkat = $get('tanggal_berangkat');
-                                                        if ($state && $tglBerangkat) {
-                                                            $days = Carbon::parse($tglBerangkat)->diffInDays(Carbon::parse($state)) + 1;
-                                                            $set('lama_hari', max(1, $days));
+                                                    return $query->get()->mapWithKeys(function ($sk) {
+                                                        $jfLabel = $sk->jf ? " [JF: {$sk->jf->name}]" : '';
+                                                        return [$sk->id => "{$sk->label}{$jfLabel}"];
+                                                    })->all();
+                                                })
+                                                ->createOptionForm([
+                                                    TextInput::make('kode_sub_kegiatan')
+                                                        ->label('Kode Sub Kegiatan')
+                                                        ->placeholder('Contoh: 3.26.03.2.01.0006')
+                                                        ->mask('9.99.99.9.99.9999')
+                                                        ->helperText('Format titik otomatis sesuai SIPD (contoh: 3.26.03.2.01.0006)')
+                                                        ->required()
+                                                        ->maxLength(50),
+                                                    TextInput::make('nama_sub_kegiatan')
+                                                        ->label('Nama Sub Kegiatan')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    Select::make('jf_id')
+                                                        ->label('JF ')
+                                                        ->placeholder('Pilih Pejabat Fungsional (Opsional)')
+                                                        ->options(function (callable $get) {
+                                                            $kegiatanId = $get('kegiatan_id');
+                                                            $bidangId = $kegiatanId ? MasterKegiatan::find($kegiatanId)?->bidang_id : null;
+
+                                                            return User::query()
+                                                                ->where('aktif', true)
+                                                                ->whereHas('roles', fn($q) => $q->where('name', 'jf'))
+                                                                ->when($bidangId, fn($q) => $q->where('bidang_id', $bidangId))
+                                                                ->pluck('name', 'id')
+                                                                ->all();
+                                                        })
+                                                        ->searchable()
+                                                        ->nullable(),
+                                                ])
+                                                ->createOptionUsing(function (array $data, callable $get): int {
+                                                    return MasterSubKegiatan::create([
+                                                        'kegiatan_id' => (int) $get('kegiatan_id'),
+                                                        'jf_id' => $data['jf_id'] ?? (auth()->user()?->hasRole('jf') ? auth()->id() : null),
+                                                        'kode_sub_kegiatan' => $data['kode_sub_kegiatan'],
+                                                        'nama_sub_kegiatan' => $data['nama_sub_kegiatan'],
+                                                    ])->id;
+                                                })
+                                                ->searchable()
+                                                ->live()
+                                                ->required(),
+                                        ]),
+
+                                    Hidden::make('user_id')
+                                        ->default(fn() => Auth::id()),
+                                ]),
+
+                            // 1.B KHUSUS E-KATALOG (E-PURCHASING LKPP)
+                            Section::make('Bundel Dokumen E-Purchasing (E-Katalog LKPP)')
+                                ->description('Untuk belanja via E-Katalog, Surat Pesanan, BAST, dan Kwitansi diterbitkan resmi oleh LKPP/E-Proc. Unggah dokumen bundel resmi PDF tersebut di sini.')
+                                ->compact()
+                                ->visible(fn(callable $get) => $get('metode_pengadaan') === 'e_katalog')
+                                ->schema([
+                                    FileUpload::make('file_ekatalog_bundel')
+                                        ->label('Unggah Bundel Dokumen E-Katalog LKPP (PDF)')
+                                        ->disk('public')
+                                        ->directory('spj/ekatalog')
+                                        ->acceptedFileTypes(['application/pdf'])
+                                        ->maxSize(10240)
+                                        ->openable()
+                                        ->downloadable()
+                                        ->columnSpanFull(),
+                                ]),
+
+                            // 1.C KHUSUS PERJALANAN DINAS (SPPD)
+                            Section::make('Rincian Surat Tugas & Perjalanan Dinas (SPPD)')
+                                ->description('Lengkapi data dasar surat perintah tugas dan tujuan kedinasan.')
+                                ->compact()
+                                ->visible(fn(callable $get) => $get('jenis_belanja') === 'sppd')
+                                ->columns(12)
+                                ->schema([
+                                    Select::make('tingkat_perjalanan')
+                                        ->label('Tingkat Perjalanan')
+                                        ->options([
+                                            'dalam_kabupaten' => 'Dalam Kabupaten (Per Nagari)',
+                                            'luar_kabupaten' => 'Luar Kabupaten (Dalam Provinsi)',
+                                            'luar_provinsi' => 'Luar Provinsi',
+                                        ])
+                                        ->default('dalam_kabupaten')
+                                        ->required(fn(callable $get) => $get('jenis_belanja') === 'sppd')
+                                        ->columnSpan(['default' => 12, 'md' => 4]),
+
+                                    TextInput::make('nomor_spt')
+                                        ->label('Nomor SPT')
+                                        ->placeholder('Contoh: 090/045/SPT/PARPORA-2026')
+                                        ->columnSpan(['default' => 12, 'md' => 4]),
+
+                                    DatePicker::make('tanggal_spt')
+                                        ->label('Tanggal SPT')
+                                        ->displayFormat('d/m/Y')
+                                        ->default(now())
+                                        ->columnSpan(['default' => 12, 'md' => 4]),
+
+                                    DatePicker::make('tanggal_berangkat')
+                                        ->label('Tanggal Berangkat')
+                                        ->displayFormat('d/m/Y')
+                                        ->default(now())
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                            $tglPulang = $get('tanggal_kembali');
+                                            if ($state && $tglPulang) {
+                                                $days = Carbon::parse($state)->diffInDays(Carbon::parse($tglPulang)) + 1;
+                                                $set('lama_hari', max(1, $days));
+                                            }
+                                        })
+                                        ->columnSpan(['default' => 12, 'md' => 4]),
+
+                                    DatePicker::make('tanggal_kembali')
+                                        ->label('Tanggal Kembali')
+                                        ->displayFormat('d/m/Y')
+                                        ->default(now())
+                                        ->live()
+                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                            $tglBerangkat = $get('tanggal_berangkat');
+                                            if ($state && $tglBerangkat) {
+                                                $days = Carbon::parse($tglBerangkat)->diffInDays(Carbon::parse($state)) + 1;
+                                                $set('lama_hari', max(1, $days));
+                                            }
+                                        })
+                                        ->columnSpan(['default' => 12, 'md' => 4]),
+
+                                    TextInput::make('lama_hari')
+                                        ->label('Lama Perjalanan')
+                                        ->numeric()
+                                        ->default(1)
+                                        ->readOnly()
+                                        ->suffix('Hari')
+                                        ->columnSpan(['default' => 12, 'md' => 4]),
+
+                                    TextInput::make('lokasi_tujuan')
+                                        ->label('Lokasi / Tempat Tujuan')
+                                        ->placeholder('Contoh: Nagari Silokek / Kantor Gubernur Sumbar')
+                                        ->columnSpanFull(),
+
+                                    Textarea::make('maksud_perjalanan')
+                                        ->label('Maksud Perjalanan Dinas')
+                                        ->placeholder('Contoh: Koordinasi penguatan destinasi wisata nagari')
+                                        ->rows(2)
+                                        ->columnSpanFull(),
+                                ]),
+
+                            // 1.D KHUSUS BAHAN BAKAR MINYAK (BBM)
+                            Section::make('Standar Kuota BBM Kedinasan')
+                                ->description('Pilih nagari atau rute tujuan kedinasan. Standar kuota liter akan terisi otomatis sesuai SBM.')
+                                ->compact()
+                                ->visible(fn(callable $get) => $get('jenis_belanja') === 'bbm')
+                                ->columns(12)
+                                ->schema([
+                                    Select::make('master_tujuan_bbm_id')
+                                        ->label('Rute / Nagari Tujuan BBM')
+                                        ->options(fn() => MasterTujuanBbm::where('aktif', true)->get()->pluck('label', 'id')->all())
+                                        ->searchable()
+                                        ->live()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            if ($state) {
+                                                $tujuan = MasterTujuanBbm::find($state);
+                                                if ($tujuan) {
+                                                    $set('jumlah_liter_bbm', $tujuan->kuota_liter);
+                                                    $set('lokasi_tujuan', $tujuan->nama_tujuan);
+                                                }
+                                            }
+                                        })
+                                        ->createOptionForm([
+                                            TextInput::make('nama_tujuan')
+                                                ->label('Nama Tujuan / Nagari Baru')
+                                                ->required(),
+                                            TextInput::make('kuota_liter')
+                                                ->label('Standar Kuota BBM (Liter)')
+                                                ->numeric()
+                                                ->required(),
+                                            TextInput::make('jarak_km')
+                                                ->label('Jarak (KM)')
+                                                ->numeric()
+                                                ->nullable(),
+                                        ])
+                                        ->createOptionUsing(function (array $data): int {
+                                            $tujuan = MasterTujuanBbm::create([
+                                                'nama_tujuan' => $data['nama_tujuan'],
+                                                'kuota_liter' => (float) $data['kuota_liter'],
+                                                'jarak_km' => isset($data['jarak_km']) ? (float) $data['jarak_km'] : null,
+                                                'kategori_wilayah' => 'dalam_kabupaten',
+                                                'aktif' => true,
+                                            ]);
+                                            return $tujuan->id;
+                                        })
+                                        ->columnSpan(['default' => 12, 'md' => 8]),
+
+                                    TextInput::make('jumlah_liter_bbm')
+                                        ->label('Jumlah Kuota BBM')
+                                        ->numeric()
+                                        ->default(20)
+                                        ->suffix('Liter')
+                                        ->required(fn(callable $get) => $get('jenis_belanja') === 'bbm')
+                                        ->columnSpan(['default' => 12, 'md' => 4]),
+                                ]),
+
+                            // 2. RINCIAN BARANG PESANAN
+                            Section::make('Rincian Barang Pesanan')
+                                ->description('Pilih item belanja sesuai ketersediaan sisa pagu alokasi RKA Bidang Pengusul.')
+                                ->compact()
+                                ->visible(fn(callable $get) => filled($get('sub_kegiatan_id')))
+                                ->schema([
+                                    Repeater::make('details')
+                                        ->relationship()
+                                        ->label('Daftar Barang & Rincian Belanja')
+                                        ->itemLabel(fn(array $state): ?string => filled($state['nama_item_belanja'] ?? null)
+                                            ? ($state['nama_item_belanja'] . ' — ' . ($state['kuantitas'] ?? 1) . ' ' . ($state['satuan'] ?? 'Unit') . ' (Rp ' . number_format((float) ($state['subtotal'] ?? 0), 0, ',', '.') . ')')
+                                            : 'Item Belanja Baru')
+                                        ->collapsible()
+                                        ->cloneable()
+                                        ->live()
+                                        ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
+                                            if (isset($data['rincian_anggaran_belanja_id']) && str_starts_with((string) $data['rincian_anggaran_belanja_id'], 'mb_')) {
+                                                $data['rincian_anggaran_belanja_id'] = null;
+                                            }
+                                            return $data;
+                                        })
+                                        ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
+                                            if (isset($data['rincian_anggaran_belanja_id']) && str_starts_with((string) $data['rincian_anggaran_belanja_id'], 'mb_')) {
+                                                $data['rincian_anggaran_belanja_id'] = null;
+                                            }
+                                            return $data;
+                                        })
+                                        ->columns(12)
+                                        ->schema([
+                                            Select::make('kode_rekening_id')
+                                                ->label('Rekening Belanja')
+                                                ->placeholder(fn(callable $get): string => $resolveBidangId($get)
+                                                    ? 'Pilih Rekening Belanja'
+                                                    : 'Pilih Bidang Pengusul terlebih dahulu')
+                                                ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null)
+                                                ->options(function (callable $get) use ($resolveBidangId): array {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    if (! $bidangId) {
+                                                        return [];
+                                                    }
+
+                                                    $subKegiatanId = $get('/data.sub_kegiatan_id')
+                                                        ?: $get('sub_kegiatan_id')
+                                                        ?: $get('../../sub_kegiatan_id')
+                                                        ?: $get('../../../sub_kegiatan_id')
+                                                        ?: $get('../../../../sub_kegiatan_id');
+
+                                                    $tahunAnggaran = (int) ($get('/data.tahun_anggaran')
+                                                        ?: $get('tahun_anggaran')
+                                                        ?: $get('../../tahun_anggaran')
+                                                        ?: $get('../../../tahun_anggaran')
+                                                        ?: $get('../../../../tahun_anggaran')
+                                                        ?: 2027);
+
+                                                    if ($subKegiatanId) {
+                                                        $rekIds = RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
+                                                            ->where('tahun_anggaran', $tahunAnggaran)
+                                                            ->pluck('kode_rekening_id')
+                                                            ->unique();
+
+                                                        if ($rekIds->isNotEmpty()) {
+                                                            return KodeRekening::whereIn('id', $rekIds)
+                                                                ->get()
+                                                                ->pluck('label', 'id')
+                                                                ->all();
                                                         }
-                                                    })
-                                                    ->columnSpan(['default' => 12, 'md' => 4]),
+                                                    }
 
-                                                TextInput::make('lama_hari')
-                                                    ->label('Lama Perjalanan')
-                                                    ->numeric()
-                                                    ->default(1)
-                                                    ->readOnly()
-                                                    ->suffix('Hari')
-                                                    ->columnSpan(['default' => 12, 'md' => 4]),
+                                                    return KodeRekening::all()
+                                                        ->pluck('label', 'id')
+                                                        ->all();
+                                                })
+                                                ->createOptionForm([
+                                                    TextInput::make('kode_lengkap')
+                                                        ->label('Kode Rekening (SIPD)')
+                                                        ->placeholder('Contoh: 5.1.02.01.01.0024')
+                                                        ->required()
+                                                        ->maxLength(50),
+                                                    TextInput::make('uraian')
+                                                        ->label('Uraian Rekening Belanja')
+                                                        ->placeholder('Contoh: Belanja Alat/Bahan untuk Kegiatan Kantor')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                ])
+                                                ->createOptionUsing(function (array $data): int {
+                                                    $rek = KodeRekening::create([
+                                                        'kode_lengkap' => $data['kode_lengkap'],
+                                                        'uraian' => $data['uraian'],
+                                                    ]);
+                                                    return $rek->id;
+                                                })
+                                                ->searchable()
+                                                ->live()
+                                                ->afterStateUpdated(function (callable $set) {
+                                                    $set('rincian_anggaran_belanja_id', null);
+                                                    $set('master_barang_id', null);
+                                                    $set('nama_item_belanja', null);
+                                                    $set('satuan', null);
+                                                    $set('stok_tersedia', 0);
+                                                    $set('harga_satuan', 0);
+                                                    $set('subtotal', 0);
+                                                })
+                                                ->required()
+                                                ->columnSpan(['default' => 12, 'md' => 5]),
 
-                                                TextInput::make('lokasi_tujuan')
-                                                    ->label('Lokasi / Tempat Tujuan')
-                                                    ->placeholder('Contoh: Nagari Silokek / Kantor Gubernur Sumbar')
-                                                    ->columnSpanFull(),
+                                            Select::make('rincian_anggaran_belanja_id')
+                                                ->label('Barang / Belanja (RKA)')
+                                                ->visible(fn(callable $get): bool => filled($get('kode_rekening_id')))
+                                                ->placeholder(function (callable $get) use ($resolveBidangId): string {
+                                                    if (! $resolveBidangId($get)) {
+                                                        return 'Pilih Bidang Pengusul terlebih dahulu';
+                                                    }
+                                                    if (blank($get('kode_rekening_id'))) {
+                                                        return 'Pilih Rekening Belanja terlebih dahulu';
+                                                    }
 
-                                                Textarea::make('maksud_perjalanan')
-                                                    ->label('Maksud Perjalanan Dinas')
-                                                    ->placeholder('Contoh: Koordinasi penguatan destinasi wisata nagari')
-                                                    ->rows(2)
-                                                    ->columnSpanFull(),
-                                            ]),
+                                                    return 'Pilih Barang / Belanja dari RKA';
+                                                })
+                                                ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null || blank($get('kode_rekening_id')))
+                                                ->options(function (callable $get) use ($resolveBidangId): array {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    $kodeRekeningId = $get('kode_rekening_id');
 
-                                        // 1.D KHUSUS BAHAN BAKAR MINYAK (BBM)
-                                        Section::make('Standar Kuota BBM Kedinasan')
-                                            ->description('Pilih nagari atau rute tujuan kedinasan. Standar kuota liter akan terisi otomatis sesuai SBM.')
-                                            ->compact()
-                                            ->visible(fn(callable $get) => $get('jenis_belanja') === 'bbm')
-                                            ->columns(12)
-                                            ->schema([
-                                                Select::make('master_tujuan_bbm_id')
-                                                    ->label('Rute / Nagari Tujuan BBM')
-                                                    ->options(fn() => MasterTujuanBbm::where('aktif', true)->get()->pluck('label', 'id')->all())
-                                                    ->searchable()
-                                                    ->live()
-                                                    ->afterStateUpdated(function ($state, callable $set) {
-                                                        if ($state) {
-                                                            $tujuan = MasterTujuanBbm::find($state);
-                                                            if ($tujuan) {
-                                                                $set('jumlah_liter_bbm', $tujuan->kuota_liter);
-                                                                $set('lokasi_tujuan', $tujuan->nama_tujuan);
+                                                    if (! $bidangId || ! $kodeRekeningId) {
+                                                        return [];
+                                                    }
+
+                                                    $subKegiatanId = $get('/data.sub_kegiatan_id')
+                                                        ?: $get('sub_kegiatan_id')
+                                                        ?: $get('../../sub_kegiatan_id')
+                                                        ?: $get('../../../sub_kegiatan_id')
+                                                        ?: $get('../../../../sub_kegiatan_id');
+
+                                                    $tahunAnggaran = (int) ($get('/data.tahun_anggaran')
+                                                        ?: $get('tahun_anggaran')
+                                                        ?: $get('../../tahun_anggaran')
+                                                        ?: $get('../../../tahun_anggaran')
+                                                        ?: $get('../../../../tahun_anggaran')
+                                                        ?: 2027);
+
+                                                    // 1. Cek RKA Belanja HANYA untuk Sub Kegiatan, Rekening, dan Tahun Anggaran SPJ ini
+                                                    $rkaItems = RincianAnggaranBelanja::query()
+                                                        ->where('sub_kegiatan_id', $subKegiatanId)
+                                                        ->where('kode_rekening_id', $kodeRekeningId)
+                                                        ->where('tahun_anggaran', $tahunAnggaran)
+                                                        ->get();
+
+                                                    if ($rkaItems->isNotEmpty()) {
+                                                        return $rkaItems->mapWithKeys(function ($rka) {
+                                                            $sisaVol = number_format($rka->sisa_volume, 0, ',', '.');
+                                                            $harga = number_format((float) $rka->harga_satuan, 0, ',', '.');
+                                                            $isHabis = $rka->sisa_volume <= 0 || $rka->sisa_anggaran <= 0;
+                                                            $prefix = $isHabis ? "🔴 [HABIS] " : "📋 ";
+                                                            $statusSisa = $isHabis ? "Pagu Habis (Rp 0)" : "Sisa: {$sisaVol} {$rka->satuan} | Rp {$harga}";
+
+                                                            return [
+                                                                $rka->id => "{$prefix}{$rka->nama_item} ({$rka->satuan}) — [{$statusSisa}]",
+                                                            ];
+                                                        })->all();
+                                                    }
+
+                                                    // 2. Fallback jika belum diinput di RKA
+                                                    $barangs = MasterBarang::with('satuan')
+                                                        ->where('kode_rekening_id', $kodeRekeningId)
+                                                        ->get();
+
+                                                    return $barangs->mapWithKeys(function (MasterBarang $barang) {
+                                                        $satuan = $barang->satuan?->nama ?? 'Unit';
+                                                        $harga = number_format((float) $barang->harga_satuan, 0, ',', '.');
+
+                                                        return [
+                                                            "mb_{$barang->id}" => "📦 {$barang->nama_barang} ({$satuan}) — Rp {$harga}",
+                                                        ];
+                                                    })->all();
+                                                })
+                                                ->createOptionForm([
+                                                    TextInput::make('nama_barang')
+                                                        ->label('Nama Item Belanja Baru')
+                                                        ->required()
+                                                        ->maxLength(255),
+                                                    TextInput::make('harga_satuan')
+                                                        ->label('Harga Satuan (Rp)')
+                                                        ->numeric()
+                                                        ->default(0)
+                                                        ->prefix('Rp')
+                                                        ->required(),
+                                                    TextInput::make('satuan_nama')
+                                                        ->label('Satuan')
+                                                        ->placeholder('Contoh: Kotak / Unit / Rim / Porsi')
+                                                        ->default('Unit'),
+                                                ])
+                                                ->createOptionUsing(function (array $data, callable $get): string {
+                                                    $kodeRekeningId = $get('kode_rekening_id');
+                                                    $satuan = Satuan::firstOrCreate(['nama' => $data['satuan_nama'] ?? 'Unit']);
+                                                    $barang = MasterBarang::create([
+                                                        'kode_rekening_id' => $kodeRekeningId,
+                                                        'nama_barang' => $data['nama_barang'],
+                                                        'harga_satuan' => (float) ($data['harga_satuan'] ?? 0),
+                                                        'satuan_id' => $satuan->id,
+                                                    ]);
+                                                    return "mb_{$barang->id}";
+                                                })
+                                                ->searchable()
+                                                ->live()
+                                                ->afterStateUpdated(function (callable $set, callable $get, ?string $state) {
+                                                    if ($state) {
+                                                        if (str_starts_with($state, 'mb_')) {
+                                                            $mbId = (int) substr($state, 3);
+                                                            $barang = MasterBarang::with('satuan')->find($mbId);
+                                                            if ($barang) {
+                                                                $set('master_barang_id', $barang->id);
+                                                                $set('nama_item_belanja', $barang->nama_barang);
+                                                                $set('satuan', $barang->satuan?->nama ?? 'Unit');
+                                                                $harga = (float) $barang->harga_satuan;
+                                                                $set('stok_tersedia', 9999);
+                                                            } else {
+                                                                $harga = 0;
+                                                                $set('stok_tersedia', 0);
+                                                            }
+                                                        } else {
+                                                            $rka = RincianAnggaranBelanja::find($state);
+                                                            if ($rka) {
+                                                                $set('master_barang_id', $rka->master_barang_id);
+                                                                $set('nama_item_belanja', $rka->nama_item);
+                                                                $set('satuan', $rka->satuan);
+                                                                $harga = (float) $rka->harga_satuan;
+                                                                $set('stok_tersedia', (float) $rka->sisa_volume);
+                                                            } else {
+                                                                $harga = 0;
+                                                                $set('stok_tersedia', 0);
                                                             }
                                                         }
-                                                    })
-                                                    ->createOptionForm([
-                                                        TextInput::make('nama_tujuan')
-                                                            ->label('Nama Tujuan / Nagari Baru')
-                                                            ->required(),
-                                                        TextInput::make('kuota_liter')
-                                                            ->label('Standar Kuota BBM (Liter)')
-                                                            ->numeric()
-                                                            ->required(),
-                                                        TextInput::make('jarak_km')
-                                                            ->label('Jarak (KM)')
-                                                            ->numeric()
-                                                            ->nullable(),
-                                                    ])
-                                                    ->createOptionUsing(function (array $data): int {
-                                                        $tujuan = MasterTujuanBbm::create([
-                                                            'nama_tujuan' => $data['nama_tujuan'],
-                                                            'kuota_liter' => (float) $data['kuota_liter'],
-                                                            'jarak_km' => isset($data['jarak_km']) ? (float) $data['jarak_km'] : null,
-                                                            'kategori_wilayah' => 'dalam_kabupaten',
-                                                            'aktif' => true,
-                                                        ]);
-                                                        return $tujuan->id;
-                                                    })
-                                                    ->columnSpan(['default' => 12, 'md' => 8]),
 
-                                                TextInput::make('jumlah_liter_bbm')
-                                                    ->label('Jumlah Kuota BBM')
-                                                    ->numeric()
-                                                    ->default(20)
-                                                    ->suffix('Liter')
-                                                    ->required(fn(callable $get) => $get('jenis_belanja') === 'bbm')
-                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-                                            ]),
+                                                        $qty = max(1, (int) ($get('kuantitas') ?: 1));
+                                                        $set('kuantitas', $qty);
+                                                        $set('harga_satuan', $harga);
+                                                        $set('subtotal', $qty * $harga);
+                                                        $set('kuantitas_realisasi', $qty);
+                                                        $set('harga_realisasi', $harga);
+                                                        $set('subtotal_realisasi', $qty * $harga);
+                                                    } else {
+                                                        $set('master_barang_id', null);
+                                                        $set('nama_item_belanja', null);
+                                                        $set('satuan', null);
+                                                        $set('stok_tersedia', 0);
+                                                        $set('harga_satuan', 0);
+                                                        $set('subtotal', 0);
+                                                    }
+                                                })
+                                                ->required()
+                                                ->columnSpan(['default' => 12, 'md' => 7]),
 
-                                        // 2. RINCIAN BARANG PESANAN
-                                        Section::make('Rincian Barang Pesanan')
-                                            ->description('Pilih item belanja sesuai ketersediaan sisa pagu alokasi RKA Bidang Pengusul.')
-                                            ->compact()
-                                            ->visible(fn(callable $get) => filled($get('sub_kegiatan_id')))
-                                            ->schema([
-                                                Repeater::make('details')
-                                                    ->relationship()
-                                                    ->label('Daftar Barang & Rincian Belanja')
-                                                    ->itemLabel(fn(array $state): ?string => filled($state['nama_item_belanja'] ?? null)
-                                                        ? ($state['nama_item_belanja'] . ' — ' . ($state['kuantitas'] ?? 1) . ' ' . ($state['satuan'] ?? 'Unit') . ' (Rp ' . number_format((float) ($state['subtotal'] ?? 0), 0, ',', '.') . ')')
-                                                        : 'Item Belanja Baru')
-                                                    ->collapsible()
-                                                    ->cloneable()
-                                                    ->live()
-                                                    ->mutateRelationshipDataBeforeCreateUsing(function (array $data): array {
-                                                        if (isset($data['rincian_anggaran_belanja_id']) && str_starts_with((string) $data['rincian_anggaran_belanja_id'], 'mb_')) {
-                                                            $data['rincian_anggaran_belanja_id'] = null;
-                                                        }
-                                                        return $data;
-                                                    })
-                                                    ->mutateRelationshipDataBeforeSaveUsing(function (array $data): array {
-                                                        if (isset($data['rincian_anggaran_belanja_id']) && str_starts_with((string) $data['rincian_anggaran_belanja_id'], 'mb_')) {
-                                                            $data['rincian_anggaran_belanja_id'] = null;
-                                                        }
-                                                        return $data;
-                                                    })
-                                                    ->columns(12)
-                                                    ->schema([
-                                                        Select::make('kode_rekening_id')
-                                                            ->label('Rekening Belanja')
-                                                            ->placeholder(fn(callable $get): string => $resolveBidangId($get)
-                                                                ? 'Pilih Rekening Belanja'
-                                                                : 'Pilih Bidang Pengusul terlebih dahulu')
-                                                            ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null)
-                                                            ->options(function (callable $get) use ($resolveBidangId): array {
-                                                                $bidangId = $resolveBidangId($get);
-                                                                if (! $bidangId) {
-                                                                    return [];
+                                            Hidden::make('master_barang_id'),
+                                            Hidden::make('nama_item_belanja'),
+                                            Hidden::make('satuan'),
+
+                                            Hidden::make('stok_tersedia'),
+
+                                            // BARIS 2: Kuantitas & Harga (Hanya muncul jika Barang sudah dipilih)
+                                            Grid::make(12)
+                                                ->visible(fn(callable $get): bool => filled($get('rincian_anggaran_belanja_id')) || filled($get('nama_item_belanja')))
+                                                ->columnSpan(12)
+                                                ->schema([
+                                                    TextInput::make('kuantitas')
+                                                        ->label('Jumlah Dipesan')
+                                                        ->placeholder(function (callable $get): string {
+                                                            $sisa = $get('stok_tersedia');
+                                                            $satuan = $get('satuan') ?: 'Unit';
+                                                            return $sisa !== null ? 'Maks: ' . number_format((float) $sisa, 0, ',', '.') . " {$satuan}" : '0';
+                                                        })
+                                                        ->numeric()
+                                                        ->minValue(1)
+                                                        ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
+                                                        ->live(debounce: 250)
+                                                        ->helperText(function (callable $get) {
+                                                            $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                            $qty = (float) ($get('kuantitas') ?: 0);
+                                                            $satuan = $get('satuan') ?: 'Unit';
+
+                                                            if ($sisaPagu > 0 && $qty > $sisaPagu) {
+                                                                $selisih = $qty - $sisaPagu;
+                                                                return new HtmlString("<span class='text-danger-600 dark:text-danger-400 font-bold flex items-center gap-1 text-xs'>⚠️ MELEBIHI KUOTA! Lebih {$selisih} {$satuan} dari batas sisa pagu ({$sisaPagu} {$satuan}).</span>");
+                                                            }
+
+                                                            if ($sisaPagu > 0) {
+                                                                if ($qty > 0) {
+                                                                    $sisaSetelah = max(0, $sisaPagu - $qty);
+                                                                    return new HtmlString("<span class='text-success-600 dark:text-success-400 text-xs font-medium'>Sisa pagu: <strong>{$sisaPagu} {$satuan}</strong> (Tersisa: <strong>{$sisaSetelah} {$satuan}</strong>)</span>");
                                                                 }
+                                                                return new HtmlString("<span class='text-primary-600 dark:text-primary-400 text-xs font-medium'>Sisa pagu tersedia: <strong>{$sisaPagu} {$satuan}</strong></span>");
+                                                            }
 
-                                                                $subKegiatanId = $get('/data.sub_kegiatan_id')
-                                                                    ?: $get('sub_kegiatan_id')
-                                                                    ?: $get('../../sub_kegiatan_id')
-                                                                    ?: $get('../../../sub_kegiatan_id')
-                                                                    ?: $get('../../../../sub_kegiatan_id');
+                                                            return null;
+                                                        })
+                                                        ->rules([
+                                                            fn(callable $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                                                $rkaId = $get('rincian_anggaran_belanja_id');
+                                                                if ($rkaId && ! str_starts_with((string) $rkaId, 'mb_')) {
+                                                                    $rka = RincianAnggaranBelanja::find($rkaId);
+                                                                    if ($rka) {
+                                                                        $tahunSpj = (int) ($get('/data.tahun_anggaran')
+                                                                            ?: $get('tahun_anggaran')
+                                                                            ?: $get('../../tahun_anggaran')
+                                                                            ?: $get('../../../tahun_anggaran')
+                                                                            ?: $get('../../../../tahun_anggaran')
+                                                                            ?: 2027);
 
-                                                                $tahunAnggaran = (int) ($get('/data.tahun_anggaran')
-                                                                    ?: $get('tahun_anggaran')
-                                                                    ?: $get('../../tahun_anggaran')
-                                                                    ?: $get('../../../tahun_anggaran')
-                                                                    ?: $get('../../../../tahun_anggaran')
-                                                                    ?: 2027);
-
-                                                                if ($subKegiatanId) {
-                                                                    $rekIds = RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
-                                                                        ->where('tahun_anggaran', $tahunAnggaran)
-                                                                        ->pluck('kode_rekening_id')
-                                                                        ->unique();
-
-                                                                    if ($rekIds->isNotEmpty()) {
-                                                                        return KodeRekening::whereIn('id', $rekIds)
-                                                                            ->get()
-                                                                            ->pluck('label', 'id')
-                                                                            ->all();
-                                                                    }
-                                                                }
-
-                                                                return KodeRekening::all()
-                                                                    ->pluck('label', 'id')
-                                                                    ->all();
-                                                            })
-                                                            ->createOptionForm([
-                                                                TextInput::make('kode_lengkap')
-                                                                    ->label('Kode Rekening (SIPD)')
-                                                                    ->placeholder('Contoh: 5.1.02.01.01.0024')
-                                                                    ->required()
-                                                                    ->maxLength(50),
-                                                                TextInput::make('uraian')
-                                                                    ->label('Uraian Rekening Belanja')
-                                                                    ->placeholder('Contoh: Belanja Alat/Bahan untuk Kegiatan Kantor')
-                                                                    ->required()
-                                                                    ->maxLength(255),
-                                                            ])
-                                                            ->createOptionUsing(function (array $data): int {
-                                                                $rek = KodeRekening::create([
-                                                                    'kode_lengkap' => $data['kode_lengkap'],
-                                                                    'uraian' => $data['uraian'],
-                                                                ]);
-                                                                return $rek->id;
-                                                            })
-                                                            ->searchable()
-                                                            ->live()
-                                                            ->afterStateUpdated(function (callable $set) {
-                                                                $set('rincian_anggaran_belanja_id', null);
-                                                                $set('master_barang_id', null);
-                                                                $set('nama_item_belanja', null);
-                                                                $set('satuan', null);
-                                                                $set('stok_tersedia', 0);
-                                                                $set('harga_satuan', 0);
-                                                                $set('subtotal', 0);
-                                                            })
-                                                            ->required()
-                                                            ->columnSpan(['default' => 12, 'md' => 5]),
-
-                                                        Select::make('rincian_anggaran_belanja_id')
-                                                            ->label('Barang / Belanja (RKA)')
-                                                            ->visible(fn (callable $get): bool => filled($get('kode_rekening_id')))
-                                                            ->placeholder(function (callable $get) use ($resolveBidangId): string {
-                                                                if (! $resolveBidangId($get)) {
-                                                                    return 'Pilih Bidang Pengusul terlebih dahulu';
-                                                                }
-                                                                if (blank($get('kode_rekening_id'))) {
-                                                                    return 'Pilih Rekening Belanja terlebih dahulu';
-                                                                }
-
-                                                                return 'Pilih Barang / Belanja dari RKA';
-                                                            })
-                                                            ->disabled(fn(callable $get): bool => $resolveBidangId($get) === null || blank($get('kode_rekening_id')))
-                                                            ->options(function (callable $get) use ($resolveBidangId): array {
-                                                                $bidangId = $resolveBidangId($get);
-                                                                $kodeRekeningId = $get('kode_rekening_id');
-
-                                                                if (! $bidangId || ! $kodeRekeningId) {
-                                                                    return [];
-                                                                }
-
-                                                                $subKegiatanId = $get('/data.sub_kegiatan_id')
-                                                                    ?: $get('sub_kegiatan_id')
-                                                                    ?: $get('../../sub_kegiatan_id')
-                                                                    ?: $get('../../../sub_kegiatan_id')
-                                                                    ?: $get('../../../../sub_kegiatan_id');
-
-                                                                $tahunAnggaran = (int) ($get('/data.tahun_anggaran')
-                                                                    ?: $get('tahun_anggaran')
-                                                                    ?: $get('../../tahun_anggaran')
-                                                                    ?: $get('../../../tahun_anggaran')
-                                                                    ?: $get('../../../../tahun_anggaran')
-                                                                    ?: 2027);
-
-                                                                // 1. Cek RKA Belanja HANYA untuk Sub Kegiatan, Rekening, dan Tahun Anggaran SPJ ini
-                                                                $rkaItems = RincianAnggaranBelanja::query()
-                                                                    ->where('sub_kegiatan_id', $subKegiatanId)
-                                                                    ->where('kode_rekening_id', $kodeRekeningId)
-                                                                    ->where('tahun_anggaran', $tahunAnggaran)
-                                                                    ->get();
-
-                                                                if ($rkaItems->isNotEmpty()) {
-                                                                    return $rkaItems->mapWithKeys(function ($rka) {
-                                                                        $sisaVol = number_format($rka->sisa_volume, 0, ',', '.');
-                                                                        $harga = number_format((float) $rka->harga_satuan, 0, ',', '.');
-                                                                        $isHabis = $rka->sisa_volume <= 0 || $rka->sisa_anggaran <= 0;
-                                                                        $prefix = $isHabis ? "🔴 [HABIS] " : "📋 ";
-                                                                        $statusSisa = $isHabis ? "Pagu Habis (Rp 0)" : "Sisa: {$sisaVol} {$rka->satuan} | Rp {$harga}";
-
-                                                                        return [
-                                                                            $rka->id => "{$prefix}{$rka->nama_item} ({$rka->satuan}) — [{$statusSisa}]",
-                                                                        ];
-                                                                    })->all();
-                                                                }
-
-                                                                // 2. Fallback jika belum diinput di RKA
-                                                                $barangs = MasterBarang::with('satuan')
-                                                                    ->where('kode_rekening_id', $kodeRekeningId)
-                                                                    ->get();
-
-                                                                return $barangs->mapWithKeys(function (MasterBarang $barang) {
-                                                                    $satuan = $barang->satuan?->nama ?? 'Unit';
-                                                                    $harga = number_format((float) $barang->harga_satuan, 0, ',', '.');
-
-                                                                    return [
-                                                                        "mb_{$barang->id}" => "📦 {$barang->nama_barang} ({$satuan}) — Rp {$harga}",
-                                                                    ];
-                                                                })->all();
-                                                            })
-                                                            ->createOptionForm([
-                                                                TextInput::make('nama_barang')
-                                                                    ->label('Nama Item Belanja Baru')
-                                                                    ->required()
-                                                                    ->maxLength(255),
-                                                                TextInput::make('harga_satuan')
-                                                                    ->label('Harga Satuan (Rp)')
-                                                                    ->numeric()
-                                                                    ->default(0)
-                                                                    ->prefix('Rp')
-                                                                    ->required(),
-                                                                TextInput::make('satuan_nama')
-                                                                    ->label('Satuan')
-                                                                    ->placeholder('Contoh: Kotak / Unit / Rim / Porsi')
-                                                                    ->default('Unit'),
-                                                            ])
-                                                            ->createOptionUsing(function (array $data, callable $get): string {
-                                                                $kodeRekeningId = $get('kode_rekening_id');
-                                                                $satuan = Satuan::firstOrCreate(['nama' => $data['satuan_nama'] ?? 'Unit']);
-                                                                $barang = MasterBarang::create([
-                                                                    'kode_rekening_id' => $kodeRekeningId,
-                                                                    'nama_barang' => $data['nama_barang'],
-                                                                    'harga_satuan' => (float) ($data['harga_satuan'] ?? 0),
-                                                                    'satuan_id' => $satuan->id,
-                                                                ]);
-                                                                return "mb_{$barang->id}";
-                                                            })
-                                                            ->searchable()
-                                                            ->live()
-                                                            ->afterStateUpdated(function (callable $set, callable $get, ?string $state) {
-                                                                if ($state) {
-                                                                    if (str_starts_with($state, 'mb_')) {
-                                                                        $mbId = (int) substr($state, 3);
-                                                                        $barang = MasterBarang::with('satuan')->find($mbId);
-                                                                        if ($barang) {
-                                                                            $set('master_barang_id', $barang->id);
-                                                                            $set('nama_item_belanja', $barang->nama_barang);
-                                                                            $set('satuan', $barang->satuan?->nama ?? 'Unit');
-                                                                            $harga = (float) $barang->harga_satuan;
-                                                                            $set('stok_tersedia', 9999);
-                                                                        } else {
-                                                                            $harga = 0;
-                                                                            $set('stok_tersedia', 0);
+                                                                        if ((int) $rka->tahun_anggaran !== $tahunSpj) {
+                                                                            $fail("Ditolak Sistem: Item RKA ini dialokasikan untuk Tahun Anggaran {$rka->tahun_anggaran}, tidak dapat digunakan pada pengajuan SPJ Tahun {$tahunSpj}!");
+                                                                            return;
                                                                         }
-                                                                    } else {
-                                                                        $rka = RincianAnggaranBelanja::find($state);
-                                                                        if ($rka) {
-                                                                            $set('master_barang_id', $rka->master_barang_id);
-                                                                            $set('nama_item_belanja', $rka->nama_item);
-                                                                            $set('satuan', $rka->satuan);
-                                                                            $harga = (float) $rka->harga_satuan;
-                                                                            $set('stok_tersedia', (float) $rka->sisa_volume);
-                                                                        } else {
-                                                                            $harga = 0;
-                                                                            $set('stok_tersedia', 0);
+
+                                                                        $sisa = (float) $rka->sisa_volume;
+                                                                        if ($sisa <= 0) {
+                                                                            $fail("Ditolak Sistem: Alokasi anggaran untuk item '{$rka->nama_item}' sudah terealisasi penuh (Pagu Habis / Sisa: 0).");
+                                                                        } elseif ((float) $value > $sisa) {
+                                                                            $fail("Ditolak Sistem (Over Budget): Jumlah pesanan ({$value} {$rka->satuan}) melebihi sisa pagu RKA yang tersedia ({$sisa} {$rka->satuan})!");
                                                                         }
                                                                     }
-
-                                                                    $qty = max(1, (int) ($get('kuantitas') ?: 1));
-                                                                    $set('kuantitas', $qty);
-                                                                    $set('harga_satuan', $harga);
-                                                                    $set('subtotal', $qty * $harga);
-                                                                    $set('kuantitas_realisasi', $qty);
-                                                                    $set('harga_realisasi', $harga);
-                                                                    $set('subtotal_realisasi', $qty * $harga);
-                                                                } else {
-                                                                    $set('master_barang_id', null);
-                                                                    $set('nama_item_belanja', null);
-                                                                    $set('satuan', null);
-                                                                    $set('stok_tersedia', 0);
-                                                                    $set('harga_satuan', 0);
-                                                                    $set('subtotal', 0);
                                                                 }
-                                                            })
-                                                            ->required()
-                                                            ->columnSpan(['default' => 12, 'md' => 7]),
+                                                            },
+                                                        ])
+                                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                                            $qty = (float) ($state ?: 0);
+                                                            $harga = FormatHelper::parseRupiah($get('harga_satuan'));
+                                                            $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                            $satuan = $get('satuan') ?: 'Unit';
 
-                                                        Hidden::make('master_barang_id'),
-                                                        Hidden::make('nama_item_belanja'),
-                                                        Hidden::make('satuan'),
+                                                            if ($sisaPagu > 0 && $qty > $sisaPagu) {
+                                                                Notification::make()
+                                                                    ->title('Peringatan: Over Budget!')
+                                                                    ->body("Jumlah yang diinput ({$qty} {$satuan}) melebihi sisa pagu RKA ({$sisaPagu} {$satuan}). Pengajuan akan ditolak oleh sistem.")
+                                                                    ->danger()
+                                                                    ->persistent()
+                                                                    ->send();
+                                                            }
 
-                                                        Hidden::make('stok_tersedia'),
+                                                            $subtotal = (int) round($qty * $harga);
+                                                            $set('subtotal', $subtotal);
+                                                            $set('kuantitas_realisasi', $qty);
+                                                            $set('harga_realisasi', $harga);
+                                                            $set('subtotal_realisasi', $subtotal);
+                                                        })
+                                                        ->required()
+                                                        ->columnSpan(['default' => 12, 'md' => 4]),
 
-                                                        // BARIS 2: Kuantitas & Harga (Hanya muncul jika Barang sudah dipilih)
-                                                        Grid::make(12)
-                                                            ->visible(fn(callable $get): bool => filled($get('rincian_anggaran_belanja_id')) || filled($get('nama_item_belanja')))
-                                                            ->columnSpan(12)
-                                                            ->schema([
-                                                                TextInput::make('kuantitas')
-                                                                    ->label('Jumlah Dipesan')
-                                                                    ->placeholder(function (callable $get): string {
-                                                                        $sisa = $get('stok_tersedia');
-                                                                        $satuan = $get('satuan') ?: 'Unit';
-                                                                        return $sisa !== null ? 'Maks: ' . number_format((float) $sisa, 0, ',', '.') . " {$satuan}" : '0';
-                                                                    })
-                                                                    ->numeric()
-                                                                    ->minValue(1)
-                                                                    ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
-                                                                    ->live(debounce: 250)
-                                                                    ->helperText(function (callable $get) {
-                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
-                                                                        $qty = (float) ($get('kuantitas') ?: 0);
-                                                                        $satuan = $get('satuan') ?: 'Unit';
+                                                    FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan')
+                                                        ->readOnly()
+                                                        ->helperText('Pagu resmi RKA (Terkunci)')
+                                                        ->columnSpan(['default' => 12, 'md' => 4]),
 
-                                                                        if ($sisaPagu > 0 && $qty > $sisaPagu) {
-                                                                            $selisih = $qty - $sisaPagu;
-                                                                            return new HtmlString("<span class='text-danger-600 dark:text-danger-400 font-bold flex items-center gap-1 text-xs'>⚠️ MELEBIHI KUOTA! Lebih {$selisih} {$satuan} dari batas sisa pagu ({$sisaPagu} {$satuan}).</span>");
-                                                                        }
+                                                    FormatHelper::rupiahInput('subtotal', 'Subtotal Pesanan')
+                                                        ->readOnly()
+                                                        ->helperText('Kalkulasi: Jumlah × Harga')
+                                                        ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
+                                                        ->columnSpan(['default' => 12, 'md' => 4]),
 
-                                                                        if ($sisaPagu > 0) {
-                                                                            if ($qty > 0) {
-                                                                                $sisaSetelah = max(0, $sisaPagu - $qty);
-                                                                                return new HtmlString("<span class='text-success-600 dark:text-success-400 text-xs font-medium'>Sisa pagu: <strong>{$sisaPagu} {$satuan}</strong> (Tersisa: <strong>{$sisaSetelah} {$satuan}</strong>)</span>");
-                                                                            }
-                                                                            return new HtmlString("<span class='text-primary-600 dark:text-primary-400 text-xs font-medium'>Sisa pagu tersedia: <strong>{$sisaPagu} {$satuan}</strong></span>");
-                                                                        }
+                                                    TextInput::make('keterangan')
+                                                        ->label('Keterangan Pesanan')
+                                                        ->placeholder('Contoh: Spesifikasi khusus / catatan barang pesanan')
+                                                        ->maxLength(255)
+                                                        ->columnSpan(12),
 
-                                                                        return null;
-                                                                    })
-                                                                    ->rules([
-                                                                        fn(callable $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
-                                                                            $rkaId = $get('rincian_anggaran_belanja_id');
-                                                                            if ($rkaId && ! str_starts_with((string) $rkaId, 'mb_')) {
-                                                                                $rka = RincianAnggaranBelanja::find($rkaId);
-                                                                                if ($rka) {
-                                                                                    $tahunSpj = (int) ($get('/data.tahun_anggaran')
-                                                                                        ?: $get('tahun_anggaran')
-                                                                                        ?: $get('../../tahun_anggaran')
-                                                                                        ?: $get('../../../tahun_anggaran')
-                                                                                        ?: $get('../../../../tahun_anggaran')
-                                                                                        ?: 2027);
+                                                    TextInput::make('kuantitas_realisasi')
+                                                        ->label('Jumlah Realisasi (Faktur)')
+                                                        ->numeric()
+                                                        ->default(1)
+                                                        ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
+                                                        ->visible($isPesananDisetujui)
+                                                        ->live(debounce: 350)
+                                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                                            $qty = (float) ($state ?: 0);
+                                                            $harga = FormatHelper::parseRupiah($get('harga_realisasi'));
+                                                            $set('subtotal_realisasi', (int) round($qty * $harga));
+                                                        })
+                                                        ->columnSpan(['default' => 12, 'md' => 3]),
 
-                                                                                    if ((int) $rka->tahun_anggaran !== $tahunSpj) {
-                                                                                        $fail("Ditolak Sistem: Item RKA ini dialokasikan untuk Tahun Anggaran {$rka->tahun_anggaran}, tidak dapat digunakan pada pengajuan SPJ Tahun {$tahunSpj}!");
-                                                                                        return;
-                                                                                    }
+                                                    FormatHelper::rupiahInput('harga_realisasi', 'Harga Realisasi (Faktur)')
+                                                        ->visible($isPesananDisetujui)
+                                                        ->live(debounce: 350)
+                                                        ->afterStateUpdated(function (callable $set, callable $get, $state) {
+                                                            $qty = (float) ($get('kuantitas_realisasi') ?: 0);
+                                                            $harga = FormatHelper::parseRupiah($state);
+                                                            $set('subtotal_realisasi', (int) round($qty * $harga));
+                                                        })
+                                                        ->columnSpan(['default' => 12, 'md' => 4]),
 
-                                                                                    $sisa = (float) $rka->sisa_volume;
-                                                                                    if ($sisa <= 0) {
-                                                                                        $fail("Ditolak Sistem: Alokasi anggaran untuk item '{$rka->nama_item}' sudah terealisasi penuh (Pagu Habis / Sisa: 0).");
-                                                                                    } elseif ((float) $value > $sisa) {
-                                                                                        $fail("Ditolak Sistem (Over Budget): Jumlah pesanan ({$value} {$rka->satuan}) melebihi sisa pagu RKA yang tersedia ({$sisa} {$rka->satuan})!");
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        },
-                                                                    ])
-                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = (float) ($state ?: 0);
-                                                                        $harga = FormatHelper::parseRupiah($get('harga_satuan'));
-                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
-                                                                        $satuan = $get('satuan') ?: 'Unit';
+                                                    FormatHelper::rupiahInput('subtotal_realisasi', 'Subtotal Realisasi')
+                                                        ->visible($isPesananDisetujui)
+                                                        ->readOnly()
+                                                        ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
+                                                        ->columnSpan(['default' => 12, 'md' => 5]),
 
-                                                                        if ($sisaPagu > 0 && $qty > $sisaPagu) {
-                                                                            Notification::make()
-                                                                                ->title('Peringatan: Over Budget!')
-                                                                                ->body("Jumlah yang diinput ({$qty} {$satuan}) melebihi sisa pagu RKA ({$sisaPagu} {$satuan}). Pengajuan akan ditolak oleh sistem.")
-                                                                                ->danger()
-                                                                                ->persistent()
-                                                                                ->send();
-                                                                        }
+                                                    // Notifikasi Peringatan Over Budget (Muncul langsung di bawah baris input)
+                                                    Placeholder::make('notif_over_budget')
+                                                        ->hiddenLabel()
+                                                        ->columnSpan(12)
+                                                        ->visible(function (callable $get): bool {
+                                                            $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                            $qty = (float) ($get('kuantitas') ?: 0);
+                                                            return $sisaPagu > 0 && $qty > $sisaPagu;
+                                                        })
+                                                        ->content(function (callable $get): HtmlString {
+                                                            $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
+                                                            $qty = (float) ($get('kuantitas') ?: 0);
+                                                            $satuan = $get('satuan') ?: 'Unit';
 
-                                                                        $subtotal = (int) round($qty * $harga);
-                                                                        $set('subtotal', $subtotal);
-                                                                        $set('kuantitas_realisasi', $qty);
-                                                                        $set('harga_realisasi', $harga);
-                                                                        $set('subtotal_realisasi', $subtotal);
-                                                                    })
-                                                                    ->required()
-                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                                FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan')
-                                                                    ->readOnly()
-                                                                    ->helperText('Pagu resmi RKA (Terkunci)')
-                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                                FormatHelper::rupiahInput('subtotal', 'Subtotal Pesanan')
-                                                                    ->readOnly()
-                                                                    ->helperText('Kalkulasi: Jumlah × Harga')
-                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
-                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                                TextInput::make('keterangan')
-                                                                    ->label('Keterangan Pesanan')
-                                                                    ->placeholder('Contoh: Spesifikasi khusus / catatan barang pesanan')
-                                                                    ->maxLength(255)
-                                                                    ->columnSpan(12),
-
-                                                                TextInput::make('kuantitas_realisasi')
-                                                                    ->label('Jumlah Realisasi (Faktur)')
-                                                                    ->numeric()
-                                                                    ->default(1)
-                                                                    ->suffix(fn(callable $get) => $get('satuan') ?: 'Unit')
-                                                                    ->visible($isPesananDisetujui)
-                                                                    ->live(debounce: 350)
-                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = (float) ($state ?: 0);
-                                                                        $harga = FormatHelper::parseRupiah($get('harga_realisasi'));
-                                                                        $set('subtotal_realisasi', (int) round($qty * $harga));
-                                                                    })
-                                                                    ->columnSpan(['default' => 12, 'md' => 3]),
-
-                                                                FormatHelper::rupiahInput('harga_realisasi', 'Harga Realisasi (Faktur)')
-                                                                    ->visible($isPesananDisetujui)
-                                                                    ->live(debounce: 350)
-                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = (float) ($get('kuantitas_realisasi') ?: 0);
-                                                                        $harga = FormatHelper::parseRupiah($state);
-                                                                        $set('subtotal_realisasi', (int) round($qty * $harga));
-                                                                    })
-                                                                    ->columnSpan(['default' => 12, 'md' => 4]),
-
-                                                                FormatHelper::rupiahInput('subtotal_realisasi', 'Subtotal Realisasi')
-                                                                    ->visible($isPesananDisetujui)
-                                                                    ->readOnly()
-                                                                    ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
-                                                                    ->columnSpan(['default' => 12, 'md' => 5]),
-
-                                                                // Notifikasi Peringatan Over Budget (Muncul langsung di bawah baris input)
-                                                                Placeholder::make('notif_over_budget')
-                                                                    ->hiddenLabel()
-                                                                    ->columnSpan(12)
-                                                                    ->visible(function (callable $get): bool {
-                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
-                                                                        $qty = (float) ($get('kuantitas') ?: 0);
-                                                                        return $sisaPagu > 0 && $qty > $sisaPagu;
-                                                                    })
-                                                                    ->content(function (callable $get): HtmlString {
-                                                                        $sisaPagu = (float) ($get('stok_tersedia') ?: 0);
-                                                                        $qty = (float) ($get('kuantitas') ?: 0);
-                                                                        $satuan = $get('satuan') ?: 'Unit';
-
-                                                                        return new HtmlString("
+                                                            return new HtmlString("
                                                                             <div class='flex items-start gap-3 p-3 text-sm rounded-xl bg-danger-50 text-danger-800 dark:bg-danger-950/60 dark:text-danger-300 border border-danger-300 dark:border-danger-700 shadow-sm'>
                                                                                 <div class='flex-shrink-0 text-danger-600 dark:text-danger-400 mt-0.5'>
                                                                                     <svg class='w-5 h-5' fill='currentColor' viewBox='0 0 20 20'>
@@ -1009,12 +1005,12 @@ class PengajuanSpjForm
                                                                                 </div>
                                                                             </div>
                                                                         ");
-                                                                    }),
-                                                            ]),
-                                                    ])
-                                                    ->defaultItems(1)
-                                                    ->addActionLabel('Tambah Barang Belanja'),
-                                            ]),
+                                                        }),
+                                                ]),
+                                        ])
+                                        ->defaultItems(1)
+                                        ->addActionLabel('Tambah Barang Belanja'),
+                                ]),
 
                             // -------------------------------------------------------------
                             // BAGIAN BAWAH: Data Toko / Rekanan (Full Width, muncul setelah Sub Kegiatan dipilih)
@@ -1054,42 +1050,42 @@ class PengajuanSpjForm
                                         ->createOptionForm([
                                             Grid::make(2)
                                                 ->schema([
-                                                TextInput::make('nama_toko')
-                                                    ->label('Nama Toko / Pemasok')
-                                                    ->placeholder('Contoh: Toko Rilex Abadi')
-                                                    ->required()
-                                                    ->maxLength(255),
+                                                    TextInput::make('nama_toko')
+                                                        ->label('Nama Toko / Pemasok')
+                                                        ->placeholder('Contoh: Toko Rilex Abadi')
+                                                        ->required()
+                                                        ->maxLength(255),
 
-                                                TextInput::make('nama_pemilik')
-                                                    ->label('Nama Pemilik Toko')
-                                                    ->placeholder('Contoh: Agusrizal')
-                                                    ->required()
-                                                    ->maxLength(255),
+                                                    TextInput::make('nama_pemilik')
+                                                        ->label('Nama Pemilik Toko')
+                                                        ->placeholder('Contoh: Agusrizal')
+                                                        ->required()
+                                                        ->maxLength(255),
 
-                                                TextInput::make('telepon')
-                                                    ->label('No. Telepon Toko')
-                                                    ->placeholder('Contoh: 0812-3456-7890')
-                                                    ->maxLength(50),
+                                                    TextInput::make('telepon')
+                                                        ->label('No. Telepon Toko')
+                                                        ->placeholder('Contoh: 0812-3456-7890')
+                                                        ->maxLength(50),
 
-                                                Select::make('nama_bank')
-                                                    ->label('Nama Bank')
-                                                    ->options(NamaBank::class)
-                                                    ->default(NamaBank::BANK_NAGARI)
-                                                    ->searchable(),
+                                                    Select::make('nama_bank')
+                                                        ->label('Nama Bank')
+                                                        ->options(NamaBank::class)
+                                                        ->default(NamaBank::BANK_NAGARI)
+                                                        ->searchable(),
 
-                                                TextInput::make('nomor_rekening')
-                                                    ->label('No. Rekening Bank Toko')
-                                                    ->placeholder('Contoh: 0700.0210.21699-2')
-                                                    ->maxLength(100)
-                                                    ->columnSpan(2),
+                                                    TextInput::make('nomor_rekening')
+                                                        ->label('No. Rekening Bank Toko')
+                                                        ->placeholder('Contoh: 0700.0210.21699-2')
+                                                        ->maxLength(100)
+                                                        ->columnSpan(2),
 
-                                                Textarea::make('alamat')
-                                                    ->label('Alamat Toko')
-                                                    ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
-                                                    ->required()
-                                                    ->rows(2)
-                                                    ->columnSpan(2),
-                                            ]),
+                                                    Textarea::make('alamat')
+                                                        ->label('Alamat Toko')
+                                                        ->placeholder('Contoh: Pasar Inpres Muaro Sijunjung')
+                                                        ->required()
+                                                        ->rows(2)
+                                                        ->columnSpan(2),
+                                                ]),
                                         ])
                                         ->createOptionUsing(function (array $data, callable $set): int {
                                             $toko = MasterToko::create([
