@@ -881,18 +881,6 @@ class PengajuanSpjForm
                                                             ->schema([
                                                                 TextInput::make('kuantitas')
                                                                     ->label('Jumlah Dipesan')
-                                                                    ->hint(function (callable $get): ?string {
-                                                                        $sisa = $get('stok_tersedia');
-                                                                        if ($sisa === null) return null;
-                                                                        $satuan = $get('satuan') ?: 'Unit';
-                                                                        return "Sisa Pagu: " . number_format((float) $sisa, 0, ',', '.') . " {$satuan}";
-                                                                    })
-                                                                    ->hintIcon('heroicon-m-archive-box')
-                                                                    ->hintColor(function (callable $get): string {
-                                                                        $qty = (float) ($get('kuantitas') ?: 0);
-                                                                        $sisa = (float) ($get('stok_tersedia') ?: 0);
-                                                                        return ($sisa > 0 && $qty > $sisa) ? 'danger' : 'success';
-                                                                    })
                                                                     ->placeholder(function (callable $get): string {
                                                                         $sisa = $get('stok_tersedia');
                                                                         $satuan = $get('satuan') ?: 'Unit';
@@ -914,10 +902,10 @@ class PengajuanSpjForm
 
                                                                         if ($sisaPagu > 0) {
                                                                             if ($qty > 0) {
-                                                                                $sisaSetelah = $sisaPagu - $qty;
-                                                                                return new HtmlString("<span class='text-success-600 dark:text-success-400 text-xs font-medium'>Sisa pagu tersedia: <strong>{$sisaPagu} {$satuan}</strong> (Tersisa nanti: {$sisaSetelah} {$satuan})</span>");
+                                                                                $sisaSetelah = max(0, $sisaPagu - $qty);
+                                                                                return new HtmlString("<span class='text-success-600 dark:text-success-400 text-xs font-medium'>Sisa pagu: <strong>{$sisaPagu} {$satuan}</strong> (Tersisa: <strong>{$sisaSetelah} {$satuan}</strong>)</span>");
                                                                             }
-                                                                            return new HtmlString("<span class='text-primary-600 dark:text-primary-400 text-xs font-medium'>Sisa alokasi pagu RKA: <strong>{$sisaPagu} {$satuan}</strong></span>");
+                                                                            return new HtmlString("<span class='text-primary-600 dark:text-primary-400 text-xs font-medium'>Sisa pagu tersedia: <strong>{$sisaPagu} {$satuan}</strong></span>");
                                                                         }
 
                                                                         return null;
@@ -975,20 +963,13 @@ class PengajuanSpjForm
                                                                     ->columnSpan(['default' => 12, 'md' => 4]),
 
                                                                 FormatHelper::rupiahInput('harga_satuan', 'Harga Satuan')
-                                                                    ->required()
-                                                                    ->live(debounce: 350)
-                                                                    ->afterStateUpdated(function (callable $set, callable $get, $state) {
-                                                                        $qty = (float) ($get('kuantitas') ?: 0);
-                                                                        $harga = FormatHelper::parseRupiah($state);
-                                                                        $subtotal = (int) round($qty * $harga);
-                                                                        $set('subtotal', $subtotal);
-                                                                        $set('harga_realisasi', $harga);
-                                                                        $set('subtotal_realisasi', $subtotal);
-                                                                    })
+                                                                    ->readOnly()
+                                                                    ->helperText('Pagu resmi RKA (Terkunci)')
                                                                     ->columnSpan(['default' => 12, 'md' => 4]),
 
                                                                 FormatHelper::rupiahInput('subtotal', 'Subtotal Pesanan')
                                                                     ->readOnly()
+                                                                    ->helperText('Kalkulasi: Jumlah × Harga')
                                                                     ->extraInputAttributes(['class' => 'font-bold text-amber-500 transition-all duration-300 ease-in-out'])
                                                                     ->columnSpan(['default' => 12, 'md' => 4]),
 
