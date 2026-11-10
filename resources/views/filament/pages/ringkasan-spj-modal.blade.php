@@ -10,7 +10,8 @@
         'pa',
         'bendahara',
         'masterToko',
-        'details.satuan',
+        'details.masterBarang.satuan',
+        'details.rincianAnggaranBelanja',
     ]);
 
     $status = $record->status;
@@ -218,16 +219,16 @@
                     <tbody class="divide-y divide-gray-100 dark:divide-white/5">
                         @foreach ($record->details as $idx => $item)
                             @php
-                                $qty = (float) ($item->kuantitas_realisasi ?? $item->kuantitas);
-                                $harga = (float) ($item->harga_satuan_realisasi ?? $item->harga_satuan);
-                                $sub = (float) ($item->subtotal_realisasi ?? $item->subtotal);
-                                $satuan = $item->satuan?->nama ?? ($item->satuan_custom ?? 'Item');
+                                $qty = (float) ($item->kuantitas_realisasi ?: $item->kuantitas);
+                                $harga = (float) ($item->harga_realisasi ?: $item->harga_satuan);
+                                $sub = (float) ($item->subtotal_realisasi ?: $item->subtotal);
+                                $satuan = $item->satuan_nama;
                             @endphp
                             <tr class="hover:bg-gray-50/50 dark:hover:bg-white/5">
                                 <td class="py-1.5 pr-2 text-center text-gray-400">{{ $idx + 1 }}</td>
                                 <td class="py-1.5 px-2 font-semibold text-gray-900 dark:text-white">
-                                    {{ $item->nama_barang_custom }}</td>
-                                <td class="py-1.5 px-2 text-gray-500">{{ $item->spesifikasi ?: '-' }}</td>
+                                    {{ $item->nama_barang }}</td>
+                                <td class="py-1.5 px-2 text-gray-500">{{ $item->keterangan ?: '-' }}</td>
                                 <td class="py-1.5 px-2 text-center font-mono">{{ number_format($qty, 0, ',', '.') }}
                                     {{ $satuan }}</td>
                                 <td class="py-1.5 px-2 text-right font-mono">Rp
