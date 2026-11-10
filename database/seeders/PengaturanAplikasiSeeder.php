@@ -12,11 +12,11 @@ class PengaturanAplikasiSeeder extends Seeder
      */
     public function run(): void
     {
-        $kadisUser = \App\Models\User::where('name', 'like', '%AFRINELDI%')->first()
-            ?? \App\Models\User::whereNull('bidang_id')->first()
-            ?? \App\Models\User::first();
+        $kadisUser = \App\Models\User::query()->where('name', 'like', '%AFRINELDI%')->first()
+            ?? \App\Models\User::query()->whereNull('bidang_id')->first()
+            ?? \App\Models\User::query()->first();
 
-        PengaturanAplikasi::updateOrCreate(
+        PengaturanAplikasi::query()->updateOrCreate(
             ['id' => 1],
             [
                 'nama_aplikasi' => 'Sakti',

@@ -5,7 +5,6 @@ namespace App\Filament\Resources\PengajuanSpjs;
 use App\Filament\Resources\PengajuanSpjs\Pages\CreatePengajuanSpj;
 use App\Filament\Resources\PengajuanSpjs\Pages\EditPengajuanSpj;
 use App\Filament\Resources\PengajuanSpjs\Pages\ListPengajuanSpjs;
-use App\Filament\Resources\PengajuanSpjs\Pages\ViewPengajuanSpj;
 use App\Filament\Resources\PengajuanSpjs\Schemas\PengajuanSpjForm;
 use App\Filament\Resources\PengajuanSpjs\Tables\PengajuanSpjsTable;
 use App\Filament\Resources\PengajuanSpjs\Widgets\KeuanganBidangOverviewWidget;
@@ -71,7 +70,6 @@ class PengajuanSpjResource extends Resource
         return [
             'index' => ListPengajuanSpjs::route('/'),
             'create' => CreatePengajuanSpj::route('/create'),
-            'view' => ViewPengajuanSpj::route('/{record}'),
             'edit' => EditPengajuanSpj::route('/{record}/edit'),
         ];
     }
