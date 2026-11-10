@@ -103,15 +103,16 @@ class PengajuanSpjsTable
             ->deferLoading()
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActionsColumnLabel('Aksi')
+            ->recordAction('view')
             ->stickyableColumns()
             ->columns([
                 TextColumn::make('nomor_pengajuan')
                     ->label('No. Pengajuan')
                     ->searchable()
                     ->sortable()
-                    ->copyable()
-                    ->copyMessage('Nomor pengajuan berhasil disalin')
                     ->weight('bold')
+                    ->color('primary')
+                    ->tooltip('Klik untuk melihat gambaran pengajuan')
                     ->sticky(),
 
                 TextColumn::make('status')
@@ -214,21 +215,6 @@ class PengajuanSpjsTable
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
-                // Aksi 0: Lihat Gambaran Ringkas Pengajuan (Pop-up Modal)
-                Action::make('lihat_ringkasan')
-                    ->label('Gambaran SPJ')
-                    ->tooltip('Lihat Gambaran Singkat Pengajuan SPJ')
-                    ->icon(static::safeIcon('fas-eye', 'heroicon-o-eye'))
-                    ->iconButton()
-                    ->color('gray')
-                    ->modalHeading(fn(PengajuanSpj $record): string => "Gambaran Pengajuan SPJ — {$record->nomor_pengajuan}")
-                    ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
-                    ->modalContent(fn(PengajuanSpj $record) => view('filament.pages.ringkasan-spj-modal', [
-                        'record' => $record,
-                    ]))
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Tutup'),
-
                 // Aksi 1: Preview & Cetak Dokumen Bertahap dengan Modal Preview Interaktif (Icon Button dengan Tooltip)
                 Action::make('cetak_dokumen')
                     ->label(fn(PengajuanSpj $record): string => match ($record->status) {
