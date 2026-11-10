@@ -10,6 +10,7 @@ use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\TextSize;
 
 class PengajuanSpjInfolist
@@ -61,19 +62,6 @@ class PengajuanSpjInfolist
                             ->label('Sub Kegiatan')
                             ->columnSpanFull(),
 
-                        // Nilai uang dibuat lebih besar dan diletakkan di bawah
-                        TextEntry::make('nilai_kwitansi')
-                            ->label('Nilai Kwitansi (Total Belanja)')
-                            ->size(TextSize::Large)
-                            ->weight('bold')
-                            ->color('warning')
-                            ->state(function (PengajuanSpj $record): string {
-                                $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
-
-                                return $nominal > 0 ? FormatHelper::rupiah($nominal) : '-';
-                            })
-                            ->columnSpanFull(),
-
                         TextEntry::make('catatan_revisi')
                             ->label('Catatan Perbaikan / Revisi')
                             ->color('danger')
@@ -83,7 +71,6 @@ class PengajuanSpjInfolist
                     ->columns(2),
 
                 Section::make('Rincian Barang & Volume')
-                    ->description(fn (PengajuanSpj $record): string => 'Total Nilai: ' . FormatHelper::rupiah((float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana)))
                     ->schema([
                         RepeatableEntry::make('details')
                             ->hiddenLabel()
@@ -116,6 +103,19 @@ class PengajuanSpjInfolist
                                     ->columnSpan(2),
                             ])
                             ->columns(12),
+
+                        // Total belanja diletakkan di bawah rincian barang
+                        TextEntry::make('total_belanja_bawah')
+                            ->label('Total Belanja (Nilai Kwitansi)')
+                            ->size(TextSize::Large)
+                            ->weight('bold')
+                            ->color('warning')
+                            ->alignment(Alignment::End)
+                            ->state(function (PengajuanSpj $record): string {
+                                $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
+
+                                return $nominal > 0 ? FormatHelper::rupiah($nominal) : '-';
+                            }),
                     ]),
             ]);
     }
