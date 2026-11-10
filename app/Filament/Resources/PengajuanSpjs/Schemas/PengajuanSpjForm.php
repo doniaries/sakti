@@ -36,7 +36,6 @@ use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
@@ -135,9 +134,6 @@ class PengajuanSpjForm
 
         return $schema
             ->components([
-                View::make('filament.components.timeline-posisi-spj-card')
-                    ->visible(fn ($record) => $record !== null),
-
                 Wizard::make([
                     // =========================================================================
                     // STEP 1: PENGAJUAN NOTA PESANAN / SURAT PESANAN (LAYOUT FULL WIDTH)
