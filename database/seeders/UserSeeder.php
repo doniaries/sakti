@@ -13,6 +13,8 @@ class UserSeeder extends Seeder
         // 1. Buat Seluruh Role Baku Sistem & Keuangan
         $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $adminKepegawaianRole = Role::firstOrCreate(['name' => 'admin_kepegawaian', 'guard_name' => 'web']);
+        $adminKeuanganRole = Role::firstOrCreate(['name' => 'admin_keuangan', 'guard_name' => 'web']);
         $paRole = Role::firstOrCreate(['name' => 'pa', 'guard_name' => 'web']);
         $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
         $pptkRole = Role::firstOrCreate(['name' => 'pptk', 'guard_name' => 'web']);

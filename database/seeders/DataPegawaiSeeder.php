@@ -14,6 +14,11 @@ class DataPegawaiSeeder extends Seeder
      */
     public function run(): void
     {
+        // Pastikan seluruh roles inti terdaftar sebelum assignRole/syncRoles
+        foreach (['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'pa', 'ppk', 'pptk', 'jf', 'bendahara', 'pegawai'] as $roleName) {
+            \Spatie\Permission\Models\Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+        }
+
         $jsonPath = database_path('seeders/pegawai_80.json');
         if (!file_exists($jsonPath)) {
             $this->command->warn('File pegawai_80.json tidak ditemukan!');
@@ -24,12 +29,12 @@ class DataPegawaiSeeder extends Seeder
 
         $data = [];
         $defaultPassword = \Illuminate\Support\Facades\Hash::make('password');
-        
+
         foreach ($dataRaw as $row) {
             $nama = $row['nama'] ?? '';
             $namaTanpaGelar = trim(explode(',', $nama)[0]);
             $emailPrefix = strtolower(str_replace([' ', '.'], '', $namaTanpaGelar));
-            
+
             $data[] = [
                 'name' => $nama,
                 'nip' => $row['nip'] ?? null,
