@@ -18,8 +18,10 @@ class PengajuanSpjInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(12)
             ->components([
                 Section::make('Informasi Pengajuan')
+                    ->columnSpan(['default' => 12, 'lg' => 5])
                     ->schema([
                         TextEntry::make('nomor_pengajuan')
                             ->label('No. Pengajuan')
@@ -71,6 +73,7 @@ class PengajuanSpjInfolist
                     ->columns(2),
 
                 Section::make('Rincian Barang & Volume')
+                    ->columnSpan(['default' => 12, 'lg' => 7])
                     ->schema([
                         RepeatableEntry::make('details')
                             ->hiddenLabel()
@@ -78,12 +81,12 @@ class PengajuanSpjInfolist
                                 TextEntry::make('nama_barang')
                                     ->label('Uraian Barang')
                                     ->weight('bold')
-                                    ->columnSpan(4),
+                                    ->columnSpan(3),
 
                                 TextEntry::make('keterangan')
                                     ->label('Keterangan')
                                     ->placeholder('-')
-                                    ->columnSpan(1),
+                                    ->columnSpan(2),
 
                                 TextEntry::make('volume')
                                     ->label('Volume')
