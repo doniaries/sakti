@@ -77,7 +77,17 @@ class PengajuanSpjSeeder extends Seeder
             ?? User::where('name', 'like', '%BENDAHARA%')->first()
             ?? User::skip(2)->first();
 
-        // 3. Bersihkan data SPJ lama agar simulasi segar
+        // 3. Bersihkan data SPJ lama agar simulasi segar (Dengan Safety Guard)
+        if (PengajuanSpj::exists() && $this->command && app()->environment() !== 'testing') {
+            $totalSpj = PengajuanSpj::count();
+            $this->command->newLine();
+            $this->command->error("⚠️  PERINGATAN: Ditemukan {$totalSpj} data Pengajuan SPJ aktif di database!");
+            if (! $this->command->confirm("Apakah Anda yakin ingin MENGHAPUS (TRUNCATE) seluruh data Pengajuan SPJ?", false)) {
+                $this->command->info("✅ Seeding Pengajuan SPJ dilewati. Data transaksi Anda tidak dihapus.");
+                return;
+            }
+        }
+
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DetailPengajuanSpj::truncate();
         RiwayatStatusSpj::truncate();

@@ -326,6 +326,8 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         return (bool) $this->aktif && $this->hasAnyRole([
             'super_admin',
             'admin',
+            'admin_kepegawaian',
+            'admin_keuangan',
             'pegawai',
             'panel_user',
             'pa',
@@ -355,20 +357,20 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
     /**
      * Apakah user berhak melihat seluruh data lintas bidang untuk urusan keuangan / anggaran (Pemeriksa)
-     * PPK, PA, Bendahara, Admin Dinas, dan Super Admin dapat melihat seluruh bidang sebagai pemeriksa.
+     * PPK, PA, Bendahara, Admin Keuangan, Admin Dinas, dan Super Admin dapat melihat seluruh bidang sebagai pemeriksa.
      */
     public function canViewAllBidangKeuangan(): bool
     {
-        return $this->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara']);
+        return $this->hasAnyRole(['super_admin', 'admin', 'admin_keuangan', 'pa', 'ppk', 'bendahara']);
     }
 
     /**
      * Apakah user berhak melihat seluruh data lintas bidang untuk urusan kepegawaian
-     * Kasubag Kepegawaian (Admin), PA (Kepala Dinas), dan Super Admin dapat melihat seluruh bidang.
+     * Kasubag Kepegawaian (Admin Kepegawaian), PA (Kepala Dinas), dan Super Admin dapat melihat seluruh bidang.
      */
     public function canViewAllBidangKepegawaian(): bool
     {
-        return $this->hasAnyRole(['super_admin', 'admin', 'pa']);
+        return $this->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa']);
     }
 
     /**

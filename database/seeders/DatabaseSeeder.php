@@ -11,6 +11,38 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // 0. Safety Guard: Cegah penghapusan data transaksi aktif secara tidak sengaja
+        if ($this->command && app()->environment() !== 'testing') {
+            $hasSpj = class_exists(\App\Models\PengajuanSpj::class) && \App\Models\PengajuanSpj::exists();
+            $hasSub = class_exists(\App\Models\MasterSubKegiatan::class) && \App\Models\MasterSubKegiatan::exists();
+            $hasBarang = class_exists(\App\Models\MasterBarang::class) && \App\Models\MasterBarang::exists();
+
+            if ($hasSpj || $hasSub || $hasBarang) {
+                $this->command->newLine();
+                $this->command->error('*************************************************************************');
+                $this->command->error('  ⚠️  PERINGATAN KESELAMATAN DATA (DATA SAFETY GUARD)  ⚠️');
+                $this->command->error('*************************************************************************');
+                $this->command->warn('  Database sistem terdeteksi SUDAH MEMILIKI DATA AKTIF:');
+                if ($hasSpj) {
+                    $this->command->warn('   • ' . \App\Models\PengajuanSpj::count() . ' Transaksi Dokumen Pengajuan SPJ & Verifikasi Keuangan');
+                }
+                if ($hasSub) {
+                    $this->command->warn('   • ' . \App\Models\MasterSubKegiatan::count() . ' Data Sub Kegiatan & Pagu Anggaran RKA Belanja');
+                }
+                if ($hasBarang) {
+                    $this->command->warn('   • ' . \App\Models\MasterBarang::count() . ' Data Master Barang & Standar Harga Satuan');
+                }
+                $this->command->error('  Menjalankan DatabaseSeeder lengkap akan MENGHAPUS / ME-RESET data di atas!');
+                $this->command->error('*************************************************************************');
+                $this->command->newLine();
+
+                if (! $this->command->confirm('Apakah Anda BENAR-BENAR YAKIN ingin menghapus data tersebut dan menjalankan seeder ulang?', false)) {
+                    $this->command->info('✅ Operasi seeding DIBATALKAN. Seluruh data transaksi dan anggaran Anda tetap aman!');
+                    return;
+                }
+            }
+        }
+
         // 1. Panggil ShieldSeeder jika ada (digenerate oleh Filament Shield)
         if (class_exists('Database\Seeders\ShieldSeeder')) {
             $this->call('Database\Seeders\ShieldSeeder');

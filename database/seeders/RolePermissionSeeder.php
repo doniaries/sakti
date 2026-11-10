@@ -16,6 +16,8 @@ class RolePermissionSeeder extends Seeder
         // 1. Pastikan seluruh role sistem terdaftar
         $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        $adminKepegawaianRole = Role::firstOrCreate(['name' => 'admin_kepegawaian', 'guard_name' => 'web']);
+        $adminKeuanganRole = Role::firstOrCreate(['name' => 'admin_keuangan', 'guard_name' => 'web']);
         $pegawaiRole = Role::firstOrCreate(['name' => 'pegawai', 'guard_name' => 'web']);
         $paRole = Role::firstOrCreate(['name' => 'pa', 'guard_name' => 'web']);
         $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
@@ -57,6 +59,26 @@ class RolePermissionSeeder extends Seeder
             'View:PegawaiAbsensiBulanChartWidget',
             'View:PegawaiAbsensiBulanStatsWidget',
         ];
+
+        // === 1A. Setup Role Admin Kepegawaian ===
+        // Khusus mengelola seluruh data kepegawaian (Pegawai, Bidang, Jabatan, Shift, Absensi, LHK)
+        $kepegawaianPatterns = ['User', 'Bidang', 'Jabatan', 'JadwalKerja', 'JenisIzin', 'MesinAbsensi', 'LogAbsensi', 'AbsensiHarian', 'Lhk', 'Riwayat', 'Instansi', 'PengaturanAplikasi', 'PegawaiAbsensi'];
+        $adminKepegawaianPermissions = Permission::where(function ($q) use ($kepegawaianPatterns) {
+            foreach ($kepegawaianPatterns as $pattern) {
+                $q->orWhere('name', 'like', "%:{$pattern}%");
+            }
+        })->where('name', 'not like', '%Role%')->get();
+        $adminKepegawaianRole->syncPermissions($adminKepegawaianPermissions);
+
+        // === 1B. Setup Role Admin Keuangan ===
+        // Khusus mengelola seluruh master data keuangan & input DPA/RKA/SPJ lintas seluruh bidang
+        $keuanganPatterns = ['Program', 'Kegiatan', 'SubKegiatan', 'RincianAnggaranBelanja', 'KodeRekening', 'MasterBarang', 'MasterToko', 'MasterSyaratBelanja', 'MasterTujuanBbm', 'PengajuanSpj', 'StokBarang', 'LaporanPersediaan', 'TransaksiBarang', 'KeuanganBidangOverviewWidget'];
+        $adminKeuanganPermissions = Permission::where(function ($q) use ($keuanganPatterns) {
+            foreach ($keuanganPatterns as $pattern) {
+                $q->orWhere('name', 'like', "%:{$pattern}%");
+            }
+        })->orWhereIn('name', array_merge($basicPegawaiPermissions, ['ViewAny:Bidang', 'View:Bidang', 'ViewAny:User', 'View:User']))->where('name', 'not like', '%Role%')->get();
+        $adminKeuanganRole->syncPermissions($adminKeuanganPermissions);
 
         // === 2. Setup Role PA (Pengguna Anggaran / Kepala Dinas) ===
         // Otorisasi tertinggi anggaran se-Dinas (semua bidang), persetujuan & TTD Kwitansi + NPD, pantau penyerapan pagu

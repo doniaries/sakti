@@ -5,19 +5,8 @@
     $daftarBidang = $this->getDaftarBidang();
     $activeBidang = $this->getActiveBidang();
     $selectedBidangId = $this->selectedBidangId;
-    $selectedTahun = $this->selectedTahun ?? (int) date('Y');
+    $selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
     $cleanPageUrl = $this->getCleanPageUrl();
-
-    $currentYear = (int) date('Y');
-    $daftarTahun = \App\Models\MasterKegiatan::query()
-        ->distinct()
-        ->orderBy('tahun_anggaran', 'desc')
-        ->pluck('tahun_anggaran')
-        ->toArray();
-
-    if (empty($daftarTahun)) {
-        $daftarTahun = [$currentYear];
-    }
 @endphp
 
 <x-filament-widgets::widget
@@ -34,62 +23,44 @@
     {{-- Kartu Stats Overview --}}
     {{ $this->content }}
 
-    {{-- Filter Bidang & Tahun Anggaran (Diposisikan di bawah widget card, di atas tombol akses) --}}
+    {{-- Filter Bidang (Select) & Tahun Anggaran (Terkunci Global) --}}
     <div class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white/80 p-3 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-gray-900/80">
-        {{-- Bagian Kiri: Filter Bidang --}}
-        <div class="flex flex-wrap items-center gap-2">
+        {{-- Bagian Kiri: Filter Bidang (Select Dropdown) --}}
+        <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Bidang:</span>
             @if ($canChooseBidang && count($daftarBidang) > 1)
-                <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Bidang:</span>
-                <div class="inline-flex flex-wrap gap-1.5">
-                    @php
-                        $urlSemuaBidang = $cleanPageUrl . '?' . http_build_query(array_filter(['tahun' => $selectedTahun]));
-                    @endphp
-                    <a
-                        href="{{ $urlSemuaBidang }}"
-                        wire:navigate
-                        class="rounded-lg px-2.5 py-1 text-xs font-semibold transition-all duration-200 cursor-pointer {{ empty($selectedBidangId) ? 'bg-primary-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20' }}"
+                <div class="relative inline-block">
+                    <select
+                        onchange="window.location.href = '{{ $cleanPageUrl }}' + (this.value ? '?bidang=' + this.value : '');"
+                        class="h-8 rounded-lg border border-gray-300 bg-white px-3 py-1 text-xs font-semibold text-gray-800 shadow-sm transition hover:border-primary-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 cursor-pointer"
                     >
-                        Semua Bidang
-                    </a>
-                    @foreach ($daftarBidang as $b)
-                        @php
-                            $targetUrl = $cleanPageUrl . '?' . http_build_query(array_filter([
-                                'bidang' => $b->id,
-                                'tahun' => $selectedTahun,
-                            ]));
-                        @endphp
-                        <a
-                            href="{{ $targetUrl }}"
-                            wire:navigate
-                            class="rounded-lg px-2.5 py-1 text-xs font-semibold transition-all duration-200 cursor-pointer {{ (int) $selectedBidangId === (int) $b->id ? 'bg-primary-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20' }}"
-                        >
-                            {{ $b->nama }}
-                        </a>
-                    @endforeach
+                        <option value="" {{ empty($selectedBidangId) ? 'selected' : '' }}>Semua Bidang</option>
+                        @foreach ($daftarBidang as $b)
+                            <option value="{{ $b->id }}" {{ (int) $selectedBidangId === (int) $b->id ? 'selected' : '' }}>
+                                {{ $b->nama }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
             @elseif ($activeBidang)
-                <div class="text-xs font-medium text-gray-600 dark:text-gray-300">
-                    Bidang: <span class="font-bold text-primary-600 dark:text-primary-400">{{ $activeBidang->nama }}</span> (PPTK: {{ $activeBidang->kepala?->name ?? 'Belum Ditentukan' }})
-                </div>
+                <span class="inline-flex items-center gap-1.5 rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-semibold text-gray-800 dark:bg-white/10 dark:text-gray-200">
+                    <span class="font-bold text-primary-600 dark:text-primary-400">{{ $activeBidang->nama }}</span>
+                    @if ($activeBidang->kepala?->name)
+                        <span class="text-gray-500 dark:text-gray-400">({{ $activeBidang->kepala->name }})</span>
+                    @endif
+                </span>
             @endif
         </div>
 
-        {{-- Bagian Kanan: Filter Tombol Dropdown "Pilih Tahun" Sesuai Lampiran --}}
+        {{-- Bagian Kanan: Tahun Anggaran Aktif (Terkunci Sesuai Pengaturan Sistem) --}}
         <div class="flex items-center gap-2">
             <span class="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Tahun Anggaran:</span>
-            <div class="relative inline-block">
-                <select
-                    onchange="if(this.value) { window.location.href = '{{ $cleanPageUrl }}?' + new URLSearchParams({@if($selectedBidangId) bidang: '{{ $selectedBidangId }}', @endif tahun: this.value}).toString(); }"
-                    class="h-8 rounded-lg border border-gray-300 bg-white px-3 py-1 text-xs font-semibold text-gray-800 shadow-sm transition hover:border-primary-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 cursor-pointer"
-                >
-                    <option value="" disabled>Pilih Tahun</option>
-                    @foreach ($daftarTahun as $thn)
-                        <option value="{{ $thn }}" {{ $selectedTahun === $thn ? 'selected' : '' }}>
-                            Tahun {{ $thn }} {{ $thn === (int) date('Y') ? '(Aktif)' : '' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+            <span class="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 shadow-xs dark:border-amber-700/50 dark:bg-amber-950/40 dark:text-amber-300">
+                <svg class="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
+                </svg>
+                Tahun {{ $selectedTahun }} (Aktif)
+            </span>
         </div>
     </div>
 </x-filament-widgets::widget>

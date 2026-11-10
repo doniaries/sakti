@@ -204,6 +204,8 @@ class UsersTable
                     ->color(fn(string $state): string => match ($state) {
                         'super_admin' => 'danger',
                         'admin' => 'warning',
+                        'admin_kepegawaian' => 'warning',
+                        'admin_keuangan' => 'emerald',
                         'pa' => 'purple',
                         'ppk' => 'indigo',
                         'pptk' => 'info',
@@ -214,6 +216,8 @@ class UsersTable
                     ->formatStateUsing(fn(string $state): string => match ($state) {
                         'super_admin' => 'Super Admin',
                         'admin' => 'Admin Dinas',
+                        'admin_kepegawaian' => 'Admin Kepegawaian',
+                        'admin_keuangan' => 'Admin Keuangan',
                         'pa' => 'PA (Kadis)',
                         'ppk' => 'PPK',
                         'pptk' => 'PPTK',
@@ -281,7 +285,9 @@ class UsersTable
                                 $isSuperAdmin = $user && $user->hasRole('super_admin');
 
                                 $options = [
-                                    'admin' => 'Admin Dinas (Kasubag Umum & Kepegawaian)',
+                                    'admin_kepegawaian' => 'Admin Kepegawaian (Kasubag Umum & Kepegawaian)',
+                                    'admin_keuangan' => 'Admin Keuangan (Kelola Master Anggaran, RKA & SPJ)',
+                                    'admin' => 'Admin Dinas (Akses Lengkap Umum)',
                                     'pa' => 'PA (Kepala Dinas / Pengguna Anggaran)',
                                     'ppk' => 'PPK (Kasubag Keuangan / Pejabat Pembuat Komitmen)',
                                     'pptk' => 'PPTK (Sekretaris Dinas / Kepala Bidang)',
@@ -298,7 +304,9 @@ class UsersTable
                             })
                             ->descriptions([
                                 'super_admin' => 'Akses penuh tak terbatas ke seluruh sistem dan konfigurasi teknis.',
-                                'admin' => 'Mengelola master pegawai, jadwal shift kerja, mesin presensi, dan rekap dinas.',
+                                'admin_kepegawaian' => 'Mengelola master pegawai, jadwal shift kerja, mesin presensi, dan rekap dinas.',
+                                'admin_keuangan' => 'Mengelola master program, kegiatan, sub kegiatan RKA, barang, toko, dan SPJ belanja.',
+                                'admin' => 'Akses administrator dinas menyeluruh.',
                                 'pa' => 'Memantau seluruh absensi & SPJ, menyetujui tahap akhir SPJ (Kwitansi & NPD).',
                                 'ppk' => 'Memverifikasi administrasi belanja dinas, pagu DPA, dan checklist verifikasi SPJ.',
                                 'pptk' => 'Menandatangani Surat Pesanan dan Kwitansi Pembayaran khusus belanja bidangnya.',
@@ -439,7 +447,9 @@ class UsersTable
                                 ->options([
                                     'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja)',
                                     'pptk' => 'PPTK (Sekdis / Kepala Bidang)',
-                                    'admin' => 'Admin Dinas (Umum & Kepegawaian)',
+                                    'admin_kepegawaian' => 'Admin Kepegawaian (Umum & Kepegawaian)',
+                                    'admin_keuangan' => 'Admin Keuangan (Master Anggaran & SPJ)',
+                                    'admin' => 'Admin Dinas (Akses Umum)',
                                     'pegawai' => 'Pegawai Biasa (Staf Pelaksana)',
                                 ])
                                 ->required(),

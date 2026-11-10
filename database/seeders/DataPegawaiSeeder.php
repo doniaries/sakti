@@ -118,7 +118,7 @@ class DataPegawaiSeeder extends Seeder
             $doni->syncRoles(['pptk', 'pegawai']);
         }
 
-        // 3. Admin Dinas / Kasubag Umum (ZULFITRI)
+        // 3. Admin Kepegawaian Dinas (ZULFITRI - Kasubag Umum & Kepegawaian)
         $zulfitri = User::query()->where('name', 'LIKE', '%ZULFITRI%')->first();
         if ($zulfitri) {
             $zulfitri->update([
@@ -127,8 +127,20 @@ class DataPegawaiSeeder extends Seeder
                 'aktif' => true,
                 'anggaran_role' => null,
             ]);
-            $zulfitri->syncRoles(['admin', 'pegawai']);
+            $zulfitri->syncRoles(['admin_kepegawaian', 'admin', 'pegawai']);
         }
+
+        // 3B. Admin Keuangan Dinas (Akun Khusus Kelola Master Anggaran, RKA & SPJ Seluruh Bidang)
+        $adminKeuangan = User::updateOrCreate(
+            ['email' => 'adminkeuangan@gmail.com'],
+            [
+                'name' => 'Admin Keuangan Dinas',
+                'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
+                'aktif' => true,
+                'anggaran_role' => null,
+            ]
+        );
+        $adminKeuangan->syncRoles(['admin_keuangan', 'admin', 'pegawai']);
 
         // 4. Kepala Dinas / PA - Pengguna Anggaran (AFRINELDI)
         $afrineldi = User::query()->where('name', 'LIKE', '%AFRINELDI%')->first();
