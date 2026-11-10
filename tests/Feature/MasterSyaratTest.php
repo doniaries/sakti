@@ -98,7 +98,15 @@ class MasterSyaratTest extends TestCase
 
         $this->assertNull(MasterSyaratBelanja::find($item2->id));
 
-        // 8. Bersihkan data test
+        // 8. Test Validasi Duplikasi Dokumen (Harus Unik)
+        $testRel->callTableAction('create', null, [
+            'nama_syarat' => 'nota servis ac resmi', // huruf kecil, nama sama
+            'keterangan' => 'Duplikat',
+            'is_required' => true,
+        ]);
+        $testRel->assertHasTableActionErrors(['nama_syarat']);
+
+        // 9. Bersihkan data test
         $item1->delete();
         $job->delete();
         $this->assertNull(MasterJenisBelanja::find($job->id));
