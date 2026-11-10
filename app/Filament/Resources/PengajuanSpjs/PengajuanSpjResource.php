@@ -6,6 +6,7 @@ use App\Filament\Resources\PengajuanSpjs\Pages\CreatePengajuanSpj;
 use App\Filament\Resources\PengajuanSpjs\Pages\EditPengajuanSpj;
 use App\Filament\Resources\PengajuanSpjs\Pages\ListPengajuanSpjs;
 use App\Filament\Resources\PengajuanSpjs\Schemas\PengajuanSpjForm;
+use App\Filament\Resources\PengajuanSpjs\Schemas\PengajuanSpjInfolist;
 use App\Filament\Resources\PengajuanSpjs\Tables\PengajuanSpjsTable;
 use App\Filament\Resources\PengajuanSpjs\Widgets\KeuanganBidangOverviewWidget;
 use App\Models\PengajuanSpj;
@@ -32,6 +33,11 @@ class PengajuanSpjResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return PengajuanSpjForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return PengajuanSpjInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

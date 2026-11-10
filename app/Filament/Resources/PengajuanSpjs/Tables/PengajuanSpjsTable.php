@@ -59,6 +59,8 @@ class PengajuanSpjsTable
                     'user',
                     'masterToko',
                     'pptk',
+                    'details.masterBarang.satuan',
+                    'details.rincianAnggaranBelanja',
                 ]);
 
                 /** @var \App\Models\User|null $user */
@@ -100,7 +102,6 @@ class PengajuanSpjsTable
 
                 return $query;
             })
-            ->deferLoading()
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActionsColumnLabel('Aksi')
             ->recordAction('view')
@@ -849,15 +850,18 @@ class PengajuanSpjsTable
                 // Aksi Menu Tambahan (Ubah, Lihat, Hapus) dirangkum rapi ke dalam ActionGroup Menu Titik Tiga
                 ActionGroup::make([
                     ViewAction::make()
-                        ->label('Lihat Gambaran SPJ')
+                        ->label('Lihat Detail SPJ')
                         ->icon(static::safeIcon('fas-eye', 'heroicon-o-eye'))
-                        ->modalHeading(fn(PengajuanSpj $record): string => "Gambaran Pengajuan SPJ — {$record->nomor_pengajuan}")
+                        ->modalHeading(fn(PengajuanSpj $record): string => "Pengajuan SPJ — {$record->nomor_pengajuan}")
                         ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
-                        ->modalContent(fn(PengajuanSpj $record) => view('filament.pages.ringkasan-spj-modal', [
-                            'record' => $record,
-                        ]))
-                        ->modalSubmitAction(false)
-                        ->modalCancelActionLabel('Tutup'),
+                        ->extraModalFooterActions(fn(Action $action, PengajuanSpj $record): array => [
+                            Action::make('ubah_ke_edit')
+                                ->label('Ubah Berkas')
+                                ->icon('heroicon-o-pencil-square')
+                                ->color('primary')
+                                ->url(fn(): string => \App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource::getUrl('edit', ['record' => $record]))
+                                ->visible(fn(): bool => $record->status === 'draft'),
+                        ]),
 
                     EditAction::make()
                         ->label('Ubah Berkas')
