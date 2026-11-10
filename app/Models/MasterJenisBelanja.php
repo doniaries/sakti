@@ -45,6 +45,16 @@ class MasterJenisBelanja extends Model
                 $model->urutan = $max + 1;
             }
         });
+
+        static::updated(function (self $model): void {
+            if ($model->wasChanged(['kode', 'metode_pengadaan'])) {
+                $updates = ['jenis_belanja' => $model->kode];
+                if ($model->metode_pengadaan !== 'semua') {
+                    $updates['metode_pengadaan'] = $model->metode_pengadaan;
+                }
+                $model->syaratBelanjas()->update($updates);
+            }
+        });
     }
 
     public function syaratBelanjas(): HasMany

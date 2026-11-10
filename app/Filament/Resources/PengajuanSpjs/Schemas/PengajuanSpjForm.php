@@ -158,7 +158,22 @@ class PengajuanSpjForm
                                                             ])
                                                             ->default('non_katalog')
                                                             ->required()
-                                                            ->live(),
+                                                            ->live()
+                                                            ->afterStateUpdated(function (callable $set, $state) {
+                                                                $validJenis = \App\Models\MasterJenisBelanja::query()
+                                                                    ->where('aktif', true)
+                                                                    ->where(function ($q) use ($state) {
+                                                                        if ($state === 'e_katalog') {
+                                                                            $q->whereIn('metode_pengadaan', ['e_katalog', 'semua']);
+                                                                        } else {
+                                                                            $q->whereIn('metode_pengadaan', ['non_katalog', 'semua']);
+                                                                        }
+                                                                    })
+                                                                    ->orderBy('urutan')
+                                                                    ->value('kode');
+
+                                                                $set('jenis_belanja', $validJenis ?: ($state === 'e_katalog' ? 'e_katalog' : 'barang_jasa'));
+                                                            }),
 
                                                         Select::make('jenis_belanja')
                                                             ->label('Jenis Belanja / Pekerjaan')
@@ -1233,24 +1248,32 @@ class PengajuanSpjForm
                                             $jenis = $get('jenis_belanja') ?: 'barang_jasa';
                                             $metode = $get('metode_pengadaan') ?: 'non_katalog';
 
+                                            $masterJenis = \App\Models\MasterJenisBelanja::where('kode', $jenis)->first();
+
                                             $syarats = MasterSyaratBelanja::where('aktif', true)
                                                 ->where(function ($q) use ($metode) {
                                                     $q->where('metode_pengadaan', $metode)
                                                         ->orWhere('metode_pengadaan', 'semua');
                                                 })
-                                                ->where(function ($q) use ($jenis) {
+                                                ->where(function ($q) use ($jenis, $masterJenis) {
                                                     $q->where('jenis_belanja', $jenis)
                                                         ->orWhere('jenis_belanja', 'semua');
+                                                    if ($masterJenis) {
+                                                        $q->orWhere('master_jenis_belanja_id', $masterJenis->id);
+                                                    }
                                                 })
                                                 ->orderBy('urutan')
                                                 ->get();
 
+                                            $labelMetode = $metode === 'e_katalog' ? 'E-Katalog LKPP' : 'Non-Katalog (Pengadaan Langsung)';
+                                            $labelJenis = $masterJenis?->nama ?? ucwords(str_replace('_', ' ', $jenis));
+
                                             if ($syarats->isEmpty()) {
-                                                return new \Illuminate\Support\HtmlString('<span class="text-xs text-gray-500">Tidak ada persyaratan khusus.</span>');
+                                                return new \Illuminate\Support\HtmlString("<div class=\"rounded-lg border border-gray-200 bg-gray-50/60 p-2.5 dark:border-gray-800 dark:bg-gray-900/20 text-xs text-gray-500\"><span class=\"font-medium\">📋 Dokumen Persyaratan:</span> Belum ada persyaratan khusus yang diatur untuk {$labelJenis} ({$labelMetode}).</div>");
                                             }
 
                                             $html = '<div class="rounded-lg border border-amber-200 bg-amber-50/60 p-2.5 dark:border-amber-900/40 dark:bg-amber-950/20 text-xs">';
-                                            $html .= '<div class="font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5"><span>📋</span> Standar Syarat Dokumen yang Wajib Disiapkan:</div>';
+                                            $html .= "<div class=\"font-bold text-amber-800 dark:text-amber-300 mb-1 flex items-center gap-1.5\"><span>📋</span> Standar Syarat Dokumen yang Wajib Disiapkan ({$labelJenis} &bull; {$labelMetode}):</div>";
                                             $html .= '<ol class="space-y-1 pl-4 list-decimal text-gray-700 dark:text-gray-300">';
                                             foreach ($syarats as $s) {
                                                 $badge = $s->is_required

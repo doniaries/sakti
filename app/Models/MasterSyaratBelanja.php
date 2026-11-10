@@ -59,5 +59,14 @@ class MasterSyaratBelanja extends Model
                 $model->urutan = $max + 1;
             }
         });
+
+        static::saving(function (self $model): void {
+            if ($model->master_jenis_belanja_id && $parent = $model->masterJenisBelanja) {
+                $model->jenis_belanja = $parent->kode;
+                if ($parent->metode_pengadaan !== 'semua') {
+                    $model->metode_pengadaan = $parent->metode_pengadaan;
+                }
+            }
+        });
     }
 }

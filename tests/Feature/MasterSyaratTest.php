@@ -106,7 +106,23 @@ class MasterSyaratTest extends TestCase
         ]);
         $testRel->assertHasTableActionErrors(['nama_syarat']);
 
-        // 9. Bersihkan data test
+        // 9. Test Query Kesesuaian Syarat berdasarkan Metode & Jenis Belanja
+        $queryResult = MasterSyaratBelanja::where('aktif', true)
+            ->where(function ($q) use ($job) {
+                $q->where('metode_pengadaan', $job->metode_pengadaan)
+                    ->orWhere('metode_pengadaan', 'semua');
+            })
+            ->where(function ($q) use ($job) {
+                $q->where('jenis_belanja', $job->kode)
+                    ->orWhere('jenis_belanja', 'semua')
+                    ->orWhere('master_jenis_belanja_id', $job->id);
+            })
+            ->pluck('nama_syarat')
+            ->all();
+
+        $this->assertContains('Nota Servis AC Resmi', $queryResult, 'Syarat harus muncul sesuai metode dan jenis pekerjaan');
+
+        // 10. Bersihkan data test
         $item1->delete();
         $job->delete();
         $this->assertNull(MasterJenisBelanja::find($job->id));

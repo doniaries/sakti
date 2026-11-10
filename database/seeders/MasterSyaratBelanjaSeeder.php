@@ -202,13 +202,24 @@ class MasterSyaratBelanjaSeeder extends Seeder
         ];
 
         foreach ($data as $item) {
+            $masterJenisId = null;
+            if ($item['metode_pengadaan'] === 'e_katalog') {
+                $masterJenisId = \App\Models\MasterJenisBelanja::where('kode', 'e_katalog')->value('id');
+            } else {
+                $masterJenisId = \App\Models\MasterJenisBelanja::where('kode', $item['jenis_belanja'])->value('id');
+            }
+
+            $payload = array_merge($item, [
+                'master_jenis_belanja_id' => $masterJenisId,
+            ]);
+
             MasterSyaratBelanja::updateOrCreate(
                 [
                     'jenis_belanja' => $item['jenis_belanja'],
                     'metode_pengadaan' => $item['metode_pengadaan'],
                     'nama_syarat' => $item['nama_syarat'],
                 ],
-                $item
+                $payload
             );
         }
     }

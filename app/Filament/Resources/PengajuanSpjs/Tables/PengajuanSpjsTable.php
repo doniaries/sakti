@@ -432,15 +432,20 @@ class PengajuanSpjsTable
                                 ->placeholder('Contoh: Pimpinan Toko / NPWP');
 
                             // Ambil seluruh syarat dokumen resmi dari MasterSyaratBelanja untuk transaksi ini
+                            $masterJenis = \App\Models\MasterJenisBelanja::where('kode', $record->jenis_belanja)->first();
+
                             $syaratBelanjaList = \App\Models\MasterSyaratBelanja::query()
                                 ->where('aktif', true)
                                 ->where(function ($q) use ($record) {
                                     $q->where('metode_pengadaan', $record->metode_pengadaan)
                                         ->orWhere('metode_pengadaan', 'semua');
                                 })
-                                ->where(function ($q) use ($record) {
+                                ->where(function ($q) use ($record, $masterJenis) {
                                     $q->where('jenis_belanja', $record->jenis_belanja)
                                         ->orWhere('jenis_belanja', 'semua');
+                                    if ($masterJenis) {
+                                        $q->orWhere('master_jenis_belanja_id', $masterJenis->id);
+                                    }
                                 })
                                 ->orderBy('urutan')
                                 ->get();
@@ -518,15 +523,20 @@ class PengajuanSpjsTable
                         $isEkatalog = $record->metode_pengadaan === 'e_katalog';
 
                         // Ambil daftar syarat resmi dari MasterSyaratBelanja sesuai metode & jenis belanja transaksi ini
+                        $masterJenis = \App\Models\MasterJenisBelanja::where('kode', $record->jenis_belanja)->first();
+
                         $masterSyaratList = \App\Models\MasterSyaratBelanja::query()
                             ->where('aktif', true)
                             ->where(function ($q) use ($record) {
                                 $q->where('metode_pengadaan', $record->metode_pengadaan)
                                     ->orWhere('metode_pengadaan', 'semua');
                             })
-                            ->where(function ($q) use ($record) {
+                            ->where(function ($q) use ($record, $masterJenis) {
                                 $q->where('jenis_belanja', $record->jenis_belanja)
                                     ->orWhere('jenis_belanja', 'semua');
+                                if ($masterJenis) {
+                                    $q->orWhere('master_jenis_belanja_id', $masterJenis->id);
+                                }
                             })
                             ->orderBy('urutan')
                             ->get();
