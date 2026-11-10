@@ -14,6 +14,21 @@ class EditPengajuanSpj extends EditRecord
 
     protected Width | string | null $maxContentWidth = Width::Full;
 
+    public function mount(int | string $record): void
+    {
+        parent::mount($record);
+
+        if ($this->getRecord()->status !== 'draft') {
+            \Filament\Notifications\Notification::make()
+                ->title('Pengajuan Tidak Dapat Diubah')
+                ->body('Pengajuan SPJ yang sudah dikirim tidak dapat diubah lagi.')
+                ->warning()
+                ->send();
+
+            $this->redirect(static::getResource()::getUrl('index'));
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [

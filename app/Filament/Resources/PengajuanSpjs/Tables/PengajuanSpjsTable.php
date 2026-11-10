@@ -104,6 +104,7 @@ class PengajuanSpjsTable
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActionsColumnLabel('Aksi')
             ->recordAction('view')
+            ->recordUrl(null)
             ->stickyableColumns()
             ->columns([
                 TextColumn::make('nomor_pengajuan')
@@ -862,7 +863,8 @@ class PengajuanSpjsTable
                         ->label('Ubah Berkas')
                         ->icon(static::safeIcon('fas-pen-to-square', 'heroicon-o-pencil'))
                         ->visible(function (PengajuanSpj $record): bool {
-                            if (in_array($record->status, ['disetujui', 'dicairkan', 'ditolak'], true)) {
+                            // Tombol ubah hanya tampil saat berkas belum dikirim (masih berstatus draft)
+                            if ($record->status !== 'draft') {
                                 return false;
                             }
 
@@ -872,27 +874,7 @@ class PengajuanSpjsTable
                                 return false;
                             }
 
-                            if ($user->hasAnyRole(['super_admin', 'admin'])) {
-                                return true;
-                            }
-
-                            $anggaranRole = $user->anggaran_role instanceof \App\Enums\AnggaranRole
-                                ? $user->anggaran_role->value
-                                : $user->anggaran_role;
-
-                            $isPptkThisRecord = ($user->hasRole('pptk') || $anggaranRole === 'PPTK')
-                                && ($user->id === $record->pptk_user_id || ((int) $user->bidang_id > 0 && (int) $user->bidang_id === (int) $record->bidang_id) || (int) $record->bidang?->kepala_id === (int) $user->id || $user->hasRole('super_admin'));
-
-                            return match ($record->status) {
-                                'draft' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
-                                'diajukan' => $isPptkThisRecord,
-                                'menunggu_realisasi', 'revisi_pptk' => $user->hasAnyRole(['jf', 'pegawai']) || $user->id === $record->user_id,
-                                'menunggu_verifikasi_pptk' => $isPptkThisRecord,
-                                'menunggu_verifikasi_ppk', 'revisi_ppk' => $user->hasRole('ppk') || $anggaranRole === 'PPK' || $user->id === $record->ppk_user_id,
-                                'menunggu_persetujuan_pa', 'revisi_pa' => $user->hasRole('pa') || $anggaranRole === 'PA' || $user->id === $record->pa_user_id,
-                                'menunggu_verifikasi_bendahara', 'revisi_bendahara' => $user->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' || $user->id === $record->bendahara_user_id,
-                                default => true,
-                            };
+                            return $user->hasAnyRole(['super_admin', 'admin', 'jf', 'pegawai']) || $user->id === $record->user_id;
                         }),
 
                     DeleteAction::make()
