@@ -21,7 +21,8 @@ class PengajuanSpjInfolist
                     ->schema([
                         TextEntry::make('nomor_pengajuan')
                             ->label('No. Pengajuan')
-                            ->weight('bold'),
+                            ->badge()
+                            ->color('gray'),
 
                         TextEntry::make('status')
                             ->label('Status SPJ')
@@ -40,7 +41,9 @@ class PengajuanSpjInfolist
                             }),
 
                         TextEntry::make('user.name')
-                            ->label('Pemohon'),
+                            ->label('Pemohon')
+                            ->badge()
+                            ->color('info'),
 
                         TextEntry::make('bidang.nama')
                             ->label('Bidang')
@@ -53,7 +56,8 @@ class PengajuanSpjInfolist
 
                         TextEntry::make('nama_penyedia')
                             ->label('Penyedia')
-                            ->weight('semibold')
+                            ->badge()
+                            ->color('success')
                             ->state(fn (PengajuanSpj $record): string => $record->nama_toko ?: ($record->masterToko?->nama_toko ?: '-')),
 
                         TextEntry::make('kegiatan.nama_kegiatan')
