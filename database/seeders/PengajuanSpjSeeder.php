@@ -329,9 +329,10 @@ class PengajuanSpjSeeder extends Seeder
                     }
 
                     $subtotalRencana = $it['qty'] * $it['harga'];
-                    $qtyReal = $isRealisasiActive ? $it['qty'] : null;
-                    $hargaReal = $isRealisasiActive ? $it['harga'] : null;
-                    $subtotalReal = $isRealisasiActive ? $subtotalRencana : null;
+                    // Nilai realisasi (kwitansi) selalu diisi agar seluruh data simulasi memiliki nilai kwitansi yang lengkap
+                    $qtyReal = $it['qty'];
+                    $hargaReal = $it['harga'];
+                    $subtotalReal = $subtotalRencana;
 
                     DetailPengajuanSpj::create([
                         'pengajuan_spj_id' => $spj->id,
@@ -349,9 +350,7 @@ class PengajuanSpjSeeder extends Seeder
                     ]);
 
                     $totalRencana += $subtotalRencana;
-                    if ($subtotalReal) {
-                        $totalRealisasi += $subtotalReal;
-                    }
+                    $totalRealisasi += $subtotalReal;
                 }
 
                 // Update Total pada Header dan sinkronkan kalkulasi perpajakan akurat
@@ -363,7 +362,7 @@ class PengajuanSpjSeeder extends Seeder
 
                 $spj->updateQuietly([
                     'total_nilai_rencana' => $totalRencana,
-                    'total_nilai_realisasi' => $totalRealisasi > 0 ? $totalRealisasi : null,
+                    'total_nilai_realisasi' => $totalRealisasi,
                     'nilai_ppn' => $nilaiPpn,
                     'nilai_pph22' => $nilaiPph22,
                     'total_pajak' => $totalPajak,
