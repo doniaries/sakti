@@ -58,9 +58,19 @@ class PengajuanSpjResource extends Resource
 
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
-        if ($user && ! $user->canViewAllBidangKeuangan()) {
+        if (! $user) {
+            return $query;
+        }
+
+        // PPK, PA, Bendahara, Superadmin, Admin Keuangan dapat melihat seluruh bidang dinas
+        if ($user->canViewAllBidangKeuangan()) {
+            return $query;
+        }
+
+        // PPTK dapat melihat seluruh SPJ di bidangnya + SPJ miliknya
+        if ($user->isPptk()) {
             $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
-            $query->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($user, $userBidangId) {
+            return $query->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($user, $userBidangId) {
                 if ($userBidangId > 0) {
                     $q->where('bidang_id', $userBidangId);
                 }
@@ -68,7 +78,8 @@ class PengajuanSpjResource extends Resource
             });
         }
 
-        return $query;
+        // JF / Staf biasa hanya dapat melihat SPJ yang terkait dengannya (dibuat olehnya)
+        return $query->where('user_id', $user->id);
     }
 
     public static function getPages(): array

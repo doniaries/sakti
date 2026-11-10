@@ -60,10 +60,35 @@ class ListPengajuanSpjs extends ListRecords
 
         $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
 
-        // Base query yang konsisten mengunci tahun anggaran dan bidang terpilih
-        $baseQuery = fn () => PengajuanSpj::query()
-            ->where('tahun_anggaran', $tahunAktif)
-            ->when(filled($selectedBidang), fn ($q) => $q->where('bidang_id', (int) $selectedBidang));
+        // Base query yang konsisten mengunci tahun anggaran, filter bidang, dan hak akses otorisasi role
+        $baseQuery = function () use ($user, $tahunAktif, $selectedBidang) {
+            $query = PengajuanSpj::query()
+                ->where('tahun_anggaran', $tahunAktif)
+                ->when(filled($selectedBidang), fn ($q) => $q->where('bidang_id', (int) $selectedBidang));
+
+            if (! $user) {
+                return $query;
+            }
+
+            // PPK, PA, Bendahara, Super Admin, Admin Keuangan dapat melihat seluruh bidang dinas
+            if ($user->canViewAllBidangKeuangan()) {
+                return $query;
+            }
+
+            // PPTK dapat melihat seluruh SPJ di bidangnya + SPJ miliknya
+            if ($user->isPptk()) {
+                $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+                return $query->where(function (Builder $q) use ($user, $userBidangId) {
+                    if ($userBidangId > 0) {
+                        $q->where('bidang_id', $userBidangId);
+                    }
+                    $q->orWhere('user_id', $user->id);
+                });
+            }
+
+            // JF / Staf biasa hanya menghitung SPJ yang terkait dengannya (dibuat olehnya)
+            return $query->where('user_id', $user->id);
+        };
 
         // Hitung badge antrean khusus tugas user aktif
         $antreanSayaQuery = $baseQuery();
@@ -82,7 +107,7 @@ class ListPengajuanSpjs extends ListRecords
                     'revisi_pa',
                     'revisi_bendahara',
                 ]);
-            } elseif ($user->hasRole('pptk') || $anggaranRole === 'PPTK') {
+            } elseif ($user->isPptk()) {
                 $antreanSayaQuery->where(function (Builder $sub) use ($user) {
                     $sub->where(function (Builder $pptk) use ($user) {
                         $pptk->whereIn('status', ['diajukan', 'menunggu_verifikasi_pptk']);
@@ -90,8 +115,7 @@ class ListPengajuanSpjs extends ListRecords
                             $pptk->where('bidang_id', $user->bidang_id);
                         }
                     })->orWhere(function (Builder $own) use ($user) {
-                        $own->where('user_id', $user->id)
-                            ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                        $own->where('user_id', $user->id);
                     });
                 });
             } elseif ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
@@ -119,8 +143,8 @@ class ListPengajuanSpjs extends ListRecords
                         });
                 });
             } else {
-                $antreanSayaQuery->where('user_id', $user->id)
-                    ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                // Untuk JF / Staf: tampilkan semua SPJ miliknya tanpa tersembunyi saat status berganti
+                $antreanSayaQuery->where('user_id', $user->id);
             }
         }
         $antreanSayaCount = $antreanSayaQuery->count();
@@ -144,8 +168,8 @@ class ListPengajuanSpjs extends ListRecords
             $user?->hasRole('ppk') || $anggaranRole === 'PPK' => 'Perlu Diperiksa PPK',
             $user?->hasRole('pa') || $anggaranRole === 'PA' => 'Perlu Persetujuan PA',
             $user?->hasRole('bendahara') || $anggaranRole === 'BENDAHARA' => 'Perlu Uji Kas Bendahara',
-            $user?->hasRole('pptk') || $anggaranRole === 'PPTK' => 'Antrean PPTK & Draft Saya',
-            default => 'Tugas & Draft Saya',
+            $user?->isPptk() => 'Antrean PPTK & Berkas Saya',
+            default => 'Pengajuan & SPJ Saya',
         };
 
         return [
@@ -172,7 +196,7 @@ class ListPengajuanSpjs extends ListRecords
                             'revisi_pa',
                             'revisi_bendahara',
                         ]);
-                    } elseif ($user->hasRole('pptk') || $anggaranRole === 'PPTK') {
+                    } elseif ($user->isPptk()) {
                         $query->where(function (Builder $sub) use ($user) {
                             $sub->where(function (Builder $pptk) use ($user) {
                                 $pptk->whereIn('status', ['diajukan', 'menunggu_verifikasi_pptk']);
@@ -180,8 +204,7 @@ class ListPengajuanSpjs extends ListRecords
                                     $pptk->where('bidang_id', $user->bidang_id);
                                 }
                             })->orWhere(function (Builder $own) use ($user) {
-                                $own->where('user_id', $user->id)
-                                    ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                                $own->where('user_id', $user->id);
                             });
                         });
                     } elseif ($user->hasRole('ppk') || $anggaranRole === 'PPK') {
@@ -209,8 +232,8 @@ class ListPengajuanSpjs extends ListRecords
                                 });
                         });
                     } else {
-                        $query->where('user_id', $user->id)
-                            ->whereIn('status', ['draft', 'menunggu_realisasi', 'revisi_pptk', 'revisi_ppk', 'revisi_pa', 'revisi_bendahara']);
+                        // JF / Staf: tampilkan semua SPJ miliknya tanpa hilang saat status berubah
+                        $query->where('user_id', $user->id);
                     }
                 }),
 

@@ -361,7 +361,26 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
      */
     public function canViewAllBidangKeuangan(): bool
     {
-        return $this->hasAnyRole(['super_admin', 'admin', 'admin_keuangan', 'pa', 'ppk', 'bendahara']);
+        $roleValue = $this->anggaran_role instanceof \App\Enums\AnggaranRole
+            ? $this->anggaran_role->value
+            : $this->anggaran_role;
+
+        return $this->hasAnyRole(['super_admin', 'admin', 'admin_keuangan', 'pa', 'ppk', 'bendahara'])
+            || in_array(strtoupper((string) $roleValue), ['PA', 'PPK', 'BENDAHARA']);
+    }
+
+    /**
+     * Cek apakah user bertindak sebagai Pejabat Pelaksana Teknis Kegiatan (PPTK)
+     */
+    public function isPptk(): bool
+    {
+        $roleValue = $this->anggaran_role instanceof \App\Enums\AnggaranRole
+            ? $this->anggaran_role->value
+            : $this->anggaran_role;
+
+        return $this->hasRole('pptk')
+            || strtoupper((string) $roleValue) === 'PPTK'
+            || Bidang::where('kepala_id', $this->id)->exists();
     }
 
     /**

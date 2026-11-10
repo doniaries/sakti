@@ -853,7 +853,7 @@ class PengajuanSpjsTable
                         ->label('Lihat Detail SPJ')
                         ->icon(static::safeIcon('fas-eye', 'heroicon-o-eye'))
                         ->modalHeading(fn(PengajuanSpj $record): string => "Pengajuan SPJ — {$record->nomor_pengajuan}")
-                        ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                        ->modalWidth(\Filament\Support\Enums\Width::SevenExtraLarge)
                         ->extraModalFooterActions(fn(Action $action, PengajuanSpj $record): array => [
                             Action::make('ubah_ke_edit')
                                 ->label('Ubah Berkas')

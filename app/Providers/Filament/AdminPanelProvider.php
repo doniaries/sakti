@@ -164,7 +164,8 @@ class AdminPanelProvider extends PanelProvider
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))
                     ->users([
-                        'SuperAdmin / PPTK Pemasaran (Doni Aries)' => 'doniaries@gmail.com',
+                        'Super Admin' => 'superadmin@gmail.com',
+                        'Kabid/PPTK Pemasaran (Doni Aries)' => 'doniaries@gmail.com',
                         'Admin Dinas (Zulfitri)' => 'admin@gmail.com',
                         'PA / Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
                         'PPK (Julhardianto)' => 'julhardianto@gmail.com',

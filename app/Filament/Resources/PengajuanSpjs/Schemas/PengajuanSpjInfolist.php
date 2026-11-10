@@ -29,8 +29,8 @@ class PengajuanSpjInfolist
                         TextEntry::make('status')
                             ->label('Status SPJ')
                             ->badge()
-                            ->color(fn (PengajuanSpj $record): string => $record->status_color)
-                            ->formatStateUsing(fn (PengajuanSpj $record): string => $record->status_label),
+                            ->color(fn(PengajuanSpj $record): string => $record->status_color)
+                            ->formatStateUsing(fn(PengajuanSpj $record): string => $record->status_label),
 
                         TextEntry::make('user.name')
                             ->label('Pemohon')
@@ -40,7 +40,7 @@ class PengajuanSpjInfolist
                         TextEntry::make('bidang.nama')
                             ->label('Bidang')
                             ->badge()
-                            ->color(fn (?string $state): string => Bidang::badgeColor($state)),
+                            ->color(fn(?string $state): string => Bidang::badgeColor($state)),
 
                         TextEntry::make('tanggal_pengajuan')
                             ->label('Tgl Pengajuan')
@@ -51,7 +51,7 @@ class PengajuanSpjInfolist
                             ->label('Penyedia')
                             ->badge()
                             ->color('success')
-                            ->state(fn (PengajuanSpj $record): string => $record->nama_toko ?: ($record->masterToko?->nama_toko ?: '-')),
+                            ->state(fn(PengajuanSpj $record): string => $record->nama_toko ?: ($record->masterToko?->nama_toko ?: '-')),
 
                         // Kegiatan & Sub Kegiatan berdekatan
                         TextEntry::make('kegiatan.nama_kegiatan')
@@ -65,7 +65,7 @@ class PengajuanSpjInfolist
                         TextEntry::make('catatan_revisi')
                             ->label('Catatan Perbaikan / Revisi')
                             ->color('danger')
-                            ->visible(fn (PengajuanSpj $record): bool => filled($record->catatan_revisi) && str_contains($record->status, 'revisi'))
+                            ->visible(fn(PengajuanSpj $record): bool => filled($record->catatan_revisi) && str_contains($record->status, 'revisi'))
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
@@ -78,29 +78,29 @@ class PengajuanSpjInfolist
                                 TextEntry::make('nama_barang')
                                     ->label('Uraian Barang')
                                     ->weight('bold')
-                                    ->columnSpan(3),
+                                    ->columnSpan(4),
 
                                 TextEntry::make('keterangan')
                                     ->label('Keterangan')
                                     ->placeholder('-')
-                                    ->columnSpan(3),
+                                    ->columnSpan(1),
 
                                 TextEntry::make('volume')
                                     ->label('Volume')
-                                    ->state(fn (DetailPengajuanSpj $record): string => number_format((float) ($record->kuantitas_realisasi ?: $record->kuantitas), 0, ',', '.') . ' ' . $record->satuan_nama)
+                                    ->state(fn(DetailPengajuanSpj $record): string => number_format((float) ($record->kuantitas_realisasi ?: $record->kuantitas), 0, ',', '.') . ' ' . $record->satuan_nama)
                                     ->columnSpan(2),
 
                                 TextEntry::make('harga_satuan_item')
                                     ->label('Harga Satuan')
-                                    ->state(fn (DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->harga_realisasi ?: $record->harga_satuan)))
+                                    ->state(fn(DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->harga_realisasi ?: $record->harga_satuan)))
                                     ->columnSpan(2),
 
                                 TextEntry::make('subtotal')
                                     ->label('Total Uang')
                                     ->weight('bold')
                                     ->color('warning')
-                                    ->state(fn (DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->subtotal_realisasi ?: $record->subtotal)))
-                                    ->columnSpan(2),
+                                    ->state(fn(DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->subtotal_realisasi ?: $record->subtotal)))
+                                    ->columnSpan(3),
                             ])
                             ->columns(12),
 
