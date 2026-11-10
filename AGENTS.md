@@ -186,6 +186,14 @@ protected function getRedirectUrl(): string
         - Tidak membedakan roda 4 atau roda 2 (standar tunggal liter BBM).
         - Pemilihan lokasi ringkas: memilih Nagari otomatis mengisi nama nagari di formulir tanpa teks berlebihan.
     - **Aturan Perpajakan Otomatis**: Transaksi belanja barang dengan nilai di atas Rp 2.000.000 otomatis dikenakan PPN 11% dan PPh 22 sebesar 1,5%.
+    - **Penguncian Global Tahun Anggaran Aktif & Sinergi RKA**:
+        - `Tahun Anggaran` dikunci secara global pada seluruh modul SPJ dan tabel keuangan mengikuti `PengaturanAplikasi::getTahunAnggaranAktif()`.
+        - Pada formulir pengajuan SPJ, field `tahun_anggaran` bersifat read-only (`TextInput::make('tahun_anggaran')->readOnly()`), sehingga pemohon tidak dapat memanipulasi tahun anggaran belanja.
+        - Seluruh filter dropdown tahun interaktif dihilangkan dari tabel-tabel keuangan agar data tahun lalu/mendatang terisolasi dengan aman dari salah edit.
+    - **Penguncian Nomor Surat Pesanan & Harga Satuan Pagu RKA**:
+        - `Nomor Surat Pesanan` (`nomor_pengajuan`) digenerate otomatis secara unik oleh sistem (`PengajuanSpj::generateNomorPengajuan()`) dan dikunci read-only demi tertib administrasi kedinasan.
+        - `Harga Satuan` item belanja dikunci secara read-only (`FormatHelper::rupiahInput('harga_satuan')->readOnly()`), ditarik langsung dari pagu RKA Sub Kegiatan resmi yang telah disahkan dan dikunci, sehingga pemohon dilarang mengubah harga secara manual di luar pagu RKA.
+        - Input kuantitas (`Jumlah Dipesan`), `Harga Satuan`, dan `Subtotal Pesanan` diatur sejajar secara horizontal dengan label 1-baris yang rapi dan indikator sisa pagu informatif di bagian helper text.
     - **Desain Navigasi Sidebar**: Seluruh `NavigationGroup` (`Master Keuangan`, `Master Data`, `Absensi`, `LHK`, `Pengaturan`) dikonfigurasi dengan icon grup di `AdminPanelProvider.php`, sehingga seluruh sub-item di dalamnya tampil seragam dengan garis pohon vertikal dan tanda titik (dot) tanpa icon individual.
 
 ---

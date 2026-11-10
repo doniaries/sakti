@@ -204,40 +204,12 @@ class PengajuanSpjForm
                                                             ->required()
                                                             ->live(),
 
-                                                        Select::make('tahun_anggaran')
+                                                        TextInput::make('tahun_anggaran')
                                                             ->label('Tahun Anggaran')
-                                                            ->options([
-                                                                2024 => '2024',
-                                                                2025 => '2025',
-                                                                2026 => '2026',
-                                                                2027 => '2027',
-                                                                2028 => '2028',
-                                                            ])
-                                                            ->default(fn() => (int) (request()->query('tahun') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif()))
-                                                            ->required()
-                                                            ->live()
-                                                            ->afterStateUpdated(function ($state, callable $set, callable $get, ?Model $record) {
-                                                                if (! $record) {
-                                                                    $set('nomor_pengajuan', PengajuanSpj::generateNomorPengajuan(
-                                                                        $get('bidang_id'),
-                                                                        (int) ($state ?? 2027),
-                                                                        $get('tanggal_pengajuan')
-                                                                    ));
-                                                                }
-
-                                                                // Reset seluruh rantai anggaran agar data antar tahun tidak tercampur
-                                                                $set('kegiatan_id', null);
-                                                                $set('sub_kegiatan_id', null);
-                                                                $details = $get('details') ?? [];
-                                                                foreach (array_keys($details) as $uuid) {
-                                                                    $set("details.{$uuid}.kode_rekening_id", null);
-                                                                    $set("details.{$uuid}.rincian_anggaran_belanja_id", null);
-                                                                    $set("details.{$uuid}.master_barang_id", null);
-                                                                    $set("details.{$uuid}.stok_tersedia", 0);
-                                                                    $set("details.{$uuid}.harga_satuan", 0);
-                                                                    $set("details.{$uuid}.subtotal", 0);
-                                                                }
-                                                            }),
+                                                            ->default(fn() => (int) \App\Models\PengaturanAplikasi::getTahunAnggaranAktif())
+                                                            ->readOnly()
+                                                            ->helperText('Terkunci pada Tahun Anggaran Aktif sistem.')
+                                                            ->required(),
                                                     ]),
 
                                                 // BARIS 2: 3 Kolom (Bidang Pengusul, Nomor Surat Pesanan, Tanggal Surat Pesanan)
@@ -304,10 +276,11 @@ class PengajuanSpjForm
                                                             ->label('Nomor Surat Pesanan')
                                                             ->default(fn(Get $get) => PengajuanSpj::generateNomorPengajuan(
                                                                 $get('bidang_id') ?: $resolveUserBidangId(),
-                                                                (int) ($get('tahun_anggaran') ?? date('Y')),
+                                                                (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif()),
                                                                 $get('tanggal_pengajuan')
                                                             ))
-                                                            ->helperText('Nomor unik acak otomatis. Dapat disesuaikan bila ada nomor fisik surat pesanan.')
+                                                            ->readOnly()
+                                                            ->helperText('Nomor resmi unik dihasilkan otomatis oleh sistem SAKTI (Terkunci).')
                                                             ->required(),
 
                                                         DatePicker::make('tanggal_pengajuan')
