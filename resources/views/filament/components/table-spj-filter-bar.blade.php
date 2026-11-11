@@ -17,32 +17,29 @@
         ?? data_get(request()->query('filters'), 'bidang_id.value')
         ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
 
-    if (blank($selectedBidangId) && request()->header('Referer')) {
+    $selectedBulan = request()->query('bulan');
+    $selectedTanggal = request()->query('tanggal');
+
+    if (request()->is('livewire/*') && request()->header('Referer')) {
         $refererQuery = [];
         parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-        $selectedBidangId = $refererQuery['bidang']
-            ?? data_get($refererQuery, 'filters.bidang_id.value')
-            ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+        if (! request()->has('bidang')) {
+            $selectedBidangId = $selectedBidangId ?? ($refererQuery['bidang']
+                ?? data_get($refererQuery, 'filters.bidang_id.value')
+                ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
+        }
+        if (! request()->has('bulan')) {
+            $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
+        }
+        if (! request()->has('tanggal')) {
+            $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
+        }
     }
 
     if (filled($selectedBidangId)) {
         $activeBidang = \App\Models\Bidang::find($selectedBidangId);
     } elseif (! $canChooseBidang && $user && filled($user->bidang_id)) {
         $activeBidang = \App\Models\Bidang::find($user->bidang_id);
-    }
-
-    $selectedBulan = request()->query('bulan');
-    if (blank($selectedBulan) && request()->header('Referer')) {
-        $refererQuery = [];
-        parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-        $selectedBulan = $refererQuery['bulan'] ?? null;
-    }
-
-    $selectedTanggal = request()->query('tanggal');
-    if (blank($selectedTanggal) && request()->header('Referer')) {
-        $refererQuery = [];
-        parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-        $selectedTanggal = $refererQuery['tanggal'] ?? null;
     }
 
     $selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
@@ -198,3 +195,4 @@
         window.location.href = url.toString();
     }
 </script>
+

@@ -87,14 +87,21 @@ class PengajuanSpjsTable
                 $selectedBulan = request()->query('bulan');
                 $selectedTanggal = request()->query('tanggal');
 
-                if ((blank($selectedBidang) || blank($selectedBulan) || blank($selectedTanggal)) && request()->header('Referer')) {
+                // Khusus saat request internal Livewire AJAX, sinkronkan dari URL aktif (Referer) jika parameter query belum ada
+                if (request()->is('livewire/*') && request()->header('Referer')) {
                     $refererQuery = [];
                     parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-                    $selectedBidang = $selectedBidang ?? ($refererQuery['bidang']
-                        ?? data_get($refererQuery, 'filters.bidang_id.value')
-                        ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
-                    $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
-                    $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
+                    if (! request()->has('bidang')) {
+                        $selectedBidang = $selectedBidang ?? ($refererQuery['bidang']
+                            ?? data_get($refererQuery, 'filters.bidang_id.value')
+                            ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
+                    }
+                    if (! request()->has('bulan')) {
+                        $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
+                    }
+                    if (! request()->has('tanggal')) {
+                        $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
+                    }
                 }
 
                 $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
@@ -115,6 +122,7 @@ class PengajuanSpjsTable
 
                 return $query;
             })
+            ->heading(fn () => view('filament.components.table-spj-filter-bar'))
             ->heading(fn () => view('filament.components.table-spj-filter-bar'))
             ->extraAttributes([
                 'class' => 'spj-scrollable-table',

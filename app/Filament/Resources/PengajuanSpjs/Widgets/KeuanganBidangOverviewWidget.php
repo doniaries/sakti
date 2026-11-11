@@ -47,12 +47,23 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             ?? data_get(request()->query('filters'), 'bidang_id.value')
             ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
 
-        if (blank($queryBidang) && request()->header('Referer')) {
+        $queryBulan = request()->query('bulan');
+        $queryTanggal = request()->query('tanggal');
+
+        if (request()->is('livewire/*') && request()->header('Referer')) {
             $refererQuery = [];
             parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-            $queryBidang = $refererQuery['bidang']
-                ?? data_get($refererQuery, 'filters.bidang_id.value')
-                ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+            if (! request()->has('bidang')) {
+                $queryBidang = $queryBidang ?? ($refererQuery['bidang']
+                    ?? data_get($refererQuery, 'filters.bidang_id.value')
+                    ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
+            }
+            if (! request()->has('bulan')) {
+                $queryBulan = $queryBulan ?? ($refererQuery['bulan'] ?? null);
+            }
+            if (! request()->has('tanggal')) {
+                $queryTanggal = $queryTanggal ?? ($refererQuery['tanggal'] ?? null);
+            }
         }
 
         if (filled($queryBidang)) {
@@ -63,20 +74,7 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             $this->selectedBidangId = null;
         }
 
-        $queryBulan = request()->query('bulan');
-        if (blank($queryBulan) && request()->header('Referer')) {
-            $refererQuery = [];
-            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-            $queryBulan = $refererQuery['bulan'] ?? null;
-        }
         $this->selectedBulan = filled($queryBulan) ? (int) $queryBulan : null;
-
-        $queryTanggal = request()->query('tanggal');
-        if (blank($queryTanggal) && request()->header('Referer')) {
-            $refererQuery = [];
-            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-            $queryTanggal = $refererQuery['tanggal'] ?? null;
-        }
         $this->selectedTanggal = filled($queryTanggal) ? (string) $queryTanggal : null;
 
         $this->selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();

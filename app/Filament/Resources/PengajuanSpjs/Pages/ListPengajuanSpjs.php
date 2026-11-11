@@ -45,7 +45,7 @@ class ListPengajuanSpjs extends ListRecords
             ? $user->anggaran_role->value
             : $user?->anggaran_role;
 
-        // Ambil filter bidang aktif dari request / referer
+        // Ambil filter aktif dari request query
         $selectedBidang = request()->query('bidang')
             ?? data_get(request()->query('filters'), 'bidang_id.value')
             ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
@@ -53,14 +53,21 @@ class ListPengajuanSpjs extends ListRecords
         $selectedBulan = request()->query('bulan');
         $selectedTanggal = request()->query('tanggal');
 
-        if ((blank($selectedBidang) || blank($selectedBulan) || blank($selectedTanggal)) && request()->header('Referer')) {
+        // Khusus saat request internal Livewire AJAX, sinkronkan dari URL aktif (Referer) jika parameter query belum ada
+        if (request()->is('livewire/*') && request()->header('Referer')) {
             $refererQuery = [];
             parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-            $selectedBidang = $selectedBidang ?? ($refererQuery['bidang']
-                ?? data_get($refererQuery, 'filters.bidang_id.value')
-                ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
-            $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
-            $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
+            if (! request()->has('bidang')) {
+                $selectedBidang = $selectedBidang ?? ($refererQuery['bidang']
+                    ?? data_get($refererQuery, 'filters.bidang_id.value')
+                    ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
+            }
+            if (! request()->has('bulan')) {
+                $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
+            }
+            if (! request()->has('tanggal')) {
+                $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
+            }
         }
 
         $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
