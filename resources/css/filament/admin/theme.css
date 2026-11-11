@@ -517,6 +517,38 @@ html:not(.dark) .laporan-table tbody tr:hover td {
 }
 
 /* ==========================================================================
+   SPJ Scrollable Table: Tampilan Kompak ~3 Baris dengan Scroll Vertikal Internal
+   ========================================================================== */
+.spj-scrollable-table .fi-ta-content,
+.spj-scrollable-table .fi-ta-content-ctn,
+.spj-scrollable-table div:has(> table.fi-ta-table) {
+    max-height: 255px !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    scrollbar-gutter: stable;
+}
+
+.spj-scrollable-table .fi-ta-content::-webkit-scrollbar,
+.spj-scrollable-table .fi-ta-content-ctn::-webkit-scrollbar,
+.spj-scrollable-table div:has(> table.fi-ta-table)::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.spj-scrollable-table .fi-ta-content::-webkit-scrollbar-thumb,
+.spj-scrollable-table .fi-ta-content-ctn::-webkit-scrollbar-thumb,
+.spj-scrollable-table div:has(> table.fi-ta-table)::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 4px;
+}
+
+.dark .spj-scrollable-table .fi-ta-content::-webkit-scrollbar-thumb,
+.dark .spj-scrollable-table .fi-ta-content-ctn::-webkit-scrollbar-thumb,
+.dark .spj-scrollable-table div:has(> table.fi-ta-table)::-webkit-scrollbar-thumb {
+    background: rgba(107, 114, 128, 0.5);
+}
+
+/* ==========================================================================
    Skeleton Loaders & Table Loading Pulse
    ========================================================================== */
 .fi-ta.fi-loading .fi-ta-content-ctn {

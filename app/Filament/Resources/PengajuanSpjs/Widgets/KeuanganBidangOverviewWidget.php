@@ -34,6 +34,10 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 
     public ?int $selectedTahun = null;
 
+    public ?int $selectedBulan = null;
+
+    public ?string $selectedTanggal = null;
+
     public function mount(): void
     {
         /** @var \App\Models\User|null $user */
@@ -58,6 +62,22 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         } else {
             $this->selectedBidangId = null;
         }
+
+        $queryBulan = request()->query('bulan');
+        if (blank($queryBulan) && request()->header('Referer')) {
+            $refererQuery = [];
+            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
+            $queryBulan = $refererQuery['bulan'] ?? null;
+        }
+        $this->selectedBulan = filled($queryBulan) ? (int) $queryBulan : null;
+
+        $queryTanggal = request()->query('tanggal');
+        if (blank($queryTanggal) && request()->header('Referer')) {
+            $refererQuery = [];
+            parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
+            $queryTanggal = $refererQuery['tanggal'] ?? null;
+        }
+        $this->selectedTanggal = filled($queryTanggal) ? (string) $queryTanggal : null;
 
         $this->selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
     }
@@ -171,24 +191,30 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
 
     public function getHeading(): ?string
     {
-        $bidang = $this->getActiveBidang();
-        $namaBidang = $bidang?->nama ?? 'Semua Bidang';
-        $tahun = $this->selectedTahun ?? (int) date('Y');
-
-        return "Pedoman Belanja & Keuangan ({$tahun}): {$namaBidang}";
+        return null;
     }
 
     public function getDescription(): ?string
     {
-        $bidang = $this->getActiveBidang();
-        $tahun = $this->selectedTahun ?? (int) date('Y');
+        return null;
+    }
 
-        if ($bidang !== null) {
-            $pptk = $bidang->kepala?->name ? " (PPTK: {$bidang->kepala->name})" : '';
-            return "Pedoman alokasi anggaran TA {$tahun}, kegiatan, realisasi SPJ, dan sisa pagu anggaran{$pptk}";
-        }
-
-        return "Pedoman alokasi anggaran TA {$tahun}, kegiatan, realisasi SPJ, dan sisa pagu anggaran seluruh bidang dinas";
+    public function getDaftarBulan(): array
+    {
+        return [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember',
+        ];
     }
 
     protected function getStats(): array
@@ -228,6 +254,12 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         if ($bidangId !== null) {
             $spjQuery->where('bidang_id', $bidangId);
         }
+        if ($this->selectedBulan !== null) {
+            $spjQuery->whereMonth('tanggal_pengajuan', $this->selectedBulan);
+        }
+        if ($this->selectedTanggal !== null) {
+            $spjQuery->whereDate('tanggal_pengajuan', $this->selectedTanggal);
+        }
 
         $totalSudahSpj = (float) (clone $spjQuery)->whereIn('status', $validStatuses)->sum('total_nilai_realisasi');
         $totalSpjCair = (clone $spjQuery)->where('status', 'dicairkan')->count();
@@ -240,6 +272,8 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
         $filterParams = array_filter([
             'bidang' => $bidangId,
             'tahun' => $tahun,
+            'bulan' => $this->selectedBulan,
+            'tanggal' => $this->selectedTanggal,
         ]);
 
         return [

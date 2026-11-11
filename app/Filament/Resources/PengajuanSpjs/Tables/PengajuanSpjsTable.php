@@ -75,7 +75,7 @@ class PengajuanSpjsTable
                     });
                 }
 
-                // Sinkronisasi filter bidang dari parameter URL / Tab Widget Bidang (sesuai Rule 8 AGENTS.md)
+                // Sinkronisasi filter bidang, bulan, dan tanggal dari parameter URL / Tab Widget (sesuai Rule 8 AGENTS.md)
                 $livewire = $table->getLivewire();
                 $livewireFilters = property_exists($livewire, 'tableFilters') ? $livewire->tableFilters : null;
 
@@ -84,12 +84,17 @@ class PengajuanSpjsTable
                     ?? data_get(request()->query('tableFilters'), 'bidang_id.value')
                     ?? data_get($livewireFilters, 'bidang_id.value');
 
-                if (blank($selectedBidang) && request()->header('Referer')) {
+                $selectedBulan = request()->query('bulan');
+                $selectedTanggal = request()->query('tanggal');
+
+                if ((blank($selectedBidang) || blank($selectedBulan) || blank($selectedTanggal)) && request()->header('Referer')) {
                     $refererQuery = [];
                     parse_str(parse_url(request()->header('Referer'), PHP_URL_QUERY) ?? '', $refererQuery);
-                    $selectedBidang = $refererQuery['bidang']
+                    $selectedBidang = $selectedBidang ?? ($refererQuery['bidang']
                         ?? data_get($refererQuery, 'filters.bidang_id.value')
-                        ?? data_get($refererQuery, 'tableFilters.bidang_id.value');
+                        ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
+                    $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
+                    $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
                 }
 
                 $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
@@ -98,10 +103,23 @@ class PengajuanSpjsTable
                     $query->where('bidang_id', (int) $selectedBidang);
                 }
 
+                if (filled($selectedBulan)) {
+                    $query->whereMonth('tanggal_pengajuan', (int) $selectedBulan);
+                }
+
+                if (filled($selectedTanggal)) {
+                    $query->whereDate('tanggal_pengajuan', $selectedTanggal);
+                }
+
                 $query->where('tahun_anggaran', $tahunAktif);
 
                 return $query;
             })
+            ->extraAttributes([
+                'class' => 'spj-scrollable-table',
+            ])
+            ->defaultPaginationPageOption(10)
+            ->paginationPageOptions([10, 25, 50])
             ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
             ->recordActionsColumnLabel('Aksi')
             ->recordAction('view')
