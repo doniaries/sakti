@@ -140,4 +140,3 @@ class GoogleAuthController extends Controller
         return redirect()->intended($targetRoute);
     }
 }
-
