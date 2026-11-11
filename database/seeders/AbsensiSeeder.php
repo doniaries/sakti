@@ -24,207 +24,383 @@ class AbsensiSeeder extends Seeder
         }
 
         $pengaturan = PengaturanAplikasi::getPengaturan();
-        $lat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
-        $lng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
+        $officeLat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
+        $officeLng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
 
         $today = Carbon::today();
+        $this->command->info("Memulai seeding absensi 1 bulan penuh dan 1 minggu aktif berjalan...");
 
-        // 1. Seed histori 4 hari kerja ke belakang (Senin - kemarin) agar riwayat kehadiran terisi lengkap
-        $this->command->info('Men-generate histori absensi beberapa hari kerja sebelumnya...');
-        for ($i = 4; $i >= 1; $i--) {
-            $tglHistori = $today->copy()->subDays($i);
+        // ──────────────────────────────────────────────────────────────────────────
+        // 1. SEED HISTORI 30 HARI KE BELAKANG (1 BULAN PENUH)
+        // ──────────────────────────────────────────────────────────────────────────
+        $this->command->info("1. Men-generate riwayat presensi 30 hari ke belakang (1 bulan penuh)...");
 
-            // Lewati hari Sabtu dan Minggu
-            if ($tglHistori->isWeekend()) {
+        // Bersihkan data absensi 35 hari terakhir agar tidak duplikat
+        $startDate = $today->copy()->subDays(35);
+        AbsensiHarian::whereBetween('tanggal', [$startDate->format('Y-m-d'), $today->format('Y-m-d')])->delete();
+        LogAbsensi::whereBetween('waktu_absensi', [$startDate->format('Y-m-d 00:00:00'), $today->format('Y-m-d 23:59:59')])->delete();
+
+        for ($i = 30; $i >= 1; $i--) {
+            $currentDate = $today->copy()->subDays($i);
+
+            // Lewati hari Sabtu dan Minggu (hari libur kerja reguler)
+            if ($currentDate->isWeekend()) {
                 continue;
             }
 
-            $tglStr = $tglHistori->format('Y-m-d');
+            $tglStr = $currentDate->format('Y-m-d');
+            $isJumat = ($currentDate->dayOfWeekIso === 5);
+            $jamPulangResmi = $isJumat ? '16:30:00' : '16:00:00';
 
-            foreach ($users as $user) {
+            foreach ($users as $index => $user) {
                 $nomorAbsensi = (string) ($user->nomor_absensi ?? $user->id);
+                $isWfh = ($user->status_kerja === 'wfh');
 
-                // Buat Log Masuk Masa Lalu (07:25:00)
-                $logMasuk = LogAbsensi::firstOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'waktu_absensi' => "{$tglStr} 07:25:00",
-                        'jenis' => 'masuk',
-                    ],
-                    [
-                        'nomor_absensi' => $nomorAbsensi,
-                        'perangkat' => 'mobile',
-                        'metode_verifikasi' => 'gps',
-                        'data_asli' => [
-                            'latitude' => $lat,
-                            'longitude' => $lng,
-                            'status_lokasi' => 'dalam_radius',
-                        ],
-                    ]
-                );
+                // Koordinat: jika WFO di kantor (ada sedikit jitter realistis), jika WFH koordinat bebas
+                $userLat = $isWfh ? ($officeLat + (sin($user->id * 10 + $i) * 0.05)) : ($officeLat + (cos($i + $user->id) * 0.0001));
+                $userLng = $isWfh ? ($officeLng + (cos($user->id * 10 + $i) * 0.05)) : ($officeLng + (sin($i + $user->id) * 0.0001));
+                $lokasiStatus = $isWfh ? 'wfh' : 'dalam_radius';
 
-                // Buat Log Pulang Masa Lalu (16:05:00)
-                $logPulang = LogAbsensi::firstOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'waktu_absensi' => "{$tglStr} 16:05:00",
-                        'jenis' => 'pulang',
-                    ],
-                    [
-                        'nomor_absensi' => $nomorAbsensi,
-                        'perangkat' => 'mobile',
-                        'metode_verifikasi' => 'gps',
-                        'data_asli' => [
-                            'latitude' => $lat,
-                            'longitude' => $lng,
-                            'status_lokasi' => 'dalam_radius',
-                        ],
-                    ]
-                );
+                // Buat variasi status berbasis hash deterministik user + hari agar pola kehadiran natural
+                $hash = ($user->id * 13 + $i * 7) % 100;
 
-                // Absensi Harian Lengkap
-                AbsensiHarian::updateOrCreate(
-                    [
+                // A. SAKIT (3%)
+                if ($hash < 3) {
+                    AbsensiHarian::create([
                         'user_id' => $user->id,
                         'tanggal' => $tglStr,
-                    ],
-                    [
+                        'status' => 'sakit',
+                        'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
+                        'keterangan' => 'Surat Keterangan Dokter (Sakit)',
+                    ]);
+                    continue;
+                }
+
+                // B. IZIN (4%)
+                if ($hash < 7) {
+                    AbsensiHarian::create([
+                        'user_id' => $user->id,
+                        'tanggal' => $tglStr,
+                        'status' => 'izin',
+                        'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
+                        'keterangan' => 'Izin urusan keluarga',
+                    ]);
+                    continue;
+                }
+
+                // C. CUTI (2%)
+                if ($hash < 9) {
+                    AbsensiHarian::create([
+                        'user_id' => $user->id,
+                        'tanggal' => $tglStr,
+                        'status' => 'cuti',
+                        'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
+                        'keterangan' => 'Cuti Tahunan',
+                    ]);
+                    continue;
+                }
+
+                // D. DINAS LUAR (8%)
+                if ($hash < 17) {
+                    AbsensiHarian::create([
+                        'user_id' => $user->id,
+                        'tanggal' => $tglStr,
+                        'status' => 'dinas_luar',
+                        'jenis_kehadiran' => 'dinas_luar',
+                        'jam_masuk' => '07:30:00',
+                        'jam_pulang' => $jamPulangResmi,
+                        'keterangan' => 'Surat Tugas Dinas Luar',
+                    ]);
+                    continue;
+                }
+
+                // E. TIDAK HADIR / ALPA (2%)
+                if ($hash < 19) {
+                    AbsensiHarian::create([
+                        'user_id' => $user->id,
+                        'tanggal' => $tglStr,
+                        'status' => 'tidak_hadir',
+                        'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
+                        'keterangan' => 'Tanpa Keterangan (Alpa)',
+                    ]);
+                    continue;
+                }
+
+                // F. PULANG CEPAT / TIDAK AMBIL ABSEN PULANG (10%)
+                // Datang pagi tercatat, tapi tidak tap pulang (atau tap pulang sebelum jam resmi)
+                if ($hash < 29) {
+                    $jamMasukRandom = '07:' . str_pad((string) (15 + ($hash % 14)), 2, '0', STR_PAD_LEFT) . ':00';
+                    $logMasuk = LogAbsensi::create([
+                        'user_id' => $user->id,
+                        'nomor_absensi' => $nomorAbsensi,
+                        'waktu_absensi' => "{$tglStr} {$jamMasukRandom}",
+                        'perangkat' => 'mobile',
+                        'metode_verifikasi' => 'gps',
+                        'jenis' => 'masuk',
+                        'data_asli' => ['latitude' => $userLat, 'longitude' => $userLng, 'status_lokasi' => $lokasiStatus],
+                    ]);
+
+                    // Sebagian tidak tap pulang sama sekali (belum pulang / dianggap pulang cepat)
+                    $tapSore = ($hash % 2 === 0);
+                    $jamPulangCepat = $tapSore ? '14:' . str_pad((string) (10 + ($hash % 40)), 2, '0', STR_PAD_LEFT) . ':00' : null;
+
+                    $logPulangId = null;
+                    if ($tapSore) {
+                        $logPulang = LogAbsensi::create([
+                            'user_id' => $user->id,
+                            'nomor_absensi' => $nomorAbsensi,
+                            'waktu_absensi' => "{$tglStr} {$jamPulangCepat}",
+                            'perangkat' => 'mobile',
+                            'metode_verifikasi' => 'gps',
+                            'jenis' => 'pulang',
+                            'data_asli' => ['latitude' => $userLat, 'longitude' => $userLng, 'status_lokasi' => $lokasiStatus, 'is_pulang_cepat' => true],
+                        ]);
+                        $logPulangId = $logPulang->id;
+                    }
+
+                    AbsensiHarian::create([
+                        'user_id' => $user->id,
+                        'tanggal' => $tglStr,
                         'status' => 'hadir',
+                        'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
                         'log_masuk_id' => $logMasuk->id,
-                        'jam_masuk' => '07:25:00',
-                        'latitude_masuk' => $lat,
-                        'longitude_masuk' => $lng,
-                        'log_pulang_id' => $logPulang->id,
-                        'jam_pulang' => '16:05:00',
-                        'latitude_pulang' => $lat,
-                        'longitude_pulang' => $lng,
+                        'jam_masuk' => $jamMasukRandom,
+                        'latitude_masuk' => $userLat,
+                        'longitude_masuk' => $userLng,
+                        'log_pulang_id' => $logPulangId,
+                        'jam_pulang' => $jamPulangCepat,
+                        'latitude_pulang' => $logPulangId ? $userLat : null,
+                        'longitude_pulang' => $logPulangId ? $userLng : null,
                         'is_absen_mobile' => true,
-                    ]
-                );
+                        'keterangan' => $tapSore ? 'Pulang Cepat' : 'Tidak Absen Pulang (Dianggap Pulang Cepat)',
+                    ]);
+                    continue;
+                }
+
+                // G. TERLAMBAT (11%)
+                if ($hash < 40) {
+                    $jamMasukTerlambat = '08:' . str_pad((string) (5 + ($hash % 30)), 2, '0', STR_PAD_LEFT) . ':00';
+                    $logMasuk = LogAbsensi::create([
+                        'user_id' => $user->id,
+                        'nomor_absensi' => $nomorAbsensi,
+                        'waktu_absensi' => "{$tglStr} {$jamMasukTerlambat}",
+                        'perangkat' => 'mobile',
+                        'metode_verifikasi' => 'gps',
+                        'jenis' => 'masuk',
+                        'data_asli' => ['latitude' => $userLat, 'longitude' => $userLng, 'status_lokasi' => $lokasiStatus],
+                    ]);
+
+                    $jamPulangNormal = $isJumat ? '16:35:00' : '16:08:00';
+                    $logPulang = LogAbsensi::create([
+                        'user_id' => $user->id,
+                        'nomor_absensi' => $nomorAbsensi,
+                        'waktu_absensi' => "{$tglStr} {$jamPulangNormal}",
+                        'perangkat' => 'mobile',
+                        'metode_verifikasi' => 'gps',
+                        'jenis' => 'pulang',
+                        'data_asli' => ['latitude' => $userLat, 'longitude' => $userLng, 'status_lokasi' => $lokasiStatus],
+                    ]);
+
+                    AbsensiHarian::create([
+                        'user_id' => $user->id,
+                        'tanggal' => $tglStr,
+                        'status' => 'terlambat',
+                        'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
+                        'log_masuk_id' => $logMasuk->id,
+                        'jam_masuk' => $jamMasukTerlambat,
+                        'latitude_masuk' => $userLat,
+                        'longitude_masuk' => $userLng,
+                        'log_pulang_id' => $logPulang->id,
+                        'jam_pulang' => $jamPulangNormal,
+                        'latitude_pulang' => $userLat,
+                        'longitude_pulang' => $userLng,
+                        'is_absen_mobile' => true,
+                        'keterangan' => 'Terlambat Masuk',
+                    ]);
+                    continue;
+                }
+
+                // H. HADIR NORMAL / TEPAT WAKTU (60%)
+                $jamMasukNormal = '07:' . str_pad((string) (15 + ($hash % 14)), 2, '0', STR_PAD_LEFT) . ':00';
+                $jamPulangNormal = $isJumat ? '16:32:' . str_pad((string) ($hash % 50), 2, '0', STR_PAD_LEFT) : '16:05:' . str_pad((string) ($hash % 50), 2, '0', STR_PAD_LEFT);
+
+                $logMasuk = LogAbsensi::create([
+                    'user_id' => $user->id,
+                    'nomor_absensi' => $nomorAbsensi,
+                    'waktu_absensi' => "{$tglStr} {$jamMasukNormal}",
+                    'perangkat' => 'mobile',
+                    'metode_verifikasi' => 'gps',
+                    'jenis' => 'masuk',
+                    'data_asli' => ['latitude' => $userLat, 'longitude' => $userLng, 'status_lokasi' => $lokasiStatus],
+                ]);
+
+                $logPulang = LogAbsensi::create([
+                    'user_id' => $user->id,
+                    'nomor_absensi' => $nomorAbsensi,
+                    'waktu_absensi' => "{$tglStr} {$jamPulangNormal}",
+                    'perangkat' => 'mobile',
+                    'metode_verifikasi' => 'gps',
+                    'jenis' => 'pulang',
+                    'data_asli' => ['latitude' => $userLat, 'longitude' => $userLng, 'status_lokasi' => $lokasiStatus],
+                ]);
+
+                AbsensiHarian::create([
+                    'user_id' => $user->id,
+                    'tanggal' => $tglStr,
+                    'status' => 'hadir',
+                    'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
+                    'log_masuk_id' => $logMasuk->id,
+                    'jam_masuk' => $jamMasukNormal,
+                    'latitude_masuk' => $userLat,
+                    'longitude_masuk' => $userLng,
+                    'log_pulang_id' => $logPulang->id,
+                    'jam_pulang' => $jamPulangNormal,
+                    'latitude_pulang' => $userLat,
+                    'longitude_pulang' => $userLng,
+                    'is_absen_mobile' => true,
+                ]);
             }
         }
 
-        // 2. Khusus HARI INI: Variasi realistis status kehadiran
-        // Doni Aries & sebagian besar pegawai: Hadir Masuk terisi, Pulang KOSONG (Siap coba Absen Pulang)
-        // Dilengkapi variasi: Dinas Luar, Izin, Cuti, Sakit, Terlambat, dan Alpa agar data lengkap & hidup
-        $this->command->info("Menyiapkan absensi HARI INI ({$today->format('Y-m-d')}): Variasi lengkap kehadiran...");
+        // ──────────────────────────────────────────────────────────────────────────
+        // 2. SEED KHUSUS HARI INI (RABU) — MINGGU AKTIF
+        // ──────────────────────────────────────────────────────────────────────────
         $todayStr = $today->format('Y-m-d');
+        $this->command->info("2. Men-generate presensi HARI INI ({$todayStr}): Status aktif siap uji...");
 
-        // Bersihkan log dan data absensi hari ini agar bersih dan konsisten
-        LogAbsensi::whereDate('waktu_absensi', $todayStr)->delete();
-        AbsensiHarian::where('tanggal', $todayStr)->delete();
+        // Pisahkan user: Doni Aries (User ID 5 atau user pertama)
+        $doniUser = $users->firstWhere('id', 5) ?? $users->first();
+        $otherUsers = $users->filter(fn ($u) => $u->id !== $doniUser->id)->values();
 
-        // Pisahkan user non-Doni Aries untuk dialokasikan statusnya secara teratur
-        $otherUsers = $users->filter(fn ($u) => $u->id !== 5)->values();
-
-        // Alokasi indeks spesifik untuk variasi realistis
+        // Variasi alokasi untuk hari ini
         $dinasLuarUsers = $otherUsers->slice(0, 4);   // 4 orang DL
         $izinUsers      = $otherUsers->slice(4, 3);   // 3 orang Izin
         $sakitUsers     = $otherUsers->slice(7, 2);   // 2 orang Sakit
         $cutiUsers      = $otherUsers->slice(9, 1);   // 1 orang Cuti
-        $alpaUsers      = $otherUsers->slice(10, 1);  // 1 orang Alpa
-        $terlambatUsers = $otherUsers->slice(11, 5);  // 5 orang Terlambat
-        $hadirLainUsers = $otherUsers->slice(16);     // Sisanya hadir normal
+        $alpaUsers      = $otherUsers->slice(10, 2);  // 2 orang Belum Hadir / Alpa
+        $terlambatUsers = $otherUsers->slice(12, 5);  // 5 orang Terlambat (sudah masuk, belum pulang)
+        $tidakPulangUsers = $otherUsers->slice(17, 6); // 6 orang Tidak Tap Pulang (status Pulang Cepat untuk uji konfirmasi admin)
+        $hadirLainUsers = $otherUsers->slice(23);     // Sisanya hadir normal (sudah masuk, siap absen pulang)
 
-        // 1) Doni Aries (User ID 5): Hadir Tepat Waktu, Pulang KOSONG (Siap coba demo tombol Absen Pulang)
-        $doniUser = $users->firstWhere('id', 5) ?? $users->first();
-        if ($doniUser) {
-            $logDoni = LogAbsensi::create([
-                'user_id' => $doniUser->id,
-                'jenis' => 'masuk',
-                'waktu_absensi' => "{$todayStr} 07:22:15",
-                'nomor_absensi' => (string) ($doniUser->nomor_absensi ?? $doniUser->id),
-                'perangkat' => 'mobile',
-                'metode_verifikasi' => 'gps',
-                'data_asli' => [
-                    'latitude' => $lat,
-                    'longitude' => $lng,
-                    'status_lokasi' => 'dalam_radius',
-                ],
-            ]);
+        // 1) Doni Aries: Hadir Masuk Terisi (07:22:15 WIB), Jam Pulang KOSONG
+        // (Siap untuk mendemokan tombol ABSEN PULANG langsung dari layar aplikasi!)
+        $logDoni = LogAbsensi::create([
+            'user_id' => $doniUser->id,
+            'jenis' => 'masuk',
+            'waktu_absensi' => "{$todayStr} 07:22:15",
+            'nomor_absensi' => (string) ($doniUser->nomor_absensi ?? $doniUser->id),
+            'perangkat' => 'mobile',
+            'metode_verifikasi' => 'gps',
+            'data_asli' => [
+                'latitude' => $officeLat,
+                'longitude' => $officeLng,
+                'status_lokasi' => 'dalam_radius',
+            ],
+        ]);
 
-            AbsensiHarian::create([
-                'user_id' => $doniUser->id,
-                'tanggal' => $todayStr,
-                'status' => 'hadir',
-                'jenis_kehadiran' => 'wfo',
-                'log_masuk_id' => $logDoni->id,
-                'jam_masuk' => '07:22:15',
-                'latitude_masuk' => $lat,
-                'longitude_masuk' => $lng,
-                'log_pulang_id' => null,
-                'jam_pulang' => null,
-                'latitude_pulang' => null,
-                'longitude_pulang' => null,
-                'is_absen_mobile' => true,
-                'keterangan' => 'Hadir Masuk (Siap Uji Absen Pulang)',
-            ]);
-        }
+        AbsensiHarian::create([
+            'user_id' => $doniUser->id,
+            'tanggal' => $todayStr,
+            'status' => 'hadir',
+            'jenis_kehadiran' => $doniUser->status_kerja === 'wfh' ? 'wfh' : 'wfo',
+            'log_masuk_id' => $logDoni->id,
+            'jam_masuk' => '07:22:15',
+            'latitude_masuk' => $officeLat,
+            'longitude_masuk' => $officeLng,
+            'log_pulang_id' => null,
+            'jam_pulang' => null,
+            'is_absen_mobile' => true,
+            'keterangan' => 'Hadir Masuk (Siap Demo Absen Pulang)',
+        ]);
 
-        // 2) Pegawai Hadir Normal (Tepat Waktu, Pulang KOSONG)
+        // 2) Pegawai Hadir Normal (Sudah Datang, Belum Pulang)
         foreach ($hadirLainUsers as $user) {
+            $isWfh = ($user->status_kerja === 'wfh');
+            $uLat = $isWfh ? ($officeLat + 0.04) : $officeLat;
+            $uLng = $isWfh ? ($officeLng + 0.04) : $officeLng;
+
             $logMasuk = LogAbsensi::create([
                 'user_id' => $user->id,
                 'jenis' => 'masuk',
-                'waktu_absensi' => "{$todayStr} 07:25:00",
+                'waktu_absensi' => "{$todayStr} 07:24:45",
                 'nomor_absensi' => (string) ($user->nomor_absensi ?? $user->id),
                 'perangkat' => 'mobile',
                 'metode_verifikasi' => 'gps',
-                'data_asli' => [
-                    'latitude' => $lat,
-                    'longitude' => $lng,
-                    'status_lokasi' => 'dalam_radius',
-                ],
+                'data_asli' => ['latitude' => $uLat, 'longitude' => $uLng, 'status_lokasi' => $isWfh ? 'wfh' : 'dalam_radius'],
             ]);
 
             AbsensiHarian::create([
                 'user_id' => $user->id,
                 'tanggal' => $todayStr,
                 'status' => 'hadir',
-                'jenis_kehadiran' => 'wfo',
+                'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
                 'log_masuk_id' => $logMasuk->id,
-                'jam_masuk' => '07:25:00',
-                'latitude_masuk' => $lat,
-                'longitude_masuk' => $lng,
+                'jam_masuk' => '07:24:45',
+                'latitude_masuk' => $uLat,
+                'longitude_masuk' => $uLng,
                 'log_pulang_id' => null,
                 'jam_pulang' => null,
                 'is_absen_mobile' => true,
             ]);
         }
 
-        // 3) Pegawai Terlambat Masuk (Jam 08:18 WIB)
+        // 3) Pegawai Tidak Ambil Absen Pulang (Dianggap Pulang Cepat — untuk demo Tombol Konfirmasi Admin)
+        foreach ($tidakPulangUsers as $user) {
+            $logMasuk = LogAbsensi::create([
+                'user_id' => $user->id,
+                'jenis' => 'masuk',
+                'waktu_absensi' => "{$todayStr} 07:18:20",
+                'nomor_absensi' => (string) ($user->nomor_absensi ?? $user->id),
+                'perangkat' => 'mobile',
+                'metode_verifikasi' => 'gps',
+                'data_asli' => ['latitude' => $officeLat, 'longitude' => $officeLng, 'status_lokasi' => 'dalam_radius'],
+            ]);
+
+            AbsensiHarian::create([
+                'user_id' => $user->id,
+                'tanggal' => $todayStr,
+                'status' => 'hadir',
+                'jenis_kehadiran' => $user->status_kerja === 'wfh' ? 'wfh' : 'wfo',
+                'log_masuk_id' => $logMasuk->id,
+                'jam_masuk' => '07:18:20',
+                'latitude_masuk' => $officeLat,
+                'longitude_masuk' => $officeLng,
+                'log_pulang_id' => null,
+                'jam_pulang' => null,
+                'is_absen_mobile' => true,
+                'keterangan' => 'Belum Absen Pulang (Dianggap Pulang Cepat)',
+            ]);
+        }
+
+        // 4) Terlambat Masuk (08:15:00 WIB)
         foreach ($terlambatUsers as $user) {
             $logMasuk = LogAbsensi::create([
                 'user_id' => $user->id,
                 'jenis' => 'masuk',
-                'waktu_absensi' => "{$todayStr} 08:18:30",
+                'waktu_absensi' => "{$todayStr} 08:15:00",
                 'nomor_absensi' => (string) ($user->nomor_absensi ?? $user->id),
                 'perangkat' => 'mobile',
                 'metode_verifikasi' => 'gps',
-                'data_asli' => [
-                    'latitude' => $lat,
-                    'longitude' => $lng,
-                    'status_lokasi' => 'dalam_radius',
-                ],
+                'data_asli' => ['latitude' => $officeLat, 'longitude' => $officeLng, 'status_lokasi' => 'dalam_radius'],
             ]);
 
             AbsensiHarian::create([
                 'user_id' => $user->id,
                 'tanggal' => $todayStr,
                 'status' => 'terlambat',
-                'jenis_kehadiran' => 'wfo',
+                'jenis_kehadiran' => $user->status_kerja === 'wfh' ? 'wfh' : 'wfo',
                 'log_masuk_id' => $logMasuk->id,
-                'jam_masuk' => '08:18:30',
-                'latitude_masuk' => $lat,
-                'longitude_masuk' => $lng,
+                'jam_masuk' => '08:15:00',
+                'latitude_masuk' => $officeLat,
+                'longitude_masuk' => $officeLng,
                 'log_pulang_id' => null,
                 'jam_pulang' => null,
                 'is_absen_mobile' => true,
-                'keterangan' => 'Terlambat masuk kerja',
+                'keterangan' => 'Terlambat Masuk',
             ]);
         }
 
-        // 4) Pegawai Dinas Luar (Lengkap Masuk & Pulang)
+        // 5) Dinas Luar Hari Ini
         foreach ($dinasLuarUsers as $user) {
             AbsensiHarian::create([
                 'user_id' => $user->id,
@@ -233,62 +409,51 @@ class AbsensiSeeder extends Seeder
                 'jenis_kehadiran' => 'dinas_luar',
                 'jam_masuk' => '07:30:00',
                 'jam_pulang' => '16:00:00',
-                'keterangan' => 'Tugas Dinas Luar Koordinasi Pemprov Sumbar',
+                'keterangan' => 'Dinas Luar Resmi Disetujui',
             ]);
         }
 
-        // 5) Pegawai Izin
+        // 6) Izin, Sakit, Cuti, Alpa
         foreach ($izinUsers as $user) {
             AbsensiHarian::create([
                 'user_id' => $user->id,
                 'tanggal' => $todayStr,
                 'status' => 'izin',
                 'jenis_kehadiran' => 'wfo',
-                'jam_masuk' => null,
-                'jam_pulang' => null,
-                'keterangan' => 'Izin keperluan urusan keluarga',
+                'keterangan' => 'Izin Resmi Disetujui',
             ]);
         }
 
-        // 6) Pegawai Sakit
         foreach ($sakitUsers as $user) {
             AbsensiHarian::create([
                 'user_id' => $user->id,
                 'tanggal' => $todayStr,
                 'status' => 'sakit',
                 'jenis_kehadiran' => 'wfo',
-                'jam_masuk' => null,
-                'jam_pulang' => null,
-                'keterangan' => 'Sakit demam / istirahat dokter',
+                'keterangan' => 'Sakit dengan Surat Dokter',
             ]);
         }
 
-        // 7) Pegawai Cuti
         foreach ($cutiUsers as $user) {
             AbsensiHarian::create([
                 'user_id' => $user->id,
                 'tanggal' => $todayStr,
                 'status' => 'cuti',
                 'jenis_kehadiran' => 'wfo',
-                'jam_masuk' => null,
-                'jam_pulang' => null,
-                'keterangan' => 'Cuti tahunan yang disetujui',
+                'keterangan' => 'Cuti Tahunan Disetujui',
             ]);
         }
 
-        // 8) Pegawai Tanpa Keterangan / Alpa
         foreach ($alpaUsers as $user) {
             AbsensiHarian::create([
                 'user_id' => $user->id,
                 'tanggal' => $todayStr,
                 'status' => 'tidak_hadir',
                 'jenis_kehadiran' => 'wfo',
-                'jam_masuk' => null,
-                'jam_pulang' => null,
-                'keterangan' => 'Tanpa keterangan (Alpa)',
+                'keterangan' => 'Tidak Hadir / Alpa',
             ]);
         }
 
-        $this->command->info("Absensi berhasil di-seed! Hari ini ({$todayStr}): Variasi lengkap (Hadir, Terlambat, DL, Izin, Cuti, Sakit, Alpa) telah tersinkronisasi 100% dengan total pegawai.");
+        $this->command->info("Seeder Presensi 1 Bulan Penuh & Minggu Aktif Berhasil Diselesaikan!");
     }
 }

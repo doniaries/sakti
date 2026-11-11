@@ -135,15 +135,20 @@ flowchart TD
     K4 --> K5
 ```
 
-### Aturan Presensi Khusus
+### Aturan Presensi Khusus & Fleksibilitas Kerja
 1. **Hari Jumat Otomatis**:
    Sistem otomatis mengenali hari Jumat (`jam_pulang_jumat: 16:30`) tanpa perlu perubahan manual.
 2. **Pegawai Dinas Luar (DL)**:
    Surat tugas DL yang disetujui otomatis mencatatkan kehadiran penuh dan membuka akses pengisian LHK.
-3. **Pemberian Jam Pulang Massal (1-Klik Admin)**:
-   Untuk pegawai yang hadir pagi tetapi lupa tap pulang, admin instansi memiliki tombol bulk action *"Set Jam Pulang Massal"* di tab **Belum Pulang** untuk menyelaraskan status dalam 1 klik.
-4. **Pegawai WFH**:
-   Pegawai dengan `status_kerja = 'wfh'` dibebaskan dari pembatasan radius geofencing kantor.
+3. **Pegawai WFH (Work From Home) Bebas Lokasi & Radius**:
+   - Pegawai dengan tipe kerja WFH (`status_kerja = 'wfh'`) dapat melakukan **Absen Datang** dan **Absen Pulang** dari mana saja secara fleksibel melalui Mobile PWA tanpa terikat batasan radius maupun titik koordinat GPS kantor.
+   - Sistem otomatis menandai kehadiran sebagai mode WFH (`status_lokasi = 'wfh'`), mengizinkan pencatatan presensi di luar radius kantor, dan menampilkan indikator hijau "Bebas WFH".
+4. **Pegawai Tidak Ambil Absen Pulang (Dianggap Pulang Cepat & Dikonfirmasi Admin)**:
+   - Pegawai yang sudah melakukan Absen Datang di pagi hari namun **tidak mengambil Absen Pulang** sampai jendela absensi berakhir, secara otomatis dikategorikan sebagai **Pulang Cepat / Belum Pulang** pada dashboard dan rekap kehadiran.
+   - Status ini dapat **dikonfirmasi dan disahkan oleh Admin Absensi** di Panel Filament:
+     - **Aksi Individual (Tombol *Konfirmasi Pulang*)**: Memungkinkan admin mengisi jam pulang resmi dan mengesahkan kehadiran pegawai yang bersangkutan secara personal setelah menerima konfirmasi dinas.
+     - **Aksi Massal (Tombol *Verifikasi Jam Pulang Massal*)**: Pada tab filter *Belum Pulang / Pulang Cepat*, admin dapat memilih seluruh pegawai tertinggal dan menyelaraskan jam pulang resmi secara serentak dalam 1 detik.
+     - Setelah dikonfirmasi admin, status kehadiran berubah menjadi **Lengkap (Disahkan Admin)** dan hak pengisian LHK pegawai otomatis terbuka.
 
 ---
 

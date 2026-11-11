@@ -150,7 +150,6 @@ class AttendancePunchService
                 'perangkat' => 'mobile',
                 'metode_verifikasi' => 'gps',
                 'jenis' => 'masuk',
-                'sumber' => 'Mobile PWA',
                 'data_asli' => [
                     'latitude' => $lat,
                     'longitude' => $lng,
@@ -221,7 +220,6 @@ class AttendancePunchService
                 'perangkat' => 'mobile',
                 'metode_verifikasi' => 'gps',
                 'jenis' => 'pulang',
-                'sumber' => 'Mobile PWA',
                 'data_asli' => [
                     'latitude' => $lat,
                     'longitude' => $lng,

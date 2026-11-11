@@ -236,6 +236,30 @@ class AbsensiHariansTable
                     }),
                 EditAction::make(),
 
+                // ─── Konfirmasi Jam Pulang (Bagi yang tidak ambil absen pulang / pulang cepat) ───
+                Action::make('konfirmasi_jam_pulang')
+                    ->label('Konfirmasi Pulang')
+                    ->icon('heroicon-m-check-badge')
+                    ->color('warning')
+                    ->visible(fn ($record) => !empty($record->jam_masuk) && empty($record->jam_pulang))
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Kehadiran & Set Jam Pulang')
+                    ->modalDescription(fn ($record) => "Pegawai {$record->user?->name} tercatat masuk pukul {$record->jam_masuk} tetapi belum mengambil absen pulang (pulang cepat/lupa tap). Konfirmasi untuk mengisi jam pulang resmi dan mengesahkan kehadiran.")
+                    ->action(function ($record) {
+                        $jadwal = $record->user?->getJadwalKerja() ?? \App\Models\JadwalKerja::getDefault();
+                        $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($record->tanggal) : '16:00';
+                        $jamFix = strlen($jamPulangResmi) === 5 ? $jamPulangResmi . ':00' : $jamPulangResmi;
+                        $record->update([
+                            'jam_pulang' => $jamFix,
+                            'keterangan' => 'Dikonfirmasi Admin: Jam Pulang Disahkan',
+                        ]);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Jam Pulang Berhasil Dikonfirmasi')
+                            ->body("Kehadiran {$record->user?->name} telah disahkan.")
+                            ->success()
+                            ->send();
+                    }),
+
                 // ─── Buat LHK → Modal Slide-Over ──────────────────────────────
                 Action::make('buat_lhk')
                     ->label('Buat LHK')
