@@ -20,8 +20,10 @@ class PengajuanSpjInfolist
         return $schema
             ->columns(12)
             ->components([
-                Section::make('Informasi Pengajuan')
-                    ->columnSpan(['default' => 12, 'lg' => 5])
+                // Bagian Informasi Pengajuan (Tanpa Heading Teks agar Lapang dan Bersih)
+                Section::make()
+                    ->columnSpanFull()
+                    ->compact()
                     ->schema([
                         TextEntry::make('nomor_pengajuan')
                             ->label('No. Pengajuan')
@@ -48,21 +50,20 @@ class PengajuanSpjInfolist
                             ->label('Tgl Pengajuan')
                             ->date('d/m/Y'),
 
-                        // Nama toko / penyedia diletakkan terpisah
                         TextEntry::make('nama_penyedia')
                             ->label('Penyedia')
                             ->badge()
                             ->color('success')
                             ->state(fn(PengajuanSpj $record): string => $record->nama_toko ?: ($record->masterToko?->nama_toko ?: '-')),
 
-                        // Kegiatan & Sub Kegiatan berdekatan
+                        // Kegiatan & Sub Kegiatan dibuat Sebaris
                         TextEntry::make('kegiatan.nama_kegiatan')
                             ->label('Kegiatan')
-                            ->columnSpanFull(),
+                            ->columnSpan(['default' => 2, 'sm' => 3, 'md' => 3]),
 
                         TextEntry::make('subKegiatan.nama_sub_kegiatan')
                             ->label('Sub Kegiatan')
-                            ->columnSpanFull(),
+                            ->columnSpan(['default' => 2, 'sm' => 3, 'md' => 3]),
 
                         TextEntry::make('catatan_revisi')
                             ->label('Catatan Perbaikan / Revisi')
@@ -70,50 +71,63 @@ class PengajuanSpjInfolist
                             ->visible(fn(PengajuanSpj $record): bool => filled($record->catatan_revisi) && str_contains($record->status, 'revisi'))
                             ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(['default' => 2, 'sm' => 3, 'md' => 6]),
 
-                Section::make('Rincian Barang & Volume')
-                    ->columnSpan(['default' => 12, 'lg' => 7])
+                // Bagian Rincian Barang (Tanpa Heading Teks agar Lapang dan Langsung ke Tabel)
+                Section::make()
+                    ->columnSpanFull()
+                    ->compact()
                     ->schema([
                         RepeatableEntry::make('details')
                             ->hiddenLabel()
+                            ->contained(false)
+                            ->extraAttributes([
+                                'class' => 'max-h-[220px] overflow-y-auto space-y-1.5 pr-1 divide-y divide-gray-100 dark:divide-gray-800',
+                            ])
                             ->schema([
                                 TextEntry::make('nama_barang')
                                     ->label('Uraian Barang')
                                     ->weight('bold')
-                                    ->columnSpan(3),
+                                    ->size(TextSize::Small)
+                                    ->columnSpan(['default' => 12, 'md' => 4]),
 
                                 TextEntry::make('keterangan')
                                     ->label('Keterangan')
                                     ->placeholder('-')
-                                    ->columnSpan(2),
+                                    ->size(TextSize::Small)
+                                    ->columnSpan(['default' => 12, 'md' => 2]),
 
                                 TextEntry::make('volume')
                                     ->label('Volume')
+                                    ->size(TextSize::Small)
                                     ->state(fn(DetailPengajuanSpj $record): string => number_format((float) ($record->kuantitas_realisasi ?: $record->kuantitas), 0, ',', '.') . ' ' . $record->satuan_nama)
-                                    ->columnSpan(2),
+                                    ->columnSpan(['default' => 12, 'md' => 2]),
 
                                 TextEntry::make('harga_satuan_item')
                                     ->label('Harga Satuan')
+                                    ->size(TextSize::Small)
                                     ->state(fn(DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->harga_realisasi ?: $record->harga_satuan)))
-                                    ->columnSpan(2),
+                                    ->columnSpan(['default' => 12, 'md' => 2]),
 
                                 TextEntry::make('subtotal')
                                     ->label('Total Uang')
                                     ->weight('bold')
                                     ->color('warning')
+                                    ->size(TextSize::Small)
+                                    ->alignment(Alignment::End)
                                     ->state(fn(DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->subtotal_realisasi ?: $record->subtotal)))
-                                    ->columnSpan(3),
+                                    ->columnSpan(['default' => 12, 'md' => 2]),
                             ])
                             ->columns(12),
 
-                        // Total belanja diletakkan di bawah rincian barang
+                        // Total belanja diletakkan di bawah rincian barang secara inline
                         TextEntry::make('total_belanja_bawah')
                             ->label('Total Belanja (Nilai Kwitansi)')
-                            ->size(TextSize::Large)
+                            ->size(TextSize::Medium)
                             ->weight('bold')
                             ->color('warning')
                             ->alignment(Alignment::End)
+                            ->inlineLabel()
                             ->state(function (PengajuanSpj $record): string {
                                 $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
 

@@ -570,6 +570,57 @@ html:not(.dark) .laporan-table tbody tr:hover td {
     min-height: 280px;
 }
 
+/* ==========================================================================
+   Modal Sticky Header & Footer Background Fix (Anti Tembus Teks)
+   ========================================================================== */
+.fi-modal-window {
+    overflow: hidden !important;
+}
+
+.fi-modal-header {
+    background-color: #ffffff !important;
+    z-index: 20 !important;
+}
+
+.dark .fi-modal-header {
+    background-color: #18181b !important;
+}
+
+.fi-modal-header.fi-sticky {
+    position: sticky !important;
+    top: 0 !important;
+    background-color: #ffffff !important;
+    z-index: 20 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark .fi-modal-header.fi-sticky {
+    background-color: #18181b !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.fi-modal-footer {
+    background-color: #ffffff !important;
+    z-index: 20 !important;
+}
+
+.dark .fi-modal-footer {
+    background-color: #18181b !important;
+}
+
+.fi-modal-footer.fi-sticky {
+    position: sticky !important;
+    bottom: 0 !important;
+    background-color: #ffffff !important;
+    z-index: 20 !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark .fi-modal-footer.fi-sticky {
+    background-color: #18181b !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
 
 
 
