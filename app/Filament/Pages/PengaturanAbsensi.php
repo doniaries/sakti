@@ -144,3 +144,4 @@ class PengaturanAbsensi extends Page
             ->send();
     }
 }
+
