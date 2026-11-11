@@ -107,9 +107,9 @@ class PengajuanSpjInfolist
 
                         return "
                             <div class='rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900 shadow-2xs'>
-                                <div class='overflow-y-auto' style='max-height: 180px; overflow-y: auto; display: block;'>
+                                <div class='spj-table-scroll' style='max-height: 125px; overflow-y: scroll; display: block;'>
                                     <table class='w-full text-left border-collapse'>
-                                        <thead class='bg-gray-100/90 dark:bg-gray-800/90 sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700 text-[11px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 shadow-2xs'>
+                                        <thead class='bg-gray-100 dark:bg-gray-800 sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700 text-[11px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 shadow-2xs'>
                                             <tr>
                                                 <th class='px-3 py-2 text-center w-10'>No</th>
                                                 <th class='px-3 py-2'>Uraian Barang</th>
@@ -137,6 +137,7 @@ class PengajuanSpjInfolist
                     ->alignment(Alignment::End)
                     ->inlineLabel()
                     ->columnSpanFull()
+                    ->extraAttributes(['class' => 'pt-2'])
                     ->state(function (PengajuanSpj $record): string {
                         $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
 

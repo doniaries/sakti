@@ -571,97 +571,34 @@ html:not(.dark) .laporan-table tbody tr:hover td {
 }
 
 /* ==========================================================================
-   Modal Sticky Header & Footer Background Fix (Anti Tembus Teks & Anti Off-Screen)
+   Scrollable Items Table di Infolist Modal SPJ
    ========================================================================== */
-.fi-modal-window {
-    max-height: calc(100vh - 3.5rem) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
+.spj-table-scroll {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(156, 163, 175, 0.7) rgba(0, 0, 0, 0.05) !important;
 }
 
-.fi-modal-window .fi-modal-content {
-    overflow-y: auto !important;
-    flex: 1 1 auto !important;
-}
-
-.fi-modal-header {
-    background-color: #ffffff !important;
-    z-index: 20 !important;
-}
-
-.dark .fi-modal-header {
-    background-color: #18181b !important;
-}
-
-.fi-modal-header.fi-sticky {
-    position: sticky !important;
-    top: 0 !important;
-    background-color: #ffffff !important;
-    z-index: 20 !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-.dark .fi-modal-header.fi-sticky {
-    background-color: #18181b !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.fi-modal-footer {
-    background-color: #ffffff !important;
-    z-index: 20 !important;
-}
-
-.dark .fi-modal-footer {
-    background-color: #18181b !important;
-}
-
-.fi-modal-footer.fi-sticky {
-    position: sticky !important;
-    bottom: 0 !important;
-    background-color: #ffffff !important;
-    z-index: 20 !important;
-    border-top: 1px solid rgba(0, 0, 0, 0.08) !important;
-}
-
-.dark .fi-modal-footer.fi-sticky {
-    background-color: #18181b !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-/* ==========================================================================
-   Scrollable Items Container di Infolist Modal SPJ
-   ========================================================================== */
-.spj-section-scroll {
-    max-height: 200px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-}
-
-.spj-section-scroll::-webkit-scrollbar {
+.spj-table-scroll::-webkit-scrollbar {
     width: 6px !important;
-}
-
-.spj-section-scroll::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.04) !important;
-    border-radius: 4px !important;
-}
-
-.spj-section-scroll::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.6) !important;
-    border-radius: 4px !important;
-}
-
-.dark .spj-section-scroll::-webkit-scrollbar-thumb {
-    background: rgba(107, 114, 128, 0.6) !important;
-}
-
-.spj-rincian-scroll {
     display: block !important;
-    max-height: 220px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    padding-right: 6px !important;
+}
+
+.spj-table-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border-radius: 4px !important;
+}
+
+.spj-table-scroll::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.7) !important;
+    border-radius: 4px !important;
+}
+
+.dark .spj-table-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .spj-table-scroll::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.4) !important;
 }
 
 .spj-rincian-scroll::-webkit-scrollbar {
