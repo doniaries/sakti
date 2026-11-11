@@ -17,7 +17,7 @@
         ?? data_get(request()->query('filters'), 'bidang_id.value')
         ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
 
-    $selectedBulan = request()->query('bulan');
+    $rawBulan = request()->query('bulan');
     $selectedTanggal = request()->query('tanggal');
 
     if (request()->is('livewire/*') && request()->header('Referer')) {
@@ -29,11 +29,22 @@
                 ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
         }
         if (! request()->has('bulan')) {
-            $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
+            $rawBulan = $rawBulan ?? ($refererQuery['bulan'] ?? null);
         }
         if (! request()->has('tanggal')) {
             $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
         }
+    }
+
+    // Default bulan adalah bulan aktif saat ini (misal: November) kecuali pengguna memilih 'all'
+    if (filled($selectedTanggal)) {
+        $selectedBulan = (int) date('n', strtotime($selectedTanggal));
+    } else {
+        $selectedBulan = match (true) {
+            $rawBulan === 'all' => null,
+            filled($rawBulan) => (int) $rawBulan,
+            default => (int) date('n'),
+        };
     }
 
     if (filled($selectedBidangId)) {
@@ -97,7 +108,7 @@
             onchange="applyTableSpjFilter()"
             class="h-8 rounded-lg border border-gray-300 bg-white px-2.5 py-1 text-xs font-semibold text-gray-800 shadow-xs transition hover:border-primary-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 cursor-pointer"
         >
-            <option value="" {{ empty($selectedBulan) ? 'selected' : '' }}>Semua Bulan</option>
+            <option value="all" {{ $selectedBulan === null ? 'selected' : '' }}>Semua Bulan</option>
             @foreach ($daftarBulan as $num => $nama)
                 <option value="{{ $num }}" {{ (int) $selectedBulan === (int) $num ? 'selected' : '' }}>
                     {{ $nama }}
@@ -180,12 +191,27 @@
 
         if (bulanEl && bulanEl.value) {
             url.searchParams.set('bulan', bulanEl.value);
+            // Jika tanggal yang dipilih berada di bulan yang berbeda, reset tanggal
+            if (tanggalEl && tanggalEl.value && bulanEl.value !== 'all') {
+                const parts = tanggalEl.value.split('-');
+                if (parts.length === 3 && parseInt(parts[1], 10) !== parseInt(bulanEl.value, 10)) {
+                    url.searchParams.delete('tanggal');
+                }
+            }
         } else {
             url.searchParams.delete('bulan');
         }
 
         if (tanggalEl && tanggalEl.value) {
             url.searchParams.set('tanggal', tanggalEl.value);
+            // Otomatis sinkronkan bulan dengan bulan dari tanggal yang dipilih
+            const parts = tanggalEl.value.split('-');
+            if (parts.length === 3) {
+                const m = parseInt(parts[1], 10);
+                if (m >= 1 && m <= 12) {
+                    url.searchParams.set('bulan', m);
+                }
+            }
         } else {
             url.searchParams.delete('tanggal');
         }

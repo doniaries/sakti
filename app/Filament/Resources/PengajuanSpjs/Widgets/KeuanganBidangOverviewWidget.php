@@ -74,7 +74,15 @@ class KeuanganBidangOverviewWidget extends StatsOverviewWidget
             $this->selectedBidangId = null;
         }
 
-        $this->selectedBulan = filled($queryBulan) ? (int) $queryBulan : null;
+        if (filled($this->selectedTanggal)) {
+            $this->selectedBulan = (int) date('n', strtotime($this->selectedTanggal));
+        } else {
+            $this->selectedBulan = match (true) {
+                $queryBulan === 'all' => null,
+                filled($queryBulan) => (int) $queryBulan,
+                default => (int) date('n'),
+            };
+        }
         $this->selectedTanggal = filled($queryTanggal) ? (string) $queryTanggal : null;
 
         $this->selectedTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();

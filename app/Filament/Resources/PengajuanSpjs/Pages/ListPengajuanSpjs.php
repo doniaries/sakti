@@ -50,7 +50,7 @@ class ListPengajuanSpjs extends ListRecords
             ?? data_get(request()->query('filters'), 'bidang_id.value')
             ?? data_get(request()->query('tableFilters'), 'bidang_id.value');
 
-        $selectedBulan = request()->query('bulan');
+        $rawBulan = request()->query('bulan');
         $selectedTanggal = request()->query('tanggal');
 
         // Khusus saat request internal Livewire AJAX, sinkronkan dari URL aktif (Referer) jika parameter query belum ada
@@ -63,11 +63,22 @@ class ListPengajuanSpjs extends ListRecords
                     ?? data_get($refererQuery, 'tableFilters.bidang_id.value'));
             }
             if (! request()->has('bulan')) {
-                $selectedBulan = $selectedBulan ?? ($refererQuery['bulan'] ?? null);
+                $rawBulan = $rawBulan ?? ($refererQuery['bulan'] ?? null);
             }
             if (! request()->has('tanggal')) {
                 $selectedTanggal = $selectedTanggal ?? ($refererQuery['tanggal'] ?? null);
             }
+        }
+
+        // Default bulan adalah bulan aktif saat ini kecuali jika pengguna memilih 'all'
+        if (filled($selectedTanggal)) {
+            $selectedBulan = (int) date('n', strtotime($selectedTanggal));
+        } else {
+            $selectedBulan = match (true) {
+                $rawBulan === 'all' => null,
+                filled($rawBulan) => (int) $rawBulan,
+                default => (int) date('n'),
+            };
         }
 
         $tahunAktif = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
