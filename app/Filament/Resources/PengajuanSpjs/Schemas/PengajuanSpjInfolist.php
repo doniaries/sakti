@@ -82,7 +82,8 @@ class PengajuanSpjInfolist
                             ->hiddenLabel()
                             ->contained(false)
                             ->extraAttributes([
-                                'class' => 'max-h-[220px] overflow-y-auto space-y-1.5 pr-1 divide-y divide-gray-100 dark:divide-gray-800',
+                                'class' => 'spj-rincian-scroll space-y-1.5 pr-1 divide-y divide-gray-100 dark:divide-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/5 p-2',
+                                'style' => 'max-height: 220px !important; overflow-y: auto !important; display: block !important;',
                             ])
                             ->schema([
                                 TextEntry::make('nama_barang')
