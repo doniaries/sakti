@@ -58,4 +58,54 @@ class HariLibur extends Model
             ->where('is_aktif', true)
             ->first();
     }
+
+    /**
+     * Sinkronkan data hari libur nasional & cuti bersama otomatis dari API SKB
+     */
+    public static function syncFromApi(int $year): int
+    {
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->timeout(10)
+                ->get("https://api-hari-libur.vercel.app/api?year={$year}");
+            if (!$response->successful()) {
+                return 0;
+            }
+
+            $json = $response->json();
+            $data = $json['data'] ?? [];
+            if (!is_array($data) || empty($data)) {
+                return 0;
+            }
+
+            $count = 0;
+            foreach ($data as $item) {
+                if (empty($item['date']) || empty($item['description'])) {
+                    continue;
+                }
+
+                $tanggal = $item['date'];
+                $nama = trim($item['description']);
+                $isCuti = str_contains(strtolower($nama), 'cuti bersama');
+                $jenis = $isCuti ? 'cuti_bersama' : 'nasional';
+
+                static::updateOrCreate(
+                    ['tanggal' => $tanggal],
+                    [
+                        'nama' => $nama,
+                        'jenis' => $jenis,
+                        'sumber' => 'api',
+                        'keterangan' => 'Disinkronkan otomatis dari API Resmi SKB Hari Libur Nasional & Cuti Bersama.',
+                        'is_aktif' => true,
+                    ]
+                );
+                $count++;
+            }
+
+            return $count;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal sinkronisasi hari libur dari API: ' . $e->getMessage());
+            return 0;
+        }
+    }
 }

@@ -165,6 +165,7 @@ class AttendancePunchService
 
             $absenHarian->update([
                 'status' => $status,
+                'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
                 'log_masuk_id' => $log->id,
                 'jam_masuk' => $now,
                 'latitude_masuk' => $lat,
@@ -252,6 +253,10 @@ class AttendancePunchService
                 'longitude_pulang' => $lng,
                 'is_absen_mobile' => true,
             ];
+
+            if ($isWfh) {
+                $updateData['jenis_kehadiran'] = 'wfh';
+            }
 
             if ($extraKet && empty($absenHarian->keterangan)) {
                 $updateData['keterangan'] = $extraKet;

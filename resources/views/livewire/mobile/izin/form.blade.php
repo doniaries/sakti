@@ -7,14 +7,14 @@
         </a>
         <div>
             <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Form Pengajuan</h1>
-            <p class="text-xs text-slate-500 font-medium">Izin, Sakit, Cuti & WFH Pegawai</p>
+            <p class="text-xs text-slate-500 font-medium">Izin, Sakit & Cuti Pegawai</p>
         </div>
     </div>
 
-    <!-- Category Filter Selector -->
+    <!-- Category Filter Selector (Izin, Sakit, Cuti) -->
     <div class="mb-5">
         <label class="block text-xs font-bold text-slate-700 mb-2">Kategori Pengajuan</label>
-        <div class="grid grid-cols-4 gap-2">
+        <div class="grid grid-cols-3 gap-2">
             <button type="button" wire:click="setKategori('izin')"
                     class="py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'izin' ? 'bg-sky-50 border-sky-500 text-sky-700 ring-2 ring-sky-500/20' : 'bg-white border-slate-200 text-slate-600' }}">
                 <i class="fa-solid fa-envelope-open-text mb-1 text-sm {{ $kategoriFilter === 'izin' ? 'text-sky-600' : 'text-slate-400' }}"></i>
@@ -30,13 +30,53 @@
                 <i class="fa-solid fa-umbrella-beach mb-1 text-sm {{ $kategoriFilter === 'cuti' ? 'text-amber-600' : 'text-slate-400' }}"></i>
                 <span>Cuti</span>
             </button>
-            <button type="button" wire:click="setKategori('wfh')"
-                    class="py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'wfh' ? 'bg-teal-50 border-teal-500 text-teal-700 ring-2 ring-teal-500/20' : 'bg-white border-slate-200 text-slate-600' }}">
-                <i class="fa-solid fa-house-laptop mb-1 text-sm {{ $kategoriFilter === 'wfh' ? 'text-teal-600' : 'text-slate-400' }}"></i>
-                <span>WFH</span>
-            </button>
         </div>
     </div>
+
+    <!-- Informasi Kuota Cuti Pegawai (Jika Kategori Cuti) -->
+    @if($kategoriFilter === 'cuti')
+        <div class="mb-5 bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 rounded-3xl p-4 text-white shadow-lg shadow-amber-600/20 relative overflow-hidden">
+            <div class="absolute -right-4 -bottom-4 text-white/10 text-7xl pointer-events-none">
+                <i class="fa-solid fa-umbrella-beach"></i>
+            </div>
+            <div class="flex items-center justify-between mb-3 relative z-10">
+                <span class="text-xs font-black uppercase tracking-wider text-amber-100 flex items-center">
+                    <i class="fa-solid fa-id-card-clip mr-1.5"></i> Kuota Cuti Pegawai ({{ date('Y') }})
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 backdrop-blur-xs">
+                    {{ $sisaCuti > 0 ? 'Tersedia' : 'Habis' }}
+                </span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 relative z-10 text-center">
+                <div class="bg-black/20 backdrop-blur-xs rounded-2xl p-2.5 border border-white/10">
+                    <span class="text-[10px] text-amber-100 block font-semibold">Total Pagu</span>
+                    <span class="text-lg font-black tracking-tight text-white">{{ $totalKuotaCuti }}</span>
+                    <span class="text-[9px] text-amber-200 block">Hari/Tahun</span>
+                </div>
+                <div class="bg-black/20 backdrop-blur-xs rounded-2xl p-2.5 border border-white/10">
+                    <span class="text-[10px] text-amber-100 block font-semibold">Terpakai</span>
+                    <span class="text-lg font-black tracking-tight text-white">{{ $cutiTerpakai }}</span>
+                    <span class="text-[9px] text-amber-200 block">Hari</span>
+                </div>
+                <div class="bg-white text-amber-900 rounded-2xl p-2.5 shadow-md">
+                    <span class="text-[10px] text-amber-700 block font-extrabold">Sisa Kuota</span>
+                    <span class="text-lg font-black tracking-tight text-amber-800">{{ $sisaCuti }}</span>
+                    <span class="text-[9px] text-amber-600 block font-bold">Hari Lagi</span>
+                </div>
+            </div>
+            @if($sisaCuti <= 0)
+                <div class="mt-3 p-2 bg-rose-500/90 rounded-xl text-[11px] font-bold text-white flex items-center">
+                    <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>
+                    <span>Kuota cuti tahunan Anda telah habis untuk tahun ini.</span>
+                </div>
+            @elseif($jumlah_hari > $sisaCuti)
+                <div class="mt-3 p-2 bg-rose-500/90 rounded-xl text-[11px] font-bold text-white flex items-center">
+                    <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>
+                    <span>Pengajuan ({{ $jumlah_hari }} hari) melebihi sisa kuota ({{ $sisaCuti }} hari).</span>
+                </div>
+            @endif
+        </div>
+    @endif
 
     <!-- Form Card -->
     <form wire:submit="save" class="bg-white rounded-3xl p-5 border border-slate-100 shadow-xs space-y-4">
@@ -131,52 +171,69 @@
             @error('alasan') <span class="text-[11px] text-rose-500">{{ $message }}</span> @enderror
         </div>
 
-        <!-- Upload Lampiran / Bukti Dokumen -->
-        <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">
-                Dokumen Lampiran / Surat Dokter
-                @if($selectedJenis?->butuh_lampiran)
-                    <span class="text-rose-500">* (Wajib)</span>
-                @else
-                    <span class="text-slate-400 font-normal">(Opsional)</span>
-                @endif
-            </label>
-
-            <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-sky-400 transition-all bg-slate-50/30">
-                <input type="file" wire:model="lampiran" id="lampiran" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-                <label for="lampiran" class="cursor-pointer block">
-                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mx-auto mb-2 text-base">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                    </div>
-                    <span class="text-xs font-bold text-slate-700 block">Pilih Berkas / Foto Dokumen</span>
-                    <span class="text-[10px] text-slate-400 block mt-0.5">Format PDF, JPG, PNG (Maks. 2MB)</span>
+        <!-- Upload Lampiran / Bukti Dokumen (Hanya untuk Sakit dg Surat Dokter atau Cuti khusus) -->
+        @if($kategoriFilter === 'izin')
+            <!-- Izin tidak memerlukan dokumen surat -->
+            <div class="p-3 bg-slate-50/80 border border-slate-200/80 rounded-2xl flex items-center space-x-2.5 text-slate-500 text-xs">
+                <i class="fa-solid fa-circle-check text-emerald-500 text-sm shrink-0"></i>
+                <span class="text-[11px] leading-tight">Pengajuan Izin tidak memerlukan lampiran berkas dokumen / surat.</span>
+            </div>
+        @elseif($kategoriFilter === 'sakit' && !$selectedJenis?->butuh_lampiran)
+            <!-- Sakit Tanpa Surat Dokter -->
+            <div class="p-3 bg-rose-50/60 border border-rose-200/80 rounded-2xl flex items-center space-x-2.5 text-rose-700 text-xs">
+                <i class="fa-solid fa-notes-medical text-rose-500 text-sm shrink-0"></i>
+                <span class="text-[11px] leading-tight">Kategori Sakit tanpa surat dokter tidak memerlukan berkas surat keterangan dokter.</span>
+            </div>
+        @elseif($selectedJenis?->butuh_lampiran || $kategoriFilter === 'sakit')
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                    Surat Keterangan Dokter / Bukti Pendukung <span class="text-rose-500">* (Wajib)</span>
                 </label>
 
-                <!-- Loading State Livewire -->
-                <div wire:loading wire:target="lampiran" class="mt-2 text-xs font-bold text-sky-600 flex items-center justify-center space-x-1.5">
-                    <i class="fa-solid fa-circle-notch fa-spin"></i>
-                    <span>Mengunggah berkas...</span>
-                </div>
-
-                <!-- Preview File Uploaded -->
-                @if ($lampiran)
-                    <div class="mt-3 p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800 font-semibold">
-                        <div class="flex items-center space-x-2 truncate">
-                            <i class="fa-solid fa-file-check text-emerald-600"></i>
-                            <span class="truncate">{{ $lampiran->getClientOriginalName() }}</span>
+                <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 text-center hover:border-sky-400 transition-all bg-slate-50/30">
+                    <input type="file" wire:model="lampiran" id="lampiran" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                    <label for="lampiran" class="cursor-pointer block">
+                        <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mx-auto mb-2 text-base">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
                         </div>
-                        <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">Siap Diunggah</span>
+                        <span class="text-xs font-bold text-slate-700 block">Pilih Berkas / Foto Surat Dokter</span>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">Format PDF, JPG, PNG (Maks. 2MB)</span>
+                    </label>
+
+                    <!-- Loading State Livewire -->
+                    <div wire:loading wire:target="lampiran" class="mt-2 text-xs font-bold text-sky-600 flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <span>Mengunggah berkas...</span>
                     </div>
-                @endif
+
+                    <!-- Preview File Uploaded -->
+                    @if ($lampiran)
+                        <div class="mt-3 p-2 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800 font-semibold">
+                            <div class="flex items-center space-x-2 truncate">
+                                <i class="fa-solid fa-file-check text-emerald-600"></i>
+                                <span class="truncate">{{ $lampiran->getClientOriginalName() }}</span>
+                            </div>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md">Siap Diunggah</span>
+                        </div>
+                    @endif
+                </div>
+                @error('lampiran') <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
             </div>
-            @error('lampiran') <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
-        </div>
+        @endif
 
         <!-- Submit Button -->
         <div class="pt-2">
-            <button type="submit" wire:loading.attr="disabled"
-                    class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 text-white font-extrabold text-sm shadow-lg shadow-sky-500/25 active:scale-98 transition-all flex items-center justify-center space-x-2">
-                <span wire:loading.remove wire:target="save"><i class="fa-solid fa-paper-plane mr-1.5"></i> Kirim Pengajuan</span>
+            @php
+                $isCutiOverQuota = ($kategoriFilter === 'cuti' && ($sisaCuti <= 0 || $jumlah_hari > $sisaCuti));
+            @endphp
+            <button type="submit" 
+                    wire:loading.attr="disabled"
+                    @if($isCutiOverQuota) disabled @endif
+                    class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 text-white font-extrabold text-sm shadow-lg shadow-sky-500/25 active:scale-98 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none">
+                <span wire:loading.remove wire:target="save">
+                    <i class="fa-solid fa-paper-plane mr-1.5"></i> 
+                    {{ $isCutiOverQuota ? 'Melebihi Sisa Kuota Cuti' : 'Kirim Pengajuan' }}
+                </span>
                 <span wire:loading wire:target="save"><i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> Memproses Pengajuan...</span>
             </button>
         </div>

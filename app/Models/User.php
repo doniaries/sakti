@@ -54,6 +54,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'atasan_id',
         'jadwal_kerja_id',
         'status_kerja',
+        'kuota_cuti',
         'avatar_url',
         'file_ttd',
         'nik',
@@ -161,6 +162,34 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     public function pengajuanSpjs(): HasMany
     {
         return $this->hasMany(PengajuanSpj::class, 'user_id');
+    }
+
+    /**
+     * Total pagu kuota cuti tahunan pegawai
+     */
+    public function getTotalKuotaCutiAttribute(): int
+    {
+        return (int) ($this->kuota_cuti ?? 12);
+    }
+
+    /**
+     * Jumlah hari cuti yang telah diajukan/disetujui pada tahun berjalan
+     */
+    public function getCutiTerpakaiAttribute(): int
+    {
+        return (int) $this->pengajuanIzins()
+            ->whereHas('jenisIzin', fn($q) => $q->where('kategori', 'cuti'))
+            ->whereIn('status', ['disetujui', 'menunggu'])
+            ->whereYear('tanggal_mulai', date('Y'))
+            ->sum('jumlah_hari');
+    }
+
+    /**
+     * Sisa kuota cuti tahunan pegawai
+     */
+    public function getSisaCutiAttribute(): int
+    {
+        return max(0, $this->total_kuota_cuti - $this->cuti_terpakai);
     }
 
     /**

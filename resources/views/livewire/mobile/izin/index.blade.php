@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between mb-5">
         <div>
             <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Pengajuan Izin & Cuti</h1>
-            <p class="text-xs text-slate-500 font-medium">Status Izin, Sakit, Cuti & WFH Anda</p>
+            <p class="text-xs text-slate-500 font-medium">Status Izin, Sakit & Cuti Anda</p>
         </div>
         <a href="{{ route('mobile.izin.create') }}" wire:navigate 
            class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-700 hover:to-sky-600 text-white font-bold text-xs shadow-md shadow-sky-500/25 active:scale-95 transition-all flex items-center space-x-1.5">
@@ -12,10 +12,10 @@
         </a>
     </div>
 
-    <!-- Quick Category Action Buttons (Izin, Sakit, Cuti, WFH) -->
-    <div class="grid grid-cols-4 gap-2 mb-6">
+    <!-- Quick Category Action Buttons (Izin, Sakit, Cuti) -->
+    <div class="grid grid-cols-3 gap-2 mb-6">
         <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all">
+           class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all text-center">
             <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
                 <i class="fa-solid fa-envelope-open-text"></i>
             </div>
@@ -24,30 +24,21 @@
         </a>
 
         <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-rose-50/50 active:scale-95 transition-all">
+           class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-rose-50/50 active:scale-95 transition-all text-center">
             <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
                 <i class="fa-solid fa-notes-medical"></i>
             </div>
             <span class="text-xs font-bold text-slate-700">Sakit</span>
-            <span class="text-[9px] text-slate-400 font-medium">Dokter</span>
+            <span class="text-[9px] text-slate-400 font-medium">Dokter/Non</span>
         </a>
 
         <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all">
+           class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all text-center">
             <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
                 <i class="fa-solid fa-umbrella-beach"></i>
             </div>
             <span class="text-xs font-bold text-slate-700">Cuti</span>
             <span class="text-[9px] text-slate-400 font-medium">Tahunan/dll</span>
-        </a>
-
-        <a href="{{ route('mobile.izin.create', ['kategori' => 'wfh']) }}" wire:navigate 
-           class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-teal-50/50 active:scale-95 transition-all">
-            <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
-                <i class="fa-solid fa-house-laptop"></i>
-            </div>
-            <span class="text-xs font-bold text-slate-700">WFH</span>
-            <span class="text-[9px] text-slate-400 font-medium">Dari Rumah</span>
         </a>
     </div>
 

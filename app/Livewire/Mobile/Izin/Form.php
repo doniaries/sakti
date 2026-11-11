@@ -29,7 +29,7 @@ class Form extends Component
     public function mount()
     {
         $kategoriParam = request()->query('kategori');
-        if ($kategoriParam && in_array($kategoriParam, ['izin', 'sakit', 'cuti', 'wfh'])) {
+        if ($kategoriParam && in_array($kategoriParam, ['izin', 'sakit', 'cuti'])) {
             $this->kategoriFilter = $kategoriParam;
         }
 
@@ -100,8 +100,19 @@ class Form extends Component
 
     public function save()
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         $selectedJenis = JenisIzin::find($this->jenis_izin_id);
-        $wajibLampiran = $selectedJenis?->butuh_lampiran ?? false;
+        $wajibLampiran = ($selectedJenis?->kategori === 'sakit' && ($selectedJenis?->butuh_lampiran ?? false));
+
+        // Validasi pembatasan kuota cuti pegawai
+        if ($selectedJenis?->kategori === 'cuti') {
+            $sisaCuti = $user->sisa_cuti;
+            if ($this->jumlah_hari > $sisaCuti) {
+                $this->addError('jumlah_hari', "Jumlah hari cuti ({$this->jumlah_hari} hari) melebihi sisa kuota cuti Anda ({$sisaCuti} hari).");
+                return;
+            }
+        }
 
         $rules = [
             'jenis_izin_id' => 'required|exists:jenis_izins,id',
@@ -110,6 +121,7 @@ class Form extends Component
             'alasan' => 'required|string|min:5|max:500',
         ];
 
+        // Lampiran hanya diwajibkan untuk Sakit dengan Surat Dokter
         if ($wajibLampiran) {
             $rules['lampiran'] = 'required|file|mimes:pdf,jpg,jpeg,png|max:2048';
         } else {
@@ -118,18 +130,20 @@ class Form extends Component
 
         $this->validate($rules, [
             'jenis_izin_id.required' => 'Pilih jenis izin/cuti terlebih dahulu.',
-            'alasan.required' => 'Alasan / keterangan wajib diisi.',
-            'lampiran.required' => 'Jenis izin ini mewajibkan unggah dokumen bukti/surat dokter.',
+            'alasan.required' => 'Alasan / keterangan permohonan wajib diisi.',
+            'lampiran.required' => 'Wajib mengunggah Surat Keterangan Sakit dari Dokter.',
             'lampiran.max' => 'Ukuran berkas lampiran maksimal 2MB.',
         ]);
 
         $pathLampiran = null;
-        if ($this->lampiran) {
+        if ($wajibLampiran && $this->lampiran) {
+            $pathLampiran = $this->lampiran->store('lampiran-izin', 'public');
+        } elseif ($this->lampiran && $selectedJenis?->kategori !== 'izin') {
             $pathLampiran = $this->lampiran->store('lampiran-izin', 'public');
         }
 
         PengajuanIzin::create([
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
             'jenis_izin_id' => $this->jenis_izin_id,
             'tanggal_mulai' => $this->tanggal_mulai,
             'tanggal_selesai' => $this->tanggal_selesai,
@@ -139,13 +153,15 @@ class Form extends Component
             'status' => 'menunggu',
         ]);
 
-        session()->flash('success', 'Pengajuan berhasil dikirim dan menunggu persetujuan atasan.');
+        session()->flash('success', 'Permohonan berhasil dikirim dan menunggu persetujuan atasan.');
 
         return redirect()->route('mobile.izin.index');
     }
 
     public function render()
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         $queryJenis = JenisIzin::query()->where('aktif', true);
 
         if ($this->kategoriFilter !== 'semua') {
@@ -156,8 +172,12 @@ class Form extends Component
         $selectedJenis = JenisIzin::find($this->jenis_izin_id);
 
         return view('livewire.mobile.izin.form', [
+            'user' => $user,
             'jenisIzins' => $jenisIzins,
             'selectedJenis' => $selectedJenis,
+            'totalKuotaCuti' => $user->total_kuota_cuti,
+            'cutiTerpakai' => $user->cuti_terpakai,
+            'sisaCuti' => $user->sisa_cuti,
         ]);
     }
 }

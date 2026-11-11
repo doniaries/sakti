@@ -1,66 +1,65 @@
-<div class="p-4 pb-24 flex flex-col min-h-screen bg-slate-50" 
-     x-data="{
-        map: null,
-        marker: null,
-        circle: null,
-        lat: {{ $latitude_kantor }},
-        lng: {{ $longitude_kantor }},
-        radiusValue: {{ $radius_meter }},
-        currentCoordsText: '{{ $latitude_kantor }}, {{ $longitude_kantor }}',
-        detectingGps: false,
-        saving: false,
+<div class="p-4 pb-24 flex flex-col min-h-screen bg-slate-50" x-data="{
+    map: null,
+    marker: null,
+    circle: null,
+    lat: {{ $latitude_kantor }},
+    lng: {{ $longitude_kantor }},
+    radiusValue: {{ $radius_meter }},
+    currentCoordsText: '{{ $latitude_kantor }}, {{ $longitude_kantor }}',
+    detectingGps: false,
+    saving: false,
 
-        init() {
-            this.waitForLeaflet();
-            Livewire.on('radius-updated', (data) => {
-                this.radiusValue = data.radius;
-                if (this.circle) {
-                    this.circle.setRadius(data.radius);
-                }
-            });
-        },
-
-        waitForLeaflet() {
-            let count = 0;
-            const timer = setInterval(() => {
-                count++;
-                if (window.L && typeof window.L.map === 'function') {
-                    clearInterval(timer);
-                    this.initLeafletMap();
-                } else if (count > 40) {
-                    clearInterval(timer);
-                }
-            }, 100);
-        },
-
-        initLeafletMap() {
-            const el = document.getElementById('mapContainer');
-            if (!el || !window.L) return;
-
-            if (this.map) {
-                try { this.map.remove(); } catch(e) {}
+    init() {
+        this.waitForLeaflet();
+        Livewire.on('radius-updated', (data) => {
+            this.radiusValue = data.radius;
+            if (this.circle) {
+                this.circle.setRadius(data.radius);
             }
+        });
+    },
 
-            const fallback = document.getElementById('mapLoadingFallback');
-            if (fallback) fallback.style.display = 'none';
+    waitForLeaflet() {
+        let count = 0;
+        const timer = setInterval(() => {
+            count++;
+            if (window.L && typeof window.L.map === 'function') {
+                clearInterval(timer);
+                this.initLeafletMap();
+            } else if (count > 40) {
+                clearInterval(timer);
+            }
+        }, 100);
+    },
 
-            this.map = L.map('mapContainer', {
-                center: [this.lat, this.lng],
-                zoom: 17,
-                zoomControl: false,
-                scrollWheelZoom: false,
-            });
+    initLeafletMap() {
+        const el = document.getElementById('mapContainer');
+        if (!el || !window.L) return;
 
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(this.map);
+        if (this.map) {
+            try { this.map.remove(); } catch (e) {}
+        }
 
-            L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+        const fallback = document.getElementById('mapLoadingFallback');
+        if (fallback) fallback.style.display = 'none';
 
-            const customPinIcon = L.divIcon({
-                className: 'custom-leaflet-pin',
-                html: `
+        this.map = L.map('mapContainer', {
+            center: [this.lat, this.lng],
+            zoom: 17,
+            zoomControl: false,
+            scrollWheelZoom: false,
+        });
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(this.map);
+
+        L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+
+        const customPinIcon = L.divIcon({
+            className: 'custom-leaflet-pin',
+            html: `
                     <div style='position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;'>
                         <div style='position: absolute; width: 32px; height: 32px; background: #0284c7; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;'>
                             <i class='fa-solid fa-building'></i>
@@ -68,97 +67,96 @@
                         <div style='position: absolute; bottom: -6px; width: 8px; height: 8px; background: #0284c7; transform: rotate(45deg);'></div>
                     </div>
                 `,
-                iconSize: [34, 40],
-                iconAnchor: [17, 36],
-                popupAnchor: [0, -36]
-            });
+            iconSize: [34, 40],
+            iconAnchor: [17, 36],
+            popupAnchor: [0, -36]
+        });
 
-            this.marker = L.marker([this.lat, this.lng], {
-                draggable: true,
-                icon: customPinIcon
-            }).addTo(this.map);
+        this.marker = L.marker([this.lat, this.lng], {
+            draggable: true,
+            icon: customPinIcon
+        }).addTo(this.map);
 
-            this.marker.bindPopup('<b>Titik Pusat Kantor</b><br>Geser pin untuk memindahkan titik.').openPopup();
+        this.marker.bindPopup('<b>Titik Pusat Kantor</b><br>Geser pin untuk memindahkan titik.').openPopup();
 
-            this.circle = L.circle([this.lat, this.lng], {
-                color: '#0284c7',
-                fillColor: '#38bdf8',
-                fillOpacity: 0.25,
-                weight: 2,
-                radius: this.radiusValue
-            }).addTo(this.map);
+        this.circle = L.circle([this.lat, this.lng], {
+            color: '#0284c7',
+            fillColor: '#38bdf8',
+            fillOpacity: 0.25,
+            weight: 2,
+            radius: this.radiusValue
+        }).addTo(this.map);
 
-            this.marker.on('dragend', (e) => {
-                const pos = e.target.getLatLng();
-                this.updatePosition(pos.lat, pos.lng);
-            });
+        this.marker.on('dragend', (e) => {
+            const pos = e.target.getLatLng();
+            this.updatePosition(pos.lat, pos.lng);
+        });
 
-            this.map.on('click', (e) => {
-                this.updatePosition(e.latlng.lat, e.latlng.lng);
-            });
+        this.map.on('click', (e) => {
+            this.updatePosition(e.latlng.lat, e.latlng.lng);
+        });
 
-            setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 200);
-            setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 600);
-        },
+        setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 200);
+        setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 600);
+    },
 
-        updatePosition(newLat, newLng) {
-            this.lat = parseFloat(newLat.toFixed(6));
-            this.lng = parseFloat(newLng.toFixed(6));
-            this.currentCoordsText = this.lat + ', ' + this.lng;
+    updatePosition(newLat, newLng) {
+        this.lat = parseFloat(newLat.toFixed(6));
+        this.lng = parseFloat(newLng.toFixed(6));
+        this.currentCoordsText = this.lat + ', ' + this.lng;
 
-            if (this.marker) this.marker.setLatLng([this.lat, this.lng]);
-            if (this.circle) this.circle.setLatLng([this.lat, this.lng]);
-            if (this.map) this.map.panTo([this.lat, this.lng]);
+        if (this.marker) this.marker.setLatLng([this.lat, this.lng]);
+        if (this.circle) this.circle.setLatLng([this.lat, this.lng]);
+        if (this.map) this.map.panTo([this.lat, this.lng]);
 
-            $wire.set('latitude_kantor', this.lat);
-            $wire.set('longitude_kantor', this.lng);
-        },
+        $wire.set('latitude_kantor', this.lat);
+        $wire.set('longitude_kantor', this.lng);
+    },
 
-        updateRadius(val) {
-            this.radiusValue = parseInt(val);
-            if (this.circle) this.circle.setRadius(this.radiusValue);
-            $wire.set('radius_meter', this.radiusValue);
-        },
+    updateRadius(val) {
+        this.radiusValue = parseInt(val);
+        if (this.circle) this.circle.setRadius(this.radiusValue);
+        $wire.set('radius_meter', this.radiusValue);
+    },
 
-        onRadiusSliderChange() {
-            const r = parseInt(this.radiusValue);
-            if (this.circle) this.circle.setRadius(r);
-            $wire.set('radius_meter', r);
-        },
+    onRadiusSliderChange() {
+        const r = parseInt(this.radiusValue);
+        if (this.circle) this.circle.setRadius(r);
+        $wire.set('radius_meter', r);
+    },
 
-        detectMyGps() {
-            if (!navigator.geolocation) {
-                alert('Browser Anda tidak mendukung deteksi lokasi Geolocation.');
-                return;
-            }
-
-            this.detectingGps = true;
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    this.detectingGps = false;
-                    this.updatePosition(pos.coords.latitude, pos.coords.longitude);
-                    if (this.map) {
-                        this.map.setView([this.lat, this.lng], 18);
-                        this.map.invalidateSize();
-                    }
-                },
-                (err) => {
-                    this.detectingGps = false;
-                    alert('Gagal mendeteksi GPS perangkat: ' + err.message);
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-            );
-        },
-
-        saveLocationSettings() {
-            this.saving = true;
-            $wire.simpanLokasi().then(() => {
-                this.saving = false;
-            }).catch(() => {
-                this.saving = false;
-            });
+    detectMyGps() {
+        if (!navigator.geolocation) {
+            alert('Browser Anda tidak mendukung deteksi lokasi Geolocation.');
+            return;
         }
-     }">
+
+        this.detectingGps = true;
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                this.detectingGps = false;
+                this.updatePosition(pos.coords.latitude, pos.coords.longitude);
+                if (this.map) {
+                    this.map.setView([this.lat, this.lng], 18);
+                    this.map.invalidateSize();
+                }
+            },
+            (err) => {
+                this.detectingGps = false;
+                alert('Gagal mendeteksi GPS perangkat: ' + err.message);
+            }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    },
+
+    saveLocationSettings() {
+        this.saving = true;
+        $wire.simpanLokasi().then(() => {
+            this.saving = false;
+        }).catch(() => {
+            this.saving = false;
+        });
+    }
+}">
     <!-- Top Navigation -->
     <div class="flex items-center justify-between mb-3.5 pt-1">
         <a href="{{ route('mobile.absensi') }}" wire:navigate
@@ -166,7 +164,8 @@
             <i class="fa-solid fa-arrow-left text-[11px] text-sky-600"></i>
             <span>Kembali ke Presensi</span>
         </a>
-        <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 shadow-xs flex items-center">
+        <span
+            class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 shadow-xs flex items-center">
             <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i>
             <span>Khusus Admin</span>
         </span>
@@ -175,7 +174,8 @@
     <!-- Page Title & Guidance -->
     <div class="mb-3">
         <h1 class="text-lg font-black text-slate-800 tracking-tight leading-tight">Pengaturan Lokasi & Geofence</h1>
-        <p class="text-xs text-slate-500 font-medium mt-0.5">Geser pin pada peta atau klik tombol GPS untuk mengkalibrasi titik pusat presensi kantor.</p>
+        <p class="text-xs text-slate-500 font-medium mt-0.5">Geser pin pada peta atau klik tombol GPS untuk
+            mengkalibrasi titik pusat presensi kantor.</p>
     </div>
 
     <!-- MAP CONTAINER CARD -->
@@ -190,12 +190,11 @@
         </div>
 
         <!-- The Leaflet Map Element with Explicit Height & Isolation -->
-        <div id="mapContainer" 
-             style="height: 280px; width: 100%; min-height: 280px; position: relative; z-index: 10;" 
-             class="w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100" 
-             wire:ignore>
+        <div id="mapContainer" style="height: 280px; width: 100%; min-height: 280px; position: relative; z-index: 10;"
+            class="w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100" wire:ignore>
             <!-- Loading Indicator Placeholder -->
-            <div id="mapLoadingFallback" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-100/90 z-0">
+            <div id="mapLoadingFallback"
+                class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-100/90 z-0">
                 <i class="fa-solid fa-map-location-dot fa-bounce text-3xl text-sky-500 mb-2"></i>
                 <span class="text-xs font-bold text-slate-600">Memuat Peta Satelit / OpenStreetMap...</span>
             </div>
@@ -205,7 +204,8 @@
         <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
             <div class="flex items-center space-x-1.5 text-slate-600 min-w-0 pr-2">
                 <i class="fa-solid fa-map-pin text-rose-500 text-xs shrink-0"></i>
-                <span class="font-bold text-slate-700 font-mono truncate" x-text="currentCoordsText">{{ $latitude_kantor }}, {{ $longitude_kantor }}</span>
+                <span class="font-bold text-slate-700 font-mono truncate"
+                    x-text="currentCoordsText">{{ $latitude_kantor }}, {{ $longitude_kantor }}</span>
             </div>
             <div class="flex items-center space-x-1 text-sky-700 font-bold shrink-0">
                 <i class="fa-solid fa-circle-dot text-[10px] text-sky-500"></i>
@@ -223,24 +223,25 @@
                     <i class="fa-solid fa-bullseye text-sky-600"></i>
                     <span>Radius Geofencing Presensi</span>
                 </label>
-                <span class="text-xs font-black font-mono text-sky-700" x-text="radiusValue + ' Meter'">{{ $radius_meter }} Meter</span>
+                <span class="text-xs font-black font-mono text-sky-700"
+                    x-text="radiusValue + ' Meter'">{{ $radius_meter }} Meter</span>
             </div>
-            
+
             <div class="grid grid-cols-5 gap-1.5 mb-2.5">
                 <template x-for="r in [25, 50, 100, 150, 200]" :key="r">
                     <button type="button" @click="updateRadius(r)"
                         class="py-1.5 rounded-xl text-xs font-extrabold border transition-transform duration-150 ease-out active:scale-[0.96] cursor-pointer text-center"
-                        :class="radiusValue === r 
-                            ? 'bg-sky-600 text-white border-sky-600 shadow-xs' 
-                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'">
+                        :class="radiusValue === r ?
+                            'bg-sky-600 text-white border-sky-600 shadow-xs' :
+                            'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'">
                         <span x-text="r + 'm'"></span>
                     </button>
                 </template>
             </div>
 
             <!-- Custom Radius Slider -->
-            <input type="range" min="15" max="500" step="5" x-model="radiusValue" @input="onRadiusSliderChange()"
-                class="w-full accent-sky-600 cursor-pointer">
+            <input type="range" min="15" max="500" step="5" x-model="radiusValue"
+                @input="onRadiusSliderChange()" class="w-full accent-sky-600 cursor-pointer">
         </div>
 
         <!-- Alamat Kantor Resmi -->
@@ -252,18 +253,22 @@
             <input type="text" wire:model="alamat_kantor"
                 class="w-full px-3 py-2 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition"
                 placeholder="Gedung Bersama Lt. III, Jl. Prof. M. Yamin...">
-            @error('alamat_kantor') <span class="text-rose-500 text-[10px] mt-1 block font-semibold">{{ $message }}</span> @enderror
+            @error('alamat_kantor')
+                <span class="text-rose-500 text-[10px] mt-1 block font-semibold">{{ $message }}</span>
+            @enderror
         </div>
 
         <!-- Mode Simulasi Bypass Geofence Toggle -->
         <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 flex items-center justify-between">
             <div class="pr-3">
                 <span class="text-xs font-extrabold text-slate-800 block">Mode Simulasi Bebas Lokasi</span>
-                <span class="text-[10px] text-slate-500 block leading-tight mt-0.5">Izinkan presensi tanpa batasan radius geofencing kantor saat uji coba admin.</span>
+                <span class="text-[10px] text-slate-500 block leading-tight mt-0.5">Izinkan presensi tanpa batasan
+                    radius geofencing kantor saat uji coba admin.</span>
             </div>
             <button type="button" wire:click="toggleSimulasi"
                 class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $mode_simulasi ? 'bg-sky-600' : 'bg-slate-300' }}">
-                <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out {{ $mode_simulasi ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                <span
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out {{ $mode_simulasi ? 'translate-x-5' : 'translate-x-0' }}"></span>
             </button>
         </div>
 
@@ -277,7 +282,8 @@
                 <template x-if="!saving">
                     <i class="fa-solid fa-floppy-disk text-xs text-sky-200"></i>
                 </template>
-                <span x-text="saving ? 'Menyimpan...' : 'Simpan Titik & Radius Kantor'">Simpan Titik & Radius Kantor</span>
+                <span x-text="saving ? 'Menyimpan...' : 'Simpan Titik & Radius Kantor'">Simpan Titik & Radius
+                    Kantor</span>
             </button>
         </div>
     </div>

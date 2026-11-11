@@ -5,20 +5,42 @@
     <!-- Top Header: Logo, Nama Aplikasi & Logout -->
     <div class="flex justify-between items-center mb-5">
         <div class="flex items-center space-x-2.5">
-            @if (!empty($pengaturan->logo) && file_exists(public_path('storage/' . $pengaturan->logo)))
-                <img src="{{ asset('storage/' . $pengaturan->logo) }}" alt="Logo Aplikasi"
-                    class="w-10 h-10 rounded-xl object-contain bg-white shadow-md shadow-sky-500/15 p-1 border border-slate-200/80">
-            @else
-                <div
-                    class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 via-sky-500 to-teal-400 text-white flex items-center justify-center shadow-md shadow-sky-500/25 border border-white/20">
-                    <i class="fa-solid fa-leaf text-lg"></i>
+            @php
+                $logoUrl = null;
+                if (!empty($pengaturan->logo) && file_exists(public_path('storage/' . $pengaturan->logo))) {
+                    $logoUrl = asset('storage/' . $pengaturan->logo);
+                } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
+                    $logoUrl = asset('images/logo-kabupaten.png');
+                } elseif (file_exists(public_path('images/logo-instansi.png'))) {
+                    $logoUrl = asset('images/logo-instansi.png');
+                }
+            @endphp
+            <!-- Brand Logo dengan Biometric Fingerprint Badge (Harmonis dg Halaman Login) -->
+            <div class="relative shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-white shadow-md shadow-sky-500/15 p-1 border border-slate-200/80 flex items-center justify-center">
+                    @if ($logoUrl)
+                        <img src="{{ $logoUrl }}" alt="Logo Pemerintah Daerah"
+                            class="w-full h-full object-contain filter drop-shadow-xs">
+                    @else
+                        <i class="fa-solid fa-building-columns text-sky-600 text-base"></i>
+                    @endif
                 </div>
-            @endif
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-sky-600 border border-white text-white flex items-center justify-center text-[8px] shadow-xs" title="Modul Absensi">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+            </div>
             <div>
-                <h1 class="text-lg font-black text-slate-800 tracking-tight leading-tight uppercase">
-                    {{ $pengaturan->nama_aplikasi }}</h1>
+                <div class="flex items-center space-x-1.5">
+                    <h1 class="text-base font-black text-slate-800 tracking-tight leading-tight uppercase">
+                        {{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}
+                    </h1>
+                    <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700 tracking-wider">
+                        Absensi
+                    </span>
+                </div>
                 <p class="text-[10px] font-bold text-sky-600 tracking-wider uppercase">
-                    {{ $pengaturan->sub_nama ?? 'Dinas Lingkungan Hidup' }}</p>
+                    Presensi & Kinerja Pegawai
+                </p>
             </div>
         </div>
         <div class="flex items-center space-x-2">
@@ -81,19 +103,19 @@
         @endphp
 
         <div class="flex justify-between items-start relative z-10">
-            <div class="flex-1 pr-3">
+            <div class="flex-1 min-w-0 pr-2.5">
                 <div class="flex items-center space-x-1.5 text-xs font-bold text-sky-200 tracking-wide mb-1">
                     <i class="fa-solid {{ $greetingIcon }}"></i>
                     <span>{{ $greeting }},</span>
                 </div>
-                <h2 class="text-xl font-extrabold tracking-tight text-white drop-shadow-xs">{{ $user->name }}</h2>
-                <p class="text-xs font-semibold text-sky-200/90 mt-0.5 truncate flex items-center">
-                    <i class="fa-solid fa-id-badge text-[10px] mr-1.5 text-sky-300"></i>
-                    <span>{{ $user->jabatan->nama ?? 'Pegawai' }}</span>
+                <h2 class="text-lg font-extrabold tracking-tight text-white drop-shadow-xs truncate" title="{{ $user->name }}">{{ $user->name }}</h2>
+                <p class="text-xs font-semibold text-sky-200/90 mt-0.5 flex items-center min-w-0" title="{{ $user->jabatan->nama ?? 'Pegawai' }}">
+                    <i class="fa-solid fa-id-badge text-[10px] mr-1.5 text-sky-300 shrink-0"></i>
+                    <span class="truncate">{{ $user->jabatan->nama ?? 'Pegawai' }}</span>
                 </p>
 
                 <!-- Tanggal & Jam Aktif Server -->
-                <div class="flex items-center flex-wrap gap-2 text-xs text-white/90 mt-2.5" x-data="{
+                <div class="flex items-center flex-wrap gap-1.5 text-xs text-white/90 mt-2" x-data="{
                     hours: '--',
                     minutes: '--',
                     colon: true,
@@ -106,14 +128,14 @@
                 }"
                     x-init="updateClock();
                     setInterval(() => updateClock(), 1000);">
-                    <span class="flex items-center font-medium">
+                    <span class="flex items-center font-medium whitespace-nowrap text-[11px]">
                         <i class="fa-regular fa-calendar text-sky-300 mr-1.5"></i>
                         {{ now()->translatedFormat('l, d F Y') }}
                     </span>
                     <span class="text-white/40">•</span>
                     <!-- Jam Aktif Server Real-Time (HH:MM WIB) -->
                     <span
-                        class="flex items-center bg-black/30 backdrop-blur-md px-2.5 py-1 rounded-full font-mono text-[11px] font-bold text-amber-300 border border-white/15 shadow-inner">
+                        class="flex items-center bg-black/30 backdrop-blur-md px-2 py-0.5 rounded-full font-mono text-[11px] font-bold text-amber-300 border border-white/15 shadow-inner whitespace-nowrap">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 inline-block animate-pulse"></span>
                         <span x-text="hours">--</span><span class="inline-block transition-opacity duration-200"
                             :class="colon ? 'opacity-100' : 'opacity-20'">:</span><span
@@ -123,8 +145,8 @@
             </div>
 
             <!-- Foto Avatar Pegawai di Dashboard (Bisa Klik / Ketuk untuk Ganti Foto) -->
-            <div class="relative shrink-0">
-                <label class="relative block cursor-pointer group active:scale-95 transition-transform" title="Klik untuk ganti foto profil">
+            <div class="relative shrink-0 w-14 h-14 ml-2">
+                <label class="relative block w-14 h-14 cursor-pointer group active:scale-95 transition-transform" title="Klik untuk ganti foto profil">
                     <input type="file" wire:model="new_avatar" accept="image/jpeg,image/png,image/webp" class="hidden">
                     <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
                         class="w-14 h-14 rounded-2xl object-cover border-2 border-white/50 shadow-lg shadow-sky-950/40 aspect-square">
@@ -285,14 +307,14 @@
             </a>
 
             <!-- WFH -->
-            <a href="{{ route('mobile.izin.create', ['kategori' => 'wfh']) }}" wire:navigate
+            <a href="{{ route('mobile.wfh.index') }}" wire:navigate
                 class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-teal-50/40 active:scale-95 transition-all text-center">
                 <div
                     class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
                     <i class="fa-solid fa-house-laptop"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-800">WFH</span>
-                <span class="text-[9px] text-slate-400 font-medium">Rumah</span>
+                <span class="text-[9px] text-slate-400 font-medium">Riwayat</span>
             </a>
 
             <!-- Kalender Libur -->
