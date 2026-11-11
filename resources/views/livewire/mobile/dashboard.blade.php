@@ -133,33 +133,85 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-2 gap-2.5 mt-5 relative z-10">
-            <!-- Masuk -->
-            <div
-                class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_masuk'] ? 'bg-white/20 backdrop-blur-md shadow-inner' : 'bg-black/25 backdrop-blur-xs' }}">
-                <div
-                    class="w-9 h-9 rounded-xl {{ $hariIni['sudah_masuk'] ? 'bg-emerald-400 text-slate-900 shadow-md shadow-emerald-500/30' : 'bg-white/10 text-white/40' }} flex items-center justify-center text-sm shadow-xs transition-colors">
-                    <i class="fa-solid fa-right-to-bracket"></i>
+        <!-- Kartu Aksi Presensi Interaktif: Absen Masuk & Absen Keluar -->
+        <div class="grid grid-cols-2 gap-2.5 mt-5 relative z-10" x-data="dashboardAttendance()">
+            <!-- Tombol 1: Masuk -->
+            <button type="button"
+                @click="absen('masuk')"
+                :disabled="loadingMasuk || loadingKeluar"
+                class="flex items-center p-3 rounded-2xl border text-left transition-all duration-200 active:scale-95 cursor-pointer relative overflow-hidden group {{ $hariIni['sudah_masuk'] ? 'bg-white/20 border-white/30 backdrop-blur-md shadow-inner' : 'bg-white/10 hover:bg-white/20 border-white/25 backdrop-blur-xs shadow-sm ring-1 ring-white/20' }}">
+                
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-xs transition-colors shrink-0 {{ $hariIni['sudah_masuk'] ? 'bg-emerald-400 text-slate-900 shadow-emerald-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 group-hover:scale-105' }}">
+                    <template x-if="loadingMasuk">
+                        <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                    </template>
+                    <template x-if="!loadingMasuk">
+                        <i class="fa-solid {{ $hariIni['sudah_masuk'] ? 'fa-check' : 'fa-right-to-bracket' }}"></i>
+                    </template>
                 </div>
-                <div class="ml-2.5 flex flex-col">
-                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider">Absen Masuk</span>
-                    <span
-                        class="text-sm font-extrabold font-mono {{ $hariIni['sudah_masuk'] ? 'text-white' : 'text-white/40' }}">{{ $hariIni['jam_masuk'] ?? '--:--' }}</span>
+                
+                <div class="ml-2.5 flex flex-col min-w-0">
+                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider truncate">Absen Masuk</span>
+                    <span class="text-sm font-extrabold font-mono text-white truncate">
+                        <template x-if="loadingMasuk">
+                            <span class="text-xs font-sans text-sky-200">Mencatat...</span>
+                        </template>
+                        <template x-if="!loadingMasuk">
+                            <span>{{ !empty($hariIni['jam_masuk']) ? substr($hariIni['jam_masuk'], 0, 5) . ' WIB' : 'Tap Masuk' }}</span>
+                        </template>
+                    </span>
+                    @if ($hariIni['sudah_masuk'])
+                        <span class="text-[9px] font-bold text-emerald-300 flex items-center mt-0.5">
+                            <i class="fa-solid fa-circle-check text-[8px] mr-1"></i>Tercatat
+                        </span>
+                    @else
+                        <span class="text-[9px] font-bold text-emerald-200/80 flex items-center mt-0.5" x-show="!loadingMasuk">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1 inline-block"></span>Siap Tap
+                        </span>
+                    @endif
                 </div>
-            </div>
-            <!-- Keluar -->
-            <div
-                class="flex items-center p-3 rounded-2xl border border-white/20 {{ $hariIni['sudah_pulang'] ? 'bg-white/20 backdrop-blur-md shadow-inner' : 'bg-black/25 backdrop-blur-xs' }}">
-                <div
-                    class="w-9 h-9 rounded-xl {{ $hariIni['sudah_pulang'] ? 'bg-sky-400 text-slate-900 shadow-md shadow-sky-500/30' : 'bg-white/10 text-white/40' }} flex items-center justify-center text-sm shadow-xs transition-colors">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+
+            <!-- Tombol 2: Keluar (di sebelah tombol masuk) -->
+            <button type="button"
+                @click="absen('pulang')"
+                :disabled="loadingMasuk || loadingKeluar"
+                class="flex items-center p-3 rounded-2xl border text-left transition-all duration-200 active:scale-95 cursor-pointer relative overflow-hidden group {{ $hariIni['sudah_pulang'] ? 'bg-white/20 border-white/30 backdrop-blur-md shadow-inner' : ($hariIni['sudah_masuk'] ? 'bg-gradient-to-br from-amber-500/25 to-sky-500/25 hover:from-amber-500/35 hover:to-sky-500/35 border-amber-300/40 backdrop-blur-md shadow-md ring-1 ring-amber-400/40' : 'bg-black/20 border-white/10 opacity-75 backdrop-blur-xs') }}">
+                
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-xs transition-colors shrink-0 {{ $hariIni['sudah_pulang'] ? 'bg-sky-400 text-slate-900 shadow-sky-500/30' : ($hariIni['sudah_masuk'] ? 'bg-amber-400 text-slate-950 shadow-amber-400/30 group-hover:scale-105' : 'bg-white/10 text-white/40') }}">
+                    <template x-if="loadingKeluar">
+                        <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                    </template>
+                    <template x-if="!loadingKeluar">
+                        <i class="fa-solid {{ $hariIni['sudah_pulang'] ? 'fa-check-double' : ($hariIni['sudah_masuk'] ? 'fa-right-from-bracket' : 'fa-lock') }}"></i>
+                    </template>
                 </div>
-                <div class="ml-2.5 flex flex-col">
-                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider">Absen Keluar</span>
-                    <span
-                        class="text-sm font-extrabold font-mono {{ $hariIni['sudah_pulang'] ? 'text-white' : 'text-white/40' }}">{{ $hariIni['jam_pulang'] ?? '--:--' }}</span>
+                
+                <div class="ml-2.5 flex flex-col min-w-0">
+                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider truncate">Absen Keluar</span>
+                    <span class="text-sm font-extrabold font-mono text-white truncate">
+                        <template x-if="loadingKeluar">
+                            <span class="text-xs font-sans text-sky-200">Mencatat...</span>
+                        </template>
+                        <template x-if="!loadingKeluar">
+                            <span>{{ !empty($hariIni['jam_pulang']) ? substr($hariIni['jam_pulang'], 0, 5) . ' WIB' : ($hariIni['sudah_masuk'] ? 'Tap Keluar' : '--:--') }}</span>
+                        </template>
+                    </span>
+                    @if ($hariIni['sudah_pulang'])
+                        <span class="text-[9px] font-bold text-sky-300 flex items-center mt-0.5">
+                            <i class="fa-solid fa-circle-check text-[8px] mr-1"></i>Selesai
+                        </span>
+                    @elseif ($hariIni['sudah_masuk'])
+                        <span class="text-[9px] font-bold text-amber-200 flex items-center mt-0.5" x-show="!loadingKeluar">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse mr-1 inline-block"></span>Siap Pulang
+                        </span>
+                    @else
+                        <span class="text-[9px] font-medium text-white/40 mt-0.5">
+                            Menunggu Masuk
+                        </span>
+                    @endif
                 </div>
-            </div>
+            </button>
         </div>
     </div>
 
@@ -502,4 +554,107 @@
             </div>
         @endforeach
     </div>
+
+@script
+<script>
+    window.dashboardAttendance = function() {
+        return {
+            loadingMasuk: false,
+            loadingKeluar: false,
+
+            init() {
+                window.triggerDashboardAbsen = () => {
+                    if (!{{ $hariIni['sudah_masuk'] ? 'true' : 'false' }}) {
+                        this.absen('masuk');
+                    } else if (!{{ $hariIni['sudah_pulang'] ? 'true' : 'false' }}) {
+                        this.absen('pulang');
+                    } else {
+                        window.dispatchEvent(new CustomEvent('notify', {
+                            detail: {
+                                type: 'info',
+                                title: 'Presensi Lengkap',
+                                message: 'Anda sudah menyelesaikan absensi masuk dan keluar untuk hari ini.'
+                            }
+                        }));
+                    }
+                };
+            },
+
+            absen(jenis) {
+                if (jenis === 'masuk' && {{ $hariIni['sudah_masuk'] ? 'true' : 'false' }}) {
+                    window.dispatchEvent(new CustomEvent('notify', {
+                        detail: {
+                            type: 'info',
+                            title: 'Sudah Absen Masuk',
+                            message: 'Presensi masuk Anda telah tercatat pada pukul {{ $hariIni['jam_masuk'] ?? '' }} WIB.'
+                        }
+                    }));
+                    return;
+                }
+
+                if (jenis === 'pulang' && !{{ $hariIni['sudah_masuk'] ? 'true' : 'false' }}) {
+                    window.dispatchEvent(new CustomEvent('notify', {
+                        detail: {
+                            type: 'warning',
+                            title: 'Belum Absen Masuk',
+                            message: 'Harap lakukan Absen Masuk terlebih dahulu sebelum mengambil Absen Keluar.'
+                        }
+                    }));
+                    return;
+                }
+
+                if (jenis === 'pulang' && {{ $hariIni['sudah_pulang'] ? 'true' : 'false' }}) {
+                    window.dispatchEvent(new CustomEvent('notify', {
+                        detail: {
+                            type: 'info',
+                            title: 'Sudah Absen Keluar',
+                            message: 'Presensi keluar Anda hari ini telah tercatat pada pukul {{ $hariIni['jam_pulang'] ?? '' }} WIB.'
+                        }
+                    }));
+                    return;
+                }
+
+                if (jenis === 'masuk') this.loadingMasuk = true;
+                if (jenis === 'pulang') this.loadingKeluar = true;
+
+                const resetLoading = () => {
+                    this.loadingMasuk = false;
+                    this.loadingKeluar = false;
+                };
+
+                const doSubmit = (lat, lng) => {
+                    $wire.ambilAbsen(jenis, lat, lng)
+                        .then(() => {
+                            resetLoading();
+                        })
+                        .catch((err) => {
+                            console.error('[DASHBOARD] Absen error:', err);
+                            resetLoading();
+                        });
+                };
+
+                if (!navigator.geolocation) {
+                    doSubmit(null, null);
+                    return;
+                }
+
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        doSubmit(pos.coords.latitude, pos.coords.longitude);
+                    },
+                    (err) => {
+                        console.warn('[DASHBOARD] Geolocation error/fallback:', err);
+                        doSubmit(null, null);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 7000,
+                        maximumAge: 10000
+                    }
+                );
+            }
+        };
+    };
+</script>
+@endscript
 </div>

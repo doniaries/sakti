@@ -3,12 +3,13 @@
 namespace App\Livewire\Mobile;
 
 use App\Models\AbsensiHarian;
-use App\Models\LogAbsensi;
 use App\Models\PengaturanAplikasi;
 use App\Models\User;
+use App\Services\AttendancePunchService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -20,208 +21,80 @@ class Absensi extends Component
     public $longitude;
     public bool $modeSimulasi = false;
 
-    #[\Livewire\Attributes\On('trigger-punch')]
-    public function punch($lat = null, $lng = null, bool $force = false)
+    /**
+     * Presensi Masuk Spesifik (dari Tombol Absen Masuk)
+     */
+    public function punchMasuk($lat = null, $lng = null)
     {
-        // Ambil koordinat dan radius kantor resmi dari PengaturanAplikasi
-        $pengaturan = PengaturanAplikasi::getPengaturan();
-        $officeLat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
-        $officeLng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
-        $maxRadius = (int) ($pengaturan->radius_meter ?? 150);
-
         /** @var User $user */
         $user = Auth::user();
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
-        $bypassJam = ($isAdmin && ($this->modeSimulasi || $force));
+        $bypass = $this->modeSimulasi || $isAdmin;
 
-        $today = Carbon::today()->format('Y-m-d');
-        $now = Carbon::now()->format('H:i:s');
-        $nowTime = substr($now, 0, 5);
+        $result = AttendancePunchService::punch(
+            $user,
+            'masuk',
+            $lat !== null ? (float) $lat : null,
+            $lng !== null ? (float) $lng : null,
+            $bypass
+        );
 
-        if ($lat === null || $lng === null) {
-            $lat = $officeLat;
-            $lng = $officeLng;
-        }
+        $this->dispatch('notify', [
+            'type' => $result['type'] ?? ($result['success'] ? 'success' : 'error'),
+            'title' => $result['title'] ?? 'Presensi Masuk',
+            'message' => $result['message'] ?? '',
+        ]);
+    }
 
-        $this->latitude = $lat;
-        $this->longitude = $lng;
+    /**
+     * Presensi Keluar/Pulang Spesifik (dari Tombol Absen Keluar)
+     */
+    public function punchPulang($lat = null, $lng = null)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
+        $bypass = $this->modeSimulasi || $isAdmin;
 
-        // Cek status kerja: WFH atau Admin mode simulasi mendapat dispensasi radius (bebas koordinat)
-        $isWfh = ($user->status_kerja === 'wfh');
-        $distance = $this->calculateDistance($officeLat, $officeLng, $lat, $lng);
+        $result = AttendancePunchService::punch(
+            $user,
+            'pulang',
+            $lat !== null ? (float) $lat : null,
+            $lng !== null ? (float) $lng : null,
+            $bypass
+        );
 
-        if (!$isWfh && !$bypassJam && $distance > $maxRadius) {
-            $distMeters = round($distance);
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'title' => 'Di Luar Radius Kantor!',
-                'message' => "Jarak Anda {$distMeters}m dari kantor (Radius toleransi: {$maxRadius}m).",
-            ]);
-            return;
-        }
+        $this->dispatch('notify', [
+            'type' => $result['type'] ?? ($result['success'] ? 'success' : 'error'),
+            'title' => $result['title'] ?? 'Presensi Keluar',
+            'message' => $result['message'] ?? '',
+        ]);
+    }
 
-        $statusLokasi = ($isWfh || $bypassJam) ? 'wfh' : 'dalam_radius';
+    /**
+     * Presensi Otomatis (Masuk jika belum, Pulang jika sudah masuk) - Trigger Navbar Center Button
+     */
+    #[On('trigger-punch')]
+    public function punch($lat = null, $lng = null, bool $force = false)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
+        $bypass = ($isAdmin && ($this->modeSimulasi || $force));
 
-        // Ambil jadwal kerja yang berlaku untuk user
-        $jadwal = $user->getJadwalKerja() ?? \App\Models\JadwalKerja::getDefault();
-        $bukaMasuk = $jadwal ? substr($jadwal->buka_absen_masuk, 0, 5) : '06:00';
-        $tutupMasuk = $jadwal ? substr($jadwal->tutup_absen_masuk, 0, 5) : '09:00';
-        $jamMasukResmi = $jadwal ? $jadwal->getJamMasukHari($today) : '07:30';
-        $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($today) : '16:00';
-        $tutupPulang = $jadwal ? substr($jadwal->tutup_absen_pulang, 0, 5) : '23:59';
-        $toleransi = $jadwal ? (int) $jadwal->toleransi_terlambat_menit : 15;
+        $result = AttendancePunchService::punch(
+            $user,
+            'auto',
+            $lat !== null ? (float) $lat : null,
+            $lng !== null ? (float) $lng : null,
+            $bypass
+        );
 
-        $absenHarian = AbsensiHarian::where('user_id', $user->id)
-            ->where('tanggal', $today)
-            ->first();
-
-        try {
-            $nomorAbsensi = (string) ($user->nomor_absensi ?? $user->id);
-
-            // 1. Kasus: Belum pernah absen masuk pagi
-            if (!$absenHarian || empty($absenHarian->jam_masuk)) {
-                if (!$bypassJam) {
-                    // Aturan 1A: Absen masuk belum buka (sebelum jam 06:00)
-                    if ($nowTime < $bukaMasuk) {
-                        $this->dispatch('notify', [
-                            'type' => 'warning',
-                            'title' => 'Diluar Jam Absen (Belum Dibuka)',
-                            'message' => "Saat ini belum memasuki jam presensi dinas. Absen masuk pagi dibuka mulai pukul {$bukaMasuk} WIB s.d {$tutupMasuk} WIB.",
-                        ]);
-                        return;
-                    }
-
-                    // Aturan 1B: Sudah lewat batas absen masuk (lewat jam 09:00)
-                    if ($nowTime > $tutupMasuk) {
-                        if ($absenHarian) {
-                            $absenHarian->update(['status' => 'tidak_hadir']);
-                        } else {
-                            AbsensiHarian::create([
-                                'user_id' => $user->id,
-                                'tanggal' => $today,
-                                'status' => 'tidak_hadir',
-                                'keterangan' => 'Alpa / Terlewat Batas Absen Masuk (' . $tutupMasuk . ' WIB)',
-                            ]);
-                        }
-
-                        $this->dispatch('notify', [
-                            'type' => 'error',
-                            'title' => 'Batas Absen Masuk Berakhir!',
-                            'message' => "Batas akhir absen masuk adalah pukul {$tutupMasuk} WIB. Anda tercatat Tidak Hadir / Alpa hari ini dan tidak dapat mengambil absen pulang.",
-                        ]);
-                        return;
-                    }
-                }
-
-                // Hitung toleransi keterlambatan
-                $batasTepatWaktu = Carbon::parse("$today $jamMasukResmi:00")->addMinutes($toleransi)->format('H:i:s');
-                $status = ($bypassJam || $now <= $batasTepatWaktu) ? 'hadir' : 'terlambat';
-
-                $log = LogAbsensi::create([
-                    'user_id' => $user->id,
-                    'nomor_absensi' => $nomorAbsensi,
-                    'waktu_absensi' => Carbon::now(),
-                    'perangkat' => 'mobile',
-                    'metode_verifikasi' => 'gps',
-                    'jenis' => 'masuk',
-                    'data_asli' => [
-                        'latitude' => $lat,
-                        'longitude' => $lng,
-                        'status_lokasi' => $statusLokasi,
-                        'is_simulasi' => $bypassJam,
-                    ],
-                ]);
-
-                $absenHarian = AbsensiHarian::firstOrCreate(
-                    ['user_id' => $user->id, 'tanggal' => $today],
-                    ['status' => $status]
-                );
-
-                $absenHarian->update([
-                    'status' => $status,
-                    'log_masuk_id' => $log->id,
-                    'jam_masuk' => $now,
-                    'latitude_masuk' => $lat,
-                    'longitude_masuk' => $lng,
-                    'is_absen_mobile' => true,
-                ]);
-
-                $labelStatus = ($status === 'hadir') ? 'Tepat Waktu' : 'Terlambat';
-                $extraMsg = $bypassJam ? ' (Mode Simulasi)' : '';
-                $this->dispatch('notify', [
-                    'type' => 'success',
-                    'title' => 'Absen Masuk Berhasil!',
-                    'message' => "Tercatat pada pukul {$now} WIB ({$labelStatus}){$extraMsg}. Selamat bertugas!",
-                ]);
-
-            } elseif (empty($absenHarian->jam_pulang)) {
-                // 2. Kasus: Sudah absen masuk, hendak ambil absen pulang
-                if (!$bypassJam) {
-                    // Aturan 2A: Belum jam pulang resmi
-                    if ($nowTime < $jamPulangResmi) {
-                        $this->dispatch('notify', [
-                            'type' => 'warning',
-                            'title' => 'Belum Waktu Pulang!',
-                            'message' => "Saat ini masih dalam jam kerja dinas. Presensi pulang hari ini baru dibuka mulai pukul {$jamPulangResmi} WIB.",
-                        ]);
-                        return;
-                    }
-
-                    // Aturan 2B: Lewat batas tutup absen pulang (23:59)
-                    if ($nowTime > $tutupPulang) {
-                        $this->dispatch('notify', [
-                            'type' => 'error',
-                            'title' => 'Batas Absen Pulang Berakhir!',
-                            'message' => "Batas akhir pengambilan absen pulang malam hari (pukul {$tutupPulang} WIB) telah berakhir.",
-                        ]);
-                        return;
-                    }
-                }
-
-                $log = LogAbsensi::create([
-                    'user_id' => $user->id,
-                    'nomor_absensi' => $nomorAbsensi,
-                    'waktu_absensi' => Carbon::now(),
-                    'perangkat' => 'mobile',
-                    'metode_verifikasi' => 'gps',
-                    'jenis' => 'pulang',
-                    'data_asli' => [
-                        'latitude' => $lat,
-                        'longitude' => $lng,
-                        'status_lokasi' => $statusLokasi,
-                        'is_simulasi' => $bypassJam,
-                    ],
-                ]);
-
-                $absenHarian->update([
-                    'log_pulang_id' => $log->id,
-                    'jam_pulang' => $now,
-                    'latitude_pulang' => $lat,
-                    'longitude_pulang' => $lng,
-                    'is_absen_mobile' => true,
-                ]);
-
-                $extraMsg = $bypassJam ? ' (Mode Simulasi)' : '';
-                $this->dispatch('notify', [
-                    'type' => 'success',
-                    'title' => 'Absen Pulang Berhasil!',
-                    'message' => "Tercatat pada pukul {$now} WIB{$extraMsg}. Terima kasih atas dedikasi Anda hari ini!",
-                ]);
-            } else {
-                $this->dispatch('notify', [
-                    'type' => 'info',
-                    'title' => 'Presensi Lengkap',
-                    'message' => 'Anda sudah menyelesaikan absensi masuk dan pulang hari ini.',
-                ]);
-            }
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Punch error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'title' => 'Gagal Mencatat Absensi',
-                'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage(),
-            ]);
-        }
+        $this->dispatch('notify', [
+            'type' => $result['type'] ?? ($result['success'] ? 'success' : 'error'),
+            'title' => $result['title'] ?? 'Presensi Kehadiran',
+            'message' => $result['message'] ?? '',
+        ]);
     }
 
     /**
@@ -246,7 +119,7 @@ class Absensi extends Component
     }
 
     /**
-     * Fitur Admin: Simulasi State "Belum Absen Masuk"
+     * Fitur Admin: Reset Data Hari Ini untuk Pengujian Ulang
      */
     public function simulasiResetMasuk(): void
     {
@@ -258,12 +131,10 @@ class Absensi extends Component
 
         $todayStr = Carbon::today()->format('Y-m-d');
 
-        // Hapus log absensi hari ini milik user
-        LogAbsensi::where('user_id', $user->id)
+        \App\Models\LogAbsensi::where('user_id', $user->id)
             ->whereDate('waktu_absensi', $todayStr)
             ->delete();
 
-        // Hapus absensi harian hari ini milik user
         AbsensiHarian::where('user_id', $user->id)
             ->where('tanggal', $todayStr)
             ->delete();
@@ -272,8 +143,8 @@ class Absensi extends Component
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'title' => 'Simulasi: Siap Absen Masuk',
-            'message' => 'Data hari ini direset. Anda sekarang dapat mencoba menekan tombol ABSEN MASUK.',
+            'title' => 'Data Direset Bersih',
+            'message' => 'Status hari ini dikosongkan. Anda dapat langsung menekan tombol Absen Masuk.',
         ]);
     }
 
@@ -293,14 +164,12 @@ class Absensi extends Component
         $lat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
         $lng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
 
-        // Hapus log pulang hari ini
-        LogAbsensi::where('user_id', $user->id)
+        \App\Models\LogAbsensi::where('user_id', $user->id)
             ->where('jenis', 'pulang')
             ->whereDate('waktu_absensi', $todayStr)
             ->delete();
 
-        // Pastikan ada log masuk 07:25 WIB
-        $logMasuk = LogAbsensi::updateOrCreate(
+        $logMasuk = \App\Models\LogAbsensi::updateOrCreate(
             [
                 'user_id' => $user->id,
                 'jenis' => 'masuk',
@@ -310,6 +179,7 @@ class Absensi extends Component
                 'nomor_absensi' => (string) ($user->nomor_absensi ?? $user->id),
                 'perangkat' => 'mobile',
                 'metode_verifikasi' => 'gps',
+                'sumber' => 'Mobile PWA',
                 'data_asli' => [
                     'latitude' => $lat,
                     'longitude' => $lng,
@@ -318,7 +188,6 @@ class Absensi extends Component
             ]
         );
 
-        // Update absensi harian: masuk terisi, pulang kosong
         AbsensiHarian::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -342,24 +211,19 @@ class Absensi extends Component
 
         $this->dispatch('notify', [
             'type' => 'success',
-            'title' => 'Simulasi: Siap Absen Pulang',
-            'message' => 'Absen masuk terpasang (07:25 WIB). Anda sekarang dapat mencoba menekan tombol ABSEN PULANG.',
+            'title' => 'Simulasi Masuk Siap',
+            'message' => 'Absen masuk terpasang (07:25 WIB). Sekarang Anda dapat menekan tombol Absen Keluar.',
         ]);
     }
 
     /**
-     * Fitur Admin: Set titik koordinat kantor langsung ke posisi GPS saat ini untuk kemudahan pengujian
+     * Fitur Admin: Set titik koordinat kantor ke posisi GPS saat ini
      */
     public function setLokasiKantorKeSaya($lat, $lng): void
     {
         /** @var User $user */
         $user = Auth::user();
         if (!$user->hasAnyRole(['super_admin', 'admin'])) {
-            $this->dispatch('notify', [
-                'type' => 'error',
-                'title' => 'Akses Ditolak',
-                'message' => 'Hanya Administrator yang berhak mengubah koordinat kantor.',
-            ]);
             return;
         }
 
@@ -372,18 +236,8 @@ class Absensi extends Component
         $this->dispatch('notify', [
             'type' => 'success',
             'title' => 'Titik Kantor Diperbarui!',
-            'message' => 'Koordinat kantor berhasil diset ke titik Anda (' . round($lat, 6) . ', ' . round($lng, 6) . '). Sekarang Anda berada di dalam radius!',
+            'message' => 'Koordinat kantor berhasil diset ke titik Anda (' . round($lat, 6) . ', ' . round($lng, 6) . ').',
         ]);
-    }
-
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
-    {
-        $earthRadius = 6371000;
-        $dLat = deg2rad($lat2 - $lat1);
-        $dLon = deg2rad($lon2 - $lon1);
-        $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon / 2) * sin($dLon / 2);
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-        return $earthRadius * $c;
     }
 
     public function render()
@@ -410,27 +264,6 @@ class Absensi extends Component
         $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($today) : '16:00';
         $tutupPulang = $jadwal ? substr($jadwal->tutup_absen_pulang, 0, 5) : '23:59';
 
-        $bypassJam = ($isAdmin && $this->modeSimulasi);
-
-        if ($bypassJam) {
-            $lewatJamMasuk = false;
-            $belumBukaMasuk = false;
-            $belumJamPulang = false;
-            $lewatJamPulang = false;
-            $siapAbsenMasuk = !$sudahMasuk;
-            $siapAbsenPulang = ($sudahMasuk && !$sudahPulang);
-        } else {
-            $lewatJamMasuk = (!$sudahMasuk && $nowTime > $tutupMasuk);
-            $belumBukaMasuk = (!$sudahMasuk && $nowTime < $bukaMasuk);
-            $belumJamPulang = ($sudahMasuk && !$sudahPulang && $nowTime < $jamPulangResmi);
-            $lewatJamPulang = ($sudahMasuk && !$sudahPulang && $nowTime > $tutupPulang);
-
-            $siapAbsenMasuk = (!$sudahMasuk && $nowTime >= $bukaMasuk && $nowTime <= $tutupMasuk);
-            $siapAbsenPulang = ($sudahMasuk && !$sudahPulang && $nowTime >= $jamPulangResmi && $nowTime <= $tutupPulang);
-        }
-
-        $bisaAbsen = $siapAbsenMasuk || $siapAbsenPulang;
-
         return view('livewire.mobile.absensi', [
             'user' => $user,
             'absenHarian' => $absenHarian,
@@ -449,13 +282,6 @@ class Absensi extends Component
             'jamMasukResmi' => $jamMasukResmi,
             'jamPulangResmi' => $jamPulangResmi,
             'tutupPulang' => $tutupPulang,
-            'lewatJamMasuk' => $lewatJamMasuk,
-            'belumBukaMasuk' => $belumBukaMasuk,
-            'belumJamPulang' => $belumJamPulang,
-            'lewatJamPulang' => $lewatJamPulang,
-            'siapAbsenMasuk' => $siapAbsenMasuk,
-            'siapAbsenPulang' => $siapAbsenPulang,
-            'bisaAbsen' => $bisaAbsen,
         ]);
     }
 }

@@ -341,8 +341,10 @@
                 } else {
                     window.dispatchEvent(new CustomEvent('trigger-absen'));
                 }
+            } else if (window.location.pathname.includes('/mobile/dashboard') && typeof window.triggerDashboardAbsen === 'function') {
+                window.triggerDashboardAbsen();
             } else {
-                // Jika berada di halaman lain (Beranda, Riwayat, LHK, Profil), navigasi ke /mobile/absensi
+                // Jika berada di halaman lain (Riwayat, LHK, Profil), navigasi ke /mobile/absensi
                 if (window.Livewire) {
                     window.Livewire.navigate('{{ route('mobile.absensi') }}');
                 } else {

@@ -5,9 +5,11 @@ namespace App\Livewire\Mobile;
 use App\Models\AbsensiHarian;
 use App\Models\Lhk;
 use App\Models\User;
+use App\Services\AttendancePunchService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -20,6 +22,32 @@ class Dashboard extends Component
     public function setTabKepegawaian($tab)
     {
         $this->tabKepegawaian = $tab;
+    }
+
+    /**
+     * Ambil presensi masuk atau pulang langsung dari kartu dashboard
+     */
+    #[On('trigger-punch')]
+    public function ambilAbsen(string $jenis = 'auto', $lat = null, $lng = null)
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user) {
+            return;
+        }
+
+        $result = AttendancePunchService::punch(
+            $user,
+            $jenis,
+            $lat !== null ? (float) $lat : null,
+            $lng !== null ? (float) $lng : null
+        );
+
+        $this->dispatch('notify', [
+            'type' => $result['type'] ?? ($result['success'] ? 'success' : 'error'),
+            'title' => $result['title'] ?? 'Presensi Kehadiran',
+            'message' => $result['message'] ?? '',
+        ]);
     }
 
     public function logout()
@@ -41,8 +69,8 @@ class Dashboard extends Component
             ->where('tanggal', $today->format('Y-m-d'))
             ->first();
 
-        $sudahMasuk = $absensiHariIni && $absensiHariIni->jam_masuk;
-        $sudahPulang = $absensiHariIni && $absensiHariIni->jam_pulang;
+        $sudahMasuk = $absensiHariIni && !empty($absensiHariIni->jam_masuk);
+        $sudahPulang = $absensiHariIni && !empty($absensiHariIni->jam_pulang);
 
         // Riwayat 7 Hari Terakhir
         $riwayat7Hari = [];
@@ -66,6 +94,7 @@ class Dashboard extends Component
                 'sudah_pulang' => $sudahPulang,
                 'jam_masuk' => $absensiHariIni->jam_masuk ?? null,
                 'jam_pulang' => $absensiHariIni->jam_pulang ?? null,
+                'status' => $absensiHariIni->status ?? null,
             ],
             'riwayat7Hari' => $riwayat7Hari,
         ]);
