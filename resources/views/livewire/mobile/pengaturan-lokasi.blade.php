@@ -1,8 +1,164 @@
-<div class="p-4 pb-24 flex flex-col min-h-screen bg-slate-50" x-data="mapSettingsApp()">
-    <!-- Leaflet Assets -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<div class="p-4 pb-24 flex flex-col min-h-screen bg-slate-50" 
+     x-data="{
+        map: null,
+        marker: null,
+        circle: null,
+        lat: {{ $latitude_kantor }},
+        lng: {{ $longitude_kantor }},
+        radiusValue: {{ $radius_meter }},
+        currentCoordsText: '{{ $latitude_kantor }}, {{ $longitude_kantor }}',
+        detectingGps: false,
+        saving: false,
 
+        init() {
+            this.waitForLeaflet();
+            Livewire.on('radius-updated', (data) => {
+                this.radiusValue = data.radius;
+                if (this.circle) {
+                    this.circle.setRadius(data.radius);
+                }
+            });
+        },
+
+        waitForLeaflet() {
+            let count = 0;
+            const timer = setInterval(() => {
+                count++;
+                if (window.L && typeof window.L.map === 'function') {
+                    clearInterval(timer);
+                    this.initLeafletMap();
+                } else if (count > 40) {
+                    clearInterval(timer);
+                }
+            }, 100);
+        },
+
+        initLeafletMap() {
+            const el = document.getElementById('mapContainer');
+            if (!el || !window.L) return;
+
+            if (this.map) {
+                try { this.map.remove(); } catch(e) {}
+            }
+
+            const fallback = document.getElementById('mapLoadingFallback');
+            if (fallback) fallback.style.display = 'none';
+
+            this.map = L.map('mapContainer', {
+                center: [this.lat, this.lng],
+                zoom: 17,
+                zoomControl: false,
+                scrollWheelZoom: false,
+            });
+
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(this.map);
+
+            L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+
+            const customPinIcon = L.divIcon({
+                className: 'custom-leaflet-pin',
+                html: `
+                    <div style='position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;'>
+                        <div style='position: absolute; width: 32px; height: 32px; background: #0284c7; border: 3px solid #ffffff; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;'>
+                            <i class='fa-solid fa-building'></i>
+                        </div>
+                        <div style='position: absolute; bottom: -6px; width: 8px; height: 8px; background: #0284c7; transform: rotate(45deg);'></div>
+                    </div>
+                `,
+                iconSize: [34, 40],
+                iconAnchor: [17, 36],
+                popupAnchor: [0, -36]
+            });
+
+            this.marker = L.marker([this.lat, this.lng], {
+                draggable: true,
+                icon: customPinIcon
+            }).addTo(this.map);
+
+            this.marker.bindPopup('<b>Titik Pusat Kantor</b><br>Geser pin untuk memindahkan titik.').openPopup();
+
+            this.circle = L.circle([this.lat, this.lng], {
+                color: '#0284c7',
+                fillColor: '#38bdf8',
+                fillOpacity: 0.25,
+                weight: 2,
+                radius: this.radiusValue
+            }).addTo(this.map);
+
+            this.marker.on('dragend', (e) => {
+                const pos = e.target.getLatLng();
+                this.updatePosition(pos.lat, pos.lng);
+            });
+
+            this.map.on('click', (e) => {
+                this.updatePosition(e.latlng.lat, e.latlng.lng);
+            });
+
+            setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 200);
+            setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 600);
+        },
+
+        updatePosition(newLat, newLng) {
+            this.lat = parseFloat(newLat.toFixed(6));
+            this.lng = parseFloat(newLng.toFixed(6));
+            this.currentCoordsText = this.lat + ', ' + this.lng;
+
+            if (this.marker) this.marker.setLatLng([this.lat, this.lng]);
+            if (this.circle) this.circle.setLatLng([this.lat, this.lng]);
+            if (this.map) this.map.panTo([this.lat, this.lng]);
+
+            $wire.set('latitude_kantor', this.lat);
+            $wire.set('longitude_kantor', this.lng);
+        },
+
+        updateRadius(val) {
+            this.radiusValue = parseInt(val);
+            if (this.circle) this.circle.setRadius(this.radiusValue);
+            $wire.set('radius_meter', this.radiusValue);
+        },
+
+        onRadiusSliderChange() {
+            const r = parseInt(this.radiusValue);
+            if (this.circle) this.circle.setRadius(r);
+            $wire.set('radius_meter', r);
+        },
+
+        detectMyGps() {
+            if (!navigator.geolocation) {
+                alert('Browser Anda tidak mendukung deteksi lokasi Geolocation.');
+                return;
+            }
+
+            this.detectingGps = true;
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    this.detectingGps = false;
+                    this.updatePosition(pos.coords.latitude, pos.coords.longitude);
+                    if (this.map) {
+                        this.map.setView([this.lat, this.lng], 18);
+                        this.map.invalidateSize();
+                    }
+                },
+                (err) => {
+                    this.detectingGps = false;
+                    alert('Gagal mendeteksi GPS perangkat: ' + err.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        },
+
+        saveLocationSettings() {
+            this.saving = true;
+            $wire.simpanLokasi().then(() => {
+                this.saving = false;
+            }).catch(() => {
+                this.saving = false;
+            });
+        }
+     }">
     <!-- Top Navigation -->
     <div class="flex items-center justify-between mb-3.5 pt-1">
         <a href="{{ route('mobile.absensi') }}" wire:navigate
@@ -33,16 +189,25 @@
             </button>
         </div>
 
-        <!-- The Leaflet Map Element -->
-        <div id="mapContainer" class="w-full h-[280px] rounded-2xl overflow-hidden border border-slate-200 relative z-10" wire:ignore></div>
+        <!-- The Leaflet Map Element with Explicit Height & Isolation -->
+        <div id="mapContainer" 
+             style="height: 280px; width: 100%; min-height: 280px; position: relative; z-index: 10;" 
+             class="w-full rounded-2xl overflow-hidden border border-slate-200 bg-slate-100" 
+             wire:ignore>
+            <!-- Loading Indicator Placeholder -->
+            <div id="mapLoadingFallback" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-100/90 z-0">
+                <i class="fa-solid fa-map-location-dot fa-bounce text-3xl text-sky-500 mb-2"></i>
+                <span class="text-xs font-bold text-slate-600">Memuat Peta Satelit / OpenStreetMap...</span>
+            </div>
+        </div>
 
         <!-- Coordinates & Live Status Strip -->
         <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-            <div class="flex items-center space-x-1.5 text-slate-600">
-                <i class="fa-solid fa-map-pin text-rose-500 text-xs"></i>
-                <span class="font-bold text-slate-700 font-mono" x-text="currentCoordsText">{{ $latitude_kantor }}, {{ $longitude_kantor }}</span>
+            <div class="flex items-center space-x-1.5 text-slate-600 min-w-0 pr-2">
+                <i class="fa-solid fa-map-pin text-rose-500 text-xs shrink-0"></i>
+                <span class="font-bold text-slate-700 font-mono truncate" x-text="currentCoordsText">{{ $latitude_kantor }}, {{ $longitude_kantor }}</span>
             </div>
-            <div class="flex items-center space-x-1 text-sky-700 font-bold">
+            <div class="flex items-center space-x-1 text-sky-700 font-bold shrink-0">
                 <i class="fa-solid fa-circle-dot text-[10px] text-sky-500"></i>
                 <span>Radius <span x-text="radiusValue">{{ $radius_meter }}</span> m</span>
             </div>
@@ -116,136 +281,4 @@
             </button>
         </div>
     </div>
-
-    @script
-    <script>
-        window.mapSettingsApp = function() {
-            return {
-                map: null,
-                marker: null,
-                circle: null,
-                lat: {{ $latitude_kantor }},
-                lng: {{ $longitude_kantor }},
-                radiusValue: {{ $radius_meter }},
-                currentCoordsText: '{{ $latitude_kantor }}, {{ $longitude_kantor }}',
-                detectingGps: false,
-                saving: false,
-
-                init() {
-                    this.$nextTick(() => {
-                        this.initLeafletMap();
-                    });
-
-                    Livewire.on('radius-updated', (data) => {
-                        this.radiusValue = data.radius;
-                        if (this.circle) {
-                            this.circle.setRadius(data.radius);
-                        }
-                    });
-                },
-
-                initLeafletMap() {
-                    const el = document.getElementById('mapContainer');
-                    if (!el) return;
-
-                    // Buat instance Leaflet Map
-                    this.map = L.map('mapContainer', {
-                        center: [this.lat, this.lng],
-                        zoom: 17,
-                        zoomControl: false,
-                    });
-
-                    // Layer Tiles OpenStreetMap / CartoDB
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19,
-                        attribution: '&copy; OpenStreetMap'
-                    }).addTo(this.map);
-
-                    // Add Custom Zoom Control to Bottom-Right
-                    L.control.zoom({ position: 'bottomright' }).addTo(this.map);
-
-                    // Custom Marker
-                    this.marker = L.marker([this.lat, this.lng], {
-                        draggable: true,
-                    }).addTo(this.map);
-
-                    // Geofence Circle
-                    this.circle = L.circle([this.lat, this.lng], {
-                        color: '#0284c7',
-                        fillColor: '#38bdf8',
-                        fillOpacity: 0.25,
-                        weight: 2,
-                        radius: this.radiusValue
-                    }).addTo(this.map);
-
-                    // Event Drag Marker
-                    this.marker.on('dragend', (e) => {
-                        const pos = e.target.getLatLng();
-                        this.updatePosition(pos.lat, pos.lng);
-                    });
-
-                    // Event Klik Peta
-                    this.map.on('click', (e) => {
-                        this.updatePosition(e.latlng.lat, e.latlng.lng);
-                    });
-                },
-
-                updatePosition(newLat, newLng) {
-                    this.lat = parseFloat(newLat.toFixed(6));
-                    this.lng = parseFloat(newLng.toFixed(6));
-                    this.currentCoordsText = `${this.lat}, ${this.lng}`;
-
-                    if (this.marker) this.marker.setLatLng([this.lat, this.lng]);
-                    if (this.circle) this.circle.setLatLng([this.lat, this.lng]);
-                    if (this.map) this.map.panTo([this.lat, this.lng]);
-
-                    $wire.set('latitude_kantor', this.lat);
-                    $wire.set('longitude_kantor', this.lng);
-                },
-
-                updateRadius(val) {
-                    this.radiusValue = parseInt(val);
-                    if (this.circle) this.circle.setRadius(this.radiusValue);
-                    $wire.set('radius_meter', this.radiusValue);
-                },
-
-                onRadiusSliderChange() {
-                    const r = parseInt(this.radiusValue);
-                    if (this.circle) this.circle.setRadius(r);
-                    $wire.set('radius_meter', r);
-                },
-
-                detectMyGps() {
-                    if (!navigator.geolocation) {
-                        alert('Browser Anda tidak mendukung deteksi lokasi Geolocation.');
-                        return;
-                    }
-
-                    this.detectingGps = true;
-                    navigator.geolocation.getCurrentPosition(
-                        (pos) => {
-                            this.detectingGps = false;
-                            this.updatePosition(pos.coords.latitude, pos.coords.longitude);
-                            if (this.map) this.map.setView([this.lat, this.lng], 18);
-                        },
-                        (err) => {
-                            this.detectingGps = false;
-                            alert('Gagal mendeteksi GPS perangkat: ' + err.message);
-                        },
-                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                    );
-                },
-
-                saveLocationSettings() {
-                    this.saving = true;
-                    $wire.simpanLokasi().then(() => {
-                        this.saving = false;
-                    }).catch(() => {
-                        this.saving = false;
-                    });
-                }
-            };
-        };
-    </script>
-    @endscript
 </div>

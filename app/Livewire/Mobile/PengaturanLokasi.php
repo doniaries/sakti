@@ -110,3 +110,4 @@ class PengaturanLokasi extends Component
         return view('livewire.mobile.pengaturan-lokasi');
     }
 }
+

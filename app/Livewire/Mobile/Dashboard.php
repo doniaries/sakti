@@ -8,20 +8,51 @@ use App\Models\User;
 use App\Services\AttendancePunchService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.mobile')]
 #[Title('Dashboard - Absensi LHK Mobile')]
 class Dashboard extends Component
 {
-    public $tabKepegawaian = 'utama'; // 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
+    use WithFileUploads;
 
-    public function setTabKepegawaian($tab)
+    public $new_avatar;
+
+    /**
+     * Upload dan ganti foto profil langsung dari dashboard
+     * Otomatis membersihkan foto lama dari storage agar server tidak penuh
+     */
+    public function updatedNewAvatar()
     {
-        $this->tabKepegawaian = $tab;
+        $this->validate([
+            'new_avatar' => 'required|image|max:2048',
+        ], [
+            'new_avatar.image' => 'File harus berupa gambar (JPG, PNG, WEBP).',
+            'new_avatar.max' => 'Ukuran foto maksimal 2MB.',
+        ]);
+
+        /** @var User $freshUser */
+        $freshUser = User::findOrFail(Auth::id());
+
+        $oldAvatar = $freshUser->avatar_url;
+        if (!empty($oldAvatar) && Storage::disk('public')->exists($oldAvatar)) {
+            Storage::disk('public')->delete($oldAvatar);
+        }
+
+        $path = $this->new_avatar->store('avatars', 'public');
+        $freshUser->update(['avatar_url' => $path]);
+        $this->new_avatar = null;
+
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Foto Profil Berhasil Diganti!',
+            'message' => 'Foto profil terbaru telah disimpan dan file lama telah dihapus dari server.',
+        ]);
     }
 
     /**
