@@ -11,7 +11,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \Filament\Auth\Notifications\ResetPassword::class,
+            \App\Notifications\SaktiResetPasswordNotification::class
+        );
     }
 
     /**
@@ -19,6 +22,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Kustomisasi pesan email reset password Laravel & Filament dengan template SAKTI
+        \Illuminate\Auth\Notifications\ResetPassword::toMailUsing(function ($notifiable, $token) {
+            $notification = app(\Filament\Auth\Notifications\ResetPassword::class, ['token' => $token]);
+            $notification->url = \Filament\Facades\Filament::getResetPasswordUrl($token, $notifiable);
+            return $notification->toMail($notifiable);
+        });
+
         // Paksa HTTPS jika di lingkungan production atau URL menggunakan HTTPS
         if ($this->app->environment('production') || str_starts_with(config('app.url', ''), 'https://')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
