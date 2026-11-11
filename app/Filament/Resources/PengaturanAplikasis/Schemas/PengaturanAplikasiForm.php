@@ -46,9 +46,9 @@ class PengaturanAplikasiForm
 
                                                 TextInput::make('sub_nama')
                                                     ->label('Sub-Judul (Kepanjangan SAKTI)')
-                                                    ->placeholder('Contoh: Sistem Administrasi, Kinerja, dan Tata Informasi')
+                                                    ->placeholder('Contoh: Sistem Administrasi Kinerja Terintegrasi')
                                                     ->required()
-                                                    ->default('Sistem Administrasi, Kinerja, dan Tata Informasi')
+                                                    ->default('Sistem Administrasi Kinerja Terintegrasi')
                                                     ->helperText('Kepanjangan singkatan SAKTI yang tampil di header dan portal.')
                                                     ->columnSpan(['md' => 2])
                                                     ->maxLength(200),
@@ -57,7 +57,7 @@ class PengaturanAplikasiForm
                                         Textarea::make('deskripsi')
                                             ->label('Deskripsi / Ringkasan Sistem')
                                             ->rows(2)
-                                            ->placeholder('Sistem Administrasi, Kinerja, dan Tata Informasi')
+                                            ->placeholder('Sistem Administrasi Kinerja Terintegrasi')
                                             ->columnSpanFull(),
                                     ]),
 

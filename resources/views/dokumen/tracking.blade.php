@@ -291,7 +291,7 @@
     <!-- Footer -->
     <footer class="bg-white border-t border-slate-200/80 mt-8 py-4">
         <div class="max-w-4xl mx-auto px-4 text-center text-xs text-slate-500">
-            <p class="font-medium text-slate-600">&copy; {{ date('Y') }} SAKTI &bull; Sistem Administrasi, Kinerja, dan Tata Informasi</p>
+            <p class="font-medium text-slate-600">&copy; {{ date('Y') }} SAKTI &bull; Sistem Administrasi Kinerja Terintegrasi</p>
             <p class="text-[11px] text-slate-400 mt-0.5">Pemerintah Kabupaten Sijunjung &bull; Dinas Pariwisata Pemuda dan Olahraga</p>
         </div>
     </footer>

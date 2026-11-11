@@ -168,7 +168,7 @@ class PengaturanAplikasi extends Model
         if (! $pengaturan) {
             $pengaturan = static::query()->create([
                 'nama_aplikasi' => 'Sakti',
-                'sub_nama' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
+                'sub_nama' => 'Sistem Administrasi Kinerja Terintegrasi',
                 'nama_dinas' => $instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA',
                 'kode_instansi' => $instansi?->kode_instansi ?? '3.26.2.19.0.00.01.0000',
                 'sub_unit_organisasi' => $instansi?->sub_unit_organisasi ?? '-',
@@ -182,7 +182,7 @@ class PengaturanAplikasi extends Model
                 'versi_aplikasi' => 'v1.0.0',
                 'pembuat_aplikasi' => 'Don Borland',
                 'kontak_bantuan' => 'helpdesk@sakti.sijunjung.cloud',
-                'deskripsi' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
+                'deskripsi' => 'Sistem Administrasi Kinerja Terintegrasi',
             ]);
         } else {
             // Ambil nama_dinas dari instansi jika belum terisi

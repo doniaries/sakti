@@ -1,6 +1,6 @@
 # 📊 Alur Kerja Terpadu Aplikasi SAKTI: Keuangan & Presensi (Absensi)
 
-Dokumen ini menyajikan peta visual dan penjelasan terstruktur untuk dua modul inti dalam aplikasi **SAKTI (Sistem Administrasi, Kinerja, dan Tata Informasi)**:
+Dokumen ini menyajikan peta visual dan penjelasan terstruktur untuk dua modul inti dalam aplikasi **SAKTI (Sistem Administrasi Kinerja Terintegrasi)**:
 1. **Modul Pengelolaan Keuangan & SPJ Terpadu** (Alur 2 Tahap: Nota Pesanan hingga Pencairan SPJ).
 2. **Modul Presensi & Kinerja Pegawai** (Jendela Absensi Masuk/Pulang hingga Validasi LHK Atasan).
 

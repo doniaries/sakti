@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "doniaries/sakti",
     "type": "project",
-    "description": "Sakti - Sistem Administrasi, Kinerja, dan Tata Informasi",
+    "description": "Sakti - Sistem Administrasi Kinerja Terintegrasi",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {

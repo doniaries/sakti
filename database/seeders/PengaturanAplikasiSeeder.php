@@ -35,7 +35,7 @@ class PengaturanAplikasiSeeder extends Seeder
                 'tahun_anggaran_aktif' => 2026,
                 'pembuat_aplikasi' => 'Don Borland',
                 'kontak_bantuan' => 'helpdesk@sakti.sijunjung.cloud',
-                'deskripsi' => 'Sistem Administrasi, Kinerja, dan Tata Informasi',
+                'deskripsi' => 'Sistem Administrasi Kinerja Terintegrasi',
             ]
         );
     }

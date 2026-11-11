@@ -25,7 +25,7 @@ class Login extends BaseLogin
 
         $namaAplikasi = $pengaturan?->nama_aplikasi ?: 'SAKTI';
         $kepanjangan = $pengaturan?->sub_nama 
-            ?: ($pengaturan?->deskripsi ?: 'Sistem Administrasi, Kinerja, dan Tata Informasi');
+            ?: ($pengaturan?->deskripsi ?: 'Sistem Administrasi Kinerja Terintegrasi');
         $namaDinas = $pengaturan?->nama_dinas ?: 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA';
 
         $logoUrl = asset('images/logo-instansi.png');

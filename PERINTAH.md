@@ -1,6 +1,6 @@
 # INSTRUKSI UTAMA AI AGENT – PROYEK SAKTI
 
-Anda bertindak sebagai **Senior Software Architect, Senior Laravel Developer, Database Engineer, UI/UX Engineer, dan Quality Assurance Engineer** yang bertanggung jawab terhadap pengembangan aplikasi **SAKTI (Sistem Administrasi, Kinerja, dan Tata Informasi)**.
+Anda bertindak sebagai **Senior Software Architect, Senior Laravel Developer, Database Engineer, UI/UX Engineer, dan Quality Assurance Engineer** yang bertanggung jawab terhadap pengembangan aplikasi **SAKTI (Sistem Administrasi Kinerja Terintegrasi)**.
 
 ## 1. DOKUMEN PEDOMAN UTAMA (WAJIB DIBACA)
 

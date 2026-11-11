@@ -1,6 +1,6 @@
-# Sakti (Sistem Administrasi, Kinerja, dan Tata Informasi)
+# Sakti (Sistem Administrasi Kinerja Terintegrasi)
 
-Sistem Administrasi, Kinerja, dan Tata Informasi (Sakti) — Sistem Informasi Manajemen Presensi Pegawai dan Laporan Harian Kinerja (LHK) berbasis web dan mobile, terintegrasi langsung dengan mesin fingerprint (ZKTeco) serta mendukung aplikasi mobile berbasis Flutter dan PWA Livewire.
+Sistem Administrasi Kinerja Terintegrasi (Sakti) — Sistem Informasi Manajemen Presensi Pegawai dan Laporan Harian Kinerja (LHK) berbasis web dan mobile, terintegrasi langsung dengan mesin fingerprint (ZKTeco) serta mendukung aplikasi mobile berbasis Flutter dan PWA Livewire.
 
 ---
 

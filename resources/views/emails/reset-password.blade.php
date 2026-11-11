@@ -25,7 +25,7 @@
                                 SAKTI
                             </h1>
                             <p style="margin: 4px 0 0 0; font-size: 13px; color: #94a3b8; font-weight: 400;">
-                                Sistem Administrasi, Kinerja, dan Tata Informasi
+                                Sistem Administrasi Kinerja Terintegrasi
                             </p>
                             <p style="margin: 6px 0 0 0; font-size: 11px; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600;">
                                 Dinas Pariwisata, Pemuda dan Olah Raga Kab. Sijunjung

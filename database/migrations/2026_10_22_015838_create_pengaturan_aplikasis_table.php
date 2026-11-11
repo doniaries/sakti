@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pengaturan_aplikasis', function (Blueprint $table) {
             $table->id();
             $table->string('nama_aplikasi')->default('Sakti');
-            $table->string('sub_nama')->nullable()->default('Sistem Administrasi, Kinerja, dan Tata Informasi');
+            $table->string('sub_nama')->nullable()->default('Sistem Administrasi Kinerja Terintegrasi');
             $table->string('nama_dinas')->nullable()->default('Dinas Pariwisata Pemuda dan Olahraga');
             $table->string('logo')->nullable();
             $table->string('versi_aplikasi')->default('v1.0.0');

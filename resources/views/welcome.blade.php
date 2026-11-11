@@ -227,7 +227,7 @@
                 {{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}
             </h1>
             <p class="text-xs md:text-sm text-slate-400 max-w-xl mx-auto font-medium leading-relaxed">
-                {{ $pengaturan->sub_nama ?? 'Sistem Administrasi, Kinerja, dan Tata Informasi' }}
+                {{ $pengaturan->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}
             </p>
 
             <!-- Digital Clock & Info Button -->
@@ -491,7 +491,7 @@
                     </div>
                     <div>
                         <h3 class="text-base sm:text-lg font-black text-white">Panduan & Alur Sistem SAKTI</h3>
-                        <p class="text-xs text-slate-400">{{ $pengaturan->sub_nama ?? 'Sistem Administrasi, Kinerja, dan Tata Informasi' }}</p>
+                        <p class="text-xs text-slate-400">{{ $pengaturan->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}</p>
                     </div>
                 </div>
                 <button type="button" @click="infoModal = false" class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer">

@@ -172,7 +172,7 @@ foreach ($spjs as $counter => $spj) {
     imagestring($img, 3, 50, 500, "Waktu Dokumentasi: " . date('d-m-Y H:i') . " WIB | Pemeriksa: Tim Penerima Barang & PPTK", $textColor);
 
     // Footer
-    imagestring($img, 2, 30, 540, "Sakti Keuangan - Sistem Administrasi, Kinerja, dan Tata Informasi", $headerColor);
+    imagestring($img, 2, 30, 540, "Sakti Keuangan - Sistem Administrasi Kinerja Terintegrasi", $headerColor);
 
     ob_start();
     imagejpeg($img, null, 90);

@@ -1,6 +1,6 @@
 # Pedoman & Aturan Pengembangan (AGENTS.md)
 
-Dokumen ini adalah pedoman baku dan aturan wajib untuk AI Agent dan pengembang dalam memelihara dan mengembangkan proyek **Sakti (Sistem Administrasi, Kinerja, dan Tata Informasi)**.
+Dokumen ini adalah pedoman baku dan aturan wajib untuk AI Agent dan pengembang dalam memelihara dan mengembangkan proyek **Sakti (Sistem Administrasi Kinerja Terintegrasi)**.
 
 ---
 
