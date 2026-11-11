@@ -176,7 +176,7 @@
 <body>
     <div class="mobile-container">
         <!-- Content -->
-        <div class="content-area">
+        <div class="content-area {{ !auth()->check() ? '!pb-0 h-screen overflow-hidden' : '' }}">
             {{ $slot }}
         </div>
 

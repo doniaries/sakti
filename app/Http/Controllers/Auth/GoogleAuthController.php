@@ -17,8 +17,12 @@ class GoogleAuthController extends Controller
     /**
      * Mengarahkan pengguna ke halaman autentikasi Google OAuth.
      */
-    public function redirectToGoogle(): RedirectResponse
+    public function redirectToGoogle(Request $request): RedirectResponse
     {
+        if ($request->has('from')) {
+            session(['google_auth_origin' => $request->query('from')]);
+        }
+
         return Socialite::driver('google')->redirect();
     }
 
@@ -27,6 +31,9 @@ class GoogleAuthController extends Controller
      */
     public function handleGoogleCallback(Request $request): RedirectResponse
     {
+        $origin = session()->pull('google_auth_origin', 'admin');
+        $failRedirect = ($origin === 'mobile') ? route('mobile.login') : '/admin/login';
+
         try {
             /** @var \Laravel\Socialite\Two\User $googleUser */
             $googleUser = Socialite::driver('google')->user();
@@ -39,7 +46,13 @@ class GoogleAuthController extends Controller
                 ->danger()
                 ->send();
 
-            return redirect()->to('/admin/login');
+            session()->flash('notify', [
+                'type' => 'error',
+                'title' => 'Gagal Masuk',
+                'message' => 'Otorisasi dengan akun Google dibatalkan atau terjadi kesalahan jaringan. Silakan coba kembali.',
+            ]);
+
+            return redirect()->to($failRedirect);
         }
 
         $googleId = (string) $googleUser->getId();
@@ -52,7 +65,13 @@ class GoogleAuthController extends Controller
                 ->danger()
                 ->send();
 
-            return redirect()->to('/admin/login');
+            session()->flash('notify', [
+                'type' => 'error',
+                'title' => 'Email Tidak Ditemukan',
+                'message' => 'Akun Google Anda tidak membagikan informasi alamat email.',
+            ]);
+
+            return redirect()->to($failRedirect);
         }
 
         // Cari user berdasarkan google_id, email kedinasan, atau email pribadi
@@ -72,7 +91,13 @@ class GoogleAuthController extends Controller
                 ->persistent()
                 ->send();
 
-            return redirect()->to('/admin/login');
+            session()->flash('notify', [
+                'type' => 'warning',
+                'title' => 'Akun Tidak Terdaftar',
+                'message' => "Email Google ({$googleEmail}) belum terdaftar pada data pegawai SAKTI. Silakan login menggunakan akun kedinasan Anda atau hubungi Administrator.",
+            ]);
+
+            return redirect()->to($failRedirect);
         }
 
         // Cek status keaktifan pegawai
@@ -84,7 +109,13 @@ class GoogleAuthController extends Controller
                 ->persistent()
                 ->send();
 
-            return redirect()->to('/admin/login');
+            session()->flash('notify', [
+                'type' => 'error',
+                'title' => 'Akun Nonaktif',
+                'message' => 'Akun pegawai Anda sedang dinonaktifkan. Silakan hubungi Administrator Kepegawaian.',
+            ]);
+
+            return redirect()->to($failRedirect);
         }
 
         // Tautkan google_id otomatis jika belum terisi
@@ -102,7 +133,11 @@ class GoogleAuthController extends Controller
             ->success()
             ->send();
 
-        return redirect()->intended('/admin');
+        $targetRoute = ($origin === 'mobile' || ! $user->hasAnyRole(['super_admin', 'admin']))
+            ? route('mobile.dashboard')
+            : '/admin';
+
+        return redirect()->intended($targetRoute);
     }
 }
 
