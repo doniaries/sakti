@@ -226,6 +226,18 @@ class Profil extends Component
         return redirect()->route('mobile.dashboard');
     }
 
+    /**
+     * Logout Akun dari Mobile
+     */
+    public function logout()
+    {
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('mobile.login');
+    }
+
     public function render()
     {
         /** @var User $user */

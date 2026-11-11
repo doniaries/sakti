@@ -72,6 +72,19 @@ class Dashboard extends Component
         $sudahMasuk = $absensiHariIni && !empty($absensiHariIni->jam_masuk);
         $sudahPulang = $absensiHariIni && !empty($absensiHariIni->jam_pulang);
 
+        // Parameter Jadwal Kerja & Batas Waktu
+        $jadwal = $user->getJadwalKerja() ?? \App\Models\JadwalKerja::getDefault();
+        $bukaMasuk = $jadwal ? substr($jadwal->buka_absen_masuk, 0, 5) : '06:00';
+        $tutupMasuk = $jadwal ? substr($jadwal->tutup_absen_masuk, 0, 5) : '09:00';
+        $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($today->format('Y-m-d')) : '16:00';
+        $tutupPulang = $jadwal ? substr($jadwal->tutup_absen_pulang, 0, 5) : '23:59';
+        $nowTime = Carbon::now()->format('H:i');
+
+        $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
+        $belumBukaMasuk = (!$isAdmin && $nowTime < $bukaMasuk);
+        $lewatBatasMasuk = (!$isAdmin && !$sudahMasuk && $nowTime > $tutupMasuk);
+        $lewatBatasPulang = (!$isAdmin && $sudahMasuk && !$sudahPulang && $nowTime > $tutupPulang);
+
         // Riwayat 7 Hari Terakhir
         $riwayat7Hari = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -95,6 +108,14 @@ class Dashboard extends Component
                 'jam_masuk' => $absensiHariIni->jam_masuk ?? null,
                 'jam_pulang' => $absensiHariIni->jam_pulang ?? null,
                 'status' => $absensiHariIni->status ?? null,
+                'buka_masuk' => $bukaMasuk,
+                'tutup_masuk' => $tutupMasuk,
+                'jam_pulang_resmi' => $jamPulangResmi,
+                'tutup_pulang' => $tutupPulang,
+                'belum_buka_masuk' => $belumBukaMasuk,
+                'lewat_batas_masuk' => $lewatBatasMasuk,
+                'lewat_batas_pulang' => $lewatBatasPulang,
+                'is_admin' => $isAdmin,
             ],
             'riwayat7Hari' => $riwayat7Hari,
         ]);

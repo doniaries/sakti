@@ -5,11 +5,18 @@
             <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Profil Pegawai</h1>
             <p class="text-xs text-slate-500 font-medium">Statistik & Biodata Kepegawaian</p>
         </div>
-        <button wire:click="toggleEdit"
-            class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center transition-all shadow-xs {{ $isEditing ? 'bg-slate-200 text-slate-700' : 'bg-sky-500 text-white shadow-sky-500/25 active:scale-95' }}">
-            <i class="fa-solid {{ $isEditing ? 'fa-xmark' : 'fa-pen-to-square' }} mr-1.5"></i>
-            {{ $isEditing ? 'Batal' : 'Edit Profil' }}
-        </button>
+        <div class="flex items-center space-x-2">
+            <button wire:click="toggleEdit"
+                class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center transition-all shadow-xs {{ $isEditing ? 'bg-slate-200 text-slate-700' : 'bg-sky-500 text-white shadow-sky-500/25 active:scale-95' }}">
+                <i class="fa-solid {{ $isEditing ? 'fa-xmark' : 'fa-pen-to-square' }} mr-1.5"></i>
+                {{ $isEditing ? 'Batal' : 'Edit Profil' }}
+            </button>
+            <button wire:click="logout" wire:confirm="Apakah Anda yakin ingin keluar dari akun?"
+                class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition flex items-center justify-center border border-rose-200/80 shadow-xs active:scale-95 cursor-pointer"
+                title="Keluar dari Akun">
+                <i class="fa-solid fa-right-from-bracket text-xs"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Header Avatar & Nama (Vibrant Gradient & Legible Typography) -->
@@ -776,4 +783,14 @@
             </div>
         @endif
     @endif
+
+    <!-- Tombol Keluar dari Akun (Logout) -->
+    <div class="mt-8 pt-4 border-t border-slate-200/80">
+        <button wire:click="logout" wire:confirm="Apakah Anda yakin ingin keluar dari akun ini?"
+            class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-rose-50 text-rose-600 font-extrabold text-xs border border-rose-200 shadow-xs flex items-center justify-center space-x-2 transition active:scale-98 cursor-pointer">
+            <i class="fa-solid fa-power-off text-rose-500 text-sm"></i>
+            <span>Keluar dari Akun (Logout)</span>
+        </button>
+        <p class="text-center text-[10px] text-slate-400 mt-2.5">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p>
+    </div>
 </div>

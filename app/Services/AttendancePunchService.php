@@ -208,10 +208,24 @@ class AttendancePunchService
                 ];
             }
 
-            // Catatan: Jika pegawai tap pulang sebelum jam pulang resmi (misal jadwal 16:00 tapi pulang 15:30),
-            // sistem mencatat sebagai "Pulang Cepat" dan TIDAK memblokir tombol.
-            $isPulangCepat = ($nowTime < $jamPulangResmi);
-            $extraKet = $isPulangCepat ? "Pulang Cepat (Sebelum {$jamPulangResmi} WIB)" : null;
+            // Validasi jam buka & tutup pulang (baru aktif jika sudah masuk jam pulang)
+            if (!$bypass && $nowTime < $jamPulangResmi) {
+                return [
+                    'success' => false,
+                    'type' => 'warning',
+                    'title' => 'Belum Jam Pulang!',
+                    'message' => "Tombol absen pulang baru aktif ketika jam pulang sudah masuk. Jam pulang resmi hari ini adalah pukul {$jamPulangResmi} WIB.",
+                ];
+            }
+
+            if (!$bypass && $nowTime > $tutupPulang) {
+                return [
+                    'success' => false,
+                    'type' => 'error',
+                    'title' => 'Waktu Absen Pulang Lewat!',
+                    'message' => "Batas akhir absen pulang adalah pukul {$tutupPulang} WIB. Waktu presensi hari ini telah berakhir.",
+                ];
+            }
 
             $log = LogAbsensi::create([
                 'user_id' => $user->id,

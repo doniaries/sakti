@@ -267,6 +267,11 @@ class Absensi extends Component
         $toleransi = $jadwal ? (int) $jadwal->toleransi_terlambat_menit : 15;
         $batasToleransi = Carbon::parse("$today $jamMasukResmi:00")->addMinutes($toleransi)->format('H:i');
 
+        $lewatBatasMasuk = (!$isAdmin && !$this->modeSimulasi && !$sudahMasuk && $nowTime > $tutupMasuk);
+        $belumBukaMasuk = (!$isAdmin && !$this->modeSimulasi && $nowTime < $bukaMasuk);
+        $belumJamPulang = (!$isAdmin && !$this->modeSimulasi && $nowTime < $jamPulangResmi);
+        $lewatBatasPulang = (!$isAdmin && !$this->modeSimulasi && $nowTime > $tutupPulang);
+
         return view('livewire.mobile.absensi', [
             'user' => $user,
             'absenHarian' => $absenHarian,
@@ -289,6 +294,10 @@ class Absensi extends Component
             'toleransi' => $toleransi,
             'batasToleransi' => $batasToleransi,
             'isJumat' => $isJumat,
+            'lewatBatasMasuk' => $lewatBatasMasuk,
+            'belumBukaMasuk' => $belumBukaMasuk,
+            'belumJamPulang' => $belumJamPulang,
+            'lewatBatasPulang' => $lewatBatasPulang,
         ]);
     }
 }
