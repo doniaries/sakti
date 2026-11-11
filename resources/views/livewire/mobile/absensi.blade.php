@@ -1,4 +1,4 @@
-<div class="p-5 pb-24 flex flex-col min-h-[calc(100vh-100px)]" x-data="absensiApp()" @trigger-absen.window="triggerPunch()">
+<div class="p-5 pb-24 flex flex-col min-h-[calc(100vh-100px)]" x-data="absensiApp()">
     <!-- Top Bar: Header & Status GPS -->
     <div class="flex items-center justify-between mb-4 pt-1">
         <div>
@@ -303,27 +303,6 @@
 
             init() {
                 this.detectPosition();
-
-                // Handler tombol navbar center
-                window.triggerDoAbsen = () => {
-                    this.triggerPunch();
-                };
-            },
-
-            triggerPunch() {
-                if (!{{ $sudahMasuk ? 'true' : 'false' }}) {
-                    this.doPunch('masuk');
-                } else if (!{{ $sudahPulang ? 'true' : 'false' }}) {
-                    this.doPunch('pulang');
-                } else {
-                    window.dispatchEvent(new CustomEvent('notify', {
-                        detail: {
-                            type: 'info',
-                            title: 'Presensi Lengkap',
-                            message: 'Anda sudah menyelesaikan absensi masuk dan keluar hari ini.'
-                        }
-                    }));
-                }
             },
 
             doPunch(jenis) {

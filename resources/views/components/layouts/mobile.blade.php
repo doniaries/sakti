@@ -196,15 +196,15 @@
                     <span>Riwayat</span>
                 </a>
 
-                <!-- 3. TOMBOL ABSEN TENGAH (Selalu Muncul & Sticky) -->
+                <!-- 3. TOMBOL NAVIGASI PRESENSI TENGAH (Navigasi ke Halaman Presensi) -->
                 <div class="center-absen-btn-wrapper">
-                    <button type="button" 
-                            id="btn-absen-navbar"
-                            onclick="handleCenterAbsenBtn()" 
-                            class="center-absen-btn group ring-4 ring-sky-300 transition-all duration-300 active:scale-95 cursor-pointer">
-                        <i id="btn-absen-icon" class="fa-solid fa-fingerprint"></i>
-                        <span id="btn-absen-text">ABSEN</span>
-                    </button>
+                    <a href="{{ route('mobile.absensi') }}" 
+                       wire:navigate
+                       class="center-absen-btn group ring-4 ring-sky-300 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-emerald-400 shadow-emerald-500/30' : '' }}"
+                       title="Halaman Presensi Kehadiran">
+                        <i class="fa-solid fa-fingerprint"></i>
+                        <span>PRESENSI</span>
+                    </a>
                 </div>
 
                 <!-- 4. LHK -->
@@ -322,37 +322,6 @@
     </div>
 
     @livewireScripts
-    <script>
-
-        // Global Navbar Center ABSEN Button Handler
-        function handleCenterAbsenBtn() {
-            console.log('[NAVBAR] handleCenterAbsenBtn clicked. Path:', window.location.pathname);
-            if (window.location.pathname.includes('/mobile/absensi')) {
-                // Ubah visual tombol menjadi memproses
-                const btnText = document.getElementById('btn-absen-text');
-                const btnIcon = document.getElementById('btn-absen-icon');
-                if (btnText) btnText.innerText = 'PROSES';
-                if (btnIcon) btnIcon.className = 'fa-solid fa-circle-notch fa-spin';
-
-                if (typeof window.triggerDoAbsen === 'function') {
-                    window.triggerDoAbsen();
-                } else if (window.Livewire) {
-                    window.Livewire.dispatch('trigger-punch');
-                } else {
-                    window.dispatchEvent(new CustomEvent('trigger-absen'));
-                }
-            } else if (window.location.pathname.includes('/mobile/dashboard') && typeof window.triggerDashboardAbsen === 'function') {
-                window.triggerDashboardAbsen();
-            } else {
-                // Jika berada di halaman lain (Riwayat, LHK, Profil), navigasi ke /mobile/absensi
-                if (window.Livewire) {
-                    window.Livewire.navigate('{{ route('mobile.absensi') }}');
-                } else {
-                    window.location.href = '{{ route('mobile.absensi') }}';
-                }
-            }
-        }
-    </script>
 </body>
 </html>
 

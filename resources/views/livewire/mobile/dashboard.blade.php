@@ -562,24 +562,6 @@
             loadingMasuk: false,
             loadingKeluar: false,
 
-            init() {
-                window.triggerDashboardAbsen = () => {
-                    if (!{{ $hariIni['sudah_masuk'] ? 'true' : 'false' }}) {
-                        this.absen('masuk');
-                    } else if (!{{ $hariIni['sudah_pulang'] ? 'true' : 'false' }}) {
-                        this.absen('pulang');
-                    } else {
-                        window.dispatchEvent(new CustomEvent('notify', {
-                            detail: {
-                                type: 'info',
-                                title: 'Presensi Lengkap',
-                                message: 'Anda sudah menyelesaikan absensi masuk dan keluar untuk hari ini.'
-                            }
-                        }));
-                    }
-                };
-            },
-
             absen(jenis) {
                 if (jenis === 'masuk' && {{ $hariIni['sudah_masuk'] ? 'true' : 'false' }}) {
                     window.dispatchEvent(new CustomEvent('notify', {
