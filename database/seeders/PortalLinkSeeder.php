@@ -39,7 +39,7 @@ class PortalLinkSeeder extends Seeder
             [
                 'judul' => 'Presensi Mobile Pegawai',
                 'deskripsi' => 'Aplikasi presensi mandiri ASN & Non-ASN: Tap masuk & pulang GPS geofencing, izin dinas luar, dan rekap mandiri',
-                'url' => '/mobile',
+                'url' => '/mobile/dashboard',
                 'target' => '_self',
                 'warna' => 'sky',
                 'bentuk' => 'squircle',
