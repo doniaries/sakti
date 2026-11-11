@@ -17,3 +17,4 @@ class ListPortalLinks extends ListRecords
         ];
     }
 }
+

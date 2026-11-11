@@ -14,3 +14,4 @@ class CreatePortalLink extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 }
+

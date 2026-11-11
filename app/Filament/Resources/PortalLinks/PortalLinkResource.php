@@ -54,3 +54,4 @@ class PortalLinkResource extends Resource
         ];
     }
 }
+

@@ -175,8 +175,7 @@
     </style>
 </head>
 
-<body class="bg-[#070B1A] text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden"
-    x-data="{ infoModal: false }">
+<body class="bg-[#070B1A] text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
 
     <!-- Background Gradient Langit Malam -->
     <div class="fixed inset-0 bg-gradient-to-b from-[#070B1A] via-[#0C1530] to-[#0A1225] z-0"></div>
@@ -199,8 +198,64 @@
     </div>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12 relative z-10 flex-1 flex flex-col justify-center"
-        x-data="{ activeCategory: 'all', infoModal: false }">
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-12 pb-32 md:pb-12 relative z-10 flex-1 flex flex-col justify-center"
+        x-data="{
+            activeCategory: 'all',
+            infoModal: false,
+            loginModal: false,
+            searchOpen: false,
+            searchQuery: '',
+            matches(cat, title, desc) {
+                const catMatch = this.activeCategory === 'all' || this.activeCategory === cat;
+                if (!this.searchQuery) return catMatch;
+                const q = this.searchQuery.toLowerCase();
+                return catMatch && (title.toLowerCase().includes(q) || desc.toLowerCase().includes(q));
+            }
+        }">
+
+        <!-- ======================================================== -->
+        <!-- TOP APP BAR KHUSUS MOBILE (ALA ASN DIGITAL BKN)          -->
+        <!-- ======================================================== -->
+        <div class="md:hidden sticky top-0 z-30 -mx-4 -mt-6 mb-5 px-4 py-3 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <img src="{{ asset('images/kabupaten-sijunjung.png') }}" alt="Logo Sijunjung"
+                    class="w-8 h-8 object-contain drop-shadow-md">
+                <div>
+                    <div class="text-xs font-black tracking-tight text-white flex items-center gap-1.5">
+                        <span>{{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}</span>
+                        <span class="px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[9px] font-extrabold uppercase">Digital</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate max-w-[200px]">
+                        {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button type="button" @click="searchOpen = !searchOpen"
+                    class="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-300 flex items-center justify-center hover:text-white transition-colors cursor-pointer">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </button>
+                <button type="button" @click="infoModal = true"
+                    class="w-8 h-8 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 flex items-center justify-center hover:text-white transition-colors cursor-pointer">
+                    <i class="fa-solid fa-circle-question text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Drawer Mobile -->
+        <div x-show="searchOpen" x-cloak x-transition
+            class="md:hidden mb-5 -mt-1">
+            <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" x-model="searchQuery" placeholder="Cari layanan, SPJ, absensi, atau fitur..."
+                    class="w-full bg-white/10 border border-white/20 rounded-2xl py-2.5 pl-9 pr-8 text-xs text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-sky-400 backdrop-blur-md">
+                <button type="button" x-show="searchQuery" @click="searchQuery = ''"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+        </div>
 
         <!-- ======================================================== -->
         <!-- HEADER & CENTRAL HUB (INSPIRASI BKN ASN DIGITAL)         -->
@@ -382,7 +437,7 @@
                         default => 'rounded-[32px] sm:rounded-[36px]',
                     };
                 @endphp
-                <div x-show="activeCategory === 'all' || activeCategory === '{{ $link->kategori }}'"
+                <div x-show="matches('{{ $link->kategori }}', '{{ addslashes($link->judul) }}', '{{ addslashes($link->deskripsi ?? '') }}')"
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 scale-95 translate-y-3"
                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
@@ -474,6 +529,189 @@
                             <span>Kelola Portal</span>
                         </a>
                     @endif
+                @endauth
+            </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- FLOATING BOTTOM NAVBAR MOBILE (INSPIRASI BKN ASN DIGITAL) -->
+        <!-- ======================================================== -->
+        <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-2xl border-t border-sky-500/20 shadow-[0_-10px_35px_rgba(0,0,0,0.6)] px-6 py-1.5 pb-safe">
+            <div class="max-w-md mx-auto flex items-end justify-between relative">
+                <!-- Tab 1: Beranda -->
+                <button type="button" @click="window.scrollTo({top: 0, behavior: 'smooth'}); activeCategory = 'all'; searchQuery = ''"
+                    class="flex flex-col items-center justify-center flex-1 py-1 group cursor-pointer">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                        :class="activeCategory === 'all' && !searchQuery ? 'bg-sky-500/15 text-sky-400' : 'text-slate-400 group-hover:text-white'">
+                        <i class="fa-solid fa-house text-lg"></i>
+                    </div>
+                    <span class="text-[10px] font-bold tracking-tight -mt-0.5"
+                        :class="activeCategory === 'all' && !searchQuery ? 'text-sky-400' : 'text-slate-400 group-hover:text-white'">
+                        Beranda
+                    </span>
+                </button>
+
+                <!-- Tab 2: Elevated Center Button (Fingerprint / SAKTI Hub) -->
+                <div class="flex-1 flex flex-col items-center justify-center -mt-6 relative">
+                    <a href="{{ route('mobile.absensi') }}"
+                        class="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-400 via-teal-300 to-emerald-400 p-0.5 shadow-[0_10px_25px_rgba(56,189,248,0.5)] flex items-center justify-center transition-transform active:scale-90 group relative">
+                        <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center border-2 border-white/20">
+                            <i class="fa-solid fa-fingerprint text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-sky-400 to-teal-300 group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <!-- Outer Ping Ring -->
+                        <div class="absolute -inset-1 rounded-full border border-sky-400/40 animate-ping pointer-events-none opacity-30"></div>
+                    </a>
+                    <span class="text-[10px] font-extrabold text-sky-300 tracking-wider mt-1 uppercase">SAKTI</span>
+                </div>
+
+                <!-- Tab 3: Masuk / Akun -->
+                <button type="button" @click="loginModal = true"
+                    class="flex flex-col items-center justify-center flex-1 py-1 group cursor-pointer">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-slate-400 group-hover:text-white">
+                        @auth
+                            <i class="fa-solid fa-circle-user text-lg text-emerald-400"></i>
+                        @else
+                            <i class="fa-solid fa-arrow-right-to-bracket text-lg"></i>
+                        @endauth
+                    </div>
+                    <span class="text-[10px] font-bold tracking-tight -mt-0.5 text-slate-400 group-hover:text-white">
+                        @auth Akun @else Masuk @endauth
+                    </span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- ===== MODAL PILIHAN AKSES MASUK (PORTAL ACCESS MODAL) ===== -->
+        <div x-show="loginModal" x-cloak
+            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-y-auto" role="dialog"
+            aria-modal="true">
+
+            <!-- Backdrop Blur -->
+            <div x-show="loginModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" @click="loginModal = false"
+                class="fixed inset-0 bg-slate-950/80 backdrop-blur-md transition-opacity"></div>
+
+            <!-- Modal Box (Bottom Sheet on mobile, squircle card on desktop) -->
+            <div x-show="loginModal" x-transition:enter="ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200"
+                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95"
+                class="relative w-full max-w-lg bg-[#0C1530] border-t sm:border border-white/15 rounded-t-[36px] sm:rounded-3xl p-6 sm:p-7 shadow-2xl text-left overflow-hidden z-10 max-h-[90vh] overflow-y-auto">
+
+                <!-- Drag Handle for Mobile -->
+                <div class="sm:hidden w-12 h-1.5 rounded-full bg-white/20 mx-auto mb-4"></div>
+
+                <!-- Header Modal -->
+                <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 to-teal-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md">
+                            <i class="fa-solid fa-door-open"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-black text-white">Pintu Masuk & Layanan</h3>
+                            <p class="text-xs text-slate-400">Pilih akses sesuai peran Anda di instansi</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="loginModal = false"
+                        class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer">
+                        <i class="fa-solid fa-xmark text-sm"></i>
+                    </button>
+                </div>
+
+                @auth
+                    <!-- Jika User Sedang Login -->
+                    <div class="p-4 rounded-2xl bg-white/[0.04] border border-white/10 mb-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <img src="{{ auth()->user()->avatar_image_url }}" alt="{{ auth()->user()->name }}"
+                                class="w-12 h-12 rounded-2xl object-cover border-2 border-sky-400/60 shadow-md">
+                            <div>
+                                <div class="text-[10px] text-sky-300 font-bold uppercase tracking-wider">Akun Terhubung:</div>
+                                <div class="text-sm font-extrabold text-white">{{ auth()->user()->name }}</div>
+                                <div class="text-xs text-slate-400 font-mono">
+                                    {{ auth()->user()->roles->pluck('name')->implode(', ') ?: 'Pegawai' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-2 pt-2 border-t border-white/10">
+                            <a href="{{ route('mobile.dashboard') }}"
+                                class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-teal-400 hover:from-sky-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-compass"></i>
+                                <span>Buka Dashboard Presensi</span>
+                            </a>
+                            @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pptk', 'ppk', 'pa_kpa', 'bendahara_pengeluaran', 'pengurus_barang']))
+                                <a href="{{ url('/admin') }}"
+                                    class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-gauge-high"></i>
+                                    <span>Buka Panel Administrator & SPJ</span>
+                                </a>
+                            @endif
+                            <form action="{{ route('portal.logout') }}" method="POST" class="mt-1">
+                                @csrf
+                                <button type="submit"
+                                    class="w-full py-2 px-4 rounded-xl bg-rose-500/15 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-400/30 text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer">
+                                    <i class="fa-solid fa-right-from-bracket"></i>
+                                    <span>Keluar dari Akun</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @else
+                    <!-- Pilihan Pintu Masuk Pengunjung -->
+                    <div class="space-y-3">
+                        <!-- Pintu 1: Pegawai Mobile -->
+                        <a href="{{ route('mobile.login') }}"
+                            class="group p-4 rounded-2xl bg-gradient-to-b from-sky-950/40 via-slate-900/80 to-slate-950/90 border border-sky-500/30 hover:border-sky-400/80 flex items-center justify-between transition-all hover:scale-[1.01]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-mobile-screen-button"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-black text-white group-hover:text-sky-300 transition-colors">
+                                        Presensi & Kinerja Pegawai (Mobile)
+                                    </div>
+                                    <p class="text-[11px] text-slate-400">Absensi GPS mandiri, pengisian LHK harian, izin & rekap</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-xs text-sky-400 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <!-- Pintu 2: Admin & SPJ -->
+                        <a href="{{ url('/admin/login') }}"
+                            class="group p-4 rounded-2xl bg-gradient-to-b from-amber-950/40 via-slate-900/80 to-slate-950/90 border border-amber-500/30 hover:border-amber-400/80 flex items-center justify-between transition-all hover:scale-[1.01]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-black text-white group-hover:text-amber-300 transition-colors">
+                                        Panel Admin & Keuangan SPJ
+                                    </div>
+                                    <p class="text-[11px] text-slate-400">Pejabat & verifikator: Surat Pesanan, verifikasi berjenjang SPJ, NPD</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-xs text-amber-400 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+
+                        <!-- Pintu 3: Lacak Dokumen -->
+                        <a href="{{ route('dokumen.tracking') }}"
+                            class="group p-4 rounded-2xl bg-gradient-to-b from-teal-950/40 via-slate-900/80 to-slate-950/90 border border-teal-500/30 hover:border-teal-400/80 flex items-center justify-between transition-all hover:scale-[1.01]">
+                            <div class="flex items-center gap-3">
+                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-black text-white group-hover:text-teal-300 transition-colors">
+                                        Pelacakan Dokumen SPJ (QR Code)
+                                    </div>
+                                    <p class="text-[11px] text-slate-400">Verifikasi keabsahan lembar transaksi resmi secara terbuka</p>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-xs text-teal-400 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
                 @endauth
             </div>
         </div>
@@ -620,9 +858,6 @@
                 </div>
             </div>
         </div>
-    </div>
-    </div>
-    </div>
     </div>
 
     <!-- Footer -->

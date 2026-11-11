@@ -42,3 +42,4 @@ class PortalLinkPolicy
         return $user->hasAnyRole(['super_admin', 'admin']);
     }
 }
+
