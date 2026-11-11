@@ -243,10 +243,11 @@ class Absensi extends Component
     public function render()
     {
         /** @var User $user */
-        $user = Auth::user();
+        $user = User::with(['jabatan', 'bidang', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
         $today = Carbon::today()->format('Y-m-d');
         $nowTime = Carbon::now()->format('H:i');
+        $isJumat = Carbon::today()->dayOfWeekIso === 5;
 
         $absenHarian = AbsensiHarian::where('user_id', $user->id)->where('tanggal', $today)->first();
 
@@ -263,6 +264,8 @@ class Absensi extends Component
         $jamMasukResmi = $jadwal ? $jadwal->getJamMasukHari($today) : '07:30';
         $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($today) : '16:00';
         $tutupPulang = $jadwal ? substr($jadwal->tutup_absen_pulang, 0, 5) : '23:59';
+        $toleransi = $jadwal ? (int) $jadwal->toleransi_terlambat_menit : 15;
+        $batasToleransi = Carbon::parse("$today $jamMasukResmi:00")->addMinutes($toleransi)->format('H:i');
 
         return view('livewire.mobile.absensi', [
             'user' => $user,
@@ -277,11 +280,15 @@ class Absensi extends Component
             'isWfh' => ($user->status_kerja === 'wfh'),
             'isAdmin' => $isAdmin,
             'modeSimulasi' => $this->modeSimulasi,
+            'jadwal' => $jadwal,
             'bukaMasuk' => $bukaMasuk,
             'tutupMasuk' => $tutupMasuk,
             'jamMasukResmi' => $jamMasukResmi,
             'jamPulangResmi' => $jamPulangResmi,
             'tutupPulang' => $tutupPulang,
+            'toleransi' => $toleransi,
+            'batasToleransi' => $batasToleransi,
+            'isJumat' => $isJumat,
         ]);
     }
 }

@@ -215,6 +215,68 @@
         </div>
     </div>
 
+    <!-- Informasi Jadwal Kerja & Aturan Presensi -->
+    <div class="bg-white rounded-3xl p-4 shadow-xs border border-slate-200/80 mb-5">
+        <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+            <div class="flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-xs">
+                    <i class="fa-regular fa-calendar-check"></i>
+                </div>
+                <h3 class="text-xs font-extrabold text-slate-800">Ketentuan & Jadwal Dinas</h3>
+            </div>
+            <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider {{ $isWfh ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
+                {{ $user->status_kerja === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Kantor)' }}
+            </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-medium block">Shift / Jadwal Kerja</span>
+                <span class="font-bold text-slate-800 truncate block mt-0.5" title="{{ $jadwal->nama ?? 'Jadwal Standar Dinas' }}">
+                    {{ $jadwal->nama ?? 'Jadwal Standar Dinas' }}
+                </span>
+            </div>
+
+            <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-medium block">Toleransi Terlambat</span>
+                <span class="font-bold text-slate-800 block mt-0.5">
+                    {{ $toleransi }} Menit <span class="text-[10px] text-slate-500 font-normal">(s.d {{ $batasToleransi }})</span>
+                </span>
+            </div>
+
+            <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-medium block">Jam Masuk Hari Ini</span>
+                <span class="font-bold text-slate-800 font-mono block mt-0.5">
+                    {{ $jamMasukResmi }} WIB
+                    @if ($isJumat)
+                        <span class="text-[9px] font-sans text-sky-600 font-bold">(Jumat)</span>
+                    @endif
+                </span>
+            </div>
+
+            <div class="bg-slate-50/80 p-2.5 rounded-2xl border border-slate-100">
+                <span class="text-[10px] text-slate-400 font-medium block">Jam Pulang Hari Ini</span>
+                <span class="font-bold text-slate-800 font-mono block mt-0.5">
+                    {{ $jamPulangResmi }} WIB
+                    @if ($isJumat)
+                        <span class="text-[9px] font-sans text-sky-600 font-bold">(Jumat)</span>
+                    @endif
+                </span>
+            </div>
+        </div>
+
+        @if (!empty($user->jabatan?->nama) || !empty($user->bidang?->nama) || !empty($user->nomor_absensi))
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+                <span class="truncate pr-2">
+                    <strong class="text-slate-700">Jabatan:</strong> {{ $user->jabatan->nama ?? '-' }}
+                </span>
+                <span class="truncate pl-2 text-right shrink-0">
+                    <strong class="text-slate-700">PIN Mesin:</strong> {{ $user->nomor_absensi ?? '-' }}
+                </span>
+            </div>
+        @endif
+    </div>
+
     <!-- GPS Info & Radius Footer Note -->
     <div class="flex flex-col items-center mt-auto pt-4 pb-1 text-slate-400 text-center">
         <div class="flex items-center text-[11px] font-semibold text-slate-500">
