@@ -216,14 +216,16 @@
         <!-- ======================================================== -->
         <!-- TOP APP BAR KHUSUS MOBILE (ALA ASN DIGITAL BKN)          -->
         <!-- ======================================================== -->
-        <div class="md:hidden sticky top-0 z-30 -mx-4 -mt-6 mb-5 px-4 py-3 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between">
+        <div
+            class="md:hidden sticky top-0 z-30 -mx-4 -mt-6 mb-5 px-4 py-3 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between">
             <div class="flex items-center gap-2.5">
                 <img src="{{ asset('images/kabupaten-sijunjung.png') }}" alt="Logo Sijunjung"
                     class="w-8 h-8 object-contain drop-shadow-md">
                 <div>
                     <div class="text-xs font-black tracking-tight text-white flex items-center gap-1.5">
                         <span>{{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}</span>
-                        <span class="px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[9px] font-extrabold uppercase">Digital</span>
+                        <span
+                            class="px-1.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 text-[9px] font-extrabold uppercase">Digital</span>
                     </div>
                     <div class="text-[10px] text-slate-400 truncate max-w-[200px]">
                         {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }}
@@ -244,10 +246,10 @@
         </div>
 
         <!-- Search Drawer Mobile -->
-        <div x-show="searchOpen" x-cloak x-transition
-            class="md:hidden mb-5 -mt-1">
+        <div x-show="searchOpen" x-cloak x-transition class="md:hidden mb-5 -mt-1">
             <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <i
+                    class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                 <input type="text" x-model="searchQuery" placeholder="Cari layanan, SPJ, absensi, atau fitur..."
                     class="w-full bg-white/10 border border-white/20 rounded-2xl py-2.5 pl-9 pr-8 text-xs text-white placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-sky-400 backdrop-blur-md">
                 <button type="button" x-show="searchQuery" @click="searchQuery = ''"
@@ -269,15 +271,22 @@
 
                 <!-- Central Circular Emblem Hub -->
                 <div class="relative group">
-                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-sky-500 via-teal-400 to-emerald-400 p-0.5 shadow-[0_0_25px_rgba(56,189,248,0.4)] flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
-                        <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center overflow-hidden relative">
-                            <div class="absolute inset-0 bg-radial from-sky-500/20 to-transparent pointer-events-none"></div>
-                            <span class="text-xs sm:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-teal-200">SAKTI</span>
-                            <span class="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-amber-300">PARPORA</span>
+                    <div
+                        class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-sky-500 via-teal-400 to-emerald-400 p-0.5 shadow-[0_0_25px_rgba(56,189,248,0.4)] flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                        <div
+                            class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center overflow-hidden relative">
+                            <div class="absolute inset-0 bg-radial from-sky-500/20 to-transparent pointer-events-none">
+                            </div>
+                            <span
+                                class="text-xs sm:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-teal-200">SAKTI</span>
+                            <span
+                                class="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-amber-300">PARPORA</span>
                         </div>
                     </div>
                     <!-- Outer Orbit Pulse Ring -->
-                    <div class="absolute -inset-1 rounded-full border border-sky-400/30 animate-ping pointer-events-none opacity-40"></div>
+                    <div
+                        class="absolute -inset-1 rounded-full border border-sky-400/30 animate-ping pointer-events-none opacity-40">
+                    </div>
                 </div>
 
                 <!-- Logo Geopark Silokek (Kanan) -->
@@ -287,7 +296,8 @@
 
             <!-- Nama Instansi & Badge Wilayah -->
             <div class="mb-2">
-                <span class="inline-block px-3.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[2px] mb-1">
+                <span
+                    class="inline-block px-3.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[2px] mb-1">
                     Pemerintah Kabupaten Sijunjung
                 </span>
                 <h2 class="text-xs sm:text-sm md:text-base font-bold text-slate-200 tracking-tight">
@@ -296,7 +306,8 @@
             </div>
 
             <!-- Judul Utama Sistem -->
-            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-none mb-2
+            <h1
+                class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-none mb-2
                        text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-100 to-sky-300 drop-shadow-sm">
                 {{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}
             </h1>
@@ -305,9 +316,10 @@
             </p>
 
             <!-- Slogan Mandat ala BKN ASN Digital (Capsule Pill) -->
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-[11px] sm:text-xs text-sky-200 font-medium shadow-sm mb-4">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-[11px] sm:text-xs text-sky-200 font-medium shadow-sm mb-4">
                 <i class="fa-solid fa-quote-left text-sky-400 text-[10px]"></i>
-                <span>Memudahkan, Melindungi, dan Membahagiakan ASN & Tertib Tata Kelola Keuangan</span>
+                <span>Transformasi Digital Pelayanan Kepegawaian</span>
                 <i class="fa-solid fa-quote-right text-sky-400 text-[10px]"></i>
             </div>
 
@@ -321,31 +333,35 @@
                             const d = new Date();
                             this.time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
                         }
-                    }" x-init="update(); setInterval(() => update(), 1000);">
+                    }" x-init="update();
+                    setInterval(() => update(), 1000);">
                     <i class="fa-regular fa-calendar text-sky-400 text-[11px]"></i>
                     <span x-text="date">{{ now()->translatedFormat('l, d F Y') }}</span>
                     <span class="w-1 h-1 rounded-full bg-slate-600"></span>
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span x-text="time + ' WIB'" class="font-mono font-bold text-amber-300 tracking-wider">--:-- WIB</span>
+                    <span x-text="time + ' WIB'" class="font-mono font-bold text-amber-300 tracking-wider">--:--
+                        WIB</span>
                 </div>
 
                 <!-- Badge Tahun Anggaran Aktif -->
-                <div class="inline-flex items-center gap-1.5 bg-amber-500/15 border border-amber-400/30 text-amber-300 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold">
+                <div
+                    class="inline-flex items-center gap-1.5 bg-amber-500/15 border border-amber-400/30 text-amber-300 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold">
                     <i class="fa-solid fa-calendar-check text-[11px]"></i>
                     <span>Tahun Anggaran {{ \App\Models\PengaturanAplikasi::getTahunAnggaranAktif() }}</span>
                 </div>
 
-                <button type="button" @click="infoModal = true"
+                {{-- <button type="button" @click="infoModal = true"
                     class="inline-flex items-center gap-1.5 bg-sky-500/15 hover:bg-sky-500/25 text-sky-200 border border-sky-400/30 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 cursor-pointer">
                     <i class="fa-solid fa-circle-info text-sky-400"></i>
                     <span>Panduan Alur</span>
-                </button>
+                </button> --}}
             </div>
         </header>
 
         <!-- User Logged-in Banner -->
         @auth
-            <div class="mb-6 p-4 rounded-[28px] bg-white/[0.05] backdrop-blur-md border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-3xl mx-auto w-full">
+            <div
+                class="mb-6 p-4 rounded-[28px] bg-white/[0.05] backdrop-blur-md border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-3xl mx-auto w-full">
                 <div class="flex items-center gap-3 text-center sm:text-left">
                     <img src="{{ auth()->user()->avatar_image_url }}" alt="{{ auth()->user()->name }}"
                         class="w-11 h-11 rounded-2xl object-cover border-2 border-sky-400/60 shadow-md">
@@ -353,7 +369,8 @@
                         <div class="text-[10px] text-sky-300/80 font-bold uppercase tracking-wider">Sedang Login:</div>
                         <div class="text-sm font-extrabold text-white">{{ auth()->user()->name }}</div>
                         <div class="text-[11px] text-slate-400 font-mono">
-                            <span class="text-amber-300 font-bold uppercase">{{ auth()->user()->roles->pluck('name')->implode(', ') ?: 'Pegawai' }}</span>
+                            <span
+                                class="text-amber-300 font-bold uppercase">{{ auth()->user()->roles->pluck('name')->implode(', ') ?: 'Pegawai' }}</span>
                         </div>
                     </div>
                 </div>
@@ -385,16 +402,18 @@
             $categories = $portalLinksCollection->pluck('kategori')->unique()->filter()->values();
         @endphp
 
-        @if($categories->count() > 1)
+        @if ($categories->count() > 1)
             <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
                 <button type="button" @click="activeCategory = 'all'"
-                    :class="activeCategory === 'all' ? 'bg-sky-500 text-slate-950 font-black shadow-lg shadow-sky-500/30 border-sky-400' : 'bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
+                    :class="activeCategory === 'all' ?
+                        'bg-sky-500 text-slate-950 font-black shadow-lg shadow-sky-500/30 border-sky-400' :
+                        'bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
                     class="px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-200 cursor-pointer">
                     Semua Layanan ({{ $portalLinksCollection->count() }})
                 </button>
-                @foreach($categories as $cat)
+                @foreach ($categories as $cat)
                     @php
-                        $catName = match($cat) {
+                        $catName = match ($cat) {
                             'keuangan' => 'Keuangan & SPJ',
                             'kepegawaian' => 'Kepegawaian & Presensi',
                             'kinerja', 'layanan_utama' => 'Kinerja & Mobile',
@@ -405,7 +424,9 @@
                         };
                     @endphp
                     <button type="button" @click="activeCategory = '{{ $cat }}'"
-                        :class="activeCategory === '{{ $cat }}' ? 'bg-sky-500 text-slate-950 font-black shadow-lg shadow-sky-500/30 border-sky-400' : 'bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
+                        :class="activeCategory === '{{ $cat }}' ?
+                            'bg-sky-500 text-slate-950 font-black shadow-lg shadow-sky-500/30 border-sky-400' :
+                            'bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
                         class="px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-200 cursor-pointer">
                         {{ $catName }}
                     </button>
@@ -431,7 +452,7 @@
             @forelse($portalLinksCollection as $link)
                 @php
                     $tokens = $link->style_tokens;
-                    $shapeClass = match($link->bentuk) {
+                    $shapeClass = match ($link->bentuk) {
                         'capsule' => 'rounded-[44px]',
                         'circle' => 'rounded-[36px]',
                         default => 'rounded-[32px] sm:rounded-[36px]',
@@ -444,27 +465,32 @@
                     class="group relative {{ $shapeClass }} bg-gradient-to-b {{ $tokens['card_bg'] }} border {{ $tokens['border'] }} p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl {{ $tokens['shadow_hover'] }} overflow-hidden">
 
                     <!-- Ambient Glow Blur di Sudut -->
-                    <div class="absolute -right-8 -top-8 w-32 h-32 {{ $tokens['glow_ambient'] }} rounded-full blur-2xl transition-all pointer-events-none"></div>
+                    <div
+                        class="absolute -right-8 -top-8 w-32 h-32 {{ $tokens['glow_ambient'] }} rounded-full blur-2xl transition-all pointer-events-none">
+                    </div>
 
                     <div>
                         <!-- Header Row: Elevated Squircle Icon & Badges -->
                         <div class="flex items-center justify-between mb-4">
-                            <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl sm:rounded-[22px] {{ $tokens['icon_box'] }} flex items-center justify-center text-xl sm:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <div
+                                class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl sm:rounded-[22px] {{ $tokens['icon_box'] }} flex items-center justify-center text-xl sm:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                                 <i class="{{ $link->fa_icon }}"></i>
                             </div>
 
                             <div class="flex items-center gap-1.5 flex-wrap justify-end">
                                 <!-- Lampiran Download Button (Jika Ada Berkas) -->
-                                @if($link->lampiran_path)
-                                    <a href="{{ $link->lampiran_url }}" target="_blank" download title="Unduh Berkas Lampiran"
+                                @if ($link->lampiran_path)
+                                    <a href="{{ $link->lampiran_url }}" target="_blank" download
+                                        title="Unduh Berkas Lampiran"
                                         class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[10px] font-bold tracking-wider uppercase transition-colors inline-flex items-center gap-1 shadow-sm">
                                         <i class="fa-solid fa-paperclip text-[9px]"></i>
                                         <span>Berkas</span>
                                     </a>
                                 @endif
 
-                                @if($link->badge)
-                                    <span class="px-3 py-1 rounded-full {{ $tokens['badge'] }} text-[10px] font-extrabold tracking-wider uppercase">
+                                @if ($link->badge)
+                                    <span
+                                        class="px-3 py-1 rounded-full {{ $tokens['badge'] }} text-[10px] font-extrabold tracking-wider uppercase">
                                         {{ $link->badge }}
                                     </span>
                                 @endif
@@ -472,7 +498,8 @@
                         </div>
 
                         <!-- Judul & Deskripsi Fitur -->
-                        <h3 class="text-lg sm:text-xl font-black text-white tracking-tight mb-2 {{ $tokens['text_accent'] }} transition-colors">
+                        <h3
+                            class="text-lg sm:text-xl font-black text-white tracking-tight mb-2 {{ $tokens['text_accent'] }} transition-colors">
                             {{ $link->judul }}
                         </h3>
                         <p class="text-xs sm:text-[13px] text-slate-300 leading-relaxed mb-6 font-normal">
@@ -485,11 +512,12 @@
                         <a href="{{ $link->link_url }}" target="{{ $link->target ?? '_self' }}"
                             class="w-full py-3.5 px-5 rounded-2xl {{ $tokens['btn'] }} font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md">
                             <span>Akses Layanan</span>
-                            <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1.5"></i>
+                            <i
+                                class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1.5"></i>
                         </a>
 
                         @auth
-                            @if(auth()->user()->hasAnyRole(['super_admin', 'admin']))
+                            @if (auth()->user()->hasAnyRole(['super_admin', 'admin']))
                                 <div class="mt-2 text-center">
                                     <a href="{{ url('/admin/portal-links/' . $link->id . '/edit') }}"
                                         class="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-sky-300 transition-colors">
@@ -510,7 +538,8 @@
         </div>
 
         <!-- Info Bar Keamanan & Shortcut Admin -->
-        <div class="mt-10 max-w-4xl mx-auto w-full bg-white/[0.03] backdrop-blur-md rounded-2xl p-4 border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+        <div
+            class="mt-10 max-w-4xl mx-auto w-full bg-white/[0.03] backdrop-blur-md rounded-2xl p-4 border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
             <div class="flex items-center gap-2 text-slate-300">
                 <i class="fa-solid fa-shield-heart text-sky-400"></i>
                 <span>Keamanan Terproteksi: Geofencing GPS, Enkripsi Log & Verifikasi QR SPJ</span>
@@ -522,9 +551,10 @@
                     <span>Panduan Alur Sistem</span>
                 </button>
                 @auth
-                    @if(auth()->user()->hasAnyRole(['super_admin', 'admin']))
+                    @if (auth()->user()->hasAnyRole(['super_admin', 'admin']))
                         <span class="text-white/20">|</span>
-                        <a href="{{ url('/admin/portal-links') }}" class="hover:text-amber-300 transition flex items-center gap-1 text-amber-400 font-semibold">
+                        <a href="{{ url('/admin/portal-links') }}"
+                            class="hover:text-amber-300 transition flex items-center gap-1 text-amber-400 font-semibold">
                             <i class="fa-solid fa-gear"></i>
                             <span>Kelola Portal</span>
                         </a>
@@ -536,17 +566,21 @@
         <!-- ======================================================== -->
         <!-- FLOATING BOTTOM NAVBAR MOBILE (INSPIRASI BKN ASN DIGITAL) -->
         <!-- ======================================================== -->
-        <nav class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-2xl border-t border-sky-500/20 shadow-[0_-10px_35px_rgba(0,0,0,0.6)] px-6 py-1.5 pb-safe">
+        <nav
+            class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-2xl border-t border-sky-500/20 shadow-[0_-10px_35px_rgba(0,0,0,0.6)] px-6 py-1.5 pb-safe">
             <div class="max-w-md mx-auto flex items-end justify-between relative">
                 <!-- Tab 1: Beranda -->
-                <button type="button" @click="window.scrollTo({top: 0, behavior: 'smooth'}); activeCategory = 'all'; searchQuery = ''"
+                <button type="button"
+                    @click="window.scrollTo({top: 0, behavior: 'smooth'}); activeCategory = 'all'; searchQuery = ''"
                     class="flex flex-col items-center justify-center flex-1 py-1 group cursor-pointer">
                     <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors"
-                        :class="activeCategory === 'all' && !searchQuery ? 'bg-sky-500/15 text-sky-400' : 'text-slate-400 group-hover:text-white'">
+                        :class="activeCategory === 'all' && !searchQuery ? 'bg-sky-500/15 text-sky-400' :
+                            'text-slate-400 group-hover:text-white'">
                         <i class="fa-solid fa-house text-lg"></i>
                     </div>
                     <span class="text-[10px] font-bold tracking-tight -mt-0.5"
-                        :class="activeCategory === 'all' && !searchQuery ? 'text-sky-400' : 'text-slate-400 group-hover:text-white'">
+                        :class="activeCategory === 'all' && !searchQuery ? 'text-sky-400' :
+                            'text-slate-400 group-hover:text-white'">
                         Beranda
                     </span>
                 </button>
@@ -555,11 +589,15 @@
                 <div class="flex-1 flex flex-col items-center justify-center -mt-6 relative">
                     <a href="{{ route('mobile.absensi') }}"
                         class="w-16 h-16 rounded-full bg-gradient-to-tr from-sky-400 via-teal-300 to-emerald-400 p-0.5 shadow-[0_10px_25px_rgba(56,189,248,0.5)] flex items-center justify-center transition-transform active:scale-90 group relative">
-                        <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center border-2 border-white/20">
-                            <i class="fa-solid fa-fingerprint text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-sky-400 to-teal-300 group-hover:scale-110 transition-transform"></i>
+                        <div
+                            class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center border-2 border-white/20">
+                            <i
+                                class="fa-solid fa-fingerprint text-2xl text-transparent bg-clip-text bg-gradient-to-tr from-sky-400 to-teal-300 group-hover:scale-110 transition-transform"></i>
                         </div>
                         <!-- Outer Ping Ring -->
-                        <div class="absolute -inset-1 rounded-full border border-sky-400/40 animate-ping pointer-events-none opacity-30"></div>
+                        <div
+                            class="absolute -inset-1 rounded-full border border-sky-400/40 animate-ping pointer-events-none opacity-30">
+                        </div>
                     </a>
                     <span class="text-[10px] font-extrabold text-sky-300 tracking-wider mt-1 uppercase">SAKTI</span>
                 </div>
@@ -567,7 +605,8 @@
                 <!-- Tab 3: Masuk / Akun -->
                 <button type="button" @click="loginModal = true"
                     class="flex flex-col items-center justify-center flex-1 py-1 group cursor-pointer">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-slate-400 group-hover:text-white">
+                    <div
+                        class="w-8 h-8 rounded-full flex items-center justify-center transition-colors text-slate-400 group-hover:text-white">
                         @auth
                             <i class="fa-solid fa-circle-user text-lg text-emerald-400"></i>
                         @else
@@ -575,7 +614,9 @@
                         @endauth
                     </div>
                     <span class="text-[10px] font-bold tracking-tight -mt-0.5 text-slate-400 group-hover:text-white">
-                        @auth Akun @else Masuk @endauth
+                        @auth Akun
+                        @else
+                        Masuk @endauth
                     </span>
                 </button>
             </div>
@@ -583,8 +624,8 @@
 
         <!-- ===== MODAL PILIHAN AKSES MASUK (PORTAL ACCESS MODAL) ===== -->
         <div x-show="loginModal" x-cloak
-            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-y-auto" role="dialog"
-            aria-modal="true">
+            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 overflow-y-auto"
+            role="dialog" aria-modal="true">
 
             <!-- Backdrop Blur -->
             <div x-show="loginModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
@@ -595,7 +636,8 @@
             <!-- Modal Box (Bottom Sheet on mobile, squircle card on desktop) -->
             <div x-show="loginModal" x-transition:enter="ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200"
+                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                x-transition:leave="ease-in duration-200"
                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                 x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95"
                 class="relative w-full max-w-lg bg-[#0C1530] border-t sm:border border-white/15 rounded-t-[36px] sm:rounded-3xl p-6 sm:p-7 shadow-2xl text-left overflow-hidden z-10 max-h-[90vh] overflow-y-auto">
@@ -606,7 +648,8 @@
                 <!-- Header Modal -->
                 <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 to-teal-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md">
+                        <div
+                            class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-400 to-teal-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md">
                             <i class="fa-solid fa-door-open"></i>
                         </div>
                         <div>
@@ -627,7 +670,8 @@
                             <img src="{{ auth()->user()->avatar_image_url }}" alt="{{ auth()->user()->name }}"
                                 class="w-12 h-12 rounded-2xl object-cover border-2 border-sky-400/60 shadow-md">
                             <div>
-                                <div class="text-[10px] text-sky-300 font-bold uppercase tracking-wider">Akun Terhubung:</div>
+                                <div class="text-[10px] text-sky-300 font-bold uppercase tracking-wider">Akun Terhubung:
+                                </div>
                                 <div class="text-sm font-extrabold text-white">{{ auth()->user()->name }}</div>
                                 <div class="text-xs text-slate-400 font-mono">
                                     {{ auth()->user()->roles->pluck('name')->implode(', ') ?: 'Pegawai' }}
@@ -641,7 +685,7 @@
                                 <i class="fa-solid fa-compass"></i>
                                 <span>Buka Dashboard Presensi</span>
                             </a>
-                            @if(auth()->user()->hasAnyRole(['super_admin', 'admin', 'pptk', 'ppk', 'pa_kpa', 'bendahara_pengeluaran', 'pengurus_barang']))
+                            @if (auth()->user()->hasAnyRole(['super_admin', 'admin', 'pptk', 'ppk', 'pa_kpa', 'bendahara_pengeluaran', 'pengurus_barang']))
                                 <a href="{{ url('/admin') }}"
                                     class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-400 text-slate-950 font-black text-xs flex items-center justify-center gap-2">
                                     <i class="fa-solid fa-gauge-high"></i>
@@ -665,51 +709,61 @@
                         <a href="{{ route('mobile.login') }}"
                             class="group p-4 rounded-2xl bg-gradient-to-b from-sky-950/40 via-slate-900/80 to-slate-950/90 border border-sky-500/30 hover:border-sky-400/80 flex items-center justify-between transition-all hover:scale-[1.01]">
                             <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
+                                <div
+                                    class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-mobile-screen-button"></i>
                                 </div>
                                 <div>
                                     <div class="text-xs font-black text-white group-hover:text-sky-300 transition-colors">
                                         Presensi & Kinerja Pegawai (Mobile)
                                     </div>
-                                    <p class="text-[11px] text-slate-400">Absensi GPS mandiri, pengisian LHK harian, izin & rekap</p>
+                                    <p class="text-[11px] text-slate-400">Absensi GPS mandiri, pengisian LHK harian, izin &
+                                        rekap</p>
                                 </div>
                             </div>
-                            <i class="fa-solid fa-arrow-right text-xs text-sky-400 group-hover:translate-x-1 transition-transform"></i>
+                            <i
+                                class="fa-solid fa-arrow-right text-xs text-sky-400 group-hover:translate-x-1 transition-transform"></i>
                         </a>
 
                         <!-- Pintu 2: Admin & SPJ -->
                         <a href="{{ url('/admin/login') }}"
                             class="group p-4 rounded-2xl bg-gradient-to-b from-amber-950/40 via-slate-900/80 to-slate-950/90 border border-amber-500/30 hover:border-amber-400/80 flex items-center justify-between transition-all hover:scale-[1.01]">
                             <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
+                                <div
+                                    class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-shield-halved"></i>
                                 </div>
                                 <div>
-                                    <div class="text-xs font-black text-white group-hover:text-amber-300 transition-colors">
+                                    <div
+                                        class="text-xs font-black text-white group-hover:text-amber-300 transition-colors">
                                         Panel Admin & Keuangan SPJ
                                     </div>
-                                    <p class="text-[11px] text-slate-400">Pejabat & verifikator: Surat Pesanan, verifikasi berjenjang SPJ, NPD</p>
+                                    <p class="text-[11px] text-slate-400">Pejabat & verifikator: Surat Pesanan, verifikasi
+                                        berjenjang SPJ, NPD</p>
                                 </div>
                             </div>
-                            <i class="fa-solid fa-arrow-right text-xs text-amber-400 group-hover:translate-x-1 transition-transform"></i>
+                            <i
+                                class="fa-solid fa-arrow-right text-xs text-amber-400 group-hover:translate-x-1 transition-transform"></i>
                         </a>
 
                         <!-- Pintu 3: Lacak Dokumen -->
                         <a href="{{ route('dokumen.tracking') }}"
                             class="group p-4 rounded-2xl bg-gradient-to-b from-teal-950/40 via-slate-900/80 to-slate-950/90 border border-teal-500/30 hover:border-teal-400/80 flex items-center justify-between transition-all hover:scale-[1.01]">
                             <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
+                                <div
+                                    class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-teal-500 to-emerald-400 text-slate-950 flex items-center justify-center text-lg font-black shadow-md group-hover:scale-110 transition-transform">
                                     <i class="fa-solid fa-qrcode"></i>
                                 </div>
                                 <div>
                                     <div class="text-xs font-black text-white group-hover:text-teal-300 transition-colors">
                                         Pelacakan Dokumen SPJ (QR Code)
                                     </div>
-                                    <p class="text-[11px] text-slate-400">Verifikasi keabsahan lembar transaksi resmi secara terbuka</p>
+                                    <p class="text-[11px] text-slate-400">Verifikasi keabsahan lembar transaksi resmi
+                                        secara terbuka</p>
                                 </div>
                             </div>
-                            <i class="fa-solid fa-arrow-right text-xs text-teal-400 group-hover:translate-x-1 transition-transform"></i>
+                            <i
+                                class="fa-solid fa-arrow-right text-xs text-teal-400 group-hover:translate-x-1 transition-transform"></i>
                         </a>
                     </div>
                 @endauth
