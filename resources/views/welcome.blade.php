@@ -199,44 +199,66 @@
     </div>
 
     <!-- ===== MAIN CONTENT ===== -->
-    <div class="w-full max-w-4xl mx-auto px-5 py-8 md:py-12 relative z-10 flex-1 flex flex-col justify-center">
+    <div class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 md:py-12 relative z-10 flex-1 flex flex-col justify-center"
+        x-data="{ activeCategory: 'all', infoModal: false }">
 
-        <!-- Header: Logo Kabupaten (kiri) — Badge — Logo Geopark (kanan) -->
+        <!-- ======================================================== -->
+        <!-- HEADER & CENTRAL HUB (INSPIRASI BKN ASN DIGITAL)         -->
+        <!-- ======================================================== -->
         <header class="text-center mb-8 md:mb-10">
-            <div class="inline-flex items-center justify-center gap-4 md:gap-5 mb-5">
+            <!-- Logos & Instansi -->
+            <div class="inline-flex items-center justify-center gap-3 sm:gap-5 mb-4">
                 <!-- Logo Kabupaten Sijunjung (Kiri) -->
                 <img src="{{ asset('images/kabupaten-sijunjung.png') }}" alt="Logo Kabupaten Sijunjung"
-                    class="w-14 h-14 md:w-[68px] md:h-[68px] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,.5)] logo-hover">
+                    class="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-[0_4px_14px_rgba(0,0,0,.6)] logo-hover">
 
-                <!-- Badge Instansi -->
-                <div class="text-center">
-                    <span
-                        class="inline-block px-3 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 text-[9px] md:text-[10px] font-extrabold uppercase tracking-[2px] mb-0.5">
-                        Pemerintah Kabupaten
-                    </span>
-                    <h2 class="text-xs md:text-sm font-bold text-white/90 tracking-tight leading-snug">
-                        {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }}
-                    </h2>
+                <!-- Central Circular Emblem Hub -->
+                <div class="relative group">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-sky-500 via-teal-400 to-emerald-400 p-0.5 shadow-[0_0_25px_rgba(56,189,248,0.4)] flex items-center justify-center transition-transform duration-500 group-hover:scale-105">
+                        <div class="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center overflow-hidden relative">
+                            <div class="absolute inset-0 bg-radial from-sky-500/20 to-transparent pointer-events-none"></div>
+                            <span class="text-xs sm:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-teal-200">SAKTI</span>
+                            <span class="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-amber-300">PARPORA</span>
+                        </div>
+                    </div>
+                    <!-- Outer Orbit Pulse Ring -->
+                    <div class="absolute -inset-1 rounded-full border border-sky-400/30 animate-ping pointer-events-none opacity-40"></div>
                 </div>
 
                 <!-- Logo Geopark Silokek (Kanan) -->
                 <img src="{{ asset('images/geopark-silokek.png') }}" alt="Logo Geopark Silokek"
-                    class="w-14 h-14 md:w-[68px] md:h-[68px] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,.5)] logo-hover">
+                    class="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-[0_4px_14px_rgba(0,0,0,.6)] logo-hover">
             </div>
 
-            <!-- Judul Aplikasi dari tabel pengaturan -->
-            <h1
-                class="text-3xl md:text-5xl lg:text-[3.5rem] font-black uppercase tracking-tight leading-none mb-3
-                        text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-200 to-sky-400">
+            <!-- Nama Instansi & Badge Wilayah -->
+            <div class="mb-2">
+                <span class="inline-block px-3.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[2px] mb-1">
+                    Pemerintah Kabupaten Sijunjung
+                </span>
+                <h2 class="text-xs sm:text-sm md:text-base font-bold text-slate-200 tracking-tight">
+                    {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }}
+                </h2>
+            </div>
+
+            <!-- Judul Utama Sistem -->
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-none mb-2
+                       text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-100 to-sky-300 drop-shadow-sm">
                 {{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}
             </h1>
-            <p class="text-xs md:text-sm text-slate-400 max-w-xl mx-auto font-medium leading-relaxed">
+            <p class="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed mb-4">
                 {{ $pengaturan->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}
             </p>
 
-            <!-- Digital Clock & Info Button -->
-            <div class="mt-4 flex flex-wrap items-center justify-center gap-2.5">
-                <div class="inline-flex items-center gap-2.5 bg-white/[0.04] border border-white/[0.07] backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs text-slate-300"
+            <!-- Slogan Mandat ala BKN ASN Digital (Capsule Pill) -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-[11px] sm:text-xs text-sky-200 font-medium shadow-sm mb-4">
+                <i class="fa-solid fa-quote-left text-sky-400 text-[10px]"></i>
+                <span>Memudahkan, Melindungi, dan Membahagiakan ASN & Tertib Tata Kelola Keuangan</span>
+                <i class="fa-solid fa-quote-right text-sky-400 text-[10px]"></i>
+            </div>
+
+            <!-- Digital Clock, Tahun Anggaran & Bantuan -->
+            <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+                <div class="inline-flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs text-slate-300"
                     x-data="{
                         time: '--:--',
                         date: '{{ now()->translatedFormat('l, d F Y') }}',
@@ -244,234 +266,215 @@
                             const d = new Date();
                             this.time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
                         }
-                    }" x-init="update();
-                    setInterval(() => update(), 1000);">
-                    <i class="fa-regular fa-calendar text-sky-400/80 text-[11px]"></i>
+                    }" x-init="update(); setInterval(() => update(), 1000);">
+                    <i class="fa-regular fa-calendar text-sky-400 text-[11px]"></i>
                     <span x-text="date">{{ now()->translatedFormat('l, d F Y') }}</span>
                     <span class="w-1 h-1 rounded-full bg-slate-600"></span>
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span x-text="time + ' WIB'" class="font-mono font-bold text-amber-300 tracking-wider">--:--
-                        WIB</span>
+                    <span x-text="time + ' WIB'" class="font-mono font-bold text-amber-300 tracking-wider">--:-- WIB</span>
+                </div>
+
+                <!-- Badge Tahun Anggaran Aktif -->
+                <div class="inline-flex items-center gap-1.5 bg-amber-500/15 border border-amber-400/30 text-amber-300 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold">
+                    <i class="fa-solid fa-calendar-check text-[11px]"></i>
+                    <span>Tahun Anggaran {{ \App\Models\PengaturanAplikasi::getTahunAnggaranAktif() }}</span>
                 </div>
 
                 <button type="button" @click="infoModal = true"
-                    class="inline-flex items-center gap-2 bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-400/30 hover:border-sky-400/60 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 shadow-xs cursor-pointer">
+                    class="inline-flex items-center gap-1.5 bg-sky-500/15 hover:bg-sky-500/25 text-sky-200 border border-sky-400/30 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 cursor-pointer">
                     <i class="fa-solid fa-circle-info text-sky-400"></i>
-                    <span>Informasi & Alur Sistem</span>
+                    <span>Panduan Alur</span>
                 </button>
             </div>
         </header>
 
         <!-- User Logged-in Banner -->
         @auth
-            <div
-                class="mb-6 p-4 rounded-2xl bg-white/[0.05] backdrop-blur-md border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-3xl mx-auto w-full">
+            <div class="mb-6 p-4 rounded-[28px] bg-white/[0.05] backdrop-blur-md border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 max-w-3xl mx-auto w-full">
                 <div class="flex items-center gap-3 text-center sm:text-left">
                     <img src="{{ auth()->user()->avatar_image_url }}" alt="{{ auth()->user()->name }}"
-                        class="w-11 h-11 rounded-xl object-cover border-2 border-sky-400/60 shadow-md">
+                        class="w-11 h-11 rounded-2xl object-cover border-2 border-sky-400/60 shadow-md">
                     <div>
-                        <div class="text-[10px] text-sky-300/80 font-bold uppercase tracking-wider">Sedang login:</div>
+                        <div class="text-[10px] text-sky-300/80 font-bold uppercase tracking-wider">Sedang Login:</div>
                         <div class="text-sm font-extrabold text-white">{{ auth()->user()->name }}</div>
                         <div class="text-[11px] text-slate-400 font-mono">
-                            <span
-                                class="text-amber-300 font-bold uppercase">{{ auth()->user()->roles->pluck('name')->implode(', ') ?: 'Pegawai' }}</span>
+                            <span class="text-amber-300 font-bold uppercase">{{ auth()->user()->roles->pluck('name')->implode(', ') ?: 'Pegawai' }}</span>
                         </div>
                     </div>
                 </div>
-                <form action="{{ route('portal.logout') }}" method="POST" class="w-full sm:w-auto">
-                    @csrf
-                    <button type="submit"
-                        class="w-full sm:w-auto px-3.5 py-2 bg-rose-500/15 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-400/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Keluar</span>
-                    </button>
-                </form>
+                <div class="flex items-center gap-2">
+                    @if (auth()->user()->hasAnyRole(['super_admin', 'admin']))
+                        <a href="{{ url('/admin/portal-links') }}"
+                            class="px-3 py-2 bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-400/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Kelola Link</span>
+                        </a>
+                    @endif
+                    <form action="{{ route('portal.logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="px-3.5 py-2 bg-rose-500/15 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-400/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Keluar</span>
+                        </button>
+                    </form>
+                </div>
             </div>
         @endauth
 
-        <!-- Divider -->
-        <div class="text-center mb-6">
-            <div class="inline-flex items-center gap-3">
-                <span class="w-8 h-px bg-gradient-to-r from-transparent to-slate-600"></span>
-                <span class="text-[10px] uppercase font-extrabold tracking-[2.5px] text-sky-400/80">
-                    Silakan Pilih Pintu Akses Anda
-                </span>
-                <span class="w-8 h-px bg-gradient-to-l from-transparent to-slate-600"></span>
+        <!-- ======================================================== -->
+        <!-- FILTER KATEGORI (ORGANIC CAPSULE PILLS)                   -->
+        <!-- ======================================================== -->
+        @php
+            $portalLinksCollection = isset($portalLinks) && $portalLinks->count() > 0 ? $portalLinks : collect();
+            $categories = $portalLinksCollection->pluck('kategori')->unique()->filter()->values();
+        @endphp
+
+        @if($categories->count() > 1)
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+                <button type="button" @click="activeCategory = 'all'"
+                    :class="activeCategory === 'all' ? 'bg-sky-500 text-slate-950 font-black shadow-lg shadow-sky-500/30 border-sky-400' : 'bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
+                    class="px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-200 cursor-pointer">
+                    Semua Layanan ({{ $portalLinksCollection->count() }})
+                </button>
+                @foreach($categories as $cat)
+                    @php
+                        $catName = match($cat) {
+                            'keuangan' => 'Keuangan & SPJ',
+                            'kepegawaian' => 'Kepegawaian & Presensi',
+                            'kinerja', 'layanan_utama' => 'Kinerja & Mobile',
+                            'administrasi' => 'Panel Admin',
+                            'panduan', 'dokumen_lampiran' => 'Dokumen & Regulasi',
+                            'eksternal' => 'Layanan Eksternal',
+                            default => ucfirst(str_replace('_', ' ', $cat)),
+                        };
+                    @endphp
+                    <button type="button" @click="activeCategory = '{{ $cat }}'"
+                        :class="activeCategory === '{{ $cat }}' ? 'bg-sky-500 text-slate-950 font-black shadow-lg shadow-sky-500/30 border-sky-400' : 'bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
+                        class="px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-200 cursor-pointer">
+                        {{ $catName }}
+                    </button>
+                @endforeach
             </div>
-        </div>
-
-        <!-- ===== 2 ACCESS CARDS (Admin di KIRI, Pegawai di KANAN) ===== -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-3xl mx-auto w-full">
-
-            <!-- ============================================= -->
-            <!-- CARD 1 (KIRI): ADMINISTRATOR & KEUANGAN SPJ   -->
-            <!-- ============================================= -->
-            <div
-                class="group relative rounded-2xl bg-gradient-to-b from-amber-950/40 via-slate-900/70 to-slate-900/90 border border-amber-500/25 hover:border-amber-400/60 transition-all duration-300 p-6 flex flex-col justify-between overflow-hidden hover:-translate-y-1 hover:shadow-2xl hover:shadow-amber-500/15">
-                <div
-                    class="absolute -right-8 -top-8 w-28 h-28 bg-amber-500/15 rounded-full blur-2xl group-hover:bg-amber-400/25 transition-all pointer-events-none">
+        @else
+            <!-- Divider Elegance -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center gap-3">
+                    <span class="w-10 h-px bg-gradient-to-r from-transparent to-sky-400/40"></span>
+                    <span class="text-[10px] uppercase font-extrabold tracking-[2.5px] text-sky-300/80">
+                        Pilihan Pintu Akses Layanan & Modul
+                    </span>
+                    <span class="w-10 h-px bg-gradient-to-l from-transparent to-sky-400/40"></span>
                 </div>
+            </div>
+        @endif
 
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center shadow-lg shadow-amber-500/25 text-xl group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-shield-halved"></i>
-                        </div>
-                        <span
-                            class="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[10px] font-extrabold tracking-wider uppercase">
-                            Admin & Keuangan SPJ
-                        </span>
-                    </div>
+        <!-- ======================================================== -->
+        <!-- GRID KARTU NON-PETAK (ORGANIC SQUIRCLE & SATELLITE CARDS)-->
+        <!-- ======================================================== -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
+            @forelse($portalLinksCollection as $link)
+                @php
+                    $tokens = $link->style_tokens;
+                    $shapeClass = match($link->bentuk) {
+                        'capsule' => 'rounded-[44px]',
+                        'circle' => 'rounded-[36px]',
+                        default => 'rounded-[32px] sm:rounded-[36px]',
+                    };
+                @endphp
+                <div x-show="activeCategory === 'all' || activeCategory === '{{ $link->kategori }}'"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 scale-95 translate-y-3"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    class="group relative {{ $shapeClass }} bg-gradient-to-b {{ $tokens['card_bg'] }} border {{ $tokens['border'] }} p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl {{ $tokens['shadow_hover'] }} overflow-hidden">
 
-                    <h3
-                        class="text-xl font-black text-white tracking-tight mb-2 group-hover:text-amber-300 transition-colors">
-                        Panel Admin & Keuangan
-                    </h3>
-                    <p class="text-xs text-slate-300 leading-relaxed mb-5 font-normal">
-                        Portal terpadu pejabat & staf pengelola: Pengajuan Surat Pesanan, verifikasi berjenjang SPJ,
-                        pencairan kas, hingga monitoring kepegawaian dinas.
-                    </p>
+                    <!-- Ambient Glow Blur di Sudut -->
+                    <div class="absolute -right-8 -top-8 w-32 h-32 {{ $tokens['glow_ambient'] }} rounded-full blur-2xl transition-all pointer-events-none"></div>
 
-                    <!-- Quick Highlights Tags -->
-                    <div class="flex flex-wrap gap-1.5 mb-6">
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-file-invoice mr-1 text-[10px]"></i>SPJ Keuangan
-                        </span>
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-signature mr-1 text-[10px]"></i>Verifikasi 4 Tahap
-                        </span>
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-users-gear mr-1 text-[10px]"></i>Kepegawaian
-                        </span>
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-sliders mr-1 text-[10px]"></i>Konfigurasi
-                        </span>
-                    </div>
-                </div>
-
-                <div>
-                    @auth
-                        @if (auth()->user()->hasAnyRole(['super_admin', 'admin', 'pptk', 'ppk', 'pa_kpa', 'bendahara_pengeluaran', 'pengurus_barang']))
-                            <a href="{{ url('/admin') }}"
-                                class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-400 hover:to-orange-300 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
-                                <i class="fa-solid fa-gauge-high"></i>
-                                <span>Buka Panel Admin & Keuangan</span>
-                                <i
-                                    class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
-                            </a>
-                        @else
-                            <div class="p-3 rounded-xl bg-slate-800/60 border border-slate-700/50 text-center">
-                                <span class="text-xs text-slate-400 font-medium block">
-                                    <i class="fa-solid fa-lock text-amber-400/70 mr-1"></i> Akun Anda berstatus
-                                    <b>Pegawai</b>
-                                </span>
-                                <span class="text-[10px] text-slate-500">Akses panel admin khusus Pejabat &
-                                    Administrator</span>
+                    <div>
+                        <!-- Header Row: Elevated Squircle Icon & Badges -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl sm:rounded-[22px] {{ $tokens['icon_box'] }} flex items-center justify-center text-xl sm:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                <i class="{{ $link->fa_icon }}"></i>
                             </div>
-                        @endif
-                    @else
-                        <a href="{{ url('/admin/login') }}"
-                            class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-400 hover:from-amber-400 hover:to-orange-300 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-key"></i>
-                            <span>Masuk Panel Admin & Keuangan</span>
-                            <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
-                        </a>
-                    @endauth
-                </div>
-            </div>
 
-            <!-- =========================================== -->
-            <!-- CARD 2 (KANAN): PEGAWAI / PRESENSI & LHK   -->
-            <!-- =========================================== -->
-            <div
-                class="group relative rounded-2xl bg-gradient-to-b from-sky-950/40 via-slate-900/70 to-slate-900/90 border border-sky-500/25 hover:border-sky-400/60 transition-all duration-300 p-6 flex flex-col justify-between overflow-hidden hover:-translate-y-1 hover:shadow-2xl hover:shadow-sky-500/15">
-                <div
-                    class="absolute -right-8 -top-8 w-28 h-28 bg-sky-500/15 rounded-full blur-2xl group-hover:bg-sky-400/25 transition-all pointer-events-none">
-                </div>
+                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                                <!-- Lampiran Download Button (Jika Ada Berkas) -->
+                                @if($link->lampiran_path)
+                                    <a href="{{ $link->lampiran_url }}" target="_blank" download title="Unduh Berkas Lampiran"
+                                        class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[10px] font-bold tracking-wider uppercase transition-colors inline-flex items-center gap-1 shadow-sm">
+                                        <i class="fa-solid fa-paperclip text-[9px]"></i>
+                                        <span>Berkas</span>
+                                    </a>
+                                @endif
 
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <div
-                            class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-teal-400 text-slate-950 flex items-center justify-center shadow-lg shadow-sky-500/25 text-xl group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-mobile-screen-button"></i>
+                                @if($link->badge)
+                                    <span class="px-3 py-1 rounded-full {{ $tokens['badge'] }} text-[10px] font-extrabold tracking-wider uppercase">
+                                        {{ $link->badge }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
-                        <span
-                            class="px-2.5 py-1 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 text-[10px] font-extrabold tracking-wider uppercase">
-                            Pegawai / ASN
-                        </span>
+
+                        <!-- Judul & Deskripsi Fitur -->
+                        <h3 class="text-lg sm:text-xl font-black text-white tracking-tight mb-2 {{ $tokens['text_accent'] }} transition-colors">
+                            {{ $link->judul }}
+                        </h3>
+                        <p class="text-xs sm:text-[13px] text-slate-300 leading-relaxed mb-6 font-normal">
+                            {{ $link->deskripsi }}
+                        </p>
                     </div>
 
-                    <h3
-                        class="text-xl font-black text-white tracking-tight mb-2 group-hover:text-sky-300 transition-colors">
-                        Presensi & LHK Mobile
-                    </h3>
-                    <p class="text-xs text-slate-300 leading-relaxed mb-5 font-normal">
-                        Aplikasi mandiri seluruh pegawai ASN & Non-ASN: Absensi harian GPS/WFO/WFH, pengisian LHK
-                        real-time, izin dinas luar, dan rekap mandiri.
-                    </p>
+                    <!-- Footer Action Button -->
+                    <div class="pt-2">
+                        <a href="{{ $link->link_url }}" target="{{ $link->target ?? '_self' }}"
+                            class="w-full py-3.5 px-5 rounded-2xl {{ $tokens['btn'] }} font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md">
+                            <span>Akses Layanan</span>
+                            <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1.5"></i>
+                        </a>
 
-                    <!-- Quick Highlights Tags -->
-                    <div class="flex flex-wrap gap-1.5 mb-6">
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-location-dot mr-1 text-[10px]"></i>Absensi GPS
-                        </span>
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-list-check mr-1 text-[10px]"></i>Laporan LHK
-                        </span>
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-briefcase mr-1 text-[10px]"></i>Izin & Dinas Luar
-                        </span>
-                        <span
-                            class="px-2.5 py-1 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-300/90 text-[11px] font-semibold">
-                            <i class="fa-solid fa-print mr-1 text-[10px]"></i>Cetak Rekap
-                        </span>
+                        @auth
+                            @if(auth()->user()->hasAnyRole(['super_admin', 'admin']))
+                                <div class="mt-2 text-center">
+                                    <a href="{{ url('/admin/portal-links/' . $link->id . '/edit') }}"
+                                        class="inline-flex items-center gap-1 text-[10px] text-slate-400 hover:text-sky-300 transition-colors">
+                                        <i class="fa-solid fa-pen-to-square text-[9px]"></i>
+                                        <span>Kelola Kartu Ini</span>
+                                    </a>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
                 </div>
-
-                <div>
-                    @auth
-                        <a href="{{ route('mobile.dashboard') }}"
-                            class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-teal-400 hover:from-sky-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-compass"></i>
-                            <span>Buka Dashboard Presensi</span>
-                            <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
-                        </a>
-                    @else
-                        <a href="{{ route('mobile.login') }}"
-                            class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-teal-400 hover:from-sky-400 hover:to-teal-300 text-slate-950 font-black text-sm shadow-lg shadow-sky-500/25 transition-all flex items-center justify-center gap-2 active:scale-95">
-                            <i class="fa-solid fa-right-to-bracket"></i>
-                            <span>Masuk Presensi Pegawai</span>
-                            <i class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
-                        </a>
-                    @endauth
+            @empty
+                <div class="col-span-full text-center py-12 text-slate-400">
+                    <i class="fa-solid fa-layer-group text-3xl mb-3 text-slate-600 block"></i>
+                    <p class="text-sm">Belum ada kartu portal yang aktif. Silakan tambahkan melalui Panel Admin.</p>
                 </div>
-            </div>
-
+            @endforelse
         </div>
 
-        <!-- Info Bar -->
-        <div
-            class="mt-8 max-w-3xl mx-auto w-full bg-white/[0.03] backdrop-blur-md rounded-xl p-3.5 border border-white/[0.06] flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-500 gap-2.5">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-shield-heart text-sky-400/70"></i>
-                <span>Keamanan Terproteksi: Geofencing, Deteksi Fake GPS & Enkripsi Log</span>
+        <!-- Info Bar Keamanan & Shortcut Admin -->
+        <div class="mt-10 max-w-4xl mx-auto w-full bg-white/[0.03] backdrop-blur-md rounded-2xl p-4 border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+            <div class="flex items-center gap-2 text-slate-300">
+                <i class="fa-solid fa-shield-heart text-sky-400"></i>
+                <span>Keamanan Terproteksi: Geofencing GPS, Enkripsi Log & Verifikasi QR SPJ</span>
             </div>
             <div class="flex items-center gap-3">
                 <button type="button" @click="infoModal = true"
-                    class="hover:text-slate-300 transition cursor-pointer flex items-center gap-1">
+                    class="hover:text-white transition cursor-pointer flex items-center gap-1.5 text-sky-300 font-semibold">
                     <i class="fa-solid fa-circle-question"></i>
-                    <span>Panduan & Alur Sistem</span>
+                    <span>Panduan Alur Sistem</span>
                 </button>
-                <span class="text-white/15">|</span>
-                <span class="text-slate-500"><i class="fa-solid fa-headset mr-0.5"></i>Bantuan IT Dinas</span>
+                @auth
+                    @if(auth()->user()->hasAnyRole(['super_admin', 'admin']))
+                        <span class="text-white/20">|</span>
+                        <a href="{{ url('/admin/portal-links') }}" class="hover:text-amber-300 transition flex items-center gap-1 text-amber-400 font-semibold">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Kelola Portal</span>
+                        </a>
+                    @endif
+                @endauth
             </div>
         </div>
     </div>

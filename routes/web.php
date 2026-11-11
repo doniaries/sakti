@@ -10,7 +10,8 @@ use App\Livewire\Mobile\Lhk\Form as LhkForm;
 
 Route::get('/', function () {
     $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
-    return view('welcome', compact('pengaturan'));
+    $portalLinks = \App\Models\PortalLink::aktif()->get();
+    return view('welcome', compact('pengaturan', 'portalLinks'));
 })->name('portal');
 
 Route::post('/portal/logout', function () {
