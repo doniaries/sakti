@@ -6,7 +6,7 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="google-site-verification" content="1l9WVhQ-bVhmRSL4KJIOxPk9MJ1NRdE99cOTtxgHEK4" />
-    <title>{{ $pengaturan->nama_aplikasi ?? 'Sakti' }} -
+    <title>{{ $pengaturan->nama_aplikasi ?? 'Sakti Parpora' }} -
         {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }}</title>
 
     <!-- PWA Setup -->

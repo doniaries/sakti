@@ -38,6 +38,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('super_admin') ? true : null;
         });
 
+        // Daftarkan RolePolicy secara eksplisit untuk mencegah kegagalan resolusi PSR-4 di server production
+        \Illuminate\Support\Facades\Gate::policy(
+            \Spatie\Permission\Models\Role::class,
+            \App\Policies\RolePolicy::class
+        );
+
         // Paksa Laravel untuk menggunakan view filament-tables yang ada di resources/views/vendor
         // karena package leek/filament-header-filters melakukan hard-override view bawaan Filament.
         $this->app->make('view')->prependNamespace(
