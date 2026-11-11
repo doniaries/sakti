@@ -115,6 +115,7 @@ class PengajuanSpjsTable
 
                 return $query;
             })
+            ->heading(fn () => view('filament.components.table-spj-filter-bar'))
             ->extraAttributes([
                 'class' => 'spj-scrollable-table',
             ])

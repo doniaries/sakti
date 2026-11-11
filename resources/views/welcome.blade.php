@@ -10,6 +10,7 @@
         {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }}</title>
 
     <!-- PWA Setup -->
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#070B1A">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">

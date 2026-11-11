@@ -517,6 +517,15 @@ html:not(.dark) .laporan-table tbody tr:hover td {
 }
 
 /* ==========================================================================
+   Table Header Custom Filter Bar
+   ========================================================================== */
+.fi-ta-header:has(#table-filter-spj-bidang) .fi-ta-header-heading {
+    font-size: inherit !important;
+    font-weight: normal !important;
+    line-height: inherit !important;
+}
+
+/* ==========================================================================
    SPJ Scrollable Table: Tampilan Kompak ~3 Baris dengan Scroll Vertikal Internal
    ========================================================================== */
 .spj-scrollable-table .fi-ta-content,

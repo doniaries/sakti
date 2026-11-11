@@ -38,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->breadcrumbs(false)
             ->font('Roboto')
+            ->favicon(asset('favicon.png'))
             // ->topNavigation()
             ->path('admin')
             ->sidebarCollapsibleOnDesktop()
