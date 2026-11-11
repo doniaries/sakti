@@ -73,18 +73,18 @@ class PengajuanSpjInfolist
                     ])
                     ->columns(['default' => 2, 'sm' => 3, 'md' => 6]),
 
-                // Bagian Rincian Barang (Tanpa Heading Teks agar Lapang dan Langsung ke Tabel)
+                // Bagian Rincian Barang (Mandiri Di-scroll Vertikal dengan Max-Height)
                 Section::make()
                     ->columnSpanFull()
                     ->compact()
+                    ->extraAttributes([
+                        'class' => 'spj-section-scroll',
+                        'style' => 'max-height: 200px !important; overflow-y: auto !important; overflow-x: hidden !important;',
+                    ])
                     ->schema([
                         RepeatableEntry::make('details')
                             ->hiddenLabel()
                             ->contained(false)
-                            ->extraAttributes([
-                                'class' => 'spj-rincian-scroll space-y-1.5 pr-1 divide-y divide-gray-100 dark:divide-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/5 p-2',
-                                'style' => 'max-height: 220px !important; overflow-y: auto !important; display: block !important;',
-                            ])
                             ->schema([
                                 TextEntry::make('nama_barang')
                                     ->label('Uraian Barang')
@@ -120,21 +120,22 @@ class PengajuanSpjInfolist
                                     ->columnSpan(['default' => 12, 'md' => 2]),
                             ])
                             ->columns(12),
-
-                        // Total belanja diletakkan di bawah rincian barang secara inline
-                        TextEntry::make('total_belanja_bawah')
-                            ->label('Total Belanja (Nilai Kwitansi)')
-                            ->size(TextSize::Medium)
-                            ->weight('bold')
-                            ->color('warning')
-                            ->alignment(Alignment::End)
-                            ->inlineLabel()
-                            ->state(function (PengajuanSpj $record): string {
-                                $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
-
-                                return $nominal > 0 ? FormatHelper::rupiah($nominal) : '-';
-                            }),
                     ]),
+
+                // Total belanja diletakkan di bawah rincian barang secara inline dan tetap terlihat
+                TextEntry::make('total_belanja_bawah')
+                    ->label('Total Belanja (Nilai Kwitansi)')
+                    ->size(TextSize::Large)
+                    ->weight('bold')
+                    ->color('warning')
+                    ->alignment(Alignment::End)
+                    ->inlineLabel()
+                    ->columnSpanFull()
+                    ->state(function (PengajuanSpj $record): string {
+                        $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
+
+                        return $nominal > 0 ? FormatHelper::rupiah($nominal) : '-';
+                    }),
             ]);
     }
 }
