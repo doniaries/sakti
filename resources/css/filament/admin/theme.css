@@ -571,10 +571,18 @@ html:not(.dark) .laporan-table tbody tr:hover td {
 }
 
 /* ==========================================================================
-   Modal Sticky Header & Footer Background Fix (Anti Tembus Teks)
+   Modal Sticky Header & Footer Background Fix (Anti Tembus Teks & Anti Off-Screen)
    ========================================================================== */
 .fi-modal-window {
+    max-height: calc(100vh - 3.5rem) !important;
+    display: flex !important;
+    flex-direction: column !important;
     overflow: hidden !important;
+}
+
+.fi-modal-window .fi-modal-content {
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
 }
 
 .fi-modal-header {

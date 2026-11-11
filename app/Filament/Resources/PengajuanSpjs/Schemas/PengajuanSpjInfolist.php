@@ -73,54 +73,60 @@ class PengajuanSpjInfolist
                     ])
                     ->columns(['default' => 2, 'sm' => 3, 'md' => 6]),
 
-                // Bagian Rincian Barang (Mandiri Di-scroll Vertikal dengan Max-Height)
-                Section::make()
+                // Bagian Rincian Barang (Tabel Ramping, Header Sticky, Body Scrollable Mandiri)
+                TextEntry::make('rincian_barang_table')
+                    ->hiddenLabel()
                     ->columnSpanFull()
-                    ->compact()
-                    ->extraAttributes([
-                        'class' => 'spj-section-scroll',
-                        'style' => 'max-height: 200px !important; overflow-y: auto !important; overflow-x: hidden !important;',
-                    ])
-                    ->schema([
-                        RepeatableEntry::make('details')
-                            ->hiddenLabel()
-                            ->contained(false)
-                            ->schema([
-                                TextEntry::make('nama_barang')
-                                    ->label('Uraian Barang')
-                                    ->weight('bold')
-                                    ->size(TextSize::Small)
-                                    ->columnSpan(['default' => 12, 'md' => 4]),
+                    ->html()
+                    ->state(function (PengajuanSpj $record): string {
+                        $details = $record->details;
+                        if ($details->isEmpty()) {
+                            return '<div class="rounded-lg border border-gray-200 p-4 text-center text-xs italic text-gray-500 dark:border-gray-700">Tidak ada rincian barang.</div>';
+                        }
 
-                                TextEntry::make('keterangan')
-                                    ->label('Keterangan')
-                                    ->placeholder('-')
-                                    ->size(TextSize::Small)
-                                    ->columnSpan(['default' => 12, 'md' => 2]),
+                        $rows = '';
+                        foreach ($details as $index => $item) {
+                            $no = $index + 1;
+                            $nama = htmlspecialchars($item->nama_barang ?? '-', ENT_QUOTES, 'UTF-8');
+                            $ket = htmlspecialchars($item->keterangan ?: '-', ENT_QUOTES, 'UTF-8');
+                            $vol = number_format((float) ($item->kuantitas_realisasi ?: $item->kuantitas), 0, ',', '.') . ' ' . htmlspecialchars($item->satuan_nama ?? '', ENT_QUOTES, 'UTF-8');
+                            $harga = FormatHelper::rupiah((float) ($item->harga_realisasi ?: $item->harga_satuan));
+                            $subtotal = FormatHelper::rupiah((float) ($item->subtotal_realisasi ?: $item->subtotal));
 
-                                TextEntry::make('volume')
-                                    ->label('Volume')
-                                    ->size(TextSize::Small)
-                                    ->state(fn(DetailPengajuanSpj $record): string => number_format((float) ($record->kuantitas_realisasi ?: $record->kuantitas), 0, ',', '.') . ' ' . $record->satuan_nama)
-                                    ->columnSpan(['default' => 12, 'md' => 2]),
+                            $rows .= "
+                                <tr class='border-b border-gray-100 hover:bg-gray-50/80 dark:border-gray-800 dark:hover:bg-white/5 transition-colors'>
+                                    <td class='px-3 py-1.5 text-center text-xs text-gray-500 font-medium'>{$no}</td>
+                                    <td class='px-3 py-1.5 text-xs font-semibold text-gray-900 dark:text-gray-100'>{$nama}</td>
+                                    <td class='px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400'>{$ket}</td>
+                                    <td class='px-3 py-1.5 text-center text-xs font-medium text-gray-700 dark:text-gray-300'>{$vol}</td>
+                                    <td class='px-3 py-1.5 text-right text-xs text-gray-700 dark:text-gray-300'>{$harga}</td>
+                                    <td class='px-3 py-1.5 text-right text-xs font-bold text-amber-600 dark:text-amber-400'>{$subtotal}</td>
+                                </tr>
+                            ";
+                        }
 
-                                TextEntry::make('harga_satuan_item')
-                                    ->label('Harga Satuan')
-                                    ->size(TextSize::Small)
-                                    ->state(fn(DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->harga_realisasi ?: $record->harga_satuan)))
-                                    ->columnSpan(['default' => 12, 'md' => 2]),
-
-                                TextEntry::make('subtotal')
-                                    ->label('Total Uang')
-                                    ->weight('bold')
-                                    ->color('warning')
-                                    ->size(TextSize::Small)
-                                    ->alignment(Alignment::End)
-                                    ->state(fn(DetailPengajuanSpj $record): string => FormatHelper::rupiah((float) ($record->subtotal_realisasi ?: $record->subtotal)))
-                                    ->columnSpan(['default' => 12, 'md' => 2]),
-                            ])
-                            ->columns(12),
-                    ]),
+                        return "
+                            <div class='rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900 shadow-2xs'>
+                                <div class='overflow-y-auto' style='max-height: 180px; overflow-y: auto; display: block;'>
+                                    <table class='w-full text-left border-collapse'>
+                                        <thead class='bg-gray-100/90 dark:bg-gray-800/90 sticky top-0 z-10 border-b border-gray-200 dark:border-gray-700 text-[11px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-300 shadow-2xs'>
+                                            <tr>
+                                                <th class='px-3 py-2 text-center w-10'>No</th>
+                                                <th class='px-3 py-2'>Uraian Barang</th>
+                                                <th class='px-3 py-2'>Keterangan</th>
+                                                <th class='px-3 py-2 text-center w-24'>Volume</th>
+                                                <th class='px-3 py-2 text-right w-28'>Harga Satuan</th>
+                                                <th class='px-3 py-2 text-right w-32'>Total Uang</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class='divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-900'>
+                                            {$rows}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ";
+                    }),
 
                 // Total belanja diletakkan di bawah rincian barang secara inline dan tetap terlihat
                 TextEntry::make('total_belanja_bawah')
