@@ -227,6 +227,8 @@ class AttendancePunchService
                 ];
             }
 
+            $isPulangCepat = ($nowTime < $jamPulangResmi);
+
             $log = LogAbsensi::create([
                 'user_id' => $user->id,
                 'nomor_absensi' => $nomorAbsensi,
