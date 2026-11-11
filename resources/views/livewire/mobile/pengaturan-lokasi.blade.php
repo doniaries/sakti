@@ -180,8 +180,14 @@
 
     <!-- MAP CONTAINER CARD -->
     <div class="bg-white rounded-3xl p-3 shadow-sm border border-slate-200/90 mb-4 relative overflow-hidden">
-        <!-- Floating GPS Action Button -->
-        <div class="absolute top-5 right-5 z-[500]">
+        <!-- Floating GPS & Titik Asli Action Button -->
+        <div class="absolute top-5 right-5 z-[500] flex items-center gap-1.5">
+            <button type="button" wire:click="kembalikanTitikAsli"
+                class="px-2.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md text-slate-700 hover:text-slate-900 border border-slate-200 shadow-md font-extrabold text-xs flex items-center gap-1 active:scale-95 transition cursor-pointer"
+                title="Kembalikan ke titik koordinat resmi kantor">
+                <i class="fa-solid fa-rotate-left text-slate-500"></i>
+                <span>Titik Asli</span>
+            </button>
             <button type="button" @click="detectMyGps()" :disabled="detectingGps"
                 class="px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md text-sky-700 hover:text-sky-800 border border-slate-200 shadow-md font-extrabold text-xs flex items-center gap-1.5 transition-transform duration-150 ease-out active:scale-[0.96] disabled:scale-100 cursor-pointer">
                 <i class="fa-solid fa-location-crosshairs text-sky-600" :class="detectingGps ? 'animate-spin' : ''"></i>

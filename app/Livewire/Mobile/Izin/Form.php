@@ -142,7 +142,7 @@ class Form extends Component
             $pathLampiran = $this->lampiran->store('lampiran-izin', 'public');
         }
 
-        PengajuanIzin::create([
+        $pengajuan = PengajuanIzin::create([
             'user_id' => $user->id,
             'jenis_izin_id' => $this->jenis_izin_id,
             'tanggal_mulai' => $this->tanggal_mulai,
@@ -152,6 +152,27 @@ class Form extends Component
             'lampiran' => $pathLampiran,
             'status' => 'menunggu',
         ]);
+
+        // Kirim Notifikasi Database ke Atasan Langsung dan Admin Kepegawaian
+        try {
+            $recipients = collect();
+            if ($user->atasan) {
+                $recipients->push($user->atasan);
+            }
+            $admins = \App\Models\User::role(['super_admin', 'admin'])->get();
+            $recipients = $recipients->merge($admins)->unique('id');
+
+            foreach ($recipients as $recipient) {
+                \Filament\Notifications\Notification::make()
+                    ->title("Pengajuan Izin Baru: {$user->name}")
+                    ->body("Pegawai {$user->name} mengajukan {$selectedJenis?->nama} ({$this->jumlah_hari} hari: {$this->tanggal_mulai} s.d {$this->tanggal_selesai}).")
+                    ->icon('heroicon-o-document-text')
+                    ->warning()
+                    ->sendToDatabase($recipient);
+            }
+        } catch (\Throwable $e) {
+            // Silently continue if notification fails
+        }
 
         session()->flash('success', 'Permohonan berhasil dikirim dan menunggu persetujuan atasan.');
 

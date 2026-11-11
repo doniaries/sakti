@@ -84,14 +84,31 @@ class PengajuanIzinsTable
                     ->color('success')
                     ->visible(fn ($record) => $record->status === 'menunggu')
                     ->requiresConfirmation()
-                    ->action(function ($record) {
+                    ->form([
+                        \Filament\Forms\Components\Textarea::make('catatan_atasan')
+                            ->label('Catatan Pimpinan (Opsional)')
+                            ->placeholder('Tuliskan catatan verifikasi...'),
+                    ])
+                    ->action(function ($record, array $data) {
                         $record->update([
                             'status' => 'disetujui',
                             'disetujui_oleh' => Auth::id(),
+                            'catatan_atasan' => $data['catatan_atasan'] ?? null,
                         ]);
 
+                        $record->sinkronkanKeAbsensiHarian();
+
+                        // Notifikasi ke pegawai
+                        if ($record->user) {
+                            Notification::make()
+                                ->title('Pengajuan Izin Disetujui')
+                                ->body("Pengajuan {$record->jenisIzin?->nama} Anda telah disetujui.")
+                                ->success()
+                                ->sendToDatabase($record->user);
+                        }
+
                         Notification::make()
-                            ->title('Pengajuan Disetujui!')
+                            ->title('Pengajuan Berhasil Disetujui!')
                             ->body('Data absensi harian pegawai otomatis dibuat/diperbarui.')
                             ->success()
                             ->send();
@@ -103,11 +120,26 @@ class PengajuanIzinsTable
                     ->color('danger')
                     ->visible(fn ($record) => $record->status === 'menunggu')
                     ->requiresConfirmation()
-                    ->action(function ($record) {
+                    ->form([
+                        \Filament\Forms\Components\Textarea::make('catatan_atasan')
+                            ->label('Alasan Penolakan')
+                            ->required(),
+                    ])
+                    ->action(function ($record, array $data) {
                         $record->update([
                             'status' => 'ditolak',
                             'disetujui_oleh' => Auth::id(),
+                            'catatan_atasan' => $data['catatan_atasan'] ?? null,
                         ]);
+
+                        // Notifikasi ke pegawai
+                        if ($record->user) {
+                            Notification::make()
+                                ->title('Pengajuan Izin Ditolak')
+                                ->body("Pengajuan {$record->jenisIzin?->nama} Anda ditolak. Catatan: {$data['catatan_atasan']}")
+                                ->danger()
+                                ->sendToDatabase($record->user);
+                        }
 
                         Notification::make()
                             ->title('Pengajuan Ditolak')
@@ -115,12 +147,18 @@ class PengajuanIzinsTable
                             ->send();
                     }),
 
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->visible(fn ($record) => $record->status === 'menunggu'),
+
+                DeleteAction::make()
+                    ->visible(fn ($record) => $record->status === 'menunggu'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $records->filter(fn ($r) => $r->status === 'menunggu')->each->delete();
+                        }),
                 ]),
             ])
             ->defaultSort('created_at', 'desc');

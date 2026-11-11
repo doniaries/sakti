@@ -108,10 +108,10 @@
                     <i class="fa-solid {{ $greetingIcon }}"></i>
                     <span>{{ $greeting }},</span>
                 </div>
-                <h2 class="text-lg font-extrabold tracking-tight text-white drop-shadow-xs truncate" title="{{ $user->name }}">{{ $user->name }}</h2>
-                <p class="text-xs font-semibold text-sky-200/90 mt-0.5 flex items-center min-w-0" title="{{ $user->jabatan->nama ?? 'Pegawai' }}">
-                    <i class="fa-solid fa-id-badge text-[10px] mr-1.5 text-sky-300 shrink-0"></i>
-                    <span class="truncate">{{ $user->jabatan->nama ?? 'Pegawai' }}</span>
+                <h2 class="text-lg font-extrabold tracking-tight text-white drop-shadow-xs" title="{{ $user->name }}">{{ $user->name }}</h2>
+                <p class="text-xs font-semibold text-sky-200/90 mt-1 flex items-start min-w-0 leading-snug" title="{{ $user->jabatan->nama ?? 'Pegawai' }}">
+                    <i class="fa-solid fa-id-badge text-[10px] mr-1.5 mt-0.5 text-sky-300 shrink-0"></i>
+                    <span class="break-words">{{ $user->jabatan->nama ?? 'Pegawai' }}</span>
                 </p>
 
                 <!-- Tanggal & Jam Aktif Server -->

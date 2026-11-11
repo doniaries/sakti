@@ -39,12 +39,12 @@ class PengaturanLokasi extends Component
 
         $pengaturan = PengaturanAplikasi::getPengaturan();
 
-        $this->latitude_kantor = (float) ($pengaturan->latitude_kantor ?? -0.669694);
-        $this->longitude_kantor = (float) ($pengaturan->longitude_kantor ?? 100.927419);
-        $this->radius_meter = (int) ($pengaturan->radius_meter ?? 50);
+        $this->latitude_kantor = (float) ($pengaturan->latitude_kantor ?? -0.669817);
+        $this->longitude_kantor = (float) ($pengaturan->longitude_kantor ?? 100.927543);
+        $this->radius_meter = (int) ($pengaturan->radius_meter ?? 25);
         $this->alamat_kantor = (string) ($pengaturan->alamat_kantor ?? 'Kantor Dinas');
         $this->nama_dinas = (string) ($pengaturan->nama_dinas ?? $pengaturan->sub_nama ?? 'Dinas Lingkungan Hidup');
-        $this->mode_simulasi = (bool) session('mode_simulasi_absensi', false);
+        $this->mode_simulasi = (bool) ($pengaturan->mode_simulasi ?? session('mode_simulasi_absensi', false));
     }
 
     public function simpanLokasi()
@@ -70,6 +70,7 @@ class PengaturanLokasi extends Component
         $pengaturan->latitude_kantor = $this->latitude_kantor;
         $pengaturan->longitude_kantor = $this->longitude_kantor;
         $pengaturan->radius_meter = $this->radius_meter;
+        $pengaturan->mode_simulasi = $this->mode_simulasi;
         if (! empty($this->alamat_kantor)) {
             $pengaturan->alamat_kantor = $this->alamat_kantor;
         }
@@ -83,6 +84,15 @@ class PengaturanLokasi extends Component
             'title' => 'Lokasi Berhasil Disimpan!',
             'message' => "Titik kantor ({$this->latitude_kantor}, {$this->longitude_kantor}) dengan radius {$this->radius_meter} meter telah aktif secara terpadu.",
         ]);
+    }
+
+    public function kembalikanTitikAsli()
+    {
+        $this->latitude_kantor = -0.669817;
+        $this->longitude_kantor = 100.927543;
+        $this->radius_meter = 25;
+        $this->simpanLokasi();
+        $this->dispatch('radius-updated', radius: 25);
     }
 
     public function setRadius(int $radius)

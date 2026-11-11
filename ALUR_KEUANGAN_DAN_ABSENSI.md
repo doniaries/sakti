@@ -247,4 +247,41 @@ Di panel admin Filament, ditambahkan grup navigasi khusus **"Laporan Eksekutif"*
      - Rekapitulasi Pemotongan dan Penyetoran Pajak (PPN, PPh 21, PPh 22, PPh 23).
    - **Aksi Cetak**: Cetak Buku Kas Umum (BKU) dan LPJ Fungsional format resmi Permendagri 77/2020.
 
+---
+
+## 4. Standar Baru Pengaturan Menu, Lokasi Presensi, Persetujuan Pimpinan & Hak Akses Role (Update 2026)
+
+### A. Relokasi Menu Terpadu di Panel Admin Filament
+1. **Menu Keuangan ➔ `Pengaturan Keuangan`**:
+   - Ditempatkan langsung pada grup navigasi **Keuangan** (`PengaturanKeuangan.php`).
+   - Mengelola parameter **Tahun Anggaran Aktif** secara terpusat yang menjadi acuan penguncian modul DPA, RKA, Nota Pesanan, Kwitansi, dan NPD.
+2. **Menu Absensi ➔ `Pengaturan Absensi`**:
+   - Ditempatkan langsung pada grup navigasi **Absensi** (`PengaturanAbsensi.php`).
+   - Mengelola **Titik Koordinat Pusat Kantor (Latitude, Longitude)**, **Radius Presensi (Geofence)**, dan **Mode Simulasi Bebas Lokasi**.
+   - Dilengkapi aksi cepat **Ambil Titik Lokasi Laptop (GPS)** dan **Kembalikan ke Titik Asli Instansi**.
+
+### B. Sinkronisasi Koordinat GPS & Logika Tombol Presensi
+1. **Sinkronisasi Dua-Arah (Bidirectional Database Sync)**:
+   - Seluruh perubahan koordinat (baik dari panel Filament maupun dari fitur mobile *Atur Peta & Titik*) langsung memperbarui tabel `pengaturan_aplikasis` dan `instansis` secara otomatis.
+2. **Penguncian Tombol Presensi Luar Radius**:
+   - Jika pegawai WFO berada di luar radius toleransi kantor (`!isWithinRadius` dan mode simulasi nonaktif), tombol **Absen Datang** dan **Absen Pulang** terkunci secara otomatis (`:disabled="true"`) dan berstatus nonaktif (abu-abu).
+3. **Peringatan Sticky Mode Simulasi**:
+   - Ketika mode simulasi aktif, banner peringatan permanen berwarna oranye-amber tampil di bagian paling atas layar seluruh pegawai untuk menandakan geofencing GPS dinonaktifkan sementara untuk kebutuhan uji coba.
+
+### C. Alur Persetujuan Izin Berjenjang (Atasan, Kabid, Kadis)
+1. **Tab Khusus Pimpinan (Verifikasi Bawahan)**:
+   - Atasan langsung, Kabid, dan Kepala Dinas memiliki tab **Verifikasi Bawahan** pada menu Pengajuan Izin Mobile dengan badge penghitung pengajuan tertunda (*pending*).
+2. **Aksi Setujui / Tolak Otomatis**:
+   - Pimpinan dapat menyetujui atau menolak permohonan dengan menyertakan catatan pimpinan.
+   - Saat disetujui, sistem otomatis men-generate entri rekap `AbsensiHarian` untuk setiap hari kerja dalam rentang tanggal izin dan memotong kuota cuti pegawai secara otomatis.
+3. **Notifikasi Sistem Terpadu**:
+   - Pengajuan izin baru otomatis mengirim notifikasi ke database Filament atasan dan admin kepegawaian.
+
+### D. Aturan Hak Akses & Keamanan Role Pegawai & JF (Jabatan Fungsional)
+1. **Imutabilitas Data Izin yang Diproses**:
+   - Seluruh pengajuan izin yang telah berstatus `disetujui` atau `ditolak` terkunci secara permanen di tingkat Policy (`PengajuanIzinPolicy`), Filament Table, dan Mobile. Pegawai dilarang keras mengubah atau menghapus data izin yang telah diproses.
+2. **Pembatasan Data Global untuk Role JF & Pegawai**:
+   - Data master organisasi: **Jabatan**, **Shift / Jadwal Kerja**, dan **Hari Libur** merupakan data global yang dapat dilihat oleh semua pegawai (`viewAny` dan `view` diizinkan).
+   - Role `jf` dan `pegawai` **dilarang menambah (create), mengedit (update), maupun menghapus (delete)** data-data master global tersebut. Hak mutasi dibatasi khusus untuk Administrator Kepegawaian dan Superadmin.
+
 

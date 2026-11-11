@@ -23,7 +23,8 @@ class Absensi extends Component
 
     public function mount()
     {
-        $this->modeSimulasi = (bool) session('mode_simulasi_absensi', false);
+        $pengaturan = PengaturanAplikasi::getPengaturan();
+        $this->modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
     }
 
     /**

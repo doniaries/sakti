@@ -183,6 +183,24 @@
 </head>
 <body>
     <div class="mobile-container">
+        @php
+            $isSimulasiAktif = (bool) (\App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi || session('mode_simulasi_absensi', false));
+        @endphp
+        @if ($isSimulasiAktif)
+            <!-- Sticky Warning Mode Simulasi Aktif untuk Seluruh Pegawai -->
+            <div class="sticky top-0 z-50 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1.5 shadow-md flex items-center justify-between text-[11px] font-bold border-b border-amber-600/40">
+                <div class="flex items-center space-x-1.5 min-w-0">
+                    <span class="w-2 h-2 rounded-full bg-white animate-ping shrink-0"></span>
+                    <span class="truncate">⚠️ MODE SIMULASI AKTIF: Presensi bebas lokasi untuk pengujian</span>
+                </div>
+                @if (auth()->check() && auth()->user()->hasAnyRole(['super_admin', 'admin']))
+                    <a href="{{ route('mobile.pengaturan-lokasi') }}" wire:navigate class="px-2 py-0.5 rounded bg-black/20 hover:bg-black/30 text-[10px] uppercase font-extrabold shrink-0 ml-2">
+                        Atur
+                    </a>
+                @endif
+            </div>
+        @endif
+
         <!-- Content -->
         <div class="content-area {{ !auth()->check() ? '!pb-0 h-screen overflow-hidden' : '' }}">
             {{ $slot }}

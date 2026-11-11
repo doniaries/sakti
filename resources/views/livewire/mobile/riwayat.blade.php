@@ -120,9 +120,10 @@
                     };
                 @endphp
                 
-                <div class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 flex items-center justify-between">
+                <div wire:click="bukaDetail({{ $item->id }})"
+                    class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 flex items-center justify-between cursor-pointer hover:border-sky-300 hover:shadow-md transition active:scale-[0.98]">
                     <div class="flex items-center space-x-3.5">
-                        <div class="w-11 h-11 rounded-2xl {{ $iconColor }} flex items-center justify-center text-base shadow-xs">
+                        <div class="w-11 h-11 rounded-2xl {{ $iconColor }} flex items-center justify-center text-base shadow-xs shrink-0">
                             <i class="fa-solid fa-calendar-day"></i>
                         </div>
                         
@@ -152,23 +153,113 @@
                                 </span>
                             </div>
                             @if(!empty($item->keterangan))
-                                <p class="text-[10px] text-slate-400 mt-1 italic">{{ $item->keterangan }}</p>
+                                <p class="text-[10px] text-slate-400 mt-1 italic line-clamp-1">{{ $item->keterangan }}</p>
                             @endif
                         </div>
                     </div>
                     
-                    <div class="flex flex-col items-end space-y-1">
+                    <div class="flex flex-col items-end space-y-1.5 shrink-0 ml-2">
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
                             {{ str_replace('_', ' ', $status) }}
                         </span>
-                        @if(!empty($item->jenis_kehadiran))
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tight">
-                                {{ $item->jenis_kehadiran?->value ?? $item->jenis_kehadiran }}
-                            </span>
-                        @endif
+                        <div class="flex items-center text-[10px] text-slate-400">
+                            <span>Detail</span>
+                            <i class="fa-solid fa-chevron-right text-[8px] ml-1"></i>
+                        </div>
                     </div>
                 </div>
             @endforeach
+        </div>
+    @endif
+
+    <!-- MODAL DETAIL KEHADIRAN & GPS -->
+    @if($showDetailModal && $selectedAbsensi)
+        <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+            x-data @keydown.escape.window="$wire.tutupDetail()">
+            <div class="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-slate-200/90 max-h-[85vh] overflow-y-auto space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-800 text-sm">Detail Presensi Kehadiran</h3>
+                            <p class="text-[11px] text-slate-400 font-medium">
+                                {{ \Carbon\Carbon::parse($selectedAbsensi->tanggal)->translatedFormat('l, d F Y') }}
+                            </p>
+                        </div>
+                    </div>
+                    <button wire:click="tutupDetail" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Info Grid -->
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status Kehadiran</span>
+                        <span class="font-black text-slate-800 uppercase tracking-tight text-sm">
+                            {{ str_replace('_', ' ', $selectedAbsensi->status?->value ?? $selectedAbsensi->status) }}
+                        </span>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tipe Kerja</span>
+                        <span class="font-black text-slate-800 uppercase tracking-tight text-sm">
+                            {{ $selectedAbsensi->user?->status_kerja === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Kantor)' }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Jam Masuk & Jam Pulang Cards -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+                        <span class="text-[10px] font-extrabold text-emerald-700 uppercase tracking-wider block mb-1">Absen Masuk</span>
+                        <div class="font-mono font-black text-lg text-emerald-800">
+                            {{ $selectedAbsensi->jam_masuk ? substr($selectedAbsensi->jam_masuk, 0, 8) : '--:--' }}
+                        </div>
+                        <span class="text-[10px] text-emerald-600 font-medium mt-1 block">
+                            {{ $selectedAbsensi->logMasuk?->perangkat ? 'Perangkat: ' . ucfirst($selectedAbsensi->logMasuk->perangkat) : 'Presensi Resmi' }}
+                        </span>
+                        @if($selectedAbsensi->latitude_masuk && $selectedAbsensi->longitude_masuk)
+                            <a href="https://maps.google.com/?q={{ $selectedAbsensi->latitude_masuk }},{{ $selectedAbsensi->longitude_masuk }}" target="_blank"
+                                class="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-emerald-700 underline">
+                                <i class="fa-solid fa-location-dot"></i> Peta Masuk
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-sky-50/60 border border-sky-100">
+                        <span class="text-[10px] font-extrabold text-sky-700 uppercase tracking-wider block mb-1">Absen Pulang</span>
+                        <div class="font-mono font-black text-lg text-sky-800">
+                            {{ $selectedAbsensi->jam_pulang ? substr($selectedAbsensi->jam_pulang, 0, 8) : '--:--' }}
+                        </div>
+                        <span class="text-[10px] text-sky-600 font-medium mt-1 block">
+                            {{ $selectedAbsensi->logPulang?->perangkat ? 'Perangkat: ' . ucfirst($selectedAbsensi->logPulang->perangkat) : 'Presensi Resmi' }}
+                        </span>
+                        @if($selectedAbsensi->latitude_pulang && $selectedAbsensi->longitude_pulang)
+                            <a href="https://maps.google.com/?q={{ $selectedAbsensi->latitude_pulang }},{{ $selectedAbsensi->longitude_pulang }}" target="_blank"
+                                class="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-sky-700 underline">
+                                <i class="fa-solid fa-location-dot"></i> Peta Pulang
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
+                @if(!empty($selectedAbsensi->keterangan))
+                    <div class="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-100 text-xs">
+                        <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block mb-1">Catatan / Keterangan</span>
+                        <p class="text-slate-700">{{ $selectedAbsensi->keterangan }}</p>
+                    </div>
+                @endif
+
+                <div class="pt-2">
+                    <button type="button" wire:click="tutupDetail"
+                        class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+                        Tutup Rincian
+                    </button>
+                </div>
+            </div>
         </div>
     @endif
 </div>

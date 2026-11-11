@@ -42,7 +42,8 @@ class AttendancePunchService
         $maxRadius = (int) ($pengaturan->radius_meter ?? 150);
 
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
-        $bypass = $force || $isAdmin;
+        $isSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
+        $bypass = $force || $isSimulasi;
 
         $today = Carbon::today()->format('Y-m-d');
         $now = Carbon::now()->format('H:i:s');

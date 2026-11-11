@@ -224,8 +224,10 @@
                         <span>Belum Buka</span>
                     </button>
                 @else
-                    <button type="button" @click="doPunch('masuk')" :disabled="loadingMasuk"
-                        class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5 cursor-pointer">
+                    <button type="button" @click="doPunch('masuk')"
+                        :disabled="loadingMasuk || (!isWfh && !modeSimulasi && isWithinRadius === false)"
+                        :class="(!isWfh && !modeSimulasi && isWithinRadius === false) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
+                        class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5">
                         <template x-if="loadingMasuk">
                             <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
                         </template>
@@ -310,8 +312,10 @@
                         <span>Waktu Lewat</span>
                     </button>
                 @else
-                    <button type="button" @click="doPunch('pulang')" :disabled="loadingPulang"
-                        class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-md shadow-amber-500/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5 cursor-pointer">
+                    <button type="button" @click="doPunch('pulang')"
+                        :disabled="loadingPulang || (!isWfh && !modeSimulasi && isWithinRadius === false)"
+                        :class="(!isWfh && !modeSimulasi && isWithinRadius === false) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
+                        class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-md shadow-amber-500/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5">
                         <template x-if="loadingPulang">
                             <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
                         </template>
@@ -361,6 +365,7 @@
                     officeLng: {{ $officeLng }},
                     maxRadius: {{ $maxRadius }},
                     isWfh: {{ $isWfh ? 'true' : 'false' }},
+                    modeSimulasi: {{ $modeSimulasi ? 'true' : 'false' }},
                     currentDistance: null,
                     currentDistanceText: 'Mendeteksi...',
                     userCoordsText: '',
@@ -383,6 +388,15 @@
                     },
 
                     detectPosition() {
+                        if (this.modeSimulasi) {
+                            this.currentDistance = 0;
+                            this.currentDistanceText = '0 meter (Simulasi)';
+                            this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
+                            this.isWithinRadius = true;
+                            this.gpsWarning = false;
+                            return;
+                        }
+
                         if (!navigator.geolocation) {
                             this.currentDistance = 0;
                             this.currentDistanceText = '0 meter (Simulasi)';

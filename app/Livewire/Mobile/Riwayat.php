@@ -20,6 +20,21 @@ class Riwayat extends Component
     #[Url(as: 'status')]
     public $filterStatus = 'semua';
 
+    public $selectedAbsensi = null;
+    public bool $showDetailModal = false;
+
+    public function bukaDetail(int $id): void
+    {
+        $this->selectedAbsensi = AbsensiHarian::with(['logMasuk', 'logPulang', 'user'])->find($id);
+        $this->showDetailModal = true;
+    }
+
+    public function tutupDetail(): void
+    {
+        $this->showDetailModal = false;
+        $this->selectedAbsensi = null;
+    }
+
     public function mount()
     {
         $this->bulan = request()->query('bulan', date('m'));
