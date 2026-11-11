@@ -1,33 +1,39 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
     "filament-pro": {
       "source": "yuniorglez/gemini-elite-core",
       "sourceType": "github",
       "skillPath": "skills/filament-pro/SKILL.md",
-      "computedHash": "d1223bfca670c420fef58114545206b951a38599f8648d6677d370339a53ebfe",
+      "computedHash": "179e36106f128aa0b1bbb2cbdaedce6b382edb9a792ef2e82b28c2f0b90f9ac3",
       "installMode": "copy"
     },
     "laravel-filament-v5-ui-ux": {
       "source": "jotafurtado/dev-skills",
       "sourceType": "github",
       "skillPath": "skills/laravel-filament-v5-ui-ux/SKILL.md",
-      "computedHash": "53274af44cf1693ff10a88eb6197d1b553927f07111b1ac797c7b5d56e3af4bd",
+      "computedHash": "12426d06d076d6e09d09b72bd3917a71deaf88cd943c9ea7a516bfc0afee9ced",
       "installMode": "copy"
     },
     "laravel-security": {
       "source": "affaan-m/ecc",
       "sourceType": "github",
       "skillPath": "skills/laravel-security/SKILL.md",
-      "computedHash": "89ad2cbae3832da0b934e1eb6548aa7396b27744c12a1a409a6f318c7ca6253f",
+      "computedHash": "76754b92b4dbe1d7de632944924e51196e2a35c6dcb85ec0b4ba4d13adc15af6",
       "installMode": "copy"
     },
     "olakunlevpn-filament-skills": {
       "source": "olakunlevpn/olakunlevpn-filament-skills",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "0562d590c14fa018f17f6a6b39d1aa12cf076a4b60f7ba9d2283b93819b08713",
+      "computedHash": "",
       "installMode": "copy"
+    },
+    "shadcn": {
+      "source": "shadcn-ui/ui",
+      "sourceType": "github",
+      "skillPath": "skills/shadcn/SKILL.md",
+      "computedHash": "388962d16c7a4f13aaeee0d8f128e50a87df8553d42ef7988c39c0e1c74a40e8"
     }
   }
 }
