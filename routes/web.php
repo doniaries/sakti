@@ -42,6 +42,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
         Route::get('/hari-libur', \App\Livewire\Mobile\HariLibur::class)->name('mobile.hari-libur');
         Route::get('/reputasi', \App\Livewire\Mobile\Reputasi::class)->name('mobile.reputasi');
+        Route::get('/pengaturan-lokasi', \App\Livewire\Mobile\PengaturanLokasi::class)->name('mobile.pengaturan-lokasi');
     });
 });
 

@@ -143,19 +143,20 @@
             </div>
         </template>
 
-        <!-- Baris 4: Admin Tools (Jika Role SuperAdmin/Admin) -->
+        <!-- Baris 4: Admin Tools (Hanya Tampil Jika Role SuperAdmin / Admin Dinas) -->
         @if ($isAdmin)
-            <div class="mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between relative z-10">
-                <span class="text-[9px] font-bold text-amber-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-screwdriver-wrench mr-1"></i> Admin Tool
+            <div class="mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between relative z-10 text-[10px]">
+                <span class="font-bold text-amber-300 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-screwdriver-wrench mr-1.5 text-xs text-amber-400"></i> Mode Admin
                 </span>
                 <div class="flex items-center space-x-1.5">
-                    <button @click="setOfficeLocation()" :disabled="settingOffice"
-                        class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-[9px] rounded-lg shadow-xs transition-transform duration-150 ease-out active:scale-[0.96] disabled:scale-100 cursor-pointer">
-                        <span x-text="settingOffice ? 'Menyimpan...' : 'Set Ke Titik Saya'">Set Ke Titik Saya</span>
-                    </button>
+                    <a href="{{ route('mobile.pengaturan-lokasi') }}" wire:navigate
+                        class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold rounded-lg shadow-xs transition-transform duration-150 ease-out active:scale-[0.96] flex items-center gap-1 cursor-pointer">
+                        <i class="fa-solid fa-map-location-dot text-[10px]"></i>
+                        <span>Atur Peta & Titik</span>
+                    </a>
                     <button wire:click="simulasiResetMasuk"
-                        class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white font-bold text-[9px] rounded-lg transition-transform duration-150 ease-out active:scale-[0.96] disabled:scale-100 cursor-pointer"
+                        class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white font-bold rounded-lg transition-transform duration-150 ease-out active:scale-[0.96] cursor-pointer"
                         title="Kosongkan presensi hari ini untuk uji ulang">
                         Reset Hari Ini
                     </button>
@@ -324,16 +325,24 @@
         </div>
     </div>
 
-    <!-- Info Jabatan & PIN Mesin -->
+    <!-- Info Jabatan & PIN Mesin (Polesan Elegan Sesuai Better-UI) -->
     @if (!empty($user->jabatan?->nama) || !empty($user->nomor_absensi))
-        <div class="bg-white rounded-xl p-2.5 border border-slate-200/80 flex items-center justify-between text-[11px] text-slate-600 mb-2">
-            <span class="truncate pr-2 flex items-center">
-                <i class="fa-solid fa-id-badge text-sky-500 mr-1.5 text-xs"></i>
-                <span class="font-semibold text-slate-700">{{ $user->jabatan->nama ?? '-' }}</span>
-            </span>
-            <span class="truncate pl-2 text-right shrink-0 text-slate-500">
-                PIN: <strong class="text-slate-800 font-mono">{{ $user->nomor_absensi ?? '-' }}</strong>
-            </span>
+        <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs flex items-center justify-between text-xs mb-3">
+            <div class="flex items-center space-x-2.5 min-w-0 pr-2">
+                <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-id-badge"></i>
+                </div>
+                <div class="min-w-0">
+                    <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold leading-tight">Jabatan Pegawai</span>
+                    <span class="font-extrabold text-slate-800 truncate block text-[11px] mt-0.5">{{ $user->jabatan->nama ?? '-' }}</span>
+                </div>
+            </div>
+            <div class="shrink-0 text-right">
+                <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold leading-tight">PIN Mesin</span>
+                <span class="px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 font-black font-mono text-[11px] inline-block mt-0.5">
+                    {{ $user->nomor_absensi ?? '-' }}
+                </span>
+            </div>
         </div>
     @endif
 

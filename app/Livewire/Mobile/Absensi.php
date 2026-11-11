@@ -21,6 +21,11 @@ class Absensi extends Component
     public $longitude;
     public bool $modeSimulasi = false;
 
+    public function mount()
+    {
+        $this->modeSimulasi = (bool) session('mode_simulasi_absensi', false);
+    }
+
     /**
      * Presensi Masuk Spesifik (dari Tombol Absen Masuk)
      */
@@ -29,7 +34,7 @@ class Absensi extends Component
         /** @var User $user */
         $user = Auth::user();
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
-        $bypass = $this->modeSimulasi || $isAdmin;
+        $bypass = $this->modeSimulasi;
 
         $result = AttendancePunchService::punch(
             $user,
@@ -54,7 +59,7 @@ class Absensi extends Component
         /** @var User $user */
         $user = Auth::user();
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
-        $bypass = $this->modeSimulasi || $isAdmin;
+        $bypass = $this->modeSimulasi;
 
         $result = AttendancePunchService::punch(
             $user,
@@ -242,6 +247,8 @@ class Absensi extends Component
 
     public function render()
     {
+        $this->modeSimulasi = (bool) session('mode_simulasi_absensi', false);
+
         /** @var User $user */
         $user = User::with(['jabatan', 'bidang', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
