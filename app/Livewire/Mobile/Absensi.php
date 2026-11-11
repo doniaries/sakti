@@ -281,6 +281,7 @@ class Absensi extends Component
             'officeLat' => (float) ($pengaturan->latitude_kantor ?? -0.69752300),
             'officeLng' => (float) ($pengaturan->longitude_kantor ?? 100.98547200),
             'maxRadius' => (int) ($pengaturan->radius_meter ?? 150),
+            'namaDinas' => $pengaturan->nama_dinas ?? $pengaturan->sub_nama ?? 'Dinas Lingkungan Hidup',
             'alamatKantor' => $pengaturan->alamat_kantor ?? 'Kantor Dinas',
             'isWfh' => ($user->status_kerja === 'wfh'),
             'isAdmin' => $isAdmin,

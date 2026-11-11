@@ -18,13 +18,21 @@
         </div>
     </div>
 
-    <!-- CARD UTAMA: WAKTU SERVER, JADWAL & LOKASI KANTOR (WARNA SAMA DENGAN DASHBOARD) -->
-    <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-4.5 shadow-xl shadow-sky-950/20 mb-4 relative overflow-hidden border border-white/15"
-        x-data="{ time: '' }" x-init="setInterval(() => {
-            const d = new Date();
-            time = d.toLocaleTimeString('id-ID', { hour12: false });
-        }, 1000);
-        time = (new Date()).toLocaleTimeString('id-ID', { hour12: false });">
+    <!-- CARD UTAMA: WAKTU SERVER, JADWAL & LOKASI KANTOR (SESUAI PEDOMAN BETTER-UI) -->
+    <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-4 shadow-xl shadow-sky-950/20 mb-4 relative overflow-hidden border border-white/15"
+        x-data="{ 
+            time: '--:--:--',
+            initClock() {
+                const pad = (n) => String(n).padStart(2, '0');
+                const update = () => {
+                    const d = new Date();
+                    this.time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+                };
+                update();
+                setInterval(update, 1000);
+            }
+        }" 
+        x-init="initClock()">
         
         <!-- Background Glow Accent & Decorative Watermark Icon (Identik Dashboard) -->
         <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-sky-400/20 rounded-full blur-2xl pointer-events-none"></div>
@@ -32,92 +40,105 @@
             <i class="fa-solid fa-fingerprint"></i>
         </div>
         
-        <!-- Baris 1: Live Digital Clock -->
+        <!-- Baris 1: Live Digital Clock & Identity Header -->
         <div class="flex items-center justify-between pb-3 border-b border-white/15 relative z-10">
-            <div class="flex items-center space-x-2">
-                <div class="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md text-sky-200 flex items-center justify-center text-sm border border-white/20">
-                    <i class="fa-solid fa-clock"></i>
+            <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md text-sky-200 flex items-center justify-center text-sm border border-white/20 shrink-0">
+                    <i class="fa-regular fa-clock"></i>
                 </div>
                 <div>
-                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 block font-semibold">Waktu Server</span>
-                    <div class="text-2xl font-extrabold font-mono tracking-wider text-white leading-none mt-0.5" x-text="time">--:--:--</div>
+                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 block font-bold leading-tight">Waktu Server Resmi</span>
+                    <div class="flex items-baseline space-x-1.5 mt-0.5">
+                        <span class="text-2xl font-black font-mono tracking-tight text-white leading-none" x-text="time">--:--:--</span>
+                        <span class="text-[10px] font-bold text-amber-300 font-mono">WIB</span>
+                    </div>
                 </div>
             </div>
-            <div class="text-right">
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/25 backdrop-blur-md text-amber-300 border border-white/15">WIB</span>
+            <div class="text-right flex flex-col items-end">
+                <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-black/25 backdrop-blur-md border border-white/15 {{ $isWfh ? 'text-amber-300' : 'text-emerald-300' }} flex items-center shadow-xs">
+                    <span class="w-1.5 h-1.5 rounded-full {{ $isWfh ? 'bg-amber-400' : 'bg-emerald-400' }} animate-pulse mr-1.5 inline-block"></span>
+                    <span>{{ $isWfh ? 'Pegawai WFH' : 'Pegawai WFO' }}</span>
+                </span>
+                <span class="text-[10px] text-sky-200/70 mt-1 font-medium">{{ now()->translatedFormat('l, d F Y') }}</span>
             </div>
         </div>
 
-        <!-- Baris 2: Jadwal & Toleransi (Tile Icon Ringkas) -->
-        <div class="grid grid-cols-2 gap-2 py-2.5 border-b border-white/15 text-xs relative z-10">
+        <!-- Baris 2: Jadwal & Toleransi (Tile Terpadu Concentric Radius) -->
+        <div class="grid grid-cols-2 gap-2 my-2.5 text-xs relative z-10">
             <!-- Jadwal Kerja -->
-            <div class="bg-black/25 backdrop-blur-xs rounded-xl p-2 border border-white/15 flex items-center space-x-2">
-                <div class="w-7 h-7 rounded-lg bg-sky-400/20 text-sky-300 flex items-center justify-center text-xs shrink-0">
+            <div class="bg-black/20 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-lg bg-sky-400/20 text-sky-300 flex items-center justify-center text-xs shrink-0 border border-sky-400/20">
                     <i class="fa-regular fa-calendar-check"></i>
                 </div>
                 <div class="min-w-0">
-                    <span class="text-[9px] text-sky-200/70 block font-medium truncate">Jadwal Kerja</span>
-                    <span class="font-bold font-mono text-[11px] text-white block truncate">{{ $jamMasukResmi }} - {{ $jamPulangResmi }}</span>
+                    <span class="text-[9px] text-sky-200/80 uppercase font-bold tracking-wider block truncate">Jadwal Kerja</span>
+                    <span class="font-extrabold font-mono text-xs text-white block truncate">{{ $jamMasukResmi }} - {{ $jamPulangResmi }} <span class="text-[9px] font-sans font-medium text-sky-200">WIB</span></span>
                 </div>
             </div>
 
             <!-- Toleransi Terlambat -->
-            <div class="bg-black/25 backdrop-blur-xs rounded-xl p-2 border border-white/15 flex items-center space-x-2">
-                <div class="w-7 h-7 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center text-xs shrink-0">
+            <div class="bg-black/20 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center text-xs shrink-0 border border-amber-400/20">
                     <i class="fa-solid fa-hourglass-half"></i>
                 </div>
                 <div class="min-w-0">
-                    <span class="text-[9px] text-sky-200/70 block font-medium truncate">Toleransi</span>
-                    <span class="font-bold text-[11px] text-amber-300 block truncate">{{ $toleransi }} Mnt (s.d {{ $batasToleransi }})</span>
+                    <span class="text-[9px] text-amber-200/90 uppercase font-bold tracking-wider block truncate">Batas Hadir</span>
+                    <span class="font-extrabold text-xs text-amber-300 block truncate">s.d {{ $batasToleransi }} <span class="text-[9px] font-normal text-amber-200/80">(+{{ $toleransi }}m)</span></span>
                 </div>
             </div>
         </div>
 
-        <!-- Baris 3: Info Kantor & Jarak User Real-Time -->
-        <div class="pt-2.5 text-xs space-y-1.5 relative z-10">
-            <!-- Kantor -->
-            <div class="flex items-center space-x-2 text-white/90 text-[11px]">
-                <i class="fa-solid fa-building text-sky-300 text-xs shrink-0"></i>
-                <span class="truncate font-medium text-white">{{ $alamatKantor }}</span>
-            </div>
-
-            <!-- Jarak User Real-Time -->
-            <div class="flex items-center justify-between bg-black/25 backdrop-blur-xs rounded-xl px-2.5 py-1.5 border border-white/15">
-                <div class="flex items-center space-x-2 min-w-0">
-                    <i class="fa-solid fa-location-dot text-emerald-400 text-xs shrink-0"></i>
-                    <div class="text-[10px] text-sky-100 truncate">
-                        <span>Jarak: </span>
-                        <span class="font-bold font-mono text-white" x-text="currentDistanceText">Mendeteksi...</span>
-                    </div>
+        <!-- Baris 3: Lokasi Kantor & Jarak User (Satu Baris Kompak & Elegan) -->
+        <div class="bg-black/25 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center justify-between relative z-10">
+            <div class="flex items-center space-x-2.5 min-w-0 pr-2">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-location-dot"></i>
                 </div>
-
-                <div>
-                    <template x-if="isWfh">
-                        <span class="text-[9px] font-bold text-amber-300 bg-amber-500/20 border border-amber-400/30 px-2 py-0.5 rounded-full">Bebas WFH</span>
-                    </template>
-                    <template x-if="!isWfh && isWithinRadius === true">
-                        <span class="text-[9px] font-bold text-emerald-300 bg-emerald-500/20 border border-emerald-400/30 px-2 py-0.5 rounded-full">Dalam Radius</span>
-                    </template>
-                    <template x-if="!isWfh && isWithinRadius === false">
-                        <span class="text-[9px] font-bold text-rose-300 bg-rose-500/20 border border-rose-400/30 px-2 py-0.5 rounded-full">Luar Radius</span>
-                    </template>
-                    <template x-if="!isWfh && isWithinRadius === null">
-                        <span class="text-[9px] font-bold text-sky-200 bg-sky-400/20 border border-sky-300/30 px-2 py-0.5 rounded-full animate-pulse">Cek GPS...</span>
-                    </template>
+                <div class="min-w-0">
+                    <span class="text-xs font-extrabold text-white truncate block">
+                        {{ Str::before($alamatKantor, ',') }}
+                    </span>
+                    <span class="text-[10px] text-sky-200/75 block truncate">
+                        Radius {{ $maxRadius }} meter &bull; {{ Str::after($alamatKantor, ',') ? Str::limit(trim(Str::after($alamatKantor, ',')), 32) : 'Muaro Sijunjung' }}
+                    </span>
                 </div>
             </div>
 
-            <!-- Warning GPS jika belum diizinkan -->
-            <template x-if="gpsWarning">
-                <div class="p-2 rounded-xl bg-amber-500/20 border border-amber-400/30 text-[10px] text-amber-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-1.5">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-300"></i>
-                        <span>Izin lokasi browser nonaktif.</span>
-                    </div>
-                    <button type="button" @click="detectPosition()" class="underline font-bold text-amber-200 hover:text-white">Aktifkan</button>
-                </div>
-            </template>
+            <!-- Status Jarak Real-Time Pill -->
+            <div class="shrink-0 text-right">
+                <template x-if="isWfh">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 border border-amber-400/30 text-amber-300">
+                        <i class="fa-solid fa-house-laptop mr-1 text-[9px]"></i> Bebas WFH
+                    </span>
+                </template>
+                <template x-if="!isWfh && isWithinRadius === true">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/25 border border-emerald-400/40 text-emerald-300 shadow-xs">
+                        <i class="fa-solid fa-circle-check mr-1 text-[9px]"></i> <span x-text="currentDistanceText">0 meter</span>
+                    </span>
+                </template>
+                <template x-if="!isWfh && isWithinRadius === false">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/25 border border-rose-400/40 text-rose-300 shadow-xs">
+                        <i class="fa-solid fa-circle-xmark mr-1 text-[9px]"></i> <span x-text="currentDistanceText">Luar Radius</span>
+                    </span>
+                </template>
+                <template x-if="!isWfh && isWithinRadius === null">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-400/20 border border-sky-300/30 text-sky-200 animate-pulse">
+                        <i class="fa-solid fa-satellite-dish mr-1 text-[9px]"></i> Cek GPS...
+                    </span>
+                </template>
+            </div>
         </div>
+
+        <!-- Warning GPS jika belum diizinkan -->
+        <template x-if="gpsWarning">
+            <div class="mt-2 p-2 rounded-xl bg-amber-500/20 border border-amber-400/30 text-[10px] text-amber-200 flex items-center justify-between relative z-10">
+                <div class="flex items-center space-x-1.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-300"></i>
+                    <span>Izin lokasi browser nonaktif.</span>
+                </div>
+                <button type="button" @click="detectPosition()" class="underline font-bold text-amber-200 hover:text-white cursor-pointer">Aktifkan</button>
+            </div>
+        </template>
 
         <!-- Baris 4: Admin Tools (Jika Role SuperAdmin/Admin) -->
         @if ($isAdmin)
@@ -127,11 +148,11 @@
                 </span>
                 <div class="flex items-center space-x-1.5">
                     <button @click="setOfficeLocation()" :disabled="settingOffice"
-                        class="px-2 py-0.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-[9px] rounded-md shadow-xs transition active:scale-95 cursor-pointer">
-                        <span x-text="settingOffice ? '...' : 'Set Ke Titik Saya'">Set Ke Titik Saya</span>
+                        class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-[9px] rounded-lg shadow-xs transition-transform duration-150 ease-out active:scale-[0.96] disabled:scale-100 cursor-pointer">
+                        <span x-text="settingOffice ? 'Menyimpan...' : 'Set Ke Titik Saya'">Set Ke Titik Saya</span>
                     </button>
                     <button wire:click="simulasiResetMasuk"
-                        class="px-2 py-0.5 bg-white/20 hover:bg-white/30 text-white font-bold text-[9px] rounded-md transition active:scale-95 cursor-pointer"
+                        class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white font-bold text-[9px] rounded-lg transition-transform duration-150 ease-out active:scale-[0.96] disabled:scale-100 cursor-pointer"
                         title="Kosongkan presensi hari ini untuk uji ulang">
                         Reset Hari Ini
                     </button>
@@ -200,7 +221,7 @@
                     </button>
                 @else
                     <button type="button" @click="doPunch('masuk')" :disabled="loadingMasuk"
-                        class="w-full py-2 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
+                        class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5 cursor-pointer">
                         <template x-if="loadingMasuk">
                             <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
                         </template>
@@ -286,7 +307,7 @@
                     </button>
                 @else
                     <button type="button" @click="doPunch('pulang')" :disabled="loadingPulang"
-                        class="w-full py-2 px-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-sm active:scale-95 transition-all flex items-center justify-center space-x-1.5 cursor-pointer">
+                        class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-md shadow-amber-500/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5 cursor-pointer">
                         <template x-if="loadingPulang">
                             <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
                         </template>

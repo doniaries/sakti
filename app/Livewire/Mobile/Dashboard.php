@@ -83,6 +83,7 @@ class Dashboard extends Component
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
         $belumBukaMasuk = (!$isAdmin && $nowTime < $bukaMasuk);
         $lewatBatasMasuk = (!$isAdmin && !$sudahMasuk && $nowTime > $tutupMasuk);
+        $belumJamPulang = (!$isAdmin && $nowTime < $jamPulangResmi);
         $lewatBatasPulang = (!$isAdmin && $sudahMasuk && !$sudahPulang && $nowTime > $tutupPulang);
 
         // Riwayat 7 Hari Terakhir
@@ -114,6 +115,7 @@ class Dashboard extends Component
                 'tutup_pulang' => $tutupPulang,
                 'belum_buka_masuk' => $belumBukaMasuk,
                 'lewat_batas_masuk' => $lewatBatasMasuk,
+                'belum_jam_pulang' => $belumJamPulang,
                 'lewat_batas_pulang' => $lewatBatasPulang,
                 'is_admin' => $isAdmin,
             ],
