@@ -55,11 +55,14 @@
                 </div>
             </div>
             <div class="text-right flex flex-col items-end">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide bg-black/25 backdrop-blur-md border border-white/15 {{ $isWfh ? 'text-amber-300' : 'text-emerald-300' }} flex items-center shadow-xs">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/30 backdrop-blur-md border border-white/15 {{ $isWfh ? 'text-amber-300' : 'text-emerald-300' }} flex items-center shadow-xs mb-1">
                     <span class="w-1.5 h-1.5 rounded-full {{ $isWfh ? 'bg-amber-400' : 'bg-emerald-400' }} animate-pulse mr-1.5 inline-block"></span>
-                    <span>{{ $isWfh ? 'Pegawai WFH' : 'Pegawai WFO' }}</span>
+                    <span>{{ $isWfh ? 'WFH' : 'WFO' }}</span>
                 </span>
-                <span class="text-[10px] text-sky-200/70 mt-1 font-medium">{{ now()->translatedFormat('l, d F Y') }}</span>
+                <div class="flex items-center text-xs font-bold text-white drop-shadow-xs">
+                    <i class="fa-regular fa-calendar-days text-sky-300 text-[11px] mr-1.5"></i>
+                    <span>{{ now()->translatedFormat('l, d F Y') }}</span>
+                </div>
             </div>
         </div>
 
