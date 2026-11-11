@@ -401,4 +401,15 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         $wa = $this->whatsapp_number;
         return $wa ? "https://wa.me/{$wa}" : null;
     }
+
+    /**
+     * Kirim notifikasi reset password menggunakan URL Filament Panel Admin
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $notification = app(\Filament\Auth\Notifications\ResetPassword::class, ['token' => $token]);
+        $notification->url = \Filament\Facades\Filament::getResetPasswordUrl($token, $this);
+
+        $this->notify($notification);
+    }
 }
