@@ -5,6 +5,7 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../vendor/zeeshantariq/filament-sticky-columns/resources/views/**/*.blade.php';
+@source '../../../../vendor/wallacemartinss/filament-icon-picker/resources/views/**/*.blade.php';
 
 /* ==========================================================================
    Z-Index Hierarchy Fix: Topbar, Modals, Dropdowns & Table Elements

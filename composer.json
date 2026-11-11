@@ -24,6 +24,7 @@
         "rats/zkteco": "^002.0",
         "smalot/pdfparser": "^2.13",
         "swisnl/filament-backgrounds": "^2.0",
+        "wallacemartinss/filament-icon-picker": "^1.4",
         "watheqalshowaiter/filament-sticky-table-header": "*",
         "wikimedia/composer-merge-plugin": "^2.1",
         "zeeshantariq/filament-sticky-columns": "^1.2"

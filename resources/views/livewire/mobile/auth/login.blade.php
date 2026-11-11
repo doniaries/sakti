@@ -1,4 +1,12 @@
-<div class="flex flex-col min-h-screen bg-[#1B6CA8]">
+<div class="flex flex-col min-h-screen bg-[#1B6CA8] relative">
+    <!-- Floating Back to Portal Button (Jika salah masuk) -->
+    <div class="absolute top-4 left-4 z-20">
+        <a href="{{ route('portal') }}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-black/20 hover:bg-black/35 text-white border border-white/25 backdrop-blur-md text-xs font-bold transition-all shadow-sm active:scale-95">
+            <i class="fa-solid fa-arrow-left text-[11px]"></i>
+            <span>Kembali ke Beranda</span>
+        </a>
+    </div>
+
     <!-- Header -->
     <div class="h-[35vh] flex flex-col justify-center items-center">
         <div class="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mb-4 transition transform hover:scale-105">
@@ -60,5 +68,13 @@
                 </span>
             </button>
         </form>
+
+        <!-- Link Kembali Jika Salah Masuk -->
+        <div class="mt-6 pt-5 border-t border-gray-100 text-center">
+            <a href="{{ route('portal') }}" class="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-[#1B6CA8] transition-colors">
+                <i class="fa-solid fa-house text-gray-400"></i>
+                <span>Salah masuk pintu? Kembali ke Beranda Portal</span>
+            </a>
+        </div>
     </div>
 </div>

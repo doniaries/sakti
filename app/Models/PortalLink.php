@@ -30,6 +30,59 @@ class PortalLink extends Model
         'urutan' => 'integer',
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (PortalLink $link) {
+            if (blank($link->bentuk)) {
+                $link->bentuk = 'squircle';
+            }
+            if (blank($link->warna)) {
+                $link->warna = 'sky';
+            }
+            if (blank($link->target)) {
+                $link->target = str_starts_with($link->url ?? '', 'http') ? '_blank' : '_self';
+            }
+            if (blank($link->icon)) {
+                $link->icon = self::resolveDefaultIcon($link->kategori, $link->url, $link->judul);
+            }
+        });
+    }
+
+    /**
+     * Otomatis menentukan ikon default berdasarkan kategori, URL, atau judul.
+     */
+    public static function resolveDefaultIcon(?string $kategori, ?string $url, ?string $judul): string
+    {
+        $haystack = strtolower(($kategori ?? '') . ' ' . ($url ?? '') . ' ' . ($judul ?? ''));
+
+        if (str_contains($haystack, 'geopark') || str_contains($haystack, 'silokek') || str_contains($haystack, 'wisata')) {
+            return 'heroicon-o-map';
+        }
+        if (str_contains($haystack, 'disparpora') || str_contains($haystack, 'http')) {
+            return 'heroicon-o-globe-alt';
+        }
+        if (str_contains($haystack, 'keuangan') || str_contains($haystack, 'spj') || str_contains($haystack, 'npd')) {
+            return 'heroicon-o-banknotes';
+        }
+        if (str_contains($haystack, 'lhk') || str_contains($haystack, 'kinerja')) {
+            return 'heroicon-o-document-chart-bar';
+        }
+        if (str_contains($haystack, 'absensi') || str_contains($haystack, 'mobile') || str_contains($haystack, 'presensi')) {
+            return 'heroicon-o-device-phone-mobile';
+        }
+        if (str_contains($haystack, 'admin') || str_contains($haystack, 'pengaturan')) {
+            return 'heroicon-o-shield-check';
+        }
+        if (str_contains($haystack, 'lacak') || str_contains($haystack, 'qr')) {
+            return 'heroicon-o-qr-code';
+        }
+        if (str_contains($haystack, 'pegawai') || str_contains($haystack, 'asn')) {
+            return 'heroicon-o-users';
+        }
+
+        return 'heroicon-o-globe-alt';
+    }
+
     public function scopeAktif($query)
     {
         return $query->where('is_aktif', true)->orderBy('urutan', 'asc');
@@ -69,7 +122,13 @@ class PortalLink extends Model
     {
         $icon = $this->icon ?? '';
 
+        if (blank($icon)) {
+            $icon = self::resolveDefaultIcon($this->kategori, $this->url, $this->judul);
+        }
+
         $map = [
+            'heroicon-o-globe-alt' => 'fa-solid fa-globe',
+            'heroicon-o-map' => 'fa-solid fa-mountain-sun',
             'heroicon-o-banknotes' => 'fa-solid fa-money-bill-wave',
             'heroicon-o-users' => 'fa-solid fa-users',
             'heroicon-o-user-group' => 'fa-solid fa-user-group',
@@ -83,6 +142,7 @@ class PortalLink extends Model
             'heroicon-o-squares-2x2' => 'fa-solid fa-border-all',
             'heroicon-o-link' => 'fa-solid fa-link',
             'heroicon-o-book-open' => 'fa-solid fa-book-open',
+            'heroicon-o-qr-code' => 'fa-solid fa-qrcode',
             'heroicon-o-arrow-top-right-on-square' => 'fa-solid fa-arrow-up-right-from-square',
         ];
 
@@ -94,7 +154,7 @@ class PortalLink extends Model
             return $icon;
         }
 
-        return 'fa-solid fa-circle-dot';
+        return 'fa-solid fa-globe';
     }
 
     /**

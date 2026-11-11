@@ -64,12 +64,6 @@ class PortalLinksTable
                         default => 'gray',
                     }),
 
-                TextColumn::make('bentuk')
-                    ->label('Bentuk')
-                    ->badge()
-                    ->color('gray')
-                    ->toggleable(isToggledHiddenByDefault: true),
-
                 TextColumn::make('url')
                     ->label('Tautan')
                     ->limit(35)

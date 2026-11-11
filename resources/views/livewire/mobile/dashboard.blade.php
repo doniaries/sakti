@@ -37,6 +37,11 @@
                     <i class="fa-solid fa-shield-halved mr-1"></i> Admin
                 </a>
             @endif
+            <a href="{{ route('portal') }}"
+                class="px-2.5 py-1.5 rounded-xl bg-sky-500/15 text-sky-700 hover:bg-sky-500 hover:text-white border border-sky-300 font-bold text-[11px] flex items-center transition shadow-xs"
+                title="Kembali ke Beranda Portal">
+                <i class="fa-solid fa-house mr-1"></i> Portal
+            </a>
             <button wire:click="logout"
                 class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition flex items-center justify-center border border-slate-200/60"
                 title="Keluar">

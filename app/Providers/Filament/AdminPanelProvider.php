@@ -149,6 +149,7 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ])
             ->plugins([
+                \Wallacemartinss\FilamentIconPicker\FilamentIconPickerPlugin::make(),
                 FilamentBackgroundsPlugin::make(),
                 StickyTableHeaderPlugin::make(),
                 FilamentEditProfilePlugin::make()
