@@ -44,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ->sidebarWidth('16rem')
             ->maxContentWidth(\Filament\Support\Enums\Width::Full)
             ->login(\App\Filament\Pages\Auth\Login::class)
+            ->passwordReset()
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label(function () {
@@ -109,6 +110,10 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 fn(): string => view('filament.hooks.topbar-clock')->render()
+            )
+            ->renderHook(
+                PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
+                fn(): string => view('filament.hooks.google-login-button')->render()
             )
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_FOOTER,

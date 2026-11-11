@@ -93,4 +93,11 @@ Route::get('/media-file/{path}', function (string $path) {
     return response()->file($filePath);
 })->where('path', '.*')->name('media.serve');
 
+// Route Autentikasi Google OAuth (SSO)
+Route::middleware('web')->group(function () {
+    Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+});
+
+
 
