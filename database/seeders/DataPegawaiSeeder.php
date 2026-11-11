@@ -145,7 +145,7 @@ class DataPegawaiSeeder extends Seeder
                 'anggaran_role' => null,
             ]
         );
-        $adminKeuangan->syncRoles(['admin_keuangan', 'admin', 'pegawai']);
+        $adminKeuangan->syncRoles(['admin_keuangan', 'admin_kepegawaian', 'admin']);
 
         // 4. Kepala Dinas / PA - Pengguna Anggaran (AFRINELDI)
         $afrineldi = User::query()->where('name', 'LIKE', '%AFRINELDI%')->first();
