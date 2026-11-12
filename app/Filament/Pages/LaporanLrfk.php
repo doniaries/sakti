@@ -37,6 +37,12 @@ class LaporanLrfk extends Page
 
     public int $bulan;
 
+    public ?int $bidangId = null;
+
+    public ?int $programId = null;
+
+    public ?int $kegiatanId = null;
+
     public string $activeTab = 'lampiran1';
 
     public static function canAccess(): bool
@@ -60,6 +66,27 @@ class LaporanLrfk extends Page
         $defaultTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
         $this->tahun = (int) (request()->query('tahun') ?: $defaultTahun);
         $this->bulan = (int) (request()->query('bulan') ?: date('n'));
+        $this->bidangId = request()->query('bidang_id') ? (int) request()->query('bidang_id') : null;
+        $this->programId = request()->query('program_id') ? (int) request()->query('program_id') : null;
+        $this->kegiatanId = request()->query('kegiatan_id') ? (int) request()->query('kegiatan_id') : null;
+    }
+
+    public function updatedBidangId(): void
+    {
+        $this->programId = null;
+        $this->kegiatanId = null;
+    }
+
+    public function updatedProgramId(): void
+    {
+        $this->kegiatanId = null;
+    }
+
+    public function resetFilter(): void
+    {
+        $this->bidangId = null;
+        $this->programId = null;
+        $this->kegiatanId = null;
     }
 
     public function setTab(string $tab): void
@@ -83,6 +110,32 @@ class LaporanLrfk extends Page
             11 => 'November',
             12 => 'Desember',
         ];
+    }
+
+    public function getDaftarBidang(): array
+    {
+        return \App\Models\Bidang::orderBy('nama')->pluck('nama', 'id')->all();
+    }
+
+    public function getDaftarProgram(): array
+    {
+        return \App\Models\MasterProgram::query()
+            ->when($this->bidangId, fn ($q) => $q->whereHas('kegiatans', fn ($kq) => $kq->where('bidang_id', $this->bidangId)))
+            ->orderBy('kode_program')
+            ->get()
+            ->mapWithKeys(fn ($p) => [$p->id => "{$p->kode_program} - {$p->nama_program}"])
+            ->all();
+    }
+
+    public function getDaftarKegiatan(): array
+    {
+        return \App\Models\MasterKegiatan::query()
+            ->when($this->bidangId, fn ($q) => $q->where('bidang_id', $this->bidangId))
+            ->when($this->programId, fn ($q) => $q->where('program_id', $this->programId))
+            ->orderBy('kode_kegiatan')
+            ->get()
+            ->mapWithKeys(fn ($k) => [$k->id => "{$k->kode_kegiatan} - {$k->nama_kegiatan}"])
+            ->all();
     }
 
     protected function getHeaderActions(): array
@@ -132,6 +185,30 @@ class LaporanLrfk extends Page
                             'jenis' => 'lrfk',
                         ]),
                 ])
+                ->extraModalFooterActions([
+                    Action::make('modal_download_pdf')
+                        ->label('Unduh Dokumen PDF')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (array $data) {
+                            $bulanPilihan = (int) ($data['modal_bulan'] ?? $this->bulan);
+                            $penandatanganPilihan = (string) ($data['modal_penandatangan'] ?? 'sekretaris');
+                            $tipePilihan = (string) ($data['modal_tipe'] ?? 'lengkap');
+
+                            $url = route('admin.laporan.lrfk.cetak', [
+                                'tahun' => $this->tahun,
+                                'bulan' => $bulanPilihan,
+                                'penandatangan' => $penandatanganPilihan,
+                                'tipe' => $tipePilihan,
+                                'bidang_id' => $this->bidangId,
+                                'program_id' => $this->programId,
+                                'kegiatan_id' => $this->kegiatanId,
+                                'download' => 1,
+                            ]);
+
+                            $this->js("window.location.href = '{$url}'");
+                        }),
+                ])
                 ->modalSubmitActionLabel('Buka di Tab Penuh')
                 ->modalCancelActionLabel('Tutup')
                 ->action(function (array $data) {
@@ -150,6 +227,9 @@ class LaporanLrfk extends Page
                         'bulan' => $bulanPilihan,
                         'penandatangan' => $penandatanganPilihan,
                         'tipe' => $tipePilihan,
+                        'bidang_id' => $this->bidangId,
+                        'program_id' => $this->programId,
+                        'kegiatan_id' => $this->kegiatanId,
                     ]);
 
                     $this->js("window.open('{$url}', '_blank')");
@@ -163,11 +243,14 @@ class LaporanLrfk extends Page
         $service = app(LrfkCalculationService::class);
 
         return [
-            'matriks' => $service->getMatriksLrfkKegiatan($this->tahun, $this->bulan, null),
-            'lampiran1' => $service->getLampiran1JenisBelanja($this->tahun, $this->bulan, null),
-            'kemajuan' => $service->getKemajuanPekerjaanFisik($this->tahun, $this->bulan, null),
+            'matriks' => $service->getMatriksLrfkKegiatan($this->tahun, $this->bulan, $this->bidangId, $this->programId, $this->kegiatanId),
+            'lampiran1' => $service->getLampiran1JenisBelanja($this->tahun, $this->bulan, $this->bidangId, $this->programId, $this->kegiatanId),
+            'kemajuan' => $service->getKemajuanPekerjaanFisik($this->tahun, $this->bulan, $this->bidangId, $this->programId, $this->kegiatanId),
             'daftarBulan' => $this->getDaftarBulan(),
             'namaBulanAktif' => $this->getDaftarBulan()[$this->bulan] ?? '',
+            'daftarBidang' => $this->getDaftarBidang(),
+            'daftarProgram' => $this->getDaftarProgram(),
+            'daftarKegiatan' => $this->getDaftarKegiatan(),
         ];
     }
 }

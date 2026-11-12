@@ -35,6 +35,14 @@ class LaporanFungsional extends Page
 
     public int $bulan;
 
+    public ?int $bidangId = null;
+
+    public ?int $programId = null;
+
+    public ?int $kegiatanId = null;
+
+    public ?int $subKegiatanId = null;
+
     public string $activeTab = 'rekening';
 
     public static function canAccess(): bool
@@ -56,6 +64,36 @@ class LaporanFungsional extends Page
         $defaultTahun = \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
         $this->tahun = (int) (request()->query('tahun') ?: $defaultTahun);
         $this->bulan = (int) (request()->query('bulan') ?: date('n'));
+        $this->bidangId = request()->query('bidang_id') ? (int) request()->query('bidang_id') : null;
+        $this->programId = request()->query('program_id') ? (int) request()->query('program_id') : null;
+        $this->kegiatanId = request()->query('kegiatan_id') ? (int) request()->query('kegiatan_id') : null;
+        $this->subKegiatanId = request()->query('sub_kegiatan_id') ? (int) request()->query('sub_kegiatan_id') : null;
+    }
+
+    public function updatedBidangId(): void
+    {
+        $this->programId = null;
+        $this->kegiatanId = null;
+        $this->subKegiatanId = null;
+    }
+
+    public function updatedProgramId(): void
+    {
+        $this->kegiatanId = null;
+        $this->subKegiatanId = null;
+    }
+
+    public function updatedKegiatanId(): void
+    {
+        $this->subKegiatanId = null;
+    }
+
+    public function resetFilter(): void
+    {
+        $this->bidangId = null;
+        $this->programId = null;
+        $this->kegiatanId = null;
+        $this->subKegiatanId = null;
     }
 
     public function setTab(string $tab): void
@@ -79,6 +117,44 @@ class LaporanFungsional extends Page
             11 => 'November',
             12 => 'Desember',
         ];
+    }
+
+    public function getDaftarBidang(): array
+    {
+        return \App\Models\Bidang::orderBy('nama')->pluck('nama', 'id')->all();
+    }
+
+    public function getDaftarProgram(): array
+    {
+        return \App\Models\MasterProgram::query()
+            ->when($this->bidangId, fn ($q) => $q->whereHas('kegiatans', fn ($kq) => $kq->where('bidang_id', $this->bidangId)))
+            ->orderBy('kode_program')
+            ->get()
+            ->mapWithKeys(fn ($p) => [$p->id => "{$p->kode_program} - {$p->nama_program}"])
+            ->all();
+    }
+
+    public function getDaftarKegiatan(): array
+    {
+        return \App\Models\MasterKegiatan::query()
+            ->when($this->bidangId, fn ($q) => $q->where('bidang_id', $this->bidangId))
+            ->when($this->programId, fn ($q) => $q->where('program_id', $this->programId))
+            ->orderBy('kode_kegiatan')
+            ->get()
+            ->mapWithKeys(fn ($k) => [$k->id => "{$k->kode_kegiatan} - {$k->nama_kegiatan}"])
+            ->all();
+    }
+
+    public function getDaftarSubKegiatan(): array
+    {
+        return \App\Models\MasterSubKegiatan::query()
+            ->when($this->kegiatanId, fn ($q) => $q->where('kegiatan_id', $this->kegiatanId))
+            ->when(! $this->kegiatanId && $this->bidangId, fn ($q) => $q->whereHas('kegiatan', fn ($kq) => $kq->where('bidang_id', $this->bidangId)))
+            ->when(! $this->kegiatanId && $this->programId, fn ($q) => $q->whereHas('kegiatan', fn ($kq) => $kq->where('program_id', $this->programId)))
+            ->orderBy('kode_sub_kegiatan')
+            ->get()
+            ->mapWithKeys(fn ($s) => [$s->id => "{$s->kode_sub_kegiatan} - {$s->nama_sub_kegiatan}"])
+            ->all();
     }
 
     protected function getHeaderActions(): array
@@ -107,17 +183,41 @@ class LaporanFungsional extends Page
                             'jenis' => 'fungsional',
                         ]),
                 ])
+                ->extraModalFooterActions([
+                    Action::make('modal_download_pdf')
+                        ->label('Unduh Dokumen PDF')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (array $data) {
+                            $bulanPilihan = (int) ($data['modal_bulan'] ?? $this->bulan);
+                            $this->bulan = $bulanPilihan;
+
+                            $url = route('admin.laporan.fungsional.cetak', [
+                                'tahun' => $this->tahun,
+                                'bulan' => $bulanPilihan,
+                                'bidang_id' => $this->bidangId,
+                                'program_id' => $this->programId,
+                                'kegiatan_id' => $this->kegiatanId,
+                                'sub_kegiatan_id' => $this->subKegiatanId,
+                                'download' => 1,
+                            ]);
+
+                            $this->js("window.location.href = '{$url}'");
+                        }),
+                ])
                 ->modalSubmitActionLabel('Buka di Tab Penuh')
                 ->modalCancelActionLabel('Tutup')
                 ->action(function (array $data) {
                     $bulanPilihan = (int) ($data['modal_bulan'] ?? $this->bulan);
-
-                    // Update state halaman jika user memilih bulan berbeda
                     $this->bulan = $bulanPilihan;
 
                     $url = route('admin.laporan.fungsional.cetak', [
                         'tahun' => $this->tahun,
                         'bulan' => $bulanPilihan,
+                        'bidang_id' => $this->bidangId,
+                        'program_id' => $this->programId,
+                        'kegiatan_id' => $this->kegiatanId,
+                        'sub_kegiatan_id' => $this->subKegiatanId,
                     ]);
 
                     $this->js("window.open('{$url}', '_blank')");
@@ -131,9 +231,20 @@ class LaporanFungsional extends Page
         $service = app(LrfkCalculationService::class);
 
         return [
-            'data' => $service->getLpjFungsional($this->tahun, $this->bulan),
+            'data' => $service->getLpjFungsional(
+                $this->tahun,
+                $this->bulan,
+                $this->bidangId,
+                $this->programId,
+                $this->kegiatanId,
+                $this->subKegiatanId
+            ),
             'daftarBulan' => $this->getDaftarBulan(),
             'namaBulanAktif' => $this->getDaftarBulan()[$this->bulan] ?? '',
+            'daftarBidang' => $this->getDaftarBidang(),
+            'daftarProgram' => $this->getDaftarProgram(),
+            'daftarKegiatan' => $this->getDaftarKegiatan(),
+            'daftarSubKegiatan' => $this->getDaftarSubKegiatan(),
         ];
     }
 }

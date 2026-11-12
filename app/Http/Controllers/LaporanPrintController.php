@@ -28,11 +28,13 @@ class LaporanPrintController extends Controller
         $bulan = (int) ($request->query('bulan') ?: date('n'));
         $tipe = (string) ($request->query('tipe') ?: 'lengkap');
         $penandatangan = (string) ($request->query('penandatangan') ?: 'sekretaris');
+        $bidangId = $request->query('bidang_id') ? (int) $request->query('bidang_id') : null;
+        $programId = $request->query('program_id') ? (int) $request->query('program_id') : null;
+        $kegiatanId = $request->query('kegiatan_id') ? (int) $request->query('kegiatan_id') : null;
 
-        // Rekapan data selalu satu dinas utuh (bidangId = null)
-        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, null);
-        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, null);
-        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, null);
+        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, $bidangId, $programId, $kegiatanId);
+        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, $bidangId, $programId, $kegiatanId);
+        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, $bidangId, $programId, $kegiatanId);
 
         $instansi = Instansi::first() ?? PengaturanAplikasi::first();
         $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
@@ -70,13 +72,15 @@ class LaporanPrintController extends Controller
     {
         $tahun = (int) ($request->query('tahun') ?: date('Y'));
         $bulan = (int) ($request->query('bulan') ?: date('n'));
-        $tipe = (string) ($request->query('tipe') ?: 'lengkap'); // 'matriks', 'lampiran1', 'kemajuan', 'lengkap'
+        $tipe = (string) ($request->query('tipe') ?: 'lengkap');
         $penandatangan = (string) ($request->query('penandatangan') ?: 'sekretaris');
+        $bidangId = $request->query('bidang_id') ? (int) $request->query('bidang_id') : null;
+        $programId = $request->query('program_id') ? (int) $request->query('program_id') : null;
+        $kegiatanId = $request->query('kegiatan_id') ? (int) $request->query('kegiatan_id') : null;
 
-        // Rekapan data selalu satu dinas utuh (bidangId = null)
-        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, null);
-        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, null);
-        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, null);
+        $matriks = $this->calculationService->getMatriksLrfkKegiatan($tahun, $bulan, $bidangId, $programId, $kegiatanId);
+        $lampiran1 = $this->calculationService->getLampiran1JenisBelanja($tahun, $bulan, $bidangId, $programId, $kegiatanId);
+        $kemajuan = $this->calculationService->getKemajuanPekerjaanFisik($tahun, $bulan, $bidangId, $programId, $kegiatanId);
 
         $instansi = Instansi::first() ?? PengaturanAplikasi::first();
         $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
@@ -105,10 +109,13 @@ class LaporanPrintController extends Controller
             'bendahara' => $bendahara,
         ]);
 
-        // Kertas F4 / Folio Landscape (330 mm x 215 mm) = 935.43 pt x 609.45 pt
         $pdf->setPaper([0, 0, 609.45, 935.43], 'landscape');
 
         $filename = "LRFK_{$namaBulan}_{$tahun}.pdf";
+
+        if ($request->query('download')) {
+            return $pdf->download($filename);
+        }
 
         return $pdf->stream($filename);
     }
@@ -120,8 +127,12 @@ class LaporanPrintController extends Controller
     {
         $tahun = (int) ($request->query('tahun') ?: date('Y'));
         $bulan = (int) ($request->query('bulan') ?: date('n'));
+        $bidangId = $request->query('bidang_id') ? (int) $request->query('bidang_id') : null;
+        $programId = $request->query('program_id') ? (int) $request->query('program_id') : null;
+        $kegiatanId = $request->query('kegiatan_id') ? (int) $request->query('kegiatan_id') : null;
+        $subKegiatanId = $request->query('sub_kegiatan_id') ? (int) $request->query('sub_kegiatan_id') : null;
 
-        $data = $this->calculationService->getLpjFungsional($tahun, $bulan);
+        $data = $this->calculationService->getLpjFungsional($tahun, $bulan, $bidangId, $programId, $kegiatanId, $subKegiatanId);
 
         $instansi = Instansi::first() ?? PengaturanAplikasi::first();
         $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
@@ -152,8 +163,12 @@ class LaporanPrintController extends Controller
     {
         $tahun = (int) ($request->query('tahun') ?: date('Y'));
         $bulan = (int) ($request->query('bulan') ?: date('n'));
+        $bidangId = $request->query('bidang_id') ? (int) $request->query('bidang_id') : null;
+        $programId = $request->query('program_id') ? (int) $request->query('program_id') : null;
+        $kegiatanId = $request->query('kegiatan_id') ? (int) $request->query('kegiatan_id') : null;
+        $subKegiatanId = $request->query('sub_kegiatan_id') ? (int) $request->query('sub_kegiatan_id') : null;
 
-        $data = $this->calculationService->getLpjFungsional($tahun, $bulan);
+        $data = $this->calculationService->getLpjFungsional($tahun, $bulan, $bidangId, $programId, $kegiatanId, $subKegiatanId);
 
         $instansi = Instansi::first() ?? PengaturanAplikasi::first();
         $namaBulan = Carbon::create($tahun, $bulan, 1)->locale('id')->translatedFormat('F');
@@ -179,6 +194,10 @@ class LaporanPrintController extends Controller
         $pdf->setPaper([0, 0, 609.45, 935.43], 'landscape');
 
         $filename = "LPJ_Fungsional_{$namaBulan}_{$tahun}.pdf";
+
+        if ($request->query('download')) {
+            return $pdf->download($filename);
+        }
 
         return $pdf->stream($filename);
     }

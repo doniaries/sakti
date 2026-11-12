@@ -1,26 +1,71 @@
 <x-filament-panels::page>
-    {{-- BARIS FILTER TAHUN & KONDISI S/D BULAN (REKAPAN 1 DINAS PENUH) --}}
+    {{-- BARIS FILTER TERINTEGRASI: TAHUN, BULAN, BIDANG, PROGRAM, KEGIATAN --}}
     <div class="laporan-card p-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun</label>
-                <select wire:model.live="tahun"
-                    class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
-                    @for ($y = (int) date('Y') - 1; $y <= (int) date('Y') + 2; $y++)
-                        <option value="{{ $y }}">{{ $y }}</option>
-                    @endfor
-                </select>
+        <div class="space-y-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun Anggaran</label>
+                    <select wire:model.live="tahun"
+                        class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        @for ($y = (int) date('Y') - 1; $y <= (int) date('Y') + 2; $y++)
+                            <option value="{{ $y }}">{{ $y }}</option>
+                        @endfor
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Kondisi s/d Bulan</label>
+                    <select wire:model.live="bulan"
+                        class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        @foreach ($daftarBulan as $bKey => $bVal)
+                            <option value="{{ $bKey }}">{{ $bVal }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Filter Bidang</label>
+                    <select wire:model.live="bidangId"
+                        class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        <option value="">-- Semua Bidang --</option>
+                        @foreach ($daftarBidang as $bId => $bNama)
+                            <option value="{{ $bId }}">{{ $bNama }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Kondisi s/d
-                    Bulan</label>
-                <select wire:model.live="bulan"
-                    class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
-                    @foreach ($daftarBulan as $bKey => $bVal)
-                        <option value="{{ $bKey }}">{{ $bVal }}</option>
-                    @endforeach
-                </select>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center pt-2 border-t border-gray-200 dark:!border-zinc-800">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Program</label>
+                    <select wire:model.live="programId"
+                        class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        <option value="">-- Semua Program --</option>
+                        @foreach ($daftarProgram as $pId => $pNama)
+                            <option value="{{ $pId }}">{{ $pNama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Kegiatan</label>
+                        <select wire:model.live="kegiatanId"
+                            class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            <option value="">-- Semua Kegiatan --</option>
+                            @foreach ($daftarKegiatan as $kId => $kNama)
+                                <option value="{{ $kId }}">{{ $kNama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @if ($bidangId || $programId || $kegiatanId)
+                        <button type="button" wire:click="resetFilter"
+                            class="px-3 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-lg hover:bg-rose-100 transition whitespace-nowrap"
+                            title="Reset Filter">
+                            Reset
+                        </button>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

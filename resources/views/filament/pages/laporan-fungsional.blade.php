@@ -1,37 +1,93 @@
 <x-filament-panels::page>
-    <div x-data="{ activeTab: @entangle('activeTab').live }" class="space-y-4">
+    <div class="space-y-4">
 
-        {{-- BARIS FILTER TAHUN DAN BULAN --}}
+        {{-- BARIS FILTER TERINTEGRASI: TAHUN, BULAN, BIDANG, PROGRAM, KEGIATAN, SUB KEGIATAN --}}
         <div class="laporan-card p-4">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun Anggaran</label>
-                    <select wire:model.live="tahun"
-                        class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
-                        @for($y = (int) date('Y') - 1; $y <= (int) date('Y') + 2; $y++)
-                            <option value="{{ $y }}">{{ $y }}</option>
-                        @endfor
-                    </select>
+            <div class="space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Tahun Anggaran</label>
+                        <select wire:model.live="tahun"
+                            class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            @for($y = (int) date('Y') - 1; $y <= (int) date('Y') + 2; $y++)
+                                <option value="{{ $y }}">{{ $y }}</option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Periode s/d Bulan</label>
+                        <select wire:model.live="bulan"
+                            class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            @foreach($daftarBulan as $bKey => $bVal)
+                                <option value="{{ $bKey }}">{{ $bVal }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Filter Bidang</label>
+                        <select wire:model.live="bidangId"
+                            class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            <option value="">-- Semua Bidang --</option>
+                            @foreach($daftarBidang as $bId => $bNama)
+                                <option value="{{ $bId }}">{{ $bNama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Periode s/d Bulan</label>
-                    <select wire:model.live="bulan"
-                        class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
-                        @foreach($daftarBulan as $bKey => $bVal)
-                            <option value="{{ $bKey }}">{{ $bVal }}</option>
-                        @endforeach
-                    </select>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center pt-2 border-t border-gray-200 dark:!border-zinc-800">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Program</label>
+                        <select wire:model.live="programId"
+                            class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            <option value="">-- Semua Program --</option>
+                            @foreach($daftarProgram as $pId => $pNama)
+                                <option value="{{ $pId }}">{{ $pNama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Kegiatan</label>
+                        <select wire:model.live="kegiatanId"
+                            class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                            <option value="">-- Semua Kegiatan --</option>
+                            @foreach($daftarKegiatan as $kId => $kNama)
+                                <option value="{{ $kId }}">{{ $kNama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="flex items-end gap-2">
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold text-gray-700 dark:!text-zinc-200 mb-1.5">Sub Kegiatan</label>
+                            <select wire:model.live="subKegiatanId"
+                                class="w-full text-sm rounded-lg border border-gray-300 dark:!border-zinc-700 bg-white dark:!bg-zinc-800 text-gray-900 dark:!text-white py-2 px-3 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                                <option value="">-- Semua Sub Kegiatan --</option>
+                                @foreach($daftarSubKegiatan as $sId => $sNama)
+                                    <option value="{{ $sId }}">{{ $sNama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @if($bidangId || $programId || $kegiatanId || $subKegiatanId)
+                            <button type="button" wire:click="resetFilter"
+                                class="px-3 py-2 text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-lg hover:bg-rose-100 transition whitespace-nowrap"
+                                title="Reset Filter">
+                                Reset
+                            </button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- TAB NAVIGASI PERMANEN (SELALU TAMPIL, MENGGUNAKAN ALPINE SEHINGGA TIDAK HILANG SAAT DIKLIK) --}}
+        {{-- TAB NAVIGASI PERMANEN (SELALU TAMPIL, TERKENDALI LIVEWIRE SEHINGGA TIDAK HILANG SAAT DIKLIK) --}}
         <div wire:key="fungsional-tabs-navigation" class="flex items-center gap-2 border-b border-gray-200 dark:!border-zinc-800 pb-2">
             <button type="button"
-                @click="activeTab = 'rekening'"
-                :class="activeTab === 'rekening' ? 'active' : ''"
-                class="laporan-tab-btn flex items-center gap-2">
+                wire:click="setTab('rekening')"
+                class="laporan-tab-btn {{ $activeTab === 'rekening' ? 'active' : '' }} flex items-center gap-2">
                 <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                 </svg>
@@ -39,9 +95,8 @@
             </button>
 
             <button type="button"
-                @click="activeTab = 'pajak'"
-                :class="activeTab === 'pajak' ? 'active' : ''"
-                class="laporan-tab-btn flex items-center gap-2">
+                wire:click="setTab('pajak')"
+                class="laporan-tab-btn {{ $activeTab === 'pajak' ? 'active' : '' }} flex items-center gap-2">
                 <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path>
                 </svg>
@@ -50,7 +105,8 @@
         </div>
 
         {{-- TAB 1: REALISASI PER KODE REKENING (14 KOLOM SIPD-RI) --}}
-        <div x-show="activeTab === 'rekening'" wire:key="tab-panel-rekening" class="space-y-4">
+        @if ($activeTab === 'rekening')
+        <div wire:key="tab-panel-rekening" class="space-y-4">
             <div class="laporan-card">
                 <div class="laporan-card-header flex flex-col md:flex-row md:justify-between md:items-center gap-2">
                     <div>
@@ -114,7 +170,7 @@
                                         'skpd' => 'bg-skpd-row font-bold text-amber-950 dark:!text-amber-200',
                                         'program' => 'bg-prog-row font-bold text-gray-900 dark:!text-white',
                                         'kegiatan' => 'font-bold text-gray-900 dark:!text-white bg-slate-50/60 dark:!bg-zinc-800/40',
-                                        'sub_kegiatan' => 'font-semibold text-gray-900 dark:!text-zinc-100',
+                                        'sub_kegiatan' => 'bg-amber-50/80 dark:!bg-amber-950/40 font-bold text-gray-900 dark:!text-white border-y border-amber-300 dark:!border-amber-800',
                                         'akun_parent' => 'font-medium text-gray-800 dark:!text-zinc-200',
                                         default => 'text-gray-700 dark:!text-zinc-300',
                                     };
@@ -127,9 +183,20 @@
                                     </td>
                                     {{-- Col 2: Uraian --}}
                                     <td class="p-2 fungsional-col-2 border-r {{ $r['is_bold'] ? 'font-bold' : '' }}">
-                                        <div style="padding-left: {{ $indentPx }}px;">
-                                            {{ $r['uraian'] }}
-                                        </div>
+                                        @if($r['type'] === 'sub_kegiatan')
+                                            <div style="padding-left: {{ $indentPx }}px;">
+                                                <span class="text-[10px] font-bold tracking-wider uppercase text-amber-800 dark:!text-amber-300 block">
+                                                    BIDANG : {{ $r['bidang_nama'] ?? 'SEKRETARIAT' }}
+                                                </span>
+                                                <span class="font-bold text-gray-900 dark:!text-white block mt-0.5">
+                                                    SUB KEGIATAN : {{ $r['uraian'] }}
+                                                </span>
+                                            </div>
+                                        @else
+                                            <div style="padding-left: {{ $indentPx }}px;">
+                                                {{ $r['uraian'] }}
+                                            </div>
+                                        @endif
                                     </td>
                                     {{-- Col 3: Anggaran --}}
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap {{ $r['is_bold'] ? 'font-bold text-gray-900 dark:!text-white' : '' }}">
@@ -332,9 +399,9 @@
                 </div>
             </div>
         </div>
-
+        @elseif ($activeTab === 'pajak')
         {{-- TAB 2: REKAPITULASI PAJAK & POTONGAN (DILENGKAPI STATISTIK & TABEL RINCIAN TRANSAKSI SPJ) --}}
-        <div x-show="activeTab === 'pajak'" x-cloak wire:key="tab-panel-pajak" class="space-y-4">
+        <div wire:key="tab-panel-pajak" class="space-y-4">
             {{-- KARTU STATISTIK RINGKASAN PAJAK --}}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="laporan-card p-4">
@@ -435,6 +502,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
     </div>
 </x-filament-panels::page>

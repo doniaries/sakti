@@ -52,7 +52,13 @@ class LrfkCalculationService
      * 1. Matriks Utama LRFK per Kegiatan
      * Sesuai Sheet 'Sep 2026' / LRFK Bulanan (Gambar 2 & Rumus Gambar 1 & 5)
      */
-    public function getMatriksLrfkKegiatan(int $tahun, int $bulan, ?int $bidangId = null): array
+    public function getMatriksLrfkKegiatan(
+        int $tahun,
+        int $bulan,
+        ?int $bidangId = null,
+        ?int $programId = null,
+        ?int $kegiatanId = null
+    ): array
     {
         $batasTanggal = Carbon::create($tahun, $bulan)->endOfMonth()->toDateString();
         $targetFisikPersen = $this->getTargetRopkFisikPersen($bulan);
@@ -63,6 +69,14 @@ class LrfkCalculationService
 
         if ($bidangId) {
             $kegiatanQuery->where('bidang_id', $bidangId);
+        }
+
+        if ($programId) {
+            $kegiatanQuery->where('program_id', $programId);
+        }
+
+        if ($kegiatanId) {
+            $kegiatanQuery->where('id', $kegiatanId);
         }
 
         $kegiatans = $kegiatanQuery->orderBy('kode_kegiatan')->get();
@@ -187,7 +201,13 @@ class LrfkCalculationService
      * Sesuai Sheet 1 'Rincian Belanja' (Gambar 4)
      * (5.1 Belanja Operasi, 5.2 Belanja Modal, 5.3 Tak Terduga, 5.4 Transfer)
      */
-    public function getLampiran1JenisBelanja(int $tahun, int $bulan, ?int $bidangId = null): array
+    public function getLampiran1JenisBelanja(
+        int $tahun,
+        int $bulan,
+        ?int $bidangId = null,
+        ?int $programId = null,
+        ?int $kegiatanId = null
+    ): array
     {
         $batasTanggal = Carbon::create($tahun, $bulan)->endOfMonth()->toDateString();
 
@@ -242,21 +262,22 @@ class LrfkCalculationService
                 // Kategori tanpa sub-rincian (misal 5.3 Belanja Tak Terduga)
                 $paguQuery = RincianAnggaranBelanja::query()
                     ->where('tahun_anggaran', $tahun)
-                    ->whereHas('kodeRekening', fn ($q) => $q->where('kode_lengkap', 'like', "{$prefixKelompok}%"));
-                if ($bidangId) {
-                    $paguQuery->where('bidang_id', $bidangId);
-                }
+                    ->whereHas('kodeRekening', fn ($q) => $q->where('kode_lengkap', 'like', "{$prefixKelompok}%"))
+                    ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                    ->when($programId, fn ($q) => $q->whereHas('subKegiatan.kegiatan', fn ($kq) => $kq->where('program_id', $programId)))
+                    ->when($kegiatanId, fn ($q) => $q->whereHas('subKegiatan', fn ($sq) => $sq->where('kegiatan_id', $kegiatanId)));
+
                 $kelompokPagu = (float) $paguQuery->sum('pagu_total');
 
                 $realisasiQuery = DetailPengajuanSpj::query()
                     ->whereHas('kodeRekening', fn ($q) => $q->where('kode_lengkap', 'like', "{$prefixKelompok}%"))
-                    ->whereHas('pengajuanSpj', function ($q) use ($tahun, $batasTanggal, $bidangId) {
+                    ->whereHas('pengajuanSpj', function ($q) use ($tahun, $batasTanggal, $bidangId, $programId, $kegiatanId) {
                         $q->where('tahun_anggaran', $tahun)
                             ->where('status', 'dicairkan')
-                            ->whereDate('tanggal_dicairkan', '<=', $batasTanggal);
-                        if ($bidangId) {
-                            $q->where('bidang_id', $bidangId);
-                        }
+                            ->whereDate('tanggal_dicairkan', '<=', $batasTanggal)
+                            ->when($bidangId, fn ($query) => $query->where('bidang_id', $bidangId))
+                            ->when($programId, fn ($query) => $query->whereHas('kegiatan', fn ($kq) => $kq->where('program_id', $programId)))
+                            ->when($kegiatanId, fn ($query) => $query->where('kegiatan_id', $kegiatanId));
                     });
                 $kelompokRealisasi = (float) $realisasiQuery->sum('subtotal');
             } else {
@@ -266,23 +287,23 @@ class LrfkCalculationService
                     // Pagu DPA RKA dengan kode rekening prefix bersangkutan
                     $paguQuery = RincianAnggaranBelanja::query()
                         ->where('tahun_anggaran', $tahun)
-                        ->whereHas('kodeRekening', fn ($q) => $q->where(fn ($w) => $w->where('kode_lengkap', 'like', "{$prefixSub}%")->orWhere('kode_lengkap', 'like', "{$altPrefix}%")));
+                        ->whereHas('kodeRekening', fn ($q) => $q->where(fn ($w) => $w->where('kode_lengkap', 'like', "{$prefixSub}%")->orWhere('kode_lengkap', 'like', "{$altPrefix}%")))
+                        ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                        ->when($programId, fn ($q) => $q->whereHas('subKegiatan.kegiatan', fn ($kq) => $kq->where('program_id', $programId)))
+                        ->when($kegiatanId, fn ($q) => $q->whereHas('subKegiatan', fn ($sq) => $sq->where('kegiatan_id', $kegiatanId)));
 
-                    if ($bidangId) {
-                        $paguQuery->where('bidang_id', $bidangId);
-                    }
                     $subPagu = (float) $paguQuery->sum('pagu_total');
 
                     // Realisasi dari SPJ Dicairkan
                     $realisasiQuery = DetailPengajuanSpj::query()
                         ->whereHas('kodeRekening', fn ($q) => $q->where(fn ($w) => $w->where('kode_lengkap', 'like', "{$prefixSub}%")->orWhere('kode_lengkap', 'like', "{$altPrefix}%")))
-                        ->whereHas('pengajuanSpj', function ($q) use ($tahun, $batasTanggal, $bidangId) {
+                        ->whereHas('pengajuanSpj', function ($q) use ($tahun, $batasTanggal, $bidangId, $programId, $kegiatanId) {
                             $q->where('tahun_anggaran', $tahun)
                                 ->where('status', 'dicairkan')
-                                ->whereDate('tanggal_dicairkan', '<=', $batasTanggal);
-                            if ($bidangId) {
-                                $q->where('bidang_id', $bidangId);
-                            }
+                                ->whereDate('tanggal_dicairkan', '<=', $batasTanggal)
+                                ->when($bidangId, fn ($query) => $query->where('bidang_id', $bidangId))
+                                ->when($programId, fn ($query) => $query->whereHas('kegiatan', fn ($kq) => $kq->where('program_id', $programId)))
+                                ->when($kegiatanId, fn ($query) => $query->where('kegiatan_id', $kegiatanId));
                         });
 
                     $subRealisasi = (float) $realisasiQuery->sum('subtotal');
@@ -330,7 +351,13 @@ class LrfkCalculationService
      * 3. Laporan Kemajuan Fisik Pekerjaan (Kontraktual / Belanja Modal / Pengadaan)
      * Sesuai Sheet 2 'Kemajuan Fisik Pekerjaan' (Gambar 3)
      */
-    public function getKemajuanPekerjaanFisik(int $tahun, int $bulan, ?int $bidangId = null): array
+    public function getKemajuanPekerjaanFisik(
+        int $tahun,
+        int $bulan,
+        ?int $bidangId = null,
+        ?int $programId = null,
+        ?int $kegiatanId = null
+    ): array
     {
         $batasTanggal = Carbon::create($tahun, $bulan)->endOfMonth()->toDateString();
         $targetFisik = $this->getTargetRopkFisikPersen($bulan);
@@ -347,6 +374,14 @@ class LrfkCalculationService
 
         if ($bidangId) {
             $spjQuery->where('bidang_id', $bidangId);
+        }
+
+        if ($programId) {
+            $spjQuery->whereHas('kegiatan', fn ($q) => $q->where('program_id', $programId));
+        }
+
+        if ($kegiatanId) {
+            $spjQuery->where('kegiatan_id', $kegiatanId);
         }
 
         $spjs = $spjQuery->orderBy('tanggal_pengajuan', 'desc')->get();
@@ -432,6 +467,7 @@ class LrfkCalculationService
         int $tahun,
         int $bulan,
         ?int $bidangId = null,
+        ?int $programId = null,
         ?int $kegiatanId = null,
         ?int $subKegiatanId = null
     ): array {
@@ -467,13 +503,14 @@ class LrfkCalculationService
             '5.2.02.18.001' => 'Belanja Modal Rambu-Rambu Lalu Lintas Darat',
         ];
 
-        // 1. Ambil detail SPJ yang dicairkan s/d akhir bulan ini (filter bidang, kegiatan, sub kegiatan)
+        // 1. Ambil detail SPJ yang dicairkan s/d akhir bulan ini (filter bidang, program, kegiatan, sub kegiatan)
         $spjDetails = DetailPengajuanSpj::query()
-            ->whereHas('pengajuanSpj', function ($q) use ($tahun, $akhirBulanIni, $bidangId, $kegiatanId, $subKegiatanId) {
+            ->whereHas('pengajuanSpj', function ($q) use ($tahun, $akhirBulanIni, $bidangId, $programId, $kegiatanId, $subKegiatanId) {
                 $q->where('tahun_anggaran', $tahun)
                     ->where('status', 'dicairkan')
                     ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni)
                     ->when($bidangId, fn ($query) => $query->where('bidang_id', $bidangId))
+                    ->when($programId, fn ($query) => $query->whereHas('kegiatan', fn ($kq) => $kq->where('program_id', $programId)))
                     ->when($kegiatanId, fn ($query) => $query->where('kegiatan_id', $kegiatanId))
                     ->when($subKegiatanId, fn ($query) => $query->where('sub_kegiatan_id', $subKegiatanId));
             })
@@ -513,10 +550,11 @@ class LrfkCalculationService
             $spjBySubAndRek[$key][$bucket . '_sd_ini'] += $nominal;
         }
 
-        // 2. Ambil data rincian anggaran belanja (RAB) tahun ini (filter bidang, kegiatan, sub kegiatan)
+        // 2. Ambil data rincian anggaran belanja (RAB) tahun ini (filter bidang, program, kegiatan, sub kegiatan)
         $rabs = RincianAnggaranBelanja::query()
             ->where('tahun_anggaran', $tahun)
             ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+            ->when($programId, fn ($q) => $q->whereHas('subKegiatan.kegiatan', fn ($kq) => $kq->where('program_id', $programId)))
             ->when($kegiatanId, fn ($q) => $q->whereHas('subKegiatan', fn ($sq) => $sq->where('kegiatan_id', $kegiatanId)))
             ->when($subKegiatanId, fn ($q) => $q->where('sub_kegiatan_id', $subKegiatanId))
             ->with(['subKegiatan.kegiatan.program', 'kodeRekening'])
@@ -640,10 +678,44 @@ class LrfkCalculationService
             'indent' => 0,
         ], $globalTotals);
 
-        // 5. Detail Program -> Kegiatan -> Sub Kegiatan -> Akun
+        // 5. Pre-mapping Bidang per Sub Kegiatan & Detail Program -> Kegiatan -> Sub Kegiatan -> Akun
+        $bidangBySubKegiatan = [];
+        $rabsWithBidang = RincianAnggaranBelanja::where('tahun_anggaran', $tahun)
+            ->whereNotNull('bidang_id')
+            ->with('bidang')
+            ->get();
+        foreach ($rabsWithBidang as $rabItem) {
+            if ($rabItem->sub_kegiatan_id && $rabItem->bidang?->nama) {
+                $bidangBySubKegiatan[$rabItem->sub_kegiatan_id] = strtoupper($rabItem->bidang->nama);
+            }
+        }
+        $spjsWithBidang = PengajuanSpj::where('tahun_anggaran', $tahun)
+            ->whereNotNull('bidang_id')
+            ->with('bidang')
+            ->get();
+        foreach ($spjsWithBidang as $spjItem) {
+            if ($spjItem->sub_kegiatan_id && $spjItem->bidang?->nama) {
+                $bidangBySubKegiatan[$spjItem->sub_kegiatan_id] = strtoupper($spjItem->bidang->nama);
+            }
+        }
+
         $programs = MasterProgram::query()
             ->whereHas('kegiatans.subKegiatans.rincianAnggarans', fn ($q) => $q->where('tahun_anggaran', $tahun))
-            ->with(['kegiatans.subKegiatans'])
+            ->when($programId, fn ($q) => $q->where('id', $programId))
+            ->when($bidangId, fn ($q) => $q->whereHas('kegiatans', fn ($kq) => $kq->where('bidang_id', $bidangId)))
+            ->when($kegiatanId, fn ($q) => $q->whereHas('kegiatans', fn ($kq) => $kq->where('id', $kegiatanId)))
+            ->when($subKegiatanId, fn ($q) => $q->whereHas('kegiatans.subKegiatans', fn ($sq) => $sq->where('id', $subKegiatanId)))
+            ->with(['kegiatans' => function ($kq) use ($bidangId, $kegiatanId, $subKegiatanId) {
+                $kq->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                    ->when($kegiatanId, fn ($q) => $q->where('id', $kegiatanId))
+                    ->when($subKegiatanId, fn ($q) => $q->whereHas('subKegiatans', fn ($sq) => $sq->where('id', $subKegiatanId)))
+                    ->with([
+                        'bidang',
+                        'subKegiatans' => function ($sq) use ($subKegiatanId) {
+                            $sq->when($subKegiatanId, fn ($q) => $q->where('id', $subKegiatanId));
+                        },
+                    ]);
+            }])
             ->orderBy('kode_program')
             ->get();
 
@@ -663,12 +735,15 @@ class LrfkCalculationService
 
                     $kegLeafs = array_merge($kegLeafs, $subLeafs);
                     $subMetrics = $sumMetrics($subLeafs);
+                    $bidangNama = $bidangBySubKegiatan[$sub->id]
+                        ?? ($keg->bidang?->nama ? strtoupper($keg->bidang->nama) : 'SEKRETARIAT');
 
                     $currentSubRows = [
                         array_merge([
                             'kode' => $sub->kode_sub_kegiatan,
                             'uraian' => $sub->nama_sub_kegiatan,
                             'type' => 'sub_kegiatan',
+                            'bidang_nama' => $bidangNama,
                             'is_bold' => true,
                             'indent' => 2,
                         ], $subMetrics),
@@ -747,12 +822,13 @@ class LrfkCalculationService
             $rows = array_merge($rows, $kegRows);
         }
 
-        // 6. Pajak & Potongan dari SPJ yang dicairkan (filter bidang, kegiatan, sub kegiatan)
+        // 6. Pajak & Potongan dari SPJ yang dicairkan (filter bidang, program, kegiatan, sub kegiatan)
         $spjsCair = PengajuanSpj::query()
             ->where('tahun_anggaran', $tahun)
             ->where('status', 'dicairkan')
             ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni)
             ->when($bidangId, fn ($query) => $query->where('bidang_id', $bidangId))
+            ->when($programId, fn ($query) => $query->whereHas('kegiatan', fn ($kq) => $kq->where('program_id', $programId)))
             ->when($kegiatanId, fn ($query) => $query->where('kegiatan_id', $kegiatanId))
             ->when($subKegiatanId, fn ($query) => $query->where('sub_kegiatan_id', $subKegiatanId))
             ->with(['masterToko', 'user'])
