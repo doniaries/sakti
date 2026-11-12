@@ -26,7 +26,7 @@ class ImportSipdRkaPdfCommand extends Command
             $result = SipdRkaImporterService::import($path);
 
             $this->newLine();
-            $this->info('=== IMPORT RKA SIPD BERHASIL ===');
+            $this->info('=== IMPORT RKA/DPA SIPD BERHASIL ===');
             $this->line("Sub Kegiatan  : [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']}");
             $this->line("Item Diimpor  : {$result['imported_items']} item");
             $this->line("Item Dilewati : {$result['skipped_items']} item (Pagu Rp 0)");
@@ -40,4 +40,3 @@ class ImportSipdRkaPdfCommand extends Command
         }
     }
 }
-
