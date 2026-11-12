@@ -428,8 +428,13 @@ class LrfkCalculationService
      * 4. Laporan Pertanggungjawaban Fungsional (LPJ Fungsional Bendahara)
      * Format 14 Kolom Standar SIPD-RI Penatausahaan (Permendagri 77/2020)
      */
-    public function getLpjFungsional(int $tahun, int $bulan): array
-    {
+    public function getLpjFungsional(
+        int $tahun,
+        int $bulan,
+        ?int $bidangId = null,
+        ?int $kegiatanId = null,
+        ?int $subKegiatanId = null
+    ): array {
         $awalBulanIni = Carbon::create($tahun, $bulan)->startOfMonth()->toDateString();
         $akhirBulanIni = Carbon::create($tahun, $bulan)->endOfMonth()->toDateString();
 
@@ -462,12 +467,15 @@ class LrfkCalculationService
             '5.2.02.18.001' => 'Belanja Modal Rambu-Rambu Lalu Lintas Darat',
         ];
 
-        // 1. Ambil detail SPJ yang dicairkan s/d akhir bulan ini
+        // 1. Ambil detail SPJ yang dicairkan s/d akhir bulan ini (filter bidang, kegiatan, sub kegiatan)
         $spjDetails = DetailPengajuanSpj::query()
-            ->whereHas('pengajuanSpj', function ($q) use ($tahun, $akhirBulanIni) {
+            ->whereHas('pengajuanSpj', function ($q) use ($tahun, $akhirBulanIni, $bidangId, $kegiatanId, $subKegiatanId) {
                 $q->where('tahun_anggaran', $tahun)
                     ->where('status', 'dicairkan')
-                    ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni);
+                    ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni)
+                    ->when($bidangId, fn ($query) => $query->where('bidang_id', $bidangId))
+                    ->when($kegiatanId, fn ($query) => $query->where('kegiatan_id', $kegiatanId))
+                    ->when($subKegiatanId, fn ($query) => $query->where('sub_kegiatan_id', $subKegiatanId));
             })
             ->with(['pengajuanSpj', 'kodeRekening'])
             ->get();
@@ -505,9 +513,12 @@ class LrfkCalculationService
             $spjBySubAndRek[$key][$bucket . '_sd_ini'] += $nominal;
         }
 
-        // 2. Ambil data rincian anggaran belanja (RAB) tahun ini
+        // 2. Ambil data rincian anggaran belanja (RAB) tahun ini (filter bidang, kegiatan, sub kegiatan)
         $rabs = RincianAnggaranBelanja::query()
             ->where('tahun_anggaran', $tahun)
+            ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+            ->when($kegiatanId, fn ($q) => $q->whereHas('subKegiatan', fn ($sq) => $sq->where('kegiatan_id', $kegiatanId)))
+            ->when($subKegiatanId, fn ($q) => $q->where('sub_kegiatan_id', $subKegiatanId))
             ->with(['subKegiatan.kegiatan.program', 'kodeRekening'])
             ->get();
 
@@ -736,11 +747,14 @@ class LrfkCalculationService
             $rows = array_merge($rows, $kegRows);
         }
 
-        // 6. Pajak & Potongan dari SPJ yang dicairkan
+        // 6. Pajak & Potongan dari SPJ yang dicairkan (filter bidang, kegiatan, sub kegiatan)
         $spjsCair = PengajuanSpj::query()
             ->where('tahun_anggaran', $tahun)
             ->where('status', 'dicairkan')
             ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni)
+            ->when($bidangId, fn ($query) => $query->where('bidang_id', $bidangId))
+            ->when($kegiatanId, fn ($query) => $query->where('kegiatan_id', $kegiatanId))
+            ->when($subKegiatanId, fn ($query) => $query->where('sub_kegiatan_id', $subKegiatanId))
             ->with(['masterToko', 'user'])
             ->get();
 
