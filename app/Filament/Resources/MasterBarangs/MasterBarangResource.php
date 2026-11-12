@@ -26,7 +26,7 @@ class MasterBarangResource extends Resource
 
     protected static ?string $navigationLabel = 'Komponen Belanja';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
+    protected static ?string $cluster = \App\Filament\Clusters\MasterKeuangan::class;
 
     protected static ?int $navigationSort = 4;
 

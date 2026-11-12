@@ -18,5 +18,15 @@
             <span>Masuk dengan Google</span>
         </a>
     </div>
+
+    <div class="mt-6 pt-4 border-t border-gray-100 dark:border-white/5 text-center">
+        <a href="{{ url('/') }}"
+           class="inline-flex items-center gap-2 text-xs font-semibold text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400 transition">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            <span>Kembali ke Beranda Portal Layanan</span>
+        </a>
+    </div>
 </div>
 
