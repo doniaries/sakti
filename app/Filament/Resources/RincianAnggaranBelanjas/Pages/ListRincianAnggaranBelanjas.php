@@ -37,7 +37,7 @@ class ListRincianAnggaranBelanjas extends ListRecords
                 ->color('primary'),
 
             Action::make('import_pdf_rka')
-                ->label('Import RKA (PDF SIPD)')
+                ->label('Import RKA/DPA (PDF SIPD)')
                 ->icon('heroicon-o-document-arrow-up')
                 ->color('success')
                 ->modalHeading('Import Rincian Belanja dari PDF SIPD RI')
@@ -77,7 +77,7 @@ class ListRincianAnggaranBelanjas extends ListRecords
                         $allowOverwrite = (bool) ($data['timpa_jika_ada'] ?? false);
                         $result = SipdRkaImporterService::import($path, true, $targetBidangId, $allowOverwrite);
                         Notification::make()
-                            ->title('Import RKA Berhasil!')
+                            ->title('Import RKA/DPA Berhasil!')
                             ->body("Berhasil mengimpor {$result['imported_items']} item rincian belanja untuk Sub Kegiatan: [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} (Total Pagu: Rp " . number_format($result['total_pagu'], 0, ',', '.') . ")")
                             ->success()
                             ->send();

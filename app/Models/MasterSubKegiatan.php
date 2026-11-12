@@ -28,6 +28,15 @@ class MasterSubKegiatan extends Model
         'is_locked' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::deleting(function (MasterSubKegiatan $subKegiatan) {
+            foreach ($subKegiatan->pengajuanSpjs as $spj) {
+                $spj->delete();
+            }
+        });
+    }
+
     public function kegiatan(): BelongsTo
     {
         return $this->belongsTo(MasterKegiatan::class, 'kegiatan_id');

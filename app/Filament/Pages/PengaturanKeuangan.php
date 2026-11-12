@@ -37,9 +37,6 @@ class PengaturanKeuangan extends Page
         return $user !== null && $user->hasAnyRole([
             'super_admin',
             'admin',
-            'pa',
-            'ppk',
-            'bendahara',
         ]);
     }
 
@@ -52,7 +49,7 @@ class PengaturanKeuangan extends Page
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if (! $user || ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'bendahara'])) {
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'admin'])) {
             abort(403);
         }
 
@@ -78,4 +75,3 @@ class PengaturanKeuangan extends Page
             ->send();
     }
 }
-

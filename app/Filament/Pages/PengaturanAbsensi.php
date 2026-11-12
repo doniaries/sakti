@@ -18,9 +18,9 @@ class PengaturanAbsensi extends Page
 
     protected static string|UnitEnum|null $navigationGroup = 'Absensi';
 
-    protected static ?string $navigationLabel = 'Pengaturan Absensi';
+    protected static ?string $navigationLabel = 'Pengaturan Absen';
 
-    protected static ?string $title = 'Pengaturan Absensi & Lokasi Kantor';
+    protected static ?string $title = 'Pengaturan Absen';
 
     protected static ?int $navigationSort = 99;
 
@@ -44,7 +44,6 @@ class PengaturanAbsensi extends Page
         return $user !== null && $user->hasAnyRole([
             'super_admin',
             'admin',
-            'pa',
         ]);
     }
 
@@ -63,7 +62,7 @@ class PengaturanAbsensi extends Page
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if (! $user || ! $user->hasAnyRole(['super_admin', 'admin', 'pa'])) {
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'admin'])) {
             abort(403);
         }
 
@@ -90,7 +89,7 @@ class PengaturanAbsensi extends Page
         session(['mode_simulasi_absensi' => $this->mode_simulasi]);
 
         Notification::make()
-            ->title('Pengaturan Absensi Berhasil Disimpan!')
+            ->title('Pengaturan Absen Berhasil Disimpan!')
             ->body("Titik pusat kantor ({$this->latitude_kantor}, {$this->longitude_kantor}) dengan radius {$this->radius_meter} meter telah aktif di seluruh sistem dan aplikasi mobile presensi.")
             ->success()
             ->send();
@@ -144,4 +143,3 @@ class PengaturanAbsensi extends Page
             ->send();
     }
 }
-

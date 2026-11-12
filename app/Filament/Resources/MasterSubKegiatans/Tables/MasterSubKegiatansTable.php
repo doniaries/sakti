@@ -51,14 +51,52 @@ class MasterSubKegiatansTable
             ->columns([
                 TextColumn::make('nama_sub_kegiatan')
                     ->label('Sub Kegiatan')
-                    ->description(fn(MasterSubKegiatan $record): string => ($record->kode_sub_kegiatan ? "[{$record->kode_sub_kegiatan}] " : '') . ($record->kegiatan?->nama_kegiatan ? "Kegiatan: {$record->kegiatan->nama_kegiatan}" : ''))
-                    ->searchable()
+                    ->html()
+                    ->formatStateUsing(function ($state, MasterSubKegiatan $record): string {
+                        $program = $record->kegiatan?->program;
+                        $kegiatan = $record->kegiatan;
+
+                        $kodeProgram = $program?->kode_program ? "[{$program->kode_program}] " : '';
+                        $namaProgram = mb_strtoupper($program?->nama_program ?? 'PROGRAM BELUM DIATUR', 'UTF-8');
+
+                        $kodeKegiatan = $kegiatan?->kode_kegiatan ? "[{$kegiatan->kode_kegiatan}] " : '';
+                        $namaKegiatan = mb_strtoupper($kegiatan?->nama_kegiatan ?? 'KEGIATAN BELUM DIATUR', 'UTF-8');
+
+                        $kodeSub = $record->kode_sub_kegiatan ? "[{$record->kode_sub_kegiatan}] " : '';
+                        $namaSub = mb_strtolower((string) $state, 'UTF-8');
+
+                        return <<<HTML
+                        <div class="flex flex-col gap-1 py-1 text-left leading-normal">
+                            <div class="font-bold text-xs text-primary-700 dark:text-primary-400 uppercase tracking-tight">
+                                {$kodeProgram}{$namaProgram}
+                            </div>
+                            <div class="font-normal text-xs text-slate-700 dark:text-slate-300 uppercase tracking-tight">
+                                {$kodeKegiatan}{$namaKegiatan}
+                            </div>
+                            <div class="font-normal text-sm text-slate-900 dark:text-slate-100 lowercase">
+                                {$kodeSub}{$namaSub}
+                            </div>
+                        </div>
+                        HTML;
+                    })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->where(function (Builder $q) use ($search) {
+                            $q->where('nama_sub_kegiatan', 'like', "%{$search}%")
+                                ->orWhere('kode_sub_kegiatan', 'like', "%{$search}%")
+                                ->orWhereHas('kegiatan', function ($qk) use ($search) {
+                                    $qk->where('nama_kegiatan', 'like', "%{$search}%")
+                                        ->orWhere('kode_kegiatan', 'like', "%{$search}%")
+                                        ->orWhereHas('program', function ($qp) use ($search) {
+                                            $qp->where('nama_program', 'like', "%{$search}%")
+                                                ->orWhere('kode_program', 'like', "%{$search}%");
+                                        });
+                                });
+                        });
+                    })
                     ->sortable()
-                    ->weight('bold')
                     ->wrap()
-                    ->extraAttributes(['style' => 'min-width: 320px;'], merge: true)
-                    ->extraHeaderAttributes(['style' => 'min-width: 320px;'], merge: true)
-                    ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
+                    ->extraAttributes(['style' => 'min-width: 380px;'], merge: true)
+                    ->extraHeaderAttributes(['style' => 'min-width: 380px;'], merge: true)
                     ->sticky(),
 
                 TextColumn::make('jf.name')
