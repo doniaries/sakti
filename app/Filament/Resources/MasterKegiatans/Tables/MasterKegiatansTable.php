@@ -3,10 +3,13 @@
 namespace App\Filament\Resources\MasterKegiatans\Tables;
 
 use App\Models\Bidang;
+use App\Models\MasterKegiatan;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Enums\MaxWidth;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -67,7 +70,17 @@ class MasterKegiatansTable
                     ->label('Jml Sub Kegiatan')
                     ->badge()
                     ->color('info')
-                    ->sortable(),
+                    ->sortable()
+                    ->tooltip('Klik untuk melihat rincian Sub Kegiatan')
+                    ->action(
+                        Action::make('lihat_sub_kegiatan_modal')
+                            ->modalHeading(fn (MasterKegiatan $record): string => "Kegiatan: [{$record->kode_kegiatan}] {$record->nama_kegiatan}")
+                            ->modalDescription('Rincian Sub Kegiatan yang berada di bawah kegiatan ini.')
+                            ->modalWidth(MaxWidth::FourExtraLarge)
+                            ->modalContent(fn (MasterKegiatan $record) => view('filament.modals.kegiatan-sub-kegiatan-tree', ['kegiatan' => $record]))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Tutup')
+                    ),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
@@ -76,6 +89,11 @@ class MasterKegiatansTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('program_id')
+                    ->label('Program Induk')
+                    ->relationship('program', 'nama_program')
+                    ->searchable()
+                    ->preload(),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([

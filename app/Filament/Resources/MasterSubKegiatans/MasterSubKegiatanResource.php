@@ -20,11 +20,11 @@ class MasterSubKegiatanResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentChartBar;
 
-    protected static ?string $navigationLabel = 'Sub Kegiatan';
+    protected static ?string $navigationLabel = 'DPA / Sub Kegiatan (RKA)';
 
-    protected static ?string $modelLabel = 'Sub Kegiatan';
+    protected static ?string $modelLabel = 'Sub Kegiatan (DPA/RKA)';
 
-    protected static ?string $pluralModelLabel = 'Sub Kegiatan';
+    protected static ?string $pluralModelLabel = 'DPA / Sub Kegiatan (RKA)';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Keuangan';
 

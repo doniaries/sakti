@@ -210,6 +210,12 @@ class MasterSubKegiatansTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                SelectFilter::make('kegiatan_id')
+                    ->label('Kegiatan Induk')
+                    ->relationship('kegiatan', 'nama_kegiatan')
+                    ->searchable()
+                    ->preload(),
+
                 TernaryFilter::make('penugasan_jf')
                     ->label('Status Penugasan JF')
                     ->placeholder('Semua Sub Kegiatan')
