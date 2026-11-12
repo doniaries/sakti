@@ -168,6 +168,7 @@
                                     $rowClass = match($r['type']) {
                                         'summary_header' => 'bg-header-row font-bold text-gray-900 dark:!text-white',
                                         'skpd' => 'bg-gray-100 font-bold text-gray-900 dark:!bg-zinc-800 dark:!text-white',
+                                        'bidang' => 'bg-gray-100 font-bold text-gray-900 dark:!bg-zinc-800 dark:!text-white border-t border-gray-300 dark:!border-zinc-700',
                                         'program' => 'bg-prog-row font-bold text-gray-900 dark:!text-white',
                                         'kegiatan' => 'font-bold text-gray-900 dark:!text-white bg-slate-50/60 dark:!bg-zinc-800/40',
                                         'sub_kegiatan' => 'bg-gray-100/90 font-semibold text-gray-900 dark:!bg-zinc-800/90 dark:!text-white border-y border-gray-300 dark:!border-zinc-700',
@@ -183,19 +184,22 @@
                                     </td>
                                     {{-- Col 2: Uraian --}}
                                     <td class="p-2 fungsional-col-2 border-r {{ $r['is_bold'] ? 'font-bold' : '' }}">
-                                        @if($r['type'] === 'sub_kegiatan')
+                                        @if($r['type'] === 'bidang')
                                             <div style="padding-left: {{ $indentPx }}px;">
-                                                <span class="text-[10px] font-bold tracking-wider uppercase text-gray-700 dark:!text-zinc-300 block">
-                                                    BIDANG : {{ $r['bidang_nama'] ?? 'SEKRETARIAT' }}
+                                                <span class="font-bold text-xs text-gray-900 dark:!text-white block">
+                                                    {{ $r['uraian'] }}
                                                 </span>
-                                                <span class="font-bold text-gray-900 dark:!text-white block mt-0.5">
-                                                    SUB KEGIATAN : {{ ucwords(strtolower($r['uraian'])) }}
+                                            </div>
+                                        @elseif($r['type'] === 'sub_kegiatan')
+                                            <div style="padding-left: {{ $indentPx }}px;">
+                                                <span class="font-bold text-gray-900 dark:!text-white block">
+                                                    Sub kegiatan : {{ ucwords(strtolower($r['uraian'])) }}
                                                 </span>
                                             </div>
                                         @elseif($r['type'] === 'kegiatan')
                                             <div style="padding-left: {{ $indentPx }}px;">
                                                 <span class="font-bold text-gray-900 dark:!text-white block">
-                                                    KEGIATAN : {{ $r['uraian'] }}
+                                                    Kegiatan : {{ $r['uraian'] }}
                                                 </span>
                                             </div>
                                         @else
@@ -206,45 +210,45 @@
                                     </td>
                                     {{-- Col 3: Anggaran --}}
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap {{ $r['is_bold'] ? 'font-bold text-gray-900 dark:!text-white' : '' }}">
-                                        {{ $r['pagu'] > 0 ? number_format($r['pagu'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['pagu'] > 0 ? number_format($r['pagu'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     {{-- Col 4..6: LS Gaji --}}
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
-                                        {{ $r['ls_gaji_lalu'] > 0 ? number_format($r['ls_gaji_lalu'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['ls_gaji_lalu'] > 0 ? number_format($r['ls_gaji_lalu'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
-                                        {{ $r['ls_gaji_ini'] > 0 ? number_format($r['ls_gaji_ini'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['ls_gaji_ini'] > 0 ? number_format($r['ls_gaji_ini'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap font-semibold text-gray-900 dark:!text-white">
-                                        {{ $r['ls_gaji_sd_ini'] > 0 ? number_format($r['ls_gaji_sd_ini'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['ls_gaji_sd_ini'] > 0 ? number_format($r['ls_gaji_sd_ini'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     {{-- Col 7..9: LS Barang Jasa --}}
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
-                                        {{ $r['ls_bj_lalu'] > 0 ? number_format($r['ls_bj_lalu'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['ls_bj_lalu'] > 0 ? number_format($r['ls_bj_lalu'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
-                                        {{ $r['ls_bj_ini'] > 0 ? number_format($r['ls_bj_ini'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['ls_bj_ini'] > 0 ? number_format($r['ls_bj_ini'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap font-semibold text-gray-900 dark:!text-white">
-                                        {{ $r['ls_bj_sd_ini'] > 0 ? number_format($r['ls_bj_sd_ini'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['ls_bj_sd_ini'] > 0 ? number_format($r['ls_bj_sd_ini'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     {{-- Col 10..12: UP/GU/TU --}}
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
-                                        {{ $r['up_lalu'] > 0 ? number_format($r['up_lalu'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['up_lalu'] > 0 ? number_format($r['up_lalu'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
-                                        {{ $r['up_ini'] > 0 ? number_format($r['up_ini'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['up_ini'] > 0 ? number_format($r['up_ini'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap font-semibold text-gray-900 dark:!text-white">
-                                        {{ $r['up_sd_ini'] > 0 ? number_format($r['up_sd_ini'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['up_sd_ini'] > 0 ? number_format($r['up_sd_ini'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     {{-- Col 13: Jumlah SPJ s.d Bulan Ini --}}
                                     <td class="p-2 text-right font-mono border-r whitespace-nowrap font-bold text-emerald-600 dark:!text-emerald-400">
-                                        {{ $r['total_spj'] > 0 ? number_format($r['total_spj'], 2, ',', '.') : '0,00' }}
+                                        {{ $r['type'] === 'bidang' ? '' : ($r['total_spj'] > 0 ? number_format($r['total_spj'], 2, ',', '.') : '0,00') }}
                                     </td>
                                     {{-- Col 14: Sisa Pagu Anggaran --}}
                                     <td class="p-2 text-right font-mono whitespace-nowrap font-semibold text-gray-900 dark:!text-white">
-                                        {{ number_format($r['sisa'], 2, ',', '.') }}
+                                        {{ $r['type'] === 'bidang' ? '' : number_format($r['sisa'], 2, ',', '.') }}
                                     </td>
                                 </tr>
                             @empty

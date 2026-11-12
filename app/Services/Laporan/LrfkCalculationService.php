@@ -811,6 +811,41 @@ class LrfkCalculationService
 
             $progMetrics = $sumMetrics($progLeafs);
 
+            $progBidangNama = null;
+            foreach ($prog->kegiatans as $k) {
+                if ($k->bidang?->nama) {
+                    $progBidangNama = strtoupper($k->bidang->nama);
+                    break;
+                }
+                foreach ($k->subKegiatans as $s) {
+                    if (isset($bidangBySubKegiatan[$s->id])) {
+                        $progBidangNama = $bidangBySubKegiatan[$s->id];
+                        break 2;
+                    }
+                }
+            }
+            $progBidangNama = $progBidangNama ?? 'SEKRETARIAT';
+
+            $rows[] = [
+                'kode' => '',
+                'uraian' => 'BIDANG : ' . $progBidangNama,
+                'type' => 'bidang',
+                'is_bold' => true,
+                'indent' => 0,
+                'pagu' => 0.0,
+                'ls_gaji_lalu' => 0.0,
+                'ls_gaji_ini' => 0.0,
+                'ls_gaji_sd_ini' => 0.0,
+                'ls_bj_lalu' => 0.0,
+                'ls_bj_ini' => 0.0,
+                'ls_bj_sd_ini' => 0.0,
+                'up_lalu' => 0.0,
+                'up_ini' => 0.0,
+                'up_sd_ini' => 0.0,
+                'total_spj' => 0.0,
+                'sisa' => 0.0,
+            ];
+
             $rows[] = array_merge([
                 'kode' => $prog->kode_program,
                 'uraian' => $prog->nama_program,
