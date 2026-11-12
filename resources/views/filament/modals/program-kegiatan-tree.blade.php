@@ -1,4 +1,5 @@
 @php
+    use App\Filament\Resources\MasterPrograms\MasterProgramResource;
     use App\Filament\Resources\MasterKegiatans\MasterKegiatanResource;
     use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
     use App\Support\FormatHelper;
