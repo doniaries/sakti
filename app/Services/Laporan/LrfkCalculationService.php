@@ -741,12 +741,29 @@ class LrfkCalculationService
             ->where('tahun_anggaran', $tahun)
             ->where('status', 'dicairkan')
             ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni)
+            ->with(['masterToko', 'user'])
             ->get();
 
         $ppnTotal = (float) $spjsCair->sum('nilai_ppn');
         $pph22Total = (float) $spjsCair->sum('nilai_pph22');
         $totalPajak = (float) $spjsCair->sum('total_pajak');
         $nilaiBersihTotal = (float) $spjsCair->sum('nilai_bersih');
+
+        $pajakItems = [];
+        foreach ($spjsCair as $spj) {
+            $pajakItems[] = [
+                'id' => $spj->id,
+                'nomor_pengajuan' => $spj->nomor_pengajuan,
+                'tanggal_dicairkan' => $spj->tanggal_dicairkan ? Carbon::parse($spj->tanggal_dicairkan)->format('d/m/Y') : '-',
+                'keperluan' => $spj->keperluan,
+                'nama_toko' => $spj->nama_toko ?: ($spj->masterToko?->nama_toko ?? '-'),
+                'total_belanja' => (float) $spj->total_belanja,
+                'nilai_ppn' => (float) $spj->nilai_ppn,
+                'nilai_pph22' => (float) $spj->nilai_pph22,
+                'total_pajak' => (float) $spj->total_pajak,
+                'nilai_bersih' => (float) $spj->nilai_bersih,
+            ];
+        }
 
         $totalSpjUp = $globalTotals['up_sd_ini'];
         $totalSpjLs = $globalTotals['ls_gaji_sd_ini'] + $globalTotals['ls_bj_sd_ini'];
@@ -769,6 +786,7 @@ class LrfkCalculationService
                 'pph23' => 0.0,
                 'total_pajak' => $totalPajak,
                 'nilai_bersih' => $nilaiBersihTotal,
+                'items' => $pajakItems,
             ],
             'pengeluaran' => [
                 'spj_up_gu' => $totalSpjUp,
