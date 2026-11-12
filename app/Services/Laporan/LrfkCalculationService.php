@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Services\Laporan;
 
 use App\Models\DetailPengajuanSpj;
+use App\Models\Instansi;
 use App\Models\KodeRekening;
 use App\Models\MasterKegiatan;
+use App\Models\MasterProgram;
 use App\Models\MasterSubKegiatan;
+use App\Models\PengaturanAplikasi;
 use App\Models\PengajuanSpj;
 use App\Models\RincianAnggaranBelanja;
 use Carbon\Carbon;
@@ -423,98 +426,359 @@ class LrfkCalculationService
 
     /**
      * 4. Laporan Pertanggungjawaban Fungsional (LPJ Fungsional Bendahara)
-     * Mengacu Permendagri 77/2020:
-     * - Realisasi belanja per Kode Rekening Akun (Lalu, Ini, Total s/d Ini, Sisa)
-     * - Register SP2D dan Kas
-     * - Rekapitulasi Pajak (PPN & PPh22)
+     * Format 14 Kolom Standar SIPD-RI Penatausahaan (Permendagri 77/2020)
      */
     public function getLpjFungsional(int $tahun, int $bulan): array
     {
         $awalBulanIni = Carbon::create($tahun, $bulan)->startOfMonth()->toDateString();
         $akhirBulanIni = Carbon::create($tahun, $bulan)->endOfMonth()->toDateString();
 
-        // 1. Rekening Belanja
-        $kodeRekenings = KodeRekening::query()
-            ->whereHas('rincianAnggarans', fn ($q) => $q->where('tahun_anggaran', $tahun))
-            ->orderBy('kode_lengkap')
+        $standardTitles = [
+            '5' => 'BELANJA DAERAH',
+            '5.1' => 'BELANJA OPERASI',
+            '5.1.01' => 'Belanja Pegawai',
+            '5.1.01.01' => 'Belanja Gaji dan Tunjangan ASN',
+            '5.1.01.02' => 'Belanja Tambahan Penghasilan ASN',
+            '5.1.02' => 'Belanja Barang dan Jasa',
+            '5.1.02.01' => 'Belanja Barang',
+            '5.1.02.01.001' => 'Belanja Barang Pakai Habis',
+            '5.1.02.01.002' => 'Belanja Barang Tak Habis Pakai',
+            '5.1.02.01.004' => 'Belanja Aset Tetap yang Tidak Memenuhi Kriteria Kapitalisasi',
+            '5.1.02.02' => 'Belanja Jasa',
+            '5.1.02.02.001' => 'Belanja Jasa Kantor',
+            '5.1.02.02.002' => 'Belanja Iuran Jaminan/Asuransi',
+            '5.1.02.03' => 'Belanja Pemeliharaan',
+            '5.1.02.03.002' => 'Belanja Pemeliharaan Peralatan dan Mesin',
+            '5.1.02.03.003' => 'Belanja Pemeliharaan Gedung dan Bangunan',
+            '5.1.02.04' => 'Belanja Perjalanan Dinas',
+            '5.1.02.04.001' => 'Belanja Perjalanan Dinas Dalam Negeri',
+            '5.1.02.04.002' => 'Belanja Perjalanan Dinas Luar Negeri',
+            '5.1.05' => 'Belanja Hibah',
+            '5.1.05.05' => 'Belanja Hibah kepada Badan, Lembaga, Organisasi Kemasyarakatan yang Berbadan Hukum Indonesia',
+            '5.1.05.05.001' => 'Belanja Hibah kepada Badan dan Lembaga yang Bersifat Nirlaba, Sukarela dan Sosial yang Dibentuk Berdasarkan Peraturan Perundang-Undangan',
+            '5.2' => 'BELANJA MODAL',
+            '5.2.02' => 'Belanja Modal Peralatan dan Mesin',
+            '5.2.02.18' => 'Belanja Modal Rambu-Rambu',
+            '5.2.02.18.001' => 'Belanja Modal Rambu-Rambu Lalu Lintas Darat',
+        ];
+
+        // 1. Ambil detail SPJ yang dicairkan s/d akhir bulan ini
+        $spjDetails = DetailPengajuanSpj::query()
+            ->whereHas('pengajuanSpj', function ($q) use ($tahun, $akhirBulanIni) {
+                $q->where('tahun_anggaran', $tahun)
+                    ->where('status', 'dicairkan')
+                    ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni);
+            })
+            ->with(['pengajuanSpj', 'kodeRekening'])
             ->get();
 
-        $rows = [];
-        $totalPagu = 0.0;
-        $totalLalu = 0.0;
-        $totalIni = 0.0;
-        $totalSdIni = 0.0;
-        $totalSisa = 0.0;
+        $spjBySubAndRek = [];
+        foreach ($spjDetails as $d) {
+            $subId = (int) $d->pengajuanSpj->sub_kegiatan_id;
+            $rekId = (int) $d->kode_rekening_id;
+            $key = "{$subId}_{$rekId}";
+            if (! isset($spjBySubAndRek[$key])) {
+                $spjBySubAndRek[$key] = [
+                    'ls_gaji_lalu' => 0.0, 'ls_gaji_ini' => 0.0, 'ls_gaji_sd_ini' => 0.0,
+                    'ls_bj_lalu' => 0.0, 'ls_bj_ini' => 0.0, 'ls_bj_sd_ini' => 0.0,
+                    'up_lalu' => 0.0, 'up_ini' => 0.0, 'up_sd_ini' => 0.0,
+                ];
+            }
 
-        foreach ($kodeRekenings as $rek) {
-            $pagu = (float) $rek->rincianAnggarans()->where('tahun_anggaran', $tahun)->sum('pagu_total');
+            $nominal = (float) ($d->subtotal_realisasi > 0 ? $d->subtotal_realisasi : $d->subtotal);
+            $tglCair = Carbon::parse($d->pengajuanSpj->tanggal_dicairkan)->toDateString();
+            $isLalu = $tglCair < $awalBulanIni;
+            $kode = $d->kodeRekening?->kode_lengkap ?? '';
 
-            // Realisasi s/d Bulan Lalu
-            $realisasiLalu = (float) DetailPengajuanSpj::query()
-                ->where('kode_rekening_id', $rek->id)
-                ->whereHas('pengajuanSpj', fn ($q) => $q->where('tahun_anggaran', $tahun)
-                    ->where('status', 'dicairkan')
-                    ->whereDate('tanggal_dicairkan', '<', $awalBulanIni))
-                ->sum('subtotal');
+            $bucket = 'up';
+            if (str_starts_with($kode, '5.1.01')) {
+                $bucket = 'ls_gaji';
+            } elseif (str_starts_with($kode, '5.2') || str_starts_with($kode, '5.1.05') || $d->pengajuanSpj->metode_pengadaan === 'e_katalog' || $nominal >= 50000000) {
+                $bucket = 'ls_bj';
+            }
 
-            // Realisasi Bulan Ini
-            $realisasiIni = (float) DetailPengajuanSpj::query()
-                ->where('kode_rekening_id', $rek->id)
-                ->whereHas('pengajuanSpj', fn ($q) => $q->where('tahun_anggaran', $tahun)
-                    ->where('status', 'dicairkan')
-                    ->whereBetween('tanggal_dicairkan', [$awalBulanIni, $akhirBulanIni]))
-                ->sum('subtotal');
-
-            $sdBulanIni = $realisasiLalu + $realisasiIni;
-            $sisaAnggaran = max(0, $pagu - $sdBulanIni);
-            $persen = $pagu > 0 ? round(($sdBulanIni / $pagu) * 100.0, 2) : 0.0;
-
-            $rows[] = [
-                'kode' => $rek->kode_lengkap,
-                'uraian' => $rek->uraian,
-                'pagu' => $pagu,
-                'realisasi_lalu' => $realisasiLalu,
-                'realisasi_ini' => $realisasiIni,
-                'total_sd_ini' => $sdBulanIni,
-                'sisa' => $sisaAnggaran,
-                'persen' => $persen,
-            ];
-
-            $totalPagu += $pagu;
-            $totalLalu += $realisasiLalu;
-            $totalIni += $realisasiIni;
-            $totalSdIni += $sdBulanIni;
-            $totalSisa += $sisaAnggaran;
+            if ($isLalu) {
+                $spjBySubAndRek[$key][$bucket . '_lalu'] += $nominal;
+            } else {
+                $spjBySubAndRek[$key][$bucket . '_ini'] += $nominal;
+            }
+            $spjBySubAndRek[$key][$bucket . '_sd_ini'] += $nominal;
         }
 
-        // 2. Rekapitulasi Pajak SPJ
-        $spjsCairBulanIni = PengajuanSpj::query()
+        // 2. Ambil data rincian anggaran belanja (RAB) tahun ini
+        $rabs = RincianAnggaranBelanja::query()
+            ->where('tahun_anggaran', $tahun)
+            ->with(['subKegiatan.kegiatan.program', 'kodeRekening'])
+            ->get();
+
+        $leafAccountsBySub = [];
+        foreach ($rabs as $rab) {
+            $sub = $rab->subKegiatan;
+            if (! $sub) {
+                continue;
+            }
+
+            $subId = $sub->id;
+            $rekId = $rab->kode_rekening_id;
+            $rek = $rab->kodeRekening;
+            $kode = $rek?->kode_lengkap ?? '5.1.02';
+            $uraian = $rek?->uraian ?? $rab->nama_item;
+
+            if (! isset($leafAccountsBySub[$subId])) {
+                $leafAccountsBySub[$subId] = [];
+            }
+
+            if (! isset($leafAccountsBySub[$subId][$kode])) {
+                $spjData = $spjBySubAndRek["{$subId}_{$rekId}"] ?? [
+                    'ls_gaji_lalu' => 0.0, 'ls_gaji_ini' => 0.0, 'ls_gaji_sd_ini' => 0.0,
+                    'ls_bj_lalu' => 0.0, 'ls_bj_ini' => 0.0, 'ls_bj_sd_ini' => 0.0,
+                    'up_lalu' => 0.0, 'up_ini' => 0.0, 'up_sd_ini' => 0.0,
+                ];
+
+                $leafAccountsBySub[$subId][$kode] = [
+                    'kode' => $kode,
+                    'uraian' => $uraian,
+                    'pagu' => 0.0,
+                    'ls_gaji_lalu' => $spjData['ls_gaji_lalu'],
+                    'ls_gaji_ini' => $spjData['ls_gaji_ini'],
+                    'ls_gaji_sd_ini' => $spjData['ls_gaji_sd_ini'],
+                    'ls_bj_lalu' => $spjData['ls_bj_lalu'],
+                    'ls_bj_ini' => $spjData['ls_bj_ini'],
+                    'ls_bj_sd_ini' => $spjData['ls_bj_sd_ini'],
+                    'up_lalu' => $spjData['up_lalu'],
+                    'up_ini' => $spjData['up_ini'],
+                    'up_sd_ini' => $spjData['up_sd_ini'],
+                ];
+            }
+
+            $leafAccountsBySub[$subId][$kode]['pagu'] += (float) $rab->pagu_total;
+        }
+
+        foreach ($leafAccountsBySub as $subId => &$accounts) {
+            foreach ($accounts as $kode => &$acc) {
+                $acc['total_spj'] = $acc['ls_gaji_sd_ini'] + $acc['ls_bj_sd_ini'] + $acc['up_sd_ini'];
+                $acc['sisa'] = max(0, $acc['pagu'] - $acc['total_spj']);
+            }
+        }
+        unset($accounts, $acc);
+
+        $sumMetrics = function (array $items): array {
+            $res = [
+                'pagu' => 0.0,
+                'ls_gaji_lalu' => 0.0, 'ls_gaji_ini' => 0.0, 'ls_gaji_sd_ini' => 0.0,
+                'ls_bj_lalu' => 0.0, 'ls_bj_ini' => 0.0, 'ls_bj_sd_ini' => 0.0,
+                'up_lalu' => 0.0, 'up_ini' => 0.0, 'up_sd_ini' => 0.0,
+                'total_spj' => 0.0, 'sisa' => 0.0,
+            ];
+            foreach ($items as $item) {
+                $res['pagu'] += (float) ($item['pagu'] ?? 0);
+                $res['ls_gaji_lalu'] += (float) ($item['ls_gaji_lalu'] ?? 0);
+                $res['ls_gaji_ini'] += (float) ($item['ls_gaji_ini'] ?? 0);
+                $res['ls_gaji_sd_ini'] += (float) ($item['ls_gaji_sd_ini'] ?? 0);
+                $res['ls_bj_lalu'] += (float) ($item['ls_bj_lalu'] ?? 0);
+                $res['ls_bj_ini'] += (float) ($item['ls_bj_ini'] ?? 0);
+                $res['ls_bj_sd_ini'] += (float) ($item['ls_bj_sd_ini'] ?? 0);
+                $res['up_lalu'] += (float) ($item['up_lalu'] ?? 0);
+                $res['up_ini'] += (float) ($item['up_ini'] ?? 0);
+                $res['up_sd_ini'] += (float) ($item['up_sd_ini'] ?? 0);
+                $res['total_spj'] += (float) ($item['total_spj'] ?? 0);
+                $res['sisa'] += (float) ($item['sisa'] ?? 0);
+            }
+            return $res;
+        };
+
+        $allGlobalLeafs = [];
+        foreach ($leafAccountsBySub as $accs) {
+            foreach ($accs as $a) {
+                $allGlobalLeafs[] = $a;
+            }
+        }
+
+        $globalTotals = $sumMetrics($allGlobalLeafs);
+        $globalTotals['total_pagu'] = $globalTotals['pagu'];
+        $globalTotals['total_lalu'] = $globalTotals['ls_gaji_lalu'] + $globalTotals['ls_bj_lalu'] + $globalTotals['up_lalu'];
+        $globalTotals['total_ini'] = $globalTotals['ls_gaji_ini'] + $globalTotals['ls_bj_ini'] + $globalTotals['up_ini'];
+        $globalTotals['total_sd_ini'] = $globalTotals['total_spj'];
+        $globalTotals['total_sisa'] = $globalTotals['sisa'];
+        $globalTotals['persen'] = $globalTotals['pagu'] > 0 ? ($globalTotals['total_spj'] / $globalTotals['pagu']) * 100 : 0.0;
+
+        $rows = [];
+
+        // 3. Ringkasan Akun Utama (Level 0 - Bagian Atas Tabel Halaman 1)
+        $summaryCodes = ['5', '5.1', '5.1.01', '5.1.02', '5.1.05', '5.2', '5.2.02'];
+        foreach ($summaryCodes as $sCode) {
+            $matchingLeafs = array_filter($allGlobalLeafs, fn ($item) => str_starts_with($item['kode'], $sCode));
+            $sMetrics = $sumMetrics($matchingLeafs);
+            $rows[] = array_merge([
+                'kode' => $sCode,
+                'uraian' => $standardTitles[$sCode] ?? $sCode,
+                'type' => 'summary_header',
+                'is_bold' => true,
+                'indent' => 0,
+            ], $sMetrics);
+        }
+
+        // 4. Baris Total SKPD
+        $instansi = Instansi::first() ?? PengaturanAplikasi::first();
+        $namaSkpd = strtoupper($instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA');
+        $rows[] = array_merge([
+            'kode' => '',
+            'uraian' => $namaSkpd,
+            'type' => 'skpd',
+            'is_bold' => true,
+            'indent' => 0,
+        ], $globalTotals);
+
+        // 5. Detail Program -> Kegiatan -> Sub Kegiatan -> Akun
+        $programs = MasterProgram::query()
+            ->whereHas('kegiatans.subKegiatans.rincianAnggarans', fn ($q) => $q->where('tahun_anggaran', $tahun))
+            ->with(['kegiatans.subKegiatans'])
+            ->orderBy('kode_program')
+            ->get();
+
+        foreach ($programs as $prog) {
+            $progLeafs = [];
+            $kegRows = [];
+
+            foreach ($prog->kegiatans as $keg) {
+                $kegLeafs = [];
+                $subRows = [];
+
+                foreach ($keg->subKegiatans as $sub) {
+                    $subLeafs = array_values($leafAccountsBySub[$sub->id] ?? []);
+                    if (empty($subLeafs)) {
+                        continue;
+                    }
+
+                    $kegLeafs = array_merge($kegLeafs, $subLeafs);
+                    $subMetrics = $sumMetrics($subLeafs);
+
+                    $currentSubRows = [
+                        array_merge([
+                            'kode' => $sub->kode_sub_kegiatan,
+                            'uraian' => $sub->nama_sub_kegiatan,
+                            'type' => 'sub_kegiatan',
+                            'is_bold' => true,
+                            'indent' => 2,
+                        ], $subMetrics),
+                    ];
+
+                    $allPrefixes = [];
+                    foreach ($subLeafs as $leaf) {
+                        $parts = explode('.', $leaf['kode']);
+                        for ($i = 2; $i <= count($parts); $i++) {
+                            $prefix = implode('.', array_slice($parts, 0, $i));
+                            $allPrefixes[$prefix] = true;
+                        }
+                    }
+                    ksort($allPrefixes);
+
+                    foreach (array_keys($allPrefixes) as $prefix) {
+                        $prefixLeafs = array_filter($subLeafs, fn ($item) => str_starts_with($item['kode'], $prefix));
+                        $isLeaf = count(explode('.', $prefix)) >= 6;
+                        $pMetrics = $sumMetrics($prefixLeafs);
+
+                        if ($isLeaf) {
+                            $leafItem = $subLeafs[array_key_first(array_filter($subLeafs, fn ($item) => $item['kode'] === $prefix))] ?? null;
+                            $currentSubRows[] = array_merge([
+                                'kode' => $prefix,
+                                'uraian' => $leafItem['uraian'] ?? ($standardTitles[$prefix] ?? $prefix),
+                                'type' => 'rekening',
+                                'is_bold' => false,
+                                'indent' => 4,
+                            ], $pMetrics);
+                        } else {
+                            $currentSubRows[] = array_merge([
+                                'kode' => $prefix,
+                                'uraian' => $standardTitles[$prefix] ?? $prefix,
+                                'type' => 'akun_parent',
+                                'is_bold' => true,
+                                'indent' => 3,
+                            ], $pMetrics);
+                        }
+                    }
+
+                    $subRows = array_merge($subRows, $currentSubRows);
+                }
+
+                if (empty($kegLeafs)) {
+                    continue;
+                }
+
+                $progLeafs = array_merge($progLeafs, $kegLeafs);
+                $kegMetrics = $sumMetrics($kegLeafs);
+
+                $kegRows[] = array_merge([
+                    'kode' => $keg->kode_kegiatan,
+                    'uraian' => $keg->nama_kegiatan,
+                    'type' => 'kegiatan',
+                    'is_bold' => true,
+                    'indent' => 1,
+                ], $kegMetrics);
+
+                $kegRows = array_merge($kegRows, $subRows);
+            }
+
+            if (empty($progLeafs)) {
+                continue;
+            }
+
+            $progMetrics = $sumMetrics($progLeafs);
+
+            $rows[] = array_merge([
+                'kode' => $prog->kode_program,
+                'uraian' => $prog->nama_program,
+                'type' => 'program',
+                'is_bold' => true,
+                'indent' => 0,
+            ], $progMetrics);
+
+            $rows = array_merge($rows, $kegRows);
+        }
+
+        // 6. Pajak & Potongan dari SPJ yang dicairkan
+        $spjsCair = PengajuanSpj::query()
             ->where('tahun_anggaran', $tahun)
             ->where('status', 'dicairkan')
             ->whereDate('tanggal_dicairkan', '<=', $akhirBulanIni)
             ->get();
 
-        $ppnTotal = (float) $spjsCairBulanIni->sum('nilai_ppn');
-        $pph22Total = (float) $spjsCairBulanIni->sum('nilai_pph22');
-        $totalPajak = (float) $spjsCairBulanIni->sum('total_pajak');
-        $nilaiBersihTotal = (float) $spjsCairBulanIni->sum('nilai_bersih');
+        $ppnTotal = (float) $spjsCair->sum('nilai_ppn');
+        $pph22Total = (float) $spjsCair->sum('nilai_pph22');
+        $totalPajak = (float) $spjsCair->sum('total_pajak');
+        $nilaiBersihTotal = (float) $spjsCair->sum('nilai_bersih');
+
+        $totalSpjUp = $globalTotals['up_sd_ini'];
+        $totalSpjLs = $globalTotals['ls_gaji_sd_ini'] + $globalTotals['ls_bj_sd_ini'];
+        $totalPengeluaran = $globalTotals['total_spj'];
 
         return [
-            'rekening_rows' => $rows,
-            'summary' => [
-                'total_pagu' => $totalPagu,
-                'total_lalu' => $totalLalu,
-                'total_ini' => $totalIni,
-                'total_sd_ini' => $totalSdIni,
-                'total_sisa' => $totalSisa,
-                'persen' => $totalPagu > 0 ? round(($totalSdIni / $totalPagu) * 100.0, 2) : 0.0,
+            'rows' => $rows,
+            'summary' => $globalTotals,
+            'penerimaan' => [
+                'up' => ['lalu' => 0.0, 'ini' => 0.0, 'sd_ini' => 0.0],
+                'gu' => ['lalu' => $globalTotals['up_lalu'], 'ini' => $globalTotals['up_ini'], 'sd_ini' => $globalTotals['up_sd_ini']],
+                'tu' => ['lalu' => 0.0, 'ini' => 0.0, 'sd_ini' => 0.0],
+                'ls' => ['lalu' => $globalTotals['ls_gaji_lalu'] + $globalTotals['ls_bj_lalu'], 'ini' => $globalTotals['ls_gaji_ini'] + $globalTotals['ls_bj_ini'], 'sd_ini' => $totalSpjLs],
+                'total_bruto' => $totalPengeluaran + $totalPajak,
             ],
             'pajak' => [
                 'ppn' => $ppnTotal,
                 'pph22' => $pph22Total,
+                'pph21' => 0.0,
+                'pph23' => 0.0,
                 'total_pajak' => $totalPajak,
                 'nilai_bersih' => $nilaiBersihTotal,
             ],
+            'pengeluaran' => [
+                'spj_up_gu' => $totalSpjUp,
+                'spj_tu' => 0.0,
+                'spj_ls' => $totalSpjLs,
+                'pengembalian_sts' => 0.0,
+                'total_pengeluaran' => $totalPengeluaran,
+                'saldo_kas' => 0.0,
+            ],
+            'rekening_rows' => $rows,
         ];
     }
 }

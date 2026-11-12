@@ -5,14 +5,14 @@
     <title>Laporan Pertanggungjawaban Fungsional (LPJ) - {{ $namaBulan }} {{ $tahun }}</title>
     <style>
         @page {
-            margin: 15mm 15mm 15mm 15mm;
+            margin: 10mm 12mm 10mm 12mm;
             size: 330mm 215mm landscape;
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 8.5pt;
+            font-size: 7.5pt;
             color: #111827;
-            line-height: 1.25;
+            line-height: 1.2;
             margin: 0;
             padding: 0;
         }
@@ -21,39 +21,48 @@
         .text-left { text-align: left; }
         .font-bold { font-weight: bold; }
         .uppercase { text-transform: uppercase; }
+        .whitespace-nowrap { white-space: nowrap; }
 
         .header-title {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
         .header-title h2 {
-            margin: 0 0 4px 0;
-            font-size: 11pt;
+            margin: 0 0 2px 0;
+            font-size: 10.5pt;
             letter-spacing: 0.5px;
         }
         .header-title h3 {
-            margin: 0 0 4px 0;
+            margin: 0 0 2px 0;
             font-size: 9.5pt;
+            font-weight: bold;
+        }
+        .header-title h4 {
+            margin: 0 0 2px 0;
+            font-size: 8.5pt;
             font-weight: normal;
         }
+
         .header-meta {
             width: 100%;
-            margin-bottom: 8px;
-            font-size: 8.5pt;
+            margin-bottom: 6px;
+            font-size: 7.5pt;
+            border-collapse: collapse;
         }
         .header-meta td {
-            padding: 2px 0;
+            padding: 1.5px 2px;
+            vertical-align: top;
         }
 
         table.data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
-            font-size: 8pt;
+            margin-bottom: 8px;
+            font-size: 6.8pt;
         }
         table.data-table th, table.data-table td {
             border: 0.5pt solid #374151;
-            padding: 4px 5px;
+            padding: 2.5px 3px;
         }
         table.data-table th {
             background-color: #f3f4f6;
@@ -66,10 +75,31 @@
             font-weight: bold;
         }
 
+        .rekap-container {
+            width: 100%;
+            margin-top: 6px;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+        .rekap-container td {
+            vertical-align: top;
+            padding: 0 4px;
+        }
+        table.sub-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7pt;
+        }
+        table.sub-table th, table.sub-table td {
+            border: 0.5pt solid #374151;
+            padding: 2px 3px;
+        }
+
         .ttd-table {
             width: 100%;
-            margin-top: 25px;
+            margin-top: 14px;
             page-break-inside: avoid;
+            font-size: 7.5pt;
         }
         .ttd-table td {
             vertical-align: top;
@@ -79,7 +109,7 @@
         @media screen {
             body {
                 background-color: #3f3f46;
-                padding: 20px 10px;
+                padding: 15px 10px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -87,10 +117,10 @@
             .page-sheet {
                 background: #ffffff;
                 width: 100%;
-                max-width: 1250px;
+                max-width: 1300px;
                 box-sizing: border-box;
-                padding: 12mm 15mm;
-                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+                padding: 10mm 12mm;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
                 border-radius: 6px;
             }
         }
@@ -106,114 +136,239 @@
 <body>
     <div class="page-sheet">
 
+    {{-- KOP DOKUMEN SESUAI SIPD-RI --}}
     <div class="header-title">
-        <h2 class="uppercase">LAPORAN PERTANGGUNGJAWABAN BENDAHARA PENGELUARAN (LPJ FUNGSIONAL)</h2>
-        <h3>PERIODE : S/D BULAN {{ strtoupper($namaBulan) }} {{ $tahun }}</h3>
+        <h2 class="uppercase">PEMERINTAH KAB. SIJUNJUNG</h2>
+        <h3 class="uppercase">LAPORAN PERTANGGUNGJAWABAN BENDAHARA PENGELUARAN (FUNGSIONAL)</h3>
+        <h4>PERIODE : S.D BULAN {{ strtoupper($namaBulan) }} {{ $tahun }}</h4>
     </div>
 
     <table class="header-meta">
         <tr>
-            <td style="width: 60%; font-weight: bold;">SKPD : {{ strtoupper($instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA') }}</td>
-            <td style="width: 40%; text-align: right; font-weight: bold;">Tahun Anggaran : {{ $tahun }}</td>
+            <td style="width: 14%; font-weight: bold;">SKPD</td>
+            <td style="width: 1%;">:</td>
+            <td style="width: 48%; font-weight: bold;">{{ strtoupper($instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA') }}</td>
+            <td style="width: 16%; font-weight: bold;">Tahun Anggaran</td>
+            <td style="width: 1%;">:</td>
+            <td style="width: 20%; font-weight: bold;">{{ $tahun }}</td>
+        </tr>
+        <tr>
+            <td style="font-weight: bold;">Pengguna Anggaran</td>
+            <td>:</td>
+            <td>{{ $kadis?->name ?? 'AFRINELDI, SH' }} / NIP: {{ $kadis?->nip ?? '197204071992021002' }}</td>
+            <td style="font-weight: bold;">Bendahara Pengeluaran</td>
+            <td>:</td>
+            <td>{{ $bendahara?->name ?? 'WIWIRNA' }} / NIP: {{ $bendahara?->nip ?? '198507232009012007' }}</td>
         </tr>
     </table>
 
-    {{-- TABEL REALISASI PER KODE REKENING --}}
+    {{-- TABEL 14 KOLOM STANDAR SIPD-RI --}}
     <table class="data-table">
         <thead>
             <tr>
-                <th rowspan="2" style="width: 30px;">NO</th>
-                <th rowspan="2" style="width: 130px;">KODE REKENING</th>
-                <th rowspan="2">URAIAN REKENING BELANJA</th>
-                <th rowspan="2" style="width: 110px;">ANGGARAN DPA (Rp.)</th>
-                <th colspan="3">REALISASI BELANJA (SPJ)</th>
-                <th rowspan="2" style="width: 105px;">SISA ANGGARAN (Rp.)</th>
-                <th rowspan="2" style="width: 50px;">SERAPAN (%)</th>
+                <th rowspan="2" style="width: 85px;">Kode Rekening</th>
+                <th rowspan="2">Uraian</th>
+                <th rowspan="2" style="width: 68px;">Jumlah Anggaran</th>
+                <th colspan="3">SPJ - LS Gaji</th>
+                <th colspan="3">SPJ - LS Barang Jasa</th>
+                <th colspan="3">SPJ - UP/GU/TU</th>
+                <th rowspan="2" style="width: 72px;">Jumlah SPJ (LS+UP/GU/TU)<br>s.d Bulan ini</th>
+                <th rowspan="2" style="width: 68px;">Sisa Pagu Anggaran</th>
             </tr>
             <tr>
-                <th style="width: 95px;">s/d Bulan Lalu</th>
-                <th style="width: 95px;">Bulan Ini</th>
-                <th style="width: 105px;">Total s/d Bulan Ini</th>
+                <th style="width: 52px;">s.d. Bulan Lalu</th>
+                <th style="width: 52px;">Bulan Ini</th>
+                <th style="width: 52px;">s.d. Bulan Ini</th>
+                <th style="width: 52px;">s.d. Bulan Lalu</th>
+                <th style="width: 52px;">Bulan Ini</th>
+                <th style="width: 52px;">s.d. Bulan Ini</th>
+                <th style="width: 52px;">s.d. Bulan Lalu</th>
+                <th style="width: 52px;">Bulan Ini</th>
+                <th style="width: 52px;">s.d. Bulan Ini</th>
             </tr>
-            <tr style="background-color: #e5e7eb; font-size: 7pt;">
+            <tr style="background-color: #e5e7eb; font-size: 6pt;">
                 <th>1</th>
                 <th>2</th>
                 <th>3</th>
                 <th>4</th>
                 <th>5</th>
-                <th>6</th>
-                <th>7=5+6</th>
-                <th>8=4-7</th>
-                <th>9=7/4*100</th>
+                <th>6=(4+5)</th>
+                <th>7</th>
+                <th>8</th>
+                <th>9=(7+8)</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12=(10+11)</th>
+                <th>13=(6+9+12)</th>
+                <th>14=(3-13)</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($data['rekening_rows'] as $index => $row)
-                <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="font-bold">{{ $row['kode'] }}</td>
-                    <td>{{ $row['uraian'] }}</td>
-                    <td class="text-right">{{ number_format($row['pagu'], 0, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format($row['realisasi_lalu'], 0, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format($row['realisasi_ini'], 0, ',', '.') }}</td>
-                    <td class="text-right font-bold">{{ number_format($row['total_sd_ini'], 0, ',', '.') }}</td>
-                    <td class="text-right">{{ number_format($row['sisa'], 0, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ number_format($row['persen'], 2, ',', '.') }}%</td>
+            @forelse($data['rows'] as $row)
+                @php
+                    $isBold = (bool) ($row['is_bold'] ?? false);
+                    $bgStyle = match($row['type'] ?? '') {
+                        'summary_header' => 'background-color: #f3f4f6;',
+                        'skpd' => 'background-color: #fef3c7;',
+                        'program' => 'background-color: #f8fafc;',
+                        'kegiatan' => 'background-color: #fafafa;',
+                        default => '',
+                    };
+                    $indentPx = (int) (($row['indent'] ?? 0) * 8);
+                @endphp
+                <tr style="{{ $bgStyle }} {{ $isBold ? 'font-weight: bold;' : '' }}">
+                    <td class="font-mono whitespace-nowrap">{{ $row['kode'] }}</td>
+                    <td>
+                        <div style="padding-left: {{ $indentPx }}px;">{{ $row['uraian'] }}</div>
+                    </td>
+                    <td class="text-right whitespace-nowrap">{{ $row['pagu'] > 0 ? number_format($row['pagu'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap">{{ $row['ls_gaji_lalu'] > 0 ? number_format($row['ls_gaji_lalu'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap">{{ $row['ls_gaji_ini'] > 0 ? number_format($row['ls_gaji_ini'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap font-bold">{{ $row['ls_gaji_sd_ini'] > 0 ? number_format($row['ls_gaji_sd_ini'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap">{{ $row['ls_bj_lalu'] > 0 ? number_format($row['ls_bj_lalu'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap">{{ $row['ls_bj_ini'] > 0 ? number_format($row['ls_bj_ini'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap font-bold">{{ $row['ls_bj_sd_ini'] > 0 ? number_format($row['ls_bj_sd_ini'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap">{{ $row['up_lalu'] > 0 ? number_format($row['up_lalu'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap">{{ $row['up_ini'] > 0 ? number_format($row['up_ini'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap font-bold">{{ $row['up_sd_ini'] > 0 ? number_format($row['up_sd_ini'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap font-bold">{{ $row['total_spj'] > 0 ? number_format($row['total_spj'], 2, ',', '.') : '0,00' }}</td>
+                    <td class="text-right whitespace-nowrap">{{ number_format($row['sisa'], 2, ',', '.') }}</td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center" style="padding: 15px;">Belum ada realisasi anggaran belanja pada periode ini.</td>
+                    <td colspan="14" class="text-center" style="padding: 12px;">Belum ada realisasi anggaran belanja pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>
         <tfoot>
             <tr class="bg-total">
-                <td colspan="3" class="text-center font-bold">TOTAL PENGELUARAN BELANJA</td>
-                <td class="text-right font-bold">{{ number_format($data['summary']['total_pagu'], 0, ',', '.') }}</td>
-                <td class="text-right font-bold">{{ number_format($data['summary']['total_lalu'], 0, ',', '.') }}</td>
-                <td class="text-right font-bold">{{ number_format($data['summary']['total_ini'], 0, ',', '.') }}</td>
-                <td class="text-right font-bold">{{ number_format($data['summary']['total_sd_ini'], 0, ',', '.') }}</td>
-                <td class="text-right font-bold">{{ number_format($data['summary']['total_sisa'], 0, ',', '.') }}</td>
-                <td class="text-center font-bold">{{ number_format($data['summary']['persen'], 2, ',', '.') }}%</td>
+                <td colspan="2" class="text-center font-bold">JUMLAH</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['pagu'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['ls_gaji_lalu'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['ls_gaji_ini'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['ls_gaji_sd_ini'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['ls_bj_lalu'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['ls_bj_ini'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['ls_bj_sd_ini'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['up_lalu'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['up_ini'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['up_sd_ini'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['total_spj'], 2, ',', '.') }}</td>
+                <td class="text-right font-bold whitespace-nowrap">{{ number_format($data['summary']['sisa'], 2, ',', '.') }}</td>
             </tr>
         </tfoot>
     </table>
 
-    {{-- REKAPITULASI PEMOTONGAN PAJAK --}}
-    <div style="width: 450px; margin-top: 10px;">
-        <div class="font-bold" style="margin-bottom: 4px; font-size: 8.5pt;">REKAPITULASI PENERIMAAN DAN PENYETORAN PAJAK :</div>
-        <table class="data-table" style="font-size: 8pt; margin-bottom: 0;">
-            <thead>
-                <tr>
-                    <th style="width: 30px;">NO</th>
-                    <th>JENIS PAJAK</th>
-                    <th style="width: 140px;">JUMLAH DIPOTONG (Rp.)</th>
-                    <th style="width: 140px;">JUMLAH DISETOR (Rp.)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center">1</td>
-                    <td>PPN (Pajak Pertambahan Nilai 11%)</td>
-                    <td class="text-right font-bold">{{ number_format($data['pajak']['ppn'], 0, ',', '.') }}</td>
-                    <td class="text-right font-bold">{{ number_format($data['pajak']['ppn'], 0, ',', '.') }}</td>
-                </tr>
-                <tr>
-                    <td class="text-center">2</td>
-                    <td>PPh Pasal 22 (Pajak Penghasilan 1,5%)</td>
-                    <td class="text-right font-bold">{{ number_format($data['pajak']['pph22'], 0, ',', '.') }}</td>
-                    <td class="text-right font-bold">{{ number_format($data['pajak']['pph22'], 0, ',', '.') }}</td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr class="bg-total">
-                    <td colspan="2" class="text-center font-bold">TOTAL PAJAK</td>
-                    <td class="text-right font-bold">{{ number_format($data['pajak']['total_pajak'], 0, ',', '.') }}</td>
-                    <td class="text-right font-bold">{{ number_format($data['pajak']['total_pajak'], 0, ',', '.') }}</td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+    {{-- BAGIAN PENERIMAAN & PENGELUARAN (STANDAR SIPD-RI) --}}
+    <table class="rekap-container">
+        <tr>
+            {{-- PENERIMAAN --}}
+            <td style="width: 52%;">
+                <div class="font-bold" style="margin-bottom: 2px;">Penerimaan :</div>
+                <table class="sub-table">
+                    <thead>
+                        <tr style="background-color: #f3f4f6;">
+                            <th>Uraian</th>
+                            <th style="width: 65px;">s.d Bulan Lalu</th>
+                            <th style="width: 65px;">Bulan Ini</th>
+                            <th style="width: 70px;">s.d Bulan Ini</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="font-bold">
+                            <td colspan="4">- SP2D :</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 12px;">SP2D UP</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['up']['lalu'], 2, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['up']['ini'], 2, ',', '.') }}</td>
+                            <td class="text-right font-bold">{{ number_format($data['penerimaan']['up']['sd_ini'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 12px;">SP2D GU</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['gu']['lalu'], 2, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['gu']['ini'], 2, ',', '.') }}</td>
+                            <td class="text-right font-bold">{{ number_format($data['penerimaan']['gu']['sd_ini'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 12px;">SP2D TU</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['tu']['lalu'], 2, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['tu']['ini'], 2, ',', '.') }}</td>
+                            <td class="text-right font-bold">{{ number_format($data['penerimaan']['tu']['sd_ini'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 12px;">SP2D LS</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['ls']['lalu'], 2, ',', '.') }}</td>
+                            <td class="text-right">{{ number_format($data['penerimaan']['ls']['ini'], 2, ',', '.') }}</td>
+                            <td class="text-right font-bold">{{ number_format($data['penerimaan']['ls']['sd_ini'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr class="font-bold">
+                            <td colspan="4">- Potongan :</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 12px;">PPN (11%)</td>
+                            <td colspan="3" class="text-right">{{ number_format($data['pajak']['ppn'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left: 12px;">PPh Pasal 22 (1,5%)</td>
+                            <td colspan="3" class="text-right">{{ number_format($data['pajak']['pph22'], 2, ',', '.') }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr class="bg-total">
+                            <td>JUMLAH PENERIMAAN</td>
+                            <td colspan="3" class="text-right font-bold">{{ number_format($data['penerimaan']['total_bruto'], 2, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </td>
+
+            {{-- PENGELUARAN --}}
+            <td style="width: 48%;">
+                <div class="font-bold" style="margin-bottom: 2px;">Pengeluaran :</div>
+                <table class="sub-table">
+                    <thead>
+                        <tr style="background-color: #f3f4f6;">
+                            <th>Uraian</th>
+                            <th style="width: 100px;">Jumlah (Rp.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>- SPJ (UP/GU)</td>
+                            <td class="text-right">{{ number_format($data['pengeluaran']['spj_up_gu'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>- SPJ (TU)</td>
+                            <td class="text-right">{{ number_format($data['pengeluaran']['spj_tu'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>- SPJ (LS)</td>
+                            <td class="text-right">{{ number_format($data['pengeluaran']['spj_ls'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>- Penyetoran Pajak</td>
+                            <td class="text-right">{{ number_format($data['pajak']['total_pajak'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td>- Pengembalian Kasda (STS)</td>
+                            <td class="text-right">{{ number_format($data['pengeluaran']['pengembalian_sts'], 2, ',', '.') }}</td>
+                        </tr>
+                        <tr class="bg-total">
+                            <td>JUMLAH PENGELUARAN</td>
+                            <td class="text-right font-bold">{{ number_format($data['pengeluaran']['total_pengeluaran'], 2, ',', '.') }}</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr style="background-color: #d1fae5; font-weight: bold;">
+                            <td>SALDO KAS (UP/GU/TU)</td>
+                            <td class="text-right font-bold">{{ number_format($data['pengeluaran']['saldo_kas'], 2, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </td>
+        </tr>
+    </table>
 
     {{-- TANDA TANGAN PA & BENDAHARA --}}
     <table class="ttd-table">
@@ -221,8 +376,8 @@
             <td style="width: 50%;">
                 <div>Mengetahui / Menyetujui,</div>
                 <div class="font-bold">PENGGUNA ANGGARAN (PA)</div>
-                <div class="font-bold">{{ strtoupper($instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA') }}</div>
-                <div style="height: 50px;"></div>
+                <div class="font-bold">{{ strtoupper($instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA') }}</div>
+                <div style="height: 40px;"></div>
                 <div class="font-bold" style="text-decoration: underline;">{{ $kadis?->name ?? 'AFRINELDI, SH' }}</div>
                 <div>NIP. {{ $kadis?->nip ?? '19720407 199202 1 002' }}</div>
             </td>
@@ -230,7 +385,7 @@
                 <div>Muaro Sijunjung, {{ $tglCetak }}</div>
                 <div>Dibuat oleh,</div>
                 <div class="font-bold">BENDAHARA PENGELUARAN</div>
-                <div style="height: 50px;"></div>
+                <div style="height: 40px;"></div>
                 <div class="font-bold" style="text-decoration: underline;">{{ $bendahara?->name ?? 'WIWIRNA' }}</div>
                 <div>NIP. {{ $bendahara?->nip ?? '19850723 200901 2 007' }}</div>
             </td>
@@ -240,4 +395,3 @@
     </div>
 </body>
 </html>
-

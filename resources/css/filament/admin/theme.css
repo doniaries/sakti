@@ -415,6 +415,128 @@ html:not(.dark) .laporan-table thead tr th {
     z-index: 40 !important;
 }
 
+/* Sticky Column 1 & 2 Khusus Laporan Fungsional (Kode Rekening ~160px) */
+.laporan-fungsional-table thead {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 35 !important;
+}
+.laporan-fungsional-table thead tr th {
+    border-color: #cbd5e1 !important;
+}
+html:not(.dark) .laporan-fungsional-table thead tr th {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+.dark .laporan-fungsional-table thead tr th {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+    border-color: #3f3f46 !important;
+}
+
+.laporan-fungsional-table .fungsional-col-1 {
+    position: sticky !important;
+    left: 0 !important;
+    z-index: 10 !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+}
+.laporan-fungsional-table thead th.fungsional-col-1 {
+    z-index: 40 !important;
+}
+.laporan-fungsional-table .fungsional-col-2 {
+    position: sticky !important;
+    left: 160px !important;
+    z-index: 10 !important;
+    min-width: 290px !important;
+    box-shadow: 4px 0 6px -2px rgba(0, 0, 0, 0.15) !important;
+}
+.laporan-fungsional-table thead th.fungsional-col-2 {
+    z-index: 40 !important;
+}
+
+html:not(.dark) .laporan-fungsional-table tbody td.fungsional-col-1,
+html:not(.dark) .laporan-fungsional-table tbody td.fungsional-col-2,
+html:not(.dark) .laporan-fungsional-table tfoot td.fungsional-col-1,
+html:not(.dark) .laporan-fungsional-table tfoot td.fungsional-col-2 {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+}
+.dark .laporan-fungsional-table tbody td.fungsional-col-1,
+.dark .laporan-fungsional-table tbody td.fungsional-col-2,
+.dark .laporan-fungsional-table tfoot td.fungsional-col-1,
+.dark .laporan-fungsional-table tfoot td.fungsional-col-2 {
+    background-color: #18181b !important;
+    color: #ffffff !important;
+    border-color: #27272a !important;
+}
+
+html:not(.dark) .laporan-fungsional-table tr.bg-header-row td.fungsional-col-1,
+html:not(.dark) .laporan-fungsional-table tr.bg-header-row td.fungsional-col-2 {
+    background-color: #f1f5f9 !important;
+}
+.dark .laporan-fungsional-table tr.bg-header-row td.fungsional-col-1,
+.dark .laporan-fungsional-table tr.bg-header-row td.fungsional-col-2 {
+    background-color: #27272a !important;
+}
+html:not(.dark) .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-1,
+html:not(.dark) .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-2 {
+    background-color: #fef3c7 !important;
+}
+.dark .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-1,
+.dark .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-2 {
+    background-color: #451a03 !important;
+}
+html:not(.dark) .laporan-fungsional-table tr.bg-prog-row td.fungsional-col-1,
+html:not(.dark) .laporan-fungsional-table tr.bg-prog-row td.fungsional-col-2 {
+    background-color: #f8fafc !important;
+}
+.dark .laporan-fungsional-table tr.bg-prog-row td.fungsional-col-1,
+.dark .laporan-fungsional-table tr.bg-prog-row td.fungsional-col-2 {
+    background-color: #1e293b !important;
+}
+
+.laporan-fungsional-table tfoot {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 25 !important;
+}
+.laporan-fungsional-table tfoot tr {
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 25 !important;
+}
+html:not(.dark) .laporan-fungsional-table tfoot tr,
+html:not(.dark) .laporan-fungsional-table tfoot tr td,
+html:not(.dark) .laporan-fungsional-table tfoot tr th {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 -3px 6px -1px rgba(0, 0, 0, 0.08) !important;
+}
+.dark .laporan-fungsional-table tfoot tr,
+.dark .laporan-fungsional-table tfoot tr td,
+.dark .laporan-fungsional-table tfoot tr th {
+    background-color: #18181b !important;
+    color: #ffffff !important;
+    border-color: #3f3f46 !important;
+    box-shadow: 0 -3px 6px -1px rgba(0, 0, 0, 0.4) !important;
+}
+
+.laporan-fungsional-table tfoot td.fungsional-col-1,
+.laporan-fungsional-table tfoot td.fungsional-col-2 {
+    z-index: 30 !important;
+}
+
+html:not(.dark) .laporan-fungsional-table tbody tr:hover td {
+    background-color: #fef3c7 !important;
+}
+.dark .laporan-fungsional-table tbody tr:hover td {
+    background-color: #3f2f05 !important;
+}
+
 /* Modal Fit di Layar Penuh untuk Pratinjau Dokumen */
 .fi-modal-window:has(iframe) {
     width: 98vw !important;
