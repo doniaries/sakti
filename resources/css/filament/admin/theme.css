@@ -489,11 +489,11 @@ html:not(.dark) .laporan-fungsional-table tr.bg-header-row td.fungsional-col-2 {
 }
 html:not(.dark) .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-1,
 html:not(.dark) .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-2 {
-    background-color: #fef3c7 !important;
+    background-color: #f1f5f9 !important;
 }
 .dark .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-1,
 .dark .laporan-fungsional-table tr.bg-skpd-row td.fungsional-col-2 {
-    background-color: #451a03 !important;
+    background-color: #27272a !important;
 }
 html:not(.dark) .laporan-fungsional-table tr.bg-prog-row td.fungsional-col-1,
 html:not(.dark) .laporan-fungsional-table tr.bg-prog-row td.fungsional-col-2 {

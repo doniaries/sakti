@@ -167,10 +167,10 @@
                                 @php
                                     $rowClass = match($r['type']) {
                                         'summary_header' => 'bg-header-row font-bold text-gray-900 dark:!text-white',
-                                        'skpd' => 'bg-skpd-row font-bold text-amber-950 dark:!text-amber-200',
+                                        'skpd' => 'bg-gray-100 font-bold text-gray-900 dark:!bg-zinc-800 dark:!text-white',
                                         'program' => 'bg-prog-row font-bold text-gray-900 dark:!text-white',
                                         'kegiatan' => 'font-bold text-gray-900 dark:!text-white bg-slate-50/60 dark:!bg-zinc-800/40',
-                                        'sub_kegiatan' => 'bg-amber-50/80 dark:!bg-amber-950/40 font-bold text-gray-900 dark:!text-white border-y border-amber-300 dark:!border-amber-800',
+                                        'sub_kegiatan' => 'bg-gray-100/90 font-semibold text-gray-900 dark:!bg-zinc-800/90 dark:!text-white border-y border-gray-300 dark:!border-zinc-700',
                                         'akun_parent' => 'font-medium text-gray-800 dark:!text-zinc-200',
                                         default => 'text-gray-700 dark:!text-zinc-300',
                                     };
@@ -185,11 +185,17 @@
                                     <td class="p-2 fungsional-col-2 border-r {{ $r['is_bold'] ? 'font-bold' : '' }}">
                                         @if($r['type'] === 'sub_kegiatan')
                                             <div style="padding-left: {{ $indentPx }}px;">
-                                                <span class="text-[10px] font-bold tracking-wider uppercase text-amber-800 dark:!text-amber-300 block">
+                                                <span class="text-[10px] font-bold tracking-wider uppercase text-gray-700 dark:!text-zinc-300 block">
                                                     BIDANG : {{ $r['bidang_nama'] ?? 'SEKRETARIAT' }}
                                                 </span>
                                                 <span class="font-bold text-gray-900 dark:!text-white block mt-0.5">
-                                                    SUB KEGIATAN : {{ $r['uraian'] }}
+                                                    SUB KEGIATAN : {{ ucwords(strtolower($r['uraian'])) }}
+                                                </span>
+                                            </div>
+                                        @elseif($r['type'] === 'kegiatan')
+                                            <div style="padding-left: {{ $indentPx }}px;">
+                                                <span class="font-bold text-gray-900 dark:!text-white block">
+                                                    KEGIATAN : {{ $r['uraian'] }}
                                                 </span>
                                             </div>
                                         @else

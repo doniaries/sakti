@@ -157,32 +157,41 @@
         }
 
         @media screen {
+            html,
             body {
-                background-color: #f8fafc;
-                padding: 10px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
             }
 
             .page-sheet {
-                background: #ffffff;
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-                padding: 8mm 10mm;
-                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
-                border: 1px solid #e2e8f0;
-                border-radius: 4px;
+                background: #ffffff !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                padding: 6mm 8mm !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
             }
         }
 
         @media print {
+            html,
+            body {
+                background: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
             .page-sheet {
-                width: 100%;
-                padding: 0;
-                box-shadow: none;
-                border: none;
+                width: 100% !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
             }
         }
     </style>
@@ -256,27 +265,27 @@
                         $type = $row['type'] ?? '';
                         $bgStyle = match ($type) {
                             'summary_header' => 'background-color: #f3f4f6;',
-                            'skpd' => 'background-color: #fef3c7;',
-                            'sub_kegiatan' => 'background-color: #fef3c7;',
-                            'program' => 'background-color: #f8fafc;',
-                            'kegiatan' => 'background-color: #fafafa;',
+                            'skpd' => 'background-color: #f3f4f6;',
+                            'sub_kegiatan' => 'background-color: #f3f4f6;',
+                            'program' => 'background-color: #f9fafb;',
+                            'kegiatan' => 'background-color: #ffffff;',
                             default => '',
                         };
                         $indentPx = (int) (($row['indent'] ?? 0) * 8);
                     @endphp
                     @if ($type === 'sub_kegiatan')
                         <tr
-                            style="background-color: #fef3c7; font-weight: bold; border-top: 1pt solid #d97706; border-bottom: 1pt solid #d97706;">
+                            style="background-color: #f3f4f6; font-weight: bold; border-top: 0.5pt solid #9ca3af; border-bottom: 0.5pt solid #9ca3af;">
                             <td class="font-mono text-center" style="font-weight: bold; vertical-align: middle;">
                                 {{ $row['kode'] }}</td>
                             <td style="padding: 3px 4px;">
                                 <div
-                                    style="font-size: 7.5pt; font-weight: bold; color: #78350f; text-transform: uppercase;">
-                                    BIDANG : {{ $row['bidang_nama'] ?? 'DINAS' }}
+                                    style="font-size: 7pt; font-weight: bold; color: #374151; text-transform: uppercase;">
+                                    BIDANG : {{ $row['bidang_nama'] ?? 'SEKRETARIAT' }}
                                 </div>
                                 <div
-                                    style="font-size: 7.5pt; font-weight: bold; color: #111827; text-transform: uppercase; margin-top: 1px;">
-                                    SUB KEGIATAN : {{ $row['uraian'] }}
+                                    style="font-size: 7.5pt; font-weight: bold; color: #111827; margin-top: 1px;">
+                                    SUB KEGIATAN : {{ ucwords(strtolower($row['uraian'])) }}
                                 </div>
                             </td>
                             <td class="text-right whitespace-nowrap font-bold">
@@ -316,7 +325,13 @@
                         <tr style="{{ $bgStyle }} {{ $isBold ? 'font-weight: bold;' : '' }}">
                             <td class="font-mono whitespace-nowrap">{{ $row['kode'] }}</td>
                             <td>
-                                <div style="padding-left: {{ $indentPx }}px;">{{ $row['uraian'] }}</div>
+                                <div style="padding-left: {{ $indentPx }}px;">
+                                    @if ($type === 'kegiatan')
+                                        KEGIATAN : {{ $row['uraian'] }}
+                                    @else
+                                        {{ $row['uraian'] }}
+                                    @endif
+                                </div>
                             </td>
                             <td class="text-right whitespace-nowrap">
                                 {{ $row['pagu'] > 0 ? number_format($row['pagu'], 2, ',', '.') : '0,00' }}</td>
