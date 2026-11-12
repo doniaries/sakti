@@ -23,7 +23,7 @@ class SipdRkaImporterService
      * @param bool $skipZeroItems Skip items with 0 total budget
      * @return array Summary of import operation
      */
-    public static function import(string $pdfPath, bool $skipZeroItems = true, ?int $targetBidangId = null, bool $allowOverwrite = false): array
+    public static function import(string $pdfPath, bool $skipZeroItems = true, ?int $targetBidangId = null, bool $allowOverwrite = false, ?int $targetJfId = null): array
     {
         if (! file_exists($pdfPath)) {
             throw new \RuntimeException("Berkas PDF tidak ditemukan: {$pdfPath}");
@@ -48,13 +48,13 @@ class SipdRkaImporterService
         preg_match('/Sub Kegiatan\s*:\s*([0-9\.]+)\s+([^\r\n]+)/', $fullText, $subM);
         preg_match('/Sumber Pendanaan\s*:\s*([^\r\n]+)/', $fullText, $sumberM);
 
-        $tahun = (int) ($tahunM[1] ?? date('Y'));
+        $tahun = (int) ($tahunM[1] ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
         $programKode = trim($progM[1] ?? '');
-        $programNama = trim(preg_replace('/\s+/u', ' ', $progM[2] ?? ''));
+        $programNama = ltrim(trim(preg_replace('/\s+/u', ' ', $progM[2] ?? '')), "- \t\n\r\0\x0B");
         $kegiatanKode = trim($kegM[1] ?? '');
-        $kegiatanNama = trim(preg_replace('/\s+/u', ' ', $kegM[2] ?? ''));
+        $kegiatanNama = ltrim(trim(preg_replace('/\s+/u', ' ', $kegM[2] ?? '')), "- \t\n\r\0\x0B");
         $subKegiatanKode = trim($subM[1] ?? '');
-        $subKegiatanNama = trim(preg_replace('/\s+/u', ' ', $subM[2] ?? ''));
+        $subKegiatanNama = ltrim(trim(preg_replace('/\s+/u', ' ', $subM[2] ?? '')), "- \t\n\r\0\x0B");
         $sumberDana = trim(preg_replace('/\s+/u', ' ', $sumberM[1] ?? 'Dana Alokasi Umum (DAU)'));
 
         // 2. Deteksi apakah RKA Sub Kegiatan ini sudah pernah diimpor di tahun anggaran tersebut
@@ -94,39 +94,66 @@ class SipdRkaImporterService
         for ($i = 0; $i < count($lines); $i++) {
             $line = trim($lines[$i]);
 
-            if (preg_match('/^(5\.1\.\d{2}\.\d{2}\.\d{3}\.\d{5})/', $line, $mRek)) {
+            if (preg_match('/(5\.1\.\d{2}\.\d{2}\.\d{2,3}\.\d{4,5})/', $line, $mRek)) {
                 $currentRek = $mRek[1];
-                continue;
             }
 
             if (preg_match('/^\[\s*#\s*\]\s*(.+)/', $line, $mPaket)) {
                 $currentPaket = trim($mPaket[1]);
-                continue;
             }
 
-            if (str_contains($line, 'Spesifikasi :')) {
-                $specText = $line;
-                while (
-                    $i + 1 < count($lines) &&
-                    ! preg_match('/\d+\s*%\s*Rp\./', $specText) &&
-                    ! preg_match('/^5\.1\./', trim($lines[$i + 1])) &&
-                    ! preg_match('/^\[\s*#\s*\]/', trim($lines[$i + 1]))
-                ) {
-                    $i++;
-                    $specText .= ' ' . trim($lines[$i]);
+            if (preg_match('/Spesifikasi\s*:\s*(.+)/i', $line, $mSpec)) {
+                $specText = trim($mSpec[1]);
+                $detailLines = [];
+                $j = $i + 1;
+                while ($j < count($lines) && ! preg_match('/Spesifikasi\s*:/i', $lines[$j]) && ! preg_match('/^(?:5\.1\.|\[\s*#\s*\]|Kode Rekening)/', trim($lines[$j]))) {
+                    $trimmed = trim($lines[$j]);
+                    if (! empty($trimmed)) {
+                        $detailLines[] = $trimmed;
+                    }
+                    $j++;
+                }
+                $i = $j - 1;
+
+                $combinedDetail = implode(' ', $detailLines);
+                preg_match_all('/(?:Rp\.?|Rp\s*)?([\d\.]+,\d{2})/', $combinedDetail, $mMoney);
+                $moneyValues = array_map([static::class, 'cleanNum'], $mMoney[1] ?? []);
+
+                $nonZero = array_values(array_filter($moneyValues, fn ($v) => $v > 0));
+                $harga = 0.0;
+                $pagu = 0.0;
+                if (count($nonZero) >= 2) {
+                    if (count($nonZero) >= 4) {
+                        $harga = $nonZero[count($nonZero) - 2];
+                        $pagu = $nonZero[count($nonZero) - 1];
+                    } else {
+                        $harga = $nonZero[0];
+                        $pagu = $nonZero[1];
+                    }
+                } elseif (count($nonZero) === 1) {
+                    $pagu = $nonZero[0];
+                    $harga = $pagu;
                 }
 
-                if (preg_match('/Spesifikasi\s*:\s*(.+?)\s+([\d\.,]+|-)\s+([A-Za-z\/\s]+?)\s+([\d\.,]+)\s+\d+\s*%\s+Rp\.\s*([\d\.,]+)/', $specText, $mItem)) {
-                    $rawItems[] = [
-                        'kode_rekening' => $currentRek,
-                        'paket' => $currentPaket,
-                        'nama_item' => trim($mItem[1]),
-                        'volume' => static::cleanNum($mItem[2]),
-                        'satuan' => trim($mItem[3]),
-                        'harga_satuan' => static::cleanNum($mItem[4]),
-                        'pagu_total' => static::cleanNum($mItem[5]),
-                    ];
+                $vol = 1.0;
+                $satuan = 'Paket';
+                if ($harga > 0 && $pagu > 0) {
+                    $vol = round($pagu / $harga, 2);
                 }
+
+                if (preg_match('/(?:Kaleng|Kg|Liter|Meter|Rim|Pak|Pack|Lembar|Paket|Orang|Bulan|Hari|Pekerjaan|M2)/i', $combinedDetail, $mSat)) {
+                    $satuan = trim($mSat[0]);
+                }
+
+                $rawItems[] = [
+                    'kode_rekening' => $currentRek ?: '5.1.02.01.001.00024',
+                    'paket' => $currentPaket,
+                    'nama_item' => $specText,
+                    'volume' => $vol,
+                    'satuan' => $satuan,
+                    'harga_satuan' => $harga,
+                    'pagu_total' => $pagu,
+                ];
             }
         }
 
@@ -141,7 +168,8 @@ class SipdRkaImporterService
             $sumberDana,
             $rawItems,
             $skipZeroItems,
-            $targetBidangId
+            $targetBidangId,
+            $targetJfId
         ) {
             // 1. Program (firstOrCreate berdasarkan tahun_anggaran & kode_program: jika sudah ada dari RKA lain, TIDAK DIBUAT ULANG)
             $program = null;
@@ -182,8 +210,8 @@ class SipdRkaImporterService
                     $kegiatan->update(['program_id' => $program->id]);
                 }
 
-                // Jika user menentukan target bidang dan kegiatan belum memiliki bidang
-                if ($targetBidangId && ! $kegiatan->bidang_id) {
+                // Jika user menentukan target bidang, selalu update kegiatan
+                if ($targetBidangId) {
                     $kegiatan->update(['bidang_id' => $targetBidangId]);
                 }
             }
@@ -199,6 +227,7 @@ class SipdRkaImporterService
                     [
                         'kegiatan_id' => $kegiatan?->id,
                         'nama_sub_kegiatan' => $subKegiatanNama ?: 'Sub Kegiatan',
+                        'jf_id' => $targetJfId,
                     ]
                 );
 
@@ -206,9 +235,14 @@ class SipdRkaImporterService
                 if ($kegiatan && (! $subKegiatan->kegiatan_id || $subKegiatan->kegiatan_id !== $kegiatan->id)) {
                     $subKegiatan->update(['kegiatan_id' => $kegiatan->id]);
                 }
+
+                // Update JF jika ditentukan
+                if ($targetJfId) {
+                    $subKegiatan->update(['jf_id' => $targetJfId]);
+                }
             }
 
-            // Bidang  RKA: null jika belum ditugaskan (pembagian kerja manual di dinas)
+            // Bidang RKA
             $bidangId = $targetBidangId;
 
             $importedItems = 0;
@@ -228,8 +262,19 @@ class SipdRkaImporterService
                     ?? KodeRekening::where('kode_lengkap', 'like', '%' . $item['kode_rekening'] . '%')->first();
 
                 if (! $rek) {
-                    Log::warning('SIPD RKA Importer: Kode rekening tidak ditemukan: ' . $item['kode_rekening']);
-                    continue;
+                    $rek = KodeRekening::firstOrCreate(
+                        ['kode_lengkap' => $item['kode_rekening']],
+                        [
+                            'akun' => '5',
+                            'kelompok' => '1',
+                            'jenis' => '02',
+                            'objek' => '01',
+                            'rincian_objek' => '001',
+                            'sub_rincian_objek' => '00001',
+                            'sub_sub_rincian_objek' => '000',
+                            'uraian' => $item['nama_item'] ?? 'Belanja Operasional',
+                        ]
+                    );
                 }
 
                 $satuanNama = trim((string) ($item['satuan'] ?? 'Unit'));

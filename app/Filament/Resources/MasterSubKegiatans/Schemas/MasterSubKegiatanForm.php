@@ -72,7 +72,7 @@ class MasterSubKegiatanForm
 
                     Select::make('jf_id')
                         ->label('Penanggung Jawab (JF)')
-                        ->placeholder('Pilih Pejabat Fungsional (Opsional)')
+                        ->placeholder('Pilih Pejabat Fungsional (JF)')
                         ->options(function (Get $get, ?MasterSubKegiatan $record, $livewire) {
                             $record = $record ?? ($livewire instanceof \Filament\Resources\Pages\EditRecord ? $livewire->getRecord() : null);
                             $kegiatanId = $get('kegiatan_id') ?? $record?->kegiatan_id;
@@ -80,24 +80,28 @@ class MasterSubKegiatanForm
                                 ? MasterKegiatan::find($kegiatanId)?->bidang_id
                                 : $record?->kegiatan?->bidang_id;
 
-                            return User::query()
+                            $query = User::query()
                                 ->where('aktif', true)
-                                ->when($targetBidangId, fn ($q) => $q->where('bidang_id', $targetBidangId))
-                                ->whereNotNull('eselon')
-                                ->where('eselon', '!=', \App\Enums\Eselon::NON_ESELON)
-                                ->whereDoesntHave('roles', fn ($q) => $q->whereIn('name', ['pa', 'ppk']))
-                                ->orderBy('eselon')
-                                ->orderBy('name')
+                                ->whereIn('eselon', [\App\Enums\Eselon::IV_A, \App\Enums\Eselon::IV_B, 'IV.a', 'IV.b'])
+                                ->whereDoesntHave('roles', fn ($q) => $q->whereIn('name', ['pa', 'ppk']));
+
+                            $hasInBidang = (clone $query)->where('bidang_id', $targetBidangId)->exists();
+                            if ($hasInBidang) {
+                                $query->where('bidang_id', $targetBidangId);
+                            }
+
+                            return $query->orderBy('name')
                                 ->get()
                                 ->mapWithKeys(function (User $u) {
                                     $eselonVal = $u->eselon instanceof \App\Enums\Eselon ? $u->eselon->value : (string) $u->eselon;
-                                    return [$u->id => "{$u->name} (Eselon {$eselonVal})"];
+                                    $jabatan = $u->jabatan?->nama ? " - {$u->jabatan->nama}" : '';
+                                    return [$u->id => "{$u->name} (Eselon {$eselonVal}{$jabatan})"];
                                 })
                                 ->all();
                         })
                         ->searchable()
                         ->preload()
-                        ->helperText($disabled ? null : 'Hanya menampilkan pejabat bereselon di bidang sub kegiatan ini.')
+                        ->helperText($disabled ? null : 'Hanya menampilkan Pejabat Fungsional (JF) Eselon IV (mengecualikan Eselon III/Kabid dan staf biasa).')
                         ->disabled($disabled)
                         ->columnSpan(['default' => 12, 'md' => 4]),
                 ]),

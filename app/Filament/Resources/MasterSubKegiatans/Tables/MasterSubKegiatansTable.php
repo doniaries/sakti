@@ -99,9 +99,39 @@ class MasterSubKegiatansTable
                     ->extraHeaderAttributes(['style' => 'min-width: 380px;'], merge: true)
                     ->sticky(),
 
+                TextColumn::make('kegiatan.bidang.nama')
+                    ->label('Bidang')
+                    ->badge()
+                    ->placeholder('⚠️ Belum Ditugaskan')
+                    ->color(fn(?string $state): string => $state ? Bidang::badgeColor($state) : 'warning')
+                    ->searchable()
+                    ->sortable()
+                    ->action(
+                        Action::make('tetapkan_bidang_inline')
+                            ->modalHeading(fn(MasterSubKegiatan $record): string => "Tetapkan Bidang: {$record->nama_sub_kegiatan}")
+                            ->modalDescription('Pilih Bidang yang menaungi Kegiatan dan Sub Kegiatan ini.')
+                            ->visible(fn() => auth()->user()?->hasAnyRole(['pptk', 'super_admin', 'admin', 'pa']))
+                            ->form([
+                                Select::make('bidang_id')
+                                    ->label('Bidang Pengampu')
+                                    ->options(fn() => Bidang::pluck('nama', 'id')->all())
+                                    ->default(fn(MasterSubKegiatan $record) => $record->kegiatan?->bidang_id)
+                                    ->required(),
+                            ])
+                            ->action(function (MasterSubKegiatan $record, array $data): void {
+                                if ($record->kegiatan) {
+                                    $record->kegiatan->update(['bidang_id' => $data['bidang_id']]);
+                                }
+                                Notification::make()
+                                    ->title('Bidang Berhasil Ditetapkan')
+                                    ->success()
+                                    ->send();
+                            })
+                    ),
+
                 TextColumn::make('jf.name')
                     ->label('Penanggung Jawab (JF)')
-                    ->placeholder('Belum Ditugaskan')
+                    ->placeholder('⚠️ Belum Ditugaskan')
                     ->badge()
                     ->color(fn($state) => $state ? 'success' : 'danger')
                     ->icon(fn($state) => $state ? 'heroicon-m-check-circle' : 'heroicon-m-exclamation-triangle')
@@ -119,25 +149,29 @@ class MasterSubKegiatansTable
                                     ->options(function (MasterSubKegiatan $record): array {
                                         $targetBidangId = $record->kegiatan?->bidang_id;
 
-                                        return User::query()
+                                        $query = User::query()
                                             ->where('aktif', true)
-                                            ->when($targetBidangId, fn($q) => $q->where('bidang_id', $targetBidangId))
-                                            ->whereNotNull('eselon')
-                                            ->where('eselon', '!=', \App\Enums\Eselon::NON_ESELON)
-                                            ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']))
-                                            ->orderBy('eselon')
-                                            ->orderBy('name')
+                                            ->whereIn('eselon', [\App\Enums\Eselon::IV_A, \App\Enums\Eselon::IV_B, 'IV.a', 'IV.b'])
+                                            ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']));
+
+                                        $hasInBidang = (clone $query)->where('bidang_id', $targetBidangId)->exists();
+                                        if ($hasInBidang) {
+                                            $query->where('bidang_id', $targetBidangId);
+                                        }
+
+                                        return $query->orderBy('name')
                                             ->get()
                                             ->mapWithKeys(function (User $u) {
                                                 $eselonVal = $u->eselon instanceof \App\Enums\Eselon ? $u->eselon->value : (string) $u->eselon;
-                                                return [$u->id => "{$u->name} (Eselon {$eselonVal})"];
+                                                $jabatan = $u->jabatan?->nama ? " - {$u->jabatan->nama}" : '';
+                                                return [$u->id => "{$u->name} (Eselon {$eselonVal}{$jabatan})"];
                                             })
                                             ->all();
                                     })
                                     ->default(fn(MasterSubKegiatan $record) => $record->jf_id)
                                     ->searchable()
                                     ->preload()
-                                    ->helperText('Hanya menampilkan pejabat bereselon di bidang sub kegiatan ini.')
+                                    ->helperText('Hanya menampilkan Pejabat Fungsional (JF) Eselon IV (mengecualikan Eselon III/Kabid dan staf biasa).')
                                     ->required(),
                             ])
                             ->action(function (MasterSubKegiatan $record, array $data): void {
@@ -202,12 +236,6 @@ class MasterSubKegiatansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('kegiatan.bidang.nama')
-                    ->label('Bidang')
-                    ->badge()
-                    ->color(fn(?string $state): string => Bidang::badgeColor($state))
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('kegiatan_id')

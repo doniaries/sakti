@@ -462,7 +462,8 @@
                     x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 scale-95 translate-y-3"
                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                    class="group relative {{ $shapeClass }} bg-gradient-to-b {{ $tokens['card_bg'] }} border {{ $tokens['border'] }} p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl {{ $tokens['shadow_hover'] }} overflow-hidden">
+                    onclick="if (!event.target.closest('a, button, input, label')) { if ('{{ $link->target ?? '_self' }}' === '_blank') { window.open('{{ $link->link_url }}', '_blank'); } else { window.location.href = '{{ $link->link_url }}'; } }"
+                    class="group relative cursor-pointer {{ $shapeClass }} bg-gradient-to-b {{ $tokens['card_bg'] }} border {{ $tokens['border'] }} p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl {{ $tokens['shadow_hover'] }} overflow-hidden">
 
                     <!-- Ambient Glow Blur di Sudut -->
                     <div

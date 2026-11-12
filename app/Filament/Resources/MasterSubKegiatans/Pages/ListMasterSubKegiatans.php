@@ -9,6 +9,7 @@ use App\Filament\Resources\MasterSubKegiatans\MasterSubKegiatanResource;
 use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
 use App\Models\Bidang;
 use App\Models\MasterSubKegiatan;
+use App\Models\User;
 use App\Services\Rka\SipdRkaImporterService;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -18,6 +19,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use ZeeshanTariq\FilamentStickyColumns\Concerns\InteractsWithStickyableColumns;
@@ -203,10 +206,45 @@ class ListMasterSubKegiatans extends ListRecords
                         ->required(),
 
                     Select::make('bidang_id')
-                        ->label('Bidang Pengampu (Opsional)')
+                        ->label('Bidang Pengampu')
                         ->options(fn() => Bidang::pluck('nama', 'id')->all())
-                        ->placeholder('Pilih Bidang (atau biarkan kosong)')
-                        ->helperText('Jika dikosongkan, sistem akan mencoba memetakan berdasarkan struktur OPD atau dibagikan manual oleh Kadis/Sekretaris.')
+                        ->placeholder('Pilih Bidang Pengampu')
+                        ->helperText('Pilih Bidang yang menaungi Sub Kegiatan ini.')
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(fn(Set $set) => $set('jf_id', null)),
+
+                    Select::make('jf_id')
+                        ->label('Penanggung Jawab (JF)')
+                        ->placeholder(fn(Get $get) => empty($get('bidang_id')) ? 'Pilih Bidang terlebih dahulu' : 'Pilih Pejabat Fungsional (JF)')
+                        ->options(function (Get $get): array {
+                            $bidangId = $get('bidang_id');
+                            if (! $bidangId) {
+                                return [];
+                            }
+
+                            $query = User::query()
+                                ->where('aktif', true)
+                                ->whereIn('eselon', [\App\Enums\Eselon::IV_A, \App\Enums\Eselon::IV_B, 'IV.a', 'IV.b'])
+                                ->whereDoesntHave('roles', fn($q) => $q->whereIn('name', ['pa', 'ppk']));
+
+                            $hasInBidang = (clone $query)->where('bidang_id', $bidangId)->exists();
+                            if ($hasInBidang) {
+                                $query->where('bidang_id', $bidangId);
+                            }
+
+                            return $query->orderBy('name')
+                                ->get()
+                                ->mapWithKeys(function (User $u) {
+                                    $eselonVal = $u->eselon instanceof \App\Enums\Eselon ? $u->eselon->value : (string) $u->eselon;
+                                    $jabatan = $u->jabatan?->nama ? " - {$u->jabatan->nama}" : '';
+                                    return [$u->id => "{$u->name} (Eselon {$eselonVal}{$jabatan})"];
+                                })
+                                ->all();
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->helperText('Hanya menampilkan Pejabat Fungsional (JF) Eselon IV (mengecualikan Eselon III/Kabid dan staf biasa).')
                         ->nullable(),
 
                     Toggle::make('timpa_jika_ada')
@@ -225,6 +263,7 @@ class ListMasterSubKegiatans extends ListRecords
                     }
 
                     $targetBidangId = filled($data['bidang_id'] ?? null) ? (int) $data['bidang_id'] : null;
+                    $targetJfId = filled($data['jf_id'] ?? null) ? (int) $data['jf_id'] : null;
                     $allowOverwrite = (bool) ($data['timpa_jika_ada'] ?? false);
 
                     $successCount = 0;
@@ -235,7 +274,7 @@ class ListMasterSubKegiatans extends ListRecords
                     foreach ($fileList as $filePath) {
                         $path = Storage::disk('public')->path($filePath);
                         try {
-                            $result = SipdRkaImporterService::import($path, true, $targetBidangId, $allowOverwrite);
+                            $result = SipdRkaImporterService::import($path, true, $targetBidangId, $allowOverwrite, $targetJfId);
                             $successCount++;
                             $details[] = "✅ [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} ({$result['imported_items']} item - Rp " . number_format($result['total_pagu'], 0, ',', '.') . ")";
                         } catch (\DomainException $e) {

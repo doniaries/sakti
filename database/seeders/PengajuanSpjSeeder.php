@@ -172,28 +172,33 @@ class PengajuanSpjSeeder extends Seeder
             // BIDANG 3: PENGEMBANGAN DESTINASI PARIWISATA (Inisial: PDP)
             // =========================================================================
             3 => [
-                // SPJ 1: Bebas Pajak (Total: Rp 1.485.000 <= 2 Jt)
+                // SPJ 1: Bebas Pajak (Total: Rp 873.150 <= 2 Jt) - DPA Sub Kegiatan 15
                 [
+                    'sub_kegiatan_kode' => '3.26.02.2.03.0004',
                     'status' => 'revisi_pptk',
-                    'judul' => 'Pengadaan Cat & Kelengkapan Perawatan Signboard Kawasan Wisata',
+                    'judul' => 'Pengadaan Kebutuhan Administrasi & Cetak Dokumen Sarana Wisata',
                     'toko' => $tokoRilex,
                     'tgl' => $now->copy()->subDays(3),
                     'is_taxable' => false,
-                    'catatan_revisi' => 'Mohon tambahkan rincian warna cat sesuai brand identity Geopark.',
+                    'catatan_revisi' => 'Mohon sesuaikan rincian kwitansi dengan tanda terima resmi.',
                     'items' => [
-                        ['nama_item' => 'Cat Kayu & Besi Anti Karat Signboard Wisata', 'qty' => 15, 'harga' => 95000], // 1.425.000
+                        ['nama_item' => 'Barang Cetakan - Fotocopy Biasa', 'qty' => 1, 'harga' => 117000],
+                        ['nama_item' => 'Barang Cetakan - Kwitansi NCR, 5 ply', 'qty' => 3, 'harga' => 46300],
+                        ['nama_item' => 'Kertas HVS Natural, ukuran A4, 70 gram', 'qty' => 5, 'harga' => 61050],
+                        ['nama_item' => 'Kertas HVS Natural, ukuran F4, 70 gram', 'qty' => 4, 'harga' => 78000],
                     ],
                 ],
-                // SPJ 2: Kena Pajak (Total: Rp 5.350.000 > 2 Jt)
+                // SPJ 2: Kena Pajak (Total: Rp 3.110.000 > 2 Jt) - DPA Sub Kegiatan 16
                 [
+                    'sub_kegiatan_kode' => '3.26.02.2.03.0006',
                     'status' => 'menunggu_verifikasi_ppk',
-                    'judul' => 'Pengadaan Lampu Sorot LED & Kabel Instalasi Penerangan Wisata',
+                    'judul' => 'Belanja Spanduk & Baliho Sosialisasi Pemberdayaan Destinasi Wisata',
                     'toko' => $tokoRilex,
                     'tgl' => $now->copy()->subDays(6),
                     'is_taxable' => true,
                     'items' => [
-                        ['nama_item' => 'Lampu Sorot LED Outdoor Spot Destinasi 50W', 'qty' => 10, 'harga' => 275000], // 2.750.000
-                        ['nama_item' => 'Kabel Listrik NYY 2x2.5mm Outdoor', 'qty' => 4, 'harga' => 650000], // 2.600.000
+                        ['nama_item' => 'Barang Cetakan - Baliho', 'qty' => 20, 'harga' => 138000],
+                        ['nama_item' => 'Barang Cetakan - Spanduk, bahan plastik', 'qty' => 5, 'harga' => 70000],
                     ],
                 ],
             ],
@@ -202,29 +207,30 @@ class PengajuanSpjSeeder extends Seeder
             // BIDANG 4: PEMUDA DAN OLAHRAGA (Inisial: PO)
             // =========================================================================
             4 => [
-                // SPJ 1: Bebas Pajak (Total: Rp 1.540.000 <= 2 Jt)
+                // SPJ 1: Bebas Pajak (Total: Rp 1.390.000 <= 2 Jt) - DPA Sub Kegiatan 14
                 [
+                    'sub_kegiatan_kode' => '2.19.02.2.01.0015',
                     'status' => 'menunggu_persetujuan_pa',
-                    'judul' => 'Pengadaan Bola Pertandingan Latihan Atlet Cabor Daerah',
+                    'judul' => 'Belanja Spanduk & Publikasi Kepeloporan Pemuda',
                     'toko' => $tokoSinarJaya,
                     'tgl' => $now->copy()->subDays(7),
                     'is_taxable' => false,
                     'items' => [
-                        ['nama_item' => 'Bola Sepak Standar Pertandingan FIFA Match', 'qty' => 2, 'harga' => 385000], // 770.000
-                        ['nama_item' => 'Bola Voli Standar Turnamen Mikasa V200W', 'qty' => 1, 'harga' => 420000],  // 420.000
-                        ['nama_item' => 'Rompi Tim Latihan Atlet Porprov', 'qty' => 1, 'harga' => 240000],          // 240.000
+                        ['nama_item' => 'Barang Cetakan - Spanduk, bahan plastik digital printing, lebar 1,5 meter', 'qty' => 10, 'harga' => 70000],
+                        ['nama_item' => 'Barang Cetakan - Baliho', 'qty' => 5, 'harga' => 138000],
                     ],
                 ],
-                // SPJ 2: Kena Pajak (Total: Rp 5.750.000 > 2 Jt)
+                // SPJ 2: Kena Pajak (Total: Rp 2.984.000 > 2 Jt) - DPA Sub Kegiatan 14
                 [
+                    'sub_kegiatan_kode' => '2.19.02.2.01.0015',
                     'status' => 'menunggu_verifikasi_bendahara',
-                    'judul' => 'Pengadaan Medali Kejuaraan & Kaos Kontingen Atlet Porprov',
+                    'judul' => 'Belanja Konsumsi & Jamuan Pelatihan Pemuda Pelopor',
                     'toko' => $tokoSinarJaya,
                     'tgl' => $now->copy()->subDays(8),
                     'is_taxable' => true,
                     'items' => [
-                        ['nama_item' => 'Medali Kejuaraan Olahraga Daerah Set Emas/Perak/Perunggu', 'qty' => 20, 'harga' => 175000], // 3.500.000
-                        ['nama_item' => 'Kaos Kontingen Atlet Kabupaten Sijunjung', 'qty' => 18, 'harga' => 125000],                // 2.250.000
+                        ['nama_item' => 'Makanan - Nasi Bungkus 1 Protein', 'qty' => 80, 'harga' => 24000],
+                        ['nama_item' => 'Makanan - Kue Kotak isi 3 kue + air', 'qty' => 80, 'harga' => 13300],
                     ],
                 ],
             ],
@@ -243,16 +249,18 @@ class PengajuanSpjSeeder extends Seeder
             $stafUsers = $bidang->users->where('id', '!=', $pptkUser->id);
             $stafUser = $stafUsers->first() ?? $pptkUser;
 
-            // Cari kegiatan & sub kegiatan yang sesuai bidang
-            $kegiatan = MasterKegiatan::where('bidang_id', $bidang->id)->first()
-                ?? MasterKegiatan::first();
-            $subKegiatan = $kegiatan ? MasterSubKegiatan::where('kegiatan_id', $kegiatan->id)->first() : null;
-            if (! $subKegiatan) {
-                $subKegiatan = MasterSubKegiatan::first();
-                $kegiatan = $subKegiatan ? MasterKegiatan::find($subKegiatan->kegiatan_id) : null;
-            }
-
             foreach ($skenarios as $idx => $sken) {
+                // Cari kegiatan & sub kegiatan yang sesuai bidang atau spesifik per skenario
+                $subKegiatan = null;
+                if (! empty($sken['sub_kegiatan_kode'])) {
+                    $subKegiatan = MasterSubKegiatan::where('kode_sub_kegiatan', $sken['sub_kegiatan_kode'])->first();
+                }
+                if (! $subKegiatan) {
+                    $subKegiatan = MasterSubKegiatan::whereHas('kegiatan', fn($q) => $q->where('bidang_id', $bidang->id))->first()
+                        ?? MasterSubKegiatan::first();
+                }
+                $kegiatan = $subKegiatan?->kegiatan ?? MasterKegiatan::where('bidang_id', $bidang->id)->first();
+
                 $tglPengajuan = $sken['tgl'];
                 $nomorPengajuan = PengajuanSpj::generateNomorPengajuan($bidang->id, (int) $now->year, $tglPengajuan->toDateString());
                 $status = $sken['status'];

@@ -52,6 +52,12 @@
       "computedHash": "76754b92b4dbe1d7de632944924e51196e2a35c6dcb85ec0b4ba4d13adc15af6",
       "installMode": "copy"
     },
+    "livewire-development": {
+      "source": "spatie/freek.dev",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/livewire-development/SKILL.md",
+      "computedHash": "70be3c70e92e30caec24bfcab67105c0bad6f29ad1e49e6cd325f85ad1bb63aa"
+    },
     "olakunlevpn-filament-skills": {
       "source": "olakunlevpn/olakunlevpn-filament-skills",
       "sourceType": "github",
