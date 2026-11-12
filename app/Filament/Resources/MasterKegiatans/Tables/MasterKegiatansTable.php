@@ -9,7 +9,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Support\Enums\MaxWidth;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -76,7 +76,7 @@ class MasterKegiatansTable
                         Action::make('lihat_sub_kegiatan_modal')
                             ->modalHeading(fn (MasterKegiatan $record): string => "Kegiatan: [{$record->kode_kegiatan}] {$record->nama_kegiatan}")
                             ->modalDescription('Rincian Sub Kegiatan yang berada di bawah kegiatan ini.')
-                            ->modalWidth(MaxWidth::FourExtraLarge)
+                            ->modalWidth(Width::FourExtraLarge)
                             ->modalContent(fn (MasterKegiatan $record) => view('filament.modals.kegiatan-sub-kegiatan-tree', ['kegiatan' => $record]))
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Tutup')

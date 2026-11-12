@@ -9,7 +9,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Support\Enums\MaxWidth;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -57,7 +57,7 @@ class MasterProgramsTable
                         Action::make('lihat_kegiatan_modal')
                             ->modalHeading(fn (MasterProgram $record): string => "Pohon Program: [{$record->kode_program}] {$record->nama_program}")
                             ->modalDescription('Rincian Kegiatan dan Sub Kegiatan yang berada di bawah program ini.')
-                            ->modalWidth(MaxWidth::FiveExtraLarge)
+                            ->modalWidth(Width::FiveExtraLarge)
                             ->modalContent(fn (MasterProgram $record) => view('filament.modals.program-kegiatan-tree', ['program' => $record]))
                             ->modalSubmitAction(false)
                             ->modalCancelActionLabel('Tutup')
