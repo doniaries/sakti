@@ -45,12 +45,15 @@ class ListRincianAnggaranBelanjas extends ListRecords
                 ->modalSubmitActionLabel('Mulai Ekstraksi & Import')
                 ->schema([
                     FileUpload::make('file_pdf')
-                        ->label('Dokumen PDF RKA SIPD')
+                        ->label('Dokumen PDF RKA / DPA SIPD (Bisa Pilih Banyak)')
                         ->acceptedFileTypes(['application/pdf'])
                         ->disk('public')
                         ->directory('temp_rka_imports')
+                        ->multiple()
+                        ->maxFiles(50)
+                        ->maxSize(102400)
                         ->getUploadedFileNameForStorageUsing(fn(\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => (string) \Illuminate\Support\Str::uuid() . '.pdf')
-                        ->helperText('Sistem otomatis mengekstrak Program, Kegiatan, Sub Kegiatan, Kode Rekening, Item Belanja, Koefisien, dan Harga.')
+                        ->helperText('Format PDF resmi SIPD RI. Anda dapat memilih satu atau banyak berkas PDF sekaligus (Maksimal 100 MB per berkas).')
                         ->required(),
 
                     Select::make('bidang_id')
@@ -63,41 +66,74 @@ class ListRincianAnggaranBelanjas extends ListRecords
                     Toggle::make('timpa_jika_ada')
                         ->label('Perbarui jika sudah pernah diimpor (Revisi RKA)')
                         ->default(false)
-                        ->helperText('Jika dinonaktifkan, sistem akan otomatis menolak dan memperingatkan jika dokumen RKA Sub Kegiatan ini sudah pernah diunggah sebelumnya.'),
+                        ->helperText('Jika dinonaktifkan, sistem akan otomatis melewati dokumen jika Sub Kegiatan ini sudah pernah diunggah sebelumnya.'),
                 ])
                 ->action(function (array $data): void {
-                    $filePath = is_array($data['file_pdf']) ? (array_values($data['file_pdf'])[0] ?? null) : $data['file_pdf'];
-                    if (! $filePath) {
+                    $rawFiles = $data['file_pdf'] ?? [];
+                    $fileList = is_array($rawFiles) ? array_values($rawFiles) : [$rawFiles];
+                    $fileList = array_filter($fileList);
+
+                    if (empty($fileList)) {
                         Notification::make()->title('File PDF tidak ditemukan')->danger()->send();
                         return;
                     }
-                    $path = Storage::disk('public')->path($filePath);
-                    try {
-                        $targetBidangId = filled($data['bidang_id'] ?? null) ? (int) $data['bidang_id'] : null;
-                        $allowOverwrite = (bool) ($data['timpa_jika_ada'] ?? false);
-                        $result = SipdRkaImporterService::import($path, true, $targetBidangId, $allowOverwrite);
+
+                    $targetBidangId = filled($data['bidang_id'] ?? null) ? (int) $data['bidang_id'] : null;
+                    $allowOverwrite = (bool) ($data['timpa_jika_ada'] ?? false);
+
+                    $successCount = 0;
+                    $skippedCount = 0;
+                    $errorCount = 0;
+                    $details = [];
+
+                    foreach ($fileList as $filePath) {
+                        $path = Storage::disk('public')->path($filePath);
+                        try {
+                            $result = SipdRkaImporterService::import($path, true, $targetBidangId, $allowOverwrite);
+                            $successCount++;
+                            $details[] = "✅ [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} ({$result['imported_items']} item - Rp " . number_format($result['total_pagu'], 0, ',', '.') . ")";
+                        } catch (\DomainException $e) {
+                            $skippedCount++;
+                            $details[] = "⚠️ " . $e->getMessage();
+                        } catch (\Throwable $e) {
+                            $errorCount++;
+                            $details[] = "❌ " . basename($filePath) . ": " . $e->getMessage();
+                        } finally {
+                            if (file_exists($path)) {
+                                @unlink($path);
+                            }
+                        }
+                    }
+
+                    if ($successCount > 0) {
+                        $bodyMsg = "Berhasil memproses {$successCount} dokumen Sub Kegiatan.";
+                        if ($skippedCount > 0) {
+                            $bodyMsg .= " ({$skippedCount} dilewati karena sudah ada).";
+                        }
+                        if ($errorCount > 0) {
+                            $bodyMsg .= " ({$errorCount} gagal diproses).";
+                        }
+
                         Notification::make()
-                            ->title('Import RKA/DPA Berhasil!')
-                            ->body("Berhasil mengimpor {$result['imported_items']} item rincian belanja untuk Sub Kegiatan: [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} (Total Pagu: Rp " . number_format($result['total_pagu'], 0, ',', '.') . ")")
+                            ->title("Import RKA/DPA Selesai ({$successCount}/" . count($fileList) . " Berhasil)")
+                            ->body($bodyMsg . "\n\n" . implode("\n", array_slice($details, 0, 5)) . (count($details) > 5 ? "\n... dan " . (count($details) - 5) . " lainnya." : ''))
                             ->success()
+                            ->persistent()
                             ->send();
-                    } catch (\DomainException $e) {
+                    } elseif ($skippedCount > 0 && $errorCount === 0) {
                         Notification::make()
-                            ->title('RKA Sudah Pernah Diimpor!')
-                            ->body($e->getMessage())
+                            ->title('Dokumen Sudah Pernah Diimpor!')
+                            ->body("Seluruh ({$skippedCount}) dokumen telah ada di sistem. Aktifkan opsi 'Perbarui jika sudah pernah diimpor' jika ingin memperbarui.")
                             ->warning()
                             ->persistent()
                             ->send();
-                    } catch (\Throwable $e) {
+                    } else {
                         Notification::make()
-                            ->title('Gagal Mengimpor RKA')
-                            ->body($e->getMessage())
+                            ->title('Gagal Mengimpor Dokumen')
+                            ->body(implode("\n", array_slice($details, 0, 5)))
                             ->danger()
+                            ->persistent()
                             ->send();
-                    } finally {
-                        if (file_exists($path)) {
-                            @unlink($path);
-                        }
                     }
                 }),
         ];
