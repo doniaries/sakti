@@ -114,13 +114,13 @@
                     </tbody>
                     <tfoot>
                         <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
-                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">TOTAL BELANJA
-                            </td>
-                            <td class="p-3 text-right text-amber-600 dark:!text-amber-400 font-mono border-r bg-slate-100 dark:!bg-zinc-900">Rp
+                            <td class="p-3 sticky-col-1 bg-slate-100 dark:!bg-zinc-900"></td>
+                            <td class="p-3 text-center sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">TOTAL BELANJA</td>
+                            <td class="p-3 text-right text-amber-600 dark:!text-amber-400 font-mono whitespace-nowrap border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($lampiran1['total_anggaran'], 2, ',', '.') }}</td>
-                            <td class="p-3 text-right text-emerald-600 dark:!text-emerald-400 font-mono border-r bg-slate-100 dark:!bg-zinc-900">Rp
+                            <td class="p-3 text-right text-emerald-600 dark:!text-emerald-400 font-mono whitespace-nowrap border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($lampiran1['total_realisasi'], 2, ',', '.') }}</td>
-                            <td class="p-3 text-center bg-slate-100 dark:!bg-zinc-900">{{ number_format($lampiran1['persen'], 2, ',', '.') }}%</td>
+                            <td class="p-3 text-center whitespace-nowrap bg-slate-100 dark:!bg-zinc-900">{{ number_format($lampiran1['persen'], 2, ',', '.') }}%</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -205,19 +205,19 @@
                                     <span
                                         class="text-[10px] text-gray-500 dark:!text-zinc-400">{{ $k['kegiatan'] }}</span>
                                 </td>
-                                <td class="p-2 text-right border-r font-mono text-gray-900 dark:!text-zinc-100">Rp
+                                <td class="p-2 text-right border-r font-mono whitespace-nowrap text-gray-900 dark:!text-zinc-100">Rp
                                     {{ number_format($k['pagu'], 0, ',', '.') }}</td>
-                                <td class="p-2 text-right border-r font-bold font-mono text-gray-900 dark:!text-white">
+                                <td class="p-2 text-right border-r font-bold font-mono whitespace-nowrap text-gray-900 dark:!text-white">
                                     Rp {{ number_format($k['nilai_kontrak'], 0, ',', '.') }}</td>
-                                <td class="p-2 text-right border-r font-mono text-gray-600 dark:!text-zinc-400">Rp
+                                <td class="p-2 text-right border-r font-mono whitespace-nowrap text-gray-600 dark:!text-zinc-400">Rp
                                     {{ number_format($k['sisa_dana'], 0, ',', '.') }}</td>
                                 <td class="p-2 border-r font-medium text-gray-900 dark:!text-zinc-200">
                                     {{ $k['penyedia'] ?: '-' }}</td>
                                 <td class="p-2 border-r font-mono text-[10px] text-gray-700 dark:!text-zinc-300">
                                     {{ $k['nomor_kontrak'] ?: '-' }}</td>
-                                <td class="p-2 text-center border-r text-gray-600 dark:!text-zinc-400">
+                                <td class="p-2 text-center border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
                                     {{ $k['tgl_mulai'] ?: '-' }}</td>
-                                <td class="p-2 text-center border-r text-gray-600 dark:!text-zinc-400">
+                                <td class="p-2 text-center border-r whitespace-nowrap text-gray-600 dark:!text-zinc-400">
                                     {{ $k['tgl_selesai'] ?: '-' }}</td>
                                 <td class="p-2 text-center border-r text-gray-600 dark:!text-zinc-400">
                                     {{ number_format($k['bobot_rencana'], 0, ',', '.') }}</td>
@@ -227,7 +227,7 @@
                                     class="p-2 text-center font-bold {{ $k['deviasi'] < 0 ? 'text-red-500' : 'text-emerald-500' }} border-r">
                                     {{ $k['deviasi'] != 0 ? number_format($k['deviasi'], 0, ',', '.') : '-' }}</td>
                                 <td
-                                    class="p-2 text-right font-bold text-emerald-600 dark:!text-emerald-400 border-r font-mono">
+                                    class="p-2 text-right font-bold text-emerald-600 dark:!text-emerald-400 border-r font-mono whitespace-nowrap">
                                     Rp {{ number_format($k['realisasi_keu_rp'], 0, ',', '.') }}</td>
                                 <td class="p-2 text-center font-bold border-r text-gray-900 dark:!text-white">
                                     {{ number_format($k['realisasi_keu_persen'], 0, ',', '.') }}</td>
@@ -243,18 +243,19 @@
                     </tbody>
                     <tfoot>
                         <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
-                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">JUMLAH</td>
-                            <td class="p-3 text-right font-mono text-gray-900 dark:!text-zinc-100 border-r bg-slate-100 dark:!bg-zinc-900">Rp
+                            <td class="p-3 sticky-col-1 bg-slate-100 dark:!bg-zinc-900"></td>
+                            <td class="p-3 text-center sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">JUMLAH</td>
+                            <td class="p-3 text-right font-mono whitespace-nowrap text-gray-900 dark:!text-zinc-100 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_pagu'], 0, ',', '.') }}</td>
-                            <td class="p-3 text-right font-mono text-amber-600 dark:!text-amber-400 border-r bg-slate-100 dark:!bg-zinc-900">Rp
+                            <td class="p-3 text-right font-mono whitespace-nowrap text-amber-600 dark:!text-amber-400 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_kontrak'], 0, ',', '.') }}</td>
-                            <td class="p-3 text-right font-mono text-gray-700 dark:!text-zinc-300 border-r bg-slate-100 dark:!bg-zinc-900">Rp
+                            <td class="p-3 text-right font-mono whitespace-nowrap text-gray-700 dark:!text-zinc-300 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_sisa'], 0, ',', '.') }}</td>
                             <td colspan="4" class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">-</td>
                             <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">0.00</td>
                             <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">0.00</td>
                             <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">0.00</td>
-                            <td class="p-3 text-right font-mono text-emerald-600 dark:!text-emerald-400 border-r bg-slate-100 dark:!bg-zinc-900">Rp
+                            <td class="p-3 text-right font-mono whitespace-nowrap text-emerald-600 dark:!text-emerald-400 border-r bg-slate-100 dark:!bg-zinc-900">Rp
                                 {{ number_format($kemajuan['summary']['total_realisasi_keu'], 0, ',', '.') }}</td>
                             <td class="p-3 text-center font-bold border-r bg-slate-100 dark:!bg-zinc-900">
                                 {{ $kemajuan['summary']['total_kontrak'] > 0 ? number_format(($kemajuan['summary']['total_realisasi_keu'] / $kemajuan['summary']['total_kontrak']) * 100, 2, ',', '.') : '100.00' }}
@@ -341,7 +342,7 @@
                                         class="font-mono text-[10px] text-gray-400 dark:!text-zinc-500">{{ $r['kode'] }}</span>
                                 </td>
                                 <td
-                                    class="p-2.5 text-right font-mono border-r font-semibold text-gray-900 dark:!text-zinc-100">
+                                    class="p-2.5 text-right font-mono whitespace-nowrap border-r font-semibold text-gray-900 dark:!text-zinc-100">
                                     Rp {{ number_format($r['pagu'], 2, ',', '.') }}
                                 </td>
                                 <td class="p-2 text-center border-r text-gray-600 dark:!text-zinc-400">
@@ -353,14 +354,14 @@
                                 <td class="p-2 text-center font-bold text-emerald-600 dark:!text-emerald-400 border-r">
                                     {{ number_format($r['capaian_fisik'], 2, ',', '.') }}
                                 </td>
-                                <td class="p-2 text-right font-mono border-r text-gray-600 dark:!text-zinc-400">
+                                <td class="p-2 text-right font-mono whitespace-nowrap border-r text-gray-600 dark:!text-zinc-400">
                                     Rp {{ number_format($r['target_keu_rp'], 2, ',', '.') }}
                                 </td>
                                 <td class="p-2 text-center border-r text-gray-600 dark:!text-zinc-400">
                                     {{ number_format($r['target_keu_persen'], 2, ',', '.') }}
                                 </td>
                                 <td
-                                    class="p-2 text-right font-bold font-mono text-emerald-600 dark:!text-emerald-400 border-r">
+                                    class="p-2 text-right font-bold font-mono whitespace-nowrap text-emerald-600 dark:!text-emerald-400 border-r">
                                     {{ $r['realisasi_keu_rp'] > 0 ? 'Rp ' . number_format($r['realisasi_keu_rp'], 2, ',', '.') : 'Rp0,00' }}
                                 </td>
                                 <td class="p-2 text-center font-bold border-r text-gray-900 dark:!text-white">
@@ -381,8 +382,9 @@
                     </tbody>
                     <tfoot>
                         <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
-                            <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">TOTAL</td>
-                            <td class="p-3 text-right border-r font-mono text-amber-600 dark:!text-amber-400 bg-slate-100 dark:!bg-zinc-900">
+                            <td class="p-3 sticky-col-1 bg-slate-100 dark:!bg-zinc-900"></td>
+                            <td class="p-3 text-center sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">TOTAL</td>
+                            <td class="p-3 text-right border-r font-mono whitespace-nowrap text-amber-600 dark:!text-amber-400 bg-slate-100 dark:!bg-zinc-900">
                                 Rp {{ number_format($matriks['summary']['total_pagu'], 2, ',', '.') }}
                             </td>
                             <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">
@@ -394,13 +396,13 @@
                             <td class="p-3 text-center border-r text-emerald-600 dark:!text-emerald-400 bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['capaian_fisik'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-right border-r font-mono bg-slate-100 dark:!bg-zinc-900">
+                            <td class="p-3 text-right border-r font-mono whitespace-nowrap bg-slate-100 dark:!bg-zinc-900">
                                 Rp {{ number_format($matriks['summary']['target_keu_rp'], 2, ',', '.') }}
                             </td>
                             <td class="p-3 text-center border-r bg-slate-100 dark:!bg-zinc-900">
                                 {{ number_format($matriks['summary']['target_keu_persen'], 2, ',', '.') }}
                             </td>
-                            <td class="p-3 text-right border-r text-emerald-600 dark:!text-emerald-400 font-mono bg-slate-100 dark:!bg-zinc-900">
+                            <td class="p-3 text-right border-r text-emerald-600 dark:!text-emerald-400 font-mono whitespace-nowrap bg-slate-100 dark:!bg-zinc-900">
                                 Rp {{ number_format($matriks['summary']['realisasi_keu_rp'], 2, ',', '.') }}
                             </td>
                             <td class="p-3 text-center border-r text-emerald-600 dark:!text-emerald-400 bg-slate-100 dark:!bg-zinc-900">

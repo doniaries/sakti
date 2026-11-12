@@ -113,25 +113,26 @@
                 <tfoot>
                     <tr class="font-bold border-t-2 sticky bottom-0 z-20 bg-slate-100 dark:!bg-zinc-900 shadow-lg">
                         {{-- Sticky Footer Col 1 & 2 --}}
-                        <td colspan="2" class="p-3 text-center sticky-col-1 sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">
+                        <td class="p-3 sticky-col-1 bg-slate-100 dark:!bg-zinc-900"></td>
+                        <td class="p-3 text-center sticky-col-2 border-r bg-slate-100 dark:!bg-zinc-900">
                             TOTAL
                         </td>
                         <td class="p-3 text-left border-r uppercase bg-slate-100 dark:!bg-zinc-900">
                             Pengeluaran Belanja Daerah
                         </td>
-                        <td class="p-3 text-right font-mono text-amber-600 dark:!text-amber-400 border-r bg-slate-100 dark:!bg-zinc-900">
+                        <td class="p-3 text-right font-mono whitespace-nowrap text-amber-600 dark:!text-amber-400 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_pagu'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-gray-700 dark:!text-zinc-300 border-r bg-slate-100 dark:!bg-zinc-900">
+                        <td class="p-3 text-right font-mono whitespace-nowrap text-gray-700 dark:!text-zinc-300 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_lalu'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-blue-600 dark:!text-blue-400 border-r bg-slate-100 dark:!bg-zinc-900">
+                        <td class="p-3 text-right font-mono whitespace-nowrap text-blue-600 dark:!text-blue-400 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_ini'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-emerald-600 dark:!text-emerald-400 border-r bg-slate-100 dark:!bg-zinc-900">
+                        <td class="p-3 text-right font-mono whitespace-nowrap text-emerald-600 dark:!text-emerald-400 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_sd_ini'], 0, ',', '.') }}
                         </td>
-                        <td class="p-3 text-right font-mono text-gray-800 dark:!text-zinc-200 border-r bg-slate-100 dark:!bg-zinc-900">
+                        <td class="p-3 text-right font-mono whitespace-nowrap text-gray-800 dark:!text-zinc-200 border-r bg-slate-100 dark:!bg-zinc-900">
                             Rp {{ number_format($data['summary']['total_sisa'], 0, ',', '.') }}
                         </td>
                         <td class="p-3 text-center text-gray-900 dark:!text-white bg-slate-100 dark:!bg-zinc-900">
