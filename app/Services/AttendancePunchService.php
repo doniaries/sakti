@@ -34,7 +34,7 @@ class AttendancePunchService
      * @param bool $force Bypass jam / radius (untuk admin / simulasi)
      * @return array
      */
-    public static function punch(User $user, string $action = 'auto', ?float $lat = null, ?float $lng = null, bool $force = false): array
+    public static function punch(User $user, string $action = 'auto', ?float $lat = null, ?float $lng = null, bool $force = false, ?string $extraKet = null): array
     {
         $pengaturan = PengaturanAplikasi::getPengaturan();
         $officeLat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
@@ -259,7 +259,9 @@ class AttendancePunchService
                 $updateData['jenis_kehadiran'] = 'wfh';
             }
 
-            if ($extraKet && empty($absenHarian->keterangan)) {
+            $extraKet = $extraKet ?? ($isPulangCepat ? 'Pulang Cepat' : null);
+
+            if (!empty($extraKet) && empty($absenHarian->keterangan)) {
                 $updateData['keterangan'] = $extraKet;
             }
 
