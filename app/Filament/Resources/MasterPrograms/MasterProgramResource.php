@@ -26,7 +26,7 @@ class MasterProgramResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Program';
 
-    protected static ?string $cluster = \App\Filament\Clusters\MasterKeuangan::class;
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
     protected static ?int $navigationSort = 1;
 

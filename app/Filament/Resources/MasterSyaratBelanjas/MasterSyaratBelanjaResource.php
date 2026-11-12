@@ -26,9 +26,9 @@ class MasterSyaratBelanjaResource extends Resource
 
     protected static ?string $slug = 'master-syarat-belanja-legacy';
 
-    protected static ?string $cluster = \App\Filament\Clusters\MasterKeuangan::class;
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
-    protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 9;
 
     public static function shouldRegisterNavigation(): bool
     {

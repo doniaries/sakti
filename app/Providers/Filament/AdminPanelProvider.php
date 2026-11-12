@@ -72,6 +72,9 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Keuangan')
                     ->icon('heroicon-o-banknotes')
                     ->collapsed(),
+                NavigationGroup::make('Master Keuangan')
+                    ->icon('heroicon-o-archive-box')
+                    ->collapsed(),
                 NavigationGroup::make('Laporan')
                     ->icon('heroicon-o-document-chart-bar')
                     ->collapsed(),
@@ -121,8 +124,7 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::BODY_END,
                 fn(): string => view('filament.hooks.sidebar-accordion')->render()
             )
-            ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
                 Dashboard::class,

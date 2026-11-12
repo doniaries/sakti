@@ -24,9 +24,9 @@ class MasterTujuanBbmResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Standar BBM';
 
-    protected static ?string $cluster = \App\Filament\Clusters\MasterKeuangan::class;
+    protected static string|\UnitEnum|null $navigationGroup = 'Master Keuangan';
 
-    protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 7;
 
     public static function form(Schema $schema): Schema
     {
