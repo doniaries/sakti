@@ -219,21 +219,21 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationIcon('heroicon-o-bars-3')
                     ->navigationSort(98),
                 FilamentDeveloperLoginsPlugin::make()
-                    ->enabled(app()->environment('local'))
+                    ->enabled(true)
                     ->users([
                         'Super Admin' => 'superadmin@gmail.com',
                         'Kabid/PPTK Pemasaran (Doni Aries)' => 'doniaries@gmail.com',
-                        'Admin Dinas (Zulfitri)' => 'admin@gmail.com',
-                        'PA / Kadis (Afrineldi)' => 'kepaladinas@gmail.com',
-                        'PPK (Julhardianto)' => 'julhardianto@gmail.com',
-                        'PPTK Sekretariat (Desmawati)' => 'sekretaris@gmail.com',
-                        'PPTK Destinasi (Wilda Ardes)' => 'wilda@gmail.com',
-                        'PPTK Dispora (Indrawadi)' => 'kabid@gmail.com',
-                        'JF (Diki Zulfikar)' => 'dikizulfikar@gmail.com',
+                        'Admin Dinas (Zulfitri)' => 'zulfitri.pit77@gmail.com',
+                        'PA / Kadis (Afrineldi)' => 'afrineldi72@gmail.com',
+                        'PPK (Julhardianto)' => 'jhohardman@gmail.com',
+                        'PPTK Sekretariat (Desmawati)' => 'nidessijunjung@gmail.com',
+                        'PPTK Destinasi (Wilda Ardes)' => 'Wildaardes@gmail.com',
+                        'PPTK Dispora (Indrawadi)' => 'indrawadiakura1007@gmail.com',
+                        'JF (Diki Zulfikar)' => 'dikizulfikar15@gmail.com',
                         'JF (Novrizal)' => 'novrizal@gmail.com',
                         'Staf (Andra Pebtaliyus)' => 'andrapebtaliyus@gmail.com',
                         'Staf (Maulana Ibrahim)' => 'maulanaibrahim@gmail.com',
-                        'Staf (Roni Rivandra)' => 'ronirivandra@gmail.com',
+                        'Staf (Roni Rivandra)' => 'princesikabu@gmail.com',
                     ]),
             ]);
     }
