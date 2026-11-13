@@ -157,10 +157,33 @@ class Dashboard extends Component
         $unreadNotifCount = $user->unreadNotifications()->count();
         $recentNotifications = $user->notifications()->latest()->limit(15)->get();
 
+        // Hitung Jam Kerja Efektif ASN (Standar 7j 30m/hari atau 37j 30m/minggu, non-istirahat)
+        $menitHariIni = $absensiHariIni ? $absensiHariIni->hitungMenitKerjaEfektif() : 0;
+        $allBulanIni = AbsensiHarian::where('user_id', $user->id)
+            ->whereMonth('tanggal', $today->month)
+            ->whereYear('tanggal', $today->year)
+            ->get();
+        $totalMenitBulanIni = (int) $allBulanIni->sum(fn (AbsensiHarian $a) => $a->hitungMenitKerjaEfektif());
+        $targetBulananAsn = AbsensiHarian::hitungTargetBulananAsn($today->month, $today->year);
+        $persenBulanIni = $targetBulananAsn['target_menit'] > 0
+            ? min(100, (int) round(($totalMenitBulanIni / $targetBulananAsn['target_menit']) * 100))
+            : 0;
+
         return view('livewire.mobile.dashboard', [
             'user' => $user,
             'unreadNotifCount' => $unreadNotifCount,
             'recentNotifications' => $recentNotifications,
+            'jamKerjaAsn' => [
+                'harian_menit' => $menitHariIni,
+                'harian_format' => AbsensiHarian::formatDurasiJamMenit($menitHariIni),
+                'target_harian_format' => AbsensiHarian::formatDurasiJamMenit(AbsensiHarian::TARGET_MENIT_HARIAN_ASN),
+                'target_mingguan_format' => AbsensiHarian::formatDurasiJamMenit(AbsensiHarian::TARGET_MENIT_MINGGUAN_ASN),
+                'bulanan_menit' => $totalMenitBulanIni,
+                'bulanan_format' => AbsensiHarian::formatDurasiJamMenit($totalMenitBulanIni),
+                'target_bulanan_format' => $targetBulananAsn['target_format'],
+                'hari_kerja_bulan' => $targetBulananAsn['hari_kerja'],
+                'persen_bulanan' => $persenBulanIni,
+            ],
             'hariIni' => [
                 'sudah_masuk' => $sudahMasuk,
                 'sudah_pulang' => $sudahPulang,

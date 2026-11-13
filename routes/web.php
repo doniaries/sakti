@@ -37,6 +37,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('/riwayat/cetak-pdf', [\App\Http\Controllers\CetakLaporanController::class, 'cetakRiwayat'])->name('mobile.riwayat.cetak-pdf');
         Route::get('/lhk', LhkIndex::class)->name('mobile.lhk.index');
         Route::get('/lhk/buat', LhkForm::class)->name('mobile.lhk.create');
+        Route::get('/bank-aktivitas', \App\Livewire\Mobile\Lhk\BankAktivitas::class)->name('mobile.lhk.bank-aktivitas');
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
         Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
         Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');

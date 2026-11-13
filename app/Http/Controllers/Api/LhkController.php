@@ -90,10 +90,13 @@ class LhkController extends Controller
             ->with(['logMasuk', 'logPulang'])
             ->first();
 
-        if (! $absensi || ! $absensi->log_masuk_id || ! $absensi->log_pulang_id) {
+        $status = $absensi ? ($absensi->status?->value ?? $absensi->status) : null;
+        $sudahMasuk = $absensi && (! empty($absensi->log_masuk_id) || ! empty($absensi->jam_masuk) || in_array($status, ['hadir', 'terlambat', 'dinas_luar'], true));
+
+        if (! $sudahMasuk) {
             return response()->json([
                 'success' => false,
-                'message' => 'Absensi pada tanggal tersebut belum lengkap.',
+                'message' => 'Anda belum melakukan absensi masuk (pagi) pada tanggal tersebut.',
             ], 422);
         }
 
@@ -110,11 +113,11 @@ class LhkController extends Controller
     }
 
     /**
-     * Daftar aktivitas untuk pilihan form LHK
+     * Daftar aktivitas untuk pilihan form LHK (prioritas milik user)
      */
-    public function aktivitas()
+    public function aktivitas(Request $request)
     {
-        $data = Aktivitas::orderBy('nama')->get(['id', 'nama']);
+        $data = Aktivitas::untukUser($request->user())->get(['id', 'user_id', 'kode', 'nama_aktivitas', 'menit']);
         return response()->json(['success' => true, 'data' => $data]);
     }
 
@@ -125,8 +128,8 @@ class LhkController extends Controller
     {
         $validated = $request->validate([
             'tanggal'                  => 'required|date',
-            'log_absensi_masuk_id'     => 'required|exists:log_absensi,id',
-            'log_absensi_pulang_id'    => 'required|exists:log_absensi,id',
+            'log_absensi_masuk_id'     => 'nullable|exists:log_absensi,id',
+            'log_absensi_pulang_id'    => 'nullable|exists:log_absensi,id',
             'status_kehadiran'         => 'required|string',
             'pekerjaans'               => 'required|array|min:1',
             'pekerjaans.*.jam_mulai'   => 'required|date_format:H:i',
@@ -140,13 +143,16 @@ class LhkController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
-        // Pastikan absensi sudah ada dan lengkap
+        // Pastikan absensi masuk sudah ada (boleh isi LHK walau belum absen pulang)
         $absensi = AbsensiHarian::where('user_id', $user->id)
             ->whereDate('tanggal', $validated['tanggal'])
             ->first();
 
-        if (! $absensi || ! $absensi->log_masuk_id || ! $absensi->log_pulang_id) {
-            return response()->json(['success' => false, 'message' => 'Absensi belum lengkap.'], 422);
+        $statusAbsen = $absensi ? ($absensi->status?->value ?? $absensi->status) : null;
+        $sudahMasuk = $absensi && (! empty($absensi->log_masuk_id) || ! empty($absensi->jam_masuk) || in_array($statusAbsen, ['hadir', 'terlambat', 'dinas_luar'], true));
+
+        if (! $sudahMasuk) {
+            return response()->json(['success' => false, 'message' => 'Anda belum melakukan absen masuk (pagi).'], 422);
         }
 
         // Cek LHK sudah dibuat untuk tanggal ini
@@ -158,11 +164,11 @@ class LhkController extends Controller
         $lhk = Lhk::create([
             'user_id'                => $user->id,
             'tanggal'                => $validated['tanggal'],
-            'log_absensi_masuk_id'   => $validated['log_absensi_masuk_id'],
-            'log_absensi_pulang_id'  => $validated['log_absensi_pulang_id'],
+            'log_absensi_masuk_id'   => $validated['log_absensi_masuk_id'] ?? $absensi->log_masuk_id,
+            'log_absensi_pulang_id'  => $validated['log_absensi_pulang_id'] ?? $absensi->log_pulang_id,
             'status_kehadiran'       => $validated['status_kehadiran'],
-            'jam_masuk'              => $absensi->logMasuk?->waktu_absensi?->format('H:i:s'),
-            'jam_pulang'             => $absensi->logPulang?->waktu_absensi?->format('H:i:s'),
+            'jam_masuk'              => $absensi->logMasuk?->waktu_absensi?->format('H:i:s') ?? $absensi->jam_masuk,
+            'jam_pulang'             => $absensi->logPulang?->waktu_absensi?->format('H:i:s') ?? $absensi->jam_pulang,
         ]);
 
         foreach ($validated['pekerjaans'] as $p) {

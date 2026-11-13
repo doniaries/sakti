@@ -280,9 +280,14 @@ class Absensi extends Component
         $belumJamPulang = (!$isAdmin && !$this->modeSimulasi && $nowTime < $jamPulangResmi);
         $lewatBatasPulang = (!$isAdmin && !$this->modeSimulasi && $nowTime > $tutupPulang);
 
+        $menitKerjaHariIni = $absenHarian ? $absenHarian->hitungMenitKerjaEfektif() : 0;
+
         return view('livewire.mobile.absensi', [
             'user' => $user,
             'absenHarian' => $absenHarian,
+            'menitKerjaHariIni' => $menitKerjaHariIni,
+            'durasiKerjaHariIni' => AbsensiHarian::formatDurasiJamMenit($menitKerjaHariIni),
+            'targetHarianAsn' => AbsensiHarian::formatDurasiJamMenit(AbsensiHarian::TARGET_MENIT_HARIAN_ASN),
             'sudahMasuk' => $sudahMasuk,
             'sudahPulang' => $sudahPulang,
             'selesai' => $selesai,

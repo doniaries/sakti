@@ -58,6 +58,27 @@
                 <span class="text-[9px] font-bold text-rose-200 uppercase tracking-tight">Alpa</span>
             </div>
         </div>
+
+        <!-- Rekap Jam Kerja ASN Bulanan (7j 30m/hari • 37j 30m/minggu) -->
+        <div class="mt-3 pt-3 border-t border-white/15 relative z-10">
+            <div class="flex items-center justify-between text-xs mb-1.5">
+                <span class="text-sky-100 font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-business-time text-cyan-300"></i>
+                    Jam Kerja Bulan Ini
+                </span>
+                <span class="font-mono font-extrabold text-white">
+                    {{ $jamKerjaBulanan['total_format'] }}
+                    <span class="text-[10px] font-normal text-sky-200">/ {{ $jamKerjaBulanan['target_format'] }} ({{ $jamKerjaBulanan['persen'] }}%)</span>
+                </span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-black/30 overflow-hidden mb-1">
+                <div class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-500"
+                     style="width: {{ $jamKerjaBulanan['persen'] }}%"></div>
+            </div>
+            <p class="text-[10px] text-sky-200/80">
+                Ketentuan ASN: {{ $jamKerjaBulanan['target_harian_format'] }}/hari &bull; {{ $jamKerjaBulanan['target_mingguan_format'] }}/minggu ({{ $jamKerjaBulanan['hari_kerja'] }} hari kerja, non-istirahat)
+            </p>
+        </div>
     </div>
 
     <!-- Filter Status Tabs (Semua, Hadir, Terlambat, DL, Izin/Sakit, Alpa) -->
@@ -102,6 +123,12 @@
             @foreach($riwayat as $item)
                 @php
                     $status = $item->status?->value ?? $item->status;
+                    $tglKey = $item->tanggal ? \Carbon\Carbon::parse($item->tanggal)->format('Y-m-d') : null;
+                    $lhkItem = $tglKey ? ($lhkByTanggal->get($tglKey) ?? null) : null;
+                    $jumlahKegiatan = $lhkItem?->pekerjaans_count ?? 0;
+                    $menitKerjaHarian = $item->hitungMenitKerjaEfektif();
+                    $durasiKerjaHarian = \App\Models\AbsensiHarian::formatDurasiJamMenit($menitKerjaHarian);
+                    $bisaIsiLhk = $tglKey && (!empty($item->log_masuk_id) || !empty($item->jam_masuk) || in_array($status, ['hadir', 'terlambat', 'dinas_luar'], true));
                     $badgeStyle = match($status) {
                         'hadir' => 'text-emerald-700 bg-emerald-50 border-emerald-200',
                         'terlambat' => 'text-amber-700 bg-amber-50 border-amber-200',
@@ -120,53 +147,75 @@
                     };
                 @endphp
                 
-                <div wire:click="bukaDetail({{ $item->id }})"
-                    class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 flex items-center justify-between cursor-pointer hover:border-sky-300 hover:shadow-md transition active:scale-[0.98]">
-                    <div class="flex items-center space-x-3.5">
-                        <div class="w-11 h-11 rounded-2xl {{ $iconColor }} flex items-center justify-center text-base shadow-xs shrink-0">
-                            <i class="fa-solid fa-calendar-day"></i>
+                <div wire:key="riwayat-{{ $item->id }}" wire:click="bukaDetail({{ $item->id }})"
+                    class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 cursor-pointer hover:border-sky-300 hover:shadow-md transition active:scale-[0.98] space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3.5 min-w-0">
+                            <div class="w-11 h-11 rounded-2xl {{ $iconColor }} flex items-center justify-center text-base shadow-xs shrink-0">
+                                <i class="fa-solid fa-calendar-day"></i>
+                            </div>
+                            
+                            <div class="min-w-0">
+                                <h4 class="font-extrabold text-slate-800 text-sm truncate">{{ $item->tanggal ? \Carbon\Carbon::parse($item->tanggal)->translatedFormat('l, d M Y') : '-' }}</h4>
+                                <div class="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 font-mono mt-1 font-semibold">
+                                    <!-- Jam Masuk & Sumber Device dari DB -->
+                                    <span class="flex items-center" title="Jam Masuk">
+                                        <i class="fa-solid fa-circle text-amber-500 text-[6px] mr-1.5"></i>
+                                        {{ $item->jam_masuk ? substr($item->jam_masuk, 0, 8) : '--:--' }}
+                                        @if($item->logMasuk?->perangkat === 'mesin')
+                                            <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1" title="Mesin Fingerprint"></i>
+                                        @elseif($item->logMasuk?->perangkat === 'mobile')
+                                            <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1" title="Aplikasi Mobile"></i>
+                                        @endif
+                                    </span>
+                                    <span class="text-slate-300">•</span>
+                                    <!-- Jam Pulang & Sumber Device dari DB -->
+                                    <span class="flex items-center" title="Jam Pulang">
+                                        <i class="fa-solid fa-circle text-emerald-500 text-[6px] mr-1.5"></i>
+                                        {{ $item->jam_pulang ? substr($item->jam_pulang, 0, 8) : '--:--' }}
+                                        @if($item->logPulang?->perangkat === 'mesin')
+                                            <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1" title="Mesin Fingerprint"></i>
+                                        @elseif($item->logPulang?->perangkat === 'mobile')
+                                            <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1" title="Aplikasi Mobile"></i>
+                                        @endif
+                                    </span>
+                                </div>
+                                @if(!empty($item->keterangan))
+                                    <p class="text-[10px] text-slate-400 mt-1 italic line-clamp-1">{{ $item->keterangan }}</p>
+                                @endif
+                            </div>
                         </div>
                         
-                        <div>
-                            <h4 class="font-extrabold text-slate-800 text-sm">{{ $item->tanggal ? \Carbon\Carbon::parse($item->tanggal)->translatedFormat('l, d M Y') : '-' }}</h4>
-                            <div class="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 font-mono mt-1 font-semibold">
-                                <!-- Jam Masuk & Sumber Device dari DB -->
-                                <span class="flex items-center" title="Jam Masuk">
-                                    <i class="fa-solid fa-circle text-amber-500 text-[6px] mr-1.5"></i>
-                                    {{ $item->jam_masuk ? substr($item->jam_masuk, 0, 8) : '--:--' }}
-                                    @if($item->logMasuk?->perangkat === 'mesin')
-                                        <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1" title="Mesin Fingerprint"></i>
-                                    @elseif($item->logMasuk?->perangkat === 'mobile')
-                                        <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1" title="Aplikasi Mobile"></i>
-                                    @endif
+                        <div class="flex flex-col items-end space-y-1.5 shrink-0 ml-2">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
+                                {{ str_replace('_', ' ', $status) }}
+                            </span>
+                            <div class="flex items-center text-[10px] text-slate-400">
+                                <span>Detail</span>
+                                <i class="fa-solid fa-chevron-right text-[8px] ml-1"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($bisaIsiLhk)
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-100/80 dark:border-slate-700/60 gap-2">
+                            <div class="flex items-center flex-wrap gap-x-2.5 gap-y-1">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold {{ $menitKerjaHarian >= \App\Models\AbsensiHarian::TARGET_MENIT_HARIAN_ASN ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : ($menitKerjaHarian > 0 ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
+                                    <i class="fa-regular fa-clock text-[9px]"></i>
+                                    {{ $menitKerjaHarian > 0 ? $durasiKerjaHarian : (!empty($item->jam_masuk) && empty($item->jam_pulang) ? 'Berjalan' : '0j 00m') }} / 7j 30m
                                 </span>
-                                <span class="text-slate-300">•</span>
-                                <!-- Jam Pulang & Sumber Device dari DB -->
-                                <span class="flex items-center" title="Jam Pulang">
-                                    <i class="fa-solid fa-circle text-emerald-500 text-[6px] mr-1.5"></i>
-                                    {{ $item->jam_pulang ? substr($item->jam_pulang, 0, 8) : '--:--' }}
-                                    @if($item->logPulang?->perangkat === 'mesin')
-                                        <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1" title="Mesin Fingerprint"></i>
-                                    @elseif($item->logPulang?->perangkat === 'mobile')
-                                        <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1" title="Aplikasi Mobile"></i>
-                                    @endif
+                                <span class="text-[11px] font-semibold {{ $jumlahKegiatan > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400' }}">
+                                    <i class="fa-solid fa-file-lines mr-1"></i>
+                                    {{ $jumlahKegiatan > 0 ? "{$jumlahKegiatan} Keg." : 'LHK Kosong' }}
                                 </span>
                             </div>
-                            @if(!empty($item->keterangan))
-                                <p class="text-[10px] text-slate-400 mt-1 italic line-clamp-1">{{ $item->keterangan }}</p>
-                            @endif
+                            <a href="{{ route('mobile.lhk.create', ['tanggal' => $tglKey]) }}" wire:navigate @click.stop
+                               class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold transition active:scale-95 shrink-0 {{ $jumlahKegiatan > 0 ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30' : 'bg-[#1B6CA8] hover:bg-[#155685] text-white shadow-xs' }}">
+                                <i class="fa-solid {{ $jumlahKegiatan > 0 ? 'fa-pen-to-square' : 'fa-plus' }} text-[10px]"></i>
+                                <span>{{ $jumlahKegiatan > 0 ? 'Edit LHK' : 'Buat LHK' }}</span>
+                            </a>
                         </div>
-                    </div>
-                    
-                    <div class="flex flex-col items-end space-y-1.5 shrink-0 ml-2">
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
-                            {{ str_replace('_', ' ', $status) }}
-                        </span>
-                        <div class="flex items-center text-[10px] text-slate-400">
-                            <span>Detail</span>
-                            <i class="fa-solid fa-chevron-right text-[8px] ml-1"></i>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             @endforeach
         </div>
@@ -174,9 +223,9 @@
 
     <!-- MODAL DETAIL KEHADIRAN & GPS -->
     @if($showDetailModal && $selectedAbsensi)
-        <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-xs transition-opacity"
+        <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs transition-opacity"
             x-data @keydown.escape.window="$wire.tutupDetail()">
-            <div class="w-full max-w-lg bg-white rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-slate-200/90 max-h-[85vh] overflow-y-auto space-y-4">
+            <div class="w-full max-w-[408px] bg-white dark:bg-[#132338] rounded-3xl p-5 shadow-2xl border border-slate-200/90 dark:border-slate-700/80 max-h-[85vh] overflow-y-auto space-y-4">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div class="flex items-center space-x-2">
                         <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm">
@@ -209,6 +258,20 @@
                             {{ $selectedAbsensi->user?->status_kerja === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Kantor)' }}
                         </span>
                     </div>
+                </div>
+
+                @php
+                    $detailMenit = $selectedAbsensi->hitungMenitKerjaEfektif();
+                    $detailDurasi = \App\Models\AbsensiHarian::formatDurasiJamMenit($detailMenit);
+                @endphp
+                <div class="p-3.5 rounded-2xl bg-sky-50/70 dark:bg-sky-500/10 border border-sky-200/80 dark:border-sky-500/30 flex items-center justify-between text-xs">
+                    <div>
+                        <span class="text-[10px] font-bold text-sky-700 dark:text-cyan-300 uppercase tracking-wider block">Jam Kerja Efektif Harian</span>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400">Standar ASN: 7j 30m/hari (di luar jam istirahat)</span>
+                    </div>
+                    <span class="font-mono font-black text-sm {{ $detailMenit >= \App\Models\AbsensiHarian::TARGET_MENIT_HARIAN_ASN ? 'text-emerald-700 dark:text-emerald-300' : 'text-sky-800 dark:text-cyan-200' }}">
+                        {{ $detailDurasi }} / 7j 30m
+                    </span>
                 </div>
 
                 <!-- Jam Masuk & Jam Pulang Cards -->

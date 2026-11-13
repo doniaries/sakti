@@ -33,13 +33,16 @@ class LhkForm
                                 }
 
                                 $userId = Auth::id();
-                                $latestLengkap = \App\Models\AbsensiHarian::where('user_id', $userId)
-                                    ->whereNotNull('log_masuk_id')
-                                    ->whereNotNull('log_pulang_id')
+                                $latestMasuk = \App\Models\AbsensiHarian::where('user_id', $userId)
+                                    ->where(function ($q) {
+                                        $q->whereNotNull('log_masuk_id')
+                                            ->orWhereNotNull('jam_masuk')
+                                            ->orWhereIn('status', ['hadir', 'terlambat', 'dinas_luar']);
+                                    })
                                     ->orderBy('tanggal', 'desc')
                                     ->first();
 
-                                return $latestLengkap ? $latestLengkap->tanggal->format('Y-m-d') : now()->format('Y-m-d');
+                                return $latestMasuk ? $latestMasuk->tanggal->format('Y-m-d') : now()->format('Y-m-d');
                             })
                             ->rules([
                                 fn(Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
@@ -49,8 +52,11 @@ class LhkForm
                                             ->whereDate('tanggal', $value)
                                             ->first();
 
-                                        if (!$absensi || !$absensi->log_masuk_id || !$absensi->log_pulang_id) {
-                                            $fail('LHK hanya dapat dibuat jika absensi Masuk dan Pulang sudah lengkap.');
+                                        $status = $absensi ? ($absensi->status?->value ?? $absensi->status) : null;
+                                        $sudahMasuk = $absensi && (! empty($absensi->log_masuk_id) || ! empty($absensi->jam_masuk) || in_array($status, ['hadir', 'terlambat', 'dinas_luar'], true));
+
+                                        if (! $sudahMasuk) {
+                                            $fail('LHK hanya dapat dibuat jika pegawai sudah melakukan absensi masuk (pagi).');
                                         }
                                     }
                                 },
@@ -77,7 +83,7 @@ class LhkForm
                             ->default(function () {
                                 if ($q = request()->query('log_absensi_masuk_id')) return $q;
                                 $latest = \App\Models\AbsensiHarian::where('user_id', Auth::id())
-                                    ->whereNotNull('log_masuk_id')->whereNotNull('log_pulang_id')
+                                    ->whereNotNull('log_masuk_id')
                                     ->orderBy('tanggal', 'desc')->first();
                                 return $latest ? $latest->log_masuk_id : null;
                             }),
@@ -109,7 +115,7 @@ class LhkForm
                             ->default(function () {
                                 if ($q = request()->query('log_absensi_pulang_id')) return $q;
                                 $latest = \App\Models\AbsensiHarian::where('user_id', Auth::id())
-                                    ->whereNotNull('log_masuk_id')->whereNotNull('log_pulang_id')
+                                    ->whereNotNull('log_masuk_id')
                                     ->orderBy('tanggal', 'desc')->first();
                                 return $latest ? $latest->log_pulang_id : null;
                             }),
@@ -169,7 +175,16 @@ class LhkForm
                                     ->columnSpan(1),
 
                                 Select::make('aktivitas_id')
-                                    ->relationship('aktivitas', 'nama_aktivitas')
+                                    ->relationship(
+                                        name: 'aktivitas',
+                                        titleAttribute: 'nama_aktivitas',
+                                        modifyQueryUsing: function ($query, Get $get) {
+                                            $uid = $get('../../user_id') ?? Auth::id();
+                                            $targetUser = $uid ? \App\Models\User::find((int) $uid) : null;
+
+                                            return $query->untukUser($targetUser);
+                                        }
+                                    )
                                     ->getOptionLabelFromRecordUsing(
                                         fn($record) => $record->nama_aktivitas . ' (' . ($record->menit ?? 0) . ' menit)'
                                     )
@@ -180,13 +195,24 @@ class LhkForm
                                     ->afterStateUpdated(function ($state, $set, $get) {
                                         if ($state) {
                                             $aktivitas = Aktivitas::find((int) $state);
-                                            $menit = $aktivitas?->menit ?? 0;
+                                            $menit = (int) ($aktivitas?->menit ?? 0);
                                             $set('lama_menit', $menit);
                                             $jamMulai = $get('jam_mulai');
+                                            if (! $jamMulai) {
+                                                $uid = $get('../../user_id') ?? Auth::id();
+                                                $tgl = $get('../../tanggal') ?? now()->format('Y-m-d');
+                                                $userObj = $uid ? \App\Models\User::find((int) $uid) : null;
+                                                $jadwal = $userObj?->getJadwalKerja() ?? \App\Models\JadwalKerja::getDefault();
+                                                $jamResmi = $jadwal ? $jadwal->getJamMasukHari($tgl) : '07:30';
+                                                $absen = $uid ? \App\Models\AbsensiHarian::where('user_id', (int) $uid)->whereDate('tanggal', $tgl)->first() : null;
+                                                $jamAbsen = $absen?->jam_masuk ? substr((string) $absen->jam_masuk, 0, 5) : null;
+                                                $jamMulai = ($jamAbsen && $jamAbsen > $jamResmi) ? $jamAbsen : $jamResmi;
+                                                $set('jam_mulai', $jamMulai);
+                                            }
                                             if ($jamMulai && $menit > 0) {
                                                 try {
                                                     $set('jam_selesai', Carbon::parse($jamMulai)
-                                                        ->addMinutes((int) $menit)
+                                                        ->addMinutes($menit)
                                                         ->format('H:i'));
                                                 } catch (\Exception $e) {
                                                 }

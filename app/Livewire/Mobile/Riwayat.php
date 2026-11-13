@@ -3,6 +3,7 @@
 namespace App\Livewire\Mobile;
 
 use App\Models\AbsensiHarian;
+use App\Models\Lhk;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -103,9 +104,32 @@ class Riwayat extends Component
 
         $riwayat = $query->orderBy('tanggal', 'desc')->get();
 
+        $lhkByTanggal = Lhk::withCount('pekerjaans')
+            ->where('user_id', $userId)
+            ->whereMonth('tanggal', $this->bulan)
+            ->whereYear('tanggal', $this->tahun)
+            ->get()
+            ->keyBy(fn (Lhk $lhk) => Carbon::parse($lhk->tanggal)->format('Y-m-d'));
+
+        $totalMenitBulanIni = (int) $allBulanIni->sum(fn (AbsensiHarian $a) => $a->hitungMenitKerjaEfektif());
+        $targetBulananAsn = AbsensiHarian::hitungTargetBulananAsn((int) $this->bulan, (int) $this->tahun);
+        $persenJamKerja = $targetBulananAsn['target_menit'] > 0
+            ? min(100, (int) round(($totalMenitBulanIni / $targetBulananAsn['target_menit']) * 100))
+            : 0;
+
         return view('livewire.mobile.riwayat', [
             'riwayat' => $riwayat,
+            'lhkByTanggal' => $lhkByTanggal,
             'rekap' => $rekap,
+            'jamKerjaBulanan' => [
+                'total_menit' => $totalMenitBulanIni,
+                'total_format' => AbsensiHarian::formatDurasiJamMenit($totalMenitBulanIni),
+                'target_format' => $targetBulananAsn['target_format'],
+                'hari_kerja' => $targetBulananAsn['hari_kerja'],
+                'persen' => $persenJamKerja,
+                'target_harian_format' => AbsensiHarian::formatDurasiJamMenit(AbsensiHarian::TARGET_MENIT_HARIAN_ASN),
+                'target_mingguan_format' => AbsensiHarian::formatDurasiJamMenit(AbsensiHarian::TARGET_MENIT_MINGGUAN_ASN),
+            ],
             'bulanNama' => Carbon::createFromDate($this->tahun, $this->bulan, 1)->translatedFormat('F Y'),
         ]);
     }

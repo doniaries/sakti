@@ -278,6 +278,50 @@
         </button>
     </div>
 
+    <!-- Rekap Jam Kerja ASN (7j 30m / hari • 37j 30m / minggu) -->
+    <div class="w-full p-3.5 rounded-2xl bg-white dark:bg-[#132338]/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 shadow-2xs mb-5">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-business-time"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-extrabold text-slate-800 dark:text-white leading-tight">Jam Kerja Efektif ASN</h4>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight">Standar 7j 30m/hari &bull; 37j 30m/minggu (non-istirahat)</p>
+                </div>
+            </div>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/30">
+                {{ $jamKerjaAsn['persen_bulanan'] }}%
+            </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-[#0F1C2E] border border-slate-100 dark:border-slate-700/60">
+                <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block">Tercatat Hari Ini</span>
+                <div class="font-mono font-extrabold text-sm text-slate-800 dark:text-white mt-0.5">
+                    @if ($hariIni['sudah_masuk'] && !$hariIni['sudah_pulang'])
+                        <span class="text-amber-600 dark:text-amber-300 text-xs font-sans">Bertugas</span>
+                    @else
+                        {{ $jamKerjaAsn['harian_format'] }}
+                    @endif
+                    <span class="text-[10px] font-normal text-slate-400">/ {{ $jamKerjaAsn['target_harian_format'] }}</span>
+                </div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-[#0F1C2E] border border-slate-100 dark:border-slate-700/60">
+                <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block">Akumulasi Bulan Ini</span>
+                <div class="font-mono font-extrabold text-sm text-sky-700 dark:text-cyan-300 mt-0.5">
+                    {{ $jamKerjaAsn['bulanan_format'] }}
+                    <span class="text-[10px] font-normal text-slate-400">/ {{ $jamKerjaAsn['target_bulanan_format'] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-2.5 w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+            <div class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-500"
+                 style="width: {{ $jamKerjaAsn['persen_bulanan'] }}%"></div>
+        </div>
+    </div>
+
     <!-- Menu Layanan Kepegawaian -->
     <div class="mb-5">
         <div class="flex items-center justify-between mb-2.5 px-0.5">

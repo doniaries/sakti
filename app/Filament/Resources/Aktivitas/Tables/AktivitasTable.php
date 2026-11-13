@@ -2,11 +2,23 @@
 
 namespace App\Filament\Resources\Aktivitas\Tables;
 
+use App\Models\Aktivitas;
+use App\Models\Bidang;
+use App\Models\User;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class AktivitasTable
 {
@@ -14,40 +26,180 @@ class AktivitasTable
     {
         return $table
             ->columns([
-                TextColumn::make('jabatan.nama')
+                TextColumn::make('user.name')
+                    ->label('Pegawai')
+                    ->placeholder('Umum / Global')
+                    ->badge()
+                    ->color(fn (?string $state): string => $state ? 'info' : 'gray')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('jabatan.nama')
+                    ->label('Jabatan')
+                    ->placeholder('-')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
+                    ->placeholder('-')
                     ->badge()
-                    ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
+                    ->color(fn (?string $state): string => $state ? \App\Models\Bidang::badgeColor($state) : 'gray')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('kode')
+                    ->label('Kode')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('kode')
-                    ->searchable(),
                 TextColumn::make('nama_aktivitas')
+                    ->label('Nama Aktivitas')
+                    ->wrap()
                     ->searchable(),
                 TextColumn::make('menit')
+                    ->label('Menit')
                     ->numeric()
+                    ->suffix(' mnt')
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('user_id')
+                    ->label('Pegawai')
+                    ->relationship('user', 'name')
+                    ->searchable()
+                    ->preload(),
+                SelectFilter::make('bidang_id')
+                    ->label('Bidang')
+                    ->relationship('bidang', 'nama')
+                    ->searchable()
+                    ->preload(),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('salinKePegawai')
+                        ->label('Salin ke Pegawai (Per Bidang)')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->color('info')
+                        ->modalHeading('Salin Aktivitas ke Pegawai')
+                        ->modalDescription('Pilih Bidang untuk otomatis mencentang seluruh pegawai di bidang tersebut, atau pilih pegawai secara manual.')
+                        ->modalWidth('2xl')
+                        ->form([
+                            Select::make('bidang_id')
+                                ->label('Filter Bidang (Otomatis Pilih Pegawai Bidang)')
+                                ->options(fn () => Bidang::orderBy('nama')->pluck('nama', 'id')->all())
+                                ->placeholder('Semua Bidang')
+                                ->searchable()
+                                ->live()
+                                ->afterStateUpdated(function ($state, Set $set): void {
+                                    if ($state) {
+                                        $ids = User::where('aktif', true)
+                                            ->where('bidang_id', (int) $state)
+                                            ->orderBy('name')
+                                            ->pluck('id')
+                                            ->map(fn ($id) => (string) $id)
+                                            ->all();
+                                        $set('user_ids', $ids);
+                                    } else {
+                                        $set('user_ids', []);
+                                    }
+                                }),
+
+                            CheckboxList::make('user_ids')
+                                ->label('Pilih Pegawai Tujuan')
+                                ->options(function (Get $get): array {
+                                    $bidangId = $get('bidang_id');
+
+                                    return User::with(['bidang', 'jabatan'])
+                                        ->where('aktif', true)
+                                        ->when($bidangId, fn ($q) => $q->where('bidang_id', (int) $bidangId))
+                                        ->orderBy('name')
+                                        ->get()
+                                        ->mapWithKeys(function (User $u): array {
+                                            $info = collect([$u->bidang?->nama, $u->jabatan?->nama])
+                                                ->filter()
+                                                ->implode(' • ');
+
+                                            return [(string) $u->id => $info ? "{$u->name} ({$info})" : $u->name];
+                                        })
+                                        ->all();
+                                })
+                                ->bulkToggleable()
+                                ->searchable()
+                                ->columns(2)
+                                ->required()
+                                ->helperText('Setiap aktivitas yang disalin otomatis dikaitkan dengan pegawai, jabatan, dan bidang masing-masing.'),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $userIds = $data['user_ids'] ?? [];
+                            $users = User::whereIn('id', $userIds)->get();
+                            $copiedCount = 0;
+
+                            foreach ($users as $pegawai) {
+                                $nextKode = (int) Aktivitas::where('user_id', $pegawai->id)->count();
+                                foreach ($records as $record) {
+                                    $exists = Aktivitas::where('user_id', $pegawai->id)
+                                        ->where('nama_aktivitas', $record->nama_aktivitas)
+                                        ->exists();
+
+                                    if (! $exists) {
+                                        $nextKode++;
+                                        Aktivitas::create([
+                                            'user_id' => $pegawai->id,
+                                            'jabatan_id' => $pegawai->jabatan_id,
+                                            'bidang_id' => $pegawai->bidang_id,
+                                            'kode' => $record->kode ?: (string) $nextKode,
+                                            'nama_aktivitas' => $record->nama_aktivitas,
+                                            'menit' => $record->menit,
+                                        ]);
+                                        $copiedCount++;
+                                    }
+                                }
+                            }
+
+                            Notification::make()
+                                ->title('Berhasil Disalin')
+                                ->body("{$copiedCount} item aktivitas berhasil disalin ke " . $users->count() . ' pegawai.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('jadikanGlobal')
+                        ->label('Jadikan Global (Semua Pegawai)')
+                        ->icon('heroicon-o-globe-alt')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->modalHeading('Jadikan Aktivitas Global')
+                        ->modalDescription('Aktivitas yang dipilih akan dijadikan data Global (seperti Apel Pagi) sehingga dapat dipakai oleh seluruh pegawai.')
+                        ->action(function (Collection $records): void {
+                            foreach ($records as $record) {
+                                $record->update([
+                                    'user_id' => null,
+                                    'jabatan_id' => null,
+                                    'bidang_id' => null,
+                                ]);
+                            }
+
+                            Notification::make()
+                                ->title('Aktivitas Dijadikan Global')
+                                ->body($records->count() . ' aktivitas kini dapat diakses oleh semua pegawai.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     DeleteBulkAction::make(),
                 ]),
             ]);

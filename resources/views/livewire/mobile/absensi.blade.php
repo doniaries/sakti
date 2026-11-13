@@ -80,8 +80,11 @@
                     <i class="fa-regular fa-calendar-check"></i>
                 </div>
                 <div class="min-w-0">
-                    <span class="text-[9px] text-sky-200/80 uppercase font-bold tracking-wider block truncate">Jadwal Kerja</span>
+                    <span class="text-[9px] text-sky-200/80 uppercase font-bold tracking-wider block truncate">Jadwal Kerja (ASN 7j 30m)</span>
                     <span class="font-extrabold font-mono text-xs text-white block truncate">{{ $jamMasukResmi }} - {{ $jamPulangResmi }} <span class="text-[9px] font-sans font-medium text-sky-200">WIB</span></span>
+                    <span class="text-[9px] text-sky-200/80 block truncate">
+                        {{ $selesai ? "Tercatat: {$durasiKerjaHariIni} / {$targetHarianAsn}" : '37j 30m/minggu (non-istirahat)' }}
+                    </span>
                 </div>
             </div>
 

@@ -23,9 +23,27 @@ class AktivitasResource extends Resource
     protected static ?string $recordTitleAttribute = 'nama_aktivitas';
 
     protected static string|\UnitEnum|null $navigationGroup = 'LHK';
-    protected static ?string $modelLabel = 'Aktivitas';
-    protected static ?string $pluralModelLabel = 'Data Aktivitas';
+    protected static ?string $navigationLabel = 'Bank Aktivitas';
+    protected static ?string $modelLabel = 'Bank Aktivitas';
+    protected static ?string $pluralModelLabel = 'Bank Aktivitas Pegawai';
     protected static ?int    $navigationSort     = 3;
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery()->with(['user', 'jabatan', 'bidang']);
+
+        /** @var \App\Models\User|null $user */
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian'])) {
+            $query->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                    ->orWhereNull('user_id');
+            });
+        }
+
+        return $query;
+    }
 
     public static function form(Schema $schema): Schema
     {

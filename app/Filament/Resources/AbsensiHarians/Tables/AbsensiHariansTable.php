@@ -98,6 +98,12 @@ class AbsensiHariansTable
                         ? 'heroicon-m-finger-print'
                         : ($record->logPulang?->sumber === 'mobile' ? 'heroicon-m-device-phone-mobile' : null))
                     ->iconColor(fn($record) => $record->logPulang?->sumber === 'mesin' ? 'info' : 'success'),
+                TextColumn::make('jam_kerja_efektif')
+                    ->label('Jam Kerja')
+                    ->getStateUsing(fn ($record) => \App\Models\AbsensiHarian::formatDurasiJamMenit($record->hitungMenitKerjaEfektif()))
+                    ->description('Standar ASN: 7j 30m/hari')
+                    ->badge()
+                    ->color(fn ($record) => $record->hitungMenitKerjaEfektif() >= \App\Models\AbsensiHarian::TARGET_MENIT_HARIAN_ASN ? 'success' : ($record->hitungMenitKerjaEfektif() > 0 ? 'warning' : 'gray')),
                 TextColumn::make('status')
                     ->badge()
                     ->searchable(),
