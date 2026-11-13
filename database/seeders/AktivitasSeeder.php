@@ -14,20 +14,27 @@ class AktivitasSeeder extends Seeder
      */
     public function run(): void
     {
-        // Define users based on email
-        $emails = [
-            'kepaladinas@gmail.com', // Kadis (Afrineldi)
-            'sekretaris@gmail.com',  // Sekretaris (Desmiwarti)
-            'admin@gmail.com',       // Kasubag Umum (Zulfitri)
-            'kabid@gmail.com',       // Kabid (Indrawadi)
-            'wilda@gmail.com',       // Pegawai (Wilda)
-            'doniaries@gmail.com',   // doni aries (existing)
-        ];
+        // 1. Seed aktivitas global yang dipakai semua pegawai
+        Aktivitas::updateOrCreate(
+            [
+                'user_id' => null,
+                'nama_aktivitas' => 'Mengikuti Apel Pagi',
+            ],
+            [
+                'jabatan_id' => null,
+                'bidang_id' => null,
+                'kode' => '1',
+                'menit' => 30,
+            ]
+        );
 
-        $users = User::whereIn('email', $emails)->get();
+        // 2. Target user simulasi: seluruh super_admin + doniaries@gmail.com
+        $superAdmins = User::whereHas('roles', fn ($query) => $query->where('name', 'super_admin'))->get();
+        $simulasiUsers = User::where('email', 'doniaries@gmail.com')->get();
+
+        $users = $superAdmins->merge($simulasiUsers)->unique('id');
 
         $aktivitasList = [
-            ['nama_aktivitas' => 'Mengikuti Apel Pagi', 'menit' => 30],
             ['nama_aktivitas' => 'Mengikuti sosialisasi/bimtek/rapat/pelatihan/diklat secara daring (zoom/google meet)', 'menit' => 180],
             ['nama_aktivitas' => 'Memimpin rapat/FGD/kegiatan/sosialisasi/bimtek/pelatihan/workshop', 'menit' => 180],
             ['nama_aktivitas' => 'Mengarahkan tim kreatif dalam pengembangan ide kampanye pariwisata daerah dan memvalidasi rilis berita.', 'menit' => 45],
@@ -57,27 +64,23 @@ class AktivitasSeeder extends Seeder
             ['nama_aktivitas' => 'Membuat, menganalisa, menyusun narasi, mendesain dan mengunggah info grafis terkait data kunjungan wisatawan ke Sumatera Barat melalui media sosial.', 'menit' => 300],
         ];
 
-        // Global activity code counter starting from 1
-        $kodeCounter = 1;
-
         foreach ($users as $user) {
+            $kodeCounter = 2;
+
             foreach ($aktivitasList as $item) {
-                // Determine if this activity already exists for this jabatan and bidang
-                $exists = Aktivitas::where('jabatan_id', $user->jabatan_id)
-                    ->where('bidang_id', $user->bidang_id)
-                    ->where('nama_aktivitas', $item['nama_aktivitas'])
-                    ->exists();
-                
-                if (!$exists) {
-                    Aktivitas::create([
+                Aktivitas::updateOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'nama_aktivitas' => $item['nama_aktivitas'],
+                    ],
+                    [
                         'jabatan_id' => $user->jabatan_id,
                         'bidang_id' => $user->bidang_id,
-                        'nama_aktivitas' => $item['nama_aktivitas'],
                         'kode' => (string) $kodeCounter,
                         'menit' => $item['menit'],
-                    ]);
-                    $kodeCounter++;
-                }
+                    ]
+                );
+                $kodeCounter++;
             }
         }
     }
