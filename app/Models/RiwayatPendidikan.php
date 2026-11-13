@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\JenjangPendidikan;
+use App\Models\Concerns\DeletesOldFiles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,13 @@ use Illuminate\Support\Facades\Storage;
 
 class RiwayatPendidikan extends Model
 {
+    use DeletesOldFiles;
     use HasFactory;
+
+    protected function fileAttributes(): array
+    {
+        return ['file_ijazah'];
+    }
 
     protected $table = 'riwayat_pendidikans';
 

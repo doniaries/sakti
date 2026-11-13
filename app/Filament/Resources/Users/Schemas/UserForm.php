@@ -45,9 +45,15 @@ class UserForm
                                     ->label('Foto Profil (Avatar)')
                                     ->avatar()
                                     ->image()
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->imageResizeMode('cover')
+                                    ->imageResizeTargetWidth('600')
+                                    ->imageResizeTargetHeight('600')
                                     ->disk('public')
-                                    ->directory('avatars')
-                                    ->maxSize(2048)
+                                    ->directory(fn ($record): string => $record?->id ? "dokumen_pegawai/{$record->id}/avatars" : 'avatars')
+                                    ->maxSize(1024)
+                                    ->openable()
+                                    ->downloadable()
                                     ->alignCenter()
                                     ->columnSpan([
                                         'default' => 1,
@@ -334,7 +340,7 @@ class UserForm
                                                             ->maxSize(2048)
                                                             // ->required()
                                                             ->disk('public')
-                                                            ->directory('dokumen_golongan')
+                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/golongan" : 'dokumen_golongan')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
                                                                 return (string) str('sk-golongan-' . str()->random(16) . '.pdf');
                                                             })
@@ -509,7 +515,7 @@ class UserForm
                                                             ->maxSize(2048)
                                                             ->required()
                                                             ->disk('public')
-                                                            ->directory('dokumen_jabatan')
+                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/jabatan" : 'dokumen_jabatan')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
                                                                 return (string) str('sk-jabatan-' . str()->random(16) . '.pdf');
                                                             })
@@ -590,6 +596,7 @@ class UserForm
                                                         TextInput::make('nomor_ijazah')
                                                             ->label('Nomor Seri Ijazah')
                                                             ->placeholder('Contoh: DN-08/D-SMK/06/0012345')
+                                                            ->distinct()
                                                             ->maxLength(100),
 
                                                         FileUpload::make('file_ijazah')
@@ -599,7 +606,7 @@ class UserForm
                                                             ->maxSize(2048)
                                                             ->required()
                                                             ->disk('public')
-                                                            ->directory('dokumen_pendidikan')
+                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/ijazah" : 'dokumen_pendidikan')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
                                                                 return (string) str('ijazah-' . str()->random(16) . '.pdf');
                                                             })
@@ -613,6 +620,77 @@ class UserForm
                                                             ->helperText('Tandai jika merupakan jenjang pendidikan terakhir')
                                                             ->default(false)
                                                             ->inline(false),
+                                                    ]),
+                                            ]),
+                                    ]),
+
+                                Section::make('Sertifikat, Diklat & Penghargaan')
+                                    ->description('Unggah sertifikat pelatihan, bimtek, kompetensi, atau penghargaan pegawai (Wajib PDF, Maks. 2 MB).')
+                                    ->icon('heroicon-o-document-check')
+                                    ->schema([
+                                        Repeater::make('riwayatSertifikat')
+                                            ->relationship('riwayatSertifikat')
+                                            ->label('Daftar Sertifikat & Diklat')
+                                            ->addActionLabel('+ Tambah Sertifikat / Diklat')
+                                            ->collapsible()
+                                            ->itemLabel(fn (array $state): ?string => filled($state['nama_sertifikat'] ?? null)
+                                                ? $state['nama_sertifikat']
+                                                : 'Sertifikat / Diklat')
+                                            ->schema([
+                                                Grid::make([
+                                                    'default' => 1,
+                                                    'md' => 3,
+                                                ])
+                                                    ->schema([
+                                                        TextInput::make('nama_sertifikat')
+                                                            ->label('Nama Sertifikat / Diklat')
+                                                            ->placeholder('Contoh: Diklat Kepemimpinan Tk. IV')
+                                                            ->required()
+                                                            ->maxLength(255)
+                                                            ->columnSpan(2),
+
+                                                        Select::make('jenis')
+                                                            ->label('Jenis')
+                                                            ->options([
+                                                                'sertifikat' => 'Sertifikat Kompetensi',
+                                                                'diklat' => 'Diklat',
+                                                                'bimtek' => 'Bimtek / Workshop',
+                                                                'penghargaan' => 'Penghargaan',
+                                                                'lainnya' => 'Lainnya',
+                                                            ])
+                                                            ->default('sertifikat')
+                                                            ->required(),
+
+                                                        TextInput::make('penyelenggara')
+                                                            ->label('Lembaga Penyelenggara')
+                                                            ->placeholder('Contoh: BPSDM / LAN RI')
+                                                            ->maxLength(255),
+
+                                                        TextInput::make('nomor_sertifikat')
+                                                            ->label('Nomor Sertifikat')
+                                                            ->placeholder('Contoh: 001/DIKLAT/2026')
+                                                            ->distinct()
+                                                            ->maxLength(120),
+
+                                                        DatePicker::make('tanggal_terbit')
+                                                            ->label('Tanggal Terbit')
+                                                            ->displayFormat('d/m/Y'),
+
+                                                        FileUpload::make('file_sertifikat')
+                                                            ->label('Berkas Sertifikat (Wajib PDF, Maks. 2 MB)')
+                                                            ->acceptedFileTypes(['application/pdf'])
+                                                            ->rules(['file', 'mimes:pdf', 'max:2048'])
+                                                            ->maxSize(2048)
+                                                            ->required()
+                                                            ->disk('public')
+                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/sertifikat" : 'dokumen_sertifikat')
+                                                            ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
+                                                                return (string) str('sertifikat-' . str()->random(16) . '.pdf');
+                                                            })
+                                                            ->downloadable()
+                                                            ->openable()
+                                                            ->columnSpanFull()
+                                                            ->helperText('Wajib unggah berkas sertifikat berformat PDF (Maksimal 2 MB).'),
                                                     ]),
                                             ]),
                                     ]),

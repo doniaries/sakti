@@ -52,6 +52,7 @@ class ProfilPegawai extends Page
             'riwayatGolongan',
             'riwayatJabatan',
             'riwayatPendidikan',
+            'riwayatSertifikat',
         ]);
     }
 

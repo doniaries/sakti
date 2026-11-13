@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Concerns\DeletesOldFiles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -27,7 +28,12 @@ use Illuminate\Support\Facades\Storage;
 class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use DeletesOldFiles, HasFactory, Notifiable, HasRoles;
+
+    protected function fileAttributes(): array
+    {
+        return ['avatar_url', 'file_ttd'];
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -127,6 +133,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     public function riwayatJabatan(): HasMany
     {
         return $this->hasMany(RiwayatJabatan::class)->orderByDesc('tmt_jabatan')->orderByDesc('id');
+    }
+
+    public function riwayatSertifikat(): HasMany
+    {
+        return $this->hasMany(RiwayatSertifikat::class)->orderByDesc('tanggal_terbit')->orderByDesc('id');
     }
 
 

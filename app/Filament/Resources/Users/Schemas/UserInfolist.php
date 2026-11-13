@@ -371,20 +371,7 @@ class UserInfolist
                                                             ->date('d/m/Y')
                                                             ->placeholder('-'),
 
-                                                        TextEntry::make('file_sk_golongan')
-                                                            ->label('Lampiran Berkas SK Pangkat')
-                                                            ->formatStateUsing(fn($state) => $state ? 'Unduh SK Pangkat (PDF)' : 'Belum diunggah')
-                                                            ->icon(fn($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
-                                                            ->color(fn($state) => $state ? 'primary' : 'gray')
-                                                            ->url(function ($record): ?string {
-                                                                if (! $record->file_sk_golongan) {
-                                                                    return null;
-                                                                }
-                                                                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-                                                                $disk = Storage::disk('public');
-
-                                                                return $disk->url($record->file_sk_golongan);
-                                                            }, shouldOpenInNewTab: true),
+                                                        self::pdfAttachmentEntry('file_sk_golongan', 'Lampiran Berkas SK Pangkat'),
                                                     ]),
                                             ]),
                                     ]),
@@ -476,20 +463,7 @@ class UserInfolist
                                                             ->label('Nomor SK')
                                                             ->placeholder('-'),
 
-                                                        TextEntry::make('file_sk_jabatan')
-                                                            ->label('Lampiran Berkas SK Jabatan')
-                                                            ->formatStateUsing(fn($state) => $state ? 'Unduh SK Jabatan (PDF)' : 'Belum diunggah')
-                                                            ->icon(fn($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
-                                                            ->color(fn($state) => $state ? 'primary' : 'gray')
-                                                            ->url(function ($record): ?string {
-                                                                if (! $record->file_sk_jabatan) {
-                                                                    return null;
-                                                                }
-                                                                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-                                                                $disk = Storage::disk('public');
-
-                                                                return $disk->url($record->file_sk_jabatan);
-                                                            }, shouldOpenInNewTab: true),
+                                                        self::pdfAttachmentEntry('file_sk_jabatan', 'Lampiran Berkas SK Jabatan'),
                                                     ]),
                                             ]),
                                     ]),
@@ -536,20 +510,55 @@ class UserInfolist
                                                             ->label('Nomor Seri Ijazah')
                                                             ->placeholder('-'),
 
-                                                        TextEntry::make('file_ijazah')
-                                                            ->label('Lampiran Berkas Ijazah')
-                                                            ->formatStateUsing(fn($state) => $state ? 'Unduh Berkas Ijazah (PDF)' : 'Belum diunggah')
-                                                            ->icon(fn($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
-                                                            ->color(fn($state) => $state ? 'primary' : 'gray')
-                                                            ->url(function ($record): ?string {
-                                                                if (! $record->file_ijazah) {
-                                                                    return null;
-                                                                }
-                                                                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-                                                                $disk = Storage::disk('public');
+                                                        self::pdfAttachmentEntry('file_ijazah', 'Lampiran Berkas Ijazah'),
+                                                    ]),
+                                            ]),
+                                    ]),
 
-                                                                return $disk->url($record->file_ijazah);
-                                                            }, shouldOpenInNewTab: true),
+                                Section::make('Sertifikat, Diklat & Penghargaan')
+                                    ->description('Daftar sertifikat pelatihan, bimtek, kompetensi, dan penghargaan pegawai.')
+                                    ->icon('heroicon-o-document-check')
+                                    ->schema([
+                                        RepeatableEntry::make('riwayatSertifikat')
+                                            ->label('')
+                                            ->schema([
+                                                Grid::make([
+                                                    'default' => 1,
+                                                    'md' => 4,
+                                                ])
+                                                    ->schema([
+                                                        TextEntry::make('jenis')
+                                                            ->label('Jenis')
+                                                            ->badge()
+                                                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                                                'diklat' => 'Diklat',
+                                                                'bimtek' => 'Bimtek / Workshop',
+                                                                'penghargaan' => 'Penghargaan',
+                                                                'lainnya' => 'Lainnya',
+                                                                default => 'Sertifikat',
+                                                            })
+                                                            ->color('info'),
+
+                                                        TextEntry::make('nama_sertifikat')
+                                                            ->label('Nama Sertifikat / Diklat')
+                                                            ->weight('bold')
+                                                            ->columnSpan(2),
+
+                                                        TextEntry::make('tanggal_terbit')
+                                                            ->label('Tanggal Terbit')
+                                                            ->date('d/m/Y')
+                                                            ->placeholder('-'),
+
+                                                        TextEntry::make('penyelenggara')
+                                                            ->label('Penyelenggara')
+                                                            ->placeholder('-')
+                                                            ->columnSpan(2),
+
+                                                        TextEntry::make('nomor_sertifikat')
+                                                            ->label('Nomor Sertifikat')
+                                                            ->placeholder('-'),
+
+                                                        self::pdfAttachmentEntry('file_sertifikat', 'Lampiran Sertifikat'),
                                                     ]),
                                             ]),
                                     ]),
@@ -583,5 +592,40 @@ class UserInfolist
                             ]),
                     ]),
             ]);
+    }
+
+    private static function pdfAttachmentEntry(string $attribute, string $label): TextEntry
+    {
+        return TextEntry::make($attribute)
+            ->label($label)
+            ->formatStateUsing(fn ($state): string => filled($state) ? 'Preview PDF' : 'Belum diunggah')
+            ->icon(fn ($state): string => filled($state) ? 'heroicon-m-eye' : 'heroicon-m-x-circle')
+            ->color(fn ($state): string => filled($state) ? 'primary' : 'gray')
+            ->url(function ($record) use ($attribute): ?string {
+                $path = $record->{$attribute} ?? null;
+                if (blank($path)) {
+                    return null;
+                }
+
+                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                $disk = Storage::disk('public');
+
+                return $disk->url($path);
+            }, shouldOpenInNewTab: true)
+            ->suffixAction(
+                Action::make('unduh_' . $attribute)
+                    ->icon('heroicon-m-arrow-down-tray')
+                    ->color('success')
+                    ->tooltip('Unduh Berkas PDF')
+                    ->visible(fn ($record): bool => filled($record->{$attribute} ?? null) && Storage::disk('public')->exists((string) $record->{$attribute}))
+                    ->action(function ($record) use ($attribute) {
+                        $path = (string) ($record->{$attribute} ?? '');
+
+                        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                        $disk = Storage::disk('public');
+
+                        return $disk->download($path);
+                    })
+            );
     }
 }
