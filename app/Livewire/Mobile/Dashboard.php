@@ -89,6 +89,28 @@ class Dashboard extends Component
         return redirect()->route('mobile.login');
     }
 
+    public function markNotificationAsRead(string $id): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user) {
+            return;
+        }
+
+        $user->unreadNotifications()->where('id', $id)->update(['read_at' => now()]);
+    }
+
+    public function markAllNotificationsAsRead(): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user) {
+            return;
+        }
+
+        $user->unreadNotifications()->update(['read_at' => now()]);
+    }
+
     public function render()
     {
         /** @var User $user */
@@ -132,8 +154,13 @@ class Dashboard extends Component
             ];
         }
 
+        $unreadNotifCount = $user->unreadNotifications()->count();
+        $recentNotifications = $user->notifications()->latest()->limit(15)->get();
+
         return view('livewire.mobile.dashboard', [
             'user' => $user,
+            'unreadNotifCount' => $unreadNotifCount,
+            'recentNotifications' => $recentNotifications,
             'hariIni' => [
                 'sudah_masuk' => $sudahMasuk,
                 'sudah_pulang' => $sudahPulang,
