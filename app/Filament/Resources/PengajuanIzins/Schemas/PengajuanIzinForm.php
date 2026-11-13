@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,11 +22,19 @@ class PengajuanIzinForm
             ->components([
                 Section::make('Data Pengajuan Izin, Sakit & Cuti')
                     ->description('Isi data pengajuan ketidakhadiran kerja (izin / sakit / cuti).')
+                    ->columnSpanFull()
                     ->schema([
                         Select::make('user_id')
                             ->label('Nama Pegawai')
                             ->relationship('user', 'name')
                             ->default(fn () => Auth::id())
+                            ->disabled(function (): bool {
+                                /** @var User|null $user */
+                                $user = Auth::user();
+
+                                return ! ($user?->hasAnyRole(['super_admin', 'admin']) ?? false);
+                            })
+                            ->dehydrated()
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -35,6 +44,7 @@ class PengajuanIzinForm
                             ->relationship('jenisIzin', 'nama', fn ($query) => $query->where('aktif', true))
                             ->searchable()
                             ->preload()
+                            ->live()
                             ->required(),
 
                         DatePicker::make('tanggal_mulai')
@@ -59,12 +69,15 @@ class PengajuanIzinForm
                             ->columnSpanFull(),
 
                         FileUpload::make('lampiran')
-                            ->label('Lampiran Bukti (Surat Dokter / Form Cuti)')
+                            ->label('Surat Keterangan Dokter (Wajib untuk Sakit)')
                             ->disk('public')
                             ->directory('lampiran_izin')
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
-                            ->maxSize(2048)
-                            ->helperText('Maksimal ukuran file 2MB (PDF, JPG, PNG).')
+                            ->rules(['file', 'mimes:pdf,jpg,jpeg,png', 'max:1024'])
+                            ->maxSize(1024)
+                            ->visible(fn (Get $get): bool => JenisIzin::whereKey($get('jenis_izin_id'))->value('kategori') === 'sakit')
+                            ->required(fn (Get $get): bool => JenisIzin::whereKey($get('jenis_izin_id'))->value('kategori') === 'sakit')
+                            ->helperText('Khusus izin sakit. Maksimal ukuran file 1MB (PDF, JPG, PNG).')
                             ->columnSpanFull(),
                     ])->columns(2),
 
