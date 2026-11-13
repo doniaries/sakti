@@ -55,15 +55,30 @@ class UserForm
                                     ]),
 
                                 Group::make([
-                                    TextInput::make('name')
-                                        ->label('Nama Lengkap')
-                                        ->placeholder('Contoh: AHMAD FAUZI, S.KOM')
-                                        ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                                        ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
-                                        ->required()
-                                        ->maxLength(255),
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 2,
+                                    ])
+                                        ->schema([
+                                            TextInput::make('name')
+                                                ->label('Nama Lengkap')
+                                                ->placeholder('Contoh: AHMAD FAUZI, S.KOM')
+                                                ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
+                                                ->required()
+                                                ->maxLength(255),
 
-                                    Grid::make(3)
+                                            TextInput::make('nip')
+                                                ->label('NIP')
+                                                ->mask('99999999 999999 9 999')
+                                                ->placeholder('Contoh: 19720407 199202 1 002')
+                                                ->maxLength(30),
+                                        ]),
+
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 2,
+                                    ])
                                         ->schema([
                                             TextInput::make('gelar_depan')
                                                 ->label('Gelar Depan')
@@ -74,12 +89,38 @@ class UserForm
                                                 ->label('Gelar Belakang')
                                                 ->placeholder('Contoh: S.IP, S.E., S.Kom')
                                                 ->maxLength(100),
+                                        ]),
 
-                                            TextInput::make('nip')
-                                                ->label('NIP')
-                                                ->mask('99999999 999999 9 999')
-                                                ->placeholder('Contoh: 19720407 199202 1 002')
-                                                ->maxLength(30),
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 2,
+                                    ])
+                                        ->schema([
+                                            TextInput::make('email')
+                                                ->label('Email Dinas / Login')
+                                                ->email()
+                                                ->copyable()
+                                                ->placeholder('Contoh: user@sijunjung.go.id')
+                                                ->required()
+                                                ->unique(User::class, 'email', ignoreRecord: true)
+                                                ->maxLength(255),
+
+                                            TextInput::make('password')
+                                                ->label('Password Login')
+                                                ->password()
+                                                ->revealable()
+                                                ->placeholder(fn (string $operation): string => $operation === 'create' ? 'Minimal 6 karakter...' : 'Kosongkan jika tidak diubah...')
+                                                ->formatStateUsing(fn () => '')
+                                                ->autocomplete('new-password')
+                                                ->extraInputAttributes([
+                                                    'autocomplete' => 'new-password',
+                                                    'data-lpignore' => 'true',
+                                                ])
+                                                ->required(fn (string $operation): bool => $operation === 'create')
+                                                ->rule(fn (string $operation): string => $operation === 'create' ? 'required|min:6' : 'nullable|min:6')
+                                                ->maxLength(255)
+                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Hash::make($state) : null)
+                                                ->dehydrated(fn (?string $state): bool => filled($state)),
                                         ]),
                                 ])
                                     ->columnSpan([
@@ -603,104 +644,47 @@ class UserForm
                                     ]),
                             ]),
 
-                        // Tab 6: Akun & Keamanan
                         Tab::make('Akun & Keamanan')
                             ->icon('heroicon-m-key')
                             ->schema([
-                                Grid::make([
-                                    'default' => 1,
-                                    'lg' => 2,
-                                ])
+                                Section::make('Hak Akses & Status Akun')
+                                    ->icon('heroicon-o-user-circle')
+                                    ->columns(2)
                                     ->schema([
-                                        Section::make('Kredensial & Hak Akses Akun')
-                                            ->icon('heroicon-o-user-circle')
-                                            ->columns(2)
-                                            ->schema([
-                                                TextInput::make('email')
-                                                    ->label('Email Dinas / Akun')
-                                                    ->email()
-                                                    ->copyable()
-                                                    ->placeholder('Contoh: user@sijunjung.go.id')
-                                                    ->required()
-                                                    ->maxLength(255),
+                                        TextInput::make('email_pribadi')
+                                            ->label('Email Pribadi')
+                                            ->email()
+                                            ->copyable()
+                                            ->placeholder('Contoh: user@gmail.com')
+                                            ->maxLength(255),
 
-                                                TextInput::make('email_pribadi')
-                                                    ->label('Email Pribadi')
-                                                    ->email()
-                                                    ->copyable()
-                                                    ->placeholder('Contoh: user@gmail.com')
-                                                    ->maxLength(255),
+                                        Toggle::make('aktif')
+                                            ->label('Status Akun Aktif')
+                                            ->default(true)
+                                            ->inline(false),
 
-                                                Toggle::make('aktif')
-                                                    ->label('Status Akun Aktif')
-                                                    ->default(true)
-                                                    ->inline(false)
-                                                    ->columnSpanFull(),
-
-                                                Select::make('roles')
-                                                    ->label('Hak Akses (Role)')
-                                                    ->relationship('roles', 'name', function ($query) {
-                                                        /** @var \App\Models\User|null $user */
-                                                        $user = Auth::user();
-                                                        return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
-                                                    })
-                                                    ->getOptionLabelFromRecordUsing(fn($record) => match ($record->name) {
-                                                        'super_admin' => 'Super Admin (Sistem Penuh)',
-                                                        'admin' => 'Admin Dinas (Kasubag Umum / Kepegawaian)',
-                                                        'pa' => 'PA (Kepala Dinas / Pengguna Anggaran)',
-                                                        'ppk' => 'PPK (Kasubag Keuangan / Pejabat Pembuat Komitmen)',
-                                                        'pptk' => 'PPTK (Kepala Bidang / Sekretaris Dinas)',
-                                                        'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja)',
-                                                        'bendahara' => 'Bendahara Pengeluaran (Uji Kas & Potong Pajak)',
-                                                        'pegawai' => 'Pegawai Biasa (Presensi & LHK Pribadi)',
-                                                        default => ucwords(str_replace('_', ' ', $record->name)),
-                                                    })
-                                                    ->multiple()
-                                                    ->preload()
-                                                    ->searchable()
-                                                    ->columnSpanFull(),
-                                            ]),
-
-                                        Section::make('Keamanan & Kata Sandi')
-                                            ->icon('heroicon-o-lock-closed')
-                                            ->description('Atur atau perbarui password akun pengguna. Wajib diisi 2x agar tidak terjadi kesalahan ketik.')
-                                            ->columns(1)
-                                            ->schema([
-                                                TextInput::make('password')
-                                                    ->label('Password Baru')
-                                                    ->password()
-                                                    ->placeholder('Kosongkan jika tidak diubah...')
-                                                    ->revealable()
-                                                    ->formatStateUsing(fn() => '')
-                                                    ->autocomplete('new-password')
-                                                    ->extraInputAttributes([
-                                                        'autocomplete' => 'new-password',
-                                                        'data-lpignore' => 'true',
-                                                    ])
-                                                    ->required(fn(string $operation): bool => $operation === 'create')
-                                                    ->rule(fn(string $operation) => $operation === 'create' ? 'required|min:6' : 'nullable|min:6')
-                                                    ->maxLength(255)
-                                                    ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Hash::make($state) : null)
-                                                    ->dehydrated(fn(?string $state) => filled($state))
-                                                    ->helperText('Kosongkan jika tidak ingin merubah password.'),
-
-                                                TextInput::make('password_confirmation')
-                                                    ->label('Ulangi Password Baru (Konfirmasi)')
-                                                    ->password()
-                                                    ->placeholder('Ketik ulang password baru...')
-                                                    ->revealable()
-                                                    ->formatStateUsing(fn() => '')
-                                                    ->autocomplete('new-password')
-                                                    ->extraInputAttributes([
-                                                        'autocomplete' => 'new-password',
-                                                        'data-lpignore' => 'true',
-                                                    ])
-                                                    ->required(fn(string $operation, callable $get): bool => $operation === 'create' || (filled($get('password')) && $get('password') !== ''))
-                                                    ->same('password')
-                                                    ->maxLength(255)
-                                                    ->dehydrated(false)
-                                                    ->helperText('Wajib sama persis dengan password baru di atas.'),
-                                            ]),
+                                        Select::make('roles')
+                                            ->label('Hak Akses (Role)')
+                                            ->relationship('roles', 'name', function ($query) {
+                                                /** @var \App\Models\User|null $user */
+                                                $user = Auth::user();
+                                                return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
+                                            })
+                                            ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
+                                                'super_admin' => 'Super Admin (Sistem Penuh)',
+                                                'admin' => 'Admin Dinas (Kasubag Umum / Kepegawaian)',
+                                                'pa' => 'PA (Kepala Dinas / Pengguna Anggaran)',
+                                                'ppk' => 'PPK (Kasubag Keuangan / Pejabat Pembuat Komitmen)',
+                                                'pptk' => 'PPTK (Kepala Bidang / Sekretaris Dinas)',
+                                                'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja)',
+                                                'bendahara' => 'Bendahara Pengeluaran (Uji Kas & Potong Pajak)',
+                                                'pegawai' => 'Pegawai Biasa (Presensi & LHK Pribadi)',
+                                                default => ucwords(str_replace('_', ' ', $record->name)),
+                                            })
+                                            ->multiple()
+                                            ->preload()
+                                            ->searchable()
+                                            ->columnSpanFull(),
                                     ]),
                             ]),
                     ]),

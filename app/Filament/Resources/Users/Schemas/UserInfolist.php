@@ -4,10 +4,12 @@ namespace App\Filament\Resources\Users\Schemas;
 
 use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -15,6 +17,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserInfolist
@@ -28,6 +31,56 @@ class UserInfolist
                 Section::make('Identitas Pegawai')
                     ->icon('heroicon-o-identification')
                     ->headerActions([
+                        Action::make('quick_account')
+                            ->label('Akun & Password')
+                            ->icon('heroicon-m-key')
+                            ->color('info')
+                            ->button()
+                            ->modalHeading('Ubah Nama, Email & Password')
+                            ->modalDescription('Perbarui nama lengkap, email login, atau password pegawai secara langsung.')
+                            ->modalWidth('md')
+                            ->fillForm(fn($record): array => [
+                                'name' => $record->name,
+                                'email' => $record->email,
+                            ])
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Nama Lengkap')
+                                    ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                                    ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
+                                    ->required()
+                                    ->maxLength(255),
+                                TextInput::make('email')
+                                    ->label('Email Login')
+                                    ->email()
+                                    ->required()
+                                    ->unique('users', 'email', ignoreRecord: true)
+                                    ->maxLength(255),
+                                TextInput::make('password')
+                                    ->label('Password Baru')
+                                    ->password()
+                                    ->revealable()
+                                    ->placeholder('Kosongkan jika tidak diubah...')
+                                    ->rule('nullable|min:6')
+                                    ->maxLength(255),
+                            ])
+                            ->action(function ($record, array $data): void {
+                                $payload = [
+                                    'name' => $data['name'],
+                                    'email' => $data['email'],
+                                ];
+
+                                if (filled($data['password'] ?? null)) {
+                                    $payload['password'] = Hash::make($data['password']);
+                                }
+
+                                $record->update($payload);
+
+                                Notification::make()
+                                    ->title('Data akun & password berhasil diperbarui')
+                                    ->success()
+                                    ->send();
+                            }),
                         Action::make('edit')
                             ->label('Ubah')
                             ->icon('heroicon-m-pencil-square')
@@ -60,13 +113,30 @@ class UserInfolist
                                         ->icon('heroicon-m-user')
                                         ->color('primary'),
 
-                                    Grid::make(3)
+                                    Grid::make([
+                                        'default' => 1,
+                                        'sm' => 2,
+                                        'lg' => 5,
+                                    ])
                                         ->schema([
                                             TextEntry::make('nip')
                                                 ->label('NIP')
                                                 ->icon('heroicon-m-hashtag')
                                                 ->copyable()
                                                 ->weight('medium'),
+
+                                            TextEntry::make('email')
+                                                ->label('Email Login')
+                                                ->icon('heroicon-m-envelope')
+                                                ->copyable()
+                                                ->weight('medium')
+                                                ->placeholder('-'),
+
+                                            TextEntry::make('password_status')
+                                                ->label('Password')
+                                                ->state('••••••••')
+                                                ->icon('heroicon-m-key')
+                                                ->color('gray'),
 
                                             TextEntry::make('nik')
                                                 ->label('NIK')

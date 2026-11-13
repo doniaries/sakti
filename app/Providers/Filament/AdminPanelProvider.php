@@ -2,12 +2,22 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\MenuBuilder\CustomMenuResource;
+use App\Filament\MenuBuilder\ResourceItemType;
+use App\Filament\MenuBuilder\SidebarNavigationService;
+use App\Models\Menu;
+use Datlechin\FilamentMenuBuilder\FilamentMenuBuilderPlugin;
+use Datlechin\FilamentMenuBuilder\ItemTypes\LinkItemType;
+use Datlechin\FilamentMenuBuilder\ItemTypes\TextItemType;
 use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationBuilder;
 use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
@@ -62,6 +72,7 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-m-device-phone-mobile'),
             ])
 
+            ->navigation(fn (NavigationBuilder $builder): NavigationBuilder => SidebarNavigationService::build($builder))
             ->navigationItems([
                 NavigationItem::make('Presensi Mobile')
                     ->url(fn(): string => route('mobile.dashboard'), shouldOpenInNewTab: true)
@@ -168,6 +179,42 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel('Peran & Hak Akses')
                     ->navigationIcon('heroicon-o-shield-check')
                     ->navigationSort(99),
+                FilamentMenuBuilderPlugin::make()
+                    ->usingResource(CustomMenuResource::class)
+                    ->addLocations([
+                        'sidebar' => 'Sidebar Navigasi',
+                        'header' => 'Header Navigasi',
+                    ])
+                    ->itemTypes([
+                        ResourceItemType::make(),
+                        TextItemType::make()
+                            ->label('Sub-Grup / Folder (Level 2)')
+                            ->icon('heroicon-o-folder'),
+                        LinkItemType::make()
+                            ->label('Tautan Kustom (URL)')
+                            ->icon('heroicon-o-link'),
+                    ])
+                    ->maxDepth(3)
+                    ->addMenuFields([
+                        TextInput::make('icon')
+                            ->label('Ikon Grup (Heroicon)')
+                            ->placeholder('heroicon-o-folder')
+                            ->default('heroicon-o-folder'),
+                        TextInput::make('sort')
+                            ->label('Urutan Tampil')
+                            ->numeric()
+                            ->default(0),
+                    ])
+                    ->addMenuItemFields([
+                        Select::make('menu_id')
+                            ->label('Grup Menu Utama (Level 1)')
+                            ->options(fn (): array => Menu::query()->orderBy('sort')->pluck('name', 'id')->all())
+                            ->required(),
+                    ])
+                    ->navigationGroup('Pengaturan')
+                    ->navigationLabel('Menu Builder')
+                    ->navigationIcon('heroicon-o-bars-3')
+                    ->navigationSort(98),
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(app()->environment('local'))
                     ->users([
