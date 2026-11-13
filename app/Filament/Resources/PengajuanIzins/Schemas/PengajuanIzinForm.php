@@ -69,6 +69,7 @@ class PengajuanIzinForm
                     ])->columns(2),
 
                 Section::make('Persetujuan / Verifikasi Atasan')
+                    ->hiddenOn('create')
                     ->schema([
                         Select::make('status')
                             ->label('Status Persetujuan')
@@ -78,18 +79,21 @@ class PengajuanIzinForm
                                 'ditolak' => 'Ditolak',
                             ])
                             ->default('menunggu')
+                            ->disabled()
+                            ->dehydrated()
                             ->required(),
 
                         Select::make('disetujui_oleh')
                             ->label('Diverifikasi Oleh')
                             ->relationship('approver', 'name')
-                            ->default(fn () => Auth::id())
-                            ->searchable()
-                            ->preload(),
+                            ->placeholder('Belum diverifikasi')
+                            ->disabled()
+                            ->dehydrated(),
 
                         Textarea::make('catatan_atasan')
                             ->label('Catatan Atasan')
                             ->rows(2)
+                            ->disabled()
                             ->columnSpanFull(),
                     ])->columns(2),
             ]);

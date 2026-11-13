@@ -41,6 +41,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
         Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
         Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
+        Route::get('/persetujuan', \App\Livewire\Mobile\Persetujuan::class)->name('mobile.persetujuan');
         Route::get('/wfh', \App\Livewire\Mobile\Wfh\Index::class)->name('mobile.wfh.index');
         Route::get('/hari-libur', \App\Livewire\Mobile\HariLibur::class)->name('mobile.hari-libur');
         Route::get('/reputasi', \App\Livewire\Mobile\Reputasi::class)->name('mobile.reputasi');
