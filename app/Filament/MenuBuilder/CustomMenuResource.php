@@ -15,10 +15,19 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class CustomMenuResource extends BaseMenuResource
 {
     protected static ?string $slug = 'menus';
+
+    public static function canAccess(): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user !== null && $user->hasAnyRole(['super_admin', 'admin_kepegawaian']);
+    }
 
     public static function form(Schema $schema): Schema
     {

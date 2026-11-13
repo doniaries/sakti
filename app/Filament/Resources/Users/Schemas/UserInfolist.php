@@ -109,7 +109,21 @@ class UserInfolist
                                 Group::make([
                                     TextEntry::make('nama_lengkap_dan_gelar')
                                         ->label('Nama Lengkap & Gelar')
-                                        ->state(fn($record) => trim(($record->gelar_depan ? $record->gelar_depan . ' ' : '') . $record->name . ($record->gelar_belakang ? ', ' . $record->gelar_belakang : '')))
+                                        ->state(function ($record): string {
+                                            $nama = trim((string) $record->name);
+                                            $namaLower = mb_strtolower($nama, 'UTF-8');
+                                            $depan = trim((string) ($record->gelar_depan ?? ''));
+                                            $belakang = trim((string) ($record->gelar_belakang ?? ''));
+
+                                            if ($depan !== '' && ! str_starts_with($namaLower, mb_strtolower($depan, 'UTF-8'))) {
+                                                $nama = "{$depan} {$nama}";
+                                            }
+                                            if ($belakang !== '' && ! str_contains($namaLower, mb_strtolower($belakang, 'UTF-8'))) {
+                                                $nama = "{$nama}, {$belakang}";
+                                            }
+
+                                            return $nama;
+                                        })
                                         ->size(TextSize::Large)
                                         ->weight('bold')
                                         ->icon('heroicon-m-user')
