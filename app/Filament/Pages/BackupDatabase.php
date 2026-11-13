@@ -43,6 +43,8 @@ class BackupDatabase extends Page
 
     public function mount(): void
     {
+        abort_unless(static::canAccess(), 403);
+
         $this->refreshBackups();
     }
 
@@ -58,6 +60,7 @@ class BackupDatabase extends Page
                 ->label('Buat Backup SQL')
                 ->icon('heroicon-o-circle-stack')
                 ->color('primary')
+                ->authorize(fn (): bool => static::canAccess())
                 ->action(function (): void {
                     $result = DatabaseBackupService::createBackup();
                     $this->refreshBackups();
@@ -73,6 +76,7 @@ class BackupDatabase extends Page
                 ->label('Backup & Unduh Langsung')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
+                ->authorize(fn (): bool => static::canAccess())
                 ->action(function (): BinaryFileResponse {
                     $result = DatabaseBackupService::createBackup();
                     $this->refreshBackups();
@@ -84,6 +88,7 @@ class BackupDatabase extends Page
                 ->label('Restore dari Berkas SQL')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('danger')
+                ->authorize(fn (): bool => static::canAccess())
                 ->requiresConfirmation()
                 ->modalHeading('Restore Database dari Berkas SQL')
                 ->modalDescription('PERINGATAN: Seluruh data saat ini akan ditimpa dengan isi berkas SQL yang diunggah. Pastikan Anda sudah membuat backup terbaru terlebih dahulu.')
@@ -120,6 +125,8 @@ class BackupDatabase extends Page
 
     public function downloadFile(string $filename): BinaryFileResponse
     {
+        abort_unless(static::canAccess(), 403);
+
         return response()->download(
             DatabaseBackupService::resolveBackupPath($filename),
             basename($filename)
@@ -128,6 +135,8 @@ class BackupDatabase extends Page
 
     public function restoreFile(string $filename): void
     {
+        abort_unless(static::canAccess(), 403);
+
         DatabaseBackupService::restoreFromFile(DatabaseBackupService::resolveBackupPath($filename));
 
         Notification::make()
@@ -139,6 +148,8 @@ class BackupDatabase extends Page
 
     public function deleteFile(string $filename): void
     {
+        abort_unless(static::canAccess(), 403);
+
         DatabaseBackupService::deleteBackup($filename);
         $this->refreshBackups();
 
