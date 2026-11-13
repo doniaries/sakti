@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Filament\MenuBuilder\ResourceItemType;
 use App\Models\Menu;
 use Datlechin\FilamentMenuBuilder\MenuBuilder;
 use Illuminate\Database\Seeder;
@@ -142,15 +143,30 @@ class MenuSeeder extends Seeder
      */
     private function seedItems(string $itemModel, int $menuId, array $items, ?int $parentId = null): void
     {
+        static $pathToClass = null;
+        if ($pathToClass === null) {
+            $pathToClass = [];
+            foreach (ResourceItemType::getCatalog() as $class => $meta) {
+                $normalized = '/' . trim((string) (parse_url($meta['path'] ?? '', PHP_URL_PATH) ?: ''), '/');
+                if ($normalized !== '/') {
+                    $pathToClass[$normalized] = $class;
+                }
+            }
+        }
+
         foreach (array_values($items) as $index => $item) {
             $type = $item['type'] ?? 'resource';
+            $url = $type === 'text' ? null : ($item['url'] ?? null);
+            $normalizedUrl = filled($url) ? '/' . trim((string) (parse_url($url, PHP_URL_PATH) ?: $url), '/') : null;
+            $targetClass = $normalizedUrl ? ($pathToClass[$normalizedUrl] ?? null) : null;
 
             $record = $itemModel::query()->create([
                 'menu_id' => $menuId,
                 'parent_id' => $parentId,
                 'type' => $type,
                 'title' => $item['title'],
-                'url' => $type === 'text' ? null : ($item['url'] ?? null),
+                'url' => $url,
+                'data' => $targetClass ? ['target_class' => $targetClass] : null,
                 'is_visible' => $item['is_visible'] ?? true,
                 'order' => $index + 1,
             ]);

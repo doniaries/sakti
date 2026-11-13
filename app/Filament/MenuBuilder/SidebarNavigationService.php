@@ -253,13 +253,42 @@ class SidebarNavigationService
 
     private static function canAccessItem(MenuItem $item): bool
     {
-        $targetClass = $item->data['target_class'] ?? null;
+        $targetClass = $item->data['target_class'] ?? self::resolveTargetClassFromUrl($item->getUrl());
 
-        if (is_string($targetClass) && class_exists($targetClass) && method_exists($targetClass, 'canAccess')) {
-            return (bool) $targetClass::canAccess();
+        if (is_string($targetClass) && class_exists($targetClass)) {
+            if (method_exists($targetClass, 'canAccess')) {
+                return (bool) $targetClass::canAccess();
+            }
+
+            if (method_exists($targetClass, 'canViewAny')) {
+                return (bool) $targetClass::canViewAny();
+            }
         }
 
         return true;
+    }
+
+    private static function resolveTargetClassFromUrl(?string $url): ?string
+    {
+        if (blank($url)) {
+            return null;
+        }
+
+        static $pathToClass = null;
+
+        if ($pathToClass === null) {
+            $pathToClass = [];
+            foreach (ResourceItemType::getCatalog() as $class => $meta) {
+                $normalized = '/' . trim((string) (parse_url($meta['path'] ?? '', PHP_URL_PATH) ?: ''), '/');
+                if ($normalized !== '/') {
+                    $pathToClass[$normalized] = $class;
+                }
+            }
+        }
+
+        $path = '/' . trim((string) (parse_url($url, PHP_URL_PATH) ?: $url), '/');
+
+        return $pathToClass[$path] ?? null;
     }
 
     private static function isMenuBuilderItem(MenuItem $item): bool
