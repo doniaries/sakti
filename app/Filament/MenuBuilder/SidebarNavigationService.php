@@ -49,7 +49,7 @@ class SidebarNavigationService
 {
     public static function build(NavigationBuilder $builder): NavigationBuilder
     {
-        $builder->items([
+        $topItems = [
             NavigationItem::make('Dasbor')
                 ->url(fn (): string => AppDashboard::getUrl())
                 ->icon('heroicon-o-home')
@@ -59,10 +59,10 @@ class SidebarNavigationService
                 ->url(fn (): string => route('mobile.dashboard'), shouldOpenInNewTab: true)
                 ->icon('heroicon-o-device-phone-mobile')
                 ->sort(2),
-        ]);
+        ];
 
         if (! Schema::hasTable('menus') || ! Schema::hasTable('menu_items')) {
-            return $builder;
+            return $builder->items($topItems);
         }
 
         $menus = Menu::query()
@@ -79,6 +79,16 @@ class SidebarNavigationService
         $hasMenuBuilderLink = false;
 
         foreach ($menus as $menu) {
+            if ($menu->items->isEmpty() && strcasecmp((string) $menu->name, 'Menu Builder') === 0 && CustomMenuResource::canAccess()) {
+                $topItems[] = NavigationItem::make($menu->translated('name'))
+                    ->url(fn (): string => CustomMenuResource::getUrl())
+                    ->icon($menu->icon ?: 'heroicon-o-bars-3')
+                    ->isActiveWhen(fn (): bool => request()->is('admin/menus*'))
+                    ->sort(count($topItems) + 1);
+                $hasMenuBuilderLink = true;
+                continue;
+            }
+
             $tree = $menu->items->toTree();
             $navItems = [];
 
@@ -89,7 +99,7 @@ class SidebarNavigationService
 
                 $navItem = self::convertItem($item, $hasMenuBuilderLink);
                 if ($navItem !== null) {
-                    $navItems[] = $navItem;
+                    $navItems[] = $navItem->sort(count($navItems) + 1);
                 }
             }
 
@@ -101,29 +111,15 @@ class SidebarNavigationService
             }
         }
 
-        if (! $hasMenuBuilderLink && CustomMenuResource::canAccess()) {
-            $menuBuilderNav = NavigationItem::make('Menu Builder')
+        if ($menus->isEmpty() && ! $hasMenuBuilderLink && CustomMenuResource::canAccess()) {
+            $topItems[] = NavigationItem::make('Menu Builder')
                 ->url(fn (): string => CustomMenuResource::getUrl())
-                ->isActiveWhen(fn (): bool => request()->is('admin/menus*'));
-
-            $addedToPengaturan = false;
-            foreach ($groups as $group) {
-                if ($group->getLabel() === 'Pengaturan') {
-                    $group->items([...$group->getItems(), $menuBuilderNav]);
-                    $addedToPengaturan = true;
-                    break;
-                }
-            }
-
-            if (! $addedToPengaturan) {
-                $groups[] = NavigationGroup::make('Pengaturan')
-                    ->icon('heroicon-o-cog-6-tooth')
-                    ->items([$menuBuilderNav])
-                    ->collapsed();
-            }
+                ->icon('heroicon-o-bars-3')
+                ->isActiveWhen(fn (): bool => request()->is('admin/menus*'))
+                ->sort(count($topItems) + 1);
         }
 
-        return $builder->groups($groups);
+        return $builder->items($topItems)->groups($groups);
     }
 
     private static function convertItem(MenuItem $item, bool &$hasMenuBuilderLink): ?NavigationItem

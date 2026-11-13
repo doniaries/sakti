@@ -2,22 +2,70 @@
 
 namespace App\Filament\Resources\Users\Widgets;
 
+use App\Filament\Resources\Users\UserResource;
 use App\Models\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Auth;
 
 class UserStatsWidget extends StatsOverviewWidget
 {
-    protected int | array | null $columns = [
-        'default' => 2,
-        'sm' => 3,
-        'md' => 6,
-        'lg' => 6,
-        'xl' => 6,
-    ];
+    protected function getColumns(): int | array
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if ($user && ! $user->canViewAllBidangKepegawaian() && ! $user->isPptk()) {
+            return [
+                'default' => 2,
+                'md' => 4,
+            ];
+        }
+
+        return [
+            'default' => 2,
+            'sm' => 3,
+            'md' => 6,
+            'lg' => 6,
+            'xl' => 6,
+        ];
+    }
 
     protected function getStats(): array
     {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if ($user && ! $user->canViewAllBidangKepegawaian() && ! $user->isPptk()) {
+            $user->loadMissing(['jabatan', 'bidang', 'atasan', 'jfPenempatan']);
+            $viewUrl = UserResource::getUrl('view', ['record' => $user]);
+            $golongan = trim(($user->pangkat ?? '') . ($user->golongan ? " ({$user->golongan})" : ''));
+
+            return [
+                Stat::make('Data Pegawai Anda', $user->nip ?: '-')
+                    ->description($user->name)
+                    ->descriptionIcon('heroicon-m-identification')
+                    ->color('primary')
+                    ->url($viewUrl),
+
+                Stat::make('Jabatan & Unit Kerja', $user->jabatan?->nama ?? '-')
+                    ->description(collect([$user->bidang?->nama, $user->jfPenempatan ? 'JF: ' . $user->jfPenempatan->name : null])->filter()->implode(' • ') ?: '-')
+                    ->descriptionIcon('heroicon-m-building-office')
+                    ->color('info')
+                    ->url($viewUrl),
+
+                Stat::make('Pendidikan & Golongan', $user->jenjang_pendidikan ?: '-')
+                    ->description($golongan !== '' ? $golongan : ($user->jurusan ?: 'Belum dilengkapi'))
+                    ->descriptionIcon('heroicon-m-academic-cap')
+                    ->color('success')
+                    ->url($viewUrl),
+
+                Stat::make('Status & Kuota Cuti', ($user->aktif ? 'Aktif' : 'Nonaktif') . ' (' . strtoupper((string) ($user->status_kerja ?? 'WFO')) . ')')
+                    ->description('Sisa Kuota Cuti: ' . (int) ($user->kuota_cuti ?? 12) . ' hari')
+                    ->descriptionIcon('heroicon-m-check-badge')
+                    ->color($user->aktif ? 'warning' : 'danger')
+                    ->url($viewUrl),
+            ];
+        }
+
         $baseQuery = User::query()->bukanSuperAdmin();
 
         $total = (clone $baseQuery)->count();
