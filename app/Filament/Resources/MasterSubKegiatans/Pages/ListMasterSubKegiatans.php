@@ -149,7 +149,8 @@ class ListMasterSubKegiatans extends ListRecords
     protected function getHeaderActions(): array
     {
         $tahunAktif = (int) \App\Models\PengaturanAplikasi::getTahunAnggaranAktif();
-        $isAllLocked = ! MasterSubKegiatan::where('tahun_anggaran', $tahunAktif)->where('is_locked', false)->exists();
+        $hasData = MasterSubKegiatan::where('tahun_anggaran', $tahunAktif)->exists();
+        $isAllLocked = $hasData && ! MasterSubKegiatan::where('tahun_anggaran', $tahunAktif)->where('is_locked', false)->exists();
 
         return [
             Action::make('global_lock_dpa')
@@ -182,13 +183,13 @@ class ListMasterSubKegiatans extends ListRecords
                 ->label('Tambah Sub Kegiatan')
                 ->icon('heroicon-o-plus-circle')
                 ->color('primary')
-                ->visible(fn() => static::getResource()::canCreate()),
+                ->visible(fn() => static::getResource()::canCreate() && ! $isAllLocked),
 
             Action::make('import_pdf_rka')
                 ->label('Import RKA/DPA (PDF SIPD)')
                 ->icon('heroicon-o-document-arrow-up')
                 ->color('success')
-                ->visible(fn() => static::getResource()::canCreate())
+                ->visible(fn() => static::getResource()::canCreate() && ! $isAllLocked)
                 ->modalHeading('Import RKA/DPA Sub Kegiatan dari PDF SIPD RI')
                 ->modalDescription('Unggah dokumen resmi "Cetak RKA Rincian Belanja" format PDF yang diunduh langsung dari portal SIPD RI. Sistem otomatis mengekstrak Program, Kegiatan, Sub Kegiatan, dan seluruh rincian belanja.')
                 ->modalSubmitActionLabel('Mulai Ekstraksi & Import')
