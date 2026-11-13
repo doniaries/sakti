@@ -384,7 +384,7 @@
     {{-- BARIS 3: CONTAINER PRATINJAU DOKUMEN (IFRAME / GAMBAR / PDF CANVAS) --}}
     <div
         class="w-full rounded-xl border border-gray-300 dark:border-white/10 overflow-hidden shadow-inner"
-        style="height: calc(85vh - 200px); min-height: 580px; position: relative; background-color: #525659;"
+        style="height: calc(100dvh - 160px); min-height: 440px; position: sticky; top: 1rem; background-color: #525659;"
     >
         {{-- VIEW MODE 1: GAMBAR FOTO / NOTA ASLI --}}
         <div x-show="viewMode === 'image'" class="w-full h-full flex items-center justify-center p-3 bg-gray-950/40 overflow-auto">

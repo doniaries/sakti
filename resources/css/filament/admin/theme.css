@@ -118,6 +118,24 @@ html:not(.dark) .fi-dropdown-list {
 }
 
 /* ==========================================================================
+   Sticky Summary Row di Bawah Tabel Filament
+   ========================================================================== */
+.fi-ta-table tfoot,
+.fi-ta-summary-row {
+    position: sticky;
+    bottom: 0;
+    z-index: 15;
+    background-color: #f9fafb;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.dark .fi-ta-table tfoot,
+.dark .fi-ta-summary-row {
+    background-color: #18181b;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================================================
    Tabs Styling Enhancement (Reusable & DRY Tab System - Anti Warna Hitam Legam)
    ========================================================================== */
 

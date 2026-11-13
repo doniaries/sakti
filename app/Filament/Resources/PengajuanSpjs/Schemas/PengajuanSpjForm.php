@@ -312,8 +312,8 @@ class PengajuanSpjForm
 
 
 
-                                    // BARIS 3: Rantai Anggaran SIPD (Kegiatan & Sub Kegiatan)
-                                    Grid::make(['default' => 1, 'md' => 2])
+                                    // BARIS 3: Rantai Anggaran SIPD (Kegiatan & Sub Kegiatan) - 1 kolom penuh agar teks panjang SIPD terbaca utuh
+                                    Grid::make(['default' => 1, 'md' => 1])
                                         ->schema([
 
                                             Select::make('kegiatan_id')
@@ -368,7 +368,28 @@ class PengajuanSpjForm
                                                 })
                                                 ->searchable()
                                                 ->live()
-                                                ->afterStateUpdated(fn(callable $set) => $set('sub_kegiatan_id', null))
+                                                ->afterStateUpdated(function (callable $set) {
+                                                    $set('sub_kegiatan_id', null);
+                                                    $set('details', []);
+                                                })
+                                                ->helperText(function (callable $get) use ($resolveBidangId): ?string {
+                                                    $bidangId = $resolveBidangId($get);
+                                                    if (! $bidangId) {
+                                                        return null;
+                                                    }
+
+                                                    $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
+                                                    $exists = MasterKegiatan::where('bidang_id', $bidangId)
+                                                        ->where(function ($q) use ($tahun) {
+                                                            $q->where('tahun_anggaran', $tahun)
+                                                                ->orWhereNull('tahun_anggaran');
+                                                        })
+                                                        ->exists();
+
+                                                    return $exists
+                                                        ? null
+                                                        : "⚠️ Belum ada Kegiatan (SIPD) untuk bidang ini pada TA {$tahun}. Klik tombol (+) untuk menambah atau hubungi Admin.";
+                                                })
                                                 ->required(),
 
                                             Select::make('sub_kegiatan_id')
@@ -445,6 +466,48 @@ class PengajuanSpjForm
                                                 })
                                                 ->searchable()
                                                 ->live()
+                                                ->afterStateUpdated(fn(callable $set) => $set('details', []))
+                                                ->helperText(function (callable $get): ?string {
+                                                    $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
+                                                    $subKegiatanId = $get('sub_kegiatan_id');
+
+                                                    if (! $subKegiatanId) {
+                                                        $kegiatanId = $get('kegiatan_id');
+                                                        if (! $kegiatanId) {
+                                                            return null;
+                                                        }
+
+                                                        $exists = MasterSubKegiatan::where('kegiatan_id', $kegiatanId)
+                                                            ->where(function ($q) use ($tahun) {
+                                                                $q->where('tahun_anggaran', $tahun)
+                                                                    ->orWhereNull('tahun_anggaran');
+                                                            })
+                                                            ->exists();
+
+                                                        return $exists
+                                                            ? null
+                                                            : "⚠️ Belum ada Sub Kegiatan pada kegiatan ini untuk TA {$tahun}. Klik tombol (+) untuk menambah atau hubungi Admin.";
+                                                    }
+
+                                                    $items = RincianAnggaranBelanja::query()
+                                                        ->where('sub_kegiatan_id', $subKegiatanId)
+                                                        ->where('tahun_anggaran', $tahun)
+                                                        ->get();
+
+                                                    if ($items->isEmpty()) {
+                                                        return 'Belum ada rincian RKA pada sub kegiatan ini.';
+                                                    }
+
+                                                    $total = $items->count();
+                                                    $tersedia = $items->filter(fn($item) => $item->sisa_volume > 0 && $item->sisa_anggaran > 0)->count();
+                                                    $sisaPagu = number_format((float) $items->sum('sisa_anggaran'), 0, ',', '.');
+
+                                                    if ($tersedia === 0) {
+                                                        return "🔴 Semua item RKA ({$total} item) pada sub kegiatan ini sudah habis.";
+                                                    }
+
+                                                    return "🟢 Tersedia {$tersedia} dari {$total} item RKA (Sisa pagu: Rp {$sisaPagu}).";
+                                                })
                                                 ->required(),
                                         ]),
 
@@ -656,15 +719,24 @@ class PengajuanSpjForm
                                                         ?: 2027);
 
                                                     if ($subKegiatanId) {
-                                                        $rekIds = RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
+                                                        $rkaGrouped = RincianAnggaranBelanja::where('sub_kegiatan_id', $subKegiatanId)
                                                             ->where('tahun_anggaran', $tahunAnggaran)
-                                                            ->pluck('kode_rekening_id')
-                                                            ->unique();
+                                                            ->get()
+                                                            ->groupBy('kode_rekening_id');
 
-                                                        if ($rekIds->isNotEmpty()) {
-                                                            return KodeRekening::whereIn('id', $rekIds)
+                                                        if ($rkaGrouped->isNotEmpty()) {
+                                                            return KodeRekening::whereIn('id', $rkaGrouped->keys())
                                                                 ->get()
-                                                                ->pluck('label', 'id')
+                                                                ->mapWithKeys(function (KodeRekening $rek) use ($rkaGrouped) {
+                                                                    $items = $rkaGrouped->get($rek->id, collect());
+                                                                    $tersedia = $items->filter(fn($i) => $i->sisa_volume > 0 && $i->sisa_anggaran > 0)->count();
+                                                                    $sisaPagu = number_format((float) $items->sum('sisa_anggaran'), 0, ',', '.');
+                                                                    $status = $tersedia > 0
+                                                                        ? "🟢 {$rek->label} ({$tersedia} item tersedia • Sisa Rp {$sisaPagu})"
+                                                                        : "🔴 {$rek->label} (Semua Pagu Habis)";
+
+                                                                    return [$rek->id => $status];
+                                                                })
                                                                 ->all();
                                                         }
                                                     }
@@ -775,6 +847,15 @@ class PengajuanSpjForm
                                                             "mb_{$barang->id}" => "📦 {$barang->nama_barang} ({$satuan}) — Rp {$harga}",
                                                         ];
                                                     })->all();
+                                                })
+                                                ->disableOptionWhen(function (string $value): bool {
+                                                    if (str_starts_with($value, 'mb_')) {
+                                                        return false;
+                                                    }
+
+                                                    $rka = RincianAnggaranBelanja::find($value);
+
+                                                    return $rka ? ($rka->sisa_volume <= 0 || $rka->sisa_anggaran <= 0) : false;
                                                 })
                                                 ->createOptionForm([
                                                     TextInput::make('nama_barang')

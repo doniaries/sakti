@@ -48,7 +48,7 @@
 @endphp
 
 <div
-    style="display: flex; flex-direction: row; gap: 14px; width: 100%; height: 72vh; max-height: 580px; min-height: 460px; align-items: stretch;"
+    style="display: flex; flex-direction: row; gap: 14px; width: 100%; height: calc(100dvh - 180px); min-height: 420px; align-items: stretch;"
     x-data="{
         recordId: '{{ $record->id }}',
         activeTab: 'semua',

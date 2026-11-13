@@ -65,7 +65,7 @@
     </div>
 
     {{-- BINGKAI IFRAME PRATINJAU DOKUMEN (FIT DI LAYAR) --}}
-    <div class="w-full relative rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900" style="height: 72vh; min-height: 550px;">
+    <div class="w-full relative rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900" style="height: calc(100dvh - 180px); min-height: 440px;">
         <iframe 
             src="{{ $previewUrl }}" 
             class="w-full h-full border-0 bg-white" 

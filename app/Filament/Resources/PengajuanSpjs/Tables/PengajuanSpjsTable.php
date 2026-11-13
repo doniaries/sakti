@@ -168,6 +168,16 @@ class PengajuanSpjsTable
                         $nominal = (float) ($record->total_nilai_realisasi ?: $record->total_nilai_rencana);
                         return $nominal > 0 ? 'Rp ' . number_format($nominal, 0, ',', '.') : '-';
                     })
+                    ->summarize(
+                        \Filament\Tables\Columns\Summarizers\Summarizer::make()
+                            ->label('Total Pengajuan')
+                            ->using(fn(\Illuminate\Database\Query\Builder $query): string => 'Rp ' . number_format(
+                                (float) $query->sum(\Illuminate\Support\Facades\DB::raw('COALESCE(NULLIF(total_nilai_realisasi, 0), total_nilai_rencana)')),
+                                0,
+                                ',',
+                                '.'
+                            ))
+                    )
                     ->sortable(),
 
                 TextColumn::make('bidang.nama')
