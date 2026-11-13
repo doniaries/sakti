@@ -1,4 +1,4 @@
-<div class="p-5 pb-20">
+<div class="p-4 pb-28">
     @php
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
     @endphp
@@ -74,11 +74,11 @@
 
     <!-- Greeting Card -->
     <div
-        class="w-full p-5 rounded-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white shadow-xl shadow-sky-950/20 mb-6 relative overflow-hidden border border-white/15">
+        class="w-full p-4 rounded-2xl bg-[#0f1c2e] text-white shadow-lg shadow-slate-900/20 mb-5 relative overflow-hidden border border-slate-700/60">
         <!-- Background Glow Accent & Decorative Watermark Icon -->
-        <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-sky-400/20 rounded-full blur-2xl pointer-events-none">
+        <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none">
         </div>
-        <div class="absolute -right-3 -top-3 text-white/[0.07] text-8xl pointer-events-none">
+        <div class="absolute -right-3 -top-3 text-white/[0.05] text-8xl pointer-events-none">
             <i class="fa-solid fa-fingerprint"></i>
         </div>
 
@@ -135,7 +135,7 @@
                     <span class="text-white/40">•</span>
                     <!-- Jam Aktif Server Real-Time (HH:MM WIB) -->
                     <span
-                        class="flex items-center bg-black/30 backdrop-blur-md px-2 py-0.5 rounded-full font-mono text-[11px] font-bold text-amber-300 border border-white/15 shadow-inner whitespace-nowrap">
+                        class="flex items-center bg-emerald-500/15 backdrop-blur-md px-2.5 py-0.5 rounded-full font-mono text-xs font-extrabold text-emerald-300 border border-emerald-400/30 shadow-inner whitespace-nowrap">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 inline-block animate-pulse"></span>
                         <span x-text="hours">--</span><span class="inline-block transition-opacity duration-200"
                             :class="colon ? 'opacity-100' : 'opacity-20'">:</span><span
@@ -272,93 +272,85 @@
                 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
             </a>
         </div>
-        <div class="grid grid-cols-4 gap-2.5">
+        <div class="grid grid-cols-4 gap-2">
             <!-- Izin -->
             <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-sky-50/40 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-envelope-open-text"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">Izin</span>
-                <span class="text-[9px] text-slate-400 font-medium">Pribadi</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">Izin</span>
             </a>
 
             <!-- Sakit -->
             <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-rose-50/40 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-rose-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-notes-medical"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">Sakit</span>
-                <span class="text-[9px] text-slate-400 font-medium">Dokter</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">Sakit</span>
             </a>
 
             <!-- Cuti -->
             <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-amber-50/40 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-umbrella-beach"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">Cuti</span>
-                <span class="text-[9px] text-slate-400 font-medium">Tahunan</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">Cuti</span>
             </a>
 
             <!-- WFH -->
             <a href="{{ route('mobile.wfh.index') }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-teal-50/40 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-teal-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-house-laptop"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">WFH</span>
-                <span class="text-[9px] text-slate-400 font-medium">Riwayat</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">WFH</span>
             </a>
 
             <!-- Kalender Libur -->
             <a href="{{ route('mobile.hari-libur') }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-indigo-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-regular fa-calendar-days"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">Hari Libur</span>
-                <span class="text-[9px] text-slate-400 font-medium">Kalender</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">Hari Libur</span>
             </a>
 
             <!-- Reputasi Rekan Kerja -->
             <a href="{{ route('mobile.reputasi') }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-star"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">Reputasi</span>
-                <span class="text-[9px] text-slate-400 font-medium">Rekan Kerja</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">Reputasi</span>
             </a>
 
             <!-- LHK Baru -->
             <a href="{{ route('mobile.lhk.create') }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-emerald-50/40 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-emerald-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-file-circle-plus"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">Buat LHK</span>
-                <span class="text-[9px] text-slate-400 font-medium">Kinerja</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">Buat LHK</span>
             </a>
 
             <!-- Statistik & Rekap Profil -->
             <a href="{{ route('mobile.profil') }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-sky-50/40 active:scale-95 transition-all text-center">
+                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-chart-pie"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-800">Statistik</span>
-                <span class="text-[9px] text-slate-400 font-medium">Kehadiran</span>
+                <span class="text-[11px] font-bold text-slate-700 leading-tight">Statistik</span>
             </a>
         </div>
     </div>
