@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PengajuanIzins\Schemas;
 
+use App\Enums\JenisKelamin;
 use App\Models\HariLibur;
 use App\Models\JenisIzin;
 use App\Models\PengajuanIzin;
@@ -46,7 +47,18 @@ class PengajuanIzinForm
 
                         Select::make('jenis_izin_id')
                             ->label('Tipe Izin / Cuti')
-                            ->relationship('jenisIzin', 'nama', fn ($query) => $query->where('aktif', true))
+                            ->options(function (Get $get): array {
+                                $targetUserId = (int) ($get('user_id') ?: Auth::id());
+                                $targetUser = $targetUserId > 0 ? User::find($targetUserId) : null;
+                                $isPerempuan = $targetUser?->jenis_kelamin === JenisKelamin::PEREMPUAN;
+
+                                return JenisIzin::query()
+                                    ->where('aktif', true)
+                                    ->when(! $isPerempuan, fn ($q) => $q->where('kode', '!=', 'cuti_melahirkan'))
+                                    ->orderBy('id')
+                                    ->pluck('nama', 'id')
+                                    ->all();
+                            })
                             ->searchable()
                             ->preload()
                             ->live()
@@ -88,8 +100,13 @@ class PengajuanIzinForm
                                 }
 
                                 $sisa = max(0, $kuota - $terpakai);
+                                $info = "Sisa kuota {$jenis->nama} tahun {$tahun}: {$sisa} dari {$kuota} hari kerja (di luar hari libur & cuti bersama).";
 
-                                return "Sisa kuota {$jenis->nama} tahun {$tahun}: {$sisa} dari {$kuota} hari kerja (di luar hari libur & cuti bersama).";
+                                if ($jenis->kode === 'cuti_alasan_penting') {
+                                    $info .= ' PNS Laki-laki pendampingan istri melahirkan: maks. 1 bulan tanpa potong Cuti Tahunan (wajib surat rawat inap RS/klinik). PPPK Laki-laki: menggunakan Cuti Tahunan (maks. 6 hari kerja).';
+                                }
+
+                                return $info;
                             })
                             ->required(),
 
