@@ -94,7 +94,7 @@ class Form extends Component
             $count = 0;
             $period = CarbonPeriod::create($start, $end);
             foreach ($period as $date) {
-                if ($date->isWeekday()) {
+                if (! HariLibur::isHariLibur($date)) {
                     $count++;
                 }
             }
