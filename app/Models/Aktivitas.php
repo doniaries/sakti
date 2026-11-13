@@ -48,8 +48,9 @@ class Aktivitas extends Model
                             });
                     });
             })
+            ->orderByRaw("CASE WHEN LOWER(nama_aktivitas) LIKE '%apel pagi%' THEN 0 ELSE 1 END")
+            ->orderByRaw('COALESCE(menit, 0) ASC')
             ->orderByRaw('CASE WHEN user_id = ? THEN 0 ELSE 1 END', [$user->id])
-            ->orderBy('kode')
             ->orderBy('nama_aktivitas');
     }
 

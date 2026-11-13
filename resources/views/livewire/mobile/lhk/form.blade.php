@@ -105,7 +105,10 @@
                             <select wire:model.live="pekerjaans.{{ $index }}.aktivitas_id" class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
                                 <option value="">- Pilih Aktivitas (Jam Terisi Otomatis) -</option>
                                 @foreach($aktivitasList as $a)
-                                    <option value="{{ $a->id }}">{{ $a->nama_aktivitas ?? $a->nama }}{{ $a->menit ? ' (' . $a->menit . ' menit)' : '' }}</option>
+                                    @php
+                                        $jamLabel = $a->menit ? str_replace('.', ',', (string) (float) round($a->menit / 60, 2)) . ' jam' : null;
+                                    @endphp
+                                    <option value="{{ $a->id }}">{{ $a->nama_aktivitas ?? $a->nama }}{{ $jamLabel ? ' (' . $jamLabel . ')' : '' }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -124,7 +127,7 @@
                             <div>
                                 <label class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">Lama</label>
                                 <div class="w-full bg-slate-100 dark:bg-[#132338]/70 border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-xs font-mono font-bold text-sky-700 dark:text-cyan-300 text-center">
-                                    {{ (int) ($pekerjaan['lama_menit'] ?? 0) }} mnt
+                                    {{ str_replace('.', ',', (string) (float) round(((int) ($pekerjaan['lama_menit'] ?? 0)) / 60, 2)) }} jam
                                 </div>
                             </div>
                         </div>
@@ -136,8 +139,33 @@
                         </div>
 
                         <div>
-                            <label class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">4. Link Bukti Google Drive (Evidence)</label>
-                            <input type="url" wire:model="pekerjaans.{{ $index }}.bukti_url" placeholder="https://drive.google.com/..." class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">4. Link Bukti Google Drive (Evidence)</label>
+                                @if (! empty($pekerjaan['bukti_url']) && in_array(strtolower((string) parse_url($pekerjaan['bukti_url'], PHP_URL_HOST)), ['drive.google.com', 'docs.google.com'], true))
+                                    <a href="{{ $pekerjaan['bukti_url'] }}" target="_blank" rel="noopener noreferrer"
+                                        class="text-[10px] font-bold text-sky-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                                        <i class="fa-brands fa-google-drive"></i> Buka Google Drive
+                                    </a>
+                                @endif
+                            </div>
+                            <input type="url" wire:model.live.debounce.400ms="pekerjaans.{{ $index }}.bukti_url" placeholder="https://drive.google.com/..." class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
+                            @error('pekerjaans.'.$index.'.bukti_url') <span class="text-rose-500 text-[10px] block mt-1">{{ $message }}</span> @enderror
+
+                            @php
+                                $previewUrl = $this->getGoogleDrivePreviewUrl($pekerjaan['bukti_url'] ?? null);
+                            @endphp
+                            @if (! empty($pekerjaan['bukti_url']) && ! $previewUrl)
+                                <p class="text-[10px] text-rose-500 mt-1">
+                                    Link harus berupa tautan file/folder Google Drive (`drive.google.com` atau `docs.google.com`).
+                                </p>
+                            @elseif ($previewUrl)
+                                <div class="mt-2 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#132338]">
+                                    <iframe src="{{ $previewUrl }}" class="w-full h-48 border-0" loading="lazy" allowfullscreen></iframe>
+                                    <div class="px-2.5 py-1.5 bg-amber-50 dark:bg-amber-500/10 border-t border-amber-200 dark:border-amber-500/20 text-[10px] text-amber-800 dark:text-amber-300">
+                                        Jika preview tidak tampak, berarti file/folder Google Drive belum di-share (ubah akses ke <strong>Siapa saja yang memiliki link</strong>).
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach

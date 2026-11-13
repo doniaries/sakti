@@ -24,13 +24,59 @@ class Form extends Component
     public $pekerjaans = [];
     public $aktivitasList = [];
 
-    protected $rules = [
-        'tanggal' => 'required|date',
-        'pekerjaans.*.jam_mulai' => 'required',
-        'pekerjaans.*.jam_selesai' => 'required',
-        'pekerjaans.*.rencana_aksi_id' => 'required',
-        'pekerjaans.*.hasil_pekerjaan' => 'required',
-    ];
+    protected function rules(): array
+    {
+        return [
+            'tanggal' => 'required|date',
+            'pekerjaans.*.jam_mulai' => 'required',
+            'pekerjaans.*.jam_selesai' => 'required',
+            'pekerjaans.*.rencana_aksi_id' => 'required',
+            'pekerjaans.*.hasil_pekerjaan' => 'required',
+            'pekerjaans.*.bukti_url' => [
+                'nullable',
+                'url',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (empty($value)) {
+                        return;
+                    }
+                    $host = strtolower((string) parse_url((string) $value, PHP_URL_HOST));
+                    if (! in_array($host, ['drive.google.com', 'docs.google.com'], true)) {
+                        $fail('Link bukti harus berupa tautan Google Drive (drive.google.com atau docs.google.com).');
+                    }
+                },
+            ],
+        ];
+    }
+
+    public function getGoogleDrivePreviewUrl(?string $url): ?string
+    {
+        if (empty($url)) {
+            return null;
+        }
+
+        $host = strtolower((string) parse_url($url, PHP_URL_HOST));
+        if (! in_array($host, ['drive.google.com', 'docs.google.com'], true)) {
+            return null;
+        }
+
+        if (preg_match('~drive\.google\.com/drive/(?:u/\d+/)?folders/([a-zA-Z0-9_-]+)~', $url, $m)) {
+            return "https://drive.google.com/embeddedfolderview?id={$m[1]}#grid";
+        }
+
+        if (preg_match('~drive\.google\.com/file/d/([a-zA-Z0-9_-]+)~', $url, $m)) {
+            return "https://drive.google.com/file/d/{$m[1]}/preview";
+        }
+
+        if (preg_match('~drive\.google\.com/open\?id=([a-zA-Z0-9_-]+)~', $url, $m)) {
+            return "https://drive.google.com/file/d/{$m[1]}/preview";
+        }
+
+        if (preg_match('~docs\.google\.com/(document|spreadsheets|presentation)/d/([a-zA-Z0-9_-]+)~', $url, $m)) {
+            return "https://docs.google.com/{$m[1]}/d/{$m[2]}/preview";
+        }
+
+        return null;
+    }
 
     public function mount()
     {
