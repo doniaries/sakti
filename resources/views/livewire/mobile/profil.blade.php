@@ -190,18 +190,6 @@
                             <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
                         @enderror
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center">
-                            <i class="fa-regular fa-envelope mr-1 text-slate-400"></i>
-                            <span>Email Pribadi</span>
-                        </label>
-                        <input type="email" wire:model="email_pribadi" placeholder="email@gmail.com"
-                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
-                        <p class="text-[10px] text-slate-400 mt-1">Opsional / sekunder</p>
-                        @error('email_pribadi')
-                            <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
-                        @enderror
-                    </div>
                 </div>
 
                 <div>
@@ -456,13 +444,8 @@
                     <span class="font-bold text-sky-600">{{ $user->no_hp ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Email Akun Dinas</span>
+                    <span class="text-slate-400 font-medium">Email User</span>
                     <span class="font-bold text-slate-800 truncate max-w-[200px]">{{ $user->email }}</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                    <span class="text-slate-400 font-medium">Email Pribadi</span>
-                    <span
-                        class="font-bold text-slate-800 truncate max-w-[200px]">{{ $user->email_pribadi ?? '-' }}</span>
                 </div>
                 <div class="py-1.5 text-xs">
                     <span class="text-slate-400 font-medium block mb-1">Alamat Domisili</span>

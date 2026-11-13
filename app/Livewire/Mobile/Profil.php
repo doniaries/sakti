@@ -29,7 +29,6 @@ class Profil extends Component
     // Editable Fields
     public $name = '';
     public $email = '';
-    public $email_pribadi = '';
     public $no_hp = '';
     public $no_telp = '';
     public $alamat = '';
@@ -77,7 +76,6 @@ class Profil extends Component
 
         $this->name = $user->name ?? '';
         $this->email = $user->email ?? '';
-        $this->email_pribadi = $user->email_pribadi ?? '';
         $this->no_hp = $user->no_hp ?? '';
         $this->no_telp = $user->no_telp ?? '';
         $this->alamat = $user->alamat ?? '';
@@ -164,20 +162,17 @@ class Profil extends Component
         $this->validate([
             'name' => 'required|string|max:255',
             'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userId)],
-            'email_pribadi' => 'nullable|email|max:255',
             'no_hp' => ['nullable', 'string', 'max:20'],
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
-            'email.required' => 'Email login akun dinas wajib diisi.',
-            'email.email' => 'Format email login tidak valid.',
-            'email.unique' => 'Email login ini sudah digunakan akun lain.',
-            'email_pribadi.email' => 'Format email pribadi tidak valid.',
+            'email.required' => 'Email user wajib diisi.',
+            'email.email' => 'Format email user tidak valid.',
+            'email.unique' => 'Email user ini sudah digunakan akun lain.',
         ]);
 
         $data = [
             'name' => $this->name,
             'email' => $this->email,
-            'email_pribadi' => $this->email_pribadi,
             'no_hp' => $this->no_hp,
             'no_telp' => $this->no_telp,
             'alamat' => $this->alamat,

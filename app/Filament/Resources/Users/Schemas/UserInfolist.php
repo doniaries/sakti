@@ -281,14 +281,8 @@ class UserInfolist
                                                     ->icon('heroicon-m-phone')
                                                     ->placeholder('0'),
 
-                                                TextEntry::make('email_pribadi')
-                                                    ->label('Email Pribadi')
-                                                    ->icon('heroicon-m-envelope')
-                                                    ->copyable()
-                                                    ->placeholder('-'),
-
                                                 TextEntry::make('email')
-                                                    ->label('Email Dinas / Akun')
+                                                    ->label('Email User')
                                                     ->icon('heroicon-m-at-symbol')
                                                     ->copyable(),
 

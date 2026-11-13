@@ -103,10 +103,10 @@ class UserForm
                                     ])
                                         ->schema([
                                             TextInput::make('email')
-                                                ->label('Email Dinas / Login')
+                                                ->label('Email User')
                                                 ->email()
                                                 ->copyable()
-                                                ->placeholder('Contoh: user@sijunjung.go.id')
+                                                ->placeholder('Contoh: user@gmail.com')
                                                 ->required()
                                                 ->unique(User::class, 'email', ignoreRecord: true)
                                                 ->maxLength(255),
@@ -729,13 +729,6 @@ class UserForm
                                     ->icon('heroicon-o-user-circle')
                                     ->columns(2)
                                     ->schema([
-                                        TextInput::make('email_pribadi')
-                                            ->label('Email Pribadi')
-                                            ->email()
-                                            ->copyable()
-                                            ->placeholder('Contoh: user@gmail.com')
-                                            ->maxLength(255),
-
                                         Toggle::make('aktif')
                                             ->label('Status Akun Aktif')
                                             ->default(true)

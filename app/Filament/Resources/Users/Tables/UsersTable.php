@@ -60,11 +60,16 @@ class UsersTable
                     ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record]))
                     ->sticky(),
 
-                \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
+                \Filament\Tables\Columns\TextColumn::make('email')
+                    ->copyable()
+                    ->sortable(),
+
+
+                /*  \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
                     ->label('ID Mesin')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true), */
 
                 \Filament\Tables\Columns\TextColumn::make('bidang.nama')
                     ->label('Bidang')
@@ -74,6 +79,7 @@ class UsersTable
                     ->sortable()
                     ->stickyable(),
                 \Filament\Tables\Columns\TextColumn::make('email')
+                    ->label('Email User')
                     ->searchable()
                     ->copyable()
                     ->sortable()
@@ -170,11 +176,6 @@ class UsersTable
                     ->searchable()
                     ->copyable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                \Filament\Tables\Columns\TextColumn::make('email_pribadi')
-                    ->label('Email Pribadi')
-                    ->searchable()
-                    ->copyable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('npwp')
                     ->label('NPWP')
                     ->searchable()
@@ -225,7 +226,7 @@ class UsersTable
                         'pa' => 'PA (Kadis)',
                         'ppk' => 'PPK',
                         'pptk' => 'PPTK',
-                        'jf' => 'JF (Pengusul)',
+                        'jf' => 'JF',
                         'bendahara' => 'Bendahara',
                         'pegawai' => 'Pegawai',
                         default => ucwords(str_replace('_', ' ', $state)),
@@ -233,7 +234,7 @@ class UsersTable
                     ->searchable()
                     ->sortable(),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif')
-                    ->disabled(fn (): bool => ! (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)),
+                    ->disabled(fn(): bool => ! (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)),
             ])
             ->filters([
                 SelectFilter::make('jenjang_pendidikan')
@@ -271,13 +272,18 @@ class UsersTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false),
+                    ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false),
                 Action::make('ubah_role')
                     ->label('Ubah Role')
                     ->icon('heroicon-o-shield-check')
                     ->color('warning')
                     ->tooltip('Ubah Peran & Hak Akses Pegawai')
-                    ->visible(fn() => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                    ->visible(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+
+                        return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                    })
                     ->modalHeading(fn(\App\Models\User $record): string => "Ubah Role & Hak Akses: {$record->name}")
                     ->modalDescription('Pilih peran resmi untuk pegawai ini. Hak akses dan kewenangan dokumen SPJ akan langsung aktif.')
                     ->modalWidth('lg')
@@ -391,7 +397,7 @@ class UsersTable
                     ->label('Kirim ke Mesin')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
-                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+                    ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
                     ->form([
                         \Filament\Forms\Components\TextInput::make('nomor_absensi')
                             ->label('Nomor ID di Mesin (PIN)')
@@ -439,7 +445,12 @@ class UsersTable
                         ->label('Ubah Role Massal')
                         ->icon('heroicon-o-shield-check')
                         ->color('warning')
-                        ->visible(fn() => auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                        ->visible(function (): bool {
+                            /** @var \App\Models\User|null $user */
+                            $user = \Illuminate\Support\Facades\Auth::user();
+
+                            return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                        })
                         ->form([
                             Select::make('mode')
                                 ->label('Pilihan Aksi Role')
@@ -548,7 +559,7 @@ class UsersTable
                         ->form([
                             Select::make('jf_id')
                                 ->label('Pilih JF Tujuan')
-                                ->options(fn (): array => \App\Models\User::query()
+                                ->options(fn(): array => \App\Models\User::query()
                                     ->role('jf')
                                     ->where('aktif', '=', true)
                                     ->orderBy('name')

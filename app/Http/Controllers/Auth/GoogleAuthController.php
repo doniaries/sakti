@@ -74,12 +74,11 @@ class GoogleAuthController extends Controller
             return redirect()->to($failRedirect);
         }
 
-        // Cari user berdasarkan google_id, email kedinasan, atau email pribadi
+        // Cari user berdasarkan google_id atau email user
         /** @var User|null $user */
         $user = User::query()
             ->where('google_id', $googleId)
             ->orWhereRaw('LOWER(email) = ?', [$googleEmail])
-            ->orWhereRaw('LOWER(email_pribadi) = ?', [$googleEmail])
             ->first();
 
         // Jika email belum terdaftar di database SAKTI

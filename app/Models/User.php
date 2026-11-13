@@ -73,7 +73,6 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'agama',
         'alamat',
         'no_telp',
-        'email_pribadi',
         'google_id',
         'npwp',
         'tanggal_npwp',
