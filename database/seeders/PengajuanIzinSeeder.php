@@ -11,7 +11,7 @@ use Illuminate\Database\Seeder;
 class PengajuanIzinSeeder extends Seeder
 {
     /**
-     * Seed data Pengajuan Izin / Sakit / Cuti / WFH yang sinkron dengan AbsensiHarian
+     * Seed data Pengajuan Izin / Sakit / Cuti yang sinkron dengan AbsensiHarian
      * dan otomatis memicu notifikasi realtime melalui PengajuanIzinObserver.
      */
     public function run(): void
@@ -19,7 +19,7 @@ class PengajuanIzinSeeder extends Seeder
         $izinPribadi = JenisIzin::where('kategori', 'izin')->first() ?? JenisIzin::first();
         $izinSakit = JenisIzin::where('kategori', 'sakit')->first() ?? $izinPribadi;
         $izinCuti = JenisIzin::where('kategori', 'cuti')->first() ?? $izinPribadi;
-        $izinWfh = JenisIzin::where('kategori', 'wfh')->first() ?? $izinPribadi;
+        $izinCutiPenting = JenisIzin::where('kode', 'cuti_alasan_penting')->first() ?? $izinCuti;
 
         if (! $izinPribadi) {
             $this->command?->warn('JenisIzin belum tersedia. Jalankan JenisIzinSeeder terlebih dahulu.');
@@ -51,13 +51,13 @@ class PengajuanIzinSeeder extends Seeder
         $scenarios = [];
 
         if ($doni) {
-            // 1. Pengajuan WFH menunggu persetujuan -> notif ke super_admin, admin, kepegawaian, & atasan
+            // 1. Pengajuan Cuti Alasan Penting menunggu persetujuan -> notif ke super_admin, admin, kepegawaian, & atasan
             $scenarios[] = [
                 'user_id' => $doni->id,
-                'jenis_izin_id' => $izinWfh->id,
+                'jenis_izin_id' => $izinCutiPenting->id,
                 'tanggal_mulai' => $weekdayBesok->format('Y-m-d'),
                 'tanggal_selesai' => $weekdayBesok->format('Y-m-d'),
-                'alasan' => 'Penyusunan laporan kinerja dan koordinasi daring lintas bidang.',
+                'alasan' => 'Menghadiri agenda keluarga penting.',
                 'target_status' => 'menunggu',
                 'disetujui_oleh' => null,
                 'catatan_atasan' => null,

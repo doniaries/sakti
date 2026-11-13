@@ -58,16 +58,12 @@ class JenisIzinSeeder extends Seeder
                 'aktif' => true,
                 'keterangan' => 'Cuti karena peristiwa penting keluarga (pernikahan, kedukaan, dll).',
             ],
-            [
-                'nama' => 'Work From Home (WFH)',
-                'kode' => 'wfh',
-                'kategori' => 'wfh',
-                'kuota_hari' => null,
-                'butuh_lampiran' => false,
-                'aktif' => true,
-                'keterangan' => 'Penugasan atau izin bekerja dari rumah (WFH) yang tetap diakui sebagai kehadiran.',
-            ],
         ];
+
+        // Hapus tipe WFH jika sebelumnya pernah di-seed (WFH ditetapkan admin via status_kerja user)
+        JenisIzin::where('kode', 'wfh')
+            ->whereDoesntHave('pengajuanIzins')
+            ->delete();
 
         foreach ($types as $type) {
             JenisIzin::updateOrCreate(

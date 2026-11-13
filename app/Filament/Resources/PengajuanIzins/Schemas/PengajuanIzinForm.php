@@ -20,7 +20,7 @@ class PengajuanIzinForm
         return $schema
             ->components([
                 Section::make('Data Pengajuan Izin, Sakit & Cuti')
-                    ->description('Isi data pengajuan ketidakhadiran kerja atau WFH.')
+                    ->description('Isi data pengajuan ketidakhadiran kerja (izin / sakit / cuti).')
                     ->schema([
                         Select::make('user_id')
                             ->label('Nama Pegawai')
@@ -53,7 +53,7 @@ class PengajuanIzinForm
 
                         Textarea::make('alasan')
                             ->label('Alasan / Keterangan')
-                            ->placeholder('Jelaskan alasan izin / sakit / cuti / WFH...')
+                            ->placeholder('Jelaskan alasan izin / sakit / cuti...')
                             ->required()
                             ->rows(3)
                             ->columnSpanFull(),

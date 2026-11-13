@@ -42,11 +42,11 @@ class PengajuanIzin extends Model
                 $start = Carbon::parse($model->tanggal_mulai);
                 $end = Carbon::parse($model->tanggal_selesai);
                 
-                // Hitung hari kerja (Senin - Jumat)
+                // Hitung hari kerja efektif (di luar akhir pekan, libur nasional, dan cuti bersama)
                 $count = 0;
                 $period = CarbonPeriod::create($start, $end);
                 foreach ($period as $date) {
-                    if ($date->isWeekday()) {
+                    if (! HariLibur::isHariLibur($date)) {
                         $count++;
                     }
                 }
