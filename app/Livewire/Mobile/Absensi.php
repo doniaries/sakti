@@ -86,7 +86,7 @@ class Absensi extends Component
         /** @var User $user */
         $user = Auth::user();
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
-        $bypass = ($isAdmin && ($this->modeSimulasi || $force));
+        $bypass = $this->modeSimulasi || ($isAdmin && $force);
 
         $result = AttendancePunchService::punch(
             $user,
@@ -248,7 +248,7 @@ class Absensi extends Component
 
     public function render()
     {
-        $this->modeSimulasi = (bool) session('mode_simulasi_absensi', false);
+        $this->modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
 
         /** @var User $user */
         $user = User::with(['jabatan', 'bidang', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
