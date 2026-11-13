@@ -78,6 +78,12 @@ class PengajuanSpjResource extends Resource
             });
         }
 
+        if (filled($user->sub_bidang_id)) {
+            return $query->where(function (\Illuminate\Database\Eloquent\Builder $q) use ($user) {
+                $q->where('sub_bidang_id', $user->sub_bidang_id)->orWhere('user_id', $user->id);
+            });
+        }
+
         // JF / Staf biasa hanya dapat melihat SPJ yang terkait dengannya (dibuat olehnya)
         return $query->where('user_id', $user->id);
     }

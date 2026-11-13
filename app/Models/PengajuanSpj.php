@@ -19,6 +19,7 @@ class PengajuanSpj extends Model
         'jenis_belanja',
         'user_id',
         'bidang_id',
+        'sub_bidang_id',
         'kegiatan_id',
         'sub_kegiatan_id',
         'tahun_anggaran',
@@ -95,6 +96,12 @@ class PengajuanSpj extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (self $spj): void {
+            if (blank($spj->sub_bidang_id) && filled($spj->user_id)) {
+                $spj->sub_bidang_id = User::query()->whereKey($spj->user_id)->value('sub_bidang_id');
+            }
+        });
+
         static::saving(function (self $spj): void {
             $bankValue = $spj->nama_bank instanceof \App\Enums\NamaBank
                 ? $spj->nama_bank->value
@@ -187,6 +194,11 @@ class PengajuanSpj extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function subBidang(): BelongsTo
+    {
+        return $this->belongsTo(SubBidang::class, 'sub_bidang_id');
     }
 
     public function bidang(): BelongsTo

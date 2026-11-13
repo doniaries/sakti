@@ -367,6 +367,18 @@ class UserForm
                                                     ->preload()
                                                     ->placeholder('Kosongkan jika Kepala Dinas (Pimpinan Tertinggi)')
                                                     ->helperText('Kepala Dinas tidak memiliki bidang karena memimpin seluruh dinas.')
+                                                    ->live()
+                                                    ->afterStateUpdated(fn (\Filament\Schemas\Components\Utilities\Set $set) => $set('sub_bidang_id', null))
+                                                    ->columnSpanFull(),
+
+                                                Select::make('sub_bidang_id')
+                                                    ->label('Sub Bidang')
+                                                    ->options(fn (\Filament\Schemas\Components\Utilities\Get $get): array => filled($get('bidang_id'))
+                                                        ? \App\Models\SubBidang::query()->where('bidang_id', '=', $get('bidang_id'))->orderBy('nama')->pluck('nama', 'id')->all()
+                                                        : [])
+                                                    ->searchable()
+                                                    ->placeholder('Pilih sub bidang (untuk staf non eselon)')
+                                                    ->helperText('Data SPJ staf dipisahkan per sub bidang. Kosongkan untuk pejabat eselon.')
                                                     ->columnSpanFull(),
 
                                                 Select::make('jabatan_id')

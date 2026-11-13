@@ -44,6 +44,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'jabatan_id',
         'anggaran_role',
         'bidang_id',
+        'sub_bidang_id',
         'tempat_lahir',
         'tanggal_lahir',
         'pangkat_golongan',
@@ -137,6 +138,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     public function bidang()
     {
         return $this->belongsTo(Bidang::class);
+    }
+
+    public function subBidang()
+    {
+        return $this->belongsTo(SubBidang::class);
     }
 
     public function atasan()

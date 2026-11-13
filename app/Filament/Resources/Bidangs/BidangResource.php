@@ -39,6 +39,7 @@ class BidangResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\SubBidangsRelationManager::class,
             RelationManagers\PegawaiRelationManager::class,
         ];
     }

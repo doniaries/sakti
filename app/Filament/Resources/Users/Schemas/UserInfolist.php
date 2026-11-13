@@ -137,6 +137,21 @@ class UserInfolist
                                                 ->icon('heroicon-m-credit-card')
                                                 ->copyable()
                                                 ->placeholder('-'),
+
+                                            TextEntry::make('bidang.nama')
+                                                ->label('Bidang')
+                                                ->icon('heroicon-m-building-office')
+                                                ->badge()
+                                                ->color('primary')
+                                                ->visible(fn($record): bool => filled($record->bidang_id) && blank($record->sub_bidang_id)),
+
+                                            TextEntry::make('subBidang.nama')
+                                                ->label('Sub Bidang')
+                                                ->icon('heroicon-m-building-office-2')
+                                                ->badge()
+                                                ->color('info')
+                                                ->helperText(fn($record): ?string => $record->bidang?->nama)
+                                                ->visible(fn($record): bool => filled($record->sub_bidang_id)),
                                         ]),
                                 ])
                                     ->columnSpan([

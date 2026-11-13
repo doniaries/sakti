@@ -68,7 +68,9 @@ class PengajuanSpjsTable
                 if ($user && ! $user->canViewAllBidangKeuangan()) {
                     $userBidangId = (int) ($user->bidang_id ?: (Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
                     $query->where(function (Builder $q) use ($user, $userBidangId) {
-                        if ($userBidangId > 0) {
+                        if (filled($user->sub_bidang_id) && ! $user->isPptk()) {
+                            $q->where('sub_bidang_id', $user->sub_bidang_id);
+                        } elseif ($userBidangId > 0) {
                             $q->where('bidang_id', $userBidangId);
                         }
                         $q->orWhere('user_id', $user->id);
