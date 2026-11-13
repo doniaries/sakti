@@ -145,6 +145,13 @@ class UserInfolist
                                                 ->color('primary')
                                                 ->visible(fn($record): bool => filled($record->bidang_id) && blank($record->sub_bidang_id)),
 
+                                            TextEntry::make('jfPenempatan.name')
+                                                ->label('Penempatan di Bawah JF')
+                                                ->icon('heroicon-m-user-group')
+                                                ->badge()
+                                                ->color('success')
+                                                ->visible(fn($record): bool => filled($record->jf_id)),
+
                                             TextEntry::make('subBidang.nama')
                                                 ->label('Sub Bidang')
                                                 ->icon('heroicon-m-building-office-2')

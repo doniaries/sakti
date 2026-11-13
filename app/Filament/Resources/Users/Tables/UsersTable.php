@@ -533,6 +533,57 @@ class UsersTable
                         })
                         ->deselectRecordsAfterCompletion(),
 
+                    BulkAction::make('tempatkan_ke_jf_massal')
+                        ->label('Tempatkan ke JF (Sesuai SK)')
+                        ->icon('heroicon-o-user-group')
+                        ->color('success')
+                        ->modalHeading('Tempatkan Staf ke JF')
+                        ->modalDescription('Staf terpilih ditempatkan di bawah JF sesuai SK penempatan. Atasan langsung tetap Kepala Bidang.')
+                        ->form([
+                            Select::make('jf_id')
+                                ->label('Pilih JF Tujuan')
+                                ->options(fn (): array => \App\Models\User::query()
+                                    ->role('jf')
+                                    ->where('aktif', '=', true)
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->all())
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $jf = \App\Models\User::query()->findOrFail($data['jf_id']);
+                            $kepalaId = $jf->bidang_id
+                                ? \App\Models\Bidang::query()->whereKey($jf->bidang_id)->value('kepala_id')
+                                : null;
+
+                            $count = 0;
+                            foreach ($records as $staf) {
+                                if ($staf->getKey() === $jf->getKey()) {
+                                    continue;
+                                }
+
+                                $staf->update([
+                                    'jf_id' => $jf->getKey(),
+                                    'bidang_id' => $jf->bidang_id,
+                                    'atasan_id' => $kepalaId && $kepalaId !== $staf->getKey() ? $kepalaId : $staf->atasan_id,
+                                ]);
+                                $count++;
+                            }
+
+                            if ($kepalaId && $jf->atasan_id !== $kepalaId && $jf->getKey() !== $kepalaId) {
+                                $jf->update(['atasan_id' => $kepalaId]);
+                            }
+
+                            Notification::make()
+                                ->title("{$count} staf ditempatkan di bawah {$jf->name}")
+                                ->body('Atasan langsung tetap Kepala Bidang.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     BulkAction::make('ubah_bidang_massal')
                         ->label('Ubah Bidang (Massal)')
                         ->icon('heroicon-o-building-office')
