@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\MenuBuilder;
 
+use App\Filament\Pages\BackupDatabase;
 use App\Filament\Pages\Dashboard as AppDashboard;
 use App\Filament\Pages\LaporanFungsional;
 use App\Filament\Pages\LaporanLrfk;
@@ -312,6 +313,7 @@ class SidebarNavigationService
                     ['class' => PortalLinkResource::class],
                     ['class' => ActivityLogResource::class],
                     ['class' => CustomMenuResource::class],
+                    ['class' => BackupDatabase::class],
                     ['class' => RoleResource::class],
                 ],
             ],
