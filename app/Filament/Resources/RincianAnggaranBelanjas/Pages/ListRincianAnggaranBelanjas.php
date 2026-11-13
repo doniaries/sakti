@@ -130,7 +130,10 @@ class ListRincianAnggaranBelanjas extends ListRecords
                         try {
                             $result = SipdRkaImporterService::import($path, true, $targetBidangId, $allowOverwrite, $targetJfId);
                             $successCount++;
-                            $details[] = "✅ [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} ({$result['imported_items']} item - Rp " . number_format($result['total_pagu'], 0, ',', '.') . ")";
+                            $existingNote = ! empty($result['existing_info'])
+                                ? ' | ℹ️ ' . implode(', ', $result['existing_info']) . ' (tidak digandakan)'
+                                : '';
+                            $details[] = "✅ [{$result['kode_sub_kegiatan']}] {$result['sub_kegiatan']} ({$result['imported_items']} item - Rp " . number_format($result['total_pagu'], 0, ',', '.') . "){$existingNote}";
                         } catch (\DomainException $e) {
                             $skippedCount++;
                             $details[] = "⚠️ " . $e->getMessage();
@@ -161,8 +164,8 @@ class ListRincianAnggaranBelanjas extends ListRecords
                             ->send();
                     } elseif ($skippedCount > 0 && $errorCount === 0) {
                         Notification::make()
-                            ->title('Dokumen Sudah Pernah Diimpor!')
-                            ->body("Seluruh ({$skippedCount}) dokumen telah ada di sistem. Aktifkan opsi 'Perbarui jika sudah pernah diimpor' jika ingin memperbarui.")
+                            ->title('Data DPA Sudah Ada di Sistem!')
+                            ->body("Seluruh ({$skippedCount}) dokumen sudah ada sebelumnya:\n\n" . implode("\n", array_slice($details, 0, 5)))
                             ->warning()
                             ->persistent()
                             ->send();

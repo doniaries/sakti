@@ -49,11 +49,11 @@ class SipdRkaImporterService
         preg_match('/Sumber Pendanaan\s*:\s*([^\r\n]+)/', $fullText, $sumberM);
 
         $tahun = (int) ($tahunM[1] ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
-        $programKode = trim($progM[1] ?? '');
+        $programKode = rtrim(trim($progM[1] ?? ''), '.');
         $programNama = ltrim(trim(preg_replace('/\s+/u', ' ', $progM[2] ?? '')), "- \t\n\r\0\x0B");
-        $kegiatanKode = trim($kegM[1] ?? '');
+        $kegiatanKode = rtrim(trim($kegM[1] ?? ''), '.');
         $kegiatanNama = ltrim(trim(preg_replace('/\s+/u', ' ', $kegM[2] ?? '')), "- \t\n\r\0\x0B");
-        $subKegiatanKode = trim($subM[1] ?? '');
+        $subKegiatanKode = rtrim(trim($subM[1] ?? ''), '.');
         $subKegiatanNama = ltrim(trim(preg_replace('/\s+/u', ' ', $subM[2] ?? '')), "- \t\n\r\0\x0B");
         $sumberDana = trim(preg_replace('/\s+/u', ' ', $sumberM[1] ?? 'Dana Alokasi Umum (DAU)'));
 
@@ -171,39 +171,59 @@ class SipdRkaImporterService
             $targetBidangId,
             $targetJfId
         ) {
-            // 1. Program (firstOrCreate berdasarkan tahun_anggaran & kode_program: jika sudah ada dari RKA lain, TIDAK DIBUAT ULANG)
+            $existingInfo = [];
+
+            // 1. Program (cek kode_program atau nama_program agar tidak ganda di tahun yang sama)
             $program = null;
             if (! empty($programKode)) {
-                $program = MasterProgram::firstOrCreate(
-                    [
+                $programUpper = mb_strtoupper($programNama ?: 'PROGRAM PARIWISATA', 'UTF-8');
+                $program = MasterProgram::query()
+                    ->where('tahun_anggaran', $tahun)
+                    ->where(function ($q) use ($programKode, $programUpper) {
+                        $q->where('kode_program', $programKode)
+                            ->orWhereRaw('UPPER(nama_program) = ?', [$programUpper]);
+                    })
+                    ->first();
+
+                if ($program) {
+                    $existingInfo[] = "Program [{$program->kode_program}] sudah ada";
+                } else {
+                    $program = MasterProgram::create([
                         'tahun_anggaran' => $tahun,
                         'kode_program' => $programKode,
-                    ],
-                    [
-                        'nama_program' => mb_strtoupper($programNama ?: 'PROGRAM PARIWISATA', 'UTF-8'),
-                    ]
-                );
+                        'nama_program' => $programUpper,
+                    ]);
+                }
 
                 if ($programNama && empty($program->nama_program)) {
-                    $program->update(['nama_program' => mb_strtoupper($programNama, 'UTF-8')]);
+                    $program->update(['nama_program' => $programUpper]);
                 }
             }
 
-            // 2. Kegiatan (firstOrCreate berdasarkan tahun_anggaran & kode_kegiatan: jika sudah ada dari RKA lain, TIDAK DIBUAT ULANG)
+            // 2. Kegiatan (cek kode_kegiatan atau nama_kegiatan agar tidak ganda di tahun yang sama)
             $kegiatan = null;
             if (! empty($kegiatanKode)) {
-                $kegiatan = MasterKegiatan::firstOrCreate(
-                    [
+                $kegiatanUpper = mb_strtoupper($kegiatanNama ?: 'KEGIATAN PARIWISATA', 'UTF-8');
+                $kegiatan = MasterKegiatan::query()
+                    ->where('tahun_anggaran', $tahun)
+                    ->where(function ($q) use ($kegiatanKode, $kegiatanUpper) {
+                        $q->where('kode_kegiatan', $kegiatanKode)
+                            ->orWhereRaw('UPPER(nama_kegiatan) = ?', [$kegiatanUpper]);
+                    })
+                    ->first();
+
+                if ($kegiatan) {
+                    $existingInfo[] = "Kegiatan [{$kegiatan->kode_kegiatan}] sudah ada";
+                } else {
+                    $kegiatan = MasterKegiatan::create([
                         'tahun_anggaran' => $tahun,
                         'kode_kegiatan' => $kegiatanKode,
-                    ],
-                    [
                         'program_id' => $program?->id,
                         'bidang_id' => $targetBidangId,
-                        'nama_kegiatan' => mb_strtoupper($kegiatanNama ?: 'KEGIATAN PARIWISATA', 'UTF-8'),
+                        'nama_kegiatan' => $kegiatanUpper,
                         'pagu_anggaran' => 0,
-                    ]
-                );
+                    ]);
+                }
 
                 // Hubungkan ke program jika sebelumnya program_id masih kosong
                 if ($program && ! $kegiatan->program_id) {
@@ -216,20 +236,29 @@ class SipdRkaImporterService
                 }
             }
 
-            // 3. Sub Kegiatan (firstOrCreate berdasarkan tahun_anggaran & kode_sub_kegiatan: jika sudah ada, TIDAK DIBUAT ULANG)
+            // 3. Sub Kegiatan (cek kode_sub_kegiatan atau nama_sub_kegiatan agar tidak ganda di tahun yang sama)
             $subKegiatan = null;
             if (! empty($subKegiatanKode)) {
-                $subKegiatan = MasterSubKegiatan::firstOrCreate(
-                    [
+                $subUpper = mb_strtoupper($subKegiatanNama ?: 'Sub Kegiatan', 'UTF-8');
+                $subKegiatan = MasterSubKegiatan::query()
+                    ->where('tahun_anggaran', $tahun)
+                    ->where(function ($q) use ($subKegiatanKode, $subUpper) {
+                        $q->where('kode_sub_kegiatan', $subKegiatanKode)
+                            ->orWhereRaw('UPPER(nama_sub_kegiatan) = ?', [$subUpper]);
+                    })
+                    ->first();
+
+                if ($subKegiatan) {
+                    $existingInfo[] = "Sub Kegiatan [{$subKegiatan->kode_sub_kegiatan}] sudah ada";
+                } else {
+                    $subKegiatan = MasterSubKegiatan::create([
                         'tahun_anggaran' => $tahun,
                         'kode_sub_kegiatan' => $subKegiatanKode,
-                    ],
-                    [
                         'kegiatan_id' => $kegiatan?->id,
                         'nama_sub_kegiatan' => $subKegiatanNama ?: 'Sub Kegiatan',
                         'jf_id' => $targetJfId,
-                    ]
-                );
+                    ]);
+                }
 
                 // Hubungkan ke kegiatan jika sebelumnya kegiatan_id belum sesuai
                 if ($kegiatan && (! $subKegiatan->kegiatan_id || $subKegiatan->kegiatan_id !== $kegiatan->id)) {
@@ -346,6 +375,7 @@ class SipdRkaImporterService
                 'imported_items' => $importedItems,
                 'skipped_items' => $skippedItems,
                 'total_pagu' => $totalPaguImported,
+                'existing_info' => $existingInfo,
             ];
         });
     }
