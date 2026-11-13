@@ -91,7 +91,7 @@ class UserInfolist
                     ->schema([
                         Grid::make([
                             'default' => 1,
-                            'md' => 4,
+                            'md' => 5,
                         ])
                             ->schema([
                                 ImageEntry::make('avatar_url')
@@ -116,7 +116,7 @@ class UserInfolist
                                     Grid::make([
                                         'default' => 1,
                                         'sm' => 2,
-                                        'lg' => 5,
+                                        'lg' => 3,
                                     ])
                                         ->schema([
                                             TextEntry::make('nip')
@@ -132,31 +132,16 @@ class UserInfolist
                                                 ->weight('medium')
                                                 ->placeholder('-'),
 
-                                            /* TextEntry::make('password_status')
-                                                ->label('Password')
-                                                ->state('••••••••')
-                                                ->icon('heroicon-m-key')
-                                                ->color('gray'), */
-
                                             TextEntry::make('nik')
                                                 ->label('NIK')
                                                 ->icon('heroicon-m-credit-card')
                                                 ->copyable()
                                                 ->placeholder('-'),
-
-                                            /* TextEntry::make('jenis_kelamin')
-                                                ->label('Jenis Kelamin')
-                                                ->badge()
-                                                ->color(fn($state) => match ($state?->value ?? $state) {
-                                                    'L', 'Laki-Laki' => 'info',
-                                                    'P', 'Perempuan' => 'danger',
-                                                    default => 'gray',
-                                                }), */
                                         ]),
                                 ])
                                     ->columnSpan([
                                         'default' => 1,
-                                        'md' => 3,
+                                        'md' => 4,
                                     ]),
                             ]),
                     ]),
