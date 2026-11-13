@@ -8,7 +8,7 @@
     <!-- PWA Setup -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#1B6CA8">
+    <meta name="theme-color" content="#0B132B">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     
     <!-- Fonts & CSS -->
@@ -16,6 +16,22 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' };
+        (function () {
+            const apply = () => {
+                const saved = localStorage.getItem('sakti_mobile_theme') || 'dark';
+                document.documentElement.classList.toggle('dark', saved === 'dark');
+            };
+            apply();
+            document.addEventListener('livewire:navigated', apply);
+        })();
+        window.toggleMobileTheme = function () {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('sakti_mobile_theme', isDark ? 'dark' : 'light');
+            window.dispatchEvent(new CustomEvent('mobile-theme-changed', { detail: { dark: isDark } }));
+        };
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     <!-- Leaflet Map CSS & JS -->
@@ -49,21 +65,60 @@
             -webkit-tap-highlight-color: transparent;
         }
         body { 
-            background-color: #0F172A; 
+            background-color: #E2E8F0; 
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            transition: background-color 0.2s ease;
+        }
+        html.dark body {
+            background-color: #060C1A;
         }
         .mobile-container {
             max-width: 440px;
             margin: 0 auto;
-            background: #F8FAFC;
+            background-color: #F8FAFC;
+            background-image:
+                radial-gradient(circle at 90% 6%, rgba(14, 165, 233, 0.14) 0%, transparent 42%),
+                radial-gradient(circle at 10% 32%, rgba(16, 185, 129, 0.10) 0%, transparent 45%),
+                linear-gradient(to right, rgba(2, 132, 199, 0.045) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+                linear-gradient(160deg, #F8FAFC 0%, #EFF6FF 48%, #ECFDF5 100%);
+            background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+            color: #0F172A;
             min-height: 100vh;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
             display: flex;
             flex-direction: column;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .mobile-container::before {
+            content: '';
+            position: sticky;
+            top: 0;
+            display: block;
+            height: 3px;
+            width: 100%;
+            z-index: 60;
+            background: linear-gradient(90deg, #0284C7 0%, #22D3EE 50%, #10B981 100%);
+        }
+        html.dark .mobile-container {
+            background-color: #0B132B;
+            background-image:
+                radial-gradient(circle at 88% 7%, rgba(34, 211, 238, 0.16) 0%, transparent 40%),
+                radial-gradient(circle at 10% 34%, rgba(16, 185, 129, 0.12) 0%, transparent 44%),
+                linear-gradient(to right, rgba(56, 189, 248, 0.055) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(16, 185, 129, 0.045) 1px, transparent 1px),
+                linear-gradient(160deg, #0B132B 0%, #0F1E3C 52%, #081A2C 100%);
+            background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
+            color: #F1F5F9;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+        }
+        html.dark .mobile-container::before {
+            background: linear-gradient(90deg, #22D3EE 0%, #38BDF8 50%, #34D399 100%);
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
         }
         .content-area { 
             flex: 1; 
@@ -88,7 +143,7 @@
         .bottom-nav {
             width: 100%;
             max-width: 440px;
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid rgba(226, 232, 240, 0.9);
@@ -104,18 +159,28 @@
             box-shadow: 0 -10px 25px -5px rgba(15, 23, 42, 0.08), 0 -1px 3px 0 rgba(0, 0, 0, 0.03);
             pointer-events: auto;
         }
+        html.dark .bottom-nav {
+            background: rgba(16, 30, 48, 0.96);
+            border-top-color: rgba(51, 65, 85, 0.7);
+            border-left-color: rgba(51, 65, 85, 0.4);
+            border-right-color: rgba(51, 65, 85, 0.4);
+            box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.35);
+        }
         .nav-item {
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center;
-            color: #94A3B8; 
+            color: #64748B; 
             font-size: 10px; 
             font-weight: 600;
             text-decoration: none;
             transition: all 0.25s ease;
             position: relative;
             height: 100%;
+        }
+        html.dark .nav-item {
+            color: #94A3B8;
         }
         .nav-item i { 
             font-size: 19px; 
@@ -126,9 +191,15 @@
             color: #0284C7; 
             font-weight: 700;
         }
+        html.dark .nav-item.active {
+            color: #38BDF8;
+        }
         .nav-item.active i { 
             transform: translateY(-2px);
             color: #0284C7; 
+        }
+        html.dark .nav-item.active i {
+            color: #38BDF8;
         }
         .nav-item.active::after {
             content: '';
@@ -138,6 +209,9 @@
             height: 5px;
             background-color: #0284C7;
             border-radius: 50%;
+        }
+        html.dark .nav-item.active::after {
+            background-color: #38BDF8;
         }
 
         /* Center Elevated Punch Button */
@@ -155,28 +229,81 @@
             height: 60px;
             border-radius: 50%;
             background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
-            color: white;
+            color: #FFFFFF;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 20px -3px rgba(2, 132, 199, 0.45), 0 0 0 5px #F8FAFC;
+            box-shadow: 0 10px 25px -3px rgba(2, 132, 199, 0.4), 0 0 0 5px #F8FAFC;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-decoration: none;
         }
+        html.dark .center-absen-btn {
+            background: linear-gradient(135deg, #22D3EE 0%, #0284C7 100%);
+            color: #061326;
+            box-shadow: 0 10px 25px -3px rgba(34, 211, 238, 0.45), 0 0 0 5px #0B132B;
+        }
         .center-absen-btn:active {
             transform: scale(0.92) translateY(2px);
-            box-shadow: 0 4px 10px -2px rgba(2, 132, 199, 0.4), 0 0 0 4px #F8FAFC;
         }
         .center-absen-btn i {
-            font-size: 24px;
+            font-size: 23px;
             margin-bottom: 0px;
         }
         .center-absen-btn span {
-            font-size: 9px;
-            font-weight: 700;
+            font-size: 8.5px;
+            font-weight: 800;
             letter-spacing: 0.3px;
-            margin-top: 2px;
+            margin-top: 1px;
+        }
+
+        /* Unified Dark Navy Theme untuk semua halaman Mobile saat html.dark aktif */
+        html.dark .content-area .bg-white {
+            background-color: rgba(19, 35, 56, 0.92) !important;
+            backdrop-filter: blur(12px);
+        }
+        html.dark .content-area .bg-slate-50,
+        html.dark .content-area .bg-gray-50 {
+            background-color: rgba(15, 28, 46, 0.85) !important;
+        }
+        html.dark .content-area .bg-slate-100,
+        html.dark .content-area .bg-gray-100 {
+            background-color: rgba(30, 41, 59, 0.85) !important;
+        }
+        html.dark .content-area .border-slate-100,
+        html.dark .content-area .border-slate-200,
+        html.dark .content-area .border-gray-100,
+        html.dark .content-area .border-gray-200 {
+            border-color: rgba(51, 65, 85, 0.65) !important;
+        }
+        html.dark .content-area .text-slate-900,
+        html.dark .content-area .text-slate-800,
+        html.dark .content-area .text-gray-900,
+        html.dark .content-area .text-gray-800 {
+            color: #F8FAFC !important;
+        }
+        html.dark .content-area .text-slate-700,
+        html.dark .content-area .text-gray-700 {
+            color: #E2E8F0 !important;
+        }
+        html.dark .content-area .text-slate-600,
+        html.dark .content-area .text-gray-600 {
+            color: #CBD5E1 !important;
+        }
+        html.dark .content-area .text-slate-500,
+        html.dark .content-area .text-gray-500 {
+            color: #94A3B8 !important;
+        }
+        html.dark .content-area input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+        html.dark .content-area select,
+        html.dark .content-area textarea {
+            background-color: #0F1E33 !important;
+            border-color: rgba(71, 85, 105, 0.7) !important;
+            color: #F1F5F9 !important;
+        }
+        html.dark .content-area input::placeholder,
+        html.dark .content-area textarea::placeholder {
+            color: #64748B !important;
         }
     </style>
     @livewireStyles
