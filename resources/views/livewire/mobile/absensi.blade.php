@@ -10,11 +10,17 @@
                 class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider {{ $isWfh ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-sky-100 text-sky-800 border border-sky-300' }}">
                 {{ $isWfh ? 'WFH' : 'WFO' }}
             </span>
-            <div
-                class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-full text-[10px] font-bold flex items-center shadow-xs">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1"></span>
-                <span>GPS</span>
-            </div>
+            <button type="button" @click="detectPosition(true)"
+                :class="gpsStatus === 'ok'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-400/30'
+                    : (gpsStatus === 'blocked'
+                        ? 'bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-400/40 animate-pulse'
+                        : 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/30')"
+                class="px-2 py-0.5 border rounded-full text-[10px] font-bold flex items-center shadow-xs cursor-pointer transition">
+                <span class="w-1.5 h-1.5 rounded-full mr-1"
+                    :class="gpsStatus === 'ok' ? 'bg-emerald-500' : (gpsStatus === 'blocked' ? 'bg-rose-500' : 'bg-sky-500 animate-ping')"></span>
+                <span x-text="gpsStatus === 'ok' ? 'GPS OK' : (gpsStatus === 'blocked' ? 'GPS Nonaktif' : 'Cek GPS...')">GPS</span>
+            </button>
         </div>
     </div>
 
@@ -366,13 +372,32 @@
                 <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold border"
                     :class="isWithinRadius === false ? 'bg-rose-500/15 text-rose-500 border-rose-400/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-400/30'"
                     x-text="currentDistanceText"></span>
-                <button type="button" @click="detectPosition()"
+                <button type="button" @click="detectPosition(true)"
                     class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
                     <i class="fa-solid fa-crosshairs text-[10px]"></i>
                     <span>Perbarui</span>
                 </button>
             </div>
         </div>
+
+        <!-- Banner Status GPS Browser -->
+        <template x-if="gpsStatus === 'blocked'">
+            <div class="mb-2 p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-700 dark:text-rose-200 text-[11px] flex items-center justify-between gap-2">
+                <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
+                    <span><strong>GPS Browser belum aktif!</strong> Izinkan akses Lokasi pada browser (ikon gembok/setelan di address bar), lalu tekan <strong>Perbarui</strong>.</span>
+                </div>
+            </div>
+        </template>
+        <template x-if="gpsStatus === 'ok'">
+            <div class="mb-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold flex items-center justify-between">
+                <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span>GPS Browser Aktif &amp; OK</span>
+                </span>
+                <span class="font-mono opacity-85" x-text="gpsAccuracy ? 'Akurasi ±' + gpsAccuracy + ' m' : 'Siap Presensi'"></span>
+            </div>
+        </template>
 
         <div wire:ignore id="absensi-map" class="w-full h-44 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/60 bg-slate-900 z-10"></div>
 
@@ -406,6 +431,8 @@
                     userCoordsText: '',
                     isWithinRadius: null,
                     gpsWarning: false,
+                    gpsStatus: 'checking',
+                    gpsAccuracy: null,
                     map: null,
                     officeCircle: null,
                     userMarker: null,
@@ -468,49 +495,73 @@
                         return R * c;
                     },
 
-                    detectPosition() {
-                        if (this.modeSimulasi) {
-                            this.currentDistance = 0;
-                            this.currentDistanceText = '0 meter (Simulasi)';
-                            this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
-                            this.isWithinRadius = true;
-                            this.gpsWarning = false;
-                            this.updateUserMarker(this.officeLat, this.officeLng);
-                            return;
-                        }
+                    detectPosition(manual = false) {
+                        this.gpsStatus = 'checking';
 
                         if (!navigator.geolocation) {
-                            this.currentDistance = 0;
-                            this.currentDistanceText = '0 meter (Simulasi)';
-                            this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
-                            this.isWithinRadius = true;
-                            this.updateUserMarker(this.officeLat, this.officeLng);
+                            this.gpsWarning = true;
+                            this.gpsStatus = 'blocked';
+                            this.currentDistanceText = 'GPS Tidak Didukung';
+                            if (this.modeSimulasi) {
+                                this.currentDistance = 0;
+                                this.currentDistanceText = '0 meter (Simulasi)';
+                                this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
+                                this.isWithinRadius = true;
+                                this.updateUserMarker(this.officeLat, this.officeLng);
+                            }
+                            if (manual) {
+                                window.dispatchEvent(new CustomEvent('notify', {
+                                    detail: { type: 'warning', title: 'GPS Tidak Didukung', message: 'Browser Anda tidak mendukung fitur geolokasi.' }
+                                }));
+                            }
                             return;
                         }
 
                         navigator.geolocation.getCurrentPosition(
                             (pos) => {
                                 this.gpsWarning = false;
-                                const uLat = pos.coords.latitude;
-                                const uLng = pos.coords.longitude;
+                                this.gpsStatus = 'ok';
+                                this.gpsAccuracy = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
+                                const uLat = this.modeSimulasi ? this.officeLat : pos.coords.latitude;
+                                const uLng = this.modeSimulasi ? this.officeLng : pos.coords.longitude;
                                 this.userCoordsText = `${uLat.toFixed(5)}, ${uLng.toFixed(5)}`;
                                 const d = this.calcDistance(this.officeLat, this.officeLng, uLat, uLng);
                                 this.currentDistance = Math.round(d);
-                                this.currentDistanceText = `${this.currentDistance} meter`;
-                                this.isWithinRadius = this.isWfh || (this.currentDistance <= this.maxRadius);
+                                this.currentDistanceText = this.modeSimulasi ? '0 meter (Simulasi)' : `${this.currentDistance} meter`;
+                                this.isWithinRadius = this.modeSimulasi || this.isWfh || (this.currentDistance <= this.maxRadius);
                                 this.updateUserMarker(uLat, uLng);
+
+                                if (manual) {
+                                    window.dispatchEvent(new CustomEvent('notify', {
+                                        detail: { type: 'success', title: 'GPS OK', message: `Lokasi GPS aktif (${this.currentDistanceText}).` }
+                                    }));
+                                }
                             },
                             (err) => {
                                 console.warn('[ABSEN] GPS warning:', err);
-                                if (err.code === 1) {
-                                    this.gpsWarning = true;
-                                    this.currentDistanceText = 'Izin Lokasi Nonaktif';
-                                    this.isWithinRadius = this.isWfh ? true : false;
-                                } else {
+                                this.gpsWarning = true;
+                                this.gpsStatus = 'blocked';
+                                this.gpsAccuracy = null;
+
+                                if (this.modeSimulasi) {
                                     this.currentDistance = 0;
-                                    this.currentDistanceText = '0 meter (Mode GPS)';
+                                    this.currentDistanceText = '0 meter (Simulasi)';
                                     this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
                                     this.isWithinRadius = true;
+                                    this.updateUserMarker(this.officeLat, this.officeLng);
+                                } else {
+                                    this.currentDistanceText = err.code === 1 ? 'Izin GPS Nonaktif' : 'Sinyal GPS Mati';
+                                    this.isWithinRadius = this.isWfh ? true : false;
+                                }
+
+                                if (manual || err.code === 1) {
+                                    window.dispatchEvent(new CustomEvent('notify', {
+                                        detail: {
+                                            type: 'warning',
+                                            title: 'GPS Browser Belum Aktif',
+                                            message: 'Mohon izinkan akses Lokasi pada browser Anda agar titik presensi dapat terbaca.'
+                                        }
+                                    }));
                                 }
                             },
                             {
