@@ -2,8 +2,12 @@
 
 namespace App\Filament\Resources\PengajuanIzins\Schemas;
 
+use App\Models\HariLibur;
 use App\Models\JenisIzin;
+use App\Models\PengajuanIzin;
 use App\Models\User;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -28,15 +32,16 @@ class PengajuanIzinForm
                             ->label('Nama Pegawai')
                             ->relationship('user', 'name')
                             ->default(fn () => Auth::id())
-                            ->disabled(function (): bool {
+                            ->visible(function (): bool {
                                 /** @var User|null $user */
                                 $user = Auth::user();
 
-                                return ! ($user?->hasAnyRole(['super_admin', 'admin']) ?? false);
+                                return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
                             })
                             ->dehydrated()
                             ->searchable()
                             ->preload()
+                            ->live()
                             ->required(),
 
                         Select::make('jenis_izin_id')
@@ -45,6 +50,47 @@ class PengajuanIzinForm
                             ->searchable()
                             ->preload()
                             ->live()
+                            ->helperText(function (Get $get): ?string {
+                                $jenisId = $get('jenis_izin_id');
+                                if (! $jenisId) {
+                                    return null;
+                                }
+
+                                $jenis = JenisIzin::find($jenisId);
+                                if (! $jenis || $jenis->kategori !== 'cuti') {
+                                    return null;
+                                }
+
+                                $targetUserId = (int) ($get('user_id') ?: Auth::id());
+                                $tahun = now()->year;
+                                $kuota = (int) ($jenis->kuota_hari ?: 12);
+                                $terpakai = 0;
+
+                                if ($targetUserId > 0) {
+                                    $riwayatCuti = PengajuanIzin::query()
+                                        ->where('user_id', $targetUserId)
+                                        ->where('jenis_izin_id', $jenis->id)
+                                        ->where('status', 'disetujui')
+                                        ->whereYear('tanggal_mulai', $tahun)
+                                        ->get(['tanggal_mulai', 'tanggal_selesai']);
+
+                                    foreach ($riwayatCuti as $item) {
+                                        $period = CarbonPeriod::create(
+                                            Carbon::parse($item->tanggal_mulai),
+                                            Carbon::parse($item->tanggal_selesai)
+                                        );
+                                        foreach ($period as $date) {
+                                            if ($date->year === $tahun && ! HariLibur::isHariLibur($date)) {
+                                                $terpakai++;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                $sisa = max(0, $kuota - $terpakai);
+
+                                return "Sisa kuota {$jenis->nama} tahun {$tahun}: {$sisa} dari {$kuota} hari kerja (di luar hari libur & cuti bersama).";
+                            })
                             ->required(),
 
                         DatePicker::make('tanggal_mulai')
