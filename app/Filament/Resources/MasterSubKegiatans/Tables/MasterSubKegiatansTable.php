@@ -28,6 +28,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class MasterSubKegiatansTable
 {
@@ -111,7 +112,12 @@ class MasterSubKegiatansTable
                         Action::make('tetapkan_bidang_inline')
                             ->modalHeading(fn(MasterSubKegiatan $record): string => "Tetapkan Bidang: {$record->nama_sub_kegiatan}")
                             ->modalDescription('Pilih Bidang yang menaungi Kegiatan dan Sub Kegiatan ini.')
-                            ->visible(fn() => auth()->user()?->hasAnyRole(['pptk', 'super_admin', 'admin', 'pa']))
+                            ->visible(function (): bool {
+                                /** @var \App\Models\User|null $user */
+                                $user = Auth::user();
+
+                                return $user?->hasAnyRole(['pptk', 'super_admin', 'admin', 'pa']) ?? false;
+                            })
                             ->form([
                                 Select::make('bidang_id')
                                     ->label('Bidang Pengampu')
@@ -143,7 +149,12 @@ class MasterSubKegiatansTable
                         Action::make('ganti_jf_inline')
                             ->modalHeading(fn(MasterSubKegiatan $record): string => "Penugasan JF: {$record->nama_sub_kegiatan}")
                             ->modalDescription('Pilih Pejabat Fungsional (JF) yang bertanggung jawab atas Sub Kegiatan ini.')
-                            ->visible(fn() => auth()->user()?->hasAnyRole(['pptk', 'super_admin', 'admin', 'pa']))
+                            ->visible(function (): bool {
+                                /** @var \App\Models\User|null $user */
+                                $user = Auth::user();
+
+                                return $user?->hasAnyRole(['pptk', 'super_admin', 'admin', 'pa']) ?? false;
+                            })
                             ->form([
                                 Select::make('jf_id')
                                     ->label('Pejabat Fungsional (JF)')
@@ -267,7 +278,7 @@ class MasterSubKegiatansTable
                     ->label('Filter JF')
                     ->options(function () {
                         /** @var \App\Models\User|null $user */
-                        $user = auth()->user();
+                        $user = Auth::user();
                         $userBidangId = $user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null);
 
                         return User::query()

@@ -353,7 +353,15 @@ class UserInfolist
                                                             ->formatStateUsing(fn($state) => $state ? 'Unduh SK Pangkat (PDF)' : 'Belum diunggah')
                                                             ->icon(fn($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
                                                             ->color(fn($state) => $state ? 'primary' : 'gray')
-                                                            ->url(fn($record) => $record->file_sk_golongan ? Storage::disk('public')->url($record->file_sk_golongan) : null, shouldOpenInNewTab: true),
+                                                            ->url(function ($record): ?string {
+                                                                if (! $record->file_sk_golongan) {
+                                                                    return null;
+                                                                }
+                                                                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                                                                $disk = Storage::disk('public');
+
+                                                                return $disk->url($record->file_sk_golongan);
+                                                            }, shouldOpenInNewTab: true),
                                                     ]),
                                             ]),
                                     ]),
@@ -450,7 +458,15 @@ class UserInfolist
                                                             ->formatStateUsing(fn($state) => $state ? 'Unduh SK Jabatan (PDF)' : 'Belum diunggah')
                                                             ->icon(fn($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
                                                             ->color(fn($state) => $state ? 'primary' : 'gray')
-                                                            ->url(fn($record) => $record->file_sk_jabatan ? Storage::disk('public')->url($record->file_sk_jabatan) : null, shouldOpenInNewTab: true),
+                                                            ->url(function ($record): ?string {
+                                                                if (! $record->file_sk_jabatan) {
+                                                                    return null;
+                                                                }
+                                                                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                                                                $disk = Storage::disk('public');
+
+                                                                return $disk->url($record->file_sk_jabatan);
+                                                            }, shouldOpenInNewTab: true),
                                                     ]),
                                             ]),
                                     ]),
@@ -502,7 +518,15 @@ class UserInfolist
                                                             ->formatStateUsing(fn($state) => $state ? 'Unduh Berkas Ijazah (PDF)' : 'Belum diunggah')
                                                             ->icon(fn($state) => $state ? 'heroicon-m-arrow-down-tray' : 'heroicon-m-x-circle')
                                                             ->color(fn($state) => $state ? 'primary' : 'gray')
-                                                            ->url(fn($record) => $record->file_ijazah ? Storage::disk('public')->url($record->file_ijazah) : null, shouldOpenInNewTab: true),
+                                                            ->url(function ($record): ?string {
+                                                                if (! $record->file_ijazah) {
+                                                                    return null;
+                                                                }
+                                                                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                                                                $disk = Storage::disk('public');
+
+                                                                return $disk->url($record->file_ijazah);
+                                                            }, shouldOpenInNewTab: true),
                                                     ]),
                                             ]),
                                     ]),
