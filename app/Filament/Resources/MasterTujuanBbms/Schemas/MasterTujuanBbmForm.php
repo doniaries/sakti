@@ -17,6 +17,7 @@ class MasterTujuanBbmForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Standar Rute & Kuota BBM')
                     ->description('Tentukan nama tujuan / nagari dan pagu standar kuota liter BBM.')
@@ -32,7 +33,8 @@ class MasterTujuanBbmForm
                                     ])
                                     ->default('dalam_kabupaten')
                                     ->live()
-                                    ->required(),
+                                    ->required()
+                                    ->columnSpan(fn (callable $get): int => $get('kategori_wilayah') === 'dalam_kabupaten' ? 1 : 3),
 
                                 Select::make('kecamatan_id')
                                     ->label('Pilih Kecamatan Tujuan')

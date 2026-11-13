@@ -14,14 +14,23 @@ class MasterBarangForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Informasi Komponen Belanja')
                     ->description('Tautkan komponen/nama produk belanja ke kode rekening belanja yang sesuai dengan cetak RKA/DPA SIPD.')
+                    ->columns(2)
                     ->schema([
                         Select::make('kode_rekening_id')
                             ->label('Kode Rekening Belanja')
                             ->relationship('kodeRekening', 'uraian')
                             ->getOptionLabelFromRecordUsing(fn (KodeRekening $record) => $record->label)
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+
+                        Select::make('satuan_id')
+                            ->label('Satuan Standar')
+                            ->relationship('satuan', 'nama')
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -32,14 +41,8 @@ class MasterBarangForm
                             ->helperText('Nama kelompok barang/produk yang tertera pada cetak rincian belanja RKA SIPD.')
                             ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                             ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
-                            ->required(),
-
-                        Select::make('satuan_id')
-                            ->label('Satuan Standar')
-                            ->relationship('satuan', 'nama')
-                            ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->required()
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

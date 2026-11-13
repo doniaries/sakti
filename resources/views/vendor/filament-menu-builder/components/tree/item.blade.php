@@ -93,6 +93,7 @@
                     {{ ($this->indentAction)(['item' => $key]) }}
                     {{ ($this->unindentAction)(['item' => $key]) }}
                     {{ ($this->editItemAction)(['item' => $key]) }}
+                    {{ ($this->deleteItemAction)(['item' => $key])->iconButton()->icon('heroicon-m-trash')->color('danger')->size(\Filament\Support\Enums\Size::Small)->tooltip(__('filament-actions::delete.single.label')) }}
 
                     {{ $this->getItemActions($key) }}
                 </div>

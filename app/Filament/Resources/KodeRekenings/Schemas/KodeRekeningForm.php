@@ -12,6 +12,7 @@ class KodeRekeningForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Informasi Rekening Belanja')
                     ->description('Kelola nomor kode rekening dan uraian belanja.')

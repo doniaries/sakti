@@ -3,6 +3,17 @@
     x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('menu-builder', package: 'datlechin/filament-menu-builder'))]"
     class="fi-menu-builder"
 >
+    <style>
+        .fi-menu-builder .fi-dropdown-panel {
+            position: fixed !important;
+        }
+        .fi-menu-builder .fi-fo-repeater-item,
+        .fi-menu-builder .fi-fo-repeater-item-header,
+        .fi-menu-builder .fi-menu-builder-item-children {
+            overflow: visible !important;
+        }
+    </style>
+
     <x-filament::section :heading="__('filament-menu-builder::menu-builder.items.heading')">
         @if ($this->canEdit())
             <x-slot name="afterHeader">

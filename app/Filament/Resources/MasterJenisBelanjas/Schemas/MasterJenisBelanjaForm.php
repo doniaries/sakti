@@ -14,6 +14,7 @@ class MasterJenisBelanjaForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Identitas Jenis Pekerjaan / Belanja SPJ')
                     ->description('Kelola kelompok transaksi belanja kedinasan dan lingkup pengadaannya.')

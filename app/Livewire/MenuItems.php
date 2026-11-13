@@ -89,12 +89,13 @@ class MenuItems extends BaseMenuItems
         $arguments = ['item' => $itemId];
 
         return ActionGroup::make([
-            ActionGroup::make($this->getCreateActions($itemId))->dropdown(false),
             ActionGroup::make([
-                ($this->duplicateItemAction)($arguments),
                 ($this->deleteItemAction)($arguments),
+                ($this->duplicateItemAction)($arguments),
             ])->dropdown(false),
+            ActionGroup::make($this->getCreateActions($itemId))->dropdown(false),
         ])
+            ->dropdownPlacement('bottom-end')
             ->size(Size::Small)
             ->color('gray');
     }
