@@ -58,6 +58,7 @@ class DatabaseSeeder extends Seeder
             JenisIzinSeeder::class,
             MesinAbsensiSeeder::class,
             LogAbsensiSeeder::class,
+            PengajuanIzinSeeder::class,
             AktivitasSeeder::class,
             StrukturOrganisasiSeeder::class,
             SatuanSeeder::class,
@@ -70,6 +71,7 @@ class DatabaseSeeder extends Seeder
             RincianAnggaranBelanjaSeeder::class,
             PengaturanAplikasiSeeder::class,
             PengajuanSpjSeeder::class,
+            NotifikasiKeuanganSeeder::class,
             ActivityLogSeeder::class,
             // SatuTahunStressTestSeeder::class, // Aktifkan seeder ini jika ingin menguji 1 tahun data (~20.000 data) di server online
         ]);

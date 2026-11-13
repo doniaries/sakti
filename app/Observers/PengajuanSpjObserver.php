@@ -48,8 +48,19 @@ class PengajuanSpjObserver
                 ->sendToDatabase($targets);
         }
 
-        // 2. Notifikasi progres ke pemohon (kecuali saat baru dibuat oleh pemohon sendiri)
-        if ($spj->user_id && $spj->wasChanged('status') && $spj->user_id !== auth()->id()) {
+        // 2. Notifikasi progres ke pemohon (saat status berubah atau dibuat pada tahap lanjutan)
+        $isProgressStatus = in_array($spj->status, [
+            'menunggu_realisasi',
+            'revisi_pptk',
+            'revisi_ppk',
+            'revisi_pa',
+            'revisi_bendahara',
+            'disetujui',
+            'dicairkan',
+            'ditolak',
+        ], true);
+
+        if ($spj->user_id && ($spj->wasChanged('status') || $isProgressStatus) && $spj->user_id !== auth()->id()) {
             $isRevisi = str_contains((string) $spj->status, 'revisi') || $spj->status === 'ditolak';
 
             Notification::make()
@@ -69,14 +80,28 @@ class PengajuanSpjObserver
 
     protected function resolveTargetUsers(PengajuanSpj $spj): Collection
     {
-        return match ($spj->status) {
+        $roleTargets = match ($spj->status) {
             'diajukan', 'menunggu_verifikasi_pptk' => $spj->pptk_id
                 ? User::where('id', $spj->pptk_id)->get()
                 : User::role('pptk')->when($spj->bidang_id, fn($q) => $q->where('bidang_id', $spj->bidang_id))->get(),
             'menunggu_verifikasi_ppk' => User::role('ppk')->get(),
-            'menunggu_verifikasi_pa' => User::role('pa')->get(),
-            'menunggu_pencairan' => User::role('bendahara')->get(),
+            'menunggu_persetujuan_pa', 'menunggu_verifikasi_pa' => User::role('pa')->get(),
+            'menunggu_verifikasi_bendahara', 'menunggu_pencairan', 'disetujui' => User::role('bendahara')->get(),
             default => collect(),
         };
+
+        if ($roleTargets->isEmpty()) {
+            return collect();
+        }
+
+        $superAdmins = User::query()
+            ->where('aktif', true)
+            ->whereHas('roles', fn($q) => $q->where('name', 'super_admin'))
+            ->get();
+
+        return $roleTargets
+            ->merge($superAdmins)
+            ->unique('id')
+            ->reject(fn(User $u) => $u->id === $spj->user_id);
     }
 }
