@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Mobile\Izin;
 
+use App\Enums\JenisKelamin;
+use App\Models\HariLibur;
 use App\Models\JenisIzin;
 use App\Models\PengajuanIzin;
 use Carbon\Carbon;
@@ -48,7 +50,11 @@ class Form extends Component
 
     protected function autoSelectJenisIzin()
     {
-        $query = JenisIzin::query()->where('aktif', true);
+        $user = Auth::user();
+        $isPerempuan = $user?->jenis_kelamin === JenisKelamin::PEREMPUAN;
+        $query = JenisIzin::query()
+            ->where('aktif', true)
+            ->when(! $isPerempuan, fn ($q) => $q->where('kode', '!=', 'cuti_melahirkan'));
 
         if ($this->kategoriFilter !== 'semua') {
             $query->where('kategori', $this->kategoriFilter);
@@ -105,11 +111,12 @@ class Form extends Component
         $selectedJenis = JenisIzin::find($this->jenis_izin_id);
         $wajibLampiran = ($selectedJenis?->kategori === 'sakit' && ($selectedJenis?->butuh_lampiran ?? false));
 
-        // Validasi pembatasan kuota cuti pegawai
-        if ($selectedJenis?->kategori === 'cuti') {
-            $sisaCuti = $user->sisa_cuti;
+        // Validasi pembatasan kuota cuti pegawai sesuai jenis cuti yang dipilih
+        if ($selectedJenis?->kategori === 'cuti' && $selectedJenis->kuota_hari) {
+            $kuotaInfo = $this->hitungKuotaJenis($user, $selectedJenis);
+            $sisaCuti = $kuotaInfo['sisa'];
             if ($this->jumlah_hari > $sisaCuti) {
-                $this->addError('jumlah_hari', "Jumlah hari cuti ({$this->jumlah_hari} hari) melebihi sisa kuota cuti Anda ({$sisaCuti} hari).");
+                $this->addError('jumlah_hari', "Jumlah hari cuti ({$this->jumlah_hari} hari) melebihi sisa kuota {$selectedJenis->nama} Anda ({$sisaCuti} hari).");
                 return;
             }
         }
@@ -179,11 +186,54 @@ class Form extends Component
         return redirect()->route('mobile.izin.index');
     }
 
+    protected function hitungKuotaJenis($user, ?JenisIzin $jenis): array
+    {
+        if (! $jenis || ! $jenis->kuota_hari) {
+            return [
+                'total' => (int) ($user->total_kuota_cuti ?? 12),
+                'terpakai' => (int) ($user->cuti_terpakai ?? 0),
+                'sisa' => (int) ($user->sisa_cuti ?? 12),
+            ];
+        }
+
+        $tahun = now()->year;
+        $total = (int) $jenis->kuota_hari;
+        $terpakai = 0;
+
+        $riwayat = PengajuanIzin::query()
+            ->where('user_id', $user->id)
+            ->where('jenis_izin_id', $jenis->id)
+            ->where('status', 'disetujui')
+            ->whereYear('tanggal_mulai', $tahun)
+            ->get(['tanggal_mulai', 'tanggal_selesai']);
+
+        foreach ($riwayat as $item) {
+            $period = CarbonPeriod::create(
+                Carbon::parse($item->tanggal_mulai),
+                Carbon::parse($item->tanggal_selesai)
+            );
+            foreach ($period as $date) {
+                if ($date->year === $tahun && ! HariLibur::isHariLibur($date)) {
+                    $terpakai++;
+                }
+            }
+        }
+
+        return [
+            'total' => $total,
+            'terpakai' => $terpakai,
+            'sisa' => max(0, $total - $terpakai),
+        ];
+    }
+
     public function render()
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $queryJenis = JenisIzin::query()->where('aktif', true);
+        $isPerempuan = $user?->jenis_kelamin === JenisKelamin::PEREMPUAN;
+        $queryJenis = JenisIzin::query()
+            ->where('aktif', true)
+            ->when(! $isPerempuan, fn ($q) => $q->where('kode', '!=', 'cuti_melahirkan'));
 
         if ($this->kategoriFilter !== 'semua') {
             $queryJenis->where('kategori', $this->kategoriFilter);
@@ -191,14 +241,15 @@ class Form extends Component
 
         $jenisIzins = $queryJenis->get();
         $selectedJenis = JenisIzin::find($this->jenis_izin_id);
+        $kuotaInfo = $this->hitungKuotaJenis($user, $selectedJenis);
 
         return view('livewire.mobile.izin.form', [
             'user' => $user,
             'jenisIzins' => $jenisIzins,
             'selectedJenis' => $selectedJenis,
-            'totalKuotaCuti' => $user->total_kuota_cuti,
-            'cutiTerpakai' => $user->cuti_terpakai,
-            'sisaCuti' => $user->sisa_cuti,
+            'totalKuotaCuti' => $kuotaInfo['total'],
+            'cutiTerpakai' => $kuotaInfo['terpakai'],
+            'sisaCuti' => $kuotaInfo['sisa'],
         ]);
     }
 }
