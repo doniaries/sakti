@@ -10,6 +10,7 @@ use App\Filament\Pages\LaporanFungsional;
 use App\Filament\Pages\LaporanLrfk;
 use App\Filament\Pages\PengaturanAbsensi;
 use App\Filament\Pages\PengaturanKeuangan;
+use App\Filament\Pages\ProfilPegawai;
 use App\Filament\Resources\AbsensiHarians\AbsensiHarianResource;
 use App\Filament\Resources\ActivityLogs\ActivityLogResource;
 use App\Filament\Resources\Aktivitas\AktivitasResource;
@@ -59,6 +60,12 @@ class SidebarNavigationService
                 ->url(fn (): string => route('mobile.dashboard'), shouldOpenInNewTab: true)
                 ->icon('heroicon-o-device-phone-mobile')
                 ->sort(2),
+            NavigationItem::make('Profil Pegawai')
+                ->url(fn (): string => ProfilPegawai::getUrl())
+                ->icon('heroicon-o-user-circle')
+                ->visible(fn (): bool => ProfilPegawai::canAccess())
+                ->isActiveWhen(fn (): bool => request()->routeIs('filament.admin.pages.profil-pegawai'))
+                ->sort(3),
         ];
 
         if (! Schema::hasTable('menus') || ! Schema::hasTable('menu_items')) {

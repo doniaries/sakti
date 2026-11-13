@@ -87,7 +87,7 @@ class UserInfolist
                             ->icon('heroicon-m-pencil-square')
                             ->color('warning')
                             ->button()
-                            ->visible(fn ($record): bool => (\Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false) || \Illuminate\Support\Facades\Auth::id() === $record->id)
+                            ->visible(fn ($record): bool => UserResource::canEdit($record))
                             ->url(fn($record) => UserResource::getUrl('edit', ['record' => $record])),
                     ])
                     ->schema([
@@ -159,6 +159,21 @@ class UserInfolist
                                                 ->icon('heroicon-m-building-office')
                                                 ->badge()
                                                 ->color('primary')
+                                                ->tooltip('Klik untuk melihat daftar pegawai di bidang ini')
+                                                ->url(function ($record): ?string {
+                                                    if (! $record->bidang_id) {
+                                                        return null;
+                                                    }
+
+                                                    /** @var \App\Models\User|null $authUser */
+                                                    $authUser = \Illuminate\Support\Facades\Auth::user();
+
+                                                    if ($authUser && ! $authUser->canViewAllBidangKepegawaian() && ! $authUser->isPptk()) {
+                                                        return UserResource::getUrl('index', ['tab' => 'bidang']);
+                                                    }
+
+                                                    return UserResource::getUrl('index', ['tab' => $record->bidang?->slug]);
+                                                })
                                                 ->visible(fn($record): bool => filled($record->bidang_id)),
 
                                             TextEntry::make('jfPenempatan.name')
