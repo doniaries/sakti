@@ -33,7 +33,7 @@ class MasterSubKegiatansTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->recordActionsPosition(RecordActionsPosition::BeforeColumns)
+            ->recordActionsPosition(RecordActionsPosition::AfterColumns)
             ->recordActionsColumnLabel('Aksi')
             ->stickyableColumns()
             ->recordUrl(fn(MasterSubKegiatan $record): string => MasterSubKegiatanResource::getUrl('edit', ['record' => $record]))
@@ -282,19 +282,16 @@ class MasterSubKegiatansTable
             ->recordActions([
                 Action::make('kelola_rka')
                     ->label('Rincian Belanja RKA')
+                    ->tooltip('Rincian Belanja RKA')
+                    ->iconButton()
                     ->icon('heroicon-o-table-cells')
                     ->color('primary')
                     ->url(fn(MasterSubKegiatan $record): string => MasterSubKegiatanResource::getUrl('edit', ['record' => $record])),
 
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->iconButton()
+                    ->tooltip('Hapus Sub Kegiatan'),
             ])
             ->toolbarActions([
                 Action::make('select_tahun_anggaran')
-                    ->view('filament.tables.toolbar.tahun-anggaran-select'),
-
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
-}
+                    ->view('filam
