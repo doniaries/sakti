@@ -115,6 +115,7 @@ class PengajuanIzinForm
                             ->displayFormat('d/m/Y')
                             ->native(false)
                             ->default(now())
+                            ->live()
                             ->required(),
 
                         DatePicker::make('tanggal_selesai')
@@ -122,6 +123,30 @@ class PengajuanIzinForm
                             ->displayFormat('d/m/Y')
                             ->native(false)
                             ->default(now())
+                            ->live()
+                            ->helperText(function (Get $get): ?string {
+                                $mulai = $get('tanggal_mulai');
+                                $selesai = $get('tanggal_selesai');
+                                if (! $mulai || ! $selesai) {
+                                    return null;
+                                }
+
+                                $start = Carbon::parse($mulai)->startOfDay();
+                                $end = Carbon::parse($selesai)->startOfDay();
+
+                                if ($end->lt($start)) {
+                                    return 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.';
+                                }
+
+                                $hariKerja = 0;
+                                foreach (CarbonPeriod::create($start, $end) as $date) {
+                                    if (! HariLibur::isHariLibur($date)) {
+                                        $hariKerja++;
+                                    }
+                                }
+
+                                return "Durasi yang diambil: {$hariKerja} hari kerja efektif (di luar akhir pekan, libur nasional & cuti bersama).";
+                            })
                             ->required(),
 
                         Textarea::make('alasan')
