@@ -123,6 +123,74 @@ class SidebarNavigationService
         return $builder->items($topItems)->groups($groups);
     }
 
+    /**
+     * @return array<int, array{name: string, icon: ?string, items: array<int, array<string, mixed>>}>
+     */
+    public static function getHeaderMenus(): array
+    {
+        if (! Schema::hasTable('menus') || ! Schema::hasTable('menu_items')) {
+            return [];
+        }
+
+        $menus = Menu::query()
+            ->where('is_visible', true)
+            ->whereHas('locations', fn ($query) => $query->where('location', 'header'))
+            ->with([
+                'items' => fn ($query) => $query->where('is_visible', true)->orderBy('order')->orderBy('id'),
+            ])
+            ->orderBy('sort')
+            ->orderBy('id')
+            ->get();
+
+        $result = [];
+
+        foreach ($menus as $menu) {
+            $items = self::mapHeaderItems($menu->items->toTree());
+            if ($items !== []) {
+                $result[] = [
+                    'name' => $menu->translated('name'),
+                    'icon' => $menu->icon,
+                    'items' => $items,
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, MenuItem>  $tree
+     * @return array<int, array<string, mixed>>
+     */
+    private static function mapHeaderItems($tree): array
+    {
+        $mapped = [];
+
+        foreach ($tree as $item) {
+            if (! self::canAccessItem($item)) {
+                continue;
+            }
+
+            $children = self::mapHeaderItems($item->children);
+            $url = $item->getUrl();
+
+            if ($item->type === 'text' && $children === []) {
+                continue;
+            }
+
+            $mapped[] = [
+                'title' => $item->translated('title'),
+                'url' => $url,
+                'icon' => $item->icon,
+                'target' => $item->target,
+                'active' => filled($url) && self::isUrlActive($url),
+                'children' => $children,
+            ];
+        }
+
+        return $mapped;
+    }
+
     private static function convertItem(MenuItem $item, bool &$hasMenuBuilderLink): ?NavigationItem
     {
         if (! self::canAccessItem($item)) {

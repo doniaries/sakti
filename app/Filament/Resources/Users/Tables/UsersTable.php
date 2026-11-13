@@ -15,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class UsersTable
 {
@@ -229,7 +230,8 @@ class UsersTable
                     })
                     ->searchable()
                     ->sortable(),
-                \Filament\Tables\Columns\ToggleColumn::make('aktif'),
+                \Filament\Tables\Columns\ToggleColumn::make('aktif')
+                    ->disabled(fn (): bool => ! (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)),
             ])
             ->filters([
                 SelectFilter::make('jenjang_pendidikan')
@@ -266,7 +268,8 @@ class UsersTable
             ->defaultSort('created_at', 'asc')
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false),
                 Action::make('ubah_role')
                     ->label('Ubah Role')
                     ->icon('heroicon-o-shield-check')
@@ -386,6 +389,7 @@ class UsersTable
                     ->label('Kirim ke Mesin')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
+                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
                     ->form([
                         \Filament\Forms\Components\TextInput::make('nomor_absensi')
                             ->label('Nomor ID di Mesin (PIN)')

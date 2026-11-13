@@ -36,6 +36,7 @@ class UserInfolist
                             ->icon('heroicon-m-key')
                             ->color('info')
                             ->button()
+                            ->visible(fn ($record): bool => (\Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false) || \Illuminate\Support\Facades\Auth::id() === $record->id)
                             ->modalHeading('Ubah Nama, Email & Password')
                             ->modalDescription('Perbarui nama lengkap, email login, atau password pegawai secara langsung.')
                             ->modalWidth('md')
@@ -86,6 +87,7 @@ class UserInfolist
                             ->icon('heroicon-m-pencil-square')
                             ->color('warning')
                             ->button()
+                            ->visible(fn ($record): bool => (\Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false) || \Illuminate\Support\Facades\Auth::id() === $record->id)
                             ->url(fn($record) => UserResource::getUrl('edit', ['record' => $record])),
                     ])
                     ->schema([
