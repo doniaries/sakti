@@ -80,11 +80,12 @@ class SidebarNavigationService
 
         foreach ($menus as $menu) {
             if ($menu->items->isEmpty() && strcasecmp((string) $menu->name, 'Menu Builder') === 0 && CustomMenuResource::canAccess()) {
-                $topItems[] = NavigationItem::make($menu->translated('name'))
-                    ->url(fn (): string => CustomMenuResource::getUrl())
-                    ->icon($menu->icon ?: 'heroicon-o-bars-3')
-                    ->isActiveWhen(fn (): bool => request()->is('admin/menus*'))
-                    ->sort(count($topItems) + 1);
+                $groups[] = NavigationGroup::make()->items([
+                    NavigationItem::make($menu->translated('name'))
+                        ->url(fn (): string => CustomMenuResource::getUrl())
+                        ->icon($menu->icon ?: 'heroicon-o-bars-3')
+                        ->isActiveWhen(fn (): bool => request()->is('admin/menus*')),
+                ]);
                 $hasMenuBuilderLink = true;
                 continue;
             }
