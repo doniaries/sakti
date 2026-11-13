@@ -1,273 +1,289 @@
-<div class="p-4 pb-28">
+<div class="p-4 pb-28 text-slate-800 dark:text-slate-100">
     @php
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $logoUrl = null;
+        if (!empty($pengaturan->logo) && file_exists(public_path('storage/' . $pengaturan->logo))) {
+            $logoUrl = asset('storage/' . $pengaturan->logo);
+        } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
+            $logoUrl = asset('images/logo-kabupaten.png');
+        } elseif (file_exists(public_path('images/logo-instansi.png'))) {
+            $logoUrl = asset('images/logo-instansi.png');
+        }
     @endphp
-    <!-- Top Header: Logo, Nama Aplikasi & Logout -->
-    <div class="flex justify-between items-center mb-5">
+
+    <!-- Top Header -->
+    <div class="flex justify-between items-center mb-4">
         <div class="flex items-center space-x-2.5">
-            @php
-                $logoUrl = null;
-                if (!empty($pengaturan->logo) && file_exists(public_path('storage/' . $pengaturan->logo))) {
-                    $logoUrl = asset('storage/' . $pengaturan->logo);
-                } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
-                    $logoUrl = asset('images/logo-kabupaten.png');
-                } elseif (file_exists(public_path('images/logo-instansi.png'))) {
-                    $logoUrl = asset('images/logo-instansi.png');
-                }
-            @endphp
-            <!-- Brand Logo dengan Biometric Fingerprint Badge (Harmonis dg Halaman Login) -->
             <div class="relative shrink-0">
-                <div class="w-10 h-10 rounded-xl bg-white shadow-md shadow-sky-500/15 p-1 border border-slate-200/80 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-xl bg-white dark:bg-white/10 p-1 border border-slate-200 dark:border-white/15 flex items-center justify-center shadow-xs backdrop-blur-sm">
                     @if ($logoUrl)
-                        <img src="{{ $logoUrl }}" alt="Logo Pemerintah Daerah"
-                            class="w-full h-full object-contain filter drop-shadow-xs">
+                        <img src="{{ $logoUrl }}" alt="Logo Instansi" class="w-full h-full object-contain">
                     @else
-                        <i class="fa-solid fa-building-columns text-sky-600 text-base"></i>
+                        <i class="fa-solid fa-building-columns text-sky-600 dark:text-cyan-400 text-base"></i>
                     @endif
                 </div>
-                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-sky-600 border border-white text-white flex items-center justify-center text-[8px] shadow-xs" title="Modul Absensi">
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 dark:bg-emerald-400 border border-white dark:border-[#0B132B] text-white dark:text-slate-950 flex items-center justify-center text-[8px]">
                     <i class="fa-solid fa-fingerprint"></i>
                 </div>
             </div>
             <div>
                 <div class="flex items-center space-x-1.5">
-                    <h1 class="text-base font-black text-slate-800 tracking-tight leading-tight uppercase">
+                    <h1 class="text-base font-black text-slate-900 dark:text-white tracking-tight leading-tight uppercase">
                         {{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}
                     </h1>
-                    <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700 tracking-wider">
-                        Absensi
+                    <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700 border border-sky-200 dark:bg-cyan-500/15 dark:text-cyan-300 dark:border-cyan-400/30 tracking-wider">
+                        E-Presensi
                     </span>
                 </div>
-                <p class="text-[10px] font-bold text-sky-600 tracking-wider uppercase">
+                <p class="text-[10px] font-semibold text-sky-600 dark:text-cyan-400 tracking-wider uppercase">
                     Presensi & Kinerja Pegawai
                 </p>
             </div>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-1.5">
+            <!-- Notifikasi Terintegrasi Filament & Mobile -->
+            <div class="relative" x-data="{ openNotif: false }" @click.outside="openNotif = false" wire:poll.30s>
+                <button type="button"
+                    @click="openNotif = !openNotif"
+                    class="relative w-9 h-9 rounded-xl bg-white dark:bg-white/10 text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 border border-slate-200 dark:border-white/15 shadow-xs flex items-center justify-center transition cursor-pointer"
+                    title="Notifikasi">
+                    <i class="fa-regular fa-bell text-sm"></i>
+                    @if (($unreadNotifCount ?? 0) > 0)
+                        <span class="absolute -top-1 -right-1 min-w-[17px] h-[17px] px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center border-2 border-slate-50 dark:border-[#0B132B] shadow-xs">
+                            {{ $unreadNotifCount > 9 ? '9+' : $unreadNotifCount }}
+                        </span>
+                    @endif
+                </button>
+
+                <!-- Popover Daftar Notifikasi (Fixed centered di viewport mobile agar tidak terpotong) -->
+                <div x-show="openNotif"
+                    x-transition.opacity.duration.150ms
+                    x-cloak
+                    class="fixed inset-x-4 top-16 mx-auto max-w-[408px] z-[70] rounded-2xl bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700/80 shadow-2xl overflow-hidden">
+                    <div class="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/80 dark:bg-[#0F1C2E]">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-bell text-sky-600 dark:text-cyan-400 text-xs"></i>
+                            <span class="text-xs font-extrabold text-slate-800 dark:text-white">Notifikasi</span>
+                            @if (($unreadNotifCount ?? 0) > 0)
+                                <span class="px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-300 text-[9px] font-bold">
+                                    {{ $unreadNotifCount }} baru
+                                </span>
+                            @endif
+                        </div>
+                        @if (($unreadNotifCount ?? 0) > 0)
+                            <button type="button" wire:click="markAllNotificationsAsRead"
+                                class="text-[10px] font-bold text-sky-600 dark:text-cyan-400 hover:underline cursor-pointer">
+                                Tandai dibaca
+                            </button>
+                        @endif
+                    </div>
+
+                    <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50">
+                        @forelse ($recentNotifications ?? [] as $notif)
+                            @php
+                                $data = $notif->data ?? [];
+                                $title = $data['title'] ?? 'Notifikasi Sistem';
+                                $body = $data['body'] ?? '';
+                                $rawUrl = $data['actions'][0]['url'] ?? null;
+                                $targetUrl = $rawUrl;
+                                if ($rawUrl && str_contains($rawUrl, 'pengajuan-izins') && !($user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']))) {
+                                    $targetUrl = route('mobile.izin.index');
+                                }
+                                $isUnread = is_null($notif->read_at);
+                            @endphp
+                            <div wire:key="notif-{{ $notif->id }}"
+                                class="p-3 transition hover:bg-slate-50 dark:hover:bg-[#192d47] {{ $isUnread ? 'bg-sky-50/50 dark:bg-cyan-500/10' : '' }}">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center gap-1.5">
+                                            @if ($isUnread)
+                                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0"></span>
+                                            @endif
+                                            <p class="text-xs font-bold text-slate-800 dark:text-white truncate">{{ $title }}</p>
+                                        </div>
+                                        @if ($body)
+                                            <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5 leading-snug">{{ $body }}</p>
+                                        @endif
+                                        <div class="flex items-center justify-between mt-1.5">
+                                            <span class="text-[9px] text-slate-400">{{ $notif->created_at?->diffForHumans() }}</span>
+                                            <div class="flex items-center gap-2">
+                                                @if ($isUnread)
+                                                    <button type="button" wire:click="markNotificationAsRead('{{ $notif->id }}')"
+                                                        class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:underline cursor-pointer">
+                                                        Tandai dibaca
+                                                    </button>
+                                                @endif
+                                                @if ($targetUrl)
+                                                    <a href="{{ $targetUrl }}"
+                                                        wire:click="markNotificationAsRead('{{ $notif->id }}')"
+                                                        class="text-[10px] font-bold text-sky-600 dark:text-cyan-400 hover:underline">
+                                                        Buka &rarr;
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="py-8 px-4 text-center">
+                                <i class="fa-regular fa-bell-slash text-slate-300 dark:text-slate-600 text-2xl mb-2"></i>
+                                <p class="text-xs font-medium text-slate-400">Belum ada notifikasi baru.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toggle Dark / Light Mode -->
+            <button type="button"
+                x-data="{ dark: document.documentElement.classList.contains('dark') }"
+                @mobile-theme-changed.window="dark = $event.detail.dark"
+                @click="window.toggleMobileTheme()"
+                class="w-9 h-9 rounded-xl bg-white dark:bg-white/10 text-amber-500 dark:text-amber-300 hover:bg-slate-100 dark:hover:bg-white/20 border border-slate-200 dark:border-white/15 shadow-xs flex items-center justify-center transition cursor-pointer"
+                :title="dark ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'">
+                <i class="fa-solid text-xs" :class="dark ? 'fa-sun' : 'fa-moon text-slate-600'"></i>
+            </button>
             @if (!empty($user->whatsapp_url))
                 <a href="{{ $user->whatsapp_url }}" target="_blank" rel="noopener noreferrer"
-                    class="px-2.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500 hover:text-white border border-emerald-300 font-bold text-[11px] flex items-center transition shadow-xs active:scale-95"
-                    title="Buka WhatsApp">
-                    <i class="fa-brands fa-whatsapp text-sm mr-1 text-emerald-600"></i> WA
+                    class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 hover:bg-emerald-500 hover:text-white dark:hover:text-slate-950 border border-emerald-200 dark:border-emerald-400/30 flex items-center justify-center transition"
+                    title="WhatsApp">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
                 </a>
             @endif
-            @if (auth()->user() &&
-                    auth()->user()->hasAnyRole(['super_admin', 'admin']))
+            @if (auth()->user() && auth()->user()->hasAnyRole(['super_admin', 'admin']))
                 <a href="{{ url('/admin') }}"
-                    class="px-2.5 py-1.5 rounded-xl bg-amber-500/15 text-amber-700 hover:bg-amber-500 hover:text-white border border-amber-300 font-bold text-[11px] flex items-center transition shadow-xs"
-                    title="Buka Panel Admin">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> Admin
+                    class="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 hover:bg-amber-500 hover:text-white dark:hover:text-slate-950 border border-amber-200 dark:border-amber-400/30 flex items-center justify-center transition"
+                    title="Panel Admin">
+                    <i class="fa-solid fa-shield-halved text-xs"></i>
                 </a>
             @endif
             <a href="{{ route('portal') }}"
-                class="px-2.5 py-1.5 rounded-xl bg-sky-500/15 text-sky-700 hover:bg-sky-500 hover:text-white border border-sky-300 font-bold text-[11px] flex items-center transition shadow-xs"
-                title="Kembali ke Beranda Portal">
-                <i class="fa-solid fa-house mr-1"></i> Portal
+                class="w-9 h-9 rounded-xl bg-white dark:bg-white/10 text-slate-600 dark:text-slate-200 hover:bg-sky-500 dark:hover:bg-cyan-500 hover:text-white dark:hover:text-slate-950 border border-slate-200 dark:border-white/15 shadow-xs flex items-center justify-center transition"
+                title="Beranda Portal">
+                <i class="fa-solid fa-house text-xs"></i>
             </a>
             <button wire:click="logout"
-                class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 transition flex items-center justify-center border border-slate-200/60"
+                class="w-9 h-9 rounded-xl bg-white dark:bg-white/10 hover:bg-rose-50 dark:hover:bg-rose-500/20 text-slate-500 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-white/15 shadow-xs transition flex items-center justify-center"
                 title="Keluar">
-                <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                <i class="fa-solid fa-right-from-bracket text-xs"></i>
             </button>
         </div>
     </div>
 
-    <!-- Greeting Card -->
-    <div
-        class="w-full p-4 rounded-2xl bg-[#0f1c2e] text-white shadow-lg shadow-slate-900/20 mb-5 relative overflow-hidden border border-slate-700/60">
-        <!-- Background Glow Accent & Decorative Watermark Icon -->
-        <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none">
+    <!-- Identitas Pegawai -->
+    <div class="flex items-center space-x-3.5 mb-4 px-1">
+        <div class="relative shrink-0 w-14 h-14">
+            <label class="relative block w-14 h-14 cursor-pointer group active:scale-95 transition-transform" title="Klik untuk ganti foto profil">
+                <input type="file" wire:model="new_avatar" accept="image/jpeg,image/png,image/webp" class="hidden">
+                <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
+                    class="w-14 h-14 rounded-2xl object-cover border-2 border-sky-400/50 dark:border-cyan-400/40 shadow-md aspect-square">
+                <div class="absolute inset-0 bg-slate-900/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                    <i class="fa-solid fa-camera text-white text-xs"></i>
+                </div>
+                <div wire:loading wire:target="new_avatar" class="absolute inset-0 bg-slate-950/75 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-circle-notch fa-spin text-white text-sm"></i>
+                </div>
+                <span class="absolute -bottom-1 -right-1 flex h-3.5 w-3.5" title="Aktif">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-400 border-2 border-slate-50 dark:border-[#0B132B]"></span>
+                </span>
+            </label>
         </div>
-        <div class="absolute -right-3 -top-3 text-white/[0.05] text-8xl pointer-events-none">
-            <i class="fa-solid fa-fingerprint"></i>
-        </div>
-
-        @php
-            $hour = now()->hour;
-            $greeting =
-                $hour < 12
-                    ? 'Selamat Pagi'
-                    : ($hour < 15
-                        ? 'Selamat Siang'
-                        : ($hour < 18
-                            ? 'Selamat Sore'
-                            : 'Selamat Malam'));
-            $greetingIcon =
-                $hour < 12
-                    ? 'fa-sun text-amber-400'
-                    : ($hour < 15
-                        ? 'fa-cloud-sun text-amber-300'
-                        : ($hour < 18
-                            ? 'fa-cloud-sun text-orange-400'
-                            : 'fa-moon text-indigo-200'));
-        @endphp
-
-        <div class="flex justify-between items-start relative z-10">
-            <div class="flex-1 min-w-0 pr-2.5">
-                <div class="flex items-center space-x-1.5 text-xs font-bold text-sky-200 tracking-wide mb-1">
-                    <i class="fa-solid {{ $greetingIcon }}"></i>
-                    <span>{{ $greeting }},</span>
-                </div>
-                <h2 class="text-lg font-extrabold tracking-tight text-white drop-shadow-xs" title="{{ $user->name }}">{{ $user->name }}</h2>
-                <p class="text-xs font-semibold text-sky-200/90 mt-1 flex items-start min-w-0 leading-snug" title="{{ $user->jabatan->nama ?? 'Pegawai' }}">
-                    <i class="fa-solid fa-id-badge text-[10px] mr-1.5 mt-0.5 text-sky-300 shrink-0"></i>
-                    <span class="break-words">{{ $user->jabatan->nama ?? 'Pegawai' }}</span>
-                </p>
-
-                <!-- Tanggal & Jam Aktif Server -->
-                <div class="flex items-center flex-wrap gap-1.5 text-xs text-white/90 mt-2" x-data="{
-                    hours: '--',
-                    minutes: '--',
-                    colon: true,
-                    updateClock() {
-                        const d = new Date();
-                        this.hours = String(d.getHours()).padStart(2, '0');
-                        this.minutes = String(d.getMinutes()).padStart(2, '0');
-                        this.colon = !this.colon;
-                    }
-                }"
-                    x-init="updateClock();
-                    setInterval(() => updateClock(), 1000);">
-                    <span class="flex items-center font-medium whitespace-nowrap text-[11px]">
-                        <i class="fa-regular fa-calendar text-sky-300 mr-1.5"></i>
-                        {{ now()->translatedFormat('l, d F Y') }}
-                    </span>
-                    <span class="text-white/40">•</span>
-                    <!-- Jam Aktif Server Real-Time (HH:MM WIB) -->
-                    <span
-                        class="flex items-center bg-emerald-500/15 backdrop-blur-md px-2.5 py-0.5 rounded-full font-mono text-xs font-extrabold text-emerald-300 border border-emerald-400/30 shadow-inner whitespace-nowrap">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 inline-block animate-pulse"></span>
-                        <span x-text="hours">--</span><span class="inline-block transition-opacity duration-200"
-                            :class="colon ? 'opacity-100' : 'opacity-20'">:</span><span
-                            x-text="minutes">--</span>&nbsp;WIB
-                    </span>
-                </div>
-            </div>
-
-            <!-- Foto Avatar Pegawai di Dashboard (Bisa Klik / Ketuk untuk Ganti Foto) -->
-            <div class="relative shrink-0 w-14 h-14 ml-2">
-                <label class="relative block w-14 h-14 cursor-pointer group active:scale-95 transition-transform" title="Klik untuk ganti foto profil">
-                    <input type="file" wire:model="new_avatar" accept="image/jpeg,image/png,image/webp" class="hidden">
-                    <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
-                        class="w-14 h-14 rounded-2xl object-cover border-2 border-white/50 shadow-lg shadow-sky-950/40 aspect-square">
-                    <!-- Overlay Tombol Ganti Foto / Kamera -->
-                    <div class="absolute inset-0 bg-slate-900/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
-                        <i class="fa-solid fa-camera text-white text-xs"></i>
-                        <span class="text-[8px] font-bold text-white uppercase tracking-tighter mt-0.5">Ubah</span>
-                    </div>
-                    <!-- Loading Spinner saat Upload -->
-                    <div wire:loading wire:target="new_avatar" class="absolute inset-0 bg-slate-950/75 rounded-2xl flex items-center justify-center">
-                        <i class="fa-solid fa-circle-notch fa-spin text-white text-sm"></i>
-                    </div>
-                    <!-- Live Pulse / Radar Blinking Status Badge -->
-                    <span class="absolute -bottom-1 -right-1 flex h-4 w-4" title="Online / Aktif">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span
-                            class="relative inline-flex rounded-full h-4 w-4 bg-emerald-400 border-2 border-slate-900 shadow-xs"></span>
-                    </span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Kartu Aksi Presensi Interaktif: Absen Masuk & Absen Keluar -->
-        <div class="grid grid-cols-2 gap-2.5 mt-5 relative z-10" x-data="dashboardAttendance()">
-            <!-- Tombol 1: Masuk -->
-            <button type="button"
-                @click="absen('masuk')"
-                :disabled="loadingMasuk || loadingKeluar"
-                class="flex items-center p-3 rounded-2xl border text-left enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 cursor-pointer relative overflow-hidden group {{ $hariIni['sudah_masuk'] ? 'bg-white/20 border-white/30 backdrop-blur-md shadow-inner' : ($hariIni['lewat_batas_masuk'] ? 'bg-rose-950/30 border-rose-400/30 backdrop-blur-xs' : 'bg-white/10 hover:bg-white/20 border-white/25 backdrop-blur-xs shadow-sm ring-1 ring-white/20') }}">
-                
-                <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-xs shrink-0 {{ $hariIni['sudah_masuk'] ? 'bg-emerald-400 text-slate-900 shadow-emerald-500/30' : ($hariIni['lewat_batas_masuk'] ? 'bg-rose-500/20 text-rose-300 border border-rose-400/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30') }}">
-                    <template x-if="loadingMasuk">
-                        <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
-                    </template>
-                    <template x-if="!loadingMasuk">
-                        <i class="fa-solid {{ $hariIni['sudah_masuk'] ? 'fa-check' : ($hariIni['lewat_batas_masuk'] ? 'fa-lock' : 'fa-right-to-bracket') }}"></i>
-                    </template>
-                </div>
-                
-                <div class="ml-2.5 flex flex-col min-w-0">
-                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider truncate">Absen Masuk</span>
-                    <span class="text-sm font-extrabold font-mono text-white truncate">
-                        <template x-if="loadingMasuk">
-                            <span class="text-xs font-sans text-sky-200">Mencatat...</span>
-                        </template>
-                        <template x-if="!loadingMasuk">
-                            <span>{{ !empty($hariIni['jam_masuk']) ? substr($hariIni['jam_masuk'], 0, 5) . ' WIB' : ($hariIni['lewat_batas_masuk'] ? 'Lewat Batas' : 'Tap Masuk') }}</span>
-                        </template>
-                    </span>
-                    @if ($hariIni['sudah_masuk'])
-                        <span class="text-[9px] font-bold text-emerald-300 flex items-center mt-0.5">
-                            <i class="fa-solid fa-circle-check text-[8px] mr-1"></i>Tercatat
-                        </span>
-                    @elseif ($hariIni['lewat_batas_masuk'])
-                        <span class="text-[9px] font-bold text-rose-300 flex items-center mt-0.5">
-                            <i class="fa-solid fa-circle-xmark text-[8px] mr-1"></i>Alpa (09:00)
-                        </span>
-                    @else
-                        <span class="text-[9px] font-bold text-emerald-200/80 flex items-center mt-0.5" x-show="!loadingMasuk">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1 inline-block"></span>Siap Tap
-                        </span>
-                    @endif
-                </div>
-            </button>
-
-            <!-- Tombol 2: Keluar (di sebelah tombol masuk) -->
-            <button type="button"
-                @click="absen('pulang')"
-                :disabled="loadingMasuk || loadingKeluar"
-                class="flex items-center p-3 rounded-2xl border text-left enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 cursor-pointer relative overflow-hidden group {{ $hariIni['sudah_pulang'] ? 'bg-white/20 border-white/30 backdrop-blur-md shadow-inner' : ($hariIni['sudah_masuk'] ? ($hariIni['belum_jam_pulang'] ? 'bg-black/25 border-white/15 backdrop-blur-xs' : 'bg-gradient-to-br from-amber-500/25 to-sky-500/25 hover:from-amber-500/35 hover:to-sky-500/35 border-amber-300/40 backdrop-blur-md shadow-md ring-1 ring-amber-400/40') : 'bg-black/20 border-white/10 opacity-75 backdrop-blur-xs') }}">
-                
-                <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-xs shrink-0 {{ $hariIni['sudah_pulang'] ? 'bg-sky-400 text-slate-900 shadow-sky-500/30' : ($hariIni['sudah_masuk'] ? ($hariIni['belum_jam_pulang'] ? 'bg-white/10 text-white/50 border border-white/15' : 'bg-amber-400 text-slate-950 shadow-amber-400/30') : 'bg-white/10 text-white/40') }}">
-                    <template x-if="loadingKeluar">
-                        <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
-                    </template>
-                    <template x-if="!loadingKeluar">
-                        <i class="fa-solid {{ $hariIni['sudah_pulang'] ? 'fa-check-double' : ($hariIni['sudah_masuk'] ? ($hariIni['belum_jam_pulang'] ? 'fa-lock' : 'fa-right-from-bracket') : 'fa-lock') }}"></i>
-                    </template>
-                </div>
-                
-                <div class="ml-2.5 flex flex-col min-w-0">
-                    <span class="text-[10px] text-white/70 uppercase font-bold tracking-wider truncate">Absen Keluar</span>
-                    <span class="text-sm font-extrabold font-mono text-white truncate">
-                        <template x-if="loadingKeluar">
-                            <span class="text-xs font-sans text-sky-200">Mencatat...</span>
-                        </template>
-                        <template x-if="!loadingKeluar">
-                            <span>{{ !empty($hariIni['jam_pulang']) ? substr($hariIni['jam_pulang'], 0, 5) . ' WIB' : ($hariIni['sudah_masuk'] ? ($hariIni['belum_jam_pulang'] ? 'Buka ' . $hariIni['jam_pulang_resmi'] : 'Tap Keluar') : '--:--') }}</span>
-                        </template>
-                    </span>
-                    @if ($hariIni['sudah_pulang'])
-                        <span class="text-[9px] font-bold text-sky-300 flex items-center mt-0.5">
-                            <i class="fa-solid fa-circle-check text-[8px] mr-1"></i>Selesai
-                        </span>
-                    @elseif ($hariIni['sudah_masuk'])
-                        @if ($hariIni['belum_jam_pulang'])
-                            <span class="text-[9px] font-medium text-amber-200/70 flex items-center mt-0.5">
-                                <i class="fa-solid fa-clock text-[8px] mr-1"></i>Belum Jam Pulang
-                            </span>
-                        @else
-                            <span class="text-[9px] font-bold text-amber-200 flex items-center mt-0.5" x-show="!loadingKeluar">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse mr-1 inline-block"></span>Siap Pulang
-                            </span>
-                        @endif
-                    @else
-                        <span class="text-[9px] font-medium text-white/40 mt-0.5">
-                            Menunggu Masuk
-                        </span>
-                    @endif
-                </div>
-            </button>
+        <div class="flex-1 min-w-0">
+            <h2 class="text-base font-extrabold text-slate-900 dark:text-white tracking-tight truncate" title="{{ $user->name }}">
+                {{ $user->name }}
+            </h2>
+            <p class="text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                NIP. {{ $user->nip ?? '-' }}
+            </p>
+            <p class="text-[11px] font-semibold text-sky-600 dark:text-cyan-400 mt-0.5 truncate">
+                {{ $user->jabatan->nama ?? 'Pegawai' }}
+            </p>
         </div>
     </div>
 
-    <!-- Menu Layanan Kepegawaian (Izin, Sakit, Cuti, WFH, Hari Libur, Reputasi) -->
-    <div class="mb-6">
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-base font-extrabold text-slate-800 tracking-tight">Layanan Kepegawaian</h3>
+    <!-- Kartu Jam Server & Status Lokasi -->
+    <div class="w-full p-4 rounded-2xl bg-white dark:bg-[#132338]/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 shadow-sm dark:shadow-lg mb-3 text-center relative overflow-hidden">
+        <p class="text-xs font-semibold text-slate-500 dark:text-slate-300">
+            {{ now()->translatedFormat('l, d F Y') }}
+        </p>
+
+        <!-- Jam Aktif Server Real-Time (HH:MM WIB) -->
+        <div class="my-1.5 flex items-center justify-center font-mono text-3xl font-black tracking-wider text-emerald-600 dark:text-emerald-400"
+            x-data="{
+                hours: '--',
+                minutes: '--',
+                colon: true,
+                updateClock() {
+                    const d = new Date();
+                    this.hours = String(d.getHours()).padStart(2, '0');
+                    this.minutes = String(d.getMinutes()).padStart(2, '0');
+                    this.colon = !this.colon;
+                }
+            }"
+            x-init="updateClock(); setInterval(() => updateClock(), 1000);">
+            <span x-text="hours">--</span><span class="inline-block transition-opacity duration-200 mx-0.5"
+                :class="colon ? 'opacity-100' : 'opacity-25'">:</span><span x-text="minutes">--</span>
+            <span class="text-lg font-extrabold ml-1.5 text-emerald-500 dark:text-emerald-300">WIB</span>
+        </div>
+
+        <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center justify-center">
+            <i class="fa-solid fa-location-dot text-emerald-500 dark:text-emerald-400 mr-1.5"></i>
+            Mode Kerja:
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold ml-1">
+                {{ ($user->status_kerja ?? 'wfo') === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Radius Kantor)' }}
+            </span>
+        </p>
+    </div>
+
+    <!-- 2 Tombol Aksi Utama: Absen Masuk & Absen Pulang -->
+    <div class="grid grid-cols-2 gap-2.5 mb-5" x-data="dashboardAttendance()">
+        <!-- Tombol Masuk -->
+        <button type="button"
+            @click="absen('masuk')"
+            :disabled="loadingMasuk || loadingKeluar"
+            class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-extrabold text-xs uppercase tracking-wide transition active:scale-95 cursor-pointer border {{ $hariIni['sudah_masuk'] ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/20 dark:border-emerald-400/40 dark:text-emerald-300' : ($hariIni['lewat_batas_masuk'] ? 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/15 dark:border-rose-400/30 dark:text-rose-300' : 'bg-emerald-500 hover:bg-emerald-400 border-emerald-400 text-white dark:text-slate-950 shadow-md shadow-emerald-950/20') }}">
+            <template x-if="loadingMasuk">
+                <i class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+            </template>
+            <template x-if="!loadingMasuk">
+                <i class="fa-solid {{ $hariIni['sudah_masuk'] ? 'fa-circle-check' : ($hariIni['lewat_batas_masuk'] ? 'fa-lock' : 'fa-fingerprint') }} text-sm"></i>
+            </template>
+            <div class="text-left leading-tight">
+                <div>{{ $hariIni['sudah_masuk'] ? 'Masuk ' . substr($hariIni['jam_masuk'], 0, 5) : ($hariIni['lewat_batas_masuk'] ? 'Lewat Batas' : 'Absen Masuk') }}</div>
+                @if ($hariIni['lewat_batas_masuk'] && !$hariIni['sudah_masuk'])
+                    <div class="text-[9px] font-semibold opacity-80 normal-case">Alpa ({{ $hariIni['tutup_masuk'] }})</div>
+                @endif
+            </div>
+        </button>
+
+        <!-- Tombol Pulang -->
+        <button type="button"
+            @click="absen('pulang')"
+            :disabled="loadingMasuk || loadingKeluar"
+            class="flex items-center justify-center gap-2 py-3 px-3 rounded-xl font-extrabold text-xs uppercase tracking-wide transition active:scale-95 cursor-pointer border {{ $hariIni['sudah_pulang'] ? 'bg-sky-50 border-sky-200 text-sky-700 dark:bg-cyan-500/20 dark:border-cyan-400/40 dark:text-cyan-300' : ($hariIni['sudah_masuk'] && !$hariIni['belum_jam_pulang'] ? 'bg-amber-400 hover:bg-amber-300 border-amber-300 text-slate-950 shadow-md' : 'bg-slate-100 border-slate-200 text-slate-500 dark:bg-[#1a1625] dark:border-rose-500/25 dark:text-rose-300/80') }}">
+            <template x-if="loadingKeluar">
+                <i class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+            </template>
+            <template x-if="!loadingKeluar">
+                <i class="fa-solid {{ $hariIni['sudah_pulang'] ? 'fa-check-double' : ($hariIni['sudah_masuk'] && !$hariIni['belum_jam_pulang'] ? 'fa-right-from-bracket' : 'fa-lock') }} text-sm"></i>
+            </template>
+            <div class="text-left leading-tight">
+                <div>{{ $hariIni['sudah_pulang'] ? 'Pulang ' . substr($hariIni['jam_pulang'], 0, 5) : ($hariIni['sudah_masuk'] ? ($hariIni['belum_jam_pulang'] ? 'Buka ' . $hariIni['jam_pulang_resmi'] : 'Absen Pulang') : 'Absen Pulang') }}</div>
+                @if (!$hariIni['sudah_masuk'])
+                    <div class="text-[9px] font-semibold opacity-70 normal-case">Menunggu Masuk</div>
+                @endif
+            </div>
+        </button>
+    </div>
+
+    <!-- Menu Layanan Kepegawaian -->
+    <div class="mb-5">
+        <div class="flex items-center justify-between mb-2.5 px-0.5">
+            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Layanan Kepegawaian</h3>
             <a href="{{ route('mobile.izin.index') }}" wire:navigate
-                class="text-xs font-bold text-sky-600 hover:text-sky-700 flex items-center">
+                class="text-xs font-bold text-sky-600 dark:text-cyan-400 hover:opacity-80 flex items-center">
                 <span>Riwayat Izin</span>
                 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
             </a>
@@ -275,95 +291,87 @@
         <div class="grid grid-cols-4 gap-2">
             <!-- Izin -->
             <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-envelope-open-text"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">Izin</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Izin</span>
             </a>
 
             <!-- Sakit -->
             <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-rose-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-notes-medical"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">Sakit</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Sakit</span>
             </a>
 
             <!-- Cuti -->
             <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-umbrella-beach"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">Cuti</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Cuti</span>
             </a>
 
             <!-- WFH -->
             <a href="{{ route('mobile.wfh.index') }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-teal-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-house-laptop"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">WFH</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">WFH</span>
             </a>
 
             <!-- Kalender Libur -->
             <a href="{{ route('mobile.hari-libur') }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-indigo-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-regular fa-calendar-days"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">Hari Libur</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Hari Libur</span>
             </a>
 
             <!-- Reputasi Rekan Kerja -->
             <a href="{{ route('mobile.reputasi') }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 dark:bg-amber-500/15 dark:text-amber-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-star"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">Reputasi</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Reputasi</span>
             </a>
 
             <!-- LHK Baru -->
             <a href="{{ route('mobile.lhk.create') }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-emerald-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-file-circle-plus"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">Buat LHK</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Buat LHK</span>
             </a>
 
             <!-- Statistik & Rekap Profil -->
             <a href="{{ route('mobile.profil') }}" wire:navigate
-                class="bg-white py-2.5 px-1.5 rounded-2xl border border-slate-200/70 shadow-2xs flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm mb-1.5">
+                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                <div class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 flex items-center justify-center text-sm mb-1.5">
                     <i class="fa-solid fa-chart-pie"></i>
                 </div>
-                <span class="text-[11px] font-bold text-slate-700 leading-tight">Statistik</span>
+                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Statistik</span>
             </a>
         </div>
     </div>
 
     <!-- Grafik Sederhana 7 Hari -->
-    <h3 class="text-base font-extrabold text-slate-800 tracking-tight mb-3">Kehadiran 7 Hari Terakhir</h3>
-    <div class="bg-white p-4 rounded-3xl shadow-xs border border-slate-100 h-40 flex items-end justify-between gap-1">
+    <h3 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight mb-2.5 px-0.5">Kehadiran 7 Hari Terakhir</h3>
+    <div class="bg-white dark:bg-[#132338]/90 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs h-36 flex items-end justify-between gap-1.5">
         @foreach ($riwayat7Hari as $item)
             @php
                 $h = 10;
-                $color = 'bg-red-400';
+                $color = 'bg-rose-500';
                 if ($item['status'] == 'hadir' || $item['status'] == 'terlambat') {
-                    $color = 'bg-[#2D9B4F]';
+                    $color = 'bg-emerald-400';
                     if ($item['jam_masuk']) {
                         $jam = (int) explode(':', $item['jam_masuk'])[0];
                         $h = max(20, (18 - $jam) * 10);
@@ -371,17 +379,17 @@
                         $h = 80;
                     }
                 } elseif ($item['status'] == 'izin') {
-                    $color = 'bg-[#0EA5E9]';
+                    $color = 'bg-cyan-400';
                     $h = 60;
                 } elseif ($item['status'] == 'sakit') {
-                    $color = 'bg-[#8B5CF6]';
+                    $color = 'bg-violet-400';
                     $h = 60;
                 }
             @endphp
             <div class="flex flex-col items-center w-full">
                 <div class="w-full max-w-[20px] rounded-md {{ $color }}"
                     style="height: {{ $h }}%;"></div>
-                <span class="text-[10px] text-gray-500 mt-2 font-medium">{{ $item['hari'] }}</span>
+                <span class="text-[10px] text-slate-400 mt-2 font-medium">{{ $item['hari'] }}</span>
             </div>
         @endforeach
     </div>
