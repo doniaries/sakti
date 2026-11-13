@@ -350,7 +350,37 @@
         </div>
     @endif
 
-    <div class="flex flex-col items-center mt-auto pt-2 pb-1 text-slate-400 text-center">
+    <!-- Peta & Titik Koordinat GPS -->
+    <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs mb-3">
+        <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center space-x-2">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-extrabold text-slate-800 block leading-tight">Peta & Lokasi (GPS)</span>
+                    <span class="text-[10px] font-mono text-slate-500 block" x-text="userCoordsText ? 'Koordinat: ' + userCoordsText : 'Mencari titik koordinat...'"></span>
+                </div>
+            </div>
+            <button type="button" @click="detectPosition()"
+                class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
+                <i class="fa-solid fa-crosshairs text-[10px]"></i>
+                <span>Perbarui GPS</span>
+            </button>
+        </div>
+
+        <div wire:ignore id="absensi-map" class="w-full h-44 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/60 bg-slate-900 z-10"></div>
+
+        <div class="flex items-center justify-between mt-2 text-[10px]">
+            <span class="text-slate-500 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                Radius Kantor: <strong class="text-slate-700">{{ $maxRadius }} m</strong>
+            </span>
+            <span class="font-bold" :class="isWithinRadius === false ? 'text-rose-500' : 'text-emerald-500'" x-text="currentDistanceText"></span>
+        </div>
+    </div>
+
+    <div class="flex flex-col items-center mt-auto pt-1 pb-1 text-slate-400 text-center">
         <p class="text-[10px] text-slate-400">Akurasi GPS tinggi diwajibkan untuk presensi kedinasan.</p>
     </div>
 
@@ -371,9 +401,55 @@
                     userCoordsText: '',
                     isWithinRadius: null,
                     gpsWarning: false,
+                    map: null,
+                    officeCircle: null,
+                    userMarker: null,
 
                     init() {
-                        this.detectPosition();
+                        this.$nextTick(() => {
+                            this.initMap();
+                            this.detectPosition();
+                        });
+                    },
+
+                    initMap() {
+                        const el = document.getElementById('absensi-map');
+                        if (!el || typeof L === 'undefined' || this.map) return;
+
+                        this.map = L.map(el, { zoomControl: true, attributionControl: false })
+                            .setView([this.officeLat, this.officeLng], 17);
+
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19
+                        }).addTo(this.map);
+
+                        L.marker([this.officeLat, this.officeLng]).addTo(this.map)
+                            .bindPopup('Titik Lokasi Kantor');
+
+                        this.officeCircle = L.circle([this.officeLat, this.officeLng], {
+                            color: '#10b981',
+                            fillColor: '#10b981',
+                            fillOpacity: 0.18,
+                            weight: 2,
+                            radius: this.maxRadius
+                        }).addTo(this.map);
+                    },
+
+                    updateUserMarker(lat, lng) {
+                        if (!this.map || typeof L === 'undefined') return;
+                        if (this.userMarker) {
+                            this.userMarker.setLatLng([lat, lng]);
+                        } else {
+                            this.userMarker = L.circleMarker([lat, lng], {
+                                radius: 8,
+                                color: '#ffffff',
+                                weight: 2,
+                                fillColor: '#0ea5e9',
+                                fillOpacity: 1
+                            }).addTo(this.map).bindPopup('Posisi Anda Sekarang');
+                        }
+                        const group = L.featureGroup([this.officeCircle, this.userMarker]);
+                        this.map.fitBounds(group.getBounds(), { padding: [24, 24], maxZoom: 18 });
                     },
 
                     calcDistance(lat1, lon1, lat2, lon2) {
@@ -394,6 +470,7 @@
                             this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
                             this.isWithinRadius = true;
                             this.gpsWarning = false;
+                            this.updateUserMarker(this.officeLat, this.officeLng);
                             return;
                         }
 
@@ -402,6 +479,7 @@
                             this.currentDistanceText = '0 meter (Simulasi)';
                             this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
                             this.isWithinRadius = true;
+                            this.updateUserMarker(this.officeLat, this.officeLng);
                             return;
                         }
 
@@ -415,6 +493,7 @@
                                 this.currentDistance = Math.round(d);
                                 this.currentDistanceText = `${this.currentDistance} meter`;
                                 this.isWithinRadius = this.isWfh || (this.currentDistance <= this.maxRadius);
+                                this.updateUserMarker(uLat, uLng);
                             },
                             (err) => {
                                 console.warn('[ABSEN] GPS warning:', err);
