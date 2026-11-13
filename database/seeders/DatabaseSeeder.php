@@ -16,8 +16,10 @@ class DatabaseSeeder extends Seeder
             $hasSpj = class_exists(\App\Models\PengajuanSpj::class) && \App\Models\PengajuanSpj::exists();
             $hasSub = class_exists(\App\Models\MasterSubKegiatan::class) && \App\Models\MasterSubKegiatan::exists();
             $hasBarang = class_exists(\App\Models\MasterBarang::class) && \App\Models\MasterBarang::exists();
+            $hasUsers = class_exists(\App\Models\User::class) && \App\Models\User::count() > 5;
+            $hasBidang = class_exists(\App\Models\Bidang::class) && \App\Models\Bidang::exists();
 
-            if ($hasSpj || $hasSub || $hasBarang) {
+            if ($hasSpj || $hasSub || $hasBarang || $hasUsers || $hasBidang) {
                 $this->command->newLine();
                 $this->command->error('*************************************************************************');
                 $this->command->error('  ⚠️  PERINGATAN KESELAMATAN DATA (DATA SAFETY GUARD)  ⚠️');
