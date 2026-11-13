@@ -37,12 +37,15 @@ class ResourceItemType extends ItemType
     {
         $catalog = self::getCatalog();
 
+        $assigned = self::getAssignedMap();
         $options = [];
         $descriptions = [];
 
         foreach ($catalog as $class => $meta) {
             $options[$class] = $meta['label'];
-            $descriptions[$class] = ($meta['group'] ? "Grup: {$meta['group']} • " : '') . $meta['path'];
+            $descriptions[$class] = isset($assigned[$class])
+                ? "Sudah di menu: {$assigned[$class]['location']} • {$meta['path']}"
+                : "Belum ada di menu • {$meta['path']}";
         }
 
         return [
@@ -50,10 +53,34 @@ class ResourceItemType extends ItemType
                 ->label('Pilih Resource / Halaman Aplikasi')
                 ->options($options)
                 ->descriptions($descriptions)
+                ->default(array_keys($assigned))
                 ->searchable()
-                ->bulkToggleable()
-                ->required(),
+                ->bulkToggleable(),
         ];
+    }
+
+    /**
+     * @return array<string, array{location: string, ids: array<int, int>}>
+     */
+    public static function getAssignedMap(): array
+    {
+        $map = [];
+
+        $items = \Datlechin\FilamentMenuBuilder\Models\MenuItem::query()->with(['menu', 'parent'])->get();
+
+        foreach ($items as $item) {
+            $class = $item->data['target_class'] ?? null;
+
+            if (! is_string($class) || ! $item->menu) {
+                continue;
+            }
+
+            $location = $item->menu->name . ($item->parent ? ' ➔ ' . $item->parent->title : '');
+            $map[$class]['location'] ??= $location;
+            $map[$class]['ids'][] = (int) $item->getKey();
+        }
+
+        return $map;
     }
 
     public function getDestinationSchema(): array
@@ -87,9 +114,22 @@ class ResourceItemType extends ItemType
         $catalog = self::getCatalog();
         $selected = $data['resources'] ?? [];
         $items = [];
+        $assigned = self::getAssignedMap();
+
+        $removeIds = [];
+        foreach ($assigned as $class => $info) {
+            if (! in_array($class, $selected, true)) {
+                array_push($removeIds, ...$info['ids']);
+            }
+        }
+
+        if ($removeIds !== []) {
+            \Datlechin\FilamentMenuBuilder\Models\MenuItem::query()->whereIn('id', $removeIds)->get()
+                ->each(fn ($item) => $item->delete());
+        }
 
         foreach ($selected as $class) {
-            if (! isset($catalog[$class])) {
+            if (! isset($catalog[$class]) || isset($assigned[$class])) {
                 continue;
             }
 

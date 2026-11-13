@@ -68,7 +68,7 @@ class SidebarNavigationService
             ->where('is_visible', true)
             ->whereHas('locations', fn ($query) => $query->where('location', 'sidebar'))
             ->with([
-                'items' => fn ($query) => $query->where('is_visible', true)->orderBy('order'),
+                'items' => fn ($query) => $query->where('is_visible', true)->orderBy('order')->orderBy('id'),
             ])
             ->orderBy('sort')
             ->orderBy('id')
@@ -143,7 +143,7 @@ class SidebarNavigationService
 
             $convertedChild = self::convertItem($child, $hasMenuBuilderLink);
             if ($convertedChild !== null) {
-                $childNavItems[] = $convertedChild;
+                $childNavItems[] = $convertedChild->sort(count($childNavItems) + 1);
             }
         }
 

@@ -72,14 +72,14 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-m-device-phone-mobile'),
             ])
 
-            ->navigation(fn (NavigationBuilder $builder): NavigationBuilder => SidebarNavigationService::build($builder))
+            ->navigation(fn(NavigationBuilder $builder): NavigationBuilder => SidebarNavigationService::build($builder))
             ->navigationItems([
                 NavigationItem::make('Presensi Mobile')
                     ->url(fn(): string => route('mobile.dashboard'), shouldOpenInNewTab: true)
                     ->icon('heroicon-o-device-phone-mobile')
                     ->sort(2),
             ])
-            ->navigationGroups([
+            /* ->navigationGroups([
                 NavigationGroup::make('Keuangan')
                     ->icon('heroicon-o-banknotes')
                     ->collapsed(),
@@ -101,7 +101,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Pengaturan')
                     ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(),
-            ])
+            ]) */
             ->colors([
                 'primary' => Color::Amber,
                 'danger' => Color::Red,
@@ -203,12 +203,13 @@ class AdminPanelProvider extends PanelProvider
                         TextInput::make('sort')
                             ->label('Urutan Tampil')
                             ->numeric()
-                            ->default(0),
+                            ->minValue(1)
+                            ->default(fn (): int => ((int) Menu::query()->max('sort')) + 1),
                     ])
                     ->addMenuItemFields([
                         Select::make('menu_id')
                             ->label('Grup Menu Utama (Level 1)')
-                            ->options(fn (): array => Menu::query()->orderBy('sort')->pluck('name', 'id')->all())
+                            ->options(fn(): array => Menu::query()->orderBy('sort')->pluck('name', 'id')->all())
                             ->required(),
                     ])
                     ->navigationGroup('Pengaturan')

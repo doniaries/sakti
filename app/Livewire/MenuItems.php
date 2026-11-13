@@ -63,7 +63,9 @@ class MenuItems extends BaseMenuItems
                 }
 
                 if ($items === []) {
-                    $action->cancel();
+                    $this->refreshTree();
+                    $action->success();
+                    $action->halt();
                 }
 
                 $this->refreshTree();

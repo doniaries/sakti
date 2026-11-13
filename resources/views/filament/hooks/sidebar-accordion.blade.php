@@ -21,7 +21,7 @@
             const activeGroupEl = document.querySelector('.fi-sidebar-group.fi-active[data-group-label]');
             const activeLabel = activeGroupEl
                 ? activeGroupEl.getAttribute('data-group-label')
-                : 'Keuangan';
+                : allLabels[0];
 
             const collapsed = allLabels.filter((label) => label !== activeLabel);
             store.collapsedGroups = collapsed;
