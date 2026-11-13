@@ -20,6 +20,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\RecordActionsPosition;
@@ -220,12 +221,14 @@ class MasterSubKegiatansTable
                     ->formatStateUsing(fn($state) => "{$state} Item")
                     ->alignCenter(),
 
-                TextColumn::make('is_locked')
-                    ->label('Status RKA')
-                    ->badge()
-                    ->formatStateUsing(fn (bool $state): string => $state ? 'Terkunci (DPA)' : 'Terbuka (Revisi)')
-                    ->color(fn (bool $state): string => $state ? 'danger' : 'success')
-                    ->icon(fn (bool $state): string => $state ? 'heroicon-o-lock-closed' : 'heroicon-o-lock-open')
+                IconColumn::make('is_locked')
+                    ->label('Status')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-lock-closed')
+                    ->falseIcon('heroicon-o-lock-open')
+                    ->trueColor('danger')
+                    ->falseColor('success')
+                    ->tooltip(fn(bool $state): string => $state ? 'Terkunci (DPA)' : 'Terbuka (Revisi)')
                     ->alignCenter()
                     ->sortable(),
 
@@ -294,4 +297,11 @@ class MasterSubKegiatansTable
             ])
             ->toolbarActions([
                 Action::make('select_tahun_anggaran')
-                    ->view('filam
+                    ->view('filament.tables.toolbar.tahun-anggaran-select'),
+
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+}
