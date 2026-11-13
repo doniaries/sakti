@@ -13,10 +13,28 @@ class BidangSeeder extends Seeder
      */
     public function run(): void
     {
+        $legacyMap = [
+            'pemasaran-pariwisata' => 'Pariwisata',
+            'pengembangan-destinasi-pariwisata' => 'Ekonomi Kreatif',
+        ];
+
+        foreach ($legacyMap as $oldSlug => $newName) {
+            $newSlug = Str::slug($newName);
+            $oldBidang = Bidang::query()->where('slug', $oldSlug)->first();
+            $newBidangExists = Bidang::query()->where('slug', $newSlug)->exists();
+
+            if ($oldBidang && ! $newBidangExists) {
+                $oldBidang->update([
+                    'nama' => $newName,
+                    'slug' => $newSlug,
+                ]);
+            }
+        }
+
         $bidangs = [
             'Sekretariat',
-            'Pemasaran Pariwisata',
-            'Pengembangan Destinasi Pariwisata',
+            'Pariwisata',
+            'Ekonomi Kreatif',
             'Pemuda dan Olahraga',
         ];
 

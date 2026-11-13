@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Models\Jabatan;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class DataPegawaiSeeder extends Seeder
 {
@@ -14,270 +16,116 @@ class DataPegawaiSeeder extends Seeder
      */
     public function run(): void
     {
-        // Pastikan seluruh roles inti terdaftar sebelum assignRole/syncRoles
         foreach (['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'pa', 'ppk', 'pptk', 'jf', 'bendahara', 'pegawai'] as $roleName) {
-            \Spatie\Permission\Models\Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
+            Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
         }
 
+        $defaultPassword = Hash::make('password');
+        $superAdminPassword = Hash::make('@Iamsuperadmin');
+
+        // 1. Seed biodata dasar dari pegawai_80.json jika ada
         $jsonPath = database_path('seeders/pegawai_80.json');
-        if (!file_exists($jsonPath)) {
-            $this->command->warn('File pegawai_80.json tidak ditemukan!');
+        if (file_exists($jsonPath)) {
+            $dataRaw = json_decode(file_get_contents($jsonPath), true) ?? [];
+            $bulanIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $bulanEng = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+            foreach ($dataRaw as $row) {
+                $nama = $row['nama'] ?? '';
+                $nip = $row['nip'] ?? null;
+                if (blank($nip)) {
+                    continue;
+                }
+
+                $namaTanpaGelar = trim(explode(',', $nama)[0]);
+                $emailPrefix = strtolower(str_replace([' ', '.'], '', $namaTanpaGelar));
+
+                $tanggalLahir = null;
+                if (! empty($row['tanggal_lahir'])) {
+                    $tanggalString = str_replace($bulanIndo, $bulanEng, $row['tanggal_lahir']);
+                    try {
+                        $tanggalLahir = Carbon::parse($tanggalString)->format('Y-m-d');
+                    } catch (\Exception) {
+                        $tanggalLahir = null;
+                    }
+                }
+
+                $jabatanId = null;
+                if (! empty($row['jabatan'])) {
+                    $jabatanId = Jabatan::query()->whereRaw('LOWER(nama) = ?', [strtolower($row['jabatan'])])->value('id');
+                }
+
+                $item = [
+                    'name' => $nama,
+                    'nip' => $nip,
+                    'jabatan_id' => $jabatanId,
+                    'pendidikan' => $row['pendidikan'] ?? null,
+                    'jenis_kelamin' => $row['jk'] ?? null,
+                    'eselon' => $row['eselon'] ?? null,
+                    'tempat_lahir' => $row['tempat_lahir'] ?? null,
+                    'tanggal_lahir' => $tanggalLahir,
+                    'email' => $emailPrefix . '@sijunjung.go.id',
+                    'password' => $defaultPassword,
+                ];
+
+                $user = User::updateOrCreate(['nip' => $nip], $item);
+                if (blank($user->nomor_absensi)) {
+                    $user->nomor_absensi = (string) $user->id;
+                    $user->save();
+                }
+                $user->assignRole('pegawai');
+            }
+        }
+
+        // 2. Sinkronkan data pegawai, email resmi, jabatan, gelar, dan role dari penempatan_pegawai.json
+        $penempatanPath = database_path('seeders/penempatan_pegawai.json');
+        if (! file_exists($penempatanPath)) {
+            $this->command?->warn('File penempatan_pegawai.json tidak ditemukan.');
             return;
         }
 
-        $dataRaw = json_decode(file_get_contents($jsonPath), true);
+        $penempatan = json_decode(file_get_contents($penempatanPath), true);
+        foreach ($penempatan['users'] ?? [] as $row) {
+            $email = $row['email'] ?? null;
+            $nip = $row['nip'] ?? null;
+            if (blank($email)) {
+                continue;
+            }
 
-        $data = [];
-        $defaultPassword = \Illuminate\Support\Facades\Hash::make('password');
+            $user = filled($nip)
+                ? User::query()->where('nip', $nip)->first()
+                : User::query()->where('email', $email)->first();
 
-        foreach ($dataRaw as $row) {
-            $nama = $row['nama'] ?? '';
-            $namaTanpaGelar = trim(explode(',', $nama)[0]);
-            $emailPrefix = strtolower(str_replace([' ', '.'], '', $namaTanpaGelar));
+            $jabatanId = ! empty($row['jabatan'])
+                ? Jabatan::query()->whereRaw('LOWER(nama) = ?', [strtolower($row['jabatan'])])->value('id')
+                : null;
 
-            $data[] = [
-                'name' => $nama,
-                'nip' => $row['nip'] ?? null,
-                'jabatan' => $row['jabatan'] ?? null,
-                'pendidikan' => $row['pendidikan'] ?? null,
-                'jenis_kelamin' => $row['jk'] ?? null,
-                'eselon' => $row['eselon'] ?? null,
-                'tempat_lahir' => $row['tempat_lahir'] ?? null,
-                'tanggal_lahir' => $row['tanggal_lahir'] ?? null,
+            $isTechnicalAdmin = in_array($email, ['superadmin@gmail.com', 'adminkeuangan@gmail.com', 'doniaries@gmail.com'], true);
+
+            $payload = [
+                'name' => $row['name'],
+                'gelar_depan' => $row['gelar_depan'] ?? null,
+                'gelar_belakang' => $row['gelar_belakang'] ?? null,
+                'nip' => $nip,
+                'email' => $email,
+                'jabatan_id' => $jabatanId,
+                'anggaran_role' => $row['anggaran_role'] ?? null,
+                'status_kerja' => $row['status_kerja'] ?? 'wfo',
+                'kuota_cuti' => $row['kuota_cuti'] ?? 12,
+                'aktif' => $row['aktif'] ?? true,
                 'nomor_absensi' => $row['nomor_absensi'] ?? null,
-                'email' => $emailPrefix . '@sijunjung.go.id',
-                'password' => $defaultPassword,
             ];
-        }
 
-        $bulanIndo = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-        $bulanEng = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-        foreach ($data as $item) {
-            $jabatanName = $item['jabatan'] ?? null;
-            unset($item['jabatan']);
-            if ($jabatanName) {
-                $jabatan = \App\Models\Jabatan::where('nama', $jabatanName)->first();
-                if ($jabatan) {
-                    $item['jabatan_id'] = $jabatan->id;
-                }
+            if ($user) {
+                $user->update($payload);
+            } else {
+                $payload['password'] = $isTechnicalAdmin ? $superAdminPassword : $defaultPassword;
+                $user = User::query()->create($payload);
             }
 
-            if (!empty($item['tanggal_lahir'])) {
-                $tanggalString = str_replace($bulanIndo, $bulanEng, $item['tanggal_lahir']);
-                try {
-                    $item['tanggal_lahir'] = \Carbon\Carbon::parse($tanggalString)->format('Y-m-d');
-                } catch (\Exception $e) {
-                    $item['tanggal_lahir'] = null;
-                }
+            if (! empty($row['roles'])) {
+                $user->syncRoles($row['roles']);
             }
-
-            $rawNama = $item['nama'] ?? '';
-            if (str_contains($rawNama, ',')) {
-                $parts = explode(',', $rawNama);
-                array_shift($parts);
-                $item['gelar_belakang'] = trim(implode(', ', array_map('trim', $parts)));
-            }
-            if (preg_match('/^(Dr\.|Dra\.|Drs\.|Ir\.|Prof\.|H\.|Hj\.|Apt\.)\s+/i', $rawNama, $m)) {
-                $item['gelar_depan'] = trim($m[1]);
-            }
-
-            $user = User::updateOrCreate(
-                ['nip' => $item['nip']],
-                $item
-            );
-            $user->nomor_absensi = (string)$user->id;
-            $user->save();
-            $user->assignRole('pegawai');
-        }
-
-        // --- Atur Akun Khusus & Peran Anggaran (Enum AnggaranRole & Roles Spatie) ---
-        // 0. SuperAdmin Sistem Khusus (Akun Teknis IT murni - Bukan pegawai dinas, tidak dihitung di statistik kepegawaian/presensi)
-        $superAdmin = User::updateOrCreate(
-            ['email' => 'superadmin@gmail.com'],
-            [
-                'name' => 'Super Administrator SAKTI',
-                'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
-                'nip' => null,
-                'nik' => null,
-                'jabatan_id' => null,
-                'bidang_id' => null,
-                'atasan_id' => null,
-                'nomor_absensi' => null,
-                'aktif' => true,
-                'anggaran_role' => null,
-            ]
-        );
-        $superAdmin->syncRoles(['super_admin']);
-
-        // 1. PPTK Pemasaran Pariwisata (DONI ARIES)
-        // Akun resmi kedinasan: PPTK Bidang Pemasaran Pariwisata & Pegawai (Super Admin dipisah ke superadmin@gmail.com)
-        $doni = User::query()->where('name', 'LIKE', '%DONI ARIES%')->first();
-        if ($doni) {
-            $doni->update([
-                'email' => 'doniaries@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
-                'aktif' => true,
-                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
-            ]);
-            $doni->syncRoles(['pptk', 'pegawai']);
-        }
-
-        // 3. Admin Kepegawaian Dinas (ZULFITRI - Kasubag Umum & Kepegawaian)
-        $zulfitri = User::query()->where('name', 'LIKE', '%ZULFITRI%')->first();
-        if ($zulfitri) {
-            $zulfitri->update([
-                'email' => 'admin@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('admin'),
-                'aktif' => true,
-                'anggaran_role' => null,
-            ]);
-            $zulfitri->syncRoles(['admin_kepegawaian', 'admin', 'pegawai']);
-        }
-
-        // 3B. Admin Keuangan Dinas (Akun Khusus Kelola Master Anggaran, RKA & SPJ Seluruh Bidang)
-        $adminKeuangan = User::updateOrCreate(
-            ['email' => 'adminkeuangan@gmail.com'],
-            [
-                'name' => 'Admin Keuangan Dinas',
-                'password' => \Illuminate\Support\Facades\Hash::make('@Iamsuperadmin'),
-                'aktif' => true,
-                'anggaran_role' => null,
-            ]
-        );
-        $adminKeuangan->syncRoles(['admin_keuangan', 'admin_kepegawaian', 'admin']);
-
-        // 4. Kepala Dinas / PA - Pengguna Anggaran (AFRINELDI)
-        $afrineldi = User::query()->where('name', 'LIKE', '%AFRINELDI%')->first();
-        if ($afrineldi) {
-            $afrineldi->update([
-                'email' => 'kepaladinas@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => \App\Enums\AnggaranRole::PA,
-            ]);
-            $afrineldi->syncRoles(['pa', 'pegawai']);
-        }
-
-        // 5. PPK - Pejabat Pembuat Komitmen (JULHARDIANTO)
-        $julhardianto = User::query()->where('name', 'LIKE', '%JULHARDIANTO%')->first();
-        if ($julhardianto) {
-            $julhardianto->update([
-                'email' => 'julhardianto@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => \App\Enums\AnggaranRole::PPK,
-            ]);
-            $julhardianto->syncRoles(['ppk', 'admin', 'pegawai']);
-        }
-
-        // 6. Sekretaris / PPTK Sekretariat (DESMAWATI)
-        $desmawati = User::query()->where('name', 'LIKE', '%DESMAWATI%')->first();
-        if ($desmawati) {
-            $desmawati->update([
-                'email' => 'sekretaris@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
-            ]);
-            $desmawati->syncRoles(['pptk', 'pegawai']);
-        }
-
-        // 7. Kabid Destinasi / PPTK Destinasi (WILDA ARDES)
-        $wilda = User::query()->where('name', 'LIKE', '%WILDA ARDES%')->first();
-        if ($wilda) {
-            $wilda->update([
-                'email' => 'wilda@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
-            ]);
-            $wilda->syncRoles(['pptk', 'pegawai']);
-        }
-
-        // 8. Kabid Pemuda & Olahraga / PPTK Dispora (INDRAWADI)
-        $indrawadi = User::query()->where('name', 'LIKE', '%INDRAWADI%')->first();
-        if ($indrawadi) {
-            $indrawadi->update([
-                'email' => 'kabid@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => \App\Enums\AnggaranRole::PPTK,
-            ]);
-            $indrawadi->syncRoles(['pptk', 'pegawai']);
-        }
-
-        // 9. 2 Orang Jabatan Fungsional (JF) untuk Akses Cepat & Pengusul SPJ
-        $diki = User::query()->where('name', 'LIKE', '%DIKI ZULFIKAR%')->first();
-        if ($diki) {
-            $diki->update([
-                'email' => 'dikizulfikar@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => null,
-            ]);
-            $diki->syncRoles(['jf', 'pegawai']);
-        }
-
-        $novrizal = User::query()->where('name', 'LIKE', '%NOFRIZAL%')->first();
-        if ($novrizal) {
-            $bidangPemasaran = \App\Models\Bidang::where('nama', 'like', '%Pemasaran%')->first();
-            $updateData = [
-                'email' => 'novrizal@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => null,
-            ];
-            if ($bidangPemasaran) {
-                $updateData['bidang_id'] = $bidangPemasaran->id;
-            }
-            $novrizal->update($updateData);
-            $novrizal->syncRoles(['jf', 'pegawai']);
-        }
-
-        // 10. Staf Pelaksana
-        $andra = User::query()->where('name', 'LIKE', '%ANDRA PEBTALIYUS%')->first();
-        if ($andra) {
-            $andra->update([
-                'email' => 'andrapebtaliyus@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => null,
-            ]);
-            $andra->syncRoles(['pegawai']);
-        }
-        $maulana = User::query()->where('name', 'LIKE', '%MAULANA IBRAHIM%')->first();
-        if ($maulana) {
-            $maulana->update([
-                'email' => 'maulanaibrahim@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => null,
-            ]);
-            $maulana->syncRoles(['pegawai']);
-        }
-
-        $roni = User::query()->where('name', 'LIKE', '%RONI RIVANDRA%')->first();
-        if ($roni) {
-            $roni->update([
-                'email' => 'ronirivandra@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => null,
-            ]);
-            $roni->syncRoles(['pegawai']);
-        }
-
-        // 11. Bendahara Pengeluaran (WIWIRNA)
-        $wiwirna = User::query()->where('name', 'LIKE', '%WIWIRNA%')->first();
-        if ($wiwirna) {
-            $wiwirna->update([
-                'email' => 'bendahara@gmail.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
-                'aktif' => true,
-                'anggaran_role' => \App\Enums\AnggaranRole::BENDAHARA,
-            ]);
-            $wiwirna->syncRoles(['bendahara', 'pegawai']);
         }
     }
 }

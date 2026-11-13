@@ -6,7 +6,6 @@ use App\Models\Bidang;
 use App\Models\Jabatan;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
 class StrukturOrganisasiSeeder extends Seeder
 {
@@ -15,147 +14,75 @@ class StrukturOrganisasiSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Pastikan Bidang sudah ada
-        $sekretariat = Bidang::firstOrCreate(
-            ['slug' => 'sekretariat'],
-            ['nama' => 'Sekretariat']
-        );
+        $penempatanPath = database_path('seeders/penempatan_pegawai.json');
+        if (! file_exists($penempatanPath)) {
+            $this->command?->warn('File penempatan_pegawai.json tidak ditemukan!');
+            return;
+        }
 
-        $bidangPemasaran = Bidang::firstOrCreate(
-            ['slug' => 'pemasaran-pariwisata'],
-            ['nama' => 'Pemasaran Pariwisata']
-        );
+        $data = json_decode(file_get_contents($penempatanPath), true);
 
-        $bidangDestinasi = Bidang::firstOrCreate(
-            ['slug' => 'pengembangan-destinasi-pariwisata'],
-            ['nama' => 'Pengembangan Destinasi Pariwisata']
-        );
+        // 1. Pastikan 4 Bidang resmi tersedia
+        $bidangBySlug = [];
+        foreach ($data['bidangs'] ?? [] as $b) {
+            $bidang = Bidang::updateOrCreate(
+                ['slug' => $b['slug']],
+                ['nama' => $b['nama']]
+            );
+            $bidangBySlug[$b['slug']] = $bidang;
+        }
 
-        $bidangDispora = Bidang::firstOrCreate(
-            ['slug' => 'pemuda-dan-olahraga'],
-            ['nama' => 'Pemuda dan Olahraga']
-        );
+        // 2. Petakan seluruh User berdasarkan email
+        $usersByEmail = User::query()->get()->keyBy(fn (User $u) => strtolower((string) $u->email));
 
-        // 2. Baca data dari pegawai_80.json untuk update jabatan_id
-        $jsonPath = database_path('seeders/pegawai_80.json');
-        if (file_exists($jsonPath)) {
-            $dataRaw = json_decode(file_get_contents($jsonPath), true);
-            foreach ($dataRaw as $row) {
-                $nip = $row['nip'] ?? null;
-                $jabatanRaw = $row['jabatan'] ?? null;
+        // 3. Tetapkan bidang_id, jabatan_id, anggaran_role, dan atasan/jf pada setiap pegawai
+        foreach ($data['users'] ?? [] as $row) {
+            $emailKey = strtolower((string) ($row['email'] ?? ''));
+            $user = $usersByEmail->get($emailKey)
+                ?? (! empty($row['nip']) ? User::query()->where('nip', $row['nip'])->first() : null);
 
-                if ($nip && $jabatanRaw) {
-                    $jabatan = Jabatan::whereRaw('LOWER(nama) = ?', [strtolower($jabatanRaw)])->first();
-                    if ($jabatan) {
-                        User::query()->where('nip', $nip)->update(['jabatan_id' => $jabatan->id]);
-                    }
-                }
+            if (! $user) {
+                continue;
+            }
+
+            $bidangId = ! empty($row['bidang_slug']) && isset($bidangBySlug[$row['bidang_slug']])
+                ? $bidangBySlug[$row['bidang_slug']]->id
+                : null;
+
+            $atasanId = ! empty($row['atasan_email'])
+                ? $usersByEmail->get(strtolower($row['atasan_email']))?->id
+                : null;
+
+            $jfId = ! empty($row['jf_email'])
+                ? $usersByEmail->get(strtolower($row['jf_email']))?->id
+                : null;
+
+            $jabatanId = ! empty($row['jabatan'])
+                ? Jabatan::query()->whereRaw('LOWER(nama) = ?', [strtolower($row['jabatan'])])->value('id')
+                : $user->jabatan_id;
+
+            $user->update([
+                'bidang_id' => $bidangId,
+                'atasan_id' => $atasanId,
+                'jf_id' => $jfId,
+                'jabatan_id' => $jabatanId,
+                'anggaran_role' => $row['anggaran_role'] ?? null,
+            ]);
+
+            if (! empty($row['roles'])) {
+                $user->syncRoles($row['roles']);
             }
         }
 
-        // 3. Tentukan Pimpinan Tertinggi & Para Kepala Bidang
-        $kadis = User::query()->where('name', 'LIKE', '%AFRINELDI%')->first();
-        $sekretaris = User::query()->where('name', 'LIKE', '%DESMAWATI%')->first();
-        $kabidPemasaran = User::query()->where('name', 'LIKE', '%DONI ARIES%')->first();
-        $kabidDestinasi = User::query()->where('name', 'LIKE', '%WILDA ARDES%')->first();
-        $kabidDispora = User::query()->where('name', 'LIKE', '%INDRAWADI%')->first();
+        // 4. Tetapkan kepala_id pada masing-masing Bidang
+        foreach ($data['bidangs'] ?? [] as $b) {
+            $bidang = $bidangBySlug[$b['slug']] ?? null;
+            $kepalaId = ! empty($b['kepala_email'])
+                ? $usersByEmail->get(strtolower($b['kepala_email']))?->id
+                : null;
 
-        // 4. Update Hierarki Atasan & Kepala Bidang
-        if ($kadis) {
-            $kadis->update([
-                'atasan_id' => null,
-                'bidang_id' => null, // Pimpinan Tertinggi Seluruh Dinas
-            ]);
-        }
-
-        $kadisId = $kadis?->id;
-
-        if ($sekretaris) {
-            $sekretaris->update([
-                'atasan_id' => $kadisId,
-                'bidang_id' => $sekretariat->id,
-            ]);
-            $sekretariat->update(['kepala_id' => $sekretaris->id]);
-        }
-
-        if ($kabidPemasaran) {
-            $kabidPemasaran->update([
-                'atasan_id' => $kadisId,
-                'bidang_id' => $bidangPemasaran->id,
-            ]);
-            $bidangPemasaran->update(['kepala_id' => $kabidPemasaran->id]);
-        }
-
-        if ($kabidDestinasi) {
-            $kabidDestinasi->update([
-                'atasan_id' => $kadisId,
-                'bidang_id' => $bidangDestinasi->id,
-            ]);
-            $bidangDestinasi->update(['kepala_id' => $kabidDestinasi->id]);
-        }
-
-        if ($kabidDispora) {
-            $kabidDispora->update([
-                'atasan_id' => $kadisId,
-                'bidang_id' => $bidangDispora->id,
-            ]);
-            $bidangDispora->update(['kepala_id' => $kabidDispora->id]);
-        }
-
-        // 5. Distribusikan Staf Berdasarkan Jabatan & Kebutuhan Bidang
-        $pimpinanIds = array_filter([
-            $kadis?->id,
-            $sekretaris?->id,
-            $kabidPemasaran?->id,
-            $kabidDestinasi?->id,
-            $kabidDispora?->id,
-        ]);
-
-        $stafUsers = User::query()->whereNotIn('id', $pimpinanIds, 'and', false)->with('jabatan')->get();
-
-        foreach ($stafUsers as $staf) {
-            $jabatanNama = strtolower($staf->jabatan?->nama ?? '');
-
-            // Aturan penempatan berdasarkan nama jabatan / keahlian:
-            if (
-                str_contains($jabatanNama, 'pelatih') ||
-                str_contains($jabatanNama, 'olahraga') ||
-                str_contains($jabatanNama, 'pemuda')
-            ) {
-                // Bidang Pemuda dan Olahraga
-                $staf->update([
-                    'bidang_id' => $bidangDispora->id,
-                    'atasan_id' => $kabidDispora?->id,
-                ]);
-            } elseif (
-                str_contains($jabatanNama, 'pemasaran') ||
-                str_contains($jabatanNama, 'ekonomi kreatif') ||
-                str_contains($jabatanNama, 'adyatama') ||
-                str_contains($jabatanNama, 'hubungan msyarakat') ||
-                str_contains($jabatanNama, 'penerjemah') ||
-                str_contains(strtoupper($staf->name), 'NOFRIZAL')
-            ) {
-                // Bidang Pemasaran Pariwisata
-                $staf->update([
-                    'bidang_id' => $bidangPemasaran->id,
-                    'atasan_id' => $kabidPemasaran?->id,
-                ]);
-            } elseif (
-                str_contains($jabatanNama, 'destinasi') ||
-                str_contains($jabatanNama, 'konservator') ||
-                str_contains($jabatanNama, 'teknik')
-            ) {
-                // Bidang Pengembangan Destinasi Pariwisata
-                $staf->update([
-                    'bidang_id' => $bidangDestinasi->id,
-                    'atasan_id' => $kabidDestinasi?->id,
-                ]);
-            } else {
-                // Sekretariat (Kasubbag Umum, Perencana, Keuangan, TI, Pengadministrasi, dll)
-                $staf->update([
-                    'bidang_id' => $sekretariat->id,
-                    'atasan_id' => $sekretaris?->id,
-                ]);
+            if ($bidang && $kepalaId) {
+                $bidang->update(['kepala_id' => $kepalaId]);
             }
         }
     }
