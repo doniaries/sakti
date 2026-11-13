@@ -58,7 +58,7 @@ class PengaturanLokasi extends Component
         $this->validate([
             'latitude_kantor' => 'required|numeric|between:-90,90',
             'longitude_kantor' => 'required|numeric|between:-180,180',
-            'radius_meter' => 'required|integer|min:10|max:5000',
+            'radius_meter' => 'required|integer|min:1|max:5000',
             'alamat_kantor' => 'nullable|string|max:500',
         ]);
 

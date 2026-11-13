@@ -234,10 +234,10 @@
             </div>
 
             <div class="grid grid-cols-5 gap-1.5 mb-2.5">
-                <template x-for="r in [25, 50, 100, 150, 200]" :key="r">
+                <template x-for="r in [5, 10, 15, 25, 50]" :key="r">
                     <button type="button" @click="updateRadius(r)"
                         class="py-1.5 rounded-xl text-xs font-extrabold border transition-transform duration-150 ease-out active:scale-[0.96] cursor-pointer text-center"
-                        :class="radiusValue === r ?
+                        :class="Number(radiusValue) === r ?
                             'bg-sky-600 text-white border-sky-600 shadow-xs' :
                             'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'">
                         <span x-text="r + 'm'"></span>
@@ -245,9 +245,17 @@
                 </template>
             </div>
 
-            <!-- Custom Radius Slider -->
-            <input type="range" min="15" max="500" step="5" x-model="radiusValue"
-                @input="onRadiusSliderChange()" class="w-full accent-sky-600 cursor-pointer">
+            <!-- Custom Radius Slider & Input Manual -->
+            <div class="flex items-center gap-2.5">
+                <input type="range" min="1" max="200" step="1" x-model.number="radiusValue"
+                    @input="onRadiusSliderChange()" class="flex-1 accent-sky-600 cursor-pointer">
+                <div class="flex items-center gap-1 shrink-0">
+                    <input type="number" min="1" max="5000" x-model.number="radiusValue"
+                        @input="onRadiusSliderChange()"
+                        class="w-16 px-2 py-1 text-xs font-bold font-mono text-center bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-sky-500">
+                    <span class="text-[11px] font-bold text-slate-500">m</span>
+                </div>
+            </div>
         </div>
 
         <!-- Alamat Kantor Resmi -->

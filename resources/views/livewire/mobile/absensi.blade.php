@@ -525,12 +525,14 @@
                                 this.gpsWarning = false;
                                 this.gpsStatus = 'ok';
                                 this.gpsAccuracy = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
-                                const uLat = this.modeSimulasi ? this.officeLat : pos.coords.latitude;
-                                const uLng = this.modeSimulasi ? this.officeLng : pos.coords.longitude;
+                                const uLat = pos.coords.latitude;
+                                const uLng = pos.coords.longitude;
                                 this.userCoordsText = `${uLat.toFixed(5)}, ${uLng.toFixed(5)}`;
                                 const d = this.calcDistance(this.officeLat, this.officeLng, uLat, uLng);
                                 this.currentDistance = Math.round(d);
-                                this.currentDistanceText = this.modeSimulasi ? '0 meter (Simulasi)' : `${this.currentDistance} meter`;
+                                this.currentDistanceText = this.modeSimulasi
+                                    ? `${this.currentDistance} meter (Simulasi)`
+                                    : `${this.currentDistance} meter`;
                                 this.isWithinRadius = this.modeSimulasi || this.isWfh || (this.currentDistance <= this.maxRadius);
                                 this.updateUserMarker(uLat, uLng);
 
