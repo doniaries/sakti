@@ -32,6 +32,15 @@ class JenisIzinSeeder extends Seeder
                 'keterangan' => 'Izin tidak hadir karena sakit dengan melampirkan surat keterangan dokter.',
             ],
             [
+                'nama' => 'Sakit (Tanpa Surat Dokter)',
+                'kode' => 'sakit_tanpa_surat',
+                'kategori' => 'sakit',
+                'kuota_hari' => 1,
+                'butuh_lampiran' => false,
+                'aktif' => true,
+                'keterangan' => 'Izin sakit ringan maksimal 1 hari kerja tanpa melampirkan surat keterangan dokter.',
+            ],
+            [
                 'nama' => 'Cuti Tahunan',
                 'kode' => 'cuti_tahunan',
                 'kategori' => 'cuti',

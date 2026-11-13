@@ -138,8 +138,14 @@ class PengajuanIzinForm
                             ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png'])
                             ->rules(['file', 'mimes:pdf,jpg,jpeg,png', 'max:1024'])
                             ->maxSize(1024)
-                            ->visible(fn (Get $get): bool => JenisIzin::whereKey($get('jenis_izin_id'))->value('kategori') === 'sakit')
-                            ->required(fn (Get $get): bool => JenisIzin::whereKey($get('jenis_izin_id'))->value('kategori') === 'sakit')
+                            ->visible(function (Get $get): bool {
+                                $jenis = JenisIzin::find($get('jenis_izin_id'));
+                                return $jenis && $jenis->kategori === 'sakit' && (bool) $jenis->butuh_lampiran;
+                            })
+                            ->required(function (Get $get): bool {
+                                $jenis = JenisIzin::find($get('jenis_izin_id'));
+                                return $jenis && $jenis->kategori === 'sakit' && (bool) $jenis->butuh_lampiran;
+                            })
                             ->helperText('Khusus izin sakit. Maksimal ukuran file 1MB (PDF, JPG, PNG).')
                             ->columnSpanFull(),
                     ])->columns(2),
