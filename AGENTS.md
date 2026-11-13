@@ -985,3 +985,21 @@ Setiap pengembangan fitur, form, tabel, dan penamaan di seluruh modul wajib mema
 
 6. **Tata Kelola RKA Per Sub Kegiatan (Relation Manager Pattern)**:
     - Pengelolaan Rincian Anggaran Belanja (RKA) dikelola terpusat per Sub Kegiatan menggunakan `RelationManager` di menu Sub Kegiatan agar konteks anggaran terkunci, tidak mengulang kolom Sub Kegiatan/Bidang/Tahun di setiap baris, serta mencegah kesalahan pemilihan sub kegiatan oleh staf.
+
+
+---
+
+## 10. Prinsip Efisiensi & Pemisahan Peran Backend (Filament) vs Frontend (Mobile PWA)
+
+Agar aplikasi tidak memiliki fitur ganda yang mubazir dan membingungkan pengguna, seluruh pengembangan wajib memisahkan peran **Frontend Mobile (`/mobile`)** dan **Backend Admin (`/admin`)** secara tegas:
+
+1. **Frontend Mobile PWA (`/mobile`) — Jalur Utama Pegawai (Self-Service Harian)**:
+   - Digunakan oleh pegawai untuk aktivitas harian di lapangan/kantor: **Presensi GPS**, **Pengisian LHK & Bank Aktivitas pribadi**, **Pengajuan Izin/Sakit/Cuti**, **Riwayat Kehadiran**, dan **Profil Mandiri**.
+   - Dilarang menambahkan fitur administrasi berat (master data, pengaturan sistem, cetak SPJ kompleks, atau manajemen role) ke Mobile PWA.
+
+2. **Backend Filament (`/admin`) — Jalur Verifikasi, Rekap, Keuangan & Master Data**:
+   - Digunakan oleh **Atasan, Verifikator (PPTK, PPK, PA, Bendahara), dan Admin** untuk: **Persetujuan Izin/Cuti & LHK**, **Workflow Pengajuan & Pencairan SPJ Keuangan**, **Monitoring & Set Jam Pulang Massal**, **Master Data**, dan **Laporan/Cetak PDF**.
+   - Untuk fitur yang sudah ada di Mobile (seperti *Buat Izin & Cuti*), form create di Filament hanya difungsikan sebagai **jalur darurat admin** (bukan menu utama pegawai).
+
+3. **Satu Sumber Logika (Single Source of Truth)**:
+   - Validasi bisnis, perhitungan hari kerja/cuti, sinkronisasi ke `AbsensiHarian`, dan pengiriman notifikasi wajib diletakkan di **Model / Observer / Service** sehingga UI Mobile dan Filament berbagi logika yang sama tanpa duplikasi kode.
