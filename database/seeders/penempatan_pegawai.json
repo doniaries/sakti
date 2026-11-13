@@ -1515,27 +1515,6 @@
             "roles": [
                 "super_admin"
             ]
-        },
-        {
-            "name": "Admin Keuangan Dinas",
-            "gelar_depan": null,
-            "gelar_belakang": null,
-            "nip": null,
-            "email": "adminkeuangan@gmail.com",
-            "jabatan": null,
-            "bidang_slug": "sekretariat",
-            "atasan_email": "nidessijunjung@gmail.com",
-            "jf_email": null,
-            "anggaran_role": null,
-            "status_kerja": "wfo",
-            "kuota_cuti": 12,
-            "aktif": true,
-            "nomor_absensi": null,
-            "roles": [
-                "admin",
-                "admin_keuangan",
-                "pegawai"
-            ]
         }
     ]
 }

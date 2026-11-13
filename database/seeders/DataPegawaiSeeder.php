@@ -100,7 +100,7 @@ class DataPegawaiSeeder extends Seeder
                 ? Jabatan::query()->whereRaw('LOWER(nama) = ?', [strtolower($row['jabatan'])])->value('id')
                 : null;
 
-            $isTechnicalAdmin = in_array($email, ['superadmin@gmail.com', 'adminkeuangan@gmail.com', 'doniaries@gmail.com'], true);
+            $isTechnicalAdmin = in_array($email, ['superadmin@gmail.com', 'doniaries@gmail.com'], true);
 
             $payload = [
                 'name' => $row['name'],
