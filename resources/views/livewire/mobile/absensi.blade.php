@@ -1,4 +1,4 @@
-<div class="p-4 pb-24 flex flex-col min-h-[calc(100vh-100px)]" x-data="absensiApp()">
+<div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)]" x-data="absensiApp()">
     <!-- Top Bar: Header & Status Pegawai -->
     <div class="flex items-center justify-between mb-3 pt-1">
         <div>
@@ -351,22 +351,27 @@
     @endif
 
     <!-- Peta & Titik Koordinat GPS -->
-    <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs mb-3">
-        <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center space-x-2">
+    <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs mb-4">
+        <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center space-x-2 min-w-0">
                 <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs shrink-0">
                     <i class="fa-solid fa-map-location-dot"></i>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <span class="text-xs font-extrabold text-slate-800 block leading-tight">Peta & Lokasi (GPS)</span>
-                    <span class="text-[10px] font-mono text-slate-500 block" x-text="userCoordsText ? 'Koordinat: ' + userCoordsText : 'Mencari titik koordinat...'"></span>
+                    <span class="text-[10px] font-mono text-slate-500 block truncate" x-text="userCoordsText ? userCoordsText : 'Mencari koordinat...'"></span>
                 </div>
             </div>
-            <button type="button" @click="detectPosition()"
-                class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
-                <i class="fa-solid fa-crosshairs text-[10px]"></i>
-                <span>Perbarui GPS</span>
-            </button>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold border"
+                    :class="isWithinRadius === false ? 'bg-rose-500/15 text-rose-500 border-rose-400/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-400/30'"
+                    x-text="currentDistanceText"></span>
+                <button type="button" @click="detectPosition()"
+                    class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-crosshairs text-[10px]"></i>
+                    <span>Perbarui</span>
+                </button>
+            </div>
         </div>
 
         <div wire:ignore id="absensi-map" class="w-full h-44 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/60 bg-slate-900 z-10"></div>
@@ -374,9 +379,9 @@
         <div class="flex items-center justify-between mt-2 text-[10px]">
             <span class="text-slate-500 flex items-center gap-1">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-                Radius Kantor: <strong class="text-slate-700">{{ $maxRadius }} m</strong>
+                Batas Radius Kantor: <strong class="text-slate-700">{{ $maxRadius }} m</strong>
             </span>
-            <span class="font-bold" :class="isWithinRadius === false ? 'text-rose-500' : 'text-emerald-500'" x-text="currentDistanceText"></span>
+            <span class="text-slate-400 font-medium">Pin Biru = Posisi Anda</span>
         </div>
     </div>
 
