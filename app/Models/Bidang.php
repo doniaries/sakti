@@ -27,11 +27,6 @@ class Bidang extends Model
         return $this->hasMany(User::class);
     }
 
-    public function subBidangs(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(SubBidang::class);
-    }
-
     public function pegawai(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(User::class);

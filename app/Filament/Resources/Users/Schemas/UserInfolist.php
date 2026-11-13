@@ -159,7 +159,7 @@ class UserInfolist
                                                 ->icon('heroicon-m-building-office')
                                                 ->badge()
                                                 ->color('primary')
-                                                ->visible(fn($record): bool => filled($record->bidang_id) && blank($record->sub_bidang_id)),
+                                                ->visible(fn($record): bool => filled($record->bidang_id)),
 
                                             TextEntry::make('jfPenempatan.name')
                                                 ->label('Penempatan di Bawah JF')
@@ -167,14 +167,6 @@ class UserInfolist
                                                 ->badge()
                                                 ->color('success')
                                                 ->visible(fn($record): bool => filled($record->jf_id)),
-
-                                            TextEntry::make('subBidang.nama')
-                                                ->label('Sub Bidang')
-                                                ->icon('heroicon-m-building-office-2')
-                                                ->badge()
-                                                ->color('info')
-                                                ->helperText(fn($record): ?string => $record->bidang?->nama)
-                                                ->visible(fn($record): bool => filled($record->sub_bidang_id)),
                                         ]),
                                 ])
                                     ->columnSpan([

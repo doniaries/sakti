@@ -44,7 +44,6 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'jabatan_id',
         'anggaran_role',
         'bidang_id',
-        'sub_bidang_id',
         'jf_id',
         'tempat_lahir',
         'tanggal_lahir',
@@ -149,11 +148,6 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     public function stafJf()
     {
         return $this->hasMany(self::class, 'jf_id');
-    }
-
-    public function subBidang()
-    {
-        return $this->belongsTo(SubBidang::class);
     }
 
     public function atasan()

@@ -68,9 +68,7 @@ class PengajuanSpjsTable
                 if ($user && ! $user->canViewAllBidangKeuangan()) {
                     $userBidangId = (int) ($user->bidang_id ?: (Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
                     $query->where(function (Builder $q) use ($user, $userBidangId) {
-                        if (filled($user->sub_bidang_id) && ! $user->isPptk()) {
-                            $q->where('sub_bidang_id', $user->sub_bidang_id);
-                        } elseif ($userBidangId > 0) {
+                        if ($userBidangId > 0) {
                             $q->where('bidang_id', $userBidangId);
                         }
                         $q->orWhere('user_id', $user->id);
@@ -135,7 +133,6 @@ class PengajuanSpjsTable
 
                 return $query;
             })
-            ->heading(fn () => view('filament.components.table-spj-filter-bar'))
             ->heading(fn () => view('filament.components.table-spj-filter-bar'))
             ->extraAttributes([
                 'class' => 'spj-scrollable-table',

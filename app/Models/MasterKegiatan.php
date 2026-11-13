@@ -37,11 +37,6 @@ class MasterKegiatan extends Model
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
 
-    public function subBidangs(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(SubBidang::class, 'kegiatan_sub_bidang', 'kegiatan_id', 'sub_bidang_id');
-    }
-
     public function subKegiatans(): HasMany
     {
         return $this->hasMany(MasterSubKegiatan::class, 'kegiatan_id');

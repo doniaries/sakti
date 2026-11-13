@@ -56,6 +56,7 @@ class UsersTable
                     ->weight('bold')
                     ->color('primary')
                     ->formatStateUsing(fn(?string $state): string => mb_strtoupper((string) $state, 'UTF-8'))
+                    ->description(fn($record): ?string => filled($record->nip) ? 'NIP. ' . $record->nip : null)
                     ->url(fn($record) => \App\Filament\Resources\Users\UserResource::getUrl('view', ['record' => $record]))
                     ->sticky(),
 
@@ -75,17 +76,18 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->searchable()
                     ->copyable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('nip')
                     ->searchable()
                     ->copyable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('nik')
                     ->label('NIK')
                     ->copyable()
                     ->searchable()
-                    ->copyable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('no_kk')
                     ->label('No. KK')
                     ->copyable()
@@ -96,7 +98,7 @@ class UsersTable
                     ->searchable()
                     ->copyable()
                     ->url(fn($state) => filled($state) ? "https://wa.me/" . preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $state)) : null, shouldOpenInNewTab: true)
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('no_bpjs')
                     ->label('BPJS Kesehatan')
                     ->searchable()
@@ -145,7 +147,7 @@ class UsersTable
                     })
                     ->sortable()
                     ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('pendidikan')
                     ->label('Jurusan / Prodi')
                     ->searchable()

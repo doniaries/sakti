@@ -330,13 +330,7 @@ class PengajuanSpjForm
 
                                                     $tahun = (int) ($get('tahun_anggaran') ?? \App\Models\PengaturanAplikasi::getTahunAnggaranAktif());
 
-                                                    $subBidangId = Auth::user()?->sub_bidang_id;
-
                                                     return MasterKegiatan::where('bidang_id', $bidangId)
-                                                        ->when(
-                                                            $subBidangId && ! Auth::user()?->isPptk() && \Illuminate\Support\Facades\DB::table('kegiatan_sub_bidang')->where('sub_bidang_id', $subBidangId)->exists(),
-                                                            fn ($q) => $q->whereHas('subBidangs', fn ($s) => $s->whereKey($subBidangId)),
-                                                        )
                                                         ->where(function ($q) use ($tahun) {
                                                             $q->where('tahun_anggaran', $tahun)
                                                                 ->orWhereNull('tahun_anggaran');
