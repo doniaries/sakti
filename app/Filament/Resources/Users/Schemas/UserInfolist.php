@@ -132,11 +132,11 @@ class UserInfolist
                                                 ->weight('medium')
                                                 ->placeholder('-'),
 
-                                            TextEntry::make('password_status')
+                                            /* TextEntry::make('password_status')
                                                 ->label('Password')
                                                 ->state('••••••••')
                                                 ->icon('heroicon-m-key')
-                                                ->color('gray'),
+                                                ->color('gray'), */
 
                                             TextEntry::make('nik')
                                                 ->label('NIK')
@@ -144,14 +144,14 @@ class UserInfolist
                                                 ->copyable()
                                                 ->placeholder('-'),
 
-                                            TextEntry::make('jenis_kelamin')
+                                            /* TextEntry::make('jenis_kelamin')
                                                 ->label('Jenis Kelamin')
                                                 ->badge()
                                                 ->color(fn($state) => match ($state?->value ?? $state) {
                                                     'L', 'Laki-Laki' => 'info',
                                                     'P', 'Perempuan' => 'danger',
                                                     default => 'gray',
-                                                }),
+                                                }), */
                                         ]),
                                 ])
                                     ->columnSpan([
