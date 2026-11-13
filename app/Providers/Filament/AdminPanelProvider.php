@@ -56,6 +56,8 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth(\Filament\Support\Enums\Width::Full)
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->passwordReset()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label(function () {

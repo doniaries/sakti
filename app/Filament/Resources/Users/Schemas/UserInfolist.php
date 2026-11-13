@@ -139,12 +139,16 @@ class UserInfolist
                                                 ->label('NIP')
                                                 ->icon('heroicon-m-hashtag')
                                                 ->copyable()
+                                                ->tooltip('Klik untuk menyalin NIP')
+                                                ->helperText('Klik untuk menyalin')
                                                 ->weight('medium'),
 
                                             TextEntry::make('email')
                                                 ->label('Email Login')
                                                 ->icon('heroicon-m-envelope')
                                                 ->copyable()
+                                                ->tooltip('Klik untuk menyalin Email')
+                                                ->helperText('Klik untuk menyalin')
                                                 ->weight('medium')
                                                 ->placeholder('-'),
 
@@ -152,6 +156,8 @@ class UserInfolist
                                                 ->label('NIK')
                                                 ->icon('heroicon-m-credit-card')
                                                 ->copyable()
+                                                ->tooltip('Klik untuk menyalin NIK')
+                                                ->helperText('Klik untuk menyalin')
                                                 ->placeholder('-'),
 
                                             TextEntry::make('bidang.nama')
@@ -175,6 +181,12 @@ class UserInfolist
                                                     return UserResource::getUrl('index', ['tab' => $record->bidang?->slug]);
                                                 })
                                                 ->visible(fn($record): bool => filled($record->bidang_id)),
+
+                                            TextEntry::make('atasan.name')
+                                                ->label('Atasan Langsung')
+                                                ->icon('heroicon-m-user-circle')
+                                                ->weight('medium')
+                                                ->placeholder('Pimpinan Tertinggi (Tidak Ada Atasan Langsung)'),
 
                                             TextEntry::make('jfPenempatan.name')
                                                 ->label('Penempatan di Bawah JF')

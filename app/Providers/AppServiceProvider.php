@@ -34,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 
+        \App\Models\PengajuanSpj::observe(\App\Observers\PengajuanSpjObserver::class);
+        \App\Models\PengajuanIzin::observe(\App\Observers\PengajuanIzinObserver::class);
+
         \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
             return $user->hasRole('super_admin') ? true : null;
         });
