@@ -248,6 +248,7 @@ class Absensi extends Component
 
     public function render()
     {
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $this->modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
 
         /** @var User $user */
