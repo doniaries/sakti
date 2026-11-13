@@ -47,6 +47,11 @@ class ListUsers extends ListRecords
         $user = \Illuminate\Support\Facades\Auth::user();
         $canViewAll = $user?->canViewAllBidangKepegawaian() ?? false;
 
+        // Staf / JF biasa hanya melihat datanya sendiri: sembunyikan tab & badge jumlah bidang
+        if (! $canViewAll && ! $user?->isPptk()) {
+            return [];
+        }
+
         // Jika Kepala Bidang / PPTK, HANYA tampilkan tab bidang miliknya saja
         if (! $canViewAll && $user?->bidang_id) {
             $bidang = Bidang::withCount('users')->find($user->bidang_id);

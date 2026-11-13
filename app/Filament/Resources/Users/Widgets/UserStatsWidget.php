@@ -39,6 +39,15 @@ class UserStatsWidget extends StatsOverviewWidget
             $viewUrl = UserResource::getUrl('view', ['record' => $user]);
             $golongan = trim(($user->pangkat ?? '') . ($user->golongan ? " ({$user->golongan})" : ''));
 
+            $rekanBidang = $user->bidang_id
+                ? User::query()
+                    ->where('bidang_id', '=', $user->bidang_id)
+                    ->bukanSuperAdmin()
+                    ->orderBy('name')
+                    ->pluck('name')
+                    ->implode(', ')
+                : '-';
+
             return [
                 Stat::make('Data Pegawai Anda', $user->nip ?: '-')
                     ->description($user->name)
@@ -58,11 +67,10 @@ class UserStatsWidget extends StatsOverviewWidget
                     ->color('success')
                     ->url($viewUrl),
 
-                Stat::make('Status & Kuota Cuti', ($user->aktif ? 'Aktif' : 'Nonaktif') . ' (' . strtoupper((string) ($user->status_kerja ?? 'WFO')) . ')')
-                    ->description('Sisa Kuota Cuti: ' . (int) ($user->kuota_cuti ?? 12) . ' hari')
-                    ->descriptionIcon('heroicon-m-check-badge')
-                    ->color($user->aktif ? 'warning' : 'danger')
-                    ->url($viewUrl),
+                Stat::make('Pegawai di Bidang', $user->bidang?->nama ?? '-')
+                    ->description($rekanBidang ?: '-')
+                    ->descriptionIcon('heroicon-m-user-group')
+                    ->color('warning'),
             ];
         }
 
