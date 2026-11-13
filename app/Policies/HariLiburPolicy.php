@@ -15,12 +15,12 @@ class HariLiburPolicy
 
     public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:HariLibur');
     }
 
     public function view(AuthUser $authUser, HariLibur $hariLibur): bool
     {
-        return true;
+        return $authUser->can('View:HariLibur');
     }
 
     public function create(AuthUser $authUser): bool

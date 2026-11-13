@@ -52,8 +52,12 @@ class UserResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = \Illuminate\Support\Facades\Auth::user();
         if ($user && ! $user->canViewAllBidangKepegawaian()) {
-            $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
-            $query->where('bidang_id', $userBidangId);
+            if ($user->isPptk()) {
+                $userBidangId = (int) ($user->bidang_id ?: (\App\Models\Bidang::where('kepala_id', $user->id)->value('id') ?? 0));
+                $query->where('bidang_id', $userBidangId);
+            } else {
+                $query->whereKey($user->id);
+            }
         }
 
         return $query;

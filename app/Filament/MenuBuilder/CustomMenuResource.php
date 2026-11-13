@@ -11,6 +11,8 @@ use Datlechin\FilamentMenuBuilder\Support\TranslatableField;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 
@@ -60,6 +62,25 @@ class CustomMenuResource extends BaseMenuResource
                     ->descriptions($resourceDescriptions)
                     ->searchable()
                     ->bulkToggleable()
+                    ->live()
+                    ->afterStateUpdated(function (?array $state, Get $get, Set $set) use ($catalog): void {
+                        if (empty($state)) {
+                            return;
+                        }
+
+                        $first = $state[0] ?? null;
+                        if (! $first || ! isset($catalog[$first])) {
+                            return;
+                        }
+
+                        if (blank($get('name'))) {
+                            $set('name', $catalog[$first]['label']);
+                        }
+
+                        if (filled($catalog[$first]['icon']) && ($get('icon') === 'heroicon-o-folder' || blank($get('icon')))) {
+                            $set('icon', $catalog[$first]['icon']);
+                        }
+                    })
                     ->visible(fn (?Menu $record): bool => $record === null)
                     ->saveRelationshipsUsing(function (Menu $record, ?array $state) use ($catalog): void {
                         if (empty($state)) {

@@ -15,12 +15,12 @@ class JabatanPolicy
 
     public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:Jabatan');
     }
 
     public function view(AuthUser $authUser, Jabatan $jabatan): bool
     {
-        return true;
+        return $authUser->can('View:Jabatan');
     }
 
     public function create(AuthUser $authUser): bool

@@ -15,12 +15,12 @@ class JadwalKerjaPolicy
 
     public function viewAny(AuthUser $authUser): bool
     {
-        return true;
+        return $authUser->can('ViewAny:JadwalKerja');
     }
 
     public function view(AuthUser $authUser, JadwalKerja $jadwalKerja): bool
     {
-        return true;
+        return $authUser->can('View:JadwalKerja');
     }
 
     public function create(AuthUser $authUser): bool
