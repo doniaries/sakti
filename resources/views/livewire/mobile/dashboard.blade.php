@@ -327,6 +327,10 @@
                     @endif
                     <span class="text-[10px] font-normal text-slate-400">/ {{ $jamKerjaAsn['target_harian_format'] }}</span>
                 </div>
+                <div class="mt-2 w-full h-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 overflow-hidden">
+                    <div class="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                         style="width: {{ min(100, (int) ($jamKerjaAsn['persen_harian'] ?? 0)) }}%"></div>
+                </div>
             </div>
             <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-[#0F1C2E] border border-slate-100 dark:border-slate-700/60">
                 <span class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 block">Akumulasi Bulan Ini</span>
@@ -334,12 +338,11 @@
                     {{ $jamKerjaAsn['bulanan_format'] }}
                     <span class="text-[10px] font-normal text-slate-400">/ {{ $jamKerjaAsn['target_bulanan_format'] }}</span>
                 </div>
+                <div class="mt-2 w-full h-1.5 rounded-full bg-slate-200/80 dark:bg-slate-800 overflow-hidden">
+                    <div class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-500"
+                         style="width: {{ min(100, (int) ($jamKerjaAsn['persen_bulanan'] ?? 0)) }}%"></div>
+                </div>
             </div>
-        </div>
-
-        <div class="mt-2.5 w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-            <div class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-500"
-                 style="width: {{ $jamKerjaAsn['persen_bulanan'] }}%"></div>
         </div>
     </div>
     @endif
