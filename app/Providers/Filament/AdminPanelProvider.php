@@ -45,7 +45,6 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->spa()
             ->breadcrumbs(false)
             ->font('Roboto')
             ->favicon(asset('favicon.png'))
