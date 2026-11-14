@@ -46,7 +46,9 @@ class AttendancePunchService
         $bypass = $force || $isSimulasi;
 
         $today = Carbon::today()->format('Y-m-d');
-        $now = Carbon::now()->format('H:i:s');
+        $now = ($isSimulasi && ! empty($pengaturan->simulasi_jam_aktif))
+            ? substr($pengaturan->simulasi_jam_aktif, 0, 5) . ':00'
+            : Carbon::now()->format('H:i:s');
         $nowTime = substr($now, 0, 5);
 
         // Jika koordinat belum terdeteksi di browser/device, fallback ke koordinat kantor (terutama di localhost / admin bypass)

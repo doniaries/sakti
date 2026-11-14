@@ -55,9 +55,25 @@
                 <div>
                     <span class="text-[9px] uppercase tracking-wider text-sky-200/80 block font-bold leading-tight">Waktu Server Resmi</span>
                     <div class="flex items-baseline space-x-1.5 mt-0.5">
-                        <span class="text-2xl font-black font-mono tracking-tight text-white leading-none" x-text="time">--:--:--</span>
+                        @if ($modeSimulasi && !empty($simulasiJamAktif))
+                            <span class="text-2xl font-black font-mono tracking-tight text-amber-300 leading-none">{{ $simulasiJamAktif }}:00</span>
+                        @else
+                            <span class="text-2xl font-black font-mono tracking-tight text-white leading-none" x-text="time">--:--:--</span>
+                        @endif
                         <span class="text-[10px] font-bold text-amber-300 font-mono">WIB</span>
                     </div>
+                    @if ($modeSimulasi && $isAdmin)
+                        <div class="flex items-center gap-1 mt-1.5">
+                            <input type="time" wire:model.live="simulasiJamAktif"
+                                class="rounded-lg bg-white/15 border border-white/25 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 focus:outline-none">
+                            @if (!empty($simulasiJamAktif))
+                                <button type="button" wire:click="setSimulasiJam(null)"
+                                    class="px-1.5 py-0.5 rounded-lg bg-white/15 hover:bg-white/25 text-[9px] font-bold text-amber-200">
+                                    Reset
+                                </button>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
             <div class="text-right flex flex-col items-end">

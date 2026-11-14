@@ -20,8 +20,7 @@ class PengaturanLokasi extends Component
     public string $alamat_kantor = '';
     public string $nama_dinas = '';
     public bool $mode_simulasi = false;
-    public ?string $simulasi_jam_masuk = null;
-    public ?string $simulasi_jam_pulang = null;
+    public ?string $simulasi_jam_aktif = null;
 
     public function mount()
     {
@@ -73,8 +72,7 @@ class PengaturanLokasi extends Component
         $pengaturan->longitude_kantor = $this->longitude_kantor;
         $pengaturan->radius_meter = $this->radius_meter;
         $pengaturan->mode_simulasi = $this->mode_simulasi;
-        $pengaturan->simulasi_jam_masuk = $this->mode_simulasi ? ($this->simulasi_jam_masuk ?: null) : null;
-        $pengaturan->simulasi_jam_pulang = $this->mode_simulasi ? ($this->simulasi_jam_pulang ?: null) : null;
+        $pengaturan->simulasi_jam_aktif = $this->mode_simulasi ? ($this->simulasi_jam_aktif ?: null) : null;
         if (! empty($this->alamat_kantor)) {
             $pengaturan->alamat_kantor = $this->alamat_kantor;
             \App\Models\Instansi::first()?->updateQuietly(['alamat' => $this->alamat_kantor]);

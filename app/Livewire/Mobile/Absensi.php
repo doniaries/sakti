@@ -20,11 +20,32 @@ class Absensi extends Component
     public $latitude;
     public $longitude;
     public bool $modeSimulasi = false;
+    public ?string $simulasiJamAktif = null;
+
+    public function updatedSimulasiJamAktif(?string $value): void
+    {
+        $this->setSimulasiJam($value);
+    }
+
+    public function setSimulasiJam(?string $jam = null): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $this->modeSimulasi || ! $user || ! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return;
+        }
+
+        $this->simulasiJamAktif = $jam ?: null;
+        PengaturanAplikasi::first()?->update([
+            'simulasi_jam_aktif' => $this->simulasiJamAktif,
+        ]);
+    }
 
     public function mount()
     {
         $pengaturan = PengaturanAplikasi::getPengaturan();
         $this->modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
+        $this->simulasiJamAktif = $pengaturan->simulasi_jam_aktif ?: null;
     }
 
     /**
@@ -250,6 +271,7 @@ class Absensi extends Component
     {
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $this->modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
+        $this->simulasiJamAktif = $pengaturan->simulasi_jam_aktif ?: null;
 
         /** @var User $user */
         $user = User::with(['jabatan', 'bidang', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
