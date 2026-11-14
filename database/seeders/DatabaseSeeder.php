@@ -75,6 +75,7 @@ class DatabaseSeeder extends Seeder
             PengajuanSpjSeeder::class,
             NotifikasiKeuanganSeeder::class,
             ActivityLogSeeder::class,
+            PortalLinkSeeder::class,
             // SatuTahunStressTestSeeder::class, // Aktifkan seeder ini jika ingin menguji 1 tahun data (~20.000 data) di server online
         ]);
 
@@ -84,10 +85,10 @@ class DatabaseSeeder extends Seeder
             '--panel' => 'admin',
             '--no-interaction' => true,
         ]);
-        
+
         // 4. Set otomatis permissions untuk Admin dan Pegawai
         $this->call(RolePermissionSeeder::class);
-        
+
         $this->command->info('Shield permissions generated successfully.');
     }
 }

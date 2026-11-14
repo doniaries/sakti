@@ -4,42 +4,42 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\PortalLink;
-use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PortalLinkPolicy
 {
     use HandlesAuthorization;
-
-    public function viewAny(User $user): bool
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan']);
+        return $authUser->can('ViewAny:PortalLink');
     }
 
-    public function view(User $user, PortalLink $portalLink): bool
+    public function view(AuthUser $authUser, PortalLink $portalLink): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan']);
+        return $authUser->can('View:PortalLink');
     }
 
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']);
+        return $authUser->can('Create:PortalLink');
     }
 
-    public function update(User $user, PortalLink $portalLink): bool
+    public function update(AuthUser $authUser, PortalLink $portalLink): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']);
+        return $authUser->can('Update:PortalLink');
     }
 
-    public function delete(User $user, PortalLink $portalLink): bool
+    public function delete(AuthUser $authUser, PortalLink $portalLink): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']);
+        return $authUser->can('Delete:PortalLink');
     }
 
-    public function deleteAny(User $user): bool
+    public function deleteAny(AuthUser $authUser): bool
     {
-        return $user->hasAnyRole(['super_admin', 'admin']);
+        return $authUser->can('DeleteAny:PortalLink');
     }
+
 }
-

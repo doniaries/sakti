@@ -202,14 +202,21 @@
 
                 <!-- Tombol Aksi Verifikasi Pimpinan -->
                 @if ($activeTab === 'verifikasi' && $item->status === 'menunggu')
-                    <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-end space-x-2">
+                    <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-end flex-wrap gap-2">
+                        @if ($item->jenisIzin?->kategori === 'cuti')
+                            <button type="button"
+                                @click="window.dispatchEvent(new CustomEvent('buka-preview-cuti', { detail: { id: {{ $item->id }}, url: '{{ route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item->id, 'preview' => 1]) }}' } }))"
+                                class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
+                                <i class="fa-solid fa-file-pdf"></i> Preview Surat
+                            </button>
+                        @endif
                         <button type="button" wire:click="bukaModalAksi({{ $item->id }}, 'tolak')"
                             class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
                             <i class="fa-solid fa-xmark"></i> Tolak
                         </button>
                         <button type="button" wire:click="bukaModalAksi({{ $item->id }}, 'setujui')"
                             class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm active:scale-95 transition flex items-center gap-1">
-                            <i class="fa-solid fa-check"></i> Setujui Izin
+                            <i class="fa-solid fa-check"></i> Setujui
                         </button>
                     </div>
                 @endif
@@ -397,4 +404,33 @@
             </div>
         </div>
     @endif
+
+    <!-- Modal Preview Surat Cuti (Mobile) -->
+    <div x-data="{ open: false, previewId: null, previewUrl: '' }"
+         @buka-preview-cuti.window="open = true; previewId = $event.detail.id; previewUrl = $event.detail.url"
+         x-show="open"
+         x-cloak
+         class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3">
+        <div class="bg-white rounded-2xl w-full max-w-lg h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-slate-800">Preview Surat Cuti</h3>
+                <button type="button" @click="open = false" class="text-slate-400 hover:text-slate-700 text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="flex-1 bg-slate-100">
+                <iframe :src="previewUrl" class="w-full h-full border-0 bg-white"></iframe>
+            </div>
+            <div class="px-4 py-3 border-t border-slate-200 flex items-center justify-end gap-2 bg-white">
+                <button type="button" @click="open = false; $wire.bukaModalAksi(previewId, 'tolak')"
+                    class="px-3.5 py-2 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-xmark"></i> Tolak
+                </button>
+                <button type="button" @click="open = false; $wire.bukaModalAksi(previewId, 'setujui')"
+                    class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-extrabold flex items-center gap-1">
+                    <i class="fa-solid fa-check"></i> Setujui
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
