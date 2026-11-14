@@ -63,4 +63,32 @@ class CetakLaporanController extends Controller
 
         return view('cetak.riwayat-pdf', compact('user', 'riwayat', 'rekap', 'pengaturan', 'instansi', 'periode', 'status'));
     }
+
+    public function cetakIzinCuti(\App\Models\PengajuanIzin $pengajuanIzin)
+    {
+        $pengajuanIzin->load(['user.jabatan', 'user.bidang', 'user.atasan', 'jenisIzin', 'approver']);
+        $instansi = \App\Models\Instansi::with('kadis')->first();
+        $pengaturan = PengaturanAplikasi::getPengaturan();
+
+        $logoPath = null;
+        if (! empty($instansi?->logo) && file_exists(public_path('storage/' . $instansi->logo))) {
+            $logoPath = public_path('storage/' . $instansi->logo);
+        } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
+            $logoPath = public_path('images/logo-kabupaten.png');
+        }
+
+        $sisaCutiTahunan = $pengajuanIzin->user?->sisa_cuti ?? 12;
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.surat-cuti', [
+            'izin' => $pengajuanIzin,
+            'instansi' => $instansi,
+            'pengaturan' => $pengaturan,
+            'logoPath' => $logoPath,
+            'sisaCutiTahunan' => $sisaCutiTahunan,
+        ])->setPaper('a4', 'portrait');
+
+        $namaFile = 'Formulir-Cuti-' . str($pengajuanIzin->user?->name ?? 'Pegawai')->slug() . '.pdf';
+
+        return $pdf->stream($namaFile);
+    }
 }

@@ -147,6 +147,13 @@ class PengajuanIzinsTable
                             ->send();
                     }),
 
+                Action::make('cetak_pdf')
+                    ->label('Cetak PDF')
+                    ->icon('heroicon-o-printer')
+                    ->color('info')
+                    ->url(fn ($record): string => route('pengajuan-izin.cetak-pdf', $record))
+                    ->openUrlInNewTab(),
+
                 EditAction::make()
                     ->visible(fn ($record) => $record->status === 'menunggu'),
 
