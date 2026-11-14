@@ -188,6 +188,13 @@ class UserInfolist
                                                 ->weight('medium')
                                                 ->placeholder('Pimpinan Tertinggi (Tidak Ada Atasan Langsung)'),
 
+                                            TextEntry::make('roles.name')
+                                                ->label('Role / Hak Akses')
+                                                ->icon('heroicon-m-shield-check')
+                                                ->badge()
+                                                ->color('primary')
+                                                ->placeholder('-'),
+
                                             TextEntry::make('jfPenempatan.name')
                                                 ->label('Penempatan di Bawah JF')
                                                 ->icon('heroicon-m-user-group')
