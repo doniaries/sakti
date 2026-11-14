@@ -183,6 +183,7 @@ class Dashboard extends Component
             'recentNotifications' => $recentNotifications,
             'jamKerjaAsn' => [
                 'harian_menit' => $menitHariIni,
+                'persen_harian' => min(100, (int) round(($menitHariIni / max(1, AbsensiHarian::TARGET_MENIT_HARIAN_ASN)) * 100)),
                 'harian_format' => AbsensiHarian::formatDurasiJamMenit($menitHariIni),
                 'target_harian_format' => AbsensiHarian::formatDurasiJamMenit(AbsensiHarian::TARGET_MENIT_HARIAN_ASN),
                 'target_mingguan_format' => AbsensiHarian::formatDurasiJamMenit(AbsensiHarian::TARGET_MENIT_MINGGUAN_ASN),
