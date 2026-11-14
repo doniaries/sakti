@@ -301,6 +301,12 @@
                             class="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-mono font-bold text-slate-800">
                     </div>
                 </div>
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                    <button type="button" wire:click="$set('simulasi_jam_masuk', '07:25')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[10px] font-bold text-amber-800 hover:bg-amber-100">07:25 Masuk</button>
+                    <button type="button" wire:click="$set('simulasi_jam_masuk', '08:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[10px] font-bold text-amber-800 hover:bg-amber-100">08:05 Terlambat</button>
+                    <button type="button" wire:click="$set('simulasi_jam_pulang', '16:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[10px] font-bold text-amber-800 hover:bg-amber-100">16:05 Pulang</button>
+                    <button type="button" wire:click="$set('simulasi_jam_masuk', null); $set('simulasi_jam_pulang', null)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[10px] font-bold text-slate-600 hover:bg-slate-100">Reset</button>
+                </div>
             </div>
         @endif
 

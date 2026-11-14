@@ -77,6 +77,7 @@ class PengaturanLokasi extends Component
         $pengaturan->simulasi_jam_pulang = $this->mode_simulasi ? ($this->simulasi_jam_pulang ?: null) : null;
         if (! empty($this->alamat_kantor)) {
             $pengaturan->alamat_kantor = $this->alamat_kantor;
+            \App\Models\Instansi::first()?->updateQuietly(['alamat' => $this->alamat_kantor]);
         }
         $pengaturan->save();
 
