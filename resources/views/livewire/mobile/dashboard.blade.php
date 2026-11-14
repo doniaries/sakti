@@ -257,7 +257,7 @@
 
     <!-- 2 Tombol Aksi Utama: Absen Masuk & Absen Pulang -->
     @if (!$hariLiburHariIni)
-    <div class="grid grid-cols-2 gap-2.5 mb-5" x-data="dashboardAttendance()">
+    <div class="grid grid-cols-2 gap-2.5 mb-5" x-data="dashboardAttendance()" data-sudah-masuk="{{ $hariIni['sudah_masuk'] ? '1' : '0' }}">
         <!-- Tombol Masuk -->
         <button type="button"
             @click="absen('masuk')"
@@ -490,7 +490,7 @@
                     return;
                 }
 
-                if (jenis === 'pulang' && !{{ $hariIni['sudah_masuk'] ? 'true' : 'false' }}) {
+                if (jenis === 'pulang' && this.$el.dataset.sudahMasuk !== '1') {
                     window.dispatchEvent(new CustomEvent('notify', {
                         detail: {
                             type: 'warning',
