@@ -116,6 +116,11 @@ class DataPegawaiSeeder extends Seeder
                 'nomor_absensi' => $row['nomor_absensi'] ?? null,
             ];
 
+            if ($email === 'superadmin@gmail.com') {
+                $payload['bidang_id'] = null;
+                $payload['atasan_id'] = null;
+            }
+
             if ($user) {
                 $user->update($payload);
             } else {
