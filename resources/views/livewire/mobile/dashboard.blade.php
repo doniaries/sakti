@@ -235,9 +235,17 @@
                 {{ ($user->status_kerja ?? 'wfo') === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Radius Kantor)' }}
             </span>
         </p>
+
+        @if ($hariLiburHariIni)
+            <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
+                <i class="fa-solid fa-calendar-xmark text-amber-600"></i>
+                <span>Hari Libur: {{ $hariLiburHariIni->nama }}</span>
+            </div>
+        @endif
     </div>
 
     <!-- 2 Tombol Aksi Utama: Absen Masuk & Absen Pulang -->
+    @if (!$hariLiburHariIni)
     <div class="grid grid-cols-2 gap-2.5 mb-5" x-data="dashboardAttendance()">
         <!-- Tombol Masuk -->
         <button type="button"
@@ -277,6 +285,7 @@
             </div>
         </button>
     </div>
+    @endif
 
     <!-- Rekap Jam Kerja ASN (7j 30m / hari • 37j 30m / minggu) -->
     <div class="w-full p-3.5 rounded-2xl bg-white dark:bg-[#132338]/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 shadow-2xs mb-5">

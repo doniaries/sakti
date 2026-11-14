@@ -9,10 +9,23 @@ use Filament\Actions\CreateAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListHariLiburs extends ListRecords
 {
     protected static string $resource = HariLiburResource::class;
+
+    public function getTabs(): array
+    {
+        return [
+            'semua' => Tab::make('Semua'),
+            'nasional' => Tab::make('Libur Nasional')
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('jenis', 'nasional')),
+            'cuti_bersama' => Tab::make('Cuti Bersama')
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('jenis', 'cuti_bersama')),
+        ];
+    }
 
     protected function getHeaderActions(): array
     {

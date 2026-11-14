@@ -212,7 +212,7 @@
 
             <!-- Tombol Aksi Absen Datang -->
             <div class="mt-3">
-                @if ($hariLiburHariIni && !$modeSimulasi)
+                @if ($hariLiburHariIni)
                     <div class="w-full py-2 px-2.5 rounded-xl bg-amber-50 text-amber-800 font-bold text-[11px] flex items-center justify-center space-x-1.5 border border-amber-200 text-center">
                         <i class="fa-solid fa-calendar-xmark text-amber-600 text-xs"></i>
                         <span>Hari Libur: {{ $hariLiburHariIni->nama }}</span>

@@ -121,6 +121,9 @@ class Dashboard extends Component
         $absensiHariIni = AbsensiHarian::where('user_id', $user->id)
             ->where('tanggal', $today->format('Y-m-d'))
             ->first();
+        $hariLiburHariIni = \App\Models\HariLibur::where('tanggal', $today->format('Y-m-d'))
+            ->where('is_aktif', true)
+            ->first();
 
         $sudahMasuk = $absensiHariIni && !empty($absensiHariIni->jam_masuk);
         $sudahPulang = $absensiHariIni && !empty($absensiHariIni->jam_pulang);
@@ -171,6 +174,7 @@ class Dashboard extends Component
 
         return view('livewire.mobile.dashboard', [
             'user' => $user,
+            'hariLiburHariIni' => $hariLiburHariIni,
             'unreadNotifCount' => $unreadNotifCount,
             'recentNotifications' => $recentNotifications,
             'jamKerjaAsn' => [
