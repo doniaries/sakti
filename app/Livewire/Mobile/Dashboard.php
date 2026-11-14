@@ -134,7 +134,11 @@ class Dashboard extends Component
         $tutupMasuk = $jadwal ? substr($jadwal->tutup_absen_masuk, 0, 5) : '09:00';
         $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($today->format('Y-m-d')) : '16:00';
         $tutupPulang = $jadwal ? substr($jadwal->tutup_absen_pulang, 0, 5) : '23:59';
-        $nowTime = Carbon::now()->format('H:i');
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
+        $nowTime = ($modeSimulasi && ! empty($pengaturan->simulasi_jam_aktif))
+            ? substr($pengaturan->simulasi_jam_aktif, 0, 5)
+            : Carbon::now()->format('H:i');
 
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
         $belumBukaMasuk = (!$isAdmin && $nowTime < $bukaMasuk);

@@ -33,6 +33,7 @@ class PengaturanAbsensi extends Page
     public int $radius_meter = 25;
 
     public bool $mode_simulasi = false;
+    public ?string $simulasi_jam_aktif = null;
 
     public string $alamat_kantor = '';
 
@@ -55,6 +56,7 @@ class PengaturanAbsensi extends Page
         $this->longitude_kantor = (float) ($pengaturan->longitude_kantor ?? 100.927543);
         $this->radius_meter = (int) ($pengaturan->radius_meter ?? 25);
         $this->mode_simulasi = (bool) ($pengaturan->mode_simulasi ?? false);
+        $this->simulasi_jam_aktif = $pengaturan->simulasi_jam_aktif ?: null;
         $this->alamat_kantor = (string) ($pengaturan->alamat_kantor ?? 'Gedung Bersama Lt. III, Jl. Prof. M. Yamin, SH No. 1, Muaro Sijunjung');
     }
 
@@ -83,6 +85,7 @@ class PengaturanAbsensi extends Page
             'longitude_kantor' => $this->longitude_kantor,
             'radius_meter' => $this->radius_meter,
             'mode_simulasi' => $this->mode_simulasi,
+            'simulasi_jam_aktif' => $this->mode_simulasi ? ($this->simulasi_jam_aktif ?: null) : null,
             'alamat_kantor' => $this->alamat_kantor,
         ]);
 
@@ -93,6 +96,8 @@ class PengaturanAbsensi extends Page
             ->body("Titik pusat kantor ({$this->latitude_kantor}, {$this->longitude_kantor}) dengan radius {$this->radius_meter} meter telah aktif di seluruh sistem dan aplikasi mobile presensi.")
             ->success()
             ->send();
+
+        $this->redirect(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('index'), navigate: true);
     }
 
     public function kembalikanKeTitikAsli(): void

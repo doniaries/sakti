@@ -243,10 +243,29 @@
                     </p>
                 </div>
                 <label class="relative inline-flex items-center cursor-pointer shrink-0">
-                    <input type="checkbox" wire:model="mode_simulasi" class="sr-only peer">
+                    <input type="checkbox" wire:model.live="mode_simulasi" class="sr-only peer">
                     <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
                 </label>
             </div>
+
+            @if ($mode_simulasi)
+                <div class="p-4 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <div class="text-xs font-bold text-amber-800 dark:text-amber-300">Simulasi Jam Aktif Server (Opsional)</div>
+                            <div class="text-[11px] text-amber-700/80 dark:text-amber-400/80">Kosongkan untuk memakai jam server asli. Di luar mode simulasi, jam tidak dapat diubah manual.</div>
+                        </div>
+                        <input type="time" wire:model="simulasi_jam_aktif"
+                            class="rounded-lg border border-amber-300 bg-white dark:bg-zinc-900 px-3 py-1.5 text-sm font-mono font-bold text-slate-800 dark:text-white">
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" wire:click="$set('simulasi_jam_aktif', '07:25')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[11px] font-bold text-amber-800 hover:bg-amber-100">07:25 (Masuk)</button>
+                        <button type="button" wire:click="$set('simulasi_jam_aktif', '08:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[11px] font-bold text-amber-800 hover:bg-amber-100">08:05 (Terlambat)</button>
+                        <button type="button" wire:click="$set('simulasi_jam_aktif', '16:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[11px] font-bold text-amber-800 hover:bg-amber-100">16:05 (Pulang)</button>
+                        <button type="button" wire:click="$set('simulasi_jam_aktif', null)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[11px] font-bold text-slate-600 hover:bg-slate-100">Reset Real-Time</button>
+                    </div>
+                </div>
+            @endif
 
             <!-- Map Leaflet Container -->
             <div>

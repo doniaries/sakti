@@ -255,7 +255,9 @@ class Absensi extends Component
         $user = User::with(['jabatan', 'bidang', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
         $today = Carbon::today()->format('Y-m-d');
-        $nowTime = Carbon::now()->format('H:i');
+        $nowTime = ($this->modeSimulasi && ! empty($pengaturan->simulasi_jam_aktif))
+            ? substr($pengaturan->simulasi_jam_aktif, 0, 5)
+            : Carbon::now()->format('H:i');
         $isJumat = Carbon::today()->dayOfWeekIso === 5;
 
         $absenHarian = AbsensiHarian::where('user_id', $user->id)->where('tanggal', $today)->first();

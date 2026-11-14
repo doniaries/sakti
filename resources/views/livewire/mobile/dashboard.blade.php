@@ -493,7 +493,7 @@
                     return;
                 }
 
-                if (jenis === 'pulang' && this.$el.dataset.sudahMasuk !== '1') {
+                if (jenis === 'pulang' && this.$root.dataset.sudahMasuk !== '1') {
                     window.dispatchEvent(new CustomEvent('notify', {
                         detail: {
                             type: 'warning',
