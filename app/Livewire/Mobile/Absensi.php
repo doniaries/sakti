@@ -259,6 +259,7 @@ class Absensi extends Component
         $isJumat = Carbon::today()->dayOfWeekIso === 5;
 
         $absenHarian = AbsensiHarian::where('user_id', $user->id)->where('tanggal', $today)->first();
+        $hariLiburHariIni = \App\Models\HariLibur::where('tanggal', $today)->where('is_aktif', true)->first();
 
         $sudahMasuk = $absenHarian && !empty($absenHarian->jam_masuk);
         $sudahPulang = $absenHarian && !empty($absenHarian->jam_pulang);
@@ -313,6 +314,7 @@ class Absensi extends Component
             'belumBukaMasuk' => $belumBukaMasuk,
             'belumJamPulang' => $belumJamPulang,
             'lewatBatasPulang' => $lewatBatasPulang,
+            'hariLiburHariIni' => $hariLiburHariIni,
         ]);
     }
 }
