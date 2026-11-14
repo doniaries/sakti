@@ -63,9 +63,17 @@
                         <span class="text-[10px] font-bold text-amber-300 font-mono">WIB</span>
                     </div>
                     @if ($modeSimulasi && $isAdmin)
-                        <div class="flex items-center gap-1 mt-1.5">
+                        <div class="flex flex-wrap items-center gap-1 mt-1.5">
                             <input type="time" wire:model.live="simulasiJamAktif"
                                 class="rounded-lg bg-white/15 border border-white/25 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 focus:outline-none">
+                            <button type="button" wire:click="setSimulasiJam('07:25')"
+                                class="px-1.5 py-0.5 rounded-lg bg-emerald-500/30 hover:bg-emerald-500/50 border border-emerald-300/40 text-[9px] font-bold text-emerald-100">
+                                07:25
+                            </button>
+                            <button type="button" wire:click="setSimulasiJam('17:00')"
+                                class="px-1.5 py-0.5 rounded-lg bg-amber-500/30 hover:bg-amber-500/50 border border-amber-300/40 text-[9px] font-bold text-amber-100">
+                                17:00
+                            </button>
                             @if (!empty($simulasiJamAktif))
                                 <button type="button" wire:click="setSimulasiJam(null)"
                                     class="px-1.5 py-0.5 rounded-lg bg-white/15 hover:bg-white/25 text-[9px] font-bold text-amber-200">
@@ -255,8 +263,8 @@
                     </button>
                 @else
                     <button type="button" @click="doPunch('masuk')"
-                        :disabled="loadingMasuk || (!isWfh && isWithinRadius === false)"
-                        :class="(!isWfh && isWithinRadius === false) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
+                        :disabled="loadingMasuk || (!{{ $modeSimulasi ? 'true' : 'false' }} && !isWfh && isWithinRadius === false)"
+                        :class="(!{{ $modeSimulasi ? 'true' : 'false' }} && !isWfh && isWithinRadius === false) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
                         class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5">
                         <template x-if="loadingMasuk">
                             <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>

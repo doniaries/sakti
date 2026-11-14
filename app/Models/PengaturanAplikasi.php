@@ -23,6 +23,7 @@ class PengaturanAplikasi extends Model
         'longitude_kantor',
         'radius_meter',
         'mode_simulasi',
+        'simulasi_jam_aktif',
         'alamat_kantor',
         'logo',
         'versi_aplikasi',
