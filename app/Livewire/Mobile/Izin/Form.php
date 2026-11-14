@@ -183,7 +183,15 @@ class Form extends Component
 
         session()->flash('success', 'Permohonan berhasil dikirim dan menunggu persetujuan atasan.');
 
-        return redirect()->route('pengajuan-izin.cetak-pdf', $pengajuan);
+        if ($selectedJenis?->kategori === 'cuti') {
+            return redirect()->route('pengajuan-izin.cetak-pdf', $pengajuan);
+        }
+
+        if ($selectedJenis?->kategori === 'cuti') {
+            return redirect()->route('pengajuan-izin.cetak-pdf', $pengajuan);
+        }
+
+        return redirect()->route('mobile.izin.index');
     }
 
     protected function hitungKuotaJenis($user, ?JenisIzin $jenis): array

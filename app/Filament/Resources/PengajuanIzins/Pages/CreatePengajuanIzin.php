@@ -11,6 +11,14 @@ class CreatePengajuanIzin extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return route('pengajuan-izin.cetak-pdf', $this->record);
+        if ($this->record->jenisIzin?->kategori === 'cuti') {
+            return route('pengajuan-izin.cetak-pdf', $this->record);
+        }
+
+        if ($this->record->jenisIzin?->kategori === 'cuti') {
+            return route('pengajuan-izin.cetak-pdf', $this->record);
+        }
+
+        return $this->getResource()::getUrl('index');
     }
 }
