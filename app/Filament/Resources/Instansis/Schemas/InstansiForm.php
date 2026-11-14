@@ -92,11 +92,13 @@ class InstansiForm
                     ->schema([
                         TextInput::make('nama_sekda')
                             ->label('Nama Lengkap & Gelar Sekda')
-                            ->placeholder('Contoh: Dr. H. Zefnihan, AP., M.Si.'),
+                            ->placeholder('Contoh: Jaheri, S.Sos., M.Si.'),
 
                         TextInput::make('nip_sekda')
                             ->label('NIP Sekretaris Daerah')
-                            ->placeholder('Contoh: 19740512 199311 1 001'),
+                            ->mask('99999999 999999 9 999')
+                            ->maxLength(21)
+                            ->placeholder('19730311 199303 1 004'),
                     ]),
 
                 Section::make('Sekretaris & Kepala Bidang')
