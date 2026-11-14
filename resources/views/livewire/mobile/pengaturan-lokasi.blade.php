@@ -286,6 +286,24 @@
             </button>
         </div>
 
+        @if ($mode_simulasi)
+            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 space-y-2.5">
+                <div class="text-xs font-extrabold text-amber-800">Simulasi Jam Masuk &amp; Pulang (Manual)</div>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[10px] font-bold text-amber-700 mb-1">Jam Masuk (Pagi)</label>
+                        <input type="time" wire:model="simulasi_jam_masuk"
+                            class="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-mono font-bold text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-amber-700 mb-1">Jam Pulang (Sore)</label>
+                        <input type="time" wire:model="simulasi_jam_pulang"
+                            class="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-mono font-bold text-slate-800">
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Tombol Simpan -->
         <div class="pt-2">
             <button type="button" @click="saveLocationSettings()" :disabled="saving"

@@ -20,6 +20,8 @@ class PengaturanLokasi extends Component
     public string $alamat_kantor = '';
     public string $nama_dinas = '';
     public bool $mode_simulasi = false;
+    public ?string $simulasi_jam_masuk = null;
+    public ?string $simulasi_jam_pulang = null;
 
     public function mount()
     {
@@ -71,6 +73,8 @@ class PengaturanLokasi extends Component
         $pengaturan->longitude_kantor = $this->longitude_kantor;
         $pengaturan->radius_meter = $this->radius_meter;
         $pengaturan->mode_simulasi = $this->mode_simulasi;
+        $pengaturan->simulasi_jam_masuk = $this->mode_simulasi ? ($this->simulasi_jam_masuk ?: null) : null;
+        $pengaturan->simulasi_jam_pulang = $this->mode_simulasi ? ($this->simulasi_jam_pulang ?: null) : null;
         if (! empty($this->alamat_kantor)) {
             $pengaturan->alamat_kantor = $this->alamat_kantor;
         }
@@ -84,6 +88,8 @@ class PengaturanLokasi extends Component
             'title' => 'Lokasi Berhasil Disimpan!',
             'message' => "Titik kantor ({$this->latitude_kantor}, {$this->longitude_kantor}) dengan radius {$this->radius_meter} meter telah aktif secara terpadu.",
         ]);
+
+        $this->redirect(route('mobile.absensi'), navigate: true);
     }
 
     public function kembalikanTitikAsli()
