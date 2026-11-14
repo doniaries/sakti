@@ -82,7 +82,7 @@ class PengajuanIzinsTable
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn ($record) => $record->status === 'menunggu')
+                    ->visible(fn ($record) => $record->status === 'menunggu' && $record->jenisIzin?->kategori !== 'cuti')
                     ->requiresConfirmation()
                     ->form([
                         \Filament\Forms\Components\Textarea::make('catatan_atasan')
@@ -118,7 +118,7 @@ class PengajuanIzinsTable
                     ->label('Tolak')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn ($record) => $record->status === 'menunggu')
+                    ->visible(fn ($record) => $record->status === 'menunggu' && $record->jenisIzin?->kategori !== 'cuti')
                     ->requiresConfirmation()
                     ->form([
                         \Filament\Forms\Components\Textarea::make('catatan_atasan')
@@ -148,17 +148,91 @@ class PengajuanIzinsTable
                     }),
 
                 Action::make('cetak_pdf')
-                    ->label('Cetak PDF')
-                    ->icon('heroicon-o-printer')
+                    ->label('Preview & Cetak PDF')
+                    ->icon('heroicon-o-eye')
                     ->color('info')
-                    ->url(fn ($record): string => route('pengajuan-izin.cetak-pdf', $record))
-                    ->openUrlInNewTab(),
+                    ->visible(fn ($record): bool => $record->jenisIzin?->kategori === 'cuti')
+                    ->modalHeading(fn ($record): string => 'Preview Surat Cuti — ' . ($record->user?->name ?? 'Pegawai'))
+                    ->modalWidth('5xl')
+                    ->modalContent(fn ($record): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString(
+                        '<iframe src="' . route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $record, 'preview' => 1]) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
+                    ))
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->extraModalFooterActions([
+                        Action::make('setujui_preview')
+                            ->label('Setujui')
+                            ->icon('heroicon-o-check-circle')
+                            ->color('success')
+                            ->visible(fn ($record): bool => $record->status === 'menunggu')
+                            ->requiresConfirmation()
+                            ->modalHeading('Setujui Pengajuan Cuti?')
+                            ->action(function ($record): void {
+                                $record->update([
+                                    'status' => 'disetujui',
+                                    'disetujui_oleh' => Auth::id(),
+                                ]);
+
+                                $record->sinkronkanKeAbsensiHarian();
+
+                                if ($record->user) {
+                                    Notification::make()
+                                        ->title('Pengajuan Cuti Disetujui')
+                                        ->body("Pengajuan {$record->jenisIzin?->nama} Anda telah disetujui.")
+                                        ->success()
+                                        ->sendToDatabase($record->user);
+                                }
+
+                                Notification::make()
+                                    ->title('Pengajuan Cuti Disetujui')
+                                    ->success()
+                                    ->send();
+                            }),
+                        Action::make('tolak_preview')
+                            ->label('Tolak')
+                            ->icon('heroicon-o-x-circle')
+                            ->color('danger')
+                            ->visible(fn ($record): bool => $record->status === 'menunggu')
+                            ->requiresConfirmation()
+                            ->modalHeading('Tolak Pengajuan Cuti?')
+                            ->form([
+                                \Filament\Forms\Components\Textarea::make('catatan_atasan')
+                                    ->label('Alasan Penolakan')
+                                    ->required(),
+                            ])
+                            ->action(function ($record, array $data): void {
+                                $record->update([
+                                    'status' => 'ditolak',
+                                    'disetujui_oleh' => Auth::id(),
+                                    'catatan_atasan' => $data['catatan_atasan'] ?? null,
+                                ]);
+
+                                if ($record->user) {
+                                    Notification::make()
+                                        ->title('Pengajuan Cuti Ditolak')
+                                        ->body("Pengajuan {$record->jenisIzin?->nama} Anda ditolak. Catatan: {$data['catatan_atasan']}")
+                                        ->danger()
+                                        ->sendToDatabase($record->user);
+                                }
+
+                                Notification::make()
+                                    ->title('Pengajuan Cuti Ditolak')
+                                    ->danger()
+                                    ->send();
+                            }),
+                        Action::make('download_pdf')
+                            ->label('Buka Tab Baru / Download')
+                            ->icon('heroicon-o-arrow-down-tray')
+                            ->color('primary')
+                            ->url(fn ($record): string => route('pengajuan-izin.cetak-pdf', $record))
+                            ->openUrlInNewTab(),
+                    ]),
 
                 EditAction::make()
-                    ->visible(fn ($record) => $record->status === 'menunggu'),
+                    ->visible(fn ($record) => $record->status === 'menunggu' && $record->jenisIzin?->kategori !== 'cuti'),
 
                 DeleteAction::make()
-                    ->visible(fn ($record) => $record->status === 'menunggu'),
+                    ->visible(fn ($record) => $record->status === 'menunggu' && $record->jenisIzin?->kategori !== 'cuti'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

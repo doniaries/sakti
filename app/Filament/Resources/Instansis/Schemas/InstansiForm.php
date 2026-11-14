@@ -85,6 +85,20 @@ class InstansiForm
                             ->placeholder('Nama Lengkap (Otomatis dari akun atau ketik manual)'),
                     ]),
 
+                Section::make('Sekretaris Daerah (Atasan Kepala Dinas)')
+                    ->icon('heroicon-o-building-library')
+                    ->description('Pejabat penandatangan cuti apabila Kepala Dinas mengajukan cuti')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('nama_sekda')
+                            ->label('Nama Lengkap & Gelar Sekda')
+                            ->placeholder('Contoh: Dr. H. Zefnihan, AP., M.Si.'),
+
+                        TextInput::make('nip_sekda')
+                            ->label('NIP Sekretaris Daerah')
+                            ->placeholder('Contoh: 19740512 199311 1 001'),
+                    ]),
+
                 Section::make('Sekretaris & Kepala Bidang')
                     ->icon('heroicon-o-briefcase')
                     ->description('Tentukan Sekretaris Dinas serta Kepala Bidang pada masing-masing bidang')

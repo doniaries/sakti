@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Instansi extends Model
 {
-    protected $fillable = ['nama_dinas', 'kode_instansi', 'sub_unit_organisasi', 'nama_kepala_dinas', 'alamat', 'logo', 'kepala_id'];
+    protected $fillable = ['nama_dinas', 'kode_instansi', 'sub_unit_organisasi', 'nama_kepala_dinas', 'alamat', 'logo', 'kepala_id', 'nama_sekda', 'nip_sekda'];
 
     public function kepala()
     {

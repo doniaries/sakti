@@ -475,13 +475,15 @@
                         if (this.userMarker) {
                             this.userMarker.setLatLng([lat, lng]);
                         } else {
-                            this.userMarker = L.circleMarker([lat, lng], {
-                                radius: 8,
-                                color: '#ffffff',
-                                weight: 2,
-                                fillColor: '#0ea5e9',
-                                fillOpacity: 1
-                            }).addTo(this.map).bindPopup('Posisi Anda Sekarang');
+                            const userIcon = L.divIcon({
+                                className: 'custom-user-marker',
+                                html: '<div class="w-8 h-8 rounded-full bg-sky-500 border-2 border-white shadow-lg flex items-center justify-center text-white"><i class="fa-solid fa-person text-sm"></i></div>',
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 16]
+                            });
+                            this.userMarker = L.marker([lat, lng], { icon: userIcon })
+                                .addTo(this.map)
+                                .bindPopup('Posisi Anda Sekarang');
                         }
                         const group = L.featureGroup([this.officeCircle, this.userMarker]);
                         this.map.fitBounds(group.getBounds(), { padding: [24, 24], maxZoom: 18 });

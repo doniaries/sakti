@@ -87,9 +87,29 @@
         $isDisetujui = $izin->status === 'disetujui';
         $isDitolak = $izin->status === 'ditolak';
         $atasan = $izin->approver ?? $pegawai?->atasan;
-        $kadis = $instansi?->kadis;
-        $namaInstansi = $instansi?->nama_instansi ?? $pengaturan?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAH RAGA';
+        $kadis = \App\Models\User::where('id', $instansi?->kepala_id)->first()
+            ?? \App\Models\User::role('pa')->first();
+        $namaInstansi = $instansi?->nama_dinas ?? $pengaturan?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAH RAGA';
         $alamatInstansi = $instansi?->alamat ?? $pengaturan?->alamat_kantor ?? 'Kabupaten Sijunjung';
+
+        $isKadis = $pegawai && ($pegawai->id === $instansi?->kepala_id || $pegawai->hasRole('pa'));
+        if ($isKadis) {
+            $atasanJabatan = 'SEKRETARIS DAERAH';
+            $atasanNama = $instansi?->nama_sekda ?: '-';
+            $atasanNip = $instansi?->nip_sekda ?: '-';
+
+            $pejabatJabatan = 'SEKRETARIS DAERAH KABUPATEN SIJUNJUNG';
+            $pejabatNama = $instansi?->nama_sekda ?: '-';
+            $pejabatNip = $instansi?->nip_sekda ?: '-';
+        } else {
+            $atasanJabatan = 'ATASAN LANGSUNG,';
+            $atasanNama = $atasan?->name ?? 'Kepala Bidang';
+            $atasanNip = $atasan?->nip ?? '-';
+
+            $pejabatJabatan = 'KEPALA ' . strtoupper($namaInstansi);
+            $pejabatNama = $kadis?->name ?? ($instansi?->nama_kepala_dinas ?? '-');
+            $pejabatNip = $kadis?->nip ?? '-';
+        }
         $kota = 'Muaro Sijunjung';
         $tglSurat = $izin->created_at ? $izin->created_at->translatedFormat('d F Y') : now()->translatedFormat('d F Y');
         $tglMulai = $izin->tanggal_mulai ? $izin->tanggal_mulai->translatedFormat('d F Y') : '-';
@@ -255,10 +275,10 @@
         <tr>
             <td colspan="3">{{ $izin->catatan_atasan ?? '' }}</td>
             <td style="text-align: center;">
-                ATASAN LANGSUNG,<br>
+                {{ $atasanJabatan }}<br>
                 <div class="ttd-box"></div>
-                <strong>{{ $atasan?->name ?? 'Kepala Bidang' }}</strong><br>
-                NIP. {{ $atasan?->nip ?? '-' }}
+                <strong>{{ $atasanNama }}</strong><br>
+                NIP. {{ $atasanNip }}
             </td>
         </tr>
     </table>
@@ -282,10 +302,10 @@
         <tr>
             <td colspan="3"></td>
             <td style="text-align: center;">
-                KEPALA {{ strtoupper($namaInstansi) }}<br>
+                {{ $pejabatJabatan }}<br>
                 <div class="ttd-box"></div>
-                <strong>{{ $kadis?->name ?? ($instansi?->nama_kadis ?? '-') }}</strong><br>
-                NIP. {{ $kadis?->nip ?? '-' }}
+                <strong>{{ $pejabatNama }}</strong><br>
+                NIP. {{ $pejabatNip }}
             </td>
         </tr>
     </table>
@@ -373,10 +393,10 @@
 
     <div style="width: 46%; margin-left: 54%; text-align: center; margin-top: 24px;">
         {{ $kota }}, {{ $tglSurat }}<br>
-        KEPALA {{ strtoupper($namaInstansi) }}<br>
+        {{ $pejabatJabatan }}<br>
         <div style="height: 56px;"></div>
-        <strong><u>{{ $kadis?->name ?? ($instansi?->nama_kadis ?? '-') }}</u></strong><br>
-        NIP. {{ $kadis?->nip ?? '-' }}
+        <strong><u>{{ $pejabatNama }}</u></strong><br>
+        NIP. {{ $pejabatNip }}
     </div>
 
     <div style="margin-top: 28px; font-size: 9.5pt;">

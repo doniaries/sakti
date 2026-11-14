@@ -64,28 +64,38 @@ class CetakLaporanController extends Controller
         return view('cetak.riwayat-pdf', compact('user', 'riwayat', 'rekap', 'pengaturan', 'instansi', 'periode', 'status'));
     }
 
-    public function cetakIzinCuti(\App\Models\PengajuanIzin $pengajuanIzin)
+    public function cetakIzinCuti(Request $request, \App\Models\PengajuanIzin $pengajuanIzin)
     {
         $pengajuanIzin->load(['user.jabatan', 'user.bidang', 'user.atasan', 'jenisIzin', 'approver']);
-        $instansi = \App\Models\Instansi::with('kadis')->first();
+        $instansi = \App\Models\Instansi::first();
         $pengaturan = PengaturanAplikasi::getPengaturan();
 
         $logoPath = null;
         if (! empty($instansi?->logo) && file_exists(public_path('storage/' . $instansi->logo))) {
-            $logoPath = public_path('storage/' . $instansi->logo);
+            $logoPath = $request->boolean('preview')
+                ? asset('storage/' . $instansi->logo)
+                : public_path('storage/' . $instansi->logo);
         } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
-            $logoPath = public_path('images/logo-kabupaten.png');
+            $logoPath = $request->boolean('preview')
+                ? asset('images/logo-kabupaten.png')
+                : public_path('images/logo-kabupaten.png');
         }
 
         $sisaCutiTahunan = $pengajuanIzin->user?->sisa_cuti ?? 12;
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.surat-cuti', [
+        $viewData = [
             'izin' => $pengajuanIzin,
             'instansi' => $instansi,
             'pengaturan' => $pengaturan,
             'logoPath' => $logoPath,
             'sisaCutiTahunan' => $sisaCutiTahunan,
-        ])->setPaper('a4', 'portrait');
+        ];
+
+        if ($request->boolean('preview')) {
+            return view('pdf.surat-cuti', $viewData);
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.surat-cuti', $viewData)->setPaper('a4', 'portrait');
 
         $namaFile = 'Formulir-Cuti-' . str($pengajuanIzin->user?->name ?? 'Pegawai')->slug() . '.pdf';
 
