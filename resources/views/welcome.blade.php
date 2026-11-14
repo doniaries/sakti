@@ -6,8 +6,39 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="google-site-verification" content="1l9WVhQ-bVhmRSL4KJIOxPk9MJ1NRdE99cOTtxgHEK4" />
-    <title>{{ $pengaturan->nama_aplikasi ?? 'Sakti Parpora' }} -
-        {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }}</title>
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url('/') }}">
+    <title>{{ $pengaturan->nama_aplikasi ?? 'SAKTI Parpora' }} - {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga Kabupaten Sijunjung' }}</title>
+    <meta name="description" content="{{ $pengaturan->deskripsi_singkat ?? 'SAKTI (Sistem Administrasi Kinerja Terintegrasi) Dinas Pariwisata, Pemuda dan Olahraga (Disparpora) Kabupaten Sijunjung. Portal resmi presensi pegawai, Laporan Harian Kinerja (LHK), dan administrasi terpadu.' }}">
+    <meta name="keywords" content="SAKTI, SAKTI Parpora, SAKTI Sijunjung, SAKTI Disparpora Sijunjung, Sistem Administrasi Kinerja Terintegrasi, Disparpora Kabupaten Sijunjung, Absensi Disparpora Sijunjung">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:site_name" content="{{ $pengaturan->nama_aplikasi ?? 'SAKTI Parpora Sijunjung' }}">
+    <meta property="og:title" content="{{ $pengaturan->nama_aplikasi ?? 'SAKTI Parpora' }} - {{ $pengaturan->nama_dinas ?? 'Disparpora Kabupaten Sijunjung' }}">
+    <meta property="og:description" content="{{ $pengaturan->deskripsi_singkat ?? 'Sistem Administrasi Kinerja Terintegrasi (SAKTI) Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.' }}">
+    <meta property="og:image" content="{{ asset('favicon.png') }}">
+
+    <!-- Structured Data (JSON-LD) -->
+    @php
+        $jsonLd = [
+            '@context' => 'https://schema.org',
+            '@type' => 'WebApplication',
+            'name' => ($pengaturan->nama_aplikasi ?? 'SAKTI Parpora') . ' - ' . ($pengaturan->nama_dinas ?? 'Disparpora Kabupaten Sijunjung'),
+            'alternateName' => ['SAKTI Parpora', 'SAKTI Sijunjung', 'SAKTI Disparpora'],
+            'url' => url('/'),
+            'applicationCategory' => 'GovernmentApplication',
+            'operatingSystem' => 'Web, Android, iOS',
+            'description' => $pengaturan->deskripsi_singkat ?? 'Sistem Administrasi Kinerja Terintegrasi Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.',
+            'publisher' => [
+                '@type' => 'GovernmentOrganization',
+                'name' => $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung',
+            ],
+        ];
+    @endphp
+    <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <!-- PWA Setup -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
