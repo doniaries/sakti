@@ -228,18 +228,29 @@
             <span class="text-lg font-extrabold ml-1.5 text-emerald-500 dark:text-emerald-300">WIB</span>
         </div>
 
-        <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center justify-center">
-            <i class="fa-solid fa-location-dot text-emerald-500 dark:text-emerald-400 mr-1.5"></i>
-            Mode Kerja:
-            <span class="text-emerald-600 dark:text-emerald-400 font-bold ml-1">
-                {{ ($user->status_kerja ?? 'wfo') === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Radius Kantor)' }}
-            </span>
-        </p>
-
-        @if ($hariLiburHariIni)
-            <div class="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">
-                <i class="fa-solid fa-calendar-xmark text-amber-600"></i>
-                <span>Hari Libur: {{ $hariLiburHariIni->nama }}</span>
+        @if (!$hariLiburHariIni)
+            <p class="text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center justify-center">
+                <i class="fa-solid fa-location-dot text-emerald-500 dark:text-emerald-400 mr-1.5"></i>
+                Mode Kerja:
+                <span class="text-emerald-600 dark:text-emerald-400 font-bold ml-1">
+                    {{ ($user->status_kerja ?? 'wfo') === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Radius Kantor)' }}
+                </span>
+            </p>
+        @else
+            <style>
+                @keyframes liburZoomInOut {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.06); }
+                }
+                .animate-libur-zoom {
+                    animation: liburZoomInOut 2.2s ease-in-out infinite;
+                }
+            </style>
+            <div class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-300 text-amber-800 shadow-xs animate-libur-zoom">
+                <i class="fa-solid fa-calendar-xmark text-amber-600 text-lg"></i>
+                <span class="text-sm sm:text-base font-black uppercase tracking-wide">
+                    HARI LIBUR: {{ $hariLiburHariIni->nama }}
+                </span>
             </div>
         @endif
     </div>
@@ -256,7 +267,7 @@
                 <i class="fa-solid fa-circle-notch fa-spin text-sm"></i>
             </template>
             <template x-if="!loadingMasuk">
-                <i class="fa-solid {{ $hariIni['sudah_masuk'] ? 'fa-circle-check' : ($hariIni['lewat_batas_masuk'] ? 'fa-lock' : 'fa-fingerprint') }} text-sm"></i>
+                <i class="fa-solid {{ $hariIni['sudah_masuk'] ? 'fa-right-to-bracket' : ($hariIni['lewat_batas_masuk'] ? 'fa-lock' : 'fa-right-to-bracket') }} text-sm"></i>
             </template>
             <div class="text-left leading-tight">
                 <div>{{ $hariIni['sudah_masuk'] ? 'Masuk ' . substr($hariIni['jam_masuk'], 0, 5) : ($hariIni['lewat_batas_masuk'] ? 'Lewat Batas' : 'Absen Masuk') }}</div>
@@ -275,7 +286,7 @@
                 <i class="fa-solid fa-circle-notch fa-spin text-sm"></i>
             </template>
             <template x-if="!loadingKeluar">
-                <i class="fa-solid {{ $hariIni['sudah_pulang'] ? 'fa-check-double' : ($hariIni['sudah_masuk'] && !$hariIni['belum_jam_pulang'] ? 'fa-right-from-bracket' : 'fa-lock') }} text-sm"></i>
+                <i class="fa-solid {{ $hariIni['sudah_pulang'] ? 'fa-right-from-bracket' : ($hariIni['sudah_masuk'] && !$hariIni['belum_jam_pulang'] ? 'fa-right-from-bracket' : 'fa-lock') }} text-sm"></i>
             </template>
             <div class="text-left leading-tight">
                 <div>{{ $hariIni['sudah_pulang'] ? 'Pulang ' . substr($hariIni['jam_pulang'], 0, 5) : ($hariIni['sudah_masuk'] ? ($hariIni['belum_jam_pulang'] ? 'Buka ' . $hariIni['jam_pulang_resmi'] : 'Absen Pulang') : 'Absen Pulang') }}</div>
@@ -288,6 +299,7 @@
     @endif
 
     <!-- Rekap Jam Kerja ASN (7j 30m / hari • 37j 30m / minggu) -->
+    @if (!$hariLiburHariIni)
     <div class="w-full p-3.5 rounded-2xl bg-white dark:bg-[#132338]/90 backdrop-blur-md border border-slate-200/80 dark:border-slate-700/60 shadow-2xs mb-5">
         <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
@@ -330,6 +342,7 @@
                  style="width: {{ $jamKerjaAsn['persen_bulanan'] }}%"></div>
         </div>
     </div>
+    @endif
 
     <!-- Menu Layanan Kepegawaian -->
     <div class="mb-5">
