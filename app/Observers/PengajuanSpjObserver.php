@@ -94,14 +94,8 @@ class PengajuanSpjObserver
             return collect();
         }
 
-        $superAdmins = User::query()
-            ->where('aktif', true)
-            ->whereHas('roles', fn($q) => $q->where('name', 'super_admin'))
-            ->get();
-
         return $roleTargets
-            ->merge($superAdmins)
             ->unique('id')
-            ->reject(fn(User $u) => $u->id === $spj->user_id);
+            ->reject(fn (User $u) => $u->id === $spj->user_id);
     }
 }

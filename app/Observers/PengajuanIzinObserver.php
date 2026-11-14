@@ -75,16 +75,16 @@ class PengajuanIzinObserver
 
     protected function resolveTargetUsers(PengajuanIzin $izin): Collection
     {
-        $admins = User::query()
-            ->where('aktif', true)
-            ->whereHas('roles', fn($q) => $q->whereIn('name', ['super_admin', 'admin', 'admin_kepegawaian']))
-            ->get();
-
         $atasan = $izin->user?->atasan;
 
-        return $admins
-            ->when($atasan && $atasan->aktif, fn(Collection $c) => $c->push($atasan))
-            ->unique('id')
-            ->reject(fn(User $u) => $u->id === $izin->user_id);
+        if ($atasan && $atasan->aktif && $atasan->id !== $izin->user_id) {
+            return collect([$atasan]);
+        }
+
+        return User::query()
+            ->where('aktif', true)
+            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['admin_kepegawaian', 'admin']))
+            ->where('id', '!=', $izin->user_id)
+            ->get();
     }
 }
