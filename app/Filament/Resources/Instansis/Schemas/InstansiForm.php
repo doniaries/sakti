@@ -92,7 +92,9 @@ class InstansiForm
                     ->schema([
                         TextInput::make('nama_sekda')
                             ->label('Nama Lengkap & Gelar Sekda')
-                            ->placeholder('Contoh: Jaheri, S.Sos., M.Si.'),
+                            ->placeholder('Contoh: JAHERI, S.SOS., M.SI.')
+                            ->extraInputAttributes(['style' => 'text-transform: uppercase'])
+                            ->dehydrateStateUsing(fn (?string $state): ?string => $state ? mb_strtoupper($state, 'UTF-8') : null),
 
                         TextInput::make('nip_sekda')
                             ->label('NIP Sekretaris Daerah')
@@ -106,7 +108,7 @@ class InstansiForm
                     ->description('Tentukan Sekretaris Dinas serta Kepala Bidang pada masing-masing bidang')
                     ->columns(2)
                     ->schema(function () {
-                        $userOptions = User::query()->orderBy('name')->pluck('name', 'id')->all();
+                        $userOptions = User::query()->orderBy('name', 'asc')->pluck('name', 'id')->all();
 
                         $fields = [
                             Select::make('sekretaris_id')

@@ -22,11 +22,11 @@ class Form extends Component
 
     public $kategoriFilter = 'semua';
     public $jenis_izin_id = '';
-    public $tanggal_mulai;
-    public $tanggal_selesai;
+    public ?string $tanggal_mulai = null;
+    public ?string $tanggal_selesai = null;
     public $jumlah_hari = 1;
     public $alasan = '';
-    public $lampiran;
+    public mixed $lampiran = null;
 
     public function mount()
     {
@@ -42,7 +42,7 @@ class Form extends Component
         $this->hitungJumlahHari();
     }
 
-    public function setKategori($kategori)
+    public function setKategori(string $kategori): void
     {
         $this->kategoriFilter = $kategori;
         $this->autoSelectJenisIzin();
@@ -194,7 +194,7 @@ class Form extends Component
         return redirect()->route('mobile.izin.index');
     }
 
-    protected function hitungKuotaJenis($user, ?JenisIzin $jenis): array
+    protected function hitungKuotaJenis(?\App\Models\User $user, ?JenisIzin $jenis): array
     {
         if (! $jenis || ! $jenis->kuota_hari) {
             return [
