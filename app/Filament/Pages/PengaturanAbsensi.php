@@ -97,7 +97,7 @@ class PengaturanAbsensi extends Page
             ->success()
             ->send();
 
-        $this->redirect(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('index'), navigate: true);
+        $this->redirect(route('mobile.absensi'), navigate: true);
     }
 
     public function kembalikanKeTitikAsli(): void
