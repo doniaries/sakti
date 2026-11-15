@@ -129,12 +129,24 @@
         </tr>
     </table>
 
-    <div class="judul-surat">
-        <h2>SURAT TUGAS</h2>
-        <div class="nomor">
-            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: '${nomor_naskah}') }}
-        </div>
-    </div>
+    <table style="width: 100%; border-collapse: collapse; margin: 6px 0 12px 0;">
+        <tr>
+            <td style="width: 72px; vertical-align: top;"></td>
+            <td style="vertical-align: middle; text-align: center;">
+                <div class="judul-surat" style="margin: 0;">
+                    <h2>SURAT TUGAS</h2>
+                    <div class="nomor">
+                        Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: '${nomor_naskah}') }}
+                    </div>
+                </div>
+            </td>
+            <td style="width: 72px; vertical-align: top; text-align: right;">
+                @if (! $srikandiMode && ! empty($qrBase64))
+                    <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 58px; height: 58px;">
+                @endif
+            </td>
+        </tr>
+    </table>
 
     <table class="body-table">
         <tr>
@@ -178,12 +190,7 @@
                                 <td></td>
                                 <td>Jabatan</td>
                                 <td>:</td>
-                                <td>
-                                    {{ $pegawai->jabatan?->nama ?? '-' }}
-                                    @if ($pegawai->jabatan_tim_kreatif)
-                                        ({{ $pegawai->jabatan_tim_kreatif->getLabel() }})
-                                    @endif
-                                </td>
+                                <td>{{ $pegawai->jabatan?->nama ?? '-' }}</td>
                             </tr>
                         </table>
                     @endforeach
@@ -228,14 +235,7 @@
 
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px; page-break-inside: avoid;">
         <tr>
-            <td style="width: 48%; vertical-align: bottom; text-align: left;">
-                @if (! $srikandiMode && ! empty($qrBase64))
-                    <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 72px; height: 72px;">
-                    <div style="font-size: 7.5pt; color: #555; margin-top: 2px;">
-                        Scan QR untuk verifikasi keaslian surat
-                    </div>
-                @endif
-            </td>
+            <td style="width: 48%; vertical-align: bottom; text-align: left;"></td>
             <td style="width: 52%; vertical-align: top; text-align: left;">
                 <div>Dikeluarkan di : Muaro Sijunjung</div>
                 <div>Pada tanggal : {{ $srikandiMode ? '${tanggal_naskah}' : $tanggalStr }}</div>
@@ -295,7 +295,7 @@
                     <th style="width: 6%;">No.</th>
                     <th style="width: 30%;">Nama / NIP</th>
                     <th style="width: 24%;">Pangkat / Golongan</th>
-                    <th style="width: 40%;">Jabatan / Peran Tim Kreatif</th>
+                    <th style="width: 40%;">Jabatan</th>
                 </tr>
             </thead>
             <tbody>
@@ -309,12 +309,7 @@
                             @endif
                         </td>
                         <td>{{ $pegawai->pangkat_golongan?->getLabel() ?? '-' }}</td>
-                        <td>
-                            {{ $pegawai->jabatan?->nama ?? '-' }}
-                            @if ($pegawai->jabatan_tim_kreatif)
-                                <br><em>({{ $pegawai->jabatan_tim_kreatif->getLabel() }})</em>
-                            @endif
-                        </td>
+                        <td>{{ $pegawai->jabatan?->nama ?? '-' }}</td>
                     </tr>
                 @endforeach
             </tbody>

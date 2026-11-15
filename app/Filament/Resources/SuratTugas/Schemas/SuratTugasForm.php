@@ -107,7 +107,8 @@ class SuratTugasForm
 
                                     Textarea::make('keterangan')
                                         ->label('Catatan Tambahan (Opsional)')
-                                        ->placeholder('Kosongkan untuk teks standar pelaksanaan tugas.')
+                                        ->placeholder('Contoh: Membawa perlengkapan kamera/drone dan melaporkan hasil dokumentasi kepada Pimpinan.')
+                                        ->helperText('Akan tampil sebagai poin ke-2 pada bagian "Untuk" di surat (misal: perlengkapan, titik kumpul, atau instruksi khusus). Kosongkan untuk teks standar.')
                                         ->rows(2)
                                         ->columnSpanFull(),
                                 ]),
