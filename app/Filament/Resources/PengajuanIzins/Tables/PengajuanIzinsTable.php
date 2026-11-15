@@ -153,7 +153,7 @@ class PengajuanIzinsTable
                     ->icon('heroicon-o-eye')
                     ->color('info')
                     ->modalHeading(fn ($record): string => ($record->jenisIzin?->kategori === 'cuti' ? 'Preview Surat Cuti — ' : 'Preview Surat Izin — ') . ($record->user?->name ?? 'Pegawai'))
-                    ->modalWidth(Width::TwoExtraLarge)
+                    ->modalWidth(Width::FourExtraLarge)
                     ->modalContent(fn ($record): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString(
                         '<iframe src="' . route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $record, 'preview' => 1]) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
                     ))
