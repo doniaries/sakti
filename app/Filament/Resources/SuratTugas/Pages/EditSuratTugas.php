@@ -11,6 +11,13 @@ class EditSuratTugas extends EditRecord
 {
     protected static string $resource = SuratTugasResource::class;
 
+    protected function afterSave(): void
+    {
+        if ($this->record->wasChanged('file_tte') && filled($this->record->file_tte)) {
+            $this->record->kirimNotifikasiKeTim();
+        }
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

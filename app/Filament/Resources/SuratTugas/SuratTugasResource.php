@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class SuratTugasResource extends Resource
 {
@@ -42,11 +43,41 @@ class SuratTugasResource extends Resource
         return SuratTugasTable::configure($table);
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        if (! $user) {
+            return null;
+        }
+
+        $unread = SuratTugas::query()
+            ->where('status', 'terbit')
+            ->whereHas('pegawais', fn (Builder $q) => $q->where('users.id', $user->id)->whereNull('surat_tugas_user.dibaca_at'))
+            ->count();
+
+        return $unread > 0 ? (string) $unread : null;
+    }
+
+    public static function getNavigationBadgeColor(): string|array|null
+    {
+        return 'danger';
+    }
+
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        $query = parent::getEloquentQuery()
             ->with(['penandatangan'])
-            ->withCount('pegawais');
+            ->withCount(['pegawais', 'pegawaisSudahBaca']);
+
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid'])) {
+            $query->whereHas('pegawais', fn (Builder $q) => $q->where('users.id', $user->id));
+        }
+
+        return $query;
     }
 
     public static function getPages(): array

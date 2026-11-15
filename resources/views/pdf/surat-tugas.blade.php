@@ -9,8 +9,8 @@
             margin: 15mm 18mm 15mm 18mm;
         }
         body {
-            font-family: "Times New Roman", Times, serif;
-            font-size: 11pt;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10.5pt;
             color: #000;
             line-height: 1.35;
         }
@@ -35,7 +35,7 @@
             text-transform: uppercase;
         }
         .kop-dinas {
-            font-size: 14pt;
+            font-size: 13.5pt;
             font-weight: bold;
             text-transform: uppercase;
         }
@@ -48,55 +48,74 @@
         }
         .judul-surat h2 {
             margin: 0;
-            font-size: 13pt;
-            text-decoration: underline;
+            font-size: 12pt;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .judul-surat .nomor {
-            font-size: 11pt;
+            font-size: 10.5pt;
             margin-top: 2px;
         }
-        table.meta {
+        table.body-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px;
         }
-        table.meta td {
+        table.body-table td {
             vertical-align: top;
-            padding: 3px 4px;
+            padding: 3px 2px;
         }
-        table.pegawai {
+        table.person-item {
             width: 100%;
             border-collapse: collapse;
-            margin: 8px 0 12px 0;
+            margin-bottom: 6px;
         }
-        table.pegawai th,
-        table.pegawai td {
+        table.person-item td {
+            padding: 1px 2px;
+            vertical-align: top;
+        }
+        table.pegawai-lampiran {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table.pegawai-lampiran th,
+        table.pegawai-lampiran td {
             border: 1px solid #000;
             padding: 5px 6px;
-            font-size: 10pt;
+            font-size: 9.5pt;
             vertical-align: top;
         }
-        table.pegawai th {
+        table.pegawai-lampiran th {
             background-color: #f3f4f6;
             text-align: center;
         }
         .ttd-wrap {
-            width: 45%;
-            margin-left: 55%;
+            width: 48%;
+            margin-left: 52%;
             margin-top: 20px;
             text-align: left;
+            page-break-inside: avoid;
         }
         .ttd-space {
-            height: 60px;
+            height: 58px;
+        }
+        .page-break {
+            page-break-before: always;
         }
     </style>
 </head>
 <body>
+    @php
+        $srikandiMode = $srikandiMode ?? false;
+        $pegawais = $surat->pegawais;
+        $pakaiLampiran = $pegawais->count() > 4;
+        $tanggalStr = $surat->created_at?->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y');
+    @endphp
+
     <table class="kop-table">
         <tr>
             <td class="kop-logo">
-                @if ($logoPath)
+                @if (! empty($logoPath))
                     <img src="{{ $logoPath }}" alt="Logo" style="width: 60px; height: auto;">
                 @endif
             </td>
@@ -110,107 +129,197 @@
 
     <div class="judul-surat">
         <h2>SURAT TUGAS</h2>
-        <div class="nomor">Nomor : {{ $surat->nomor_surat }}</div>
+        <div class="nomor">
+            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : $surat->nomor_surat }}
+        </div>
     </div>
 
-    <table class="meta">
+    <table class="body-table">
         <tr>
-            <td style="width: 16%;">Dasar</td>
+            <td style="width: 14%;">Dasar</td>
             <td style="width: 3%;">:</td>
             <td>{{ $surat->dasar_surat ?: \App\Models\SuratTugas::defaultDasarSurat() }}</td>
         </tr>
-    </table>
-
-    <p style="text-align: center; font-weight: bold; margin: 10px 0;">MEMERINTAHKAN :</p>
-
-    <table class="meta">
         <tr>
-            <td style="width: 16%;">Kepada</td>
-            <td style="width: 3%;">:</td>
-            <td>Nama-nama pegawai tersebut di bawah ini:</td>
+            <td colspan="3" style="height: 8px;"></td>
         </tr>
-    </table>
-
-    <table class="pegawai">
-        <thead>
-            <tr>
-                <th style="width: 6%;">No.</th>
-                <th style="width: 30%;">Nama / NIP</th>
-                <th style="width: 24%;">Pangkat / Golongan</th>
-                <th style="width: 40%;">Jabatan / Peran dalam Tim</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($surat->pegawais as $index => $pegawai)
-                <tr>
-                    <td style="text-align: center;">{{ $index + 1 }}.</td>
-                    <td>
-                        <strong>{{ $pegawai->name }}</strong>
-                        @if ($pegawai->nip)
-                            <br><span style="font-size: 9pt;">NIP. {{ $pegawai->nip }}</span>
-                        @endif
-                    </td>
-                    <td>
-                        {{ $pegawai->pangkat_golongan?->getLabel() ?? '-' }}
-                    </td>
-                    <td>
-                        {{ $pegawai->jabatan?->nama ?? '-' }}
-                        @if ($pegawai->jabatan_tim_kreatif)
-                            <br><em>({{ $pegawai->jabatan_tim_kreatif->getLabel() }})</em>
-                        @endif
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="4" style="text-align: center;">Belum ada pegawai yang ditugaskan.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-
-    <table class="meta">
         <tr>
-            <td style="width: 16%;">Untuk</td>
-            <td style="width: 3%;">:</td>
+            <td>Kepada</td>
+            <td>:</td>
             <td>
-                Melaksanakan tugas <strong>{{ $surat->nama_kegiatan }}</strong>
-                @if ($surat->lokasi)
-                    bertempat di <strong>{{ $surat->lokasi }}</strong>
+                @if ($pegawais->isEmpty())
+                    <em>Belum ada pegawai yang ditugaskan.</em>
+                @elseif ($pakaiLampiran)
+                    Daftar nama pegawai terlampir pada Lampiran Surat Tugas ini ({{ $pegawais->count() }} orang).
+                @else
+                    @foreach ($pegawais as $index => $pegawai)
+                        <table class="person-item">
+                            <tr>
+                                <td style="width: 20px;">{{ $index + 1 }}.</td>
+                                <td style="width: 110px;">Nama</td>
+                                <td style="width: 12px;">:</td>
+                                <td><strong>{{ $pegawai->name }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Pangkat/gol</td>
+                                <td>:</td>
+                                <td>{{ $pegawai->pangkat_golongan?->getLabel() ?? '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>NIP</td>
+                                <td>:</td>
+                                <td>{{ $pegawai->nip ?: '-' }}</td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>Jabatan</td>
+                                <td>:</td>
+                                <td>
+                                    {{ $pegawai->jabatan?->nama ?? '-' }}
+                                    @if ($pegawai->jabatan_tim_kreatif)
+                                        ({{ $pegawai->jabatan_tim_kreatif->getLabel() }})
+                                    @endif
+                                </td>
+                            </tr>
+                        </table>
+                    @endforeach
                 @endif
-                pada tanggal
-                <strong>
-                    @if ($surat->tanggal_mulai->equalTo($surat->tanggal_selesai))
-                        {{ $surat->tanggal_mulai->translatedFormat('d F Y') }}
-                    @else
-                        {{ $surat->tanggal_mulai->translatedFormat('d F Y') }} s.d. {{ $surat->tanggal_selesai->translatedFormat('d F Y') }}
-                    @endif
-                </strong>.
             </td>
         </tr>
-        @if ($surat->keterangan)
-            <tr>
-                <td>Catatan</td>
-                <td>:</td>
-                <td>{{ $surat->keterangan }}</td>
-            </tr>
-        @endif
+        <tr>
+            <td colspan="3" style="height: 6px;"></td>
+        </tr>
+        <tr>
+            <td>Untuk</td>
+            <td>:</td>
+            <td>
+                <table class="person-item">
+                    <tr>
+                        <td style="width: 20px;">1.</td>
+                        <td>
+                            Melaksanakan tugas <strong>{{ $surat->nama_kegiatan }}</strong>
+                            @if ($surat->lokasi)
+                                bertempat di <strong>{{ $surat->lokasi }}</strong>
+                            @endif
+                            pada tanggal
+                            <strong>
+                                @if ($surat->tanggal_mulai->equalTo($surat->tanggal_selesai))
+                                    {{ $surat->tanggal_mulai->translatedFormat('d F Y') }}
+                                @else
+                                    {{ $surat->tanggal_mulai->translatedFormat('d F Y') }} s.d. {{ $surat->tanggal_selesai->translatedFormat('d F Y') }}
+                                @endif
+                            </strong>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2.</td>
+                        <td>
+                            {{ $surat->keterangan ?: 'Melaksanakan tugas dengan penuh tanggung jawab dan melaporkan hasilnya kepada Pimpinan.' }}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
     </table>
 
-    <p>Demikian Surat Tugas ini dibuat untuk dilaksanakan dengan penuh rasa tanggung jawab.</p>
-
     <div class="ttd-wrap">
-        <div>Ditetapkan di : Muaro Sijunjung</div>
-        <div>Pada tanggal : {{ $surat->created_at?->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y') }}</div>
-        <div style="margin-top: 6px; font-weight: bold;">
-            {{ $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS' }},
+        <div>Dikeluarkan di : Muaro Sijunjung</div>
+        <div>Pada tanggal : {{ $srikandiMode ? '${tanggal_naskah}' : $tanggalStr }}</div>
+        <div style="margin-top: 8px; font-weight: bold; text-transform: uppercase;">
+            {{ $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS' }}
         </div>
-        <div class="ttd-space"></div>
-        <div style="font-weight: bold; text-decoration: underline;">
-            {{ $surat->penandatangan?->name ?? ($instansi?->nama_kadis ?? 'KEPALA DINAS') }}
-        </div>
-        @if ($surat->penandatangan?->nip)
-            <div>NIP. {{ $surat->penandatangan->nip }}</div>
+        @if ($srikandiMode)
+            <div style="margin: 22px 0;">${ttd_pengirim}</div>
+            <div style="font-weight: bold;">${nama_pengirim}</div>
+            <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina Utama Muda' }}</div>
+            <div>NIP. ${nip_pengirim}</div>
+        @else
+            <div class="ttd-space"></div>
+            <div style="font-weight: bold; text-decoration: underline;">
+                {{ $surat->penandatangan?->name ?? ($instansi?->nama_kadis ?? 'KEPALA DINAS') }}
+            </div>
+            @if ($surat->penandatangan?->pangkat_golongan)
+                <div>{{ $surat->penandatangan->pangkat_golongan->getLabel() }}</div>
+            @endif
+            @if ($surat->penandatangan?->nip)
+                <div>NIP. {{ $surat->penandatangan->nip }}</div>
+            @endif
         @endif
     </div>
+
+    @if ($pakaiLampiran)
+        <div class="page-break"></div>
+        <div style="font-weight: bold; margin-bottom: 4px;">LAMPIRAN SURAT TUGAS</div>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10pt;">
+            <tr>
+                <td style="width: 14%;">Nomor</td>
+                <td style="width: 3%;">:</td>
+                <td>{{ $srikandiMode ? '${nomor_naskah}' : $surat->nomor_surat }}</td>
+            </tr>
+            <tr>
+                <td>Tanggal</td>
+                <td>:</td>
+                <td>{{ $srikandiMode ? '${tanggal_naskah}' : $tanggalStr }}</td>
+            </tr>
+            <tr>
+                <td>Perihal</td>
+                <td>:</td>
+                <td>{{ $surat->nama_kegiatan }}</td>
+            </tr>
+        </table>
+
+        <table class="pegawai-lampiran">
+            <thead>
+                <tr>
+                    <th style="width: 6%;">No.</th>
+                    <th style="width: 30%;">Nama / NIP</th>
+                    <th style="width: 24%;">Pangkat / Golongan</th>
+                    <th style="width: 40%;">Jabatan / Peran Tim Kreatif</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($pegawais as $index => $pegawai)
+                    <tr style="page-break-inside: avoid;">
+                        <td style="text-align: center;">{{ $index + 1 }}.</td>
+                        <td>
+                            <strong>{{ $pegawai->name }}</strong>
+                            @if ($pegawai->nip)
+                                <br><span style="font-size: 8.5pt;">NIP. {{ $pegawai->nip }}</span>
+                            @endif
+                        </td>
+                        <td>{{ $pegawai->pangkat_golongan?->getLabel() ?? '-' }}</td>
+                        <td>
+                            {{ $pegawai->jabatan?->nama ?? '-' }}
+                            @if ($pegawai->jabatan_tim_kreatif)
+                                <br><em>({{ $pegawai->jabatan_tim_kreatif->getLabel() }})</em>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+
+        <div class="ttd-wrap">
+            <div style="font-weight: bold; text-transform: uppercase;">
+                {{ $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS' }}
+            </div>
+            @if ($srikandiMode)
+                <div style="margin: 22px 0;">${ttd_pengirim}</div>
+                <div style="font-weight: bold;">${nama_pengirim}</div>
+                <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina Utama Muda' }}</div>
+                <div>NIP. ${nip_pengirim}</div>
+            @else
+                <div class="ttd-space"></div>
+                <div style="font-weight: bold; text-decoration: underline;">
+                    {{ $surat->penandatangan?->name ?? ($instansi?->nama_kadis ?? 'KEPALA DINAS') }}
+                </div>
+                @if ($surat->penandatangan?->nip)
+                    <div>NIP. {{ $surat->penandatangan->nip }}</div>
+                @endif
+            @endif
+        </div>
+    @endif
 </body>
 </html>

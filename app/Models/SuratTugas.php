@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +24,9 @@ class SuratTugas extends Model
         'tanggal_selesai',
         'lokasi',
         'keterangan',
+        'file_tte',
+        'status',
+        'sumber',
         'penandatangan_id',
         'created_by',
     ];
@@ -35,11 +39,28 @@ class SuratTugas extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (self $model): void {
+            if (filled($model->file_tte)) {
+                $model->status = 'terbit';
+            } elseif (blank($model->status)) {
+                $model->status = 'draft';
+            }
+        });
+    }
+
     public function pegawais(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'surat_tugas_user')
-            ->withPivot('peran_tugas')
+            ->withPivot(['peran_tugas', 'dibaca_at'])
             ->withTimestamps();
+    }
+
+    public function pegawaisSudahBaca(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'surat_tugas_user')
+            ->wherePivotNotNull('dibaca_at');
     }
 
     public function penandatangan(): BelongsTo
@@ -50,6 +71,36 @@ class SuratTugas extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function tandaiDibacaOleh(?int $userId): void
+    {
+        if (! $userId) {
+            return;
+        }
+
+        $this->pegawais()
+            ->where('users.id', $userId)
+            ->wherePivotNull('dibaca_at')
+            ->updateExistingPivot($userId, ['dibaca_at' => now()]);
+    }
+
+    public function kirimNotifikasiKeTim(): void
+    {
+        if ($this->status !== 'terbit') {
+            return;
+        }
+
+        $this->loadMissing('pegawais');
+
+        foreach ($this->pegawais as $pegawai) {
+            Notification::make()
+                ->title('Surat Tugas Resmi (TTE SRIKANDI)')
+                ->body("Nomor {$this->nomor_surat}: {$this->nama_kegiatan}")
+                ->icon('heroicon-o-document-check')
+                ->success()
+                ->sendToDatabase($pegawai);
+        }
     }
 
     public static function generateNomorSurat(): string

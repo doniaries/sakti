@@ -8,6 +8,7 @@ use App\Models\Instansi;
 use App\Models\SuratTugas;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -90,8 +91,50 @@ class SuratTugasForm
                             ->columnSpanFull(),
 
                         Textarea::make('keterangan')
-                            ->label('Catatan / Keterangan Tambahan (Opsional)')
+                            ->label('Poin Tambahan / Catatan ("Untuk" poin 2)')
+                            ->placeholder('Kosongkan untuk teks standar: Melaksanakan tugas dengan penuh tanggung jawab dan melaporkan hasilnya kepada Pimpinan.')
                             ->rows(2)
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Dokumen Resmi SRIKANDI (TTE)')
+                    ->description('Upload file PDF hasil TTE dari aplikasi SRIKANDI agar otomatis terbaca oleh Tim Kreatif.')
+                    ->icon('heroicon-o-document-check')
+                    ->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'md' => 2,
+                        ])
+                            ->schema([
+                                Select::make('sumber')
+                                    ->label('Alur Pembuatan')
+                                    ->options([
+                                        'sakti' => 'Draft dari SAKTI (lalu TTE di SRIKANDI)',
+                                        'srikandi' => 'Langsung dari SRIKANDI (Upload PDF TTE)',
+                                    ])
+                                    ->default('sakti')
+                                    ->required(),
+
+                                Select::make('status')
+                                    ->label('Status Surat')
+                                    ->options([
+                                        'draft' => 'Draft (Menunggu TTE SRIKANDI)',
+                                        'terbit' => 'Resmi (Sudah TTE SRIKANDI)',
+                                    ])
+                                    ->default('draft')
+                                    ->disabled()
+                                    ->dehydrated(),
+                            ]),
+
+                        FileUpload::make('file_tte')
+                            ->label('File PDF Surat Tugas (TTE SRIKANDI)')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->disk('public')
+                            ->directory('surat_tugas/tte')
+                            ->maxSize(5120)
+                            ->openable()
+                            ->downloadable()
+                            ->helperText('Jika file PDF TTE sudah di-upload, status otomatis menjadi Resmi dan dikirim ke kotak masuk tim yang bertugas.')
                             ->columnSpanFull(),
                     ]),
 

@@ -8,11 +8,26 @@ use App\Models\Instansi;
 use App\Models\SuratTugas;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SuratTugasPrintController extends Controller
 {
     public function cetak(Request $request, SuratTugas $suratTugas)
     {
+        $suratTugas->tandaiDibacaOleh(Auth::id());
+
+        // Jika PDF resmi ber-TTE SRIKANDI sudah di-upload dan bukan permintaan draf, tampilkan langsung file TTE tersebut
+        if (! $request->boolean('draft') && filled($suratTugas->file_tte) && Storage::disk('public')->exists($suratTugas->file_tte)) {
+            $path = Storage::disk('public')->path($suratTugas->file_tte);
+            $filename = 'Surat-Tugas-TTE-' . str($suratTugas->nomor_surat)->slug() . '.pdf';
+
+            return response()->file($path, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => ($request->boolean('download') ? 'attachment' : 'inline') . '; filename="' . $filename . '"',
+            ]);
+        }
+
         $suratTugas->load(['pegawais.jabatan', 'pegawais.bidang', 'penandatangan.jabatan']);
         $instansi = Instansi::first();
 
@@ -31,6 +46,7 @@ class SuratTugasPrintController extends Controller
             'surat' => $suratTugas,
             'instansi' => $instansi,
             'logoPath' => $logoPath,
+            'srikandiMode' => $request->boolean('srikandi'),
         ];
 
         if ($request->boolean('preview')) {
@@ -41,5 +57,32 @@ class SuratTugasPrintController extends Controller
         $namaFile = 'Surat-Tugas-' . str($suratTugas->nomor_surat)->slug() . '.pdf';
 
         return $pdf->stream($namaFile);
+    }
+
+    public function downloadWord(SuratTugas $suratTugas)
+    {
+        $suratTugas->load(['pegawais.jabatan', 'pegawais.bidang', 'penandatangan.jabatan']);
+        $instansi = Instansi::first();
+
+        $logoPath = null;
+        if (! empty($instansi?->logo) && file_exists(public_path('storage/' . $instansi->logo))) {
+            $logoPath = asset('storage/' . $instansi->logo);
+        } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
+            $logoPath = asset('images/logo-kabupaten.png');
+        }
+
+        $html = view('pdf.surat-tugas', [
+            'surat' => $suratTugas,
+            'instansi' => $instansi,
+            'logoPath' => $logoPath,
+            'srikandiMode' => true,
+        ])->render();
+
+        $filename = 'Template-SRIKANDI-' . str($suratTugas->nama_kegiatan)->limit(40, '')->slug() . '.doc';
+
+        return response($html, 200, [
+            'Content-Type' => 'application/msword; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

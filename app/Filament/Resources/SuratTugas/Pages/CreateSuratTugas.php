@@ -19,6 +19,11 @@ class CreateSuratTugas extends CreateRecord
         return $data;
     }
 
+    protected function afterCreate(): void
+    {
+        $this->record->kirimNotifikasiKeTim();
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
