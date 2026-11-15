@@ -467,10 +467,12 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     /**
      * Apakah user berhak mengelola (buat/edit/upload TTE) seluruh Surat Tugas.
      */
+    /**
+     * Apakah user berhak membuat & mengubah Surat Tugas (hanya staf Administrasi Tim Kreatif).
+     */
     public function canManageSuratTugas(): bool
     {
-        return $this->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid'])
-            || $this->isAdminTimKreatif();
+        return $this->isAdminTimKreatif();
     }
 
     /**

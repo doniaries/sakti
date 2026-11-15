@@ -124,7 +124,10 @@ class SuratTugasTable
                         /** @var \App\Models\User|null $user */
                         $user = Auth::user();
 
-                        return $record->status === 'draft' && ($user?->canSignSuratTugas() ?? false);
+                        return $record->status === 'draft' && (
+                            ($user?->canSignSuratTugas() ?? false)
+                            || (int) $record->penandatangan_id === (int) $user?->id
+                        );
                     })
                     ->requiresConfirmation()
                     ->modalHeading('Terbitkan & TTE Surat Tugas di SAKTI')

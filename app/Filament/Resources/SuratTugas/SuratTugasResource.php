@@ -67,7 +67,10 @@ class SuratTugasResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return Auth::check();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user !== null && ($user->hasRole('super_admin') || filled($user->jabatan_tim_kreatif));
     }
 
     public static function canCreate(): bool
@@ -75,7 +78,7 @@ class SuratTugasResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return $user?->canManageSuratTugas() ?? false;
+        return $user?->isAdminTimKreatif() ?? false;
     }
 
     public static function canEdit(Model $record): bool
@@ -83,7 +86,7 @@ class SuratTugasResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return $user?->canManageSuratTugas() ?? false;
+        return $user?->isAdminTimKreatif() ?? false;
     }
 
     public static function canDelete(Model $record): bool
@@ -91,7 +94,7 @@ class SuratTugasResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return $user?->canManageSuratTugas() ?? false;
+        return $user?->hasRole('super_admin') ?? false;
     }
 
     public static function canDeleteAny(): bool
@@ -99,7 +102,7 @@ class SuratTugasResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return $user?->canManageSuratTugas() ?? false;
+        return $user?->hasRole('super_admin') ?? false;
     }
 
     public static function getEloquentQuery(): Builder
@@ -111,8 +114,11 @@ class SuratTugasResource extends Resource
             ->with(['penandatangan'])
             ->withCount(['pegawais', 'pegawaisSudahBaca']);
 
-        if ($user && ! $user->canManageSuratTugas()) {
-            $query->whereHas('pegawais', fn (Builder $q) => $q->where('users.id', $user->id));
+        if ($user && ! $user->hasRole('super_admin') && ! $user->isAdminTimKreatif()) {
+            $query->where(function (Builder $q) use ($user): void {
+                $q->where('penandatangan_id', $user->id)
+                    ->orWhereHas('pegawais', fn (Builder $sub) => $sub->where('users.id', $user->id));
+            });
         }
 
         return $query;
