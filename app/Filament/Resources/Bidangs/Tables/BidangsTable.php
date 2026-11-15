@@ -22,6 +22,13 @@ class BidangsTable
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
+                TextColumn::make('singkatan')
+                    ->label('Singkatan')
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('-')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('kepala.name')
                     ->label('Pimpinan / Kepala')
                     ->placeholder('Belum Ditentukan')

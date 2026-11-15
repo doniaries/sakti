@@ -6,13 +6,19 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bidang extends Model
 {
-    protected $fillable = ['nama', 'slug', 'kepala_id'];
+    protected $fillable = ['nama', 'singkatan', 'slug', 'kepala_id'];
 
     protected static function booted(): void
     {
         static::saving(function (Bidang $bidang) {
             if (empty($bidang->slug) && filled($bidang->nama)) {
                 $bidang->slug = \Illuminate\Support\Str::slug($bidang->nama);
+            }
+
+            if (filled($bidang->singkatan)) {
+                $bidang->singkatan = trim((string) $bidang->singkatan);
+            } elseif (filled($bidang->nama)) {
+                $bidang->singkatan = self::getInisialBidang($bidang->nama);
             }
         });
     }
@@ -52,6 +58,10 @@ class Bidang extends Model
      */
     public function getInisialAttribute(): string
     {
+        if (filled($this->singkatan)) {
+            return trim((string) $this->singkatan);
+        }
+
         return self::getInisialBidang($this->nama ?? $this->slug ?? '');
     }
 
