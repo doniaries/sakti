@@ -66,6 +66,7 @@ class SuratTugasForm
 
                                             TextInput::make('lokasi')
                                                 ->label('Lokasi Kegiatan')
+                                                ->required()
                                                 ->placeholder('Contoh: Geopark Silokek')
                                                 ->maxLength(255),
                                         ]),
@@ -129,7 +130,7 @@ class SuratTugasForm
                                         ->relationship(
                                             name: 'penandatangan',
                                             titleAttribute: 'name',
-                                            modifyQueryUsing: fn (Builder $query): Builder => $query
+                                            modifyQueryUsing: fn(Builder $query): Builder => $query
                                                 ->bukanSuperAdmin()
                                                 ->whereIn('eselon', [
                                                     Eselon::II_A->value,
@@ -140,7 +141,7 @@ class SuratTugasForm
                                                 ->orderBy('eselon')
                                                 ->orderBy('name')
                                         )
-                                        ->default(fn (): ?int => Instansi::query()->value('kepala_id'))
+                                        ->default(fn(): ?int => Instansi::query()->value('kepala_id'))
                                         ->searchable()
                                         ->preload()
                                         ->helperText('Hanya Eselon III ke atas. Selain Kadis otomatis a.n. Kepala Dinas.')
