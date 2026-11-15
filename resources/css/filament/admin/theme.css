@@ -561,8 +561,9 @@ html:not(.dark) .laporan-fungsional-table tbody tr:hover td {
     background-color: #3f2f05 !important;
 }
 
-/* Modal Fit di Layar Penuh untuk Pratinjau Dokumen */
-.fi-modal-window:has(iframe) {
+/* Modal Fit di Layar Penuh khusus untuk Pratinjau Dokumen Lebar Penuh (7xl / screen) */
+.fi-modal-window.fi-width-7xl:has(iframe),
+.fi-modal-window.fi-width-screen:has(iframe) {
     width: 98vw !important;
     max-width: 98vw !important;
     max-height: 96vh !important;

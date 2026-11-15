@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -152,7 +153,7 @@ class PengajuanIzinsTable
                     ->icon('heroicon-o-eye')
                     ->color('info')
                     ->modalHeading(fn ($record): string => ($record->jenisIzin?->kategori === 'cuti' ? 'Preview Surat Cuti — ' : 'Preview Surat Izin — ') . ($record->user?->name ?? 'Pegawai'))
-                    ->modalWidth('5xl')
+                    ->modalWidth(Width::TwoExtraLarge)
                     ->modalContent(fn ($record): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString(
                         '<iframe src="' . route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $record, 'preview' => 1]) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
                     ))
