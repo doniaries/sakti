@@ -67,4 +67,88 @@ enum JabatanTimKreatif: string implements HasLabel, HasColor
             self::ADMINISTRASI => 'gray',
         };
     }
+
+    /**
+     * Urutan resmi jabatan sesuai SK Tim Kreatif Dinas.
+     *
+     * @return array<int, string>
+     */
+    public static function skOrderValues(): array
+    {
+        return [
+            self::PEMBINA->value,
+            self::PENGARAH->value,
+            self::PENANGGUNG_JAWAB_BIDANG->value,
+            self::KOORDINATOR_TIM_KREATIF->value,
+            self::KOORDINATOR_TEKNIS->value,
+            self::KOORDINATOR_WEBSITE->value,
+            self::PELAKSANA_WEBSITE->value,
+            self::KOORDINATOR_DESAIN_GRAFIS->value,
+            self::KOORDINATOR_DOKUMENTASI->value,
+            self::KOORDINATOR_MEDIA_SOSIAL->value,
+            self::PENGELOLA_MEDIA_SOSIAL->value,
+            self::DESAIN_GRAFIS->value,
+            self::DOKUMENTASI->value,
+            self::PENERJEMAH->value,
+            self::ADMINISTRASI->value,
+            self::PENGELOLA_GEOPARK->value,
+        ];
+    }
+
+    /**
+     * Pengelompokan tab filter berdasarkan struktur jabatan pada SK Tim Kreatif.
+     *
+     * @return array<string, array{label: string, values: array<int, string>}>
+     */
+    public static function skGroups(): array
+    {
+        return [
+            'pimpinan' => [
+                'label' => 'Pembina & PJ',
+                'values' => [
+                    self::PEMBINA->value,
+                    self::PENGARAH->value,
+                    self::PENANGGUNG_JAWAB_BIDANG->value,
+                ],
+            ],
+            'koordinator_teknis' => [
+                'label' => 'Koordinator Teknis',
+                'values' => [
+                    self::KOORDINATOR_TIM_KREATIF->value,
+                    self::KOORDINATOR_TEKNIS->value,
+                ],
+            ],
+            'website' => [
+                'label' => 'Website',
+                'values' => [
+                    self::KOORDINATOR_WEBSITE->value,
+                    self::PELAKSANA_WEBSITE->value,
+                ],
+            ],
+            'dokumentasi_medsos' => [
+                'label' => 'Dokumentasi, Desain & Medsos',
+                'values' => [
+                    self::KOORDINATOR_DESAIN_GRAFIS->value,
+                    self::KOORDINATOR_DOKUMENTASI->value,
+                    self::KOORDINATOR_MEDIA_SOSIAL->value,
+                    self::PENGELOLA_MEDIA_SOSIAL->value,
+                    self::DESAIN_GRAFIS->value,
+                    self::DOKUMENTASI->value,
+                    self::PENERJEMAH->value,
+                ],
+            ],
+            'administrasi' => [
+                'label' => 'Administrasi',
+                'values' => [
+                    self::ADMINISTRASI->value,
+                ],
+            ],
+            'geopark' => [
+                'label' => 'Pengelola Geopark',
+                'values' => [
+                    self::PENGELOLA_GEOPARK->value,
+                ],
+            ],
+        ];
+    }
 }
