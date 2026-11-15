@@ -63,6 +63,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.laporan.fungsional.preview');
     Route::get('/admin/laporan/fungsional/cetak', [\App\Http\Controllers\LaporanPrintController::class, 'cetakLpjFungsional'])
         ->name('admin.laporan.fungsional.cetak');
+    Route::get('/admin/surat-tugas/{suratTugas}/cetak-pdf', [\App\Http\Controllers\SuratTugasPrintController::class, 'cetak'])
+        ->name('surat-tugas.cetak-pdf');
 });
 
 // Fallback jika browser melakukan GET pada endpoint livewire/update

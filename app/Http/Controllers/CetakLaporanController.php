@@ -91,13 +91,16 @@ class CetakLaporanController extends Controller
             'sisaCutiTahunan' => $sisaCutiTahunan,
         ];
 
+        $viewName = ($pengajuanIzin->jenisIzin?->kategori === 'cuti') ? 'pdf.surat-cuti' : 'pdf.surat-izin';
+
         if ($request->boolean('preview')) {
-            return view('pdf.surat-cuti', $viewData);
+            return view($viewName, $viewData);
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.surat-cuti', $viewData)->setPaper('a4', 'portrait');
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, $viewData)->setPaper('a4', 'portrait');
 
-        $namaFile = 'Formulir-Cuti-' . str($pengajuanIzin->user?->name ?? 'Pegawai')->slug() . '.pdf';
+        $prefix = ($pengajuanIzin->jenisIzin?->kategori === 'cuti') ? 'Formulir-Cuti-' : 'Surat-Izin-';
+        $namaFile = $prefix . str($pengajuanIzin->user?->name ?? 'Pegawai')->slug() . '.pdf';
 
         return $pdf->stream($namaFile);
     }

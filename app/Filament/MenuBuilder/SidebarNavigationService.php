@@ -37,6 +37,7 @@ use App\Filament\Resources\PengaturanAplikasis\PengaturanAplikasiResource;
 use App\Filament\Resources\PortalLinks\PortalLinkResource;
 use App\Filament\Resources\RencanaAksis\RencanaAksiResource;
 use App\Filament\Resources\Reputasis\ReputasiResource;
+use App\Filament\Resources\SuratTugas\SuratTugasResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\Menu;
 use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
@@ -385,6 +386,14 @@ class SidebarNavigationService
                     ['class' => LogAbsensiResource::class],
                     ['class' => PengajuanIzinResource::class],
                     ['class' => PengaturanAbsensi::class],
+                ],
+            ],
+            [
+                'name' => 'Persuratan',
+                'icon' => 'heroicon-o-document-text',
+                'sort' => 4,
+                'items' => [
+                    ['class' => SuratTugasResource::class],
                 ],
             ],
             [

@@ -151,8 +151,7 @@ class PengajuanIzinsTable
                     ->label('Preview & Cetak PDF')
                     ->icon('heroicon-o-eye')
                     ->color('info')
-                    ->visible(fn ($record): bool => $record->jenisIzin?->kategori === 'cuti')
-                    ->modalHeading(fn ($record): string => 'Preview Surat Cuti — ' . ($record->user?->name ?? 'Pegawai'))
+                    ->modalHeading(fn ($record): string => ($record->jenisIzin?->kategori === 'cuti' ? 'Preview Surat Cuti — ' : 'Preview Surat Izin — ') . ($record->user?->name ?? 'Pegawai'))
                     ->modalWidth('5xl')
                     ->modalContent(fn ($record): \Illuminate\Support\HtmlString => new \Illuminate\Support\HtmlString(
                         '<iframe src="' . route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $record, 'preview' => 1]) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'

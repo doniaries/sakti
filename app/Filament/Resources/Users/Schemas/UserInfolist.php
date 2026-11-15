@@ -436,6 +436,11 @@ class UserInfolist
                                             ->badge()
                                             ->color('secondary')
                                             ->placeholder('Belum Terhubung Mesin'),
+
+                                        TextEntry::make('jabatan_tim_kreatif')
+                                            ->label('Tim Kreatif Dinas')
+                                            ->badge()
+                                            ->placeholder('Bukan Anggota Tim Kreatif'),
                                     ]),
 
                                 Section::make('Riwayat Jabatan Pegawai')

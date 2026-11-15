@@ -139,6 +139,13 @@ class UsersTable
                     ->placeholder('-')
                     ->sortable(),
 
+                \Filament\Tables\Columns\TextColumn::make('jabatan_tim_kreatif')
+                    ->label('Tim Kreatif')
+                    ->badge()
+                    ->placeholder('-')
+                    ->searchable()
+                    ->sortable(),
+
                 \Filament\Tables\Columns\TextColumn::make('jenjang_pendidikan')
                     ->label('Pendidikan')
                     ->badge()
@@ -237,6 +244,10 @@ class UsersTable
                     ->disabled(fn(): bool => ! (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)),
             ])
             ->filters([
+                SelectFilter::make('jabatan_tim_kreatif')
+                    ->label('Tim Kreatif Dinas')
+                    ->options(\App\Enums\JabatanTimKreatif::class)
+                    ->searchable(),
                 SelectFilter::make('jenjang_pendidikan')
                     ->label('Jenjang Pendidikan')
                     ->options([

@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Schemas;
 use App\Enums\AnggaranRole;
 use App\Enums\Eselon;
 use App\Enums\GolonganRuang;
+use App\Enums\JabatanTimKreatif;
 use App\Enums\JenisKelamin;
 use App\Enums\JenjangPendidikan;
 use App\Models\User;
@@ -395,6 +396,13 @@ class UserForm
                                                     ->label('Peran Anggaran (PA/PPK/PPTK)')
                                                     ->options(AnggaranRole::class)
                                                     ->placeholder('Bukan Pejabat Anggaran (Staf / JF)')
+                                                    ->searchable()
+                                                    ->columnSpanFull(),
+
+                                                Select::make('jabatan_tim_kreatif')
+                                                    ->label('Jabatan Tim Kreatif Dinas')
+                                                    ->options(JabatanTimKreatif::class)
+                                                    ->placeholder('Bukan Anggota Tim Kreatif')
                                                     ->searchable()
                                                     ->columnSpanFull(),
                                             ]),

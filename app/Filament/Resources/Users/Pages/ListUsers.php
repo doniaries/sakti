@@ -114,6 +114,15 @@ class ListUsers extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('bidang_id', $bidang->id));
         }
 
+        $timKreatifCount = User::query()->whereNotNull('jabatan_tim_kreatif')->bukanSuperAdmin()->count();
+        if ($timKreatifCount > 0) {
+            $tabs['tim_kreatif'] = Tab::make('Tim Kreatif')
+                ->icon('heroicon-m-sparkles')
+                ->badge($timKreatifCount)
+                ->badgeColor('info')
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNotNull('jabatan_tim_kreatif'));
+        }
+
         $tanpaBidangCount = User::query()->whereNull('bidang_id')->bukanSuperAdmin()->count();
         if ($tanpaBidangCount > 0) {
             $tabs['tanpa_bidang'] = Tab::make('Kepala Dinas')
