@@ -139,7 +139,7 @@
     <div class="judul-surat">
         <h2>SURAT TUGAS</h2>
         <div class="nomor">
-            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: '${nomor_naskah}') }}
+            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: 'DRAFT (Belum Bernomor)') }}
         </div>
     </div>
 
@@ -270,7 +270,7 @@
             <tr>
                 <td style="width: 14%;">Nomor</td>
                 <td style="width: 3%;">:</td>
-                <td>{{ $srikandiMode ? '${nomor_naskah}' : $surat->nomor_surat }}</td>
+                <td>{{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: 'DRAFT') }}</td>
             </tr>
             <tr>
                 <td>Tanggal</td>

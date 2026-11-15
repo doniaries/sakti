@@ -9,7 +9,6 @@ use App\Models\Instansi;
 use App\Models\SuratTugas;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -103,19 +102,19 @@ class SuratTugasForm
                         ])
                             ->columnSpan(['lg' => 2]),
 
-                        // Kolom Kanan (1/3): Penomoran Otomatis, Penandatangan Eselon III+ & Upload TTE
+                        // Kolom Kanan (1/3): Penomoran Otomatis & Penandatangan Eselon III+
                         Group::make([
-                            Section::make('Penomoran & TTE SRIKANDI')
+                            Section::make('Penomoran & Pengesahan SAKTI')
                                 ->schema([
                                     TextInput::make('nomor_surat')
-                                        ->label('Nomor Surat SRIKANDI')
-                                        ->placeholder('Diisi setelah terbit di SRIKANDI')
+                                        ->label('Nomor Surat Tugas')
+                                        ->placeholder('Otomatis saat disahkan TTE SAKTI')
                                         ->unique(ignoreRecord: true)
                                         ->maxLength(100)
-                                        ->helperText('Kosongkan jika masih draf; nomor resmi diisi dari SRIKANDI.'),
+                                        ->helperText('Kosongkan jika masih draf; nomor surat terbit otomatis saat disahkan di SAKTI.'),
 
                                     Select::make('penandatangan_id')
-                                        ->label('Penandatangan (TTE)')
+                                        ->label('Penandatangan (TTE SAKTI)')
                                         ->relationship(
                                             name: 'penandatangan',
                                             titleAttribute: 'name',
@@ -135,16 +134,6 @@ class SuratTugasForm
                                         ->preload()
                                         ->helperText('Hanya Eselon III ke atas. Selain Kadis otomatis a.n. Kepala Dinas.')
                                         ->required(),
-
-                                    FileUpload::make('file_tte')
-                                        ->label('Upload PDF TTE SRIKANDI (Opsional)')
-                                        ->acceptedFileTypes(['application/pdf'])
-                                        ->disk('public')
-                                        ->directory('surat_tugas/tte')
-                                        ->maxSize(5120)
-                                        ->openable()
-                                        ->downloadable()
-                                        ->helperText('Isi jika sudah TTE di SRIKANDI agar langsung terkirim ke tim.'),
                                 ]),
                         ])
                             ->columnSpan(['lg' => 1]),

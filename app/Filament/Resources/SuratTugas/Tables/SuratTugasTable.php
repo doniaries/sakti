@@ -11,8 +11,6 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
@@ -63,7 +61,7 @@ class SuratTugasTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'terbit' ? 'Resmi (TTE)' : 'Draft')
+                    ->formatStateUsing(fn (string $state): string => $state === 'terbit' ? 'Resmi (TTE SAKTI)' : 'Draft')
                     ->color(fn (string $state): string => $state === 'terbit' ? 'success' : 'warning')
                     ->sortable(),
 
@@ -84,7 +82,7 @@ class SuratTugasTable
                     ->label('Status Surat')
                     ->options([
                         'draft' => 'Draft (Menunggu TTE)',
-                        'terbit' => 'Resmi (TTE SRIKANDI)',
+                        'terbit' => 'Resmi (TTE SAKTI)',
                     ]),
             ])
             ->headerActions([
@@ -94,10 +92,10 @@ class SuratTugasTable
             ])
             ->recordActions([
                 Action::make('cetak_pdf')
-                    ->label(fn (SuratTugas $record): string => filled($record->file_tte) ? 'Baca PDF TTE' : 'Preview Draft')
-                    ->icon(fn (SuratTugas $record): string => filled($record->file_tte) ? 'heroicon-o-document-check' : 'heroicon-o-eye')
-                    ->color(fn (SuratTugas $record): string => filled($record->file_tte) ? 'success' : 'info')
-                    ->modalHeading(fn (SuratTugas $record): string => (filled($record->file_tte) ? 'Surat Tugas Resmi (TTE SRIKANDI) — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
+                    ->label(fn (SuratTugas $record): string => $record->status === 'terbit' ? 'Lihat PDF Resmi' : 'Preview Draft')
+                    ->icon(fn (SuratTugas $record): string => $record->status === 'terbit' ? 'heroicon-o-document-check' : 'heroicon-o-eye')
+                    ->color(fn (SuratTugas $record): string => $record->status === 'terbit' ? 'success' : 'info')
+                    ->modalHeading(fn (SuratTugas $record): string => ($record->status === 'terbit' ? 'Surat Tugas Resmi (TTE SAKTI) — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
                     ->modalWidth(Width::FourExtraLarge)
                     ->modalContent(function (SuratTugas $record): HtmlString {
                         $record->tandaiDibacaOleh(Auth::id());
@@ -109,14 +107,6 @@ class SuratTugasTable
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
                     ->extraModalFooterActions([
-                        Action::make('download_word')
-                            ->label('Download Template Word (SRIKANDI)')
-                            ->icon('heroicon-o-document-arrow-down')
-                            ->color('warning')
-                            ->visible(fn (SuratTugas $record): bool => blank($record->file_tte))
-                            ->url(fn (SuratTugas $record): string => route('surat-tugas.download-word', $record))
-                            ->openUrlInNewTab(),
-
                         Action::make('download_pdf')
                             ->label('Download PDF')
                             ->icon('heroicon-o-arrow-down-tray')
@@ -145,55 +135,6 @@ class SuratTugasTable
                         Notification::make()
                             ->title('Surat Tugas Disahkan (TTE SAKTI)')
                             ->body("Nomor {$record->nomor_surat} telah diterbitkan dan dinotifikasikan ke tim.")
-                            ->success()
-                            ->send();
-                    }),
-
-                Action::make('upload_tte')
-                    ->label(fn (SuratTugas $record): string => filled($record->file_tte) ? 'Update Nomor & TTE' : 'Input Nomor & Upload TTE')
-                    ->icon('heroicon-o-arrow-up-tray')
-                    ->color('primary')
-                    ->button()
-                    ->visible(function (): bool {
-                        /** @var \App\Models\User|null $user */
-                        $user = Auth::user();
-
-                        return $user?->canManageSuratTugas() ?? false;
-                    })
-                    ->modalHeading('Input Nomor Surat & Upload PDF TTE SRIKANDI')
-                    ->modalDescription('Masukkan nomor surat resmi dan file PDF hasil TTE dari aplikasi SRIKANDI (keduanya wajib diisi).')
-                    ->modalWidth('md')
-                    ->fillForm(fn (SuratTugas $record): array => [
-                        'nomor_surat' => $record->nomor_surat,
-                    ])
-                    ->schema([
-                        TextInput::make('nomor_surat')
-                            ->label('Nomor Surat Resmi SRIKANDI')
-                            ->placeholder('Contoh: 094/012/ST-DISPARPORA/2026')
-                            ->required()
-                            ->unique('surat_tugas', 'nomor_surat', ignoreRecord: true)
-                            ->maxLength(100),
-
-                        FileUpload::make('file_tte')
-                            ->label('File PDF TTE SRIKANDI')
-                            ->acceptedFileTypes(['application/pdf'])
-                            ->disk('public')
-                            ->directory('surat_tugas/tte')
-                            ->maxSize(5120)
-                            ->required(),
-                    ])
-                    ->action(function (SuratTugas $record, array $data): void {
-                        $record->update([
-                            'nomor_surat' => $data['nomor_surat'],
-                            'file_tte' => $data['file_tte'],
-                            'status' => 'terbit',
-                        ]);
-
-                        $record->kirimNotifikasiKeTim();
-
-                        Notification::make()
-                            ->title('PDF TTE SRIKANDI Berhasil Diunggah')
-                            ->body('Surat Tugas resmi telah diterbitkan dan dinotifikasikan ke tim yang bertugas.')
                             ->success()
                             ->send();
                     }),
