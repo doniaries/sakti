@@ -124,6 +124,25 @@ class SuratTugasTable
                             ->openUrlInNewTab(),
                     ]),
 
+                Action::make('tte_sakti')
+                    ->label('Setujui & TTE SAKTI')
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->button()
+                    ->visible(fn (SuratTugas $record): bool => $record->status === 'draft' && (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid']) ?? false))
+                    ->requiresConfirmation()
+                    ->modalHeading('Terbitkan & TTE Surat Tugas di SAKTI')
+                    ->modalDescription('Surat Tugas akan disahkan secara elektronik di SAKTI (dengan QR Code verifikasi berlogo Geopark) dan langsung dikirim ke kotak masuk tim yang bertugas.')
+                    ->action(function (SuratTugas $record): void {
+                        $record->tandatanganiDiSakti();
+
+                        Notification::make()
+                            ->title('Surat Tugas Disahkan (TTE SAKTI)')
+                            ->body("Nomor {$record->nomor_surat} telah diterbitkan dan dinotifikasikan ke tim.")
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('upload_tte')
                     ->label(fn (SuratTugas $record): string => filled($record->file_tte) ? 'Update Nomor & TTE' : 'Input Nomor & Upload TTE')
                     ->icon('heroicon-o-arrow-up-tray')

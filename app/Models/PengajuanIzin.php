@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\QrCodeHelper;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,8 @@ class PengajuanIzin extends Model
         'lampiran',
         'status',
         'disetujui_oleh',
+        'disetujui_at',
+        'hash_dokumen',
         'catatan_atasan',
     ];
 
@@ -32,11 +35,12 @@ class PengajuanIzin extends Model
         'tanggal_mulai' => 'date',
         'tanggal_selesai' => 'date',
         'jumlah_hari' => 'integer',
+        'disetujui_at' => 'datetime',
     ];
 
     protected static function booted()
     {
-        // Hitung jumlah hari otomatis jika belum diisi
+        // Hitung jumlah hari otomatis & cap waktu persetujuan
         static::saving(function ($model) {
             if ($model->tanggal_mulai && $model->tanggal_selesai) {
                 $start = Carbon::parse($model->tanggal_mulai);
@@ -52,11 +56,20 @@ class PengajuanIzin extends Model
                 }
                 $model->jumlah_hari = max(1, $count);
             }
+
+            if ($model->status === 'disetujui' && blank($model->disetujui_at)) {
+                $model->disetujui_at = now();
+            }
         });
 
-        // Sinkronisasi otomatis ke AbsensiHarian saat status disetujui
+        // Sinkronisasi otomatis ke AbsensiHarian & simpan hash TTE saat status disetujui
         static::saved(function ($model) {
             if ($model->status === 'disetujui') {
+                $expectedHash = $model->hitungHashDokumen();
+                if ($model->hash_dokumen !== $expectedHash) {
+                    $model->updateQuietly(['hash_dokumen' => $expectedHash]);
+                }
+
                 $model->sinkronkanKeAbsensiHarian();
             }
         });
@@ -122,5 +135,33 @@ class PengajuanIzin extends Model
     public function absensiHarians(): HasMany
     {
         return $this->hasMany(AbsensiHarian::class, 'pengajuan_izin_id');
+    }
+
+    public function hitungHashDokumen(): string
+    {
+        $payload = implode('|', [
+            $this->id,
+            $this->user_id,
+            $this->jenis_izin_id,
+            $this->tanggal_mulai?->format('Y-m-d') ?? '',
+            $this->tanggal_selesai?->format('Y-m-d') ?? '',
+            $this->status ?? '',
+            $this->disetujui_oleh ?? '',
+            $this->disetujui_at?->toIso8601String() ?? '',
+        ]);
+
+        return hash('sha256', $payload);
+    }
+
+    public function getTrackingUrl(): string
+    {
+        $kode = rtrim(strtr(base64_encode((string) $this->id), '+/', '-_'), '=');
+
+        return route('pengajuan-izin.verifikasi', ['kode' => $kode]);
+    }
+
+    public function getQrTrackingBase64(): ?string
+    {
+        return QrCodeHelper::generateWithGeoparkLogo($this->getTrackingUrl());
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Support\QrCodeHelper;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +29,8 @@ class SuratTugas extends Model
         'status',
         'sumber',
         'penandatangan_id',
+        'ditandatangani_at',
+        'hash_dokumen',
         'created_by',
     ];
 
@@ -36,6 +39,7 @@ class SuratTugas extends Model
         return [
             'tanggal_mulai' => 'date',
             'tanggal_selesai' => 'date',
+            'ditandatangani_at' => 'datetime',
         ];
     }
 
@@ -129,23 +133,42 @@ class SuratTugas extends Model
         return route('surat-tugas.verifikasi', ['kode' => $kode]);
     }
 
+    public function hitungHashDokumen(): string
+    {
+        $payload = implode('|', [
+            $this->id,
+            $this->nomor_surat ?? '',
+            $this->nama_kegiatan,
+            $this->tanggal_mulai?->format('Y-m-d') ?? '',
+            $this->tanggal_selesai?->format('Y-m-d') ?? '',
+            $this->penandatangan_id ?? '',
+            $this->ditandatangani_at?->toIso8601String() ?? '',
+        ]);
+
+        return hash('sha256', $payload);
+    }
+
+    public function tandatanganiDiSakti(?int $penandatanganId = null): void
+    {
+        if ($penandatanganId) {
+            $this->penandatangan_id = $penandatanganId;
+        }
+
+        if (blank($this->nomor_surat)) {
+            $this->nomor_surat = sprintf('ST/%04d/SAKTI/%d', $this->id, now()->year);
+        }
+
+        $this->ditandatangani_at = $this->ditandatangani_at ?? now();
+        $this->status = 'terbit';
+        $this->sumber = 'sakti';
+        $this->hash_dokumen = $this->hitungHashDokumen();
+        $this->save();
+
+        $this->kirimNotifikasiKeTim();
+    }
+
     public function getQrTrackingBase64(): ?string
     {
-        try {
-            $options = new \chillerlan\QRCode\QROptions([
-                'version' => \chillerlan\QRCode\QRCode::VERSION_AUTO,
-                'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
-                'eccLevel' => \chillerlan\QRCode\QRCode::ECC_M,
-                'scale' => 4,
-                'imageBase64' => true,
-                'imageTransparent' => false,
-            ]);
-
-            return (new \chillerlan\QRCode\QRCode($options))->render($this->getTrackingUrl());
-        } catch (\Throwable $e) {
-            report($e);
-
-            return null;
-        }
+        return QrCodeHelper::generateWithGeoparkLogo($this->getTrackingUrl());
     }
 }

@@ -59,8 +59,21 @@
                             @elseif ($surat->penandatangan?->jabatan?->nama)
                                 <span class="text-slate-500">({{ $surat->penandatangan->jabatan->nama }})</span>
                             @endif
+                            @if ($surat->ditandatangani_at)
+                                <div class="text-xs text-slate-500 mt-0.5">
+                                    Ditandatangani secara elektronik (SAKTI) pada {{ $surat->ditandatangani_at->translatedFormat('d F Y H:i') }} WIB
+                                </div>
+                            @endif
                         </div>
                     </div>
+                    @if ($surat->hash_dokumen)
+                        <div class="sm:col-span-2">
+                            <div class="text-slate-500 text-xs">Hash Dokumen (SHA-256)</div>
+                            <div class="font-mono text-xs text-slate-700 break-all bg-slate-50 p-2 rounded border border-slate-200 mt-1">
+                                {{ $surat->hash_dokumen }}
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="border-t border-slate-200 pt-4">

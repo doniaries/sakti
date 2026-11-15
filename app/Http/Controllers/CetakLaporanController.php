@@ -64,6 +64,35 @@ class CetakLaporanController extends Controller
         return view('cetak.riwayat-pdf', compact('user', 'riwayat', 'rekap', 'pengaturan', 'instansi', 'periode', 'status'));
     }
 
+    public function verifikasiIzin(Request $request, ?string $kode = null)
+    {
+        $input = trim((string) ($request->query('kode') ?? $request->query('id') ?? $kode ?? ''));
+        $izin = null;
+
+        if (filled($input)) {
+            $decoded = base64_decode(strtr($input, '-_', '+/'), true);
+            $idDecoded = ($decoded !== false && ctype_digit($decoded)) ? (int) $decoded : null;
+
+            $izin = \App\Models\PengajuanIzin::query()
+                ->with(['user.jabatan', 'user.bidang', 'jenisIzin', 'approver.jabatan'])
+                ->when($idDecoded !== null, fn ($q) => $q->where('id', $idDecoded))
+                ->when($idDecoded === null && ctype_digit($input), fn ($q) => $q->where('id', (int) $input))
+                ->first();
+        }
+
+        $isValid = $izin !== null
+            && $izin->status === 'disetujui'
+            && filled($izin->hash_dokumen)
+            && hash_equals($izin->hash_dokumen, $izin->hitungHashDokumen());
+
+        return view('dokumen.verifikasi-izin', [
+            'izin' => $izin,
+            'instansi' => \App\Models\Instansi::first(),
+            'kode' => $input,
+            'isValid' => $isValid,
+        ]);
+    }
+
     public function cetakIzinCuti(Request $request, \App\Models\PengajuanIzin $pengajuanIzin)
     {
         $pengajuanIzin->load(['user.jabatan', 'user.bidang', 'user.atasan', 'jenisIzin', 'approver']);
@@ -83,12 +112,21 @@ class CetakLaporanController extends Controller
 
         $sisaCutiTahunan = $pengajuanIzin->user?->sisa_cuti ?? 12;
 
+        $qrBase64 = null;
+        $trackingUrl = null;
+        if ($pengajuanIzin->status === 'disetujui') {
+            $qrBase64 = $pengajuanIzin->getQrTrackingBase64();
+            $trackingUrl = $pengajuanIzin->getTrackingUrl();
+        }
+
         $viewData = [
             'izin' => $pengajuanIzin,
             'instansi' => $instansi,
             'pengaturan' => $pengaturan,
             'logoPath' => $logoPath,
             'sisaCutiTahunan' => $sisaCutiTahunan,
+            'qrBase64' => $qrBase64,
+            'trackingUrl' => $trackingUrl,
         ];
 
         $viewName = ($pengajuanIzin->jenisIzin?->kategori === 'cuti') ? 'pdf.surat-cuti' : 'pdf.surat-izin';

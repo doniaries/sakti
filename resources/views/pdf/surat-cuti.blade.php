@@ -404,6 +404,29 @@
         1. Kepala BKPSDM Kabupaten Sijunjung<br>
         2. Arsip Kepegawaian {{ $namaInstansi }}
     </div>
+
+    @if ($izin->status === 'disetujui' && ! empty($qrBase64))
+        <div style="margin-top: 18px; border-top: 1px solid #d1d5db; padding-top: 6px; page-break-inside: avoid;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 96px; vertical-align: middle;">
+                        <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 84px; height: 84px;">
+                    </td>
+                    <td style="vertical-align: middle; font-size: 8.5pt; color: #4b5563;">
+                        <strong>Ditandatangani Secara Elektronik melalui SAKTI</strong><br>
+                        Disetujui oleh {{ $izin->approver?->name ?? $pejabatNama }}
+                        @if ($izin->disetujui_at)
+                            pada {{ $izin->disetujui_at->translatedFormat('d F Y H:i') }} WIB
+                        @endif
+                        <br>Scan QR Code di samping untuk verifikasi keaslian dokumen.
+                        @if (! empty($trackingUrl))
+                            <br><span style="font-size: 7.5pt; color: #6b7280;">{{ $trackingUrl }}</span>
+                        @endif
+                    </td>
+                </tr>
+            </table>
+        </div>
+    @endif
 </body>
 </html>
 
