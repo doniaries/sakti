@@ -132,7 +132,7 @@
     <div class="judul-surat">
         <h2>SURAT TUGAS</h2>
         <div class="nomor">
-            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : $surat->nomor_surat }}
+            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: '${nomor_naskah}') }}
         </div>
     </div>
 

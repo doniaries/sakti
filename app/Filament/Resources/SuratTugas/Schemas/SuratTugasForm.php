@@ -118,13 +118,11 @@ class SuratTugasForm
                             Section::make('Penomoran & TTE SRIKANDI')
                                 ->schema([
                                     TextInput::make('nomor_surat')
-                                        ->label('Nomor Surat (Otomatis)')
-                                        ->default(fn (): string => SuratTugas::generateNomorSurat())
-                                        ->readOnly()
-                                        ->dehydrated()
-                                        ->required()
+                                        ->label('Nomor Surat SRIKANDI')
+                                        ->placeholder('Diisi setelah terbit di SRIKANDI')
                                         ->unique(ignoreRecord: true)
-                                        ->maxLength(100),
+                                        ->maxLength(100)
+                                        ->helperText('Kosongkan jika masih draf; nomor resmi diisi dari SRIKANDI.'),
 
                                     Select::make('penandatangan_id')
                                         ->label('Penandatangan (TTE)')

@@ -29,6 +29,7 @@ class SuratTugasTable
             ->columns([
                 TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')
+                    ->placeholder('Menunggu SRIKANDI')
                     ->searchable()
                     ->sortable()
                     ->copyable()
