@@ -41,6 +41,16 @@ class SuratTugas extends Model
 
     protected static function booted(): void
     {
+        static::creating(function (self $model): void {
+            if (blank($model->nomor_surat)) {
+                $model->nomor_surat = self::generateNomorSurat();
+            }
+
+            if (blank($model->dasar_surat)) {
+                $model->dasar_surat = self::defaultDasarSurat();
+            }
+        });
+
         static::saving(function (self $model): void {
             if (filled($model->file_tte)) {
                 $model->status = 'terbit';
