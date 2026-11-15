@@ -13,11 +13,9 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -71,26 +69,16 @@ class SuratTugasForm
                                                 ->maxLength(255),
                                         ]),
 
-                                    Toggle::make('hanya_tim_kreatif')
-                                        ->label('Tampilkan Hanya Tim Kreatif Dinas')
-                                        ->default(true)
-                                        ->dehydrated(false)
-                                        ->live(),
-
                                     Select::make('pegawais')
-                                        ->label('Tim yang Bertugas')
+                                        ->label('Tim yang Bertugas (Tim Kreatif Dinas)')
                                         ->relationship(
                                             name: 'pegawais',
                                             titleAttribute: 'name',
-                                            modifyQueryUsing: function (Builder $query, Get $get): Builder {
-                                                $query->bukanSuperAdmin()->where('aktif', true);
-
-                                                if ($get('hanya_tim_kreatif')) {
-                                                    $query->whereNotNull('jabatan_tim_kreatif');
-                                                }
-
-                                                return $query->orderBy('name');
-                                            }
+                                            modifyQueryUsing: fn (Builder $query): Builder => $query
+                                                ->bukanSuperAdmin()
+                                                ->where('aktif', true)
+                                                ->whereNotNull('jabatan_tim_kreatif')
+                                                ->orderBy('name')
                                         )
                                         ->getOptionLabelFromRecordUsing(function (User $record): string {
                                             $jabatanTim = $record->jabatan_tim_kreatif?->getLabel();
