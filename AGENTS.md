@@ -194,7 +194,22 @@ protected function getRedirectUrl(): string
         - `Nomor Surat Pesanan` (`nomor_pengajuan`) digenerate otomatis secara unik oleh sistem (`PengajuanSpj::generateNomorPengajuan()`) dan dikunci read-only demi tertib administrasi kedinasan.
         - `Harga Satuan` item belanja dikunci secara read-only (`FormatHelper::rupiahInput('harga_satuan')->readOnly()`), ditarik langsung dari pagu RKA Sub Kegiatan resmi yang telah disahkan dan dikunci, sehingga pemohon dilarang mengubah harga secara manual di luar pagu RKA.
         - Input kuantitas (`Jumlah Dipesan`), `Harga Satuan`, dan `Subtotal Pesanan` diatur sejajar secara horizontal dengan label 1-baris yang rapi dan indikator sisa pagu informatif di bagian helper text.
-    - **Desain Navigasi Sidebar**: Seluruh `NavigationGroup` (`Master Keuangan`, `Master Data`, `Absensi`, `LHK`, `Pengaturan`) dikonfigurasi dengan icon grup di `AdminPanelProvider.php`, sehingga seluruh sub-item di dalamnya tampil seragam dengan garis pohon vertikal dan tanda titik (dot) tanpa icon individual.
+    - **Desain Navigasi Sidebar**: Seluruh `NavigationGroup` (`Master Keuangan`, `Master Data`, `Absensi`, `LHK`, `Pengaturan`, `Persuratan`) dikonfigurasi melalui `SidebarNavigationService` & Menu Builder.
+7. **Tim Kreatif Dinas & Modul Persuratan / Surat Tugas SRIKANDI (`SuratTugas`)**:
+    - **Keanggotaan Tim Kreatif pada `User`**:
+        - Disimpan langsung sebagai kolom `jabatan_tim_kreatif` (nullable, indexed) pada tabel `users` dan di-cast ke Enum `App\Enums\JabatanTimKreatif` (`HasLabel`, `HasColor`).
+        - Seeder awal tersedia di `Database\Seeders\TimKreatifSeeder` sesuai SK Tim Kreatif Publikasi dan Promosi.
+        - Pada `UserResource` (`ListUsers`), tersedia tab **Tim Kreatif**, filter `jabatan_tim_kreatif`, dan badge kolom di `UsersTable`.
+    - **Grup Menu `Persuratan` ➔ `Surat Tugas` (`SuratTugasResource`)**:
+        - Tabel `surat_tugas` dan pivot `surat_tugas_user` (menyimpan `peran_tugas` dan `dibaca_at`) berfungsi ganda: manajemen surat tugas oleh Admin/Koordinator sekaligus kotak masuk pribadi bagi pegawai yang ditugaskan (`getEloquentQuery()` otomatis memfilter berdasarkan `Auth::id()` untuk pegawai non-admin, disertai badge jumlah surat belum dibaca).
+        - **Alur Hibrida SRIKANDI**:
+            1. Buat draf di SAKTI (default dasar surat merujuk SK Tim Kreatif, filter cepat tim kreatif) ➔ unduh **Template Word SRIKANDI** (`SuratTugasPrintController::downloadWord` dengan variabel `${nomor_naskah}`, `${tanggal_naskah}`, `${ttd_pengirim}`, `${nama_pengirim}`, `${nip_pengirim}`) atau preview PDF draf.
+            2. Setelah ditandatangani elektronik (TTE) di SRIKANDI, petugas mengunggah PDF TTE (`file_tte`, disk `public`, folder `surat_tugas/tte`) via tombol **Upload TTE SRIKANDI** di tabel atau form edit.
+            3. Status otomatis berubah menjadi `terbit` (**Resmi TTE**) dan sistem mengirim notifikasi database ke seluruh tim yang bertugas.
+        - **Format Fleksibel Banyak Petugas**: Pada template `resources/views/pdf/surat-tugas.blade.php`, jika petugas berjumlah `<= 4` orang ditampilkan langsung di badan surat; jika `> 4` orang otomatis dipindahkan ke halaman **Lampiran Surat Tugas** berbentuk tabel.
+        - **Tracking Pembaca**: Membuka modal **Baca PDF TTE** / **Preview Draft** otomatis mengisi `dibaca_at` pada pivot `surat_tugas_user`.
+8. **Template PDF Surat Izin & Surat Cuti (`PengajuanIzin`)**:
+    - Seluruh kategori pada `PengajuanIzin` dapat di-preview dan dicetak PDF melalui `CetakLaporanController::cetakIzinCuti`: kategori `cuti` menggunakan `resources/views/pdf/surat-cuti.blade.php`, sedangkan kategori izin lainnya (`izin`, `sakit`, `dinas_luar`, `wfh`) menggunakan `resources/views/pdf/surat-izin.blade.php`.
 
 ---
 
