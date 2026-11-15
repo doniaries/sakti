@@ -43,11 +43,12 @@ class SuratTugasForm
                                     ->maxLength(100),
 
                                 Select::make('penandatangan_id')
-                                    ->label('Pejabat Penandatangan')
+                                    ->label('Pejabat Penandatangan (TTE)')
                                     ->relationship('penandatangan', 'name', fn (Builder $query) => $query->bukanSuperAdmin())
-                                    ->default(fn (): ?int => Instansi::query()->value('kadis_id'))
+                                    ->default(fn (): ?int => Instansi::query()->value('kepala_id'))
                                     ->searchable()
                                     ->preload()
+                                    ->helperText('Default Kepala Dinas. Jika memilih Sekretaris/Kabid, format otomatis memakai a.n. Kepala Dinas.')
                                     ->required(),
                             ]),
 

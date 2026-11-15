@@ -110,6 +110,8 @@
         $pegawais = $surat->pegawais;
         $pakaiLampiran = $pegawais->count() > 4;
         $tanggalStr = $surat->created_at?->translatedFormat('d F Y') ?? now()->translatedFormat('d F Y');
+        $isAtasNama = $surat->penandatangan_id && $instansi?->kepala_id && (int) $surat->penandatangan_id !== (int) $instansi->kepala_id;
+        $jabatanTtd = $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS';
     @endphp
 
     <table class="kop-table">
@@ -121,7 +123,7 @@
             </td>
             <td class="kop-text">
                 <div class="kop-pemkab">PEMERINTAH KABUPATEN SIJUNJUNG</div>
-                <div class="kop-dinas">{{ $instansi?->nama_instansi ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
+                <div class="kop-dinas">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
                 <div class="kop-alamat">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
             </td>
         </tr>
@@ -228,17 +230,22 @@
         <div>Dikeluarkan di : Muaro Sijunjung</div>
         <div>Pada tanggal : {{ $srikandiMode ? '${tanggal_naskah}' : $tanggalStr }}</div>
         <div style="margin-top: 8px; font-weight: bold; text-transform: uppercase;">
-            {{ $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS' }}
+            @if ($isAtasNama)
+                a.n. KEPALA DINAS<br>
+                <span style="padding-left: 24px;">{{ $jabatanTtd }}</span>
+            @else
+                {{ $jabatanTtd }}
+            @endif
         </div>
         @if ($srikandiMode)
             <div style="margin: 22px 0;">${ttd_pengirim}</div>
             <div style="font-weight: bold;">${nama_pengirim}</div>
-            <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina Utama Muda' }}</div>
+            <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina' }}</div>
             <div>NIP. ${nip_pengirim}</div>
         @else
             <div class="ttd-space"></div>
             <div style="font-weight: bold; text-decoration: underline;">
-                {{ $surat->penandatangan?->name ?? ($instansi?->nama_kadis ?? 'KEPALA DINAS') }}
+                {{ $surat->penandatangan?->name ?? ($instansi?->nama_kepala_dinas ?? 'KEPALA DINAS') }}
             </div>
             @if ($surat->penandatangan?->pangkat_golongan)
                 <div>{{ $surat->penandatangan->pangkat_golongan->getLabel() }}</div>
@@ -303,17 +310,22 @@
 
         <div class="ttd-wrap">
             <div style="font-weight: bold; text-transform: uppercase;">
-                {{ $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS' }}
+                @if ($isAtasNama)
+                    a.n. KEPALA DINAS<br>
+                    <span style="padding-left: 24px;">{{ $jabatanTtd }}</span>
+                @else
+                    {{ $jabatanTtd }}
+                @endif
             </div>
             @if ($srikandiMode)
                 <div style="margin: 22px 0;">${ttd_pengirim}</div>
                 <div style="font-weight: bold;">${nama_pengirim}</div>
-                <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina Utama Muda' }}</div>
+                <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina' }}</div>
                 <div>NIP. ${nip_pengirim}</div>
             @else
                 <div class="ttd-space"></div>
                 <div style="font-weight: bold; text-decoration: underline;">
-                    {{ $surat->penandatangan?->name ?? ($instansi?->nama_kadis ?? 'KEPALA DINAS') }}
+                    {{ $surat->penandatangan?->name ?? ($instansi?->nama_kepala_dinas ?? 'KEPALA DINAS') }}
                 </div>
                 @if ($surat->penandatangan?->nip)
                     <div>NIP. {{ $surat->penandatangan->nip }}</div>

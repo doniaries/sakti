@@ -83,7 +83,7 @@
             </td>
             <td class="kop-text">
                 <div class="kop-pemkab">PEMERINTAH KABUPATEN SIJUNJUNG</div>
-                <div class="kop-dinas">{{ $instansi?->nama_instansi ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
+                <div class="kop-dinas">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
                 <div class="kop-alamat">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
             </td>
         </tr>
