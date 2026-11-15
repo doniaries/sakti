@@ -5,14 +5,41 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Instansi;
+use App\Models\PengaturanAplikasi;
 use App\Models\SuratTugas;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class SuratTugasPrintController extends Controller
 {
+    public function verifikasi(Request $request, ?string $kode = null): View
+    {
+        $input = trim((string) ($request->query('nomor') ?? $request->query('kode') ?? $kode ?? ''));
+        $surat = null;
+
+        if (filled($input)) {
+            $decoded = base64_decode(strtr($input, '-_', '+/'), true);
+            $idDecoded = ($decoded !== false && ctype_digit($decoded)) ? (int) $decoded : null;
+
+            $surat = SuratTugas::query()
+                ->with(['pegawais.jabatan', 'penandatangan.jabatan'])
+                ->where('nomor_surat', $input)
+                ->when($idDecoded !== null, fn ($q) => $q->orWhere('id', $idDecoded))
+                ->when(ctype_digit($input), fn ($q) => $q->orWhere('id', (int) $input))
+                ->first();
+        }
+
+        return view('dokumen.verifikasi-surat-tugas', [
+            'surat' => $surat,
+            'instansi' => Instansi::first(),
+            'pengaturan' => PengaturanAplikasi::first(),
+            'kode' => $input,
+            'isValid' => $surat !== null,
+        ]);
+    }
     public function cetak(Request $request, SuratTugas $suratTugas)
     {
         $suratTugas->tandaiDibacaOleh(Auth::id());
@@ -46,6 +73,7 @@ class SuratTugasPrintController extends Controller
             'surat' => $suratTugas,
             'instansi' => $instansi,
             'logoPath' => $logoPath,
+            'qrBase64' => $suratTugas->getQrTrackingBase64(),
             'srikandiMode' => $request->boolean('srikandi'),
         ];
 

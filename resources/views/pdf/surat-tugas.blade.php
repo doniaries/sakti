@@ -226,35 +226,47 @@
         </tr>
     </table>
 
-    <div class="ttd-wrap">
-        <div>Dikeluarkan di : Muaro Sijunjung</div>
-        <div>Pada tanggal : {{ $srikandiMode ? '${tanggal_naskah}' : $tanggalStr }}</div>
-        <div style="margin-top: 8px; font-weight: bold; text-transform: uppercase;">
-            @if ($isAtasNama)
-                a.n. KEPALA DINAS<br>
-                <span style="padding-left: 24px;">{{ $jabatanTtd }}</span>
-            @else
-                {{ $jabatanTtd }}
-            @endif
-        </div>
-        @if ($srikandiMode)
-            <div style="margin: 22px 0;">${ttd_pengirim}</div>
-            <div style="font-weight: bold;">${nama_pengirim}</div>
-            <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina' }}</div>
-            <div>NIP. ${nip_pengirim}</div>
-        @else
-            <div class="ttd-space"></div>
-            <div style="font-weight: bold; text-decoration: underline;">
-                {{ $surat->penandatangan?->name ?? ($instansi?->nama_kepala_dinas ?? 'KEPALA DINAS') }}
-            </div>
-            @if ($surat->penandatangan?->pangkat_golongan)
-                <div>{{ $surat->penandatangan->pangkat_golongan->getLabel() }}</div>
-            @endif
-            @if ($surat->penandatangan?->nip)
-                <div>NIP. {{ $surat->penandatangan->nip }}</div>
-            @endif
-        @endif
-    </div>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; page-break-inside: avoid;">
+        <tr>
+            <td style="width: 48%; vertical-align: bottom; text-align: left;">
+                @if (! $srikandiMode && ! empty($qrBase64))
+                    <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 72px; height: 72px;">
+                    <div style="font-size: 7.5pt; color: #555; margin-top: 2px;">
+                        Scan QR untuk verifikasi keaslian surat
+                    </div>
+                @endif
+            </td>
+            <td style="width: 52%; vertical-align: top; text-align: left;">
+                <div>Dikeluarkan di : Muaro Sijunjung</div>
+                <div>Pada tanggal : {{ $srikandiMode ? '${tanggal_naskah}' : $tanggalStr }}</div>
+                <div style="margin-top: 8px; font-weight: bold; text-transform: uppercase;">
+                    @if ($isAtasNama)
+                        a.n. KEPALA DINAS<br>
+                        <span style="padding-left: 24px;">{{ $jabatanTtd }}</span>
+                    @else
+                        {{ $jabatanTtd }}
+                    @endif
+                </div>
+                @if ($srikandiMode)
+                    <div style="margin: 22px 0;">${ttd_pengirim}</div>
+                    <div style="font-weight: bold;">${nama_pengirim}</div>
+                    <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina' }}</div>
+                    <div>NIP. ${nip_pengirim}</div>
+                @else
+                    <div class="ttd-space"></div>
+                    <div style="font-weight: bold; text-decoration: underline;">
+                        {{ $surat->penandatangan?->name ?? ($instansi?->nama_kepala_dinas ?? 'KEPALA DINAS') }}
+                    </div>
+                    @if ($surat->penandatangan?->pangkat_golongan)
+                        <div>{{ $surat->penandatangan->pangkat_golongan->getLabel() }}</div>
+                    @endif
+                    @if ($surat->penandatangan?->nip)
+                        <div>NIP. {{ $surat->penandatangan->nip }}</div>
+                    @endif
+                @endif
+            </td>
+        </tr>
+    </table>
 
     @if ($pakaiLampiran)
         <div class="page-break"></div>

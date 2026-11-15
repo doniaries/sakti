@@ -25,6 +25,9 @@ Route::post('/portal/logout', function () {
 Route::get('/lacak-dokumen/{kode?}', [\App\Http\Controllers\DokumenTrackingController::class, 'track'])
     ->name('dokumen.tracking');
 
+Route::get('/verifikasi-surat-tugas/{kode?}', [\App\Http\Controllers\SuratTugasPrintController::class, 'verifikasi'])
+    ->name('surat-tugas.verifikasi');
+
 Route::prefix('mobile')->group(function () {
     Route::get('/login', Login::class)->name('mobile.login');
     Route::get('/masuk', Login::class)->name('login');

@@ -125,4 +125,31 @@ class SuratTugas extends Model
     {
         return 'Keputusan Kepala Dinas Pariwisata Pemuda dan Olahraga Kabupaten Sijunjung Nomor: 188.45/28/KPTS-DISPARPORA/2026 tentang Pembentukan Tim Kreatif Publikasi dan Promosi Dinas Pariwisata Pemuda dan Olahraga Kabupaten Sijunjung Tahun 2026.';
     }
+
+    public function getTrackingUrl(): string
+    {
+        $kode = rtrim(strtr(base64_encode((string) $this->id), '+/', '-_'), '=');
+
+        return route('surat-tugas.verifikasi', ['kode' => $kode]);
+    }
+
+    public function getQrTrackingBase64(): ?string
+    {
+        try {
+            $options = new \chillerlan\QRCode\QROptions([
+                'version' => \chillerlan\QRCode\QRCode::VERSION_AUTO,
+                'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
+                'eccLevel' => \chillerlan\QRCode\QRCode::ECC_M,
+                'scale' => 4,
+                'imageBase64' => true,
+                'imageTransparent' => false,
+            ]);
+
+            return (new \chillerlan\QRCode\QRCode($options))->render($this->getTrackingUrl());
+        } catch (\Throwable $e) {
+            report($e);
+
+            return null;
+        }
+    }
 }
