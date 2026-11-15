@@ -14,6 +14,7 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -97,7 +98,7 @@ class SuratTugasTable
                     ->icon(fn (SuratTugas $record): string => filled($record->file_tte) ? 'heroicon-o-document-check' : 'heroicon-o-eye')
                     ->color(fn (SuratTugas $record): string => filled($record->file_tte) ? 'success' : 'info')
                     ->modalHeading(fn (SuratTugas $record): string => (filled($record->file_tte) ? 'Surat Tugas Resmi (TTE SRIKANDI) — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
-                    ->modalWidth('3xl')
+                    ->modalWidth(Width::TwoExtraLarge)
                     ->modalContent(function (SuratTugas $record): HtmlString {
                         $record->tandaiDibacaOleh(Auth::id());
 
