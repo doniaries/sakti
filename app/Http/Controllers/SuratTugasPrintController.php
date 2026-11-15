@@ -74,6 +74,7 @@ class SuratTugasPrintController extends Controller
             'instansi' => $instansi,
             'logoPath' => $logoPath,
             'qrBase64' => $suratTugas->getQrTrackingBase64(),
+            'trackingUrl' => $suratTugas->getTrackingUrl(),
             'srikandiMode' => $request->boolean('srikandi'),
         ];
 

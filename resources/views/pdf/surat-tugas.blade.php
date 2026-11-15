@@ -339,12 +339,15 @@
         <div style="margin-top: 24px; border-top: 1px solid #d1d5db; padding-top: 6px; page-break-inside: avoid;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                    <td style="width: 52px; vertical-align: middle;">
-                        <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 46px; height: 46px;">
+                    <td style="width: 96px; vertical-align: middle;">
+                        <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 84px; height: 84px;">
                     </td>
-                    <td style="vertical-align: middle; font-size: 8pt; color: #4b5563;">
+                    <td style="vertical-align: middle; font-size: 8.5pt; color: #4b5563;">
                         <strong>Verifikasi Keaslian Dokumen</strong><br>
-                        Scan QR Code di samping untuk memastikan keaslian Surat Tugas ini melalui sistem SAKTI.
+                        Scan QR Code di samping menggunakan kamera HP untuk memastikan keaslian Surat Tugas ini melalui sistem SAKTI.
+                        @if (! empty($trackingUrl))
+                            <br><span style="font-size: 7.5pt; color: #6b7280;">{{ $trackingUrl }}</span>
+                        @endif
                     </td>
                 </tr>
             </table>
