@@ -14,6 +14,13 @@
             color: #000;
             line-height: 1.35;
         }
+        @media screen {
+            body {
+                max-width: 175mm;
+                margin: 16px auto;
+                padding: 0 12px;
+            }
+        }
         .kop-table {
             width: 100%;
             border-bottom: 3px double #000;
@@ -114,21 +121,22 @@
         $jabatanTtd = $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS';
     @endphp
 
-    <table class="kop-table">
-        <tr>
-            <td class="kop-logo">
+    <div style="width: 100%; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 14px;">
+        <table style="margin: 0 auto; border-collapse: collapse;">
+            <tr>
                 @if (! empty($logoPath))
-                    <img src="{{ $logoPath }}" alt="Logo" style="width: 58px; height: auto;">
+                    <td style="padding-right: 16px; vertical-align: middle;">
+                        <img src="{{ $logoPath }}" alt="Logo" style="width: 64px; height: auto;">
+                    </td>
                 @endif
-            </td>
-            <td class="kop-text">
-                <div style="font-size: 11pt; font-weight: bold;">PEMERINTAH KABUPATEN SIJUNJUNG</div>
-                <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase;">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
-                <div style="font-size: 9pt;">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
-            </td>
-            <td style="width: 68px;"></td>
-        </tr>
-    </table>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div style="font-size: 13.5pt; font-weight: bold; line-height: 1.2;">PEMERINTAH KABUPATEN SIJUNJUNG</div>
+                    <div style="font-size: 13.5pt; font-weight: bold; text-transform: uppercase; line-height: 1.2;">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA' }}</div>
+                    <div style="font-size: 9.5pt; margin-top: 2px;">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <div class="judul-surat">
         <h2>SURAT TUGAS</h2>

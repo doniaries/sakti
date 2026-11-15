@@ -74,20 +74,22 @@
     </style>
 </head>
 <body>
-    <table class="kop-table">
-        <tr>
-            <td class="kop-logo">
+    <div style="width: 100%; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 16px;">
+        <table style="margin: 0 auto; border-collapse: collapse;">
+            <tr>
                 @if ($logoPath)
-                    <img src="{{ $logoPath }}" alt="Logo" style="width: 60px; height: auto;">
+                    <td style="padding-right: 16px; vertical-align: middle;">
+                        <img src="{{ $logoPath }}" alt="Logo" style="width: 64px; height: auto;">
+                    </td>
                 @endif
-            </td>
-            <td class="kop-text">
-                <div class="kop-pemkab">PEMERINTAH KABUPATEN SIJUNJUNG</div>
-                <div class="kop-dinas">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
-                <div class="kop-alamat">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
-            </td>
-        </tr>
-    </table>
+                <td style="text-align: center; vertical-align: middle;">
+                    <div style="font-size: 13.5pt; font-weight: bold; line-height: 1.2;">PEMERINTAH KABUPATEN SIJUNJUNG</div>
+                    <div style="font-size: 13.5pt; font-weight: bold; text-transform: uppercase; line-height: 1.2;">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA' }}</div>
+                    <div style="font-size: 9.5pt; margin-top: 2px;">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <div class="judul">SURAT PERMOHONAN {{ strtoupper($izin->jenisIzin?->nama ?? 'IZIN') }}</div>
 
