@@ -11,6 +11,7 @@ use App\Filament\Pages\LaporanLrfk;
 use App\Filament\Pages\PengaturanAbsensi;
 use App\Filament\Pages\PengaturanKeuangan;
 use App\Filament\Pages\ProfilPegawai;
+use App\Filament\Pages\TimKreatif;
 use App\Filament\Resources\AbsensiHarians\AbsensiHarianResource;
 use App\Filament\Resources\ActivityLogs\ActivityLogResource;
 use App\Filament\Resources\Aktivitas\AktivitasResource;
@@ -389,10 +390,11 @@ class SidebarNavigationService
                 ],
             ],
             [
-                'name' => 'Persuratan',
-                'icon' => 'heroicon-o-document-text',
+                'name' => 'Tim Kreatif',
+                'icon' => 'heroicon-o-sparkles',
                 'sort' => 4,
                 'items' => [
+                    ['class' => TimKreatif::class],
                     ['class' => SuratTugasResource::class],
                 ],
             ],

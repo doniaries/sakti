@@ -24,7 +24,7 @@ class SuratTugasResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Persuratan';
+    protected static string|\UnitEnum|null $navigationGroup = 'Tim Kreatif';
 
     protected static ?string $navigationLabel = 'Surat Tugas';
 
@@ -32,7 +32,7 @@ class SuratTugasResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Surat Tugas';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
