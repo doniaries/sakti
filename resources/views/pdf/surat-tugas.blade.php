@@ -248,7 +248,16 @@
                     <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina' }}</div>
                     <div>NIP. ${nip_pengirim}</div>
                 @else
-                    <div class="ttd-space"></div>
+                    @if ($surat->status === 'terbit' && ! empty($qrBase64))
+                        <div style="margin: 8px 0 6px 0;">
+                            <img src="{{ $qrBase64 }}" alt="QR TTE SAKTI" style="width: 84px; height: 84px; display: block;">
+                            <div style="font-size: 8pt; font-style: italic; color: #374151; margin-top: 2px;">
+                                Disetujui secara elektronik
+                            </div>
+                        </div>
+                    @else
+                        <div class="ttd-space"></div>
+                    @endif
                     <div style="font-weight: bold; text-decoration: underline;">
                         {{ $surat->penandatangan?->name ?? ($instansi?->nama_kepala_dinas ?? 'KEPALA DINAS') }}
                     </div>
@@ -325,7 +334,16 @@
                 <div>{{ $surat->penandatangan?->pangkat_golongan?->getLabel() ?? 'Pembina' }}</div>
                 <div>NIP. ${nip_pengirim}</div>
             @else
-                <div class="ttd-space"></div>
+                @if ($surat->status === 'terbit' && ! empty($qrBase64))
+                    <div style="margin: 8px 0 6px 0;">
+                        <img src="{{ $qrBase64 }}" alt="QR TTE SAKTI" style="width: 84px; height: 84px; display: block;">
+                        <div style="font-size: 8pt; font-style: italic; color: #374151; margin-top: 2px;">
+                            Disetujui secara elektronik
+                        </div>
+                    </div>
+                @else
+                    <div class="ttd-space"></div>
+                @endif
                 <div style="font-weight: bold; text-decoration: underline;">
                     {{ $surat->penandatangan?->name ?? ($instansi?->nama_kepala_dinas ?? 'KEPALA DINAS') }}
                 </div>
@@ -333,24 +351,6 @@
                     <div>NIP. {{ $surat->penandatangan->nip }}</div>
                 @endif
             @endif
-        </div>
-    @endif
-    @if (! $srikandiMode && ! empty($qrBase64))
-        <div style="margin-top: 24px; border-top: 1px solid #d1d5db; padding-top: 6px; page-break-inside: avoid;">
-            <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                    <td style="width: 96px; vertical-align: middle;">
-                        <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 84px; height: 84px;">
-                    </td>
-                    <td style="vertical-align: middle; font-size: 8.5pt; color: #4b5563;">
-                        <strong>Verifikasi Keaslian Dokumen</strong><br>
-                        Scan QR Code di samping menggunakan kamera HP untuk memastikan keaslian Surat Tugas ini melalui sistem SAKTI.
-                        @if (! empty($trackingUrl))
-                            <br><span style="font-size: 7.5pt; color: #6b7280;">{{ $trackingUrl }}</span>
-                        @endif
-                    </td>
-                </tr>
-            </table>
         </div>
     @endif
 </body>

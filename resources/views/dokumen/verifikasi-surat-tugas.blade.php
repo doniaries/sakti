@@ -28,7 +28,7 @@
                         <div class="text-slate-500 text-xs">Status Dokumen</div>
                         <div>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $surat->status === 'terbit' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
-                                {{ $surat->status === 'terbit' ? 'Resmi (TTE SRIKANDI)' : 'Draft Terdaftar di SAKTI' }}
+                                {{ $surat->status === 'terbit' ? 'Disetujui secara elektronik (TTE SAKTI)' : 'Draft Terdaftar di SAKTI' }}
                             </span>
                         </div>
                     </div>
