@@ -125,11 +125,13 @@ class SuratTugasTable
                     ]),
 
                 Action::make('upload_tte')
-                    ->label(fn (SuratTugas $record): string => filled($record->file_tte) ? 'Ganti PDF TTE' : 'Upload TTE SRIKANDI')
+                    ->label(fn (SuratTugas $record): string => filled($record->file_tte) ? 'Update Nomor & TTE' : 'Input Nomor & Upload TTE')
                     ->icon('heroicon-o-arrow-up-tray')
                     ->color('primary')
+                    ->button()
                     ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid']) ?? false)
-                    ->modalHeading('Upload PDF Surat Tugas (TTE SRIKANDI)')
+                    ->modalHeading('Input Nomor Surat & Upload PDF TTE SRIKANDI')
+                    ->modalDescription('Masukkan nomor surat resmi dan file PDF hasil TTE dari aplikasi SRIKANDI (keduanya wajib diisi).')
                     ->modalWidth('md')
                     ->fillForm(fn (SuratTugas $record): array => [
                         'nomor_surat' => $record->nomor_surat,
@@ -137,7 +139,9 @@ class SuratTugasTable
                     ->schema([
                         TextInput::make('nomor_surat')
                             ->label('Nomor Surat Resmi SRIKANDI')
+                            ->placeholder('Contoh: 094/012/ST-DISPARPORA/2026')
                             ->required()
+                            ->unique('surat_tugas', 'nomor_surat', ignoreRecord: true)
                             ->maxLength(100),
 
                         FileUpload::make('file_tte')
