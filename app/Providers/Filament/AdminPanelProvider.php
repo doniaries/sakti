@@ -218,7 +218,18 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationIcon('heroicon-o-bars-3')
                     ->navigationSort(98),
                 FilamentDeveloperLoginsPlugin::make()
-                    ->enabled(true)
+                    ->enabled(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = auth()->user();
+
+                        return app()->environment('local') || ($user?->hasRole('super_admin') ?? false);
+                    })
+                    ->switchable(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = auth()->user();
+
+                        return app()->environment('local') || ($user?->hasRole('super_admin') ?? false);
+                    })
                     ->users([
                         'Super Admin' => 'superadmin@gmail.com',
                         'Kabid/PPTK Pemasaran (Doni Aries)' => 'doniaries@gmail.com',
