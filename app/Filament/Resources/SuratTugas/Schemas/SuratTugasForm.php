@@ -26,38 +26,24 @@ class SuratTugasForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('Informasi Kegiatan & Surat Tugas')
-                    ->description('Isi informasi kegiatan dan tim yang bertugas. Format surat mengikuti template baku dinas.')
-                    ->icon('heroicon-o-document-text')
+                Section::make('Detail Kegiatan & Surat Tugas')
                     ->schema([
                         Grid::make([
                             'default' => 1,
                             'md' => 2,
                         ])
                             ->schema([
-                                TextInput::make('nomor_surat')
-                                    ->label('Nomor Surat Tugas')
-                                    ->default(fn (): string => SuratTugas::generateNomorSurat())
+                                TextInput::make('nama_kegiatan')
+                                    ->label('Nama Kegiatan')
+                                    ->placeholder('Contoh: Peliputan Festival Geopark Ranah Minang')
                                     ->required()
-                                    ->unique(ignoreRecord: true)
-                                    ->maxLength(100),
+                                    ->maxLength(255),
 
-                                Select::make('penandatangan_id')
-                                    ->label('Pejabat Penandatangan (TTE)')
-                                    ->relationship('penandatangan', 'name', fn (Builder $query) => $query->bukanSuperAdmin())
-                                    ->default(fn (): ?int => Instansi::query()->value('kepala_id'))
-                                    ->searchable()
-                                    ->preload()
-                                    ->helperText('Default Kepala Dinas. Jika memilih Sekretaris/Kabid, format otomatis memakai a.n. Kepala Dinas.')
-                                    ->required(),
+                                TextInput::make('lokasi')
+                                    ->label('Lokasi Kegiatan')
+                                    ->placeholder('Contoh: Geopark Silokek')
+                                    ->maxLength(255),
                             ]),
-
-                        TextInput::make('nama_kegiatan')
-                            ->label('Nama / Perihal Kegiatan')
-                            ->placeholder('Contoh: Peliputan dan Publikasi Festival Geopark Ranah Minang')
-                            ->required()
-                            ->maxLength(255)
-                            ->columnSpanFull(),
 
                         Grid::make([
                             'default' => 1,
@@ -79,77 +65,27 @@ class SuratTugasForm
                                     ->afterOrEqual('tanggal_mulai')
                                     ->required(),
 
-                                TextInput::make('lokasi')
-                                    ->label('Lokasi / Tempat Kegiatan')
-                                    ->placeholder('Contoh: Kawasan Wisata Geopark Silokek')
-                                    ->maxLength(255),
-                            ]),
-
-                        Textarea::make('dasar_surat')
-                            ->label('Dasar Pelaksanaan')
-                            ->default(fn (): string => SuratTugas::defaultDasarSurat())
-                            ->rows(3)
-                            ->columnSpanFull(),
-
-                        Textarea::make('keterangan')
-                            ->label('Poin Tambahan / Catatan ("Untuk" poin 2)')
-                            ->placeholder('Kosongkan untuk teks standar: Melaksanakan tugas dengan penuh tanggung jawab dan melaporkan hasilnya kepada Pimpinan.')
-                            ->rows(2)
-                            ->columnSpanFull(),
-                    ]),
-
-                Section::make('Dokumen Resmi SRIKANDI (TTE)')
-                    ->description('Upload file PDF hasil TTE dari aplikasi SRIKANDI agar otomatis terbaca oleh Tim Kreatif.')
-                    ->icon('heroicon-o-document-check')
-                    ->schema([
-                        Grid::make([
-                            'default' => 1,
-                            'md' => 2,
-                        ])
-                            ->schema([
-                                Select::make('sumber')
-                                    ->label('Alur Pembuatan')
-                                    ->options([
-                                        'sakti' => 'Draft dari SAKTI (lalu TTE di SRIKANDI)',
-                                        'srikandi' => 'Langsung dari SRIKANDI (Upload PDF TTE)',
-                                    ])
-                                    ->default('sakti')
+                                Select::make('penandatangan_id')
+                                    ->label('Penandatangan (TTE)')
+                                    ->relationship('penandatangan', 'name', fn (Builder $query) => $query->bukanSuperAdmin())
+                                    ->default(fn (): ?int => Instansi::query()->value('kepala_id'))
+                                    ->searchable()
+                                    ->preload()
+                                    ->helperText('Selain Kadis otomatis memakai a.n. Kepala Dinas.')
                                     ->required(),
-
-                                Select::make('status')
-                                    ->label('Status Surat')
-                                    ->options([
-                                        'draft' => 'Draft (Menunggu TTE SRIKANDI)',
-                                        'terbit' => 'Resmi (Sudah TTE SRIKANDI)',
-                                    ])
-                                    ->default('draft')
-                                    ->disabled()
-                                    ->dehydrated(),
                             ]),
-
-                        FileUpload::make('file_tte')
-                            ->label('File PDF Surat Tugas (TTE SRIKANDI)')
-                            ->acceptedFileTypes(['application/pdf'])
-                            ->disk('public')
-                            ->directory('surat_tugas/tte')
-                            ->maxSize(5120)
-                            ->openable()
-                            ->downloadable()
-                            ->helperText('Jika file PDF TTE sudah di-upload, status otomatis menjadi Resmi dan dikirim ke kotak masuk tim yang bertugas.')
-                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Tim yang Bertugas')
-                    ->icon('heroicon-o-user-group')
                     ->schema([
                         Toggle::make('hanya_tim_kreatif')
-                            ->label('Filter Hanya Anggota Tim Kreatif Dinas')
+                            ->label('Tampilkan Hanya Tim Kreatif Dinas')
                             ->default(true)
                             ->dehydrated(false)
                             ->live(),
 
                         Select::make('pegawais')
-                            ->label('Pilih Pegawai / Anggota Tim')
+                            ->label('Pilih Anggota Tim')
                             ->relationship(
                                 name: 'pegawais',
                                 titleAttribute: 'name',
@@ -167,13 +103,57 @@ class SuratTugasForm
                                 $jabatanTim = $record->jabatan_tim_kreatif?->getLabel();
 
                                 return $jabatanTim
-                                    ? "{$record->name} — [{$jabatanTim}]"
+                                    ? "{$record->name} — {$jabatanTim}"
                                     : $record->name;
                             })
                             ->multiple()
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Nomor Surat & PDF TTE SRIKANDI')
+                    ->schema([
+                        Grid::make([
+                            'default' => 1,
+                            'md' => 2,
+                        ])
+                            ->schema([
+                                TextInput::make('nomor_surat')
+                                    ->label('Nomor Surat')
+                                    ->default(fn (): string => SuratTugas::generateNomorSurat())
+                                    ->required()
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(100)
+                                    ->helperText('Otomatis terisi, atau sesuaikan dengan nomor resmi dari SRIKANDI.'),
+
+                                FileUpload::make('file_tte')
+                                    ->label('Upload PDF TTE SRIKANDI (Opsional)')
+                                    ->acceptedFileTypes(['application/pdf'])
+                                    ->disk('public')
+                                    ->directory('surat_tugas/tte')
+                                    ->maxSize(5120)
+                                    ->openable()
+                                    ->downloadable()
+                                    ->helperText('Isi jika sudah TTE di SRIKANDI agar langsung terkirim ke tim.'),
+                            ]),
+                    ]),
+
+                Section::make('Dasar Surat & Catatan Tambahan')
+                    ->description('Sudah terisi otomatis sesuai SK Tim Kreatif. Klik untuk mengubah bila perlu.')
+                    ->collapsed()
+                    ->schema([
+                        Textarea::make('dasar_surat')
+                            ->label('Dasar Pelaksanaan')
+                            ->default(fn (): string => SuratTugas::defaultDasarSurat())
+                            ->rows(3)
+                            ->columnSpanFull(),
+
+                        Textarea::make('keterangan')
+                            ->label('Catatan / Poin Tambahan')
+                            ->placeholder('Kosongkan untuk teks standar pelaksanaan tugas.')
+                            ->rows(2)
                             ->columnSpanFull(),
                     ]),
             ]);
