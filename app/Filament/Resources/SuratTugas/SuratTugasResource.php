@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 class SuratTugasResource extends Resource
@@ -64,6 +65,43 @@ class SuratTugasResource extends Resource
         return 'danger';
     }
 
+    public static function canViewAny(): bool
+    {
+        return Auth::check();
+    }
+
+    public static function canCreate(): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user?->canManageSuratTugas() ?? false;
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user?->canManageSuratTugas() ?? false;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user?->canManageSuratTugas() ?? false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user?->canManageSuratTugas() ?? false;
+    }
+
     public static function getEloquentQuery(): Builder
     {
         /** @var \App\Models\User|null $user */
@@ -73,7 +111,7 @@ class SuratTugasResource extends Resource
             ->with(['penandatangan'])
             ->withCount(['pegawais', 'pegawaisSudahBaca']);
 
-        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid'])) {
+        if ($user && ! $user->canManageSuratTugas()) {
             $query->whereHas('pegawais', fn (Builder $q) => $q->where('users.id', $user->id));
         }
 

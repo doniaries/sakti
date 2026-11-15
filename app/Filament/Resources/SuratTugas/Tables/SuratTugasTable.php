@@ -129,7 +129,12 @@ class SuratTugasTable
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->button()
-                    ->visible(fn (SuratTugas $record): bool => $record->status === 'draft' && (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid']) ?? false))
+                    ->visible(function (SuratTugas $record): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+
+                        return $record->status === 'draft' && ($user?->canSignSuratTugas() ?? false);
+                    })
                     ->requiresConfirmation()
                     ->modalHeading('Terbitkan & TTE Surat Tugas di SAKTI')
                     ->modalDescription('Surat Tugas akan disahkan secara elektronik di SAKTI (dengan QR Code verifikasi berlogo Geopark) dan langsung dikirim ke kotak masuk tim yang bertugas.')
@@ -148,7 +153,12 @@ class SuratTugasTable
                     ->icon('heroicon-o-arrow-up-tray')
                     ->color('primary')
                     ->button()
-                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid']) ?? false)
+                    ->visible(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+
+                        return $user?->canManageSuratTugas() ?? false;
+                    })
                     ->modalHeading('Input Nomor Surat & Upload PDF TTE SRIKANDI')
                     ->modalDescription('Masukkan nomor surat resmi dan file PDF hasil TTE dari aplikasi SRIKANDI (keduanya wajib diisi).')
                     ->modalWidth('md')

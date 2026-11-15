@@ -451,6 +451,35 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
+     * Apakah user bertugas sebagai Administrasi pada Tim Kreatif Dinas.
+     */
+    public function isAdminTimKreatif(): bool
+    {
+        $jabatan = $this->jabatan_tim_kreatif instanceof \App\Enums\JabatanTimKreatif
+            ? $this->jabatan_tim_kreatif
+            : \App\Enums\JabatanTimKreatif::tryFrom((string) $this->jabatan_tim_kreatif);
+
+        return $jabatan === \App\Enums\JabatanTimKreatif::ADMINISTRASI;
+    }
+
+    /**
+     * Apakah user berhak mengelola (buat/edit/upload TTE) seluruh Surat Tugas.
+     */
+    public function canManageSuratTugas(): bool
+    {
+        return $this->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid'])
+            || $this->isAdminTimKreatif();
+    }
+
+    /**
+     * Apakah user berhak mengesahkan Surat Tugas dengan TTE internal SAKTI.
+     */
+    public function canSignSuratTugas(): bool
+    {
+        return $this->hasAnyRole(['super_admin', 'admin', 'pa', 'sekretaris', 'kabid']);
+    }
+
+    /**
      * URL direct chat WhatsApp
      */
     public function getWhatsappUrlAttribute(): ?string

@@ -24,7 +24,12 @@ class EditSuratTugas extends EditRecord
                 ->label(fn (SuratTugas $record): string => filled($record->file_tte) ? 'Update Nomor & TTE' : 'Input Nomor & Upload TTE')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('primary')
-                ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'sekretaris', 'kabid']) ?? false)
+                ->visible(function (): bool {
+                    /** @var \App\Models\User|null $user */
+                    $user = Auth::user();
+
+                    return $user?->canManageSuratTugas() ?? false;
+                })
                 ->modalHeading('Input Nomor Surat & Upload PDF TTE SRIKANDI')
                 ->modalDescription('Masukkan nomor surat resmi dan file PDF hasil TTE dari aplikasi SRIKANDI (keduanya wajib diisi).')
                 ->modalWidth('md')
