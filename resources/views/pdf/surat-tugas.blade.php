@@ -118,35 +118,24 @@
         <tr>
             <td class="kop-logo">
                 @if (! empty($logoPath))
-                    <img src="{{ $logoPath }}" alt="Logo" style="width: 60px; height: auto;">
+                    <img src="{{ $logoPath }}" alt="Logo" style="width: 58px; height: auto;">
                 @endif
             </td>
             <td class="kop-text">
-                <div class="kop-pemkab">PEMERINTAH KABUPATEN SIJUNJUNG</div>
-                <div class="kop-dinas">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
-                <div class="kop-alamat">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
+                <div style="font-size: 11pt; font-weight: bold;">PEMERINTAH KABUPATEN SIJUNJUNG</div>
+                <div style="font-size: 13pt; font-weight: bold; text-transform: uppercase;">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA PEMUDA DAN OLAHRAGA' }}</div>
+                <div style="font-size: 9pt;">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
             </td>
+            <td style="width: 68px;"></td>
         </tr>
     </table>
 
-    <table style="width: 100%; border-collapse: collapse; margin: 6px 0 12px 0;">
-        <tr>
-            <td style="width: 72px; vertical-align: top;"></td>
-            <td style="vertical-align: middle; text-align: center;">
-                <div class="judul-surat" style="margin: 0;">
-                    <h2>SURAT TUGAS</h2>
-                    <div class="nomor">
-                        Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: '${nomor_naskah}') }}
-                    </div>
-                </div>
-            </td>
-            <td style="width: 72px; vertical-align: top; text-align: right;">
-                @if (! $srikandiMode && ! empty($qrBase64))
-                    <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 58px; height: 58px;">
-                @endif
-            </td>
-        </tr>
-    </table>
+    <div class="judul-surat">
+        <h2>SURAT TUGAS</h2>
+        <div class="nomor">
+            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: '${nomor_naskah}') }}
+        </div>
+    </div>
 
     <table class="body-table">
         <tr>
@@ -338,6 +327,21 @@
                     <div>NIP. {{ $surat->penandatangan->nip }}</div>
                 @endif
             @endif
+        </div>
+    @endif
+    @if (! $srikandiMode && ! empty($qrBase64))
+        <div style="position: fixed; bottom: -4mm; left: 0; right: 0; border-top: 1px solid #d1d5db; padding-top: 5px;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 52px; vertical-align: middle;">
+                        <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 46px; height: 46px;">
+                    </td>
+                    <td style="vertical-align: middle; font-size: 8pt; color: #4b5563;">
+                        <strong>Verifikasi Keaslian Dokumen</strong><br>
+                        Scan QR Code di samping untuk memastikan keaslian Surat Tugas ini melalui sistem SAKTI.
+                    </td>
+                </tr>
+            </table>
         </div>
     @endif
 </body>
