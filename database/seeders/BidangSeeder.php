@@ -36,6 +36,7 @@ class BidangSeeder extends Seeder
             'Pariwisata',
             'Ekonomi Kreatif',
             'Pemuda dan Olahraga',
+            'Badan Pengelola Geopark',
         ];
 
         foreach ($bidangs as $bidang) {

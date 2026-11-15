@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\StatusKepegawaian;
 use App\Models\Jabatan;
 use App\Models\User;
 use Carbon\Carbon;
@@ -58,6 +59,7 @@ class DataPegawaiSeeder extends Seeder
                 $item = [
                     'name' => $nama,
                     'nip' => $nip,
+                    'status_kepegawaian' => StatusKepegawaian::detectFromNip($nip)->value,
                     'jabatan_id' => $jabatanId,
                     'pendidikan' => $row['pendidikan'] ?? null,
                     'jenis_kelamin' => $row['jk'] ?? null,
@@ -107,6 +109,7 @@ class DataPegawaiSeeder extends Seeder
                 'gelar_depan' => $row['gelar_depan'] ?? null,
                 'gelar_belakang' => $row['gelar_belakang'] ?? null,
                 'nip' => $nip,
+                'status_kepegawaian' => $row['status_kepegawaian'] ?? ($isTechnicalAdmin ? StatusKepegawaian::PNS->value : StatusKepegawaian::detectFromNip($nip)->value),
                 'email' => $email,
                 'jabatan_id' => $jabatanId,
                 'anggaran_role' => $row['anggaran_role'] ?? null,

@@ -63,6 +63,7 @@ class DatabaseSeeder extends Seeder
             PengajuanIzinSeeder::class,
             AktivitasSeeder::class,
             StrukturOrganisasiSeeder::class,
+            TimKreatifSeeder::class,
             SatuanSeeder::class,
             KodeRekeningSeeder::class,
             MasterBarangSeeder::class,

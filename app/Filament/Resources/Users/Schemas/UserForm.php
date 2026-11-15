@@ -367,6 +367,13 @@ class UserForm
                                             ->icon('heroicon-o-briefcase')
                                             ->columns(2)
                                             ->schema([
+                                                Select::make('status_kepegawaian')
+                                                    ->label('Status Kepegawaian')
+                                                    ->options(\App\Enums\StatusKepegawaian::class)
+                                                    ->default(\App\Enums\StatusKepegawaian::PNS)
+                                                    ->required()
+                                                    ->columnSpanFull(),
+
                                                 Select::make('bidang_id')
                                                     ->label('Bidang')
                                                     ->relationship('bidang', 'nama')

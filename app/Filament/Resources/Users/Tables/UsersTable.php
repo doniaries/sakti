@@ -78,6 +78,10 @@ class UsersTable
                     ->searchable()
                     ->sortable()
                     ->stickyable(),
+                \Filament\Tables\Columns\TextColumn::make('status_kepegawaian')
+                    ->label('Status')
+                    ->badge()
+                    ->sortable(),
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->label('Email User')
                     ->searchable()
@@ -244,6 +248,9 @@ class UsersTable
                     ->disabled(fn(): bool => ! (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)),
             ])
             ->filters([
+                SelectFilter::make('status_kepegawaian')
+                    ->label('Status Kepegawaian')
+                    ->options(\App\Enums\StatusKepegawaian::class),
                 SelectFilter::make('jabatan_tim_kreatif')
                     ->label('Tim Kreatif Dinas')
                     ->options(\App\Enums\JabatanTimKreatif::class)

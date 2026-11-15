@@ -30,6 +30,7 @@ class JabatanSeeder extends Seeder
             'Penelaah Teknis Kebijakan',
             'Penerjemah Ahli Pertama',
             'Pengadministrasi Perkantoran',
+            'Pengelola Geopark',
             'Pengelola Layanan Operasional',
             'Pengelola Umum Operasional',
             'Pranata Hubungan Msyarakat Ahli Pertama',

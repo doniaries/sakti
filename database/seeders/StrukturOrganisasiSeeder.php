@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\StatusKepegawaian;
 use App\Models\Bidang;
 use App\Models\Jabatan;
 use App\Models\User;
@@ -67,6 +68,7 @@ class StrukturOrganisasiSeeder extends Seeder
                 'jf_id' => $jfId,
                 'jabatan_id' => $jabatanId,
                 'anggaran_role' => $row['anggaran_role'] ?? null,
+                'status_kepegawaian' => $row['status_kepegawaian'] ?? ($emailKey === 'superadmin@gmail.com' ? StatusKepegawaian::PNS->value : StatusKepegawaian::detectFromNip($row['nip'] ?? null)->value),
             ]);
 
             if (! empty($row['roles'])) {
