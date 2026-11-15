@@ -155,7 +155,7 @@ class SuratTugas extends Model
         }
 
         if (blank($this->nomor_surat)) {
-            $this->nomor_surat = sprintf('ST/%04d/SAKTI/%d', $this->id, now()->year);
+            $this->nomor_surat = sprintf('ST/%04d/TK/%d', $this->id, now()->year);
         }
 
         $this->ditandatangani_at = $this->ditandatangani_at ?? now();
