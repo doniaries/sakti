@@ -16,9 +16,7 @@
         }
         @media screen {
             body {
-                max-width: 175mm;
-                margin: 16px auto;
-                padding: 0 12px;
+                margin: 14px 22px;
             }
         }
         .kop-table {
@@ -338,7 +336,7 @@
         </div>
     @endif
     @if (! $srikandiMode && ! empty($qrBase64))
-        <div style="position: fixed; bottom: -4mm; left: 0; right: 0; border-top: 1px solid #d1d5db; padding-top: 5px;">
+        <div style="margin-top: 24px; border-top: 1px solid #d1d5db; padding-top: 6px; page-break-inside: avoid;">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     <td style="width: 52px; vertical-align: middle;">

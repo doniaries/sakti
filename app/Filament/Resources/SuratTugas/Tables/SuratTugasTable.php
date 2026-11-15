@@ -97,7 +97,7 @@ class SuratTugasTable
                     ->icon(fn (SuratTugas $record): string => filled($record->file_tte) ? 'heroicon-o-document-check' : 'heroicon-o-eye')
                     ->color(fn (SuratTugas $record): string => filled($record->file_tte) ? 'success' : 'info')
                     ->modalHeading(fn (SuratTugas $record): string => (filled($record->file_tte) ? 'Surat Tugas Resmi (TTE SRIKANDI) — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
-                    ->modalWidth('4xl')
+                    ->modalWidth('3xl')
                     ->modalContent(function (SuratTugas $record): HtmlString {
                         $record->tandaiDibacaOleh(Auth::id());
 
