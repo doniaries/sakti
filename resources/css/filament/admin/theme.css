@@ -655,6 +655,123 @@ html:not(.dark) .laporan-table tbody tr:hover td {
     margin-top: 0.25rem !important;
 }
 
+.sakti-stat-card {
+    border-radius: 12px !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, border-color 0.16s ease;
+}
+
+a.sakti-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -4px rgba(15, 23, 42, 0.1);
+}
+
+.sakti-stat-indigo {
+    background-color: #eef2ff !important;
+    border-color: #c7d2fe !important;
+}
+a.sakti-stat-indigo:hover {
+    background-color: #e0e7ff !important;
+    border-color: #a5b4fc !important;
+}
+.dark .sakti-stat-indigo {
+    background-color: rgba(49, 46, 129, 0.28) !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+}
+.dark a.sakti-stat-indigo:hover {
+    background-color: rgba(49, 46, 129, 0.42) !important;
+}
+
+.sakti-stat-emerald {
+    background-color: #ecfdf5 !important;
+    border-color: #a7f3d0 !important;
+}
+a.sakti-stat-emerald:hover {
+    background-color: #d1fae5 !important;
+    border-color: #6ee7b7 !important;
+}
+.dark .sakti-stat-emerald {
+    background-color: rgba(6, 78, 59, 0.28) !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+}
+.dark a.sakti-stat-emerald:hover {
+    background-color: rgba(6, 78, 59, 0.42) !important;
+}
+
+.sakti-stat-sky {
+    background-color: #f0f9ff !important;
+    border-color: #bae6fd !important;
+}
+a.sakti-stat-sky:hover {
+    background-color: #e0f2fe !important;
+    border-color: #7dd3fc !important;
+}
+.dark .sakti-stat-sky {
+    background-color: rgba(12, 74, 110, 0.28) !important;
+    border-color: rgba(14, 165, 233, 0.35) !important;
+}
+.dark a.sakti-stat-sky:hover {
+    background-color: rgba(12, 74, 110, 0.42) !important;
+}
+
+.sakti-stat-amber {
+    background-color: #fffbeb !important;
+    border-color: #fde68a !important;
+}
+a.sakti-stat-amber:hover {
+    background-color: #fef3c7 !important;
+    border-color: #fcd34d !important;
+}
+.dark .sakti-stat-amber {
+    background-color: rgba(120, 53, 15, 0.28) !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+.dark a.sakti-stat-amber:hover {
+    background-color: rgba(120, 53, 15, 0.42) !important;
+}
+
+.sakti-stat-teal {
+    background-color: #f0fdfa !important;
+    border-color: #99f6e4 !important;
+}
+a.sakti-stat-teal:hover {
+    background-color: #ccfbf1 !important;
+    border-color: #5eead4 !important;
+}
+.dark .sakti-stat-teal {
+    background-color: rgba(19, 78, 74, 0.28) !important;
+    border-color: rgba(20, 184, 166, 0.35) !important;
+}
+.dark a.sakti-stat-teal:hover {
+    background-color: rgba(19, 78, 74, 0.42) !important;
+}
+
+.sakti-stat-slate {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+a.sakti-stat-slate:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+}
+.dark .sakti-stat-slate {
+    background-color: rgba(30, 41, 59, 0.45) !important;
+    border-color: rgba(100, 116, 139, 0.35) !important;
+}
+.dark a.sakti-stat-slate:hover {
+    background-color: rgba(30, 41, 59, 0.65) !important;
+}
+
+.sakti-stat-rose {
+    background-color: #fff1f2 !important;
+    border-color: #fecdd3 !important;
+}
+.dark .sakti-stat-rose {
+    background-color: rgba(136, 19, 55, 0.28) !important;
+    border-color: rgba(244, 63, 94, 0.35) !important;
+}
+
 /* ==========================================================================
    Table Container Height & Scroll Fix (Anti Cut-Off / Anti Scrollbar Vertikal Dalam Tabel)
    ========================================================================== */

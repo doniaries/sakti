@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Lhks\LhkResource;
-use App\Filament\Resources\LogAbsensis\LogAbsensiResource;
 use App\Filament\Resources\PengajuanSpjs\PengajuanSpjResource;
 use App\Filament\Resources\Users\UserResource;
 use App\Models\JadwalKerja;
-use App\Models\PortalLink;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
@@ -22,7 +20,7 @@ class PegawaiInfoJadwalWidget extends StatsOverviewWidget
     {
         return [
             'default' => 2,
-            'md' => 4,
+            'md' => 3,
         ];
     }
 
@@ -60,71 +58,49 @@ class PegawaiInfoJadwalWidget extends StatsOverviewWidget
         $totalSpj = (clone $spjQuery)->count();
         $spjProses = (clone $spjQuery)->whereNotIn('status', ['dicairkan', 'ditolak'])->count();
 
-        $stats = [
+        return [
             Stat::make('Jadwal Kerja', $jadwal?->nama ?? 'Reguler')
                 ->description("Sen–Kam {$jamSeninKamis} • Jum {$jamJumat} (±{$toleransi}m)")
                 ->descriptionIcon('heroicon-m-clock')
-                ->color('primary'),
+                ->color('primary')
+                ->extraAttributes(['class' => 'sakti-stat-card sakti-stat-indigo']),
 
             Stat::make('Status Pegawai', "{$statusAktif} ({$tipeKerja})")
                 ->description('Kuota Cuti: ' . (int) ($user->kuota_cuti ?? 12) . ' hari')
                 ->descriptionIcon('heroicon-m-check-badge')
-                ->color($user->aktif ? 'success' : 'danger'),
+                ->color($user->aktif ? 'success' : 'danger')
+                ->extraAttributes(['class' => 'sakti-stat-card ' . ($user->aktif ? 'sakti-stat-emerald' : 'sakti-stat-rose')]),
 
             Stat::make('Jabatan & Unit', $user->jabatan?->nama ?? '-')
                 ->description(collect([
-                    $user->bidang?->nama,
+                    $user->bidang?->nama ?? 'Unit Khusus',
                     $user->jfPenempatan ? 'JF: ' . $user->jfPenempatan->name : null,
-                ])->filter()->implode(' • ') ?: '-')
+                ])->filter()->implode(' • '))
                 ->descriptionIcon('heroicon-m-building-office')
                 ->color('info')
-                ->url(UserResource::canAccess() ? UserResource::getUrl('index') : null),
+                ->url(UserResource::canAccess() ? UserResource::getUrl('index') : null)
+                ->extraAttributes(['class' => 'sakti-stat-card sakti-stat-sky']),
+
+            Stat::make('Laporan LHK', 'Kinerja Harian')
+                ->description('Kelola laporan kerja harian')
+                ->descriptionIcon('heroicon-m-clipboard-document-check')
+                ->color('primary')
+                ->url(LhkResource::canAccess() ? LhkResource::getUrl('index') : null)
+                ->extraAttributes(['class' => 'sakti-stat-card sakti-stat-slate']),
 
             Stat::make('Pengajuan SPJ', "{$totalSpj} Berkas")
                 ->description("{$spjProses} dalam proses • Klik untuk lihat")
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('warning')
-                ->url(PengajuanSpjResource::canAccess() ? PengajuanSpjResource::getUrl('index') : null),
+                ->url(PengajuanSpjResource::canAccess() ? PengajuanSpjResource::getUrl('index') : null)
+                ->extraAttributes(['class' => 'sakti-stat-card sakti-stat-amber']),
 
             Stat::make('Presensi Mobile', 'Absen Online')
                 ->description('Buka aplikasi presensi pegawai')
                 ->descriptionIcon('heroicon-m-device-phone-mobile')
                 ->color('success')
-                ->url(route('mobile.dashboard'), shouldOpenInNewTab: true),
-
-            Stat::make('Log Absensi', 'Riwayat Tap')
-                ->description('Lihat log absensi Anda')
-                ->descriptionIcon('heroicon-m-finger-print')
-                ->color('primary')
-                ->url(LogAbsensiResource::canAccess() ? LogAbsensiResource::getUrl('index') : null),
-
-            Stat::make('Data Pegawai', 'Profil & SK')
-                ->description('Lihat biodata kepegawaian')
-                ->descriptionIcon('heroicon-m-identification')
-                ->color('info')
-                ->url(UserResource::canAccess() ? UserResource::getUrl('index') : null),
-
-            Stat::make('Laporan LHK', 'Kinerja Harian')
-                ->description('Kelola laporan kerja harian')
-                ->descriptionIcon('heroicon-m-clipboard-document-check')
-                ->color('gray')
-                ->url(LhkResource::canAccess() ? LhkResource::getUrl('index') : null),
+                ->url(route('mobile.dashboard'), shouldOpenInNewTab: true)
+                ->extraAttributes(['class' => 'sakti-stat-card sakti-stat-teal']),
         ];
-
-        $portalLinks = PortalLink::query()
-            ->where('is_aktif', true)
-            ->orderBy('urutan')
-            ->limit(4)
-            ->get();
-
-        foreach ($portalLinks as $link) {
-            $stats[] = Stat::make($link->judul, $link->badge ?: 'Tautan')
-                ->description($link->deskripsi ?: 'Buka tautan portal')
-                ->descriptionIcon('heroicon-m-arrow-top-right-on-square')
-                ->color($link->warna ?: 'primary')
-                ->url($link->url, shouldOpenInNewTab: ($link->target ?? '_blank') === '_blank');
-        }
-
-        return $stats;
     }
 }
