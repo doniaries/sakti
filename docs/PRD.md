@@ -45,7 +45,11 @@
   - Pegawai tidak bisa tap pulang jika belum tap masuk pagi hari (kecuali berstatus Dinas Luar / Izin resmi).
   - Pegawai `wfh` bebas geofencing; pegawai `wfo` wajib dalam radius koordinat kantor.
 - **Mesin ZKTeco & Mobile PWA**: Sinkronisasi log mesin ke `LogAbsensi` dan rekap ke `AbsensiHarian`. Tersedia bulk action *"Set Jam Pulang Massal"* untuk pegawai lupa tap pulang.
-- **Izin & Cuti (`PengajuanIzin`)**: Persetujuan berjenjang (Atasan/Kabid ➔ Kadis), cetak PDF `surat-cuti.blade.php` (kategori cuti) dan `surat-izin.blade.php` (izin/sakit/DL/WFH).
+- **Izin & Cuti (`PengajuanIzin`)**:
+  - Persetujuan berjenjang (Atasan/Kabid ➔ Kadis) melalui tab **Verifikasi Bawahan** + notifikasi database; saat disetujui otomatis men-generate `AbsensiHarian` dan memotong kuota cuti.
+  - **Imutabilitas**: Pengajuan berstatus `disetujui`/`ditolak` terkunci permanen (tidak dapat diubah/dihapus pegawai).
+  - **Master Global Read-Only**: Data Jabatan, Jadwal Kerja, dan Hari Libur dapat dilihat seluruh pegawai, namun mutasi dibatasi hanya untuk Admin Kepegawaian & Superadmin.
+  - Cetak PDF `surat-cuti.blade.php` (kategori cuti) dan `surat-izin.blade.php` (izin/sakit/DL/WFH).
 
 ### D. Laporan Harian Kinerja (LHK)
 - **Syarat Pengisian**: Pegawai wajib memiliki `AbsensiHarian` lengkap (masuk & pulang) atau berstatus Dinas Luar pada tanggal tersebut.
@@ -58,4 +62,7 @@
 - **Jenis Belanja**: `barang_jasa`, `makan_minum`, `sppd`, `bbm` (kuota liter mengacu pada `MasterTujuanBbm`), dengan metode `e_katalog` atau `non_katalog`.
 - **Pajak Otomatis**: Belanja barang di atas Rp 2.000.000 otomatis dikenakan PPN 11% dan PPh 22 1,5%.
 - **Alur Verifikasi**: Pemohon (Staf) ➔ PPTK (Kabid) ➔ PPK ➔ PA (Kadis) ➔ Pencairan (Bendahara), menghasilkan PDF Nota Pesanan, Kwitansi, dan NPD.
-- **Pelaporan Eksekutif**: LRFK & LPJ Fungsional Bendahara.
+- **Pelaporan Eksekutif (LRFK & LPJ Fungsional Bendahara)**:
+  - **Realisasi Keuangan**: Akumulasi SPJ dicairkan s/d bulan laporan dibagi Pagu DPA (`%`) dan dibandingkan Target ROPK (`Serapan %`).
+  - **Realisasi Fisik Tertimbang**: `Bobot Item = Pagu Item / Total Pagu Kegiatan`, `Progres Item = min(100%, Volume SPJ Selesai / Pagu Volume RKA)`, dan `Realisasi Fisik Tertimbang = ∑(Bobot Item × % Progres Item)`.
+  - **LPJ Fungsional**: Rekap realisasi per Kode Rekening Belanja, register SP2D/Kas, serta rekap pemotongan & penyetoran pajak (PPN, PPh 21/22/23).
