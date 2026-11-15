@@ -21,7 +21,11 @@ class CreateSuratTugas extends CreateRecord
 
     protected function afterCreate(): void
     {
-        $this->record->kirimNotifikasiKeTim();
+        if ($this->record->status === 'terbit') {
+            $this->record->kirimNotifikasiKeTim();
+        } else {
+            $this->record->kirimNotifikasiPengajuan();
+        }
     }
 
     protected function getRedirectUrl(): string

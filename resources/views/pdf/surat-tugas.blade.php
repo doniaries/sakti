@@ -231,13 +231,13 @@
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px; page-break-inside: avoid;">
         <tr>
             <td style="width: 48%; vertical-align: bottom; text-align: left;"></td>
-            <td style="width: 52%; vertical-align: top; text-align: left;">
+            <td style="width: 52%; vertical-align: top; text-align: center;">
                 <div>Dikeluarkan di : Muaro Sijunjung</div>
                 <div>Pada tanggal : {{ $srikandiMode ? '${tanggal_naskah}' : $tanggalStr }}</div>
                 <div style="margin-top: 8px; font-weight: bold; text-transform: uppercase;">
                     @if ($isAtasNama)
                         a.n. KEPALA DINAS<br>
-                        <span style="padding-left: 24px;">{{ $jabatanTtd }}</span>
+                        <span>{{ $jabatanTtd }}</span>
                     @else
                         {{ $jabatanTtd }}
                     @endif
@@ -249,8 +249,8 @@
                     <div>NIP. ${nip_pengirim}</div>
                 @else
                     @if ($surat->status === 'terbit' && ! empty($qrBase64))
-                        <div style="margin: 8px 0 6px 0;">
-                            <img src="{{ $qrBase64 }}" alt="QR TTE SAKTI" style="width: 84px; height: 84px; display: block;">
+                        <div style="margin: 8px 0 6px 0; text-align: center;">
+                            <img src="{{ $qrBase64 }}" alt="QR TTE SAKTI" style="width: 84px; height: 84px; display: block; margin: 0 auto;">
                             <div style="font-size: 8pt; font-style: italic; color: #374151; margin-top: 2px;">
                                 Disetujui secara elektronik
                             </div>
@@ -319,11 +319,11 @@
             </tbody>
         </table>
 
-        <div class="ttd-wrap">
+        <div class="ttd-wrap" style="text-align: center;">
             <div style="font-weight: bold; text-transform: uppercase;">
                 @if ($isAtasNama)
                     a.n. KEPALA DINAS<br>
-                    <span style="padding-left: 24px;">{{ $jabatanTtd }}</span>
+                    <span>{{ $jabatanTtd }}</span>
                 @else
                     {{ $jabatanTtd }}
                 @endif
@@ -335,8 +335,8 @@
                 <div>NIP. ${nip_pengirim}</div>
             @else
                 @if ($surat->status === 'terbit' && ! empty($qrBase64))
-                    <div style="margin: 8px 0 6px 0;">
-                        <img src="{{ $qrBase64 }}" alt="QR TTE SAKTI" style="width: 84px; height: 84px; display: block;">
+                    <div style="margin: 8px 0 6px 0; text-align: center;">
+                        <img src="{{ $qrBase64 }}" alt="QR TTE SAKTI" style="width: 84px; height: 84px; display: block; margin: 0 auto;">
                         <div style="font-size: 8pt; font-style: italic; color: #374151; margin-top: 2px;">
                             Disetujui secara elektronik
                         </div>

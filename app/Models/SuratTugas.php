@@ -95,21 +95,49 @@ class SuratTugas extends Model
             ->updateExistingPivot($userId, ['dibaca_at' => now()]);
     }
 
+    public function kirimNotifikasiPengajuan(): void
+    {
+        $this->loadMissing(['creator', 'penandatangan']);
+
+        if ($this->creator && filled($this->creator->jabatan_tim_kreatif)) {
+            Notification::make()
+                ->title('Draf Surat Tugas Dibuat')
+                ->body("Menunggu persetujuan TTE: {$this->nama_kegiatan}")
+                ->icon('heroicon-o-document-text')
+                ->info()
+                ->sendToDatabase($this->creator);
+        }
+
+        if ($this->penandatangan && filled($this->penandatangan->jabatan_tim_kreatif)) {
+            Notification::make()
+                ->title('Permohonan Persetujuan Surat Tugas')
+                ->body("Mohon persetujuan & TTE SAKTI untuk kegiatan: {$this->nama_kegiatan}")
+                ->icon('heroicon-o-pencil-square')
+                ->warning()
+                ->sendToDatabase($this->penandatangan);
+        }
+    }
+
     public function kirimNotifikasiKeTim(): void
     {
         if ($this->status !== 'terbit') {
             return;
         }
 
-        $this->loadMissing('pegawais');
+        $this->loadMissing(['pegawais', 'creator', 'penandatangan']);
 
-        foreach ($this->pegawais as $pegawai) {
+        $penerima = collect([$this->creator, $this->penandatangan])
+            ->merge($this->pegawais)
+            ->filter(fn (?User $user): bool => $user !== null && filled($user->jabatan_tim_kreatif))
+            ->unique('id');
+
+        foreach ($penerima as $user) {
             Notification::make()
-                ->title('Surat Tugas Resmi (TTE SRIKANDI)')
+                ->title('Surat Tugas Disetujui (TTE SAKTI)')
                 ->body("Nomor {$this->nomor_surat}: {$this->nama_kegiatan}")
                 ->icon('heroicon-o-document-check')
                 ->success()
-                ->sendToDatabase($pegawai);
+                ->sendToDatabase($user);
         }
     }
 
