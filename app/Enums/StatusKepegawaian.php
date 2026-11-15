@@ -11,6 +11,7 @@ enum StatusKepegawaian: string implements HasLabel, HasColor
 {
     case PNS = 'pns';
     case PPPK = 'pppk';
+    case PPPK_PARUH_WAKTU = 'pppk_paruh_waktu';
     case KONTRAK = 'kontrak';
 
     public function getLabel(): ?string
@@ -18,6 +19,7 @@ enum StatusKepegawaian: string implements HasLabel, HasColor
         return match ($this) {
             self::PNS => 'PNS',
             self::PPPK => 'PPPK (P3K)',
+            self::PPPK_PARUH_WAKTU => 'PPPK Paruh Waktu',
             self::KONTRAK => 'Kontrak / Non-ASN',
         };
     }
@@ -27,6 +29,7 @@ enum StatusKepegawaian: string implements HasLabel, HasColor
         return match ($this) {
             self::PNS => 'primary',
             self::PPPK => 'info',
+            self::PPPK_PARUH_WAKTU => 'success',
             self::KONTRAK => 'warning',
         };
     }

@@ -7,6 +7,7 @@ use App\Models\Bidang;
 use App\Models\Jabatan;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class StrukturOrganisasiSeeder extends Seeder
 {
@@ -35,6 +36,7 @@ class StrukturOrganisasiSeeder extends Seeder
 
         // 2. Petakan seluruh User berdasarkan email
         $usersByEmail = User::query()->get()->keyBy(fn (User $u) => strtolower((string) $u->email));
+        $hasStatusKepegawaian = Schema::hasColumn('users', 'status_kepegawaian');
 
         // 3. Tetapkan bidang_id, jabatan_id, anggaran_role, dan atasan/jf pada setiap pegawai
         foreach ($data['users'] ?? [] as $row) {
@@ -62,14 +64,20 @@ class StrukturOrganisasiSeeder extends Seeder
                 ? Jabatan::query()->whereRaw('LOWER(nama) = ?', [strtolower($row['jabatan'])])->value('id')
                 : $user->jabatan_id;
 
-            $user->update([
+            $updateData = [
                 'bidang_id' => $bidangId,
                 'atasan_id' => $atasanId,
                 'jf_id' => $jfId,
                 'jabatan_id' => $jabatanId,
                 'anggaran_role' => $row['anggaran_role'] ?? null,
-                'status_kepegawaian' => $row['status_kepegawaian'] ?? ($emailKey === 'superadmin@gmail.com' ? StatusKepegawaian::PNS->value : StatusKepegawaian::detectFromNip($row['nip'] ?? null)->value),
-            ]);
+            ];
+
+            if ($hasStatusKepegawaian) {
+                $updateData['status_kepegawaian'] = $row['status_kepegawaian']
+                    ?? ($emailKey === 'superadmin@gmail.com' ? StatusKepegawaian::PNS->value : StatusKepegawaian::detectFromNip($row['nip'] ?? null)->value);
+            }
+
+            $user->update($updateData);
 
             if (! empty($row['roles'])) {
                 $user->syncRoles($row['roles']);

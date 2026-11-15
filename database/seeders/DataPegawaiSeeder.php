@@ -8,6 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Models\Role;
 
 class DataPegawaiSeeder extends Seeder
@@ -23,6 +24,7 @@ class DataPegawaiSeeder extends Seeder
 
         $defaultPassword = Hash::make('password');
         $superAdminPassword = Hash::make('@Iamsuperadmin');
+        $hasStatusKepegawaian = Schema::hasColumn('users', 'status_kepegawaian');
 
         // 1. Seed biodata dasar dari pegawai_80.json jika ada
         $jsonPath = database_path('seeders/pegawai_80.json');
@@ -59,7 +61,6 @@ class DataPegawaiSeeder extends Seeder
                 $item = [
                     'name' => $nama,
                     'nip' => $nip,
-                    'status_kepegawaian' => StatusKepegawaian::detectFromNip($nip)->value,
                     'jabatan_id' => $jabatanId,
                     'pendidikan' => $row['pendidikan'] ?? null,
                     'jenis_kelamin' => $row['jk'] ?? null,
@@ -69,6 +70,10 @@ class DataPegawaiSeeder extends Seeder
                     'email' => $emailPrefix . '@sijunjung.go.id',
                     'password' => $defaultPassword,
                 ];
+
+                if ($hasStatusKepegawaian) {
+                    $item['status_kepegawaian'] = StatusKepegawaian::detectFromNip($nip)->value;
+                }
 
                 $user = User::updateOrCreate(['nip' => $nip], $item);
                 if (blank($user->nomor_absensi)) {
@@ -94,9 +99,9 @@ class DataPegawaiSeeder extends Seeder
                 continue;
             }
 
-            $user = filled($nip)
-                ? User::query()->where('nip', $nip)->first()
-                : User::query()->where('email', $email)->first();
+            $user = User::query()->where('email', $email)->first()
+                ?? User::query()->where('name', $row['name'])->first()
+                ?? (filled($nip) ? User::query()->where('nip', $nip)->first() : null);
 
             $jabatanId = ! empty($row['jabatan'])
                 ? Jabatan::query()->whereRaw('LOWER(nama) = ?', [strtolower($row['jabatan'])])->value('id')
@@ -109,7 +114,6 @@ class DataPegawaiSeeder extends Seeder
                 'gelar_depan' => $row['gelar_depan'] ?? null,
                 'gelar_belakang' => $row['gelar_belakang'] ?? null,
                 'nip' => $nip,
-                'status_kepegawaian' => $row['status_kepegawaian'] ?? ($isTechnicalAdmin ? StatusKepegawaian::PNS->value : StatusKepegawaian::detectFromNip($nip)->value),
                 'email' => $email,
                 'jabatan_id' => $jabatanId,
                 'anggaran_role' => $row['anggaran_role'] ?? null,
@@ -119,9 +123,25 @@ class DataPegawaiSeeder extends Seeder
                 'nomor_absensi' => $row['nomor_absensi'] ?? null,
             ];
 
+            if ($hasStatusKepegawaian) {
+                $payload['status_kepegawaian'] = $row['status_kepegawaian']
+                    ?? ($isTechnicalAdmin ? StatusKepegawaian::PNS->value : StatusKepegawaian::detectFromNip($nip)->value);
+            }
+
             if ($email === 'superadmin@gmail.com') {
                 $payload['bidang_id'] = null;
                 $payload['atasan_id'] = null;
+            }
+
+            if (filled($payload['nomor_absensi'])) {
+                $takenByOther = User::query()
+                    ->where('nomor_absensi', $payload['nomor_absensi'])
+                    ->when($user, fn ($q) => $q->whereKeyNot($user->id))
+                    ->exists();
+
+                if ($takenByOther) {
+                    $payload['nomor_absensi'] = null;
+                }
             }
 
             if ($user) {
@@ -129,6 +149,10 @@ class DataPegawaiSeeder extends Seeder
             } else {
                 $payload['password'] = $isTechnicalAdmin ? $superAdminPassword : $defaultPassword;
                 $user = User::query()->create($payload);
+
+                if (blank($user->nomor_absensi)) {
+                    $user->update(['nomor_absensi' => (string) $user->id]);
+                }
             }
 
             if (! empty($row['roles'])) {
