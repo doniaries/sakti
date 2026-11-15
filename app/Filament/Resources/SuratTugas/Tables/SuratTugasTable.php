@@ -61,15 +61,15 @@ class SuratTugasTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => $state === 'terbit' ? 'Resmi (TTE SAKTI)' : 'Draft')
-                    ->color(fn (string $state): string => $state === 'terbit' ? 'success' : 'warning')
+                    ->formatStateUsing(fn(string $state): string => $state === 'terbit' ? 'Resmi (TTE SAKTI)' : 'Draft')
+                    ->color(fn(string $state): string => $state === 'terbit' ? 'success' : 'warning')
                     ->sortable(),
 
                 TextColumn::make('pegawais_count')
                     ->label('Tim & Dibaca')
                     ->badge()
                     ->color('info')
-                    ->formatStateUsing(fn (SuratTugas $record): string => "{$record->pegawais_sudah_baca_count}/{$record->pegawais_count} Dibaca")
+                    ->formatStateUsing(fn(SuratTugas $record): string => "{$record->pegawais_sudah_baca_count}/{$record->pegawais_count} Dibaca")
                     ->sortable(),
 
                 TextColumn::make('penandatangan.name')
@@ -92,10 +92,10 @@ class SuratTugasTable
             ])
             ->recordActions([
                 Action::make('cetak_pdf')
-                    ->label(fn (SuratTugas $record): string => $record->status === 'terbit' ? 'Lihat PDF Resmi' : 'Preview Draft')
-                    ->icon(fn (SuratTugas $record): string => $record->status === 'terbit' ? 'heroicon-o-document-check' : 'heroicon-o-eye')
-                    ->color(fn (SuratTugas $record): string => $record->status === 'terbit' ? 'success' : 'info')
-                    ->modalHeading(fn (SuratTugas $record): string => ($record->status === 'terbit' ? 'Surat Tugas Resmi (TTE SAKTI) — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
+                    ->label(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'Lihat Surat Tugas' : 'Preview Draft')
+                    ->icon(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'heroicon-o-document-check' : 'heroicon-o-eye')
+                    ->color(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'success' : 'info')
+                    ->modalHeading(fn(SuratTugas $record): string => ($record->status === 'terbit' ? 'Surat Tugas Resmi (TTE SAKTI) — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
                     ->modalWidth(Width::FourExtraLarge)
                     ->modalContent(function (SuratTugas $record): HtmlString {
                         $record->tandaiDibacaOleh(Auth::id());
@@ -111,12 +111,12 @@ class SuratTugasTable
                             ->label('Download PDF')
                             ->icon('heroicon-o-arrow-down-tray')
                             ->color('primary')
-                            ->url(fn (SuratTugas $record): string => route('surat-tugas.cetak-pdf', ['suratTugas' => $record, 'download' => 1]))
+                            ->url(fn(SuratTugas $record): string => route('surat-tugas.cetak-pdf', ['suratTugas' => $record, 'download' => 1]))
                             ->openUrlInNewTab(),
                     ]),
 
                 Action::make('tte_sakti')
-                    ->label('Setujui & TTE SAKTI')
+                    ->label('Setujui')
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->button()
