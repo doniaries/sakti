@@ -19,11 +19,6 @@
             "nama": "Pemuda dan Olahraga",
             "slug": "pemuda-dan-olahraga",
             "kepala_email": "indrawadiakura1007@gmail.com"
-        },
-        {
-            "nama": "Badan Pengelola Geopark",
-            "slug": "badan-pengelola-geopark",
-            "kepala_email": "afrineldi72@gmail.com"
         }
     ],
     "users": [
@@ -1529,7 +1524,7 @@
             "status_kepegawaian": "kontrak",
             "email": "afrinal.geopark@sijunjung.go.id",
             "jabatan": "Pengelola Geopark",
-            "bidang_slug": "badan-pengelola-geopark",
+            "bidang_slug": null,
             "atasan_email": "afrineldi72@gmail.com",
             "jf_email": null,
             "anggaran_role": null,
@@ -1549,7 +1544,7 @@
             "status_kepegawaian": "kontrak",
             "email": "rahmad.geopark@sijunjung.go.id",
             "jabatan": "Pengelola Geopark",
-            "bidang_slug": "badan-pengelola-geopark",
+            "bidang_slug": null,
             "atasan_email": "afrineldi72@gmail.com",
             "jf_email": null,
             "anggaran_role": null,

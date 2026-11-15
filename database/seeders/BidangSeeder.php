@@ -36,8 +36,9 @@ class BidangSeeder extends Seeder
             'Pariwisata',
             'Ekonomi Kreatif',
             'Pemuda dan Olahraga',
-            'Badan Pengelola Geopark',
         ];
+
+        Bidang::query()->where('slug', 'badan-pengelola-geopark')->delete();
 
         foreach ($bidangs as $bidang) {
             Bidang::updateOrCreate(

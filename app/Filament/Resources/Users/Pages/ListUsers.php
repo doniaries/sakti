@@ -123,13 +123,30 @@ class ListUsers extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereNotNull('jabatan_tim_kreatif'));
         }
 
-        $tanpaBidangCount = User::query()->whereNull('bidang_id')->bukanSuperAdmin()->count();
+        $geoparkCount = User::query()
+            ->whereNull('bidang_id')
+            ->whereNotNull('atasan_id')
+            ->bukanSuperAdmin()
+            ->count();
+        if ($geoparkCount > 0) {
+            $tabs['geopark'] = Tab::make('Badan Pengelola Geopark')
+                ->icon('heroicon-m-globe-alt')
+                ->badge($geoparkCount)
+                ->badgeColor('success')
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('bidang_id')->whereNotNull('atasan_id'));
+        }
+
+        $tanpaBidangCount = User::query()
+            ->whereNull('bidang_id')
+            ->whereNull('atasan_id')
+            ->bukanSuperAdmin()
+            ->count();
         if ($tanpaBidangCount > 0) {
             $tabs['tanpa_bidang'] = Tab::make('Kepala Dinas')
                 ->icon('heroicon-m-user')
                 ->badge($tanpaBidangCount)
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('bidang_id'));
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('bidang_id')->whereNull('atasan_id'));
         }
 
         return $tabs;
