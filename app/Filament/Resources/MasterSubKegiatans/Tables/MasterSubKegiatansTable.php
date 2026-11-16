@@ -122,8 +122,8 @@ class MasterSubKegiatansTable
                                 Select::make('bidang_id')
                                     ->label('Bidang Pengampu')
                                     ->options(fn() => Bidang::pluck('nama', 'id')->all())
-                                    ->default(fn(MasterSubKegiatan $record) => $record->kegiatan?->bidang_id)
-                                    ->required(),
+                                    ->default(fn(MasterSubKegiatan $record) => $record->kegiatan?->bidang_id),
+                                // ->required(),
                             ])
                             ->action(function (MasterSubKegiatan $record, array $data): void {
                                 if ($record->kegiatan) {
