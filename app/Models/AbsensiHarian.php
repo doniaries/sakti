@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AbsensiHarian extends Model
 {
+    use SoftDeletes;
     public const TARGET_MENIT_HARIAN_ASN = 450; // 7 jam 30 menit per hari kerja
     public const TARGET_MENIT_MINGGUAN_ASN = 2250; // 37 jam 30 menit per minggu (5 hari kerja)
 

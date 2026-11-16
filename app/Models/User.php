@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Concerns\DeletesOldFiles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 {
+    use SoftDeletes;
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use DeletesOldFiles, HasFactory, Notifiable, HasRoles;
 

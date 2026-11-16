@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Aktivitas;
 use App\Models\Lhk;
 use App\Models\RencanaAksi;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LhkPekerjaan extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'lhk_id',
         'jam_mulai',
