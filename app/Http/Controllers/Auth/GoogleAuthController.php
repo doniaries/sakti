@@ -22,6 +22,12 @@ class GoogleAuthController extends Controller
         if ($request->has('from')) {
             session(['google_auth_origin' => $request->query('from')]);
         }
+        if ($request->filled('device_id')) {
+            session(['google_auth_device_id' => (string) $request->query('device_id')]);
+        }
+        if ($request->filled('device_name')) {
+            session(['google_auth_device_name' => (string) $request->query('device_name')]);
+        }
 
         return Socialite::driver('google')->redirect();
     }
@@ -32,6 +38,8 @@ class GoogleAuthController extends Controller
     public function handleGoogleCallback(Request $request): RedirectResponse
     {
         $origin = session()->pull('google_auth_origin', 'admin');
+        $flutterDeviceId = (string) session()->pull('google_auth_device_id', '');
+        $flutterDeviceName = (string) session()->pull('google_auth_device_name', '');
         $failRedirect = ($origin === 'mobile') ? route('mobile.login') : '/admin/login';
 
         $flutterErrorRedirect = function (string $message): RedirectResponse {
@@ -143,6 +151,17 @@ class GoogleAuthController extends Controller
         }
 
         if ($origin === 'flutter') {
+            if ($flutterDeviceId !== '') {
+                $deviceCheck = $user->bindOrVerifyDevice(
+                    $flutterDeviceId,
+                    $flutterDeviceName !== '' ? $flutterDeviceName : null
+                );
+                if (! $deviceCheck['ok']) {
+                    return $flutterErrorRedirect((string) ($deviceCheck['message'] ?? 'Perangkat tidak cocok.'));
+                }
+            }
+
+            $user->tokens()->where('name', 'mobile-app')->delete();
             $token = $user->createToken('mobile-app', ['*'], now()->addDays(30))->plainTextToken;
             return redirect()->away('saktimobile://auth/callback?token=' . urlencode($token));
         }

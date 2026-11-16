@@ -7,13 +7,14 @@ use App\Http\Controllers\Api\IzinController;
 use App\Http\Controllers\Api\LhkController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\PersetujuanController;
+use App\Http\Middleware\EnsureApiDeviceBound;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public Routes ─────────────────────────────────────────────────────────
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:30,1');
 
-// ─── Protected Routes (Sanctum) ────────────────────────────────────────────
-Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
+// ─── Protected Routes (Sanctum + 1 Akun 1 Device) ──────────────────────────
+Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'])->group(function () {
 
     // Auth
     Route::get('/me', [AuthController::class, 'me']);

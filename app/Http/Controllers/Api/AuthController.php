@@ -12,8 +12,10 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
+            'email'       => 'required|email',
+            'password'    => 'required|string',
+            'device_id'   => 'nullable|string|max:128',
+            'device_name' => 'nullable|string|max:150',
         ]);
 
         $email = strtolower(trim((string) $request->input('email')));
@@ -28,6 +30,28 @@ class AuthController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
+        if (! $user->aktif) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda sedang dinonaktifkan. Hubungi Admin Kepegawaian.',
+            ], 403);
+        }
+
+        $deviceId = trim((string) ($request->input('device_id') ?? $request->header('X-Device-Id', '')));
+        $deviceName = trim((string) ($request->input('device_name') ?? $request->header('X-Device-Name', '')));
+
+        if ($deviceId !== '') {
+            $deviceCheck = $user->bindOrVerifyDevice($deviceId, $deviceName !== '' ? $deviceName : null);
+            if (! $deviceCheck['ok']) {
+                return response()->json([
+                    'success' => false,
+                    'code'    => 'DEVICE_MISMATCH',
+                    'message' => $deviceCheck['message'],
+                ], 403);
+            }
+        }
+
+        $user->tokens()->where('name', 'mobile-app')->delete();
         $token = $user->createToken('mobile-app', ['*'], now()->addDays(30))->plainTextToken;
 
         return response()->json([

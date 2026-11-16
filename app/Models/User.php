@@ -79,6 +79,9 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'alamat',
         'no_telp',
         'google_id',
+        'device_id',
+        'device_name',
+        'device_bound_at',
         'npwp',
         'tanggal_npwp',
         'no_taspen',
@@ -104,6 +107,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     {
         return [
             'email_verified_at' => 'datetime',
+            'device_bound_at' => 'datetime',
             'password' => 'hashed',
             'tanggal_lahir' => 'date',
             'tanggal_npwp' => 'date',
@@ -508,5 +512,62 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         $notification->url = \Filament\Facades\Filament::getResetPasswordUrl($token, $this);
 
         $this->notify($notification);
+    }
+
+    /**
+     * Verifikasi atau ikat perangkat mobile (1 akun hanya untuk 1 device).
+     *
+     * @return array{ok: bool, message?: string}
+     */
+    public function bindOrVerifyDevice(string $deviceId, ?string $deviceName = null): array
+    {
+        $cleanId = trim($deviceId);
+        $cleanName = $deviceName ? trim($deviceName) : null;
+
+        if ($cleanId === '') {
+            return [
+                'ok' => false,
+                'message' => 'Identitas perangkat (device_id) tidak valid.',
+            ];
+        }
+
+        if (empty($this->device_id)) {
+            $this->forceFill([
+                'device_id' => $cleanId,
+                'device_name' => $cleanName ?: 'Perangkat Android',
+                'device_bound_at' => now(),
+            ])->save();
+
+            return ['ok' => true];
+        }
+
+        if (hash_equals((string) $this->device_id, $cleanId)) {
+            if ($cleanName && $this->device_name !== $cleanName) {
+                $this->forceFill(['device_name' => $cleanName])->save();
+            }
+
+            return ['ok' => true];
+        }
+
+        $boundLabel = $this->device_name ?: 'perangkat lain';
+
+        return [
+            'ok' => false,
+            'message' => "Akun ini sudah terhubung dengan {$boundLabel}. Satu akun hanya dapat digunakan pada satu perangkat. Hubungi Admin Kepegawaian untuk reset perangkat.",
+        ];
+    }
+
+    /**
+     * Reset ikatan perangkat mobile agar pegawai dapat login di perangkat baru.
+     */
+    public function resetDeviceBinding(): void
+    {
+        $this->forceFill([
+            'device_id' => null,
+            'device_name' => null,
+            'device_bound_at' => null,
+        ])->save();
+
+        $this->tokens()->where('name', 'mobile-app')->delete();
     }
 }

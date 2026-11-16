@@ -291,6 +291,29 @@ class UsersTable
                 ViewAction::make(),
                 EditAction::make()
                     ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false),
+                Action::make('reset_device')
+                    ->label('Reset Perangkat')
+                    ->icon('heroicon-o-device-phone-mobile')
+                    ->color('danger')
+                    ->tooltip('Lepas ikatan perangkat Android agar pegawai bisa login di HP baru')
+                    ->visible(function (\App\Models\User $record): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+
+                        return filled($record->device_id)
+                            && ($user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false);
+                    })
+                    ->requiresConfirmation()
+                    ->modalHeading(fn(\App\Models\User $record): string => "Reset Perangkat: {$record->name}")
+                    ->modalDescription(fn(\App\Models\User $record): string => "Perangkat terikat saat ini: " . ($record->device_name ?? 'Perangkat Android') . ". Reset agar pegawai dapat login pada perangkat baru?")
+                    ->action(function (\App\Models\User $record): void {
+                        $record->resetDeviceBinding();
+                        Notification::make()
+                            ->title('Perangkat Berhasil Direset')
+                            ->body("Ikatan perangkat {$record->name} telah dilepas.")
+                            ->success()
+                            ->send();
+                    }),
                 Action::make('ubah_role')
                     ->label('Ubah Role')
                     ->icon('heroicon-o-shield-check')
