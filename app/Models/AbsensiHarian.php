@@ -178,4 +178,21 @@ class AbsensiHarian extends Model
             'target_format' => self::formatDurasiJamMenit($targetMenit),
         ];
     }
+
+    /**
+     * Upsert aman terhadap SoftDeletes agar unique key (user_id, tanggal) tidak bentrok dengan baris trashed.
+     */
+    public static function upsertSafe(array $attributes, array $values = []): self
+    {
+        $record = static::withTrashed()->firstOrNew($attributes);
+
+        if ($record->trashed()) {
+            $record->deleted_at = null;
+        }
+
+        $record->fill($values);
+        $record->save();
+
+        return $record;
+    }
 }

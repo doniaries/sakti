@@ -85,7 +85,7 @@ class AbsensiHarianService
                 $status = 'hadir';
             }
 
-            AbsensiHarian::updateOrCreate(
+            AbsensiHarian::upsertSafe(
                 [
                     'user_id' => (int) $uid,
                     'tanggal' => $tanggalLog,

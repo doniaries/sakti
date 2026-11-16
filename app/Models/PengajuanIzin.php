@@ -104,7 +104,7 @@ class PengajuanIzin extends Model
 
             $jenisKehadiran = ($jenisIzin?->kategori === 'wfh') ? 'wfh' : 'wfo';
 
-            AbsensiHarian::updateOrCreate(
+            AbsensiHarian::upsertSafe(
                 [
                     'user_id' => $this->user_id,
                     'tanggal' => $tanggalStr,

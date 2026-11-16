@@ -125,12 +125,13 @@ class AttendancePunchService
                     if ($absenHarian) {
                         $absenHarian->update(['status' => 'tidak_hadir']);
                     } else {
-                        AbsensiHarian::create([
-                            'user_id' => $user->id,
-                            'tanggal' => $today,
-                            'status' => 'tidak_hadir',
-                            'keterangan' => 'Alpa / Terlewat Batas Absen Masuk (' . $tutupMasuk . ' WIB)',
-                        ]);
+                        AbsensiHarian::upsertSafe(
+                            ['user_id' => $user->id, 'tanggal' => $today],
+                            [
+                                'status' => 'tidak_hadir',
+                                'keterangan' => 'Alpa / Terlewat Batas Absen Masuk (' . $tutupMasuk . ' WIB)',
+                            ]
+                        );
                     }
 
                     return [
@@ -161,7 +162,7 @@ class AttendancePunchService
                 ],
             ]);
 
-            $absenHarian = AbsensiHarian::firstOrCreate(
+            $absenHarian = AbsensiHarian::upsertSafe(
                 ['user_id' => $user->id, 'tanggal' => $today],
                 ['status' => $status]
             );
