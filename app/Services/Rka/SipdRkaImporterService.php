@@ -57,6 +57,11 @@ class SipdRkaImporterService
         $subKegiatanNama = ltrim(trim(preg_replace('/\s+/u', ' ', $subM[2] ?? '')), "- \t\n\r\0\x0B");
         $sumberDana = trim(preg_replace('/\s+/u', ' ', $sumberM[1] ?? 'Dana Alokasi Umum (DAU)'));
 
+        // Validasi format resmi RKA / DPA SIPD RI
+        if (empty($programKode) || empty($kegiatanKode) || empty($subKegiatanKode)) {
+            throw new \InvalidArgumentException('Format file ditolak: Dokumen PDF bukan format resmi RKA / DPA Rincian Belanja SIPD RI (Program, Kegiatan, atau Sub Kegiatan tidak ditemukan).');
+        }
+
         // 2. Deteksi apakah RKA Sub Kegiatan ini sudah pernah diimpor di tahun anggaran tersebut
         if (! $allowOverwrite && ! empty($subKegiatanKode)) {
             $existingSub = MasterSubKegiatan::where('tahun_anggaran', $tahun)
