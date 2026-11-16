@@ -199,11 +199,11 @@ class ListMasterSubKegiatans extends ListRecords
                         ->acceptedFileTypes(['application/pdf'])
                         ->disk('public')
                         ->directory('temp_rka_imports')
-                        // ->multiple()
-                        // ->maxFiles(50)
-                        ->maxSize(2048)
+                        ->multiple()
+                        ->maxFiles(50)
+                        ->maxSize(10240)
                         ->getUploadedFileNameForStorageUsing(fn(\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => (string) \Illuminate\Support\Str::uuid() . '.pdf')
-                        ->helperText('Format PDF resmi SIPD RI. Anda dapat memilih satu (Maksimal 5 MB per berkas).')
+                        ->helperText('Format PDF resmi SIPD RI. Anda dapat memilih banyak berkas sekaligus (Maksimal 50 berkas, 10 MB per berkas).')
                         ->required(),
 
                     Select::make('bidang_id')

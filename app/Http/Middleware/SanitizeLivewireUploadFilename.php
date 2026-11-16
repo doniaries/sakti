@@ -40,7 +40,7 @@ class SanitizeLivewireUploadFilename
 
     protected function sanitizeFile(mixed $file): mixed
     {
-        if (! ($file instanceof UploadedFile)) {
+        if (! ($file instanceof UploadedFile) || ! $file->isValid()) {
             return $file;
         }
 
