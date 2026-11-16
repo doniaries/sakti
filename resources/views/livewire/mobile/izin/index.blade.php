@@ -172,7 +172,13 @@
                 </div>
 
                 <!-- Lampiran & Detail Status -->
-                <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[11px]">
+                    <a href="{{ route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item, 'preview' => 1]) }}"
+                        target="_blank"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold hover:bg-rose-100 transition-colors">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>{{ $item->status === 'menunggu' ? 'Draft Surat PDF' : 'Lihat Surat PDF' }}</span>
+                    </a>
                     <div>
                         @if ($item->lampiran)
                             <a href="{{ asset('storage/' . $item->lampiran) }}" target="_blank"
