@@ -195,15 +195,15 @@ class ListMasterSubKegiatans extends ListRecords
                 ->modalSubmitActionLabel('Mulai Ekstraksi & Import')
                 ->schema([
                     FileUpload::make('file_pdf')
-                        ->label('Dokumen PDF RKA / DPA SIPD (Bisa Pilih Banyak)')
+                        ->label('Dokumen PDF RKA / DPA SIPD')
                         ->acceptedFileTypes(['application/pdf'])
                         ->disk('public')
                         ->directory('temp_rka_imports')
-                        ->multiple()
-                        ->maxFiles(50)
-                        ->maxSize(102400)
+                        // ->multiple()
+                        // ->maxFiles(50)
+                        ->maxSize(2048)
                         ->getUploadedFileNameForStorageUsing(fn(\Livewire\Features\SupportFileUploads\TemporaryUploadedFile $file): string => (string) \Illuminate\Support\Str::uuid() . '.pdf')
-                        ->helperText('Format PDF resmi SIPD RI. Anda dapat memilih satu atau banyak berkas PDF sekaligus (Maksimal 100 MB per berkas).')
+                        ->helperText('Format PDF resmi SIPD RI. Anda dapat memilih satu (Maksimal 5 MB per berkas).')
                         ->required(),
 
                     Select::make('bidang_id')
