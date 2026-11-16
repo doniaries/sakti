@@ -10,15 +10,18 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email'    => 'required|email',
-            'password' => 'required',
+        $request->validate([
+            'email' => 'required|string',
+            'password' => 'required|string',
         ]);
 
-        if (! Auth::attempt($credentials)) {
+        $identity = trim((string) $request->input('email'));
+        $field = filter_var($identity, FILTER_VALIDATE_EMAIL) ? 'email' : 'nip';
+
+        if (! Auth::attempt([$field => $identity, 'password' => $request->input('password')])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email atau password salah.',
+                'message' => 'NIP/Email atau kata sandi tidak ditemukan di database.',
             ], 401);
         }
 
