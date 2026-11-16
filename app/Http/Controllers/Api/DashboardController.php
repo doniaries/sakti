@@ -60,6 +60,7 @@ class DashboardController extends Controller
                     'nip'          => $user->nip,
                     'jabatan'      => $user->jabatan?->nama ?? 'Pegawai',
                     'status_kerja' => $user->status_kerja ?? 'wfo',
+                    'avatar_url'   => $user->avatar_image_url,
                     'roles'        => $user->getRoleNames(),
                 ],
                 'bulan'           => $bulan,

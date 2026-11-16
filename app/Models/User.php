@@ -231,10 +231,10 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
      */
     public function scopeBukanSuperAdmin(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
     {
-        return $query->whereNotIn('email', ['superadmin@gmail.com', 'adminkeuangan@gmail.com'])
+        return $query->whereNotIn('email', ['superadmin@gmail.com', 'adminkeuangan@gmail.com', 'operator.sakti@sijunjung.go.id'])
             ->where(function ($q) {
                 $q->whereDoesntHave('roles', function ($sub) {
-                    $sub->where('name', 'super_admin');
+                    $sub->whereIn('name', ['super_admin', 'admin_kepegawaian', 'admin_keuangan']);
                 })->orWhereHas('roles', function ($sub) {
                     $sub->where('name', 'pegawai');
                 });

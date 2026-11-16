@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -40,6 +41,7 @@ class AuthController extends Controller
                     'nip'          => $user->nip,
                     'jabatan'      => $user->jabatan?->nama ?? 'Pegawai',
                     'status_kerja' => $user->status_kerja ?? 'wfo',
+                    'avatar_url'   => $user->avatar_image_url,
                     'roles'        => $user->getRoleNames(),
                 ],
             ],
@@ -61,7 +63,33 @@ class AuthController extends Controller
                 'nip'          => $user->nip,
                 'jabatan'      => $user->jabatan?->nama ?? 'Pegawai',
                 'status_kerja' => $user->status_kerja ?? 'wfo',
+                'avatar_url'   => $user->avatar_image_url,
                 'roles'        => $user->getRoleNames(),
+            ],
+        ]);
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpeg,jpg,png,webp', 'max:2048'],
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $path = $request->file('avatar')->store("dokumen_pegawai/{$user->id}/avatars", 'public');
+        if ($user->avatar_url && Storage::disk('public')->exists($user->avatar_url)) {
+            Storage::disk('public')->delete($user->avatar_url);
+        }
+
+        $user->update(['avatar_url' => $path]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Foto profil berhasil diperbarui.',
+            'data' => [
+                'avatar_url' => $user->fresh()->avatar_image_url,
             ],
         ]);
     }

@@ -17,6 +17,7 @@ Route::middleware(['auth:sanctum', 'throttle:120,1'])->group(function () {
 
     // Auth
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/me/avatar', [AuthController::class, 'updateAvatar']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Dashboard
