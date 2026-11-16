@@ -22,10 +22,10 @@ class PersetujuanController extends Controller
             ->latest('id');
 
         if (! $isAdminOrKadis) {
-            $query->whereHas('user', fn ($q) => $q->where('atasan_id', $user->id));
+            $query->whereHas('user', fn($q) => $q->where('atasan_id', $user->id));
         }
 
-        $items = $query->limit(30)->get()->map(fn (PengajuanIzin $item): array => [
+        $items = $query->limit(30)->get()->map(fn(PengajuanIzin $item): array => [
             'id' => $item->id,
             'nama' => $item->user?->name ?? 'Pegawai',
             'nip' => $item->user?->nip ?? '-',

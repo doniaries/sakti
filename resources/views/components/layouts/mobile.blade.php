@@ -8,7 +8,7 @@
     <!-- PWA Setup -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0B132B">
+    <meta name="theme-color" content="#F8FAFC">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
     
     <!-- Fonts & CSS -->
@@ -20,7 +20,7 @@
         tailwind.config = { darkMode: 'class' };
         (function () {
             const apply = () => {
-                const saved = localStorage.getItem('sakti_mobile_theme') || 'dark';
+                const saved = localStorage.getItem('sakti_mobile_theme') || 'light';
                 document.documentElement.classList.toggle('dark', saved === 'dark');
             };
             apply();
@@ -473,6 +473,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Pull-to-Refresh Indicator & Touch Handler -->
+    <div id="ptr-indicator" class="fixed top-3 left-1/2 -translate-x-1/2 z-[90] hidden items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700 text-xs font-bold text-sky-600 dark:text-cyan-400">
+        <i class="fa-solid fa-rotate-right fa-spin"></i>
+        <span id="ptr-text">Tarik untuk menyegarkan...</span>
+    </div>
+
+    <script>
+        (function () {
+            let startY = 0;
+            let pulling = false;
+            const threshold = 75;
+
+            document.addEventListener('touchstart', (e) => {
+                const scroller = document.querySelector('.content-area');
+                const scrollTop = scroller ? scroller.scrollTop : window.scrollY;
+                if (scrollTop <= 0 && e.touches.length === 1) {
+                    startY = e.touches[0].clientY;
+                    pulling = true;
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!pulling || e.touches.length !== 1) return;
+                const diff = e.touches[0].clientY - startY;
+                const indicator = document.getElementById('ptr-indicator');
+                const text = document.getElementById('ptr-text');
+                if (!indicator || !text) return;
+
+                if (diff > 25) {
+                    indicator.classList.remove('hidden');
+                    indicator.classList.add('flex');
+                    text.textContent = diff >= threshold ? 'Lepaskan untuk refresh...' : 'Tarik ke bawah...';
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', (e) => {
+                if (!pulling) return;
+                pulling = false;
+                const indicator = document.getElementById('ptr-indicator');
+                const endY = e.changedTouches[0]?.clientY ?? startY;
+                if (endY - startY >= threshold) {
+                    window.location.reload();
+                } else if (indicator) {
+                    indicator.classList.add('hidden');
+                    indicator.classList.remove('flex');
+                }
+            });
+        })();
+    </script>
 
     @livewireScripts
 </body>

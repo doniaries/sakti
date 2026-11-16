@@ -45,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
+            ->defaultThemeMode(\Filament\Enums\ThemeMode::Light)
             ->breadcrumbs(false)
             ->font('Roboto')
             ->favicon(asset('favicon.png'))
