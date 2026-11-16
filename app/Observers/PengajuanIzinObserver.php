@@ -20,9 +20,7 @@ class PengajuanIzinObserver
 
         $pemohon = $izin->user?->name ?? 'Pegawai';
         $jenis = $izin->jenisIzin?->nama ?? ucfirst((string) ($izin->jenis ?? 'Izin/Sakit'));
-        $url = class_exists(PengajuanIzinResource::class)
-            ? PengajuanIzinResource::getUrl('index')
-            : url('/admin');
+        $url = url('/mobile/persetujuan');
 
         Notification::make()
             ->title("Pengajuan {$jenis} Baru")
@@ -55,9 +53,7 @@ class PengajuanIzinObserver
             'ditolak' => 'danger',
             default => 'info',
         };
-        $url = class_exists(PengajuanIzinResource::class)
-            ? PengajuanIzinResource::getUrl('index')
-            : url('/admin');
+        $url = url('/mobile/izin');
 
         Notification::make()
             ->title("Progres {$jenis}: {$statusLabel}")
