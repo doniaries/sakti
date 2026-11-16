@@ -188,15 +188,8 @@
                         <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 84px; height: 84px;">
                     </td>
                     <td style="vertical-align: middle; font-size: 8.5pt; color: #4b5563;">
-                        <strong>Ditandatangani Secara Elektronik melalui SAKTI</strong><br>
-                        Disetujui oleh {{ $izin->approver?->name ?? 'Atasan Langsung' }}
-                        @if ($izin->disetujui_at)
-                            pada {{ $izin->disetujui_at->translatedFormat('d F Y H:i') }} WIB
-                        @endif
-                        <br>Scan QR Code di samping untuk verifikasi keaslian dokumen.
-                        @if (! empty($trackingUrl))
-                            <br><span style="font-size: 7.5pt; color: #6b7280;">{{ $trackingUrl }}</span>
-                        @endif
+                        <strong>Verifikasi Keaslian Surat</strong><br>
+                        Scan QR Code di samping untuk cek keaslian surat.
                     </td>
                 </tr>
             </table>

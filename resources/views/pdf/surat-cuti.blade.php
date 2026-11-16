@@ -28,6 +28,11 @@
                 box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
                 box-sizing: border-box;
             }
+            .page-break {
+                margin: 28px -15mm 20px -15mm;
+                border-top: 16px solid #e2e8f0;
+                padding-top: 14mm;
+            }
         }
         .page-break {
             page-break-before: always;
@@ -108,6 +113,9 @@
         $alamatInstansi = $instansi?->alamat ?? $pengaturan?->alamat_kantor ?? 'Kabupaten Sijunjung';
 
         $isKadis = $pegawai && ($pegawai->id === $instansi?->kepala_id || $pegawai->hasRole('pa'));
+        $eselonVal = $pegawai?->eselon instanceof \App\Enums\Eselon ? $pegawai->eselon->value : (string) ($pegawai?->eselon ?? '');
+        $isKabid = ! $isKadis && (in_array($eselonVal, ['III.a', 'III.b', 'III/a', 'III/b'], true) || ($pegawai?->hasAnyRole(['kabid', 'sekretaris']) ?? false));
+
         if ($isKadis) {
             $atasanJabatan = 'SEKRETARIS DAERAH';
             $atasanNama = $instansi?->nama_sekda ?: '-';
@@ -116,10 +124,19 @@
             $pejabatJabatan = 'SEKRETARIS DAERAH KABUPATEN SIJUNJUNG';
             $pejabatNama = $instansi?->nama_sekda ?: '-';
             $pejabatNip = $instansi?->nip_sekda ?: '-';
+        } elseif ($isKabid) {
+            $atasanJabatan = 'KEPALA ' . strtoupper($namaInstansi);
+            $atasanNama = $kadis?->name ?? ($instansi?->nama_kepala_dinas ?? '-');
+            $atasanNip = $kadis?->nip ?? '-';
+
+            $pejabatJabatan = 'KEPALA ' . strtoupper($namaInstansi);
+            $pejabatNama = $kadis?->name ?? ($instansi?->nama_kepala_dinas ?? '-');
+            $pejabatNip = $kadis?->nip ?? '-';
         } else {
-            $atasanJabatan = 'ATASAN LANGSUNG,';
-            $atasanNama = $atasan?->name ?? 'Kepala Bidang';
-            $atasanNip = $atasan?->nip ?? '-';
+            $kabid = $pegawai?->atasan ?? $atasan;
+            $atasanJabatan = $kabid?->jabatan?->nama ? strtoupper($kabid->jabatan->nama) : 'KEPALA BIDANG';
+            $atasanNama = $kabid?->name ?? 'Kepala Bidang';
+            $atasanNip = $kabid?->nip ?? '-';
 
             $pejabatJabatan = 'KEPALA ' . strtoupper($namaInstansi);
             $pejabatNama = $kadis?->name ?? ($instansi?->nama_kepala_dinas ?? '-');
@@ -428,15 +445,8 @@
                         <img src="{{ $qrBase64 }}" alt="QR Verifikasi" style="width: 84px; height: 84px;">
                     </td>
                     <td style="vertical-align: middle; font-size: 8.5pt; color: #4b5563;">
-                        <strong>Ditandatangani Secara Elektronik melalui SAKTI</strong><br>
-                        Disetujui oleh {{ $izin->approver?->name ?? $pejabatNama }}
-                        @if ($izin->disetujui_at)
-                            pada {{ $izin->disetujui_at->translatedFormat('d F Y H:i') }} WIB
-                        @endif
-                        <br>Scan QR Code di samping untuk verifikasi keaslian dokumen.
-                        @if (! empty($trackingUrl))
-                            <br><span style="font-size: 7.5pt; color: #6b7280;">{{ $trackingUrl }}</span>
-                        @endif
+                        <strong>Verifikasi Keaslian Surat</strong><br>
+                        Scan QR Code di samping untuk cek keaslian surat.
                     </td>
                 </tr>
             </table>
