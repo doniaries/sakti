@@ -82,8 +82,9 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\User::observe(\App\Observers\UserObserver::class);
         \App\Models\PengaturanAplikasi::observe(\App\Observers\PengaturanAplikasiObserver::class);
 
-        // Override menu-builder-items component for Filament 4 compatibility
+        // Override menu-builder-items & custom_edit_password_form components for Filament 4 compatibility
         \Livewire\Livewire::component('menu-builder-items', \App\Livewire\MenuItems::class);
+        \Livewire\Livewire::component('custom_edit_password_form', \App\Livewire\Filament\CustomEditPasswordForm::class);
 
         // Catat Event Autentikasi Pengguna
         \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Login::class, function (\Illuminate\Auth\Events\Login $event): void {

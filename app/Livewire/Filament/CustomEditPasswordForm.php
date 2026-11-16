@@ -45,7 +45,6 @@ class CustomEditPasswordForm extends BaseProfileForm
                             ->rule(Password::default())
                             ->autocomplete('new-password')
                             ->dehydrateStateUsing(fn ($state): string => Hash::make($state))
-                            ->live(debounce: 500)
                             ->same('passwordConfirmation')
                             ->revealable(),
                         TextInput::make('passwordConfirmation')
@@ -75,8 +74,15 @@ class CustomEditPasswordForm extends BaseProfileForm
         }
 
         if (request()->hasSession() && array_key_exists('password', $data)) {
+            $guardName = Filament::getAuthGuard();
+            $guard = Filament::auth();
+            $freshHash = (string) ($this->user->fresh()?->getAuthPassword() ?? $data['password']);
+            $sessionHash = method_exists($guard, 'hashPasswordForCookie')
+                ? $guard->hashPasswordForCookie($freshHash)
+                : $freshHash;
+
             request()->session()->put([
-                'password_hash_' . Filament::getAuthGuard() => $data['password'],
+                'password_hash_' . $guardName => $sessionHash,
             ]);
         }
 

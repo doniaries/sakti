@@ -34,11 +34,19 @@ class GoogleAuthController extends Controller
         $origin = session()->pull('google_auth_origin', 'admin');
         $failRedirect = ($origin === 'mobile') ? route('mobile.login') : '/admin/login';
 
+        $flutterErrorRedirect = function (string $message): RedirectResponse {
+            return redirect()->away('saktimobile://auth/callback?error=' . urlencode($message));
+        };
+
         try {
             /** @var \Laravel\Socialite\Two\User $googleUser */
             $googleUser = Socialite::driver('google')->user();
         } catch (Throwable $e) {
             Log::warning('Google OAuth callback failed: ' . $e->getMessage());
+
+            if ($origin === 'flutter') {
+                return $flutterErrorRedirect('Otorisasi dengan akun Google dibatalkan atau terjadi kesalahan jaringan.');
+            }
 
             Notification::make()
                 ->title('Gagal Masuk')
@@ -59,6 +67,10 @@ class GoogleAuthController extends Controller
         $googleEmail = strtolower((string) $googleUser->getEmail());
 
         if (empty($googleEmail)) {
+            if ($origin === 'flutter') {
+                return $flutterErrorRedirect('Akun Google Anda tidak membagikan informasi alamat email.');
+            }
+
             Notification::make()
                 ->title('Email Tidak Ditemukan')
                 ->body('Akun Google Anda tidak membagikan informasi alamat email.')
@@ -83,6 +95,10 @@ class GoogleAuthController extends Controller
 
         // Jika email belum terdaftar di database SAKTI
         if (! $user) {
+            if ($origin === 'flutter') {
+                return $flutterErrorRedirect("Email Google ({$googleEmail}) belum terdaftar pada data pegawai SAKTI.");
+            }
+
             Notification::make()
                 ->title('Akun Tidak Ditemukan')
                 ->body("Email Google ({$googleEmail}) belum terdaftar pada data pegawai SAKTI. Silakan login menggunakan akun kedinasan Anda atau hubungi Administrator.")
@@ -101,6 +117,10 @@ class GoogleAuthController extends Controller
 
         // Cek status keaktifan pegawai
         if (! $user->aktif) {
+            if ($origin === 'flutter') {
+                return $flutterErrorRedirect('Akun pegawai Anda sedang dinonaktifkan. Silakan hubungi Administrator Kepegawaian.');
+            }
+
             Notification::make()
                 ->title('Akun Nonaktif')
                 ->body('Akun pegawai Anda sedang dinonaktifkan. Silakan hubungi Administrator Kepegawaian.')
@@ -120,6 +140,11 @@ class GoogleAuthController extends Controller
         // Tautkan google_id otomatis jika belum terisi
         if ($user->google_id !== $googleId) {
             $user->update(['google_id' => $googleId]);
+        }
+
+        if ($origin === 'flutter') {
+            $token = $user->createToken('mobile-app', ['*'], now()->addDays(30))->plainTextToken;
+            return redirect()->away('saktimobile://auth/callback?token=' . urlencode($token));
         }
 
         // Login ke session aplikasi

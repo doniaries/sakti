@@ -35,9 +35,22 @@ class PengajuanIzinResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        // Pegawai biasa (bukan admin dinas, pimpinan, pa, atau ppk) hanya melihat pengajuan dirinya sendiri
-        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'pa', 'pimpinan', 'ppk'])) {
-            $query->where('user_id', $user->id);
+        // Pegawai biasa hanya melihat pengajuan dirinya sendiri;
+        // Kepala Bidang / PPTK melihat pengajuan dirinya + staf di bawah binaannya.
+        if ($user && ! $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'pimpinan', 'ppk', 'sekretaris'])) {
+            if ($user->hasAnyRole(['pptk', 'kabid', 'kepala_bidang'])) {
+                $query->where(function (Builder $q) use ($user): void {
+                    $q->where('user_id', $user->id)
+                        ->orWhereHas('user', function (Builder $u) use ($user): void {
+                            $u->where('atasan_id', $user->id);
+                            if ($user->bidang_id) {
+                                $u->orWhere('bidang_id', $user->bidang_id);
+                            }
+                        });
+                });
+            } else {
+                $query->where('user_id', $user->id);
+            }
         }
 
         return $query;

@@ -28,10 +28,25 @@ class RolePermissionSeeder extends Seeder
         // Hapus role usang yang tidak lagi dipakai
         Role::query()->whereIn('name', ['staf_keuangan', 'jf_staf'])->delete();
 
-        // Buat permissions widget jika belum ada agar seeder tidak error karena data kosong
-        Permission::firstOrCreate(['name' => 'View:PegawaiAbsensiBulanChartWidget', 'guard_name' => 'web']);
-        Permission::firstOrCreate(['name' => 'View:PegawaiAbsensiBulanStatsWidget', 'guard_name' => 'web']);
-        Permission::firstOrCreate(['name' => 'View:KeuanganBidangOverviewWidget', 'guard_name' => 'web']);
+        // Buat permissions dasar & page/widget jika belum ada di server agar seeder selalu idempoten
+        foreach ([
+            'View:PegawaiAbsensiBulanChartWidget',
+            'View:PegawaiAbsensiBulanStatsWidget',
+            'View:KeuanganBidangOverviewWidget',
+            'View:LatestAbsensiWidget',
+            'View:Dashboard',
+            'View:EditProfilePage',
+            'View:LaporanFungsional',
+            'View:LaporanLrfk',
+        ] as $permName) {
+            Permission::firstOrCreate(['name' => $permName, 'guard_name' => 'web']);
+        }
+
+        foreach (['PengajuanIzin', 'HariLibur', 'Lhk', 'RencanaAksi', 'Aktivitas', 'Reputasi', 'AbsensiHarian', 'LogAbsensi', 'User'] as $res) {
+            foreach (['ViewAny', 'View', 'Create', 'Update', 'Delete'] as $act) {
+                Permission::firstOrCreate(['name' => "{$act}:{$res}", 'guard_name' => 'web']);
+            }
+        }
 
         // === 0. Setup Role Super Admin ===
         $superAdminRole->syncPermissions(Permission::all());
@@ -40,20 +55,42 @@ class RolePermissionSeeder extends Seeder
         $adminPermissions = Permission::where('name', 'not like', '%Role%')->get();
         $adminRole->syncPermissions($adminPermissions);
 
-        // Permissions Dasar Kepegawaian (Presensi, LHK, Profil Diri)
+        // Permissions Dasar Kepegawaian (Presensi, LHK, Izin/Cuti, Profil Diri)
         $basicPegawaiPermissions = [
             'ViewAny:AbsensiHarian',
             'View:AbsensiHarian',
             'ViewAny:LogAbsensi',
             'View:LogAbsensi',
+            'ViewAny:PengajuanIzin',
+            'View:PengajuanIzin',
+            'Create:PengajuanIzin',
+            'Update:PengajuanIzin',
+            'Delete:PengajuanIzin',
+            'ViewAny:HariLibur',
+            'View:HariLibur',
             'ViewAny:Lhk',
             'View:Lhk',
             'Create:Lhk',
             'Update:Lhk',
             'Delete:Lhk',
+            'ViewAny:RencanaAksi',
+            'View:RencanaAksi',
+            'Create:RencanaAksi',
+            'Update:RencanaAksi',
+            'Delete:RencanaAksi',
+            'ViewAny:Aktivitas',
+            'View:Aktivitas',
+            'Create:Aktivitas',
+            'Update:Aktivitas',
+            'Delete:Aktivitas',
+            'ViewAny:Reputasi',
+            'View:Reputasi',
+            'Create:Reputasi',
+            'Update:Reputasi',
             'View:User',
             'Update:User',
             'View:Dashboard',
+            'View:EditProfilePage',
             'View:KeuanganBidangOverviewWidget',
             'View:LatestAbsensiWidget',
             'View:PegawaiAbsensiBulanChartWidget',
@@ -61,23 +98,25 @@ class RolePermissionSeeder extends Seeder
         ];
 
         // === 1A. Setup Role Admin Kepegawaian ===
-        // Khusus mengelola seluruh data kepegawaian (Pegawai, Bidang, Jabatan, Shift, Absensi, LHK)
-        $kepegawaianPatterns = ['User', 'Bidang', 'Jabatan', 'JadwalKerja', 'JenisIzin', 'MesinAbsensi', 'LogAbsensi', 'AbsensiHarian', 'Lhk', 'Riwayat', 'Instansi', 'PengaturanAplikasi', 'PegawaiAbsensi'];
-        $adminKepegawaianPermissions = Permission::where(function ($q) use ($kepegawaianPatterns) {
+        // Khusus mengelola seluruh data kepegawaian (Pegawai, Bidang, Jabatan, Shift, Absensi, Izin/Cuti, LHK)
+        $kepegawaianPatterns = ['User', 'Bidang', 'Jabatan', 'JadwalKerja', 'JenisIzin', 'PengajuanIzin', 'HariLibur', 'MesinAbsensi', 'LogAbsensi', 'AbsensiHarian', 'Lhk', 'RencanaAksi', 'Aktivitas', 'Reputasi', 'Riwayat', 'Instansi', 'PengaturanAplikasi', 'PegawaiAbsensi'];
+        $adminKepegawaianPermissions = Permission::where(function ($q) use ($kepegawaianPatterns, $basicPegawaiPermissions) {
             foreach ($kepegawaianPatterns as $pattern) {
                 $q->orWhere('name', 'like', "%:{$pattern}%");
             }
+            $q->orWhereIn('name', $basicPegawaiPermissions);
         })->where('name', 'not like', '%Role%')->get();
         $adminKepegawaianRole->syncPermissions($adminKepegawaianPermissions);
 
         // === 1B. Setup Role Admin Keuangan ===
         // Khusus mengelola seluruh master data keuangan & input DPA/RKA/SPJ lintas seluruh bidang
-        $keuanganPatterns = ['Program', 'Kegiatan', 'SubKegiatan', 'RincianAnggaranBelanja', 'KodeRekening', 'MasterBarang', 'MasterToko', 'MasterSyaratBelanja', 'MasterTujuanBbm', 'PengajuanSpj', 'StokBarang', 'LaporanPersediaan', 'TransaksiBarang', 'KeuanganBidangOverviewWidget'];
-        $adminKeuanganPermissions = Permission::where(function ($q) use ($keuanganPatterns) {
+        $keuanganPatterns = ['Program', 'Kegiatan', 'SubKegiatan', 'RincianAnggaranBelanja', 'KodeRekening', 'MasterBarang', 'MasterJenisBelanja', 'MasterToko', 'MasterSyaratBelanja', 'MasterTujuanBbm', 'PengajuanSpj', 'StokBarang', 'LaporanPersediaan', 'LaporanFungsional', 'LaporanLrfk', 'TransaksiBarang', 'KeuanganBidangOverviewWidget'];
+        $adminKeuanganPermissions = Permission::where(function ($q) use ($keuanganPatterns, $basicPegawaiPermissions) {
             foreach ($keuanganPatterns as $pattern) {
                 $q->orWhere('name', 'like', "%:{$pattern}%");
             }
-        })->orWhereIn('name', array_merge($basicPegawaiPermissions, ['ViewAny:Bidang', 'View:Bidang', 'ViewAny:User', 'View:User']))->where('name', 'not like', '%Role%')->get();
+            $q->orWhereIn('name', array_merge($basicPegawaiPermissions, ['ViewAny:Bidang', 'View:Bidang', 'ViewAny:User', 'View:User']));
+        })->where('name', 'not like', '%Role%')->get();
         $adminKeuanganRole->syncPermissions($adminKeuanganPermissions);
 
         // === 2. Setup Role PA (Pengguna Anggaran / Kepala Dinas) ===
@@ -108,6 +147,8 @@ class RolePermissionSeeder extends Seeder
             'ViewAny:Bidang',
             'View:Bidang',
             'ViewAny:User',
+            'View:LaporanFungsional',
+            'View:LaporanLrfk',
         ]))->get();
         $paRole->syncPermissions($paPermissions);
 
@@ -161,6 +202,8 @@ class RolePermissionSeeder extends Seeder
             'ViewAny:Bidang',
             'View:Bidang',
             'ViewAny:User',
+            'View:LaporanFungsional',
+            'View:LaporanLrfk',
         ]))->get();
         $ppkRole->syncPermissions($ppkPermissions);
 
@@ -202,6 +245,7 @@ class RolePermissionSeeder extends Seeder
             'ViewAny:Bidang',
             'View:Bidang',
             'ViewAny:User',
+            'View:LaporanLrfk',
         ]))->get();
         $pptkRole->syncPermissions($pptkPermissions);
 
@@ -250,6 +294,7 @@ class RolePermissionSeeder extends Seeder
             'ViewAny:Bidang',
             'View:Bidang',
             'ViewAny:User',
+            'View:LaporanLrfk',
         ]))->get();
         $jfRole->syncPermissions($jfPermissions);
 
@@ -284,6 +329,8 @@ class RolePermissionSeeder extends Seeder
             'ViewAny:Bidang',
             'View:Bidang',
             'ViewAny:User',
+            'View:LaporanFungsional',
+            'View:LaporanLrfk',
         ]))->get();
         $bendaharaRole->syncPermissions($bendaharaPermissions);
 
