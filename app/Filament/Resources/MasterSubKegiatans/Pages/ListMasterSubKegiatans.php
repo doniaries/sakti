@@ -211,7 +211,7 @@ class ListMasterSubKegiatans extends ListRecords
                         ->options(fn() => Bidang::pluck('nama', 'id')->all())
                         ->placeholder('Pilih Bidang Pengampu')
                         ->helperText('Pilih Bidang yang menaungi Sub Kegiatan ini.')
-                        ->required()
+                        // ->required()
                         ->live()
                         ->afterStateUpdated(fn(Set $set) => $set('jf_id', null)),
 

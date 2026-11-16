@@ -238,4 +238,77 @@
             </button>
         </div>
     </form>
+
+    <!-- Daftar Pengajuan Izin, Cuti & Sakit + PDF -->
+    <div class="mt-6 space-y-3">
+        <div class="flex items-center justify-between px-1">
+            <h2 class="text-sm font-extrabold text-slate-800">Daftar Izin, Cuti & Sakit</h2>
+            <a href="{{ route('mobile.izin.index') }}" class="text-xs font-bold text-sky-600 hover:underline">Lihat Semua</a>
+        </div>
+
+        @forelse($riwayatPengajuan as $item)
+            @php
+                $kat = $item->jenisIzin?->kategori ?? 'izin';
+                $katBadge = match ($kat) {
+                    'cuti' => 'bg-amber-50 text-amber-700 border-amber-200',
+                    'sakit' => 'bg-rose-50 text-rose-700 border-rose-200',
+                    default => 'bg-sky-50 text-sky-700 border-sky-200',
+                };
+                $statusBadge = match ($item->status) {
+                    'disetujui' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                    'ditolak' => 'bg-rose-50 text-rose-700 border-rose-200',
+                    default => 'bg-amber-50 text-amber-700 border-amber-200',
+                };
+            @endphp
+            <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-100 space-y-2.5">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <div class="flex items-center gap-1.5 flex-wrap">
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border {{ $katBadge }}">
+                                {{ strtoupper($kat) }}
+                            </span>
+                            <span class="text-xs font-bold text-slate-800">
+                                {{ $item->jenisIzin?->nama ?? 'Pengajuan' }}
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1">
+                            {{ $item->tanggal_mulai?->format('d/m/Y') ?? '-' }}
+                            @if($item->tanggal_selesai && $item->tanggal_selesai->ne($item->tanggal_mulai))
+                                - {{ $item->tanggal_selesai->format('d/m/Y') }}
+                            @endif
+                            • <span class="font-semibold text-slate-700">{{ $item->jumlah_hari }} Hari</span>
+                        </p>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase border {{ $statusBadge }} shrink-0">
+                        {{ ucfirst($item->status) }}
+                    </span>
+                </div>
+
+                @if($item->alasan)
+                    <p class="text-xs text-slate-600 line-clamp-2">{{ $item->alasan }}</p>
+                @endif
+
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[11px]">
+                    <a href="{{ route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item, 'preview' => 1]) }}"
+                        target="_blank"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold hover:bg-rose-100 transition-colors">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>{{ $item->status === 'menunggu' ? 'Draft Surat PDF' : 'Lihat Surat PDF' }}</span>
+                    </a>
+
+                    @if($item->lampiran)
+                        <a href="{{ asset('storage/' . $item->lampiran) }}" target="_blank"
+                            class="inline-flex items-center gap-1 text-sky-600 font-bold hover:underline">
+                            <i class="fa-solid fa-paperclip"></i>
+                            <span>Bukti Lampiran</span>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <div class="bg-white rounded-2xl p-4 text-center text-xs text-slate-400 border border-slate-100">
+                Belum ada riwayat pengajuan pada kategori ini.
+            </div>
+        @endforelse
+    </div>
 </div>

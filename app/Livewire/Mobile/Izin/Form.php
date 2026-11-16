@@ -251,6 +251,16 @@ class Form extends Component
         $selectedJenis = JenisIzin::find($this->jenis_izin_id);
         $kuotaInfo = $this->hitungKuotaJenis($user, $selectedJenis);
 
+        $riwayatPengajuan = PengajuanIzin::query()
+            ->with('jenisIzin')
+            ->where('user_id', $user->id)
+            ->when($this->kategoriFilter !== 'semua', function ($q): void {
+                $q->whereHas('jenisIzin', fn ($jq) => $jq->where('kategori', $this->kategoriFilter));
+            })
+            ->latest()
+            ->limit(15)
+            ->get();
+
         return view('livewire.mobile.izin.form', [
             'user' => $user,
             'jenisIzins' => $jenisIzins,
@@ -258,6 +268,7 @@ class Form extends Component
             'totalKuotaCuti' => $kuotaInfo['total'],
             'cutiTerpakai' => $kuotaInfo['terpakai'],
             'sisaCuti' => $kuotaInfo['sisa'],
+            'riwayatPengajuan' => $riwayatPengajuan,
         ]);
     }
 }
