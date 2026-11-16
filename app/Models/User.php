@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
 use Filament\Models\Contracts\FilamentUser;
@@ -30,7 +31,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 {
     use SoftDeletes;
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use DeletesOldFiles, HasFactory, Notifiable, HasRoles;
+    use DeletesOldFiles, HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     protected function fileAttributes(): array
     {

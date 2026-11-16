@@ -42,7 +42,7 @@
         </div>
         <div class="flex items-center space-x-1.5">
             <!-- Notifikasi Terintegrasi Filament & Mobile -->
-            <div class="relative" x-data="{ openNotif: false }" @click.outside="openNotif = false" wire:poll.5s>
+            <div class="relative" x-data="{ openNotif: false }" @keydown.escape.window="openNotif = false" wire:poll.5s>
                 <button type="button"
                     @click="openNotif = !openNotif"
                     class="relative w-9 h-9 rounded-xl bg-white dark:bg-white/10 text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 border border-slate-200 dark:border-white/15 shadow-xs flex items-center justify-center transition cursor-pointer"
@@ -55,10 +55,18 @@
                     @endif
                 </button>
 
+                <!-- Backdrop untuk menutup notifikasi dengan mudah -->
+                <div x-show="openNotif"
+                    x-transition.opacity.duration.150ms
+                    x-cloak
+                    @click="openNotif = false"
+                    class="fixed inset-0 z-[65] bg-slate-900/35 backdrop-blur-[1px]"></div>
+
                 <!-- Popover Daftar Notifikasi (Fixed centered di viewport mobile agar tidak terpotong) -->
                 <div x-show="openNotif"
                     x-transition.opacity.duration.150ms
                     x-cloak
+                    @click.outside="openNotif = false"
                     class="fixed inset-x-4 top-16 mx-auto max-w-[408px] z-[70] rounded-2xl bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700/80 shadow-2xl overflow-hidden">
                     <div class="flex items-center justify-between px-3.5 py-2.5 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/80 dark:bg-[#0F1C2E]">
                         <div class="flex items-center gap-1.5">
@@ -70,12 +78,19 @@
                                 </span>
                             @endif
                         </div>
-                        @if (($unreadNotifCount ?? 0) > 0)
-                            <button type="button" wire:click="markAllNotificationsAsRead"
-                                class="text-[10px] font-bold text-sky-600 dark:text-cyan-400 hover:underline cursor-pointer">
-                                Tandai dibaca
+                        <div class="flex items-center gap-2">
+                            @if (($unreadNotifCount ?? 0) > 0)
+                                <button type="button" wire:click="markAllNotificationsAsRead"
+                                    class="text-[10px] font-bold text-sky-600 dark:text-cyan-400 hover:underline cursor-pointer">
+                                    Tandai dibaca
+                                </button>
+                            @endif
+                            <button type="button" @click="openNotif = false"
+                                class="w-6 h-6 rounded-lg bg-slate-200/70 dark:bg-white/10 text-slate-500 dark:text-slate-300 hover:bg-slate-300/80 flex items-center justify-center transition cursor-pointer"
+                                title="Tutup Notifikasi">
+                                <i class="fa-solid fa-xmark text-xs"></i>
                             </button>
-                        @endif
+                        </div>
                     </div>
 
                     <div class="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50">
