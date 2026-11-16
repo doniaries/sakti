@@ -21,6 +21,7 @@ class LhkPekerjaan extends Model
         'aktivitas_id',
         'hasil_pekerjaan',
         'bukti_url',
+        'status_verifikasi',
     ];
 
     public function lhk(): BelongsTo

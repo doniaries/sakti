@@ -7,6 +7,7 @@ use App\Models\PengajuanIzin;
 use App\Models\PengajuanSpj;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -63,6 +64,15 @@ class Persetujuan extends Component
 
     public function approveLhk(int $id): void
     {
+        if (! Schema::hasColumn('lhk_pekerjaans', 'status_verifikasi')) {
+            $this->dispatch('notify', [
+                'type' => 'warning',
+                'title' => 'Migrasi Diperlukan',
+                'message' => 'Kolom status_verifikasi belum tersedia. Jalankan migrasi database terlebih dahulu.',
+            ]);
+            return;
+        }
+
         $pekerjaan = LhkPekerjaan::find($id);
         if (! $pekerjaan) {
             return;
@@ -79,6 +89,15 @@ class Persetujuan extends Component
 
     public function rejectLhk(int $id): void
     {
+        if (! Schema::hasColumn('lhk_pekerjaans', 'status_verifikasi')) {
+            $this->dispatch('notify', [
+                'type' => 'warning',
+                'title' => 'Migrasi Diperlukan',
+                'message' => 'Kolom status_verifikasi belum tersedia. Jalankan migrasi database terlebih dahulu.',
+            ]);
+            return;
+        }
+
         $pekerjaan = LhkPekerjaan::find($id);
         if (! $pekerjaan) {
             return;
@@ -166,12 +185,15 @@ class Persetujuan extends Component
             ->limit(25)
             ->get();
 
-        $lhkList = LhkPekerjaan::with(['lhk.user', 'aktivitas'])
-            ->where('status_verifikasi', 'menunggu')
-            ->when(! $isGlobalApprover && $user, fn ($q) => $q->whereHas('lhk.user', fn ($u) => $u->where('atasan_id', $user->id)))
-            ->latest()
-            ->limit(25)
-            ->get();
+        $hasStatusVerifikasi = Schema::hasColumn('lhk_pekerjaans', 'status_verifikasi');
+        $lhkList = $hasStatusVerifikasi
+            ? LhkPekerjaan::with(['lhk.user', 'aktivitas'])
+                ->where('status_verifikasi', 'menunggu')
+                ->when(! $isGlobalApprover && $user, fn ($q) => $q->whereHas('lhk.user', fn ($u) => $u->where('atasan_id', $user->id)))
+                ->latest()
+                ->limit(25)
+                ->get()
+            : collect();
 
         $spjStatuses = [];
         if ($user?->hasRole('super_admin')) {
