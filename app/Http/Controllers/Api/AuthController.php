@@ -35,10 +35,13 @@ class AuthController extends Controller
             'data'    => [
                 'token' => $token,
                 'user'  => [
-                    'id'    => $user->id,
-                    'name'  => $user->name,
-                    'email' => $user->email,
-                    'roles' => $user->getRoleNames(),
+                    'id'           => $user->id,
+                    'name'         => $user->name,
+                    'email'        => $user->email,
+                    'nip'          => $user->nip,
+                    'jabatan'      => $user->jabatan?->nama ?? 'Pegawai',
+                    'status_kerja' => $user->status_kerja ?? 'wfo',
+                    'roles'        => $user->getRoleNames(),
                 ],
             ],
         ]);
@@ -48,14 +51,18 @@ class AuthController extends Controller
     {
         /** @var \App\Models\User $user */
         $user = $request->user();
+        $user->loadMissing('jabatan');
 
         return response()->json([
             'success' => true,
             'data'    => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'roles' => $user->getRoleNames(),
+                'id'           => $user->id,
+                'name'         => $user->name,
+                'email'        => $user->email,
+                'nip'          => $user->nip,
+                'jabatan'      => $user->jabatan?->nama ?? 'Pegawai',
+                'status_kerja' => $user->status_kerja ?? 'wfo',
+                'roles'        => $user->getRoleNames(),
             ],
         ]);
     }
