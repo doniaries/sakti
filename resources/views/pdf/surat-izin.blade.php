@@ -14,6 +14,21 @@
             color: #000;
             line-height: 1.4;
         }
+        @media screen {
+            html {
+                background: #e2e8f0;
+                padding: 20px 12px;
+            }
+            body {
+                max-width: 210mm;
+                min-height: 297mm;
+                margin: 0 auto;
+                background: #ffffff;
+                padding: 15mm 18mm;
+                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+                box-sizing: border-box;
+            }
+        }
         .kop-table {
             width: 100%;
             border-bottom: 3px double #000;
