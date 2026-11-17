@@ -69,9 +69,12 @@ class IzinController extends Controller
 
         $validated = $request->validate([
             'jenis_izin_id' => ['required', 'exists:jenis_izins,id'],
-            'tanggal_mulai' => ['required', 'date'],
+            'tanggal_mulai' => ['required', 'date', 'after_or_equal:today'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'alasan' => ['required', 'string', 'max:1000'],
+        ], [
+            'tanggal_mulai.after_or_equal' => 'Tanggal mulai tidak boleh sebelum hari ini.',
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
         ]);
 
         $mulai = Carbon::parse($validated['tanggal_mulai']);

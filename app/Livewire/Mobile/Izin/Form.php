@@ -66,6 +66,10 @@ class Form extends Component
 
     public function updatedTanggalMulai()
     {
+        $today = now()->format('Y-m-d');
+        if ($this->tanggal_mulai && $this->tanggal_mulai < $today) {
+            $this->tanggal_mulai = $today;
+        }
         if ($this->tanggal_selesai && $this->tanggal_mulai > $this->tanggal_selesai) {
             $this->tanggal_selesai = $this->tanggal_mulai;
         }
@@ -74,8 +78,12 @@ class Form extends Component
 
     public function updatedTanggalSelesai()
     {
+        $today = now()->format('Y-m-d');
+        if ($this->tanggal_selesai && $this->tanggal_selesai < $today) {
+            $this->tanggal_selesai = $today;
+        }
         if ($this->tanggal_mulai && $this->tanggal_selesai < $this->tanggal_mulai) {
-            $this->tanggal_mulai = $this->tanggal_selesai;
+            $this->tanggal_selesai = $this->tanggal_mulai;
         }
         $this->hitungJumlahHari();
     }
@@ -123,7 +131,7 @@ class Form extends Component
 
         $rules = [
             'jenis_izin_id' => 'required|exists:jenis_izins,id',
-            'tanggal_mulai' => 'required|date',
+            'tanggal_mulai' => 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'alasan' => 'required|string|min:5|max:500',
         ];
@@ -137,6 +145,8 @@ class Form extends Component
 
         $this->validate($rules, [
             'jenis_izin_id.required' => 'Pilih jenis izin/cuti terlebih dahulu.',
+            'tanggal_mulai.after_or_equal' => 'Tanggal mulai tidak boleh sebelum hari ini.',
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
             'alasan.required' => 'Alasan / keterangan permohonan wajib diisi.',
             'lampiran.required' => 'Wajib mengunggah Surat Keterangan Sakit dari Dokter.',
             'lampiran.max' => 'Ukuran berkas lampiran maksimal 2MB.',
@@ -205,7 +215,10 @@ class Form extends Component
         }
 
         $tahun = now()->year;
-        $total = (int) $jenis->kuota_hari;
+        $isCutiTahunan = ($jenis->kode === 'cuti_tahunan') || str_contains(strtolower((string) $jenis->nama), 'cuti tahunan');
+        $total = $isCutiTahunan
+            ? (int) ($user?->total_kuota_cuti ?? $jenis->kuota_hari ?? 12)
+            : (int) $jenis->kuota_hari;
         $terpakai = 0;
 
         $riwayat = PengajuanIzin::query()

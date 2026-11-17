@@ -115,6 +115,7 @@ class PengajuanIzinForm
                             ->displayFormat('d/m/Y')
                             ->native(false)
                             ->default(now())
+                            ->minDate(fn (string $operation) => $operation === 'create' ? today() : null)
                             ->live()
                             ->required(),
 
@@ -123,6 +124,17 @@ class PengajuanIzinForm
                             ->displayFormat('d/m/Y')
                             ->native(false)
                             ->default(now())
+                            ->minDate(function (Get $get, string $operation) {
+                                $mulai = $get('tanggal_mulai');
+                                if ($operation === 'create') {
+                                    if ($mulai && Carbon::parse($mulai)->greaterThan(today())) {
+                                        return Carbon::parse($mulai)->startOfDay();
+                                    }
+                                    return today();
+                                }
+                                return $mulai ? Carbon::parse($mulai)->startOfDay() : null;
+                            })
+                            ->afterOrEqual('tanggal_mulai')
                             ->live()
                             ->helperText(function (Get $get): ?string {
                                 $mulai = $get('tanggal_mulai');

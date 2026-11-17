@@ -226,6 +226,7 @@
                 </label>
                 <div class="relative">
                     <input type="date" wire:model.live="tanggal_mulai"
+                           min="{{ now()->format('Y-m-d') }}"
                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all">
                 </div>
             </div>
@@ -236,6 +237,7 @@
                 </label>
                 <div class="relative">
                     <input type="date" wire:model.live="tanggal_selesai"
+                           min="{{ $tanggal_mulai && $tanggal_mulai >= now()->format('Y-m-d') ? $tanggal_mulai : now()->format('Y-m-d') }}"
                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all">
                 </div>
             </div>

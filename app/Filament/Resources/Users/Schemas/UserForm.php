@@ -449,6 +449,25 @@ class UserForm
                                                             ? 'Hanya Administrator yang dapat mengubah ID Mesin Presensi.'
                                                             : null;
                                                     }),
+
+                                                TextInput::make('kuota_cuti')
+                                                    ->label('Kuota Cuti Tahunan (Hari)')
+                                                    ->numeric()
+                                                    ->minValue(0)
+                                                    ->maxValue(365)
+                                                    ->default(12)
+                                                    ->suffix('Hari')
+                                                    ->disabled(function () {
+                                                        /** @var \App\Models\User|null $user */
+                                                        $user = Auth::user();
+                                                        return ! ($user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false);
+                                                    })
+                                                    ->dehydrated(function () {
+                                                        /** @var \App\Models\User|null $user */
+                                                        $user = Auth::user();
+                                                        return $user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false;
+                                                    })
+                                                    ->helperText('Diinput manual sesuai rekapitulasi cuti tahunan oleh Super Admin atau Admin Kepegawaian.'),
                                             ]),
                                     ]),
 

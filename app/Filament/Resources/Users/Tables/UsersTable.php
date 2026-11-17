@@ -269,6 +269,43 @@ class UsersTable
                     })
                     ->searchable()
                     ->sortable(),
+                \Filament\Tables\Columns\TextColumn::make('kuota_cuti')
+                    ->label('Cuti Tahunan')
+                    ->badge()
+                    ->color('info')
+                    ->icon('heroicon-m-pencil-square')
+                    ->formatStateUsing(fn ($state): string => (int) ($state ?? 12) . ' Hari')
+                    ->tooltip('Klik untuk input / ubah jumlah cuti tahunan (rekap manual)')
+                    ->sortable()
+                    ->action(
+                        Action::make('ubah_kuota_cuti')
+                            ->label('Ubah Kuota Cuti Tahunan')
+                            ->modalHeading(fn (\App\Models\User $record): string => "Kuota Cuti Tahunan: {$record->name}")
+                            ->modalDescription('Input manual jumlah kuota cuti tahunan berdasarkan rekapitulasi kepegawaian.')
+                            ->modalWidth('md')
+                            ->modalSubmitActionLabel('Simpan Kuota Cuti')
+                            ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+                            ->fillForm(fn (\App\Models\User $record): array => ['kuota_cuti' => (int) ($record->kuota_cuti ?? 12)])
+                            ->form([
+                                \Filament\Forms\Components\TextInput::make('kuota_cuti')
+                                    ->label('Jumlah Cuti Tahunan (Hari)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(365)
+                                    ->suffix('Hari')
+                                    ->required(),
+                            ])
+                            ->action(function (\App\Models\User $record, array $data): void {
+                                $kuota = (int) $data['kuota_cuti'];
+                                $record->update(['kuota_cuti' => $kuota]);
+
+                                Notification::make()
+                                    ->title('Kuota Cuti Tahunan Diperbarui')
+                                    ->body("Kuota cuti {$record->name} ditetapkan menjadi {$kuota} hari.")
+                                    ->success()
+                                    ->send();
+                            })
+                    ),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif')
                     ->disabled(fn(): bool => ! (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)),
             ])
@@ -842,6 +879,35 @@ class UsersTable
 
                             Notification::make()
                                 ->title("Berhasil memperbarui hak akses untuk $count pegawai.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
+                    BulkAction::make('ubah_kuota_cuti_massal')
+                        ->label('Input Kuota Cuti Tahunan (Massal)')
+                        ->icon('heroicon-o-calendar-days')
+                        ->color('info')
+                        ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+                        ->form([
+                            \Filament\Forms\Components\TextInput::make('kuota_cuti')
+                                ->label('Jumlah Cuti Tahunan (Hari)')
+                                ->numeric()
+                                ->minValue(0)
+                                ->maxValue(365)
+                                ->default(12)
+                                ->suffix('Hari')
+                                ->required()
+                                ->helperText('Nilai ini akan diterapkan ke seluruh pegawai yang dipilih.'),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $kuota = (int) $data['kuota_cuti'];
+                            $count = $records->count();
+                            $records->toQuery()->update(['kuota_cuti' => $kuota]);
+
+                            Notification::make()
+                                ->title("Kuota Cuti Tahunan {$count} Pegawai Diperbarui")
+                                ->body("Kuota cuti tahunan ditetapkan menjadi {$kuota} hari.")
                                 ->success()
                                 ->send();
                         })
