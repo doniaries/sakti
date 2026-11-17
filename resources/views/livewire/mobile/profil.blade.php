@@ -769,42 +769,22 @@
         @endif
     @endif
 
-    <!-- PENGATURAN MODUL SISTEM (KHUSUS SUPER ADMIN - LANGSUNG TAMPAK DI LUAR TAB) -->
+    <!-- TOMBOL PENGATURAN MODUL SISTEM (KHUSUS SUPER ADMIN) -->
     @if (auth()->user()?->hasRole('super_admin'))
-        @php
-            $moduleItems = [
-                'lhk' => ['label' => 'LHK, Bank Aktivitas & Reputasi', 'desc' => 'Menu LHK, Bank Aktivitas, dan Reputasi pegawai'],
-                'izin' => ['label' => 'Izin, Sakit & Cuti', 'desc' => 'Pengajuan & riwayat Izin, Sakit, Cuti'],
-                'wfh' => ['label' => 'WFH (Work From Home)', 'desc' => 'Menu presensi & pengajuan WFH'],
-                'surat_tugas' => ['label' => 'Surat Tugas Tim Kreatif', 'desc' => 'Pembuatan & persetujuan Surat Tugas'],
-                'spj' => ['label' => 'Keuangan & SPJ', 'desc' => 'Modul pengajuan & verifikasi SPJ'],
-            ];
-        @endphp
-        <div class="mt-5 bg-white rounded-3xl p-5 shadow-xs border border-sky-200/80 space-y-3">
-            <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xs shrink-0">
-                    <i class="fa-solid fa-sliders"></i>
-                </div>
-                <div>
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">Pengaturan Modul Sistem</h3>
-                    <p class="text-[10px] text-slate-500">Khusus Super Admin. Langsung berlaku di Web Admin, Mobile & Android.</p>
-                </div>
-            </div>
-
-            @foreach ($moduleItems as $modKey => $modMeta)
-                @php $enabled = (bool) ($modulAktif[$modKey] ?? false); @endphp
-                <div wire:key="mod-{{ $modKey }}" class="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-b-0">
-                    <div class="min-w-0">
-                        <p class="text-xs font-bold text-slate-800">{{ $modMeta['label'] }}</p>
-                        <p class="text-[10px] text-slate-400 leading-snug">{{ $modMeta['desc'] }}</p>
+        <div class="mt-5">
+            <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
+                class="w-full bg-white hover:bg-sky-50/70 rounded-2xl p-4 shadow-xs border border-sky-200/80 flex items-center justify-between gap-3 transition active:scale-[0.99]">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm shrink-0">
+                        <i class="fa-solid fa-sliders"></i>
                     </div>
-                    <button type="button" wire:click="toggleModul('{{ $modKey }}')"
-                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out {{ $enabled ? 'bg-emerald-500' : 'bg-slate-300' }}"
-                        role="switch" aria-checked="{{ $enabled ? 'true' : 'false' }}">
-                        <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out {{ $enabled ? 'translate-x-5' : 'translate-x-0' }}"></span>
-                    </button>
+                    <div class="min-w-0">
+                        <p class="text-xs font-extrabold text-slate-800">Pengaturan Modul Sistem</p>
+                        <p class="text-[10px] text-slate-500 truncate">Aktifkan / nonaktifkan menu Web, Mobile & Android</p>
+                    </div>
                 </div>
-            @endforeach
+                <i class="fa-solid fa-chevron-right text-xs text-sky-600 shrink-0"></i>
+            </a>
         </div>
     @endif
 

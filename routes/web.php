@@ -57,6 +57,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('/wfh', \App\Livewire\Mobile\Wfh\Index::class)->middleware('module:wfh')->name('mobile.wfh.index');
         Route::get('/hari-libur', \App\Livewire\Mobile\HariLibur::class)->name('mobile.hari-libur');
         Route::get('/pengaturan-lokasi', \App\Livewire\Mobile\PengaturanLokasi::class)->name('mobile.pengaturan-lokasi');
+        Route::get('/pengaturan-modul', \App\Livewire\Mobile\PengaturanModul::class)->name('mobile.pengaturan-modul');
     });
 });
 
