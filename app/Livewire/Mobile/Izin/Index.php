@@ -76,6 +76,7 @@ class Index extends Component
         $pengajuan = PengajuanIzin::with(['jenisIzin', 'user'])->find($this->targetAksiId);
         if (! $pengajuan) {
             $this->tutupModalAksi();
+        $this->tutupDetail();
             return;
         }
 
@@ -90,6 +91,7 @@ class Index extends Component
                 'message' => 'Anda tidak memiliki hak untuk memverifikasi pengajuan ini.',
             ]);
             $this->tutupModalAksi();
+        $this->tutupDetail();
             return;
         }
 
@@ -120,6 +122,7 @@ class Index extends Component
         }
 
         $this->tutupModalAksi();
+        $this->tutupDetail();
 
         $this->dispatch('notify', [
             'type' => $statusBaru === 'disetujui' ? 'success' : 'info',

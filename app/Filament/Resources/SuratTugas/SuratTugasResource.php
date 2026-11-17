@@ -70,7 +70,7 @@ class SuratTugasResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return $user !== null && ($user->hasRole('super_admin') || filled($user->jabatan_tim_kreatif));
+        return $user !== null && ($user->canManageSuratTugas() || filled($user->jabatan_tim_kreatif));
     }
 
     public static function canCreate(): bool
@@ -78,7 +78,7 @@ class SuratTugasResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return $user?->isAdminTimKreatif() ?? false;
+        return $user?->canManageSuratTugas() ?? false;
     }
 
     public static function canEdit(Model $record): bool
@@ -86,7 +86,7 @@ class SuratTugasResource extends Resource
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 
-        return $user?->isAdminTimKreatif() ?? false;
+        return $user?->canManageSuratTugas() ?? false;
     }
 
     public static function canDelete(Model $record): bool
@@ -114,7 +114,7 @@ class SuratTugasResource extends Resource
             ->with(['penandatangan'])
             ->withCount(['pegawais', 'pegawaisSudahBaca']);
 
-        if ($user && ! $user->hasRole('super_admin') && ! $user->isAdminTimKreatif()) {
+        if ($user && ! $user->canManageSuratTugas()) {
             $query->where(function (Builder $q) use ($user): void {
                 $q->where('penandatangan_id', $user->id)
                     ->orWhereHas('pegawais', fn (Builder $sub) => $sub->where('users.id', $user->id));

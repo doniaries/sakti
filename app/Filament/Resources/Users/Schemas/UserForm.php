@@ -259,6 +259,8 @@ class UserForm
                         // Tab 2: Pangkat / Golongan (MyASN Style)
                         Tab::make('Pangkat / Golongan')
                             ->icon('heroicon-m-shield-check')
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Section::make('Tingkat Eselon Jabatan')
                                     ->icon('heroicon-o-chart-bar')
@@ -357,6 +359,8 @@ class UserForm
                         // Tab 3: Jabatan & Penugasan (MyASN Style)
                         Tab::make('Jabatan')
                             ->icon('heroicon-m-briefcase')
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Grid::make([
                                     'default' => 1,
@@ -565,6 +569,8 @@ class UserForm
                         // Tab 4: Pendidikan
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Section::make('Riwayat Pendidikan Formal')
                                     ->description('Kelola seluruh riwayat pendidikan pegawai mulai dari jenjang SD, SLTP, SLTA, Diploma, S1, S2, hingga S3 beserta berkas scan Ijazah (PDF) yang dapat diunduh kembali.')
@@ -733,6 +739,8 @@ class UserForm
                         // Tab 5: Keluarga
                         Tab::make('Keluarga')
                             ->icon('heroicon-m-user-group')
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Section::make('Data Administrasi Kependudukan & Keluarga')
                                     ->icon('heroicon-o-user-group')
@@ -794,5 +802,31 @@ class UserForm
                             ]),
                     ]),
             ]);
+    }
+
+    private static function isKontrak(mixed $status): bool
+    {
+        $value = $status instanceof \App\Enums\StatusKepegawaian
+            ? $status->value
+            : (string) $status;
+
+        return $value === \App\Enums\StatusKepegawaian::KONTRAK->value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function disabledTabAttributes(mixed $status): array
+    {
+        if (! self::isKontrak($status)) {
+            return [];
+        }
+
+        return [
+            'disabled' => true,
+            'aria-disabled' => 'true',
+            'class' => 'opacity-40 pointer-events-none cursor-not-allowed',
+            'title' => 'Tidak berlaku untuk Pegawai Kontrak / Non-ASN',
+        ];
     }
 }

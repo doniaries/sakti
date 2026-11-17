@@ -476,14 +476,24 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
-     * Apakah user berhak mengelola (buat/edit/upload TTE) seluruh Surat Tugas.
+     * Apakah user bertugas sebagai Kepala Bidang (via role, kepala bidang definitif, atau nama jabatan).
      */
+    public function isKepalaBidang(): bool
+    {
+        return $this->hasAnyRole(['kabid', 'kepala_bidang'])
+            || Bidang::where('kepala_id', $this->id)->exists()
+            || str_contains(strtolower((string) ($this->jabatan?->nama ?? '')), 'kepala bidang');
+    }
+
     /**
-     * Apakah user berhak membuat & mengubah Surat Tugas (hanya staf Administrasi Tim Kreatif).
+     * Apakah user berhak membuat & mengubah Surat Tugas:
+     * Super Admin, Administrasi Tim Kreatif, dan Kepala Bidang.
      */
     public function canManageSuratTugas(): bool
     {
-        return $this->isAdminTimKreatif();
+        return $this->hasRole('super_admin')
+            || $this->isAdminTimKreatif()
+            || $this->isKepalaBidang();
     }
 
     /**

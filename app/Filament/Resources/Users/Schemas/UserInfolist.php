@@ -334,6 +334,8 @@ class UserInfolist
                         // Tab 2: Pangkat / Golongan (MyASN Style)
                         Tab::make('Pangkat / Golongan')
                             ->icon('heroicon-m-shield-check')
+                            ->disabled(fn ($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Tingkat Eselon')
                                     ->columns(2)
@@ -393,6 +395,8 @@ class UserInfolist
                         // Tab 3: Jabatan & Posisi (MyASN Style)
                         Tab::make('Jabatan')
                             ->icon('heroicon-m-briefcase')
+                            ->disabled(fn ($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Informasi Jabatan & Unit Kerja Saat Ini')
                                     ->columns(2)
@@ -490,6 +494,8 @@ class UserInfolist
                         // Tab 4: Pendidikan
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
+                            ->disabled(fn ($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Riwayat Pendidikan Formal')
                                     ->description('Daftar riwayat jenjang pendidikan formal yang tercatat dan lampiran berkas Ijazah asli.')
@@ -585,6 +591,8 @@ class UserInfolist
                         // Tab 5: Keluarga & Lainnya
                         Tab::make('Keluarga')
                             ->icon('heroicon-m-user-group')
+                            ->disabled(fn ($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Data Anggota Keluarga & Kependudukan')
                                     ->columns(2)
@@ -645,5 +653,32 @@ class UserInfolist
                         return $disk->download($path);
                     })
             );
+    }
+
+    private static function isKontrak(mixed $record): bool
+    {
+        $status = $record?->status_kepegawaian ?? null;
+        $value = $status instanceof \App\Enums\StatusKepegawaian
+            ? $status->value
+            : (string) $status;
+
+        return $value === \App\Enums\StatusKepegawaian::KONTRAK->value;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function disabledTabAttributes(mixed $record): array
+    {
+        if (! self::isKontrak($record)) {
+            return [];
+        }
+
+        return [
+            'disabled' => true,
+            'aria-disabled' => 'true',
+            'class' => 'opacity-40 pointer-events-none cursor-not-allowed',
+            'title' => 'Tidak berlaku untuk Pegawai Kontrak / Non-ASN',
+        ];
     }
 }

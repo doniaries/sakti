@@ -110,8 +110,8 @@
                     default => 'from-sky-500 to-sky-600',
                 };
             @endphp
-            <div
-                class="bg-white rounded-3xl p-4 border border-slate-100 shadow-xs hover:border-slate-200 transition-all">
+            <div wire:click="bukaDetail({{ $item->id }})"
+                class="bg-white rounded-3xl p-4 border border-slate-100 shadow-xs hover:border-sky-300 active:scale-[0.99] cursor-pointer transition-all">
                 <!-- Header Card: Pegawai (jika Verifikasi) atau Jenis Izin -->
                 <div class="flex items-start justify-between mb-2">
                     <div class="flex items-center space-x-2.5 min-w-0 pr-2">
@@ -175,6 +175,7 @@
                 <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[11px]">
                     <a href="{{ route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item, 'preview' => 1]) }}"
                         target="_blank"
+                        @click.stop
                         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 font-bold hover:bg-rose-100 transition-colors">
                         <i class="fa-solid fa-file-pdf"></i>
                         <span>{{ $item->status === 'menunggu' ? 'Draft Surat PDF' : 'Lihat Surat PDF' }}</span>
@@ -182,6 +183,7 @@
                     <div>
                         @if ($item->lampiran)
                             <a href="{{ asset('storage/' . $item->lampiran) }}" target="_blank"
+                                @click.stop
                                 class="text-sky-600 hover:text-sky-700 font-bold flex items-center">
                                 <i class="fa-solid fa-paperclip mr-1"></i> Bukti Lampiran
                             </a>
@@ -198,7 +200,7 @@
                             </div>
                         @endif
 
-                        <button type="button" wire:click="bukaDetail({{ $item->id }})"
+                        <button type="button" wire:click.stop="bukaDetail({{ $item->id }})"
                             class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-0.5">
                             <span>Detail</span>
                             <i class="fa-solid fa-chevron-right text-[8px]"></i>
@@ -211,16 +213,16 @@
                     <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-end flex-wrap gap-2">
                         @if ($item->jenisIzin?->kategori === 'cuti')
                             <button type="button"
-                                @click="window.dispatchEvent(new CustomEvent('buka-preview-cuti', { detail: { id: {{ $item->id }}, url: '{{ route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item->id, 'preview' => 1]) }}' } }))"
+                                @click.stop="window.dispatchEvent(new CustomEvent('buka-preview-cuti', { detail: { id: {{ $item->id }}, url: '{{ route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item->id, 'preview' => 1]) }}' } }))"
                                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
                                 <i class="fa-solid fa-file-pdf"></i> Preview Surat
                             </button>
                         @endif
-                        <button type="button" wire:click="bukaModalAksi({{ $item->id }}, 'tolak')"
+                        <button type="button" wire:click.stop="bukaModalAksi({{ $item->id }}, 'tolak')"
                             class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
                             <i class="fa-solid fa-xmark"></i> Tolak
                         </button>
-                        <button type="button" wire:click="bukaModalAksi({{ $item->id }}, 'setujui')"
+                        <button type="button" wire:click.stop="bukaModalAksi({{ $item->id }}, 'setujui')"
                             class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold shadow-sm active:scale-95 transition flex items-center gap-1">
                             <i class="fa-solid fa-check"></i> Setujui
                         </button>
@@ -230,7 +232,7 @@
                 <!-- Tombol Batalkan Pengajuan Saya (Hanya jika masih menunggu) -->
                 @if ($activeTab === 'saya' && $item->status === 'menunggu')
                     <div class="mt-3 pt-2 border-t border-slate-100 flex justify-end">
-                        <button type="button" wire:click="batalkanPengajuan({{ $item->id }})"
+                        <button type="button" wire:click.stop="batalkanPengajuan({{ $item->id }})"
                             wire:confirm="Yakin ingin membatalkan dan menghapus pengajuan izin ini?"
                             class="text-[11px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1 transition">
                             <i class="fa-solid fa-trash-can text-[10px]"></i> Batalkan Pengajuan
@@ -361,7 +363,28 @@
                     </div>
                 @endif
 
-                <div class="pt-2">
+                @php
+                    $canApproveSelected = $selectedPengajuan->status === 'menunggu'
+                        && ($selectedPengajuan->user?->atasan_id === auth()->id()
+                            || (auth()->user()?->hasAnyRole(['super_admin', 'admin', 'pa', 'ppk', 'pptk']) ?? false));
+                @endphp
+
+                <div class="pt-2 space-y-2">
+                    @if ($canApproveSelected)
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" wire:click="bukaModalAksi({{ $selectedPengajuan->id }}, 'tolak')"
+                                class="py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-extrabold text-xs transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-xmark"></i>
+                                <span>Tolak</span>
+                            </button>
+                            <button type="button" wire:click="bukaModalAksi({{ $selectedPengajuan->id }}, 'setujui')"
+                                class="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Setujui</span>
+                            </button>
+                        </div>
+                    @endif
+
                     <button type="button" wire:click="tutupDetail"
                         class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
                         Tutup Rincian
