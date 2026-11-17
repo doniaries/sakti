@@ -37,12 +37,27 @@ class Login extends Component
     {
         $this->validate();
 
-        if (Auth::attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        $email = strtolower(trim($this->email));
+        $user = \App\Models\User::query()
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->first();
+
+        if (! $user) {
+            $this->addError('email', "Email ({$email}) tidak terdaftar atau berbeda dengan email akun Anda. Silakan periksa kembali atau hubungi Admin Kepegawaian.");
+            return;
+        }
+
+        if (! $user->aktif) {
+            $this->addError('email', 'Akun pegawai Anda sedang dinonaktifkan. Silakan hubungi Administrator Kepegawaian.');
+            return;
+        }
+
+        if (Auth::attempt(['email' => $user->email, 'password' => $this->password], $this->remember)) {
             request()->session()->regenerate();
             return redirect()->intended(route('mobile.dashboard'));
         }
 
-        $this->addError('email', 'Email atau kata sandi yang Anda masukkan salah. Silakan periksa kembali.');
+        $this->addError('password', 'Kata sandi yang Anda masukkan salah. Silakan periksa kembali.');
     }
 
     public function render()

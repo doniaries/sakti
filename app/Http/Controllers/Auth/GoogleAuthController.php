@@ -94,30 +94,36 @@ class GoogleAuthController extends Controller
             return redirect()->to($failRedirect);
         }
 
-        // Cari user berdasarkan google_id atau email user
+        // Cari user STRICT berdasarkan email terdaftar agar email Google yang berbeda tidak bisa masuk
         /** @var User|null $user */
         $user = User::query()
-            ->where('google_id', $googleId)
-            ->orWhereRaw('LOWER(email) = ?', [$googleEmail])
+            ->whereRaw('LOWER(email) = ?', [$googleEmail])
             ->first();
 
-        // Jika email belum terdaftar di database SAKTI
         if (! $user) {
+            $linkedWithDifferentEmail = User::query()
+                ->where('google_id', $googleId)
+                ->exists();
+
+            $message = $linkedWithDifferentEmail
+                ? "Email Google ({$googleEmail}) berbeda dengan email akun yang terdaftar di SAKTI. Silakan masuk menggunakan akun Google dengan email yang sesuai atau hubungi Administrator."
+                : "Email Google ({$googleEmail}) belum terdaftar pada data pegawai SAKTI. Silakan login menggunakan email akun Anda atau hubungi Administrator.";
+
             if ($origin === 'flutter') {
-                return $flutterErrorRedirect("Email Google ({$googleEmail}) belum terdaftar pada data pegawai SAKTI.");
+                return $flutterErrorRedirect($message);
             }
 
             Notification::make()
-                ->title('Akun Tidak Ditemukan')
-                ->body("Email Google ({$googleEmail}) belum terdaftar pada data pegawai SAKTI. Silakan login menggunakan akun kedinasan Anda atau hubungi Administrator.")
+                ->title($linkedWithDifferentEmail ? 'Email Tidak Sesuai Akun' : 'Akun Tidak Ditemukan')
+                ->body($message)
                 ->warning()
                 ->persistent()
                 ->send();
 
             session()->flash('notify', [
                 'type' => 'warning',
-                'title' => 'Akun Tidak Terdaftar',
-                'message' => "Email Google ({$googleEmail}) belum terdaftar pada data pegawai SAKTI. Silakan login menggunakan akun kedinasan Anda atau hubungi Administrator.",
+                'title' => $linkedWithDifferentEmail ? 'Email Tidak Sesuai Akun' : 'Akun Tidak Terdaftar',
+                'message' => $message,
             ]);
 
             return redirect()->to($failRedirect);

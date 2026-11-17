@@ -81,6 +81,20 @@
                 </p>
             </div>
 
+            @if (session('notify'))
+                @php
+                    $notify = session('notify');
+                    $isWarning = ($notify['type'] ?? 'error') === 'warning';
+                @endphp
+                <div class="mb-4 p-3 rounded-2xl border text-xs {{ $isWarning ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-rose-50 border-rose-200 text-rose-800' }}">
+                    <div class="font-extrabold flex items-center gap-1.5 mb-0.5">
+                        <i class="fa-solid {{ $isWarning ? 'fa-triangle-exclamation text-amber-600' : 'fa-circle-exclamation text-rose-600' }}"></i>
+                        <span>{{ $notify['title'] ?? 'Peringatan Login' }}</span>
+                    </div>
+                    <p class="text-[11px] leading-relaxed">{{ $notify['message'] ?? '' }}</p>
+                </div>
+            @endif
+
             <!-- Form -->
             <form wire:submit="login" class="space-y-3.5">
                 <!-- Email Field -->
