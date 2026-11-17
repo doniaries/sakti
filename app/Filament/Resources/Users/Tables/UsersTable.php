@@ -403,12 +403,13 @@ class UsersTable
                     ->form([
                         CheckboxList::make('roles')
                             ->label('Pilih Peran Resmi (Bisa Lebih Dari Satu)')
-                            ->options(function () {
+                            ->options(function (): array {
                                 /** @var \App\Models\User|null $user */
                                 $user = \Illuminate\Support\Facades\Auth::user();
                                 $isSuperAdmin = $user && $user->hasRole('super_admin');
 
-                                $options = [
+                                $knownLabels = [
+                                    'super_admin' => 'Super Admin Sistem (Akses Penuh IT)',
                                     'admin_kepegawaian' => 'Admin Kepegawaian (Kasubag Umum & Kepegawaian)',
                                     'admin_keuangan' => 'Admin Keuangan (Kelola Master Anggaran, RKA & SPJ)',
                                     'admin' => 'Admin Dinas (Akses Lengkap Umum)',
@@ -418,26 +419,40 @@ class UsersTable
                                     'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja Sub Kegiatan)',
                                     'bendahara' => 'Bendahara Pengeluaran (Uji Kas & Potong Pajak)',
                                     'pegawai' => 'Pegawai Standar (Presensi GPS Mobile & LHK Pribadi)',
+                                    'pegawai_kontrak' => 'Pegawai Kontrak (Izin/Sakit/Cuti, Presensi, Profil & Tim Kreatif)',
                                 ];
 
-                                if ($isSuperAdmin) {
-                                    $options = ['super_admin' => 'Super Admin Sistem (Akses Penuh IT)'] + $options;
-                                }
-
-                                return $options;
+                                return \Spatie\Permission\Models\Role::query()
+                                    ->when(! $isSuperAdmin, fn ($q) => $q->where('name', '!=', 'super_admin'))
+                                    ->orderBy('id')
+                                    ->pluck('name')
+                                    ->mapWithKeys(fn (string $roleName): array => [
+                                        $roleName => $knownLabels[$roleName] ?? ucwords(str_replace('_', ' ', $roleName)),
+                                    ])
+                                    ->all();
                             })
-                            ->descriptions([
-                                'super_admin' => 'Akses penuh tak terbatas ke seluruh sistem dan konfigurasi teknis.',
-                                'admin_kepegawaian' => 'Mengelola master pegawai, jadwal shift kerja, mesin presensi, dan rekap dinas.',
-                                'admin_keuangan' => 'Mengelola master program, kegiatan, sub kegiatan RKA, barang, toko, dan SPJ belanja.',
-                                'admin' => 'Akses administrator dinas menyeluruh.',
-                                'pa' => 'Memantau seluruh absensi & SPJ, menyetujui tahap akhir SPJ (Kwitansi & NPD).',
-                                'ppk' => 'Memverifikasi administrasi belanja dinas, pagu DPA, dan checklist verifikasi SPJ.',
-                                'pptk' => 'Menandatangani Surat Pesanan dan Kwitansi Pembayaran khusus belanja bidangnya.',
-                                'jf' => 'Membuat draf usulan belanja pada sub kegiatan yang diampunya di bidangnya.',
-                                'bendahara' => 'Menguji kas belanja dinas, memotong pajak, dan menandatangani pelunasan Kwitansi.',
-                                'pegawai' => 'Wajib bagi semua ASN/Non-ASN untuk presensi harian dan submit laporan kinerja (LHK).',
-                            ])
+                            ->descriptions(function (): array {
+                                $knownDescriptions = [
+                                    'super_admin' => 'Akses penuh tak terbatas ke seluruh sistem dan konfigurasi teknis.',
+                                    'admin_kepegawaian' => 'Mengelola master pegawai, jadwal shift kerja, mesin presensi, dan rekap dinas.',
+                                    'admin_keuangan' => 'Mengelola master program, kegiatan, sub kegiatan RKA, barang, toko, dan SPJ belanja.',
+                                    'admin' => 'Akses administrator dinas menyeluruh.',
+                                    'pa' => 'Memantau seluruh absensi & SPJ, menyetujui tahap akhir SPJ (Kwitansi & NPD).',
+                                    'ppk' => 'Memverifikasi administrasi belanja dinas, pagu DPA, dan checklist verifikasi SPJ.',
+                                    'pptk' => 'Menandatangani Surat Pesanan dan Kwitansi Pembayaran khusus belanja bidangnya.',
+                                    'jf' => 'Membuat draf usulan belanja pada sub kegiatan yang diampunya di bidangnya.',
+                                    'bendahara' => 'Menguji kas belanja dinas, memotong pajak, dan menandatangani pelunasan Kwitansi.',
+                                    'pegawai' => 'Pegawai ASN/PNS/PPPK untuk presensi harian, izin/cuti, LHK, dan fitur kepegawaian.',
+                                    'pegawai_kontrak' => 'Khusus Pegawai Kontrak: hanya Izin/Sakit/Cuti, Profil Pegawai, Presensi, serta Surat Tugas & Tim Kreatif.',
+                                ];
+
+                                return \Spatie\Permission\Models\Role::query()
+                                    ->pluck('name')
+                                    ->mapWithKeys(fn (string $roleName): array => [
+                                        $roleName => $knownDescriptions[$roleName] ?? "Hak akses dinamis dari Shield Role ({$roleName}).",
+                                    ])
+                                    ->all();
+                            })
                             ->default(fn(\App\Models\User $record): array => $record->roles->pluck('name')->toArray())
                             ->columns(1)
                             ->required(),
