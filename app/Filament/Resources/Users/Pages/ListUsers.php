@@ -89,14 +89,31 @@ class ListUsers extends ListRecords
             }
         }
 
-        // Untuk Kasubag Kepegawaian (Admin), PA (Kadis), dan Super Admin: Tampilkan semua
+        // Hitung seluruh tab dalam 2 query ringkas (menggantikan 6+ query terpisah)
+        $agg = User::query()
+            ->bukanSuperAdmin()
+            ->selectRaw('
+                COUNT(*) as total_all,
+                SUM(CASE WHEN jabatan_tim_kreatif IS NOT NULL THEN 1 ELSE 0 END) as tim_kreatif_count,
+                SUM(CASE WHEN bidang_id IS NULL AND atasan_id IS NOT NULL THEN 1 ELSE 0 END) as geopark_count,
+                SUM(CASE WHEN bidang_id IS NULL AND atasan_id IS NULL THEN 1 ELSE 0 END) as tanpa_bidang_count
+            ')
+            ->first();
+
         $tabs = [
             'semua' => Tab::make('Semua Pegawai')
                 ->icon('heroicon-m-user-group')
-                ->badge(User::query()->bukanSuperAdmin()->count()),
+                ->badge((int) ($agg->total_all ?? 0)),
         ];
 
-        $bidangs = Bidang::withCount(['users' => fn($q) => $q->bukanSuperAdmin()])->orderBy('nama')->get();
+        $bidangCounts = User::query()
+            ->bukanSuperAdmin()
+            ->whereNotNull('bidang_id')
+            ->selectRaw('bidang_id, COUNT(*) as total')
+            ->groupBy('bidang_id')
+            ->pluck('total', 'bidang_id');
+
+        $bidangs = Bidang::query()->orderBy('nama')->get(['id', 'nama', 'slug']);
 
         foreach ($bidangs as $bidang) {
             $icon = match ($bidang->slug) {
@@ -109,12 +126,12 @@ class ListUsers extends ListRecords
 
             $tabs[$bidang->slug] = Tab::make($bidang->nama)
                 ->icon($icon)
-                ->badge($bidang->users_count)
+                ->badge((int) ($bidangCounts[$bidang->id] ?? 0))
                 ->badgeColor('primary')
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('bidang_id', $bidang->id));
         }
 
-        $timKreatifCount = User::query()->whereNotNull('jabatan_tim_kreatif')->bukanSuperAdmin()->count();
+        $timKreatifCount = (int) ($agg->tim_kreatif_count ?? 0);
         if ($timKreatifCount > 0) {
             $tabs['tim_kreatif'] = Tab::make('Tim Kreatif')
                 ->icon('heroicon-m-sparkles')
@@ -123,11 +140,7 @@ class ListUsers extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereNotNull('jabatan_tim_kreatif'));
         }
 
-        $geoparkCount = User::query()
-            ->whereNull('bidang_id')
-            ->whereNotNull('atasan_id')
-            ->bukanSuperAdmin()
-            ->count();
+        $geoparkCount = (int) ($agg->geopark_count ?? 0);
         if ($geoparkCount > 0) {
             $tabs['geopark'] = Tab::make('Badan Pengelola Geopark')
                 ->icon('heroicon-m-globe-alt')
@@ -136,11 +149,7 @@ class ListUsers extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->whereNull('bidang_id')->whereNotNull('atasan_id'));
         }
 
-        $tanpaBidangCount = User::query()
-            ->whereNull('bidang_id')
-            ->whereNull('atasan_id')
-            ->bukanSuperAdmin()
-            ->count();
+        $tanpaBidangCount = (int) ($agg->tanpa_bidang_count ?? 0);
         if ($tanpaBidangCount > 0) {
             $tabs['tanpa_bidang'] = Tab::make('Kepala Dinas')
                 ->icon('heroicon-m-user')

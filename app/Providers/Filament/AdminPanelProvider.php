@@ -57,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->passwordReset()
             ->databaseNotifications()
-            ->databaseNotificationsPolling('5s')
+            ->databaseNotificationsPolling('30s')
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label(function () {

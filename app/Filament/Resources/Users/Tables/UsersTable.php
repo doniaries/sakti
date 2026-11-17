@@ -37,8 +37,9 @@ class UsersTable
                 if ($jenjang = request()->query('jenjang')) {
                     $query->where('jenjang_pendidikan', '=', $jenjang);
                 }
+
+                $query->with(['bidang:id,nama', 'jabatan:id,nama', 'roles:id,name']);
             })
-            ->deferLoading()
             ->defaultPaginationPageOption(10)
             ->paginationPageOptions([5, 10, 25, 50, 100])
             ->stickyableColumns()
@@ -269,13 +270,11 @@ class UsersTable
                 SelectFilter::make('bidang_id')
                     ->label('Bidang')
                     ->relationship('bidang', 'nama')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 SelectFilter::make('jabatan_id')
                     ->label('Jabatan')
                     ->relationship('jabatan', 'nama')
-                    ->searchable()
-                    ->preload(),
+                    ->searchable(),
                 SelectFilter::make('status_kerja')
                     ->label('Tipe Kerja')
                     ->options([

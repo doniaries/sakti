@@ -66,14 +66,24 @@ class UserStatsWidget extends StatsOverviewWidget
             ];
         }
 
-        $baseQuery = User::query()->bukanSuperAdmin();
+        $summary = User::query()
+            ->bukanSuperAdmin()
+            ->selectRaw("
+                COUNT(*) as total,
+                SUM(CASE WHEN jenjang_pendidikan = 'S3' THEN 1 ELSE 0 END) as s3,
+                SUM(CASE WHEN jenjang_pendidikan = 'S2' THEN 1 ELSE 0 END) as s2,
+                SUM(CASE WHEN jenjang_pendidikan = 'S1' THEN 1 ELSE 0 END) as s1,
+                SUM(CASE WHEN jenjang_pendidikan = 'SLTA' THEN 1 ELSE 0 END) as slta,
+                SUM(CASE WHEN jenjang_pendidikan = 'SMP' THEN 1 ELSE 0 END) as smp
+            ")
+            ->first();
 
-        $total = (clone $baseQuery)->count();
-        $s3Count = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'S3')->count();
-        $s2Count = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'S2')->count();
-        $s1Count = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'S1')->count();
-        $sltaCount = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'SLTA')->count();
-        $smpCount = (clone $baseQuery)->where('jenjang_pendidikan', '=', 'SMP')->count();
+        $total = (int) ($summary->total ?? 0);
+        $s3Count = (int) ($summary->s3 ?? 0);
+        $s2Count = (int) ($summary->s2 ?? 0);
+        $s1Count = (int) ($summary->s1 ?? 0);
+        $sltaCount = (int) ($summary->slta ?? 0);
+        $smpCount = (int) ($summary->smp ?? 0);
 
         return [
             Stat::make('Total Pegawai', $total)
