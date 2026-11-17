@@ -5,6 +5,7 @@ namespace App\Livewire\Mobile;
 use App\Models\LhkPekerjaan;
 use App\Models\PengajuanIzin;
 use App\Models\PengajuanSpj;
+use App\Models\SuratTugas;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -18,9 +19,17 @@ class Persetujuan extends Component
 {
     public string $tab = 'izin';
 
+    public function mount(): void
+    {
+        $requestedTab = (string) request()->query('tab', '');
+        if (in_array($requestedTab, ['izin', 'lhk', 'spj', 'surat_tugas'], true)) {
+            $this->tab = $requestedTab;
+        }
+    }
+
     public function setTab(string $tab): void
     {
-        $this->tab = in_array($tab, ['izin', 'lhk', 'spj'], true) ? $tab : 'izin';
+        $this->tab = in_array($tab, ['izin', 'lhk', 'spj', 'surat_tugas'], true) ? $tab : 'izin';
     }
 
     public function approveIzin(int $id): void
@@ -172,6 +181,40 @@ class Persetujuan extends Component
         ]);
     }
 
+    public function approveSuratTugas(int $id): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        $suratTugas = SuratTugas::find($id);
+
+        if (! $suratTugas || $suratTugas->status !== 'draft') {
+            return;
+        }
+
+        $canApprove = $user !== null && (
+            $suratTugas->penandatangan_id === $user->id
+            || $user->canSignSuratTugas()
+            || $user->isKepalaBidang()
+        );
+
+        if (! $canApprove) {
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'title' => 'Akses Ditolak',
+                'message' => 'Anda tidak memiliki wewenang menyetujui Surat Tugas ini.',
+            ]);
+            return;
+        }
+
+        $suratTugas->tandatanganiDiSakti($suratTugas->penandatangan_id ?: $user->id);
+
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Surat Tugas Diterbitkan',
+            'message' => "Surat Tugas {$suratTugas->nomor_surat} berhasil disetujui & diterbitkan.",
+        ]);
+    }
+
     public function render()
     {
         /** @var User|null $user */
@@ -221,10 +264,29 @@ class Persetujuan extends Component
                 ->limit(25)
                 ->get();
 
+        $canSeeSuratTugas = $user !== null && ($user->canSignSuratTugas() || $user->isKepalaBidang());
+        $suratTugasList = $canSeeSuratTugas || $user
+            ? SuratTugas::with(['creator', 'penandatangan', 'pegawais'])
+                ->where('status', 'draft')
+                ->when(
+                    ! ($user?->hasAnyRole(['super_admin', 'admin', 'pa']) ?? false) && $user,
+                    fn ($q) => $q->where(function ($sub) use ($user): void {
+                        $sub->where('penandatangan_id', $user->id);
+                        if ($user->canSignSuratTugas() || $user->isKepalaBidang()) {
+                            $sub->orWhereNull('penandatangan_id');
+                        }
+                    })
+                )
+                ->latest()
+                ->limit(25)
+                ->get()
+            : collect();
+
         return view('livewire.mobile.persetujuan', [
             'izinList' => $izinList,
             'lhkList' => $lhkList,
             'spjList' => $spjList,
+            'suratTugasList' => $suratTugasList,
         ]);
     }
 }

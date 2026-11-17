@@ -108,10 +108,11 @@ class SuratTugasForm
                                 ->schema([
                                     TextInput::make('nomor_surat')
                                         ->label('Nomor Surat Tugas')
-                                        ->placeholder('Otomatis saat disahkan TTE SAKTI')
-                                        ->unique(ignoreRecord: true)
+                                        ->default(fn (): string => \App\Models\SuratTugas::generateNomorSurat())
+                                        ->disabled()
+                                        ->dehydrated(false)
                                         ->maxLength(100)
-                                        ->helperText('Kosongkan jika masih draf; nomor surat terbit otomatis saat disahkan di SAKTI.'),
+                                        ->helperText('Nomor surat dibuat otomatis oleh sistem (terbit saat disetujui) dan tidak dapat diubah manual.'),
 
                                     Select::make('penandatangan_id')
                                         ->label('Penandatangan (TTE SAKTI)')

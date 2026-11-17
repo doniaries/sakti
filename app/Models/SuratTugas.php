@@ -110,13 +110,33 @@ class SuratTugas extends Model
                 ->sendToDatabase($this->creator);
         }
 
-        if ($this->penandatangan && filled($this->penandatangan->jabatan_tim_kreatif)) {
+        if ($this->penandatangan) {
             Notification::make()
                 ->title('Permohonan Persetujuan Surat Tugas')
-                ->body("Mohon persetujuan & TTE SAKTI untuk kegiatan: {$this->nama_kegiatan}")
+                ->body("Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}")
                 ->icon('heroicon-o-pencil-square')
                 ->warning()
+                ->actions([
+                    \Filament\Actions\Action::make('buka_persetujuan')
+                        ->label('Setujui di SAKTI Mobile')
+                        ->url(route('mobile.persetujuan', ['tab' => 'surat_tugas'])),
+                ])
                 ->sendToDatabase($this->penandatangan);
+        } else {
+            $approvers = User::role(['super_admin', 'admin', 'pa'])->get();
+            foreach ($approvers as $approver) {
+                Notification::make()
+                    ->title('Permohonan Persetujuan Surat Tugas')
+                    ->body("Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}")
+                    ->icon('heroicon-o-pencil-square')
+                    ->warning()
+                    ->actions([
+                        \Filament\Actions\Action::make('buka_persetujuan')
+                            ->label('Setujui di SAKTI Mobile')
+                            ->url(route('mobile.persetujuan', ['tab' => 'surat_tugas'])),
+                    ])
+                    ->sendToDatabase($approver);
+            }
         }
     }
 

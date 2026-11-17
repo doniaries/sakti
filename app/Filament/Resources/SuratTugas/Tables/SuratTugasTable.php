@@ -61,7 +61,7 @@ class SuratTugasTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => $state === 'terbit' ? 'Resmi (TTE SAKTI)' : 'Draft')
+                    ->formatStateUsing(fn(string $state): string => $state === 'terbit' ? 'Diterbitkan' : 'Draft')
                     ->color(fn(string $state): string => $state === 'terbit' ? 'success' : 'warning')
                     ->sortable(),
 
@@ -82,7 +82,7 @@ class SuratTugasTable
                     ->label('Status Surat')
                     ->options([
                         'draft' => 'Draft (Menunggu TTE)',
-                        'terbit' => 'Resmi (TTE SAKTI)',
+                        'terbit' => 'Diterbitkan',
                     ]),
             ])
             ->headerActions([
@@ -95,7 +95,7 @@ class SuratTugasTable
                     ->label(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'Lihat Surat Tugas' : 'Preview Draft')
                     ->icon(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'heroicon-o-document-check' : 'heroicon-o-eye')
                     ->color(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'success' : 'info')
-                    ->modalHeading(fn(SuratTugas $record): string => ($record->status === 'terbit' ? 'Surat Tugas Resmi (TTE SAKTI) — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
+                    ->modalHeading(fn(SuratTugas $record): string => ($record->status === 'terbit' ? 'Surat Tugas Diterbitkan — ' : 'Preview Draft Surat Tugas — ') . ($record->nomor_surat ?: 'Belum Bernomor'))
                     ->modalWidth(Width::FourExtraLarge)
                     ->modalContent(function (SuratTugas $record): HtmlString {
                         $record->tandaiDibacaOleh(Auth::id());

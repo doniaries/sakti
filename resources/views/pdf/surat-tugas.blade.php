@@ -217,10 +217,18 @@
                             </strong>.
                         </td>
                     </tr>
+                    @if (filled($surat->keterangan))
+                        <tr>
+                            <td>2.</td>
+                            <td>
+                                {{ $surat->keterangan }}
+                            </td>
+                        </tr>
+                    @endif
                     <tr>
-                        <td>2.</td>
+                        <td>{{ filled($surat->keterangan) ? '3.' : '2.' }}</td>
                         <td>
-                            {{ $surat->keterangan ?: 'Melaksanakan tugas dengan penuh tanggung jawab dan melaporkan hasilnya kepada Pimpinan.' }}
+                            Melaksanakan tugas dengan penuh tanggung jawab dan profesional.
                         </td>
                     </tr>
                 </table>
