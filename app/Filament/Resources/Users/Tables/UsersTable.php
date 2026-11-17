@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Users\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
@@ -16,6 +16,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class UsersTable
 {
@@ -274,18 +275,18 @@ class UsersTable
                     ->badge()
                     ->color('info')
                     ->icon('heroicon-m-pencil-square')
-                    ->formatStateUsing(fn ($state): string => (int) ($state ?? 12) . ' Hari')
+                    ->formatStateUsing(fn($state): string => (int) ($state ?? 12) . ' Hari')
                     ->tooltip('Klik untuk input / ubah jumlah cuti tahunan (rekap manual)')
                     ->sortable()
                     ->action(
                         Action::make('ubah_kuota_cuti')
                             ->label('Ubah Kuota Cuti Tahunan')
-                            ->modalHeading(fn (\App\Models\User $record): string => "Kuota Cuti Tahunan: {$record->name}")
+                            ->modalHeading(fn(\App\Models\User $record): string => "Kuota Cuti Tahunan: {$record->name}")
                             ->modalDescription('Input manual jumlah kuota cuti tahunan berdasarkan rekapitulasi kepegawaian.')
                             ->modalWidth('md')
                             ->modalSubmitActionLabel('Simpan Kuota Cuti')
-                            ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
-                            ->fillForm(fn (\App\Models\User $record): array => ['kuota_cuti' => (int) ($record->kuota_cuti ?? 12)])
+                            ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+                            ->fillForm(fn(\App\Models\User $record): array => ['kuota_cuti' => (int) ($record->kuota_cuti ?? 12)])
                             ->form([
                                 \Filament\Forms\Components\TextInput::make('kuota_cuti')
                                     ->label('Jumlah Cuti Tahunan (Hari)')
@@ -348,6 +349,7 @@ class UsersTable
             ])
             ->defaultSort('created_at', 'asc')
             ->recordActions([
+                Impersonate::make(),
                 ViewAction::make()
                     ->label(false),
                 EditAction::make()
@@ -463,7 +465,7 @@ class UsersTable
                             ->success()
                             ->send();
                     }),
-                Action::make('hubungkan_mesin')
+                /* Action::make('hubungkan_mesin')
                     ->label('Hubungkan ke Mesin')
                     ->icon('heroicon-o-link')
                     ->color('gray')
@@ -498,8 +500,8 @@ class UsersTable
                     ->action(function (\App\Models\User $record, array $data) {
                         $record->update(['nomor_absensi' => $data['nomor_absensi']]);
                         Notification::make()->title('Pegawai berhasil dihubungkan dengan mesin!')->success()->send();
-                    }),
-                Action::make('kirim_ke_mesin')
+                    }), */
+                /* Action::make('kirim_ke_mesin')
                     ->label('Kirim ke Mesin')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('gray')
@@ -543,7 +545,7 @@ class UsersTable
                         } catch (\Exception $e) {
                             Notification::make()->title('Gagal mengirim ke mesin: ' . $e->getMessage())->danger()->send();
                         }
-                    })
+                    }) */
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -888,7 +890,7 @@ class UsersTable
                         ->label('Input Kuota Cuti Tahunan (Massal)')
                         ->icon('heroicon-o-calendar-days')
                         ->color('info')
-                        ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+                        ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
                         ->form([
                             \Filament\Forms\Components\TextInput::make('kuota_cuti')
                                 ->label('Jumlah Cuti Tahunan (Hari)')

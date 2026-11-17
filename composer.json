@@ -24,6 +24,7 @@
         "owenvoke/blade-fontawesome": "^3.3",
         "rats/zkteco": "^002.0",
         "smalot/pdfparser": "^2.13",
+        "stechstudio/filament-impersonate": "^5.7",
         "swisnl/filament-backgrounds": "^2.0",
         "wallacemartinss/filament-icon-picker": "^1.4",
         "watheqalshowaiter/filament-sticky-table-header": "*",
