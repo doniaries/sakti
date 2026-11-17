@@ -101,6 +101,24 @@ class ActivityLogInfolist
                     ->schema([
                         KeyValueEntry::make('properties')
                             ->label('Detail Perubahan Data / Payload')
+                            ->state(function ($record): array {
+                                $properties = $record?->properties;
+                                if (! is_array($properties)) {
+                                    return [];
+                                }
+
+                                $normalized = [];
+                                foreach ($properties as $key => $value) {
+                                    $normalized[(string) $key] = match (true) {
+                                        is_array($value), is_object($value) => (string) json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                                        is_bool($value) => $value ? 'true' : 'false',
+                                        is_null($value) => '-',
+                                        default => (string) $value,
+                                    };
+                                }
+
+                                return $normalized;
+                            })
                             ->columnSpanFull()
                             ->placeholder('Tidak ada parameter tambahan.'),
                     ])
