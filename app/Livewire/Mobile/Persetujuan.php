@@ -5,6 +5,7 @@ namespace App\Livewire\Mobile;
 use App\Models\LhkPekerjaan;
 use App\Models\PengajuanIzin;
 use App\Models\PengajuanSpj;
+use App\Models\PengaturanAplikasi;
 use App\Models\SuratTugas;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -221,14 +222,21 @@ class Persetujuan extends Component
         $user = Auth::user();
         $isGlobalApprover = $user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'pimpinan']) ?? false;
 
-        $izinList = PengajuanIzin::with(['user', 'jenisIzin'])
-            ->where('status', 'menunggu')
-            ->when(! $isGlobalApprover && $user, fn ($q) => $q->whereHas('user', fn ($u) => $u->where('atasan_id', $user->id)))
-            ->latest()
-            ->limit(25)
-            ->get();
+        $izinEnabled = PengaturanAplikasi::isModuleEnabled('izin');
+        $lhkEnabled = PengaturanAplikasi::isModuleEnabled('lhk');
+        $spjEnabled = PengaturanAplikasi::isModuleEnabled('spj');
+        $stEnabled = PengaturanAplikasi::isModuleEnabled('surat_tugas');
 
-        $hasStatusVerifikasi = Schema::hasColumn('lhk_pekerjaans', 'status_verifikasi');
+        $izinList = $izinEnabled
+            ? PengajuanIzin::with(['user', 'jenisIzin'])
+                ->where('status', 'menunggu')
+                ->when(! $isGlobalApprover && $user, fn ($q) => $q->whereHas('user', fn ($u) => $u->where('atasan_id', $user->id)))
+                ->latest()
+                ->limit(25)
+                ->get()
+            : collect();
+
+        $hasStatusVerifikasi = $lhkEnabled && Schema::hasColumn('lhk_pekerjaans', 'status_verifikasi');
         $lhkList = $hasStatusVerifikasi
             ? LhkPekerjaan::with(['lhk.user', 'aktivitas'])
                 ->where('status_verifikasi', 'menunggu')
@@ -256,7 +264,7 @@ class Persetujuan extends Component
             }
         }
 
-        $spjList = empty($spjStatuses)
+        $spjList = (! $spjEnabled || empty($spjStatuses))
             ? collect()
             : PengajuanSpj::with(['user', 'bidang'])
                 ->whereIn('status', array_unique($spjStatuses))
@@ -264,8 +272,8 @@ class Persetujuan extends Component
                 ->limit(25)
                 ->get();
 
-        $canSeeSuratTugas = $user !== null && ($user->canSignSuratTugas() || $user->isKepalaBidang());
-        $suratTugasList = $canSeeSuratTugas || $user
+        $canSeeSuratTugas = $stEnabled && $user !== null && ($user->canSignSuratTugas() || $user->isKepalaBidang());
+        $suratTugasList = ($stEnabled && ($canSeeSuratTugas || $user))
             ? SuratTugas::with(['creator', 'penandatangan', 'pegawais'])
                 ->where('status', 'draft')
                 ->when(
@@ -287,6 +295,10 @@ class Persetujuan extends Component
             'lhkList' => $lhkList,
             'spjList' => $spjList,
             'suratTugasList' => $suratTugasList,
+            'izinEnabled' => $izinEnabled,
+            'lhkEnabled' => $lhkEnabled,
+            'spjEnabled' => $spjEnabled,
+            'stEnabled' => $stEnabled,
         ]);
     }
 }

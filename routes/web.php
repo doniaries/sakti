@@ -41,17 +41,21 @@ Route::prefix('mobile')->group(function () {
         Route::get('/absensi', Absensi::class)->name('mobile.absensi');
         Route::get('/riwayat', Riwayat::class)->name('mobile.riwayat');
         Route::get('/riwayat/cetak-pdf', [\App\Http\Controllers\CetakLaporanController::class, 'cetakRiwayat'])->name('mobile.riwayat.cetak-pdf');
-        Route::get('/lhk', LhkIndex::class)->name('mobile.lhk.index');
-        Route::get('/lhk/buat', LhkForm::class)->name('mobile.lhk.create');
-        Route::get('/bank-aktivitas', \App\Livewire\Mobile\Lhk\BankAktivitas::class)->name('mobile.lhk.bank-aktivitas');
+        Route::middleware('module:lhk')->group(function () {
+            Route::get('/lhk', LhkIndex::class)->name('mobile.lhk.index');
+            Route::get('/lhk/buat', LhkForm::class)->name('mobile.lhk.create');
+            Route::get('/bank-aktivitas', \App\Livewire\Mobile\Lhk\BankAktivitas::class)->name('mobile.lhk.bank-aktivitas');
+            Route::get('/reputasi', \App\Livewire\Mobile\Reputasi::class)->name('mobile.reputasi');
+        });
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
-        Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
-        Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
+        Route::middleware('module:izin')->group(function () {
+            Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
+            Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
+        });
         Route::get('/pengajuan-izin/{pengajuanIzin}/cetak-pdf', [\App\Http\Controllers\CetakLaporanController::class, 'cetakIzinCuti'])->name('pengajuan-izin.cetak-pdf');
         Route::get('/persetujuan', \App\Livewire\Mobile\Persetujuan::class)->name('mobile.persetujuan');
-        Route::get('/wfh', \App\Livewire\Mobile\Wfh\Index::class)->name('mobile.wfh.index');
+        Route::get('/wfh', \App\Livewire\Mobile\Wfh\Index::class)->middleware('module:wfh')->name('mobile.wfh.index');
         Route::get('/hari-libur', \App\Livewire\Mobile\HariLibur::class)->name('mobile.hari-libur');
-        Route::get('/reputasi', \App\Livewire\Mobile\Reputasi::class)->name('mobile.reputasi');
         Route::get('/pengaturan-lokasi', \App\Livewire\Mobile\PengaturanLokasi::class)->name('mobile.pengaturan-lokasi');
     });
 });

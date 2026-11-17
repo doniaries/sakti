@@ -59,6 +59,11 @@ class LhkResource extends Resource
         ];
     }
 
+    public static function canViewAny(): bool
+    {
+        return \App\Models\PengaturanAplikasi::isModuleEnabled('lhk') && parent::canViewAny();
+    }
+
     public static function getPages(): array
     {
         return [

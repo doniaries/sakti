@@ -31,6 +31,20 @@ class PengaturanAplikasi extends Model
         'pembuat_aplikasi',
         'kontak_bantuan',
         'deskripsi',
+        'modul_aktif',
+    ];
+
+    /**
+     * Daftar default status aktif modul sistem (Single Source of Truth untuk Filament, Mobile Livewire, dan API/Flutter).
+     *
+     * @var array<string, bool>
+     */
+    public const DEFAULT_MODULES = [
+        'lhk' => false,
+        'izin' => true,
+        'wfh' => true,
+        'surat_tugas' => true,
+        'spj' => true,
     ];
 
     public function kepala(): \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -128,10 +142,12 @@ class PengaturanAplikasi extends Model
             }
 
             \Illuminate\Support\Facades\Cache::forget('pengaturan_tahun_anggaran_aktif');
+            \Illuminate\Support\Facades\Cache::forget('pengaturan_modul_aktif');
         });
 
         static::deleted(function () {
             \Illuminate\Support\Facades\Cache::forget('pengaturan_tahun_anggaran_aktif');
+            \Illuminate\Support\Facades\Cache::forget('pengaturan_modul_aktif');
         });
     }
 
@@ -140,7 +156,47 @@ class PengaturanAplikasi extends Model
         'longitude_kantor' => 'float',
         'radius_meter' => 'integer',
         'tahun_anggaran_aktif' => 'integer',
+        'modul_aktif' => 'array',
     ];
+
+    /**
+     * Peta status aktif seluruh modul (di-cache untuk performa).
+     *
+     * @return array<string, bool>
+     */
+    public static function getModulAktifMap(): array
+    {
+        return \Illuminate\Support\Facades\Cache::rememberForever('pengaturan_modul_aktif', function (): array {
+            try {
+                $raw = static::query()->value('modul_aktif');
+                $decoded = is_array($raw) ? $raw : (is_string($raw) ? json_decode($raw, true) : []);
+                if (! is_array($decoded)) {
+                    $decoded = [];
+                }
+
+                $result = self::DEFAULT_MODULES;
+                foreach (self::DEFAULT_MODULES as $key => $default) {
+                    if (array_key_exists($key, $decoded)) {
+                        $result[$key] = (bool) $decoded[$key];
+                    }
+                }
+
+                return $result;
+            } catch (\Throwable $e) {
+                return self::DEFAULT_MODULES;
+            }
+        });
+    }
+
+    /**
+     * Cek apakah suatu modul sedang diaktifkan di sistem.
+     */
+    public static function isModuleEnabled(string $module): bool
+    {
+        $map = static::getModulAktifMap();
+
+        return (bool) ($map[$module] ?? true);
+    }
 
     /**
      * Dapatkan tahun anggaran aktif sistem (di-cache untuk performa maksimal 0 ms overhead)

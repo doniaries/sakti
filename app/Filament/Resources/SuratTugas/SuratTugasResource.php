@@ -67,6 +67,10 @@ class SuratTugasResource extends Resource
 
     public static function canViewAny(): bool
     {
+        if (! \App\Models\PengaturanAplikasi::isModuleEnabled('surat_tugas')) {
+            return false;
+        }
+
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
 

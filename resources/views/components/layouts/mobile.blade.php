@@ -360,11 +360,18 @@
                     </a>
                 </div>
 
-                <!-- 4. LHK -->
-                <a href="{{ route('mobile.lhk.index') }}" class="nav-item {{ request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
-                    <i class="fa-solid fa-file-pen"></i>
-                    <span>LHK</span>
-                </a>
+                <!-- 4. LHK (atau Izin jika LHK dinonaktifkan) -->
+                @if (\App\Models\PengaturanAplikasi::isModuleEnabled('lhk'))
+                    <a href="{{ route('mobile.lhk.index') }}" class="nav-item {{ request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>LHK</span>
+                    </a>
+                @elseif (\App\Models\PengaturanAplikasi::isModuleEnabled('izin'))
+                    <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate>
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                        <span>Izin</span>
+                    </a>
+                @endif
 
                 <!-- 5. Profil (Halaman sama dengan data pegawai Filament & bisa diedit) -->
                 <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate>

@@ -473,6 +473,7 @@
             </a>
 
             <!-- WFH -->
+            @if (\App\Models\PengaturanAplikasi::isModuleEnabled('wfh'))
             <a href="{{ route('mobile.wfh.index') }}" wire:navigate
                 class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
                 <div
@@ -481,6 +482,7 @@
                 </div>
                 <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">WFH</span>
             </a>
+            @endif
 
             <!-- Kalender Libur -->
             <a href="{{ route('mobile.hari-libur') }}" wire:navigate
@@ -492,7 +494,8 @@
                 <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Hari Libur</span>
             </a>
 
-            <!-- Reputasi Rekan Kerja -->
+            <!-- Reputasi Rekan Kerja (masuk modul LHK) -->
+            @if (\App\Models\PengaturanAplikasi::isModuleEnabled('lhk'))
             <a href="{{ route('mobile.reputasi') }}" wire:navigate
                 class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
                 <div
@@ -511,6 +514,7 @@
                 </div>
                 <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Buat LHK</span>
             </a>
+            @endif
 
             <!-- Statistik & Rekap Profil -->
             <a href="{{ route('mobile.profil') }}" wire:navigate

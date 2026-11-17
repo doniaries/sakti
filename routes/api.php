@@ -32,7 +32,7 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
     });
 
     // LHK
-    Route::prefix('lhk')->group(function () {
+    Route::prefix('lhk')->middleware('module:lhk')->group(function () {
         Route::get('/aktivitas', [LhkController::class, 'aktivitas']);
         Route::get('/absensi-tanggal', [LhkController::class, 'absensiTanggal']);
         Route::get('/', [LhkController::class, 'index']);
@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
     });
 
     // Izin, Sakit & Cuti
-    Route::prefix('izin')->group(function () {
+    Route::prefix('izin')->middleware('module:izin')->group(function () {
         Route::get('/jenis', [IzinController::class, 'jenis']);
         Route::get('/', [IzinController::class, 'index']);
         Route::post('/', [IzinController::class, 'store']);

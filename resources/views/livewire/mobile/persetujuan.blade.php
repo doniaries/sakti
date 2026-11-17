@@ -13,7 +13,17 @@
     </div>
 
     <!-- Tab Selector -->
-    <div class="grid grid-cols-4 gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#132338] border border-slate-200 dark:border-slate-700/70 mb-4">
+    @php
+        $enabledTabCount = collect([$izinEnabled ?? true, $lhkEnabled ?? true, $spjEnabled ?? true, $stEnabled ?? true])->filter()->count();
+        $gridColsClass = match ($enabledTabCount) {
+            1 => 'grid-cols-1',
+            2 => 'grid-cols-2',
+            3 => 'grid-cols-3',
+            default => 'grid-cols-4',
+        };
+    @endphp
+    <div class="grid {{ $gridColsClass }} gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#132338] border border-slate-200 dark:border-slate-700/70 mb-4">
+        @if ($izinEnabled ?? true)
         <button type="button" wire:click="setTab('izin')"
             class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'izin' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>Izin</span>
@@ -21,6 +31,8 @@
                 <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $izinList->count() }}</span>
             @endif
         </button>
+        @endif
+        @if ($lhkEnabled ?? true)
         <button type="button" wire:click="setTab('lhk')"
             class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'lhk' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>LHK</span>
@@ -28,6 +40,8 @@
                 <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $lhkList->count() }}</span>
             @endif
         </button>
+        @endif
+        @if ($spjEnabled ?? true)
         <button type="button" wire:click="setTab('spj')"
             class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'spj' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>SPJ</span>
@@ -35,6 +49,8 @@
                 <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $spjList->count() }}</span>
             @endif
         </button>
+        @endif
+        @if ($stEnabled ?? true)
         <button type="button" wire:click="setTab('surat_tugas')"
             class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'surat_tugas' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>Tugas</span>
@@ -42,6 +58,7 @@
                 <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $suratTugasList->count() }}</span>
             @endif
         </button>
+        @endif
     </div>
 
     <!-- Tab Izin & Cuti -->

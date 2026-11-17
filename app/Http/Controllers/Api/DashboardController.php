@@ -79,6 +79,7 @@ class DashboardController extends Controller
                     'jam_pulang'   => $absensiHariIni?->logPulang?->waktu_absensi?->format('H:i:s'),
                 ],
                 'riwayat_7_hari'  => $riwayat7Hari,
+                'modul_aktif'     => \App\Models\PengaturanAplikasi::getModulAktifMap(),
             ],
         ]);
     }
