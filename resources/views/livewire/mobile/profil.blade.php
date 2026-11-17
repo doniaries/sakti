@@ -106,12 +106,6 @@
                 class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'keluarga' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
                 <i class="fa-solid fa-people-roof text-xs mr-1.5"></i>Keluarga
             </button>
-            @if (auth()->user()?->hasRole('super_admin'))
-                <button wire:click="setTab('modul')"
-                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'modul' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                    <i class="fa-solid fa-sliders text-xs mr-1.5"></i>Pengaturan Modul
-                </button>
-            @endif
         @else
             <div class="px-4 py-2 rounded-2xl text-xs font-bold bg-sky-600 text-white shadow-xs">
                 <i class="fa-solid fa-pen-to-square mr-1.5"></i>Mode Edit Profil
@@ -773,40 +767,45 @@
                 </div>
             </div>
         @endif
+    @endif
 
-        <!-- TAB 6: PENGATURAN MODUL SISTEM (KHUSUS SUPER ADMIN) -->
-        @if ($activeTab === 'modul' && auth()->user()?->hasRole('super_admin'))
-            @php
-                $moduleItems = [
-                    'lhk' => ['label' => 'LHK, Bank Aktivitas & Reputasi', 'desc' => 'Menu LHK, Bank Aktivitas, dan Reputasi pegawai'],
-                    'izin' => ['label' => 'Izin, Sakit & Cuti', 'desc' => 'Pengajuan & riwayat Izin, Sakit, Cuti'],
-                    'wfh' => ['label' => 'WFH (Work From Home)', 'desc' => 'Menu presensi & pengajuan WFH'],
-                    'surat_tugas' => ['label' => 'Surat Tugas Tim Kreatif', 'desc' => 'Pembuatan & persetujuan Surat Tugas'],
-                    'spj' => ['label' => 'Keuangan & SPJ', 'desc' => 'Modul pengajuan & verifikasi SPJ'],
-                ];
-            @endphp
-            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3">
+    <!-- PENGATURAN MODUL SISTEM (KHUSUS SUPER ADMIN - LANGSUNG TAMPAK DI LUAR TAB) -->
+    @if (auth()->user()?->hasRole('super_admin'))
+        @php
+            $moduleItems = [
+                'lhk' => ['label' => 'LHK, Bank Aktivitas & Reputasi', 'desc' => 'Menu LHK, Bank Aktivitas, dan Reputasi pegawai'],
+                'izin' => ['label' => 'Izin, Sakit & Cuti', 'desc' => 'Pengajuan & riwayat Izin, Sakit, Cuti'],
+                'wfh' => ['label' => 'WFH (Work From Home)', 'desc' => 'Menu presensi & pengajuan WFH'],
+                'surat_tugas' => ['label' => 'Surat Tugas Tim Kreatif', 'desc' => 'Pembuatan & persetujuan Surat Tugas'],
+                'spj' => ['label' => 'Keuangan & SPJ', 'desc' => 'Modul pengajuan & verifikasi SPJ'],
+            ];
+        @endphp
+        <div class="mt-5 bg-white rounded-3xl p-5 shadow-xs border border-sky-200/80 space-y-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
                 <div>
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">Pengaturan Modul Sistem</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Khusus Super Admin. Perubahan langsung berlaku di Web Admin, Mobile Livewire & Android.</p>
+                    <p class="text-[10px] text-slate-500">Khusus Super Admin. Langsung berlaku di Web Admin, Mobile & Android.</p>
                 </div>
-
-                @foreach ($moduleItems as $modKey => $modMeta)
-                    @php $enabled = (bool) ($modulAktif[$modKey] ?? false); @endphp
-                    <div wire:key="mod-{{ $modKey }}" class="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-b-0">
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold text-slate-800">{{ $modMeta['label'] }}</p>
-                            <p class="text-[10px] text-slate-400 leading-snug">{{ $modMeta['desc'] }}</p>
-                        </div>
-                        <button type="button" wire:click="toggleModul('{{ $modKey }}')"
-                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out {{ $enabled ? 'bg-emerald-500' : 'bg-slate-300' }}"
-                            role="switch" aria-checked="{{ $enabled ? 'true' : 'false' }}">
-                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out {{ $enabled ? 'translate-x-5' : 'translate-x-0' }}"></span>
-                        </button>
-                    </div>
-                @endforeach
             </div>
-        @endif
+
+            @foreach ($moduleItems as $modKey => $modMeta)
+                @php $enabled = (bool) ($modulAktif[$modKey] ?? false); @endphp
+                <div wire:key="mod-{{ $modKey }}" class="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-b-0">
+                    <div class="min-w-0">
+                        <p class="text-xs font-bold text-slate-800">{{ $modMeta['label'] }}</p>
+                        <p class="text-[10px] text-slate-400 leading-snug">{{ $modMeta['desc'] }}</p>
+                    </div>
+                    <button type="button" wire:click="toggleModul('{{ $modKey }}')"
+                        class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out {{ $enabled ? 'bg-emerald-500' : 'bg-slate-300' }}"
+                        role="switch" aria-checked="{{ $enabled ? 'true' : 'false' }}">
+                        <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out {{ $enabled ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                    </button>
+                </div>
+            @endforeach
+        </div>
     @endif
 
     <!-- Tombol Keluar dari Akun (Logout) -->
