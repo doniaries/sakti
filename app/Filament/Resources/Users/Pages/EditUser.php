@@ -31,7 +31,7 @@ class EditUser extends EditRecord
                 ->icon('heroicon-o-x-mark')
                 ->color('danger')
                 ->url($this->getResource()::getUrl('index')),
-            ViewAction::make(),
+            // ViewAction::make(),
             DeleteAction::make(),
         ];
     }

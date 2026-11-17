@@ -316,11 +316,13 @@ class UsersTable
             ])
             ->defaultSort('created_at', 'asc')
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->label(false),
                 EditAction::make()
+                    ->label(false)
                     ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false),
                 Action::make('reset_device')
-                    ->label('Reset Perangkat')
+                    // ->label('Reset Perangkat')
                     ->icon('heroicon-o-device-phone-mobile')
                     ->color('danger')
                     ->tooltip('Lepas ikatan perangkat Android agar pegawai bisa login di HP baru')
@@ -343,7 +345,8 @@ class UsersTable
                             ->send();
                     }),
                 Action::make('ubah_role')
-                    ->label('Ubah Role')
+                    ->label(false)
+                    // ->label('Ubah Role')
                     ->icon('heroicon-o-shield-check')
                     ->color('warning')
                     ->tooltip('Ubah Peran & Hak Akses Pegawai')
