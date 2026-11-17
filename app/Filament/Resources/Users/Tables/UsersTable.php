@@ -66,6 +66,7 @@ class UsersTable
                     ->searchable()
                     ->sortable()
                     ->color('info')
+                    ->icon('heroicon-m-pencil-square')
                     ->tooltip('Klik untuk mengubah email pegawai')
                     ->action(
                         Action::make('ubah_email_cepat')
@@ -112,12 +113,6 @@ class UsersTable
                     ->label('Status')
                     ->badge()
                     ->sortable(),
-                \Filament\Tables\Columns\TextColumn::make('email')
-                    ->label('Email User')
-                    ->searchable()
-                    // ->copyable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('nip')
                     ->searchable()
                     ->copyable()
