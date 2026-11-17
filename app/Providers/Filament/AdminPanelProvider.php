@@ -72,6 +72,15 @@ class AdminPanelProvider extends PanelProvider
                     ->url(fn(): string => route('mobile.dashboard'))
                     ->openUrlInNewTab()
                     ->icon('heroicon-m-device-phone-mobile'),
+                'modul_sistem' => MenuItem::make()
+                    ->label('Pengaturan Modul Sistem')
+                    ->url(fn(): string => \App\Filament\Resources\PengaturanAplikasis\PengaturanAplikasiResource::getUrl('index'))
+                    ->icon('heroicon-m-squares-2x2')
+                    ->visible(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        return $user?->hasRole('super_admin') ?? false;
+                    }),
             ])
 
             ->navigation(fn(NavigationBuilder $builder): NavigationBuilder => SidebarNavigationService::build($builder))

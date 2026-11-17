@@ -435,13 +435,16 @@
     <div class="mb-5">
         <div class="flex items-center justify-between mb-2.5 px-0.5">
             <h3 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Layanan Kepegawaian</h3>
+            @if (\App\Models\PengaturanAplikasi::isModuleEnabled('izin'))
             <a href="{{ route('mobile.izin.index') }}" wire:navigate
                 class="text-xs font-bold text-sky-600 dark:text-cyan-400 hover:opacity-80 flex items-center">
                 <span>Riwayat Izin</span>
                 <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
             </a>
+            @endif
         </div>
         <div class="grid grid-cols-4 gap-2">
+            @if (\App\Models\PengaturanAplikasi::isModuleEnabled('izin'))
             <!-- Izin -->
             <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate
                 class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
@@ -471,6 +474,7 @@
                 </div>
                 <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Cuti</span>
             </a>
+            @endif
 
             <!-- WFH -->
             @if (\App\Models\PengaturanAplikasi::isModuleEnabled('wfh'))

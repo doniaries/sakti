@@ -76,6 +76,7 @@ class PengaturanAplikasiForm
                 Section::make('Manajemen Modul Aktif (Filament, Mobile Livewire & Flutter)')
                     ->description('Aktifkan atau nonaktifkan modul secara terpusat agar menu di Web Admin, SAKTI Mobile, dan Aplikasi Android konsisten.')
                     ->icon('heroicon-o-squares-2x2')
+                    ->visible(fn (): bool => \Illuminate\Support\Facades\Auth::user()?->hasRole('super_admin') ?? false)
                     ->compact()
                     ->schema([
                         Grid::make(['default' => 1, 'md' => 2])

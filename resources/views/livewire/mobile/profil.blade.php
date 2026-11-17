@@ -106,6 +106,12 @@
                 class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'keluarga' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
                 <i class="fa-solid fa-people-roof text-xs mr-1.5"></i>Keluarga
             </button>
+            @if (auth()->user()?->hasRole('super_admin'))
+                <button wire:click="setTab('modul')"
+                    class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'modul' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                    <i class="fa-solid fa-sliders text-xs mr-1.5"></i>Pengaturan Modul
+                </button>
+            @endif
         @else
             <div class="px-4 py-2 rounded-2xl text-xs font-bold bg-sky-600 text-white shadow-xs">
                 <i class="fa-solid fa-pen-to-square mr-1.5"></i>Mode Edit Profil
@@ -382,6 +388,7 @@
                     </a>
 
                     <!-- 8. LHK Dibuat -->
+                    @if (\App\Models\PengaturanAplikasi::isModuleEnabled('lhk'))
                     <a href="{{ route('mobile.lhk.index') }}" wire:navigate
                         class="bg-white p-3 rounded-2xl shadow-xs border border-slate-100 text-center flex flex-col items-center hover:bg-slate-50 active:scale-95 transition-all">
                         <div
@@ -391,6 +398,7 @@
                         <span class="text-lg font-black text-teal-700">{{ $statistik['lhk_dibuat'] }}</span>
                         <span class="text-[9px] text-teal-600 font-bold uppercase tracking-wide">LHK</span>
                     </a>
+                    @endif
                 </div>
 
                 <!-- Cetak PDF Rekap Pintas -->
@@ -763,6 +771,40 @@
                     <span class="text-slate-400 font-medium block mb-1">Alamat Keluarga</span>
                     <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
                 </div>
+            </div>
+        @endif
+
+        <!-- TAB 6: PENGATURAN MODUL SISTEM (KHUSUS SUPER ADMIN) -->
+        @if ($activeTab === 'modul' && auth()->user()?->hasRole('super_admin'))
+            @php
+                $moduleItems = [
+                    'lhk' => ['label' => 'LHK, Bank Aktivitas & Reputasi', 'desc' => 'Menu LHK, Bank Aktivitas, dan Reputasi pegawai'],
+                    'izin' => ['label' => 'Izin, Sakit & Cuti', 'desc' => 'Pengajuan & riwayat Izin, Sakit, Cuti'],
+                    'wfh' => ['label' => 'WFH (Work From Home)', 'desc' => 'Menu presensi & pengajuan WFH'],
+                    'surat_tugas' => ['label' => 'Surat Tugas Tim Kreatif', 'desc' => 'Pembuatan & persetujuan Surat Tugas'],
+                    'spj' => ['label' => 'Keuangan & SPJ', 'desc' => 'Modul pengajuan & verifikasi SPJ'],
+                ];
+            @endphp
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3">
+                <div>
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">Pengaturan Modul Sistem</h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Khusus Super Admin. Perubahan langsung berlaku di Web Admin, Mobile Livewire & Android.</p>
+                </div>
+
+                @foreach ($moduleItems as $modKey => $modMeta)
+                    @php $enabled = (bool) ($modulAktif[$modKey] ?? false); @endphp
+                    <div wire:key="mod-{{ $modKey }}" class="flex items-center justify-between gap-3 py-2.5 border-b border-slate-100 last:border-b-0">
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-slate-800">{{ $modMeta['label'] }}</p>
+                            <p class="text-[10px] text-slate-400 leading-snug">{{ $modMeta['desc'] }}</p>
+                        </div>
+                        <button type="button" wire:click="toggleModul('{{ $modKey }}')"
+                            class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out {{ $enabled ? 'bg-emerald-500' : 'bg-slate-300' }}"
+                            role="switch" aria-checked="{{ $enabled ? 'true' : 'false' }}">
+                            <span class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out {{ $enabled ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                        </button>
+                    </div>
+                @endforeach
             </div>
         @endif
     @endif

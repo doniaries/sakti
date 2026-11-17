@@ -4,6 +4,7 @@ namespace App\Livewire\Mobile;
 
 use App\Models\AbsensiHarian;
 use App\Models\Lhk;
+use App\Models\PengaturanAplikasi;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -48,11 +49,51 @@ class Profil extends Component
     public $password_confirmation = '';
     public $new_avatar;
 
+    /** @var array<string, bool> */
+    public array $modulAktif = [];
+
     public function mount()
     {
         $this->bulan = (int) date('m');
         $this->tahun = (int) date('Y');
         $this->loadUserData();
+
+        /** @var User|null $user */
+        $user = Auth::user();
+        if ($user?->hasRole('super_admin')) {
+            $this->modulAktif = PengaturanAplikasi::getModulAktifMap();
+        }
+    }
+
+    public function toggleModul(string $key): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user?->hasRole('super_admin')) {
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'title' => 'Akses Ditolak',
+                'message' => 'Hanya Super Admin yang dapat mengubah pengaturan modul.',
+            ]);
+            return;
+        }
+
+        if (! array_key_exists($key, PengaturanAplikasi::DEFAULT_MODULES)) {
+            return;
+        }
+
+        $current = PengaturanAplikasi::getModulAktifMap();
+        $current[$key] = ! ($current[$key] ?? false);
+
+        $pengaturan = PengaturanAplikasi::getPengaturan();
+        $pengaturan->update(['modul_aktif' => $current]);
+        $this->modulAktif = PengaturanAplikasi::getModulAktifMap();
+
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Pengaturan Modul Diperbarui',
+            'message' => 'Perubahan status modul langsung diterapkan di Web Admin & Mobile.',
+        ]);
     }
 
     public function prevMonth()

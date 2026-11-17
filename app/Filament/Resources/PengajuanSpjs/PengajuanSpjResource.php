@@ -82,6 +82,11 @@ class PengajuanSpjResource extends Resource
         return $query->where('user_id', $user->id);
     }
 
+    public static function canViewAny(): bool
+    {
+        return \App\Models\PengaturanAplikasi::isModuleEnabled('spj') && parent::canViewAny();
+    }
+
     public static function getPages(): array
     {
         return [
