@@ -62,8 +62,37 @@ class UsersTable
                     ->sticky(),
 
                 \Filament\Tables\Columns\TextColumn::make('email')
-                    ->copyable()
-                    ->sortable(),
+                    ->label('Email User')
+                    ->searchable()
+                    ->sortable()
+                    ->color('info')
+                    ->tooltip('Klik untuk mengubah email pegawai')
+                    ->action(
+                        Action::make('ubah_email_cepat')
+                            ->label('Ubah Email Pegawai')
+                            ->modalHeading(fn(\App\Models\User $record): string => "Ubah Email: {$record->name}")
+                            ->modalWidth('md')
+                            ->modalSubmitActionLabel('Simpan Email')
+                            ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+                            ->fillForm(fn(\App\Models\User $record): array => ['email' => $record->email])
+                            ->form([
+                                \Filament\Forms\Components\TextInput::make('email')
+                                    ->label('Email Login')
+                                    ->email()
+                                    ->required()
+                                    ->unique('users', 'email', ignoreRecord: true)
+                                    ->maxLength(255),
+                            ])
+                            ->action(function (\App\Models\User $record, array $data): void {
+                                $record->update(['email' => strtolower(trim((string) $data['email']))]);
+
+                                Notification::make()
+                                    ->title('Email Pegawai Diperbarui')
+                                    ->body("Email {$record->name} diubah menjadi {$record->email}.")
+                                    ->success()
+                                    ->send();
+                            })
+                    ),
 
 
                 /*  \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
@@ -86,7 +115,7 @@ class UsersTable
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->label('Email User')
                     ->searchable()
-                    ->copyable()
+                    // ->copyable()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 \Filament\Tables\Columns\TextColumn::make('nip')
@@ -437,6 +466,8 @@ class UsersTable
                     ->label('Kirim ke Mesin')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
+                    ->disabled()
+                    ->tooltip('Tombol kirim ke mesin dinonaktifkan.')
                     ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
                     ->form([
                         \Filament\Forms\Components\TextInput::make('nomor_absensi')
@@ -843,6 +874,8 @@ class UsersTable
                         ->label('Kirim ke Mesin (Massal)')
                         ->icon('heroicon-o-paper-airplane')
                         ->color('success')
+                        ->disabled()
+                        ->tooltip('Tombol kirim ke mesin dinonaktifkan.')
                         ->requiresConfirmation()
                         ->modalDescription('Pegawai yang belum memiliki PIN/ID Mesin akan otomatis menggunakan ID Web-nya sebagai PIN di mesin. Lanjutkan mengirim data terpilih ke mesin?')
                         ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
