@@ -792,6 +792,7 @@ class UserForm
                                                 'jf' => 'JF (Jabatan Fungsional / Pengusul Belanja)',
                                                 'bendahara' => 'Bendahara Pengeluaran (Uji Kas & Potong Pajak)',
                                                 'pegawai' => 'Pegawai Biasa (Presensi & LHK Pribadi)',
+                                                'pegawai_kontrak' => 'Pegawai Kontrak (Izin, Presensi, Profil & Tim Kreatif)',
                                                 default => ucwords(str_replace('_', ' ', $record->name)),
                                             })
                                             ->multiple()

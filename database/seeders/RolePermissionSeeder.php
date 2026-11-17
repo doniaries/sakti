@@ -19,6 +19,7 @@ class RolePermissionSeeder extends Seeder
         $adminKepegawaianRole = Role::firstOrCreate(['name' => 'admin_kepegawaian', 'guard_name' => 'web']);
         $adminKeuanganRole = Role::firstOrCreate(['name' => 'admin_keuangan', 'guard_name' => 'web']);
         $pegawaiRole = Role::firstOrCreate(['name' => 'pegawai', 'guard_name' => 'web']);
+        $pegawaiKontrakRole = Role::firstOrCreate(['name' => 'pegawai_kontrak', 'guard_name' => 'web']);
         $paRole = Role::firstOrCreate(['name' => 'pa', 'guard_name' => 'web']);
         $ppkRole = Role::firstOrCreate(['name' => 'ppk', 'guard_name' => 'web']);
         $pptkRole = Role::firstOrCreate(['name' => 'pptk', 'guard_name' => 'web']);
@@ -360,6 +361,30 @@ class RolePermissionSeeder extends Seeder
         ]))->get();
         $pegawaiRole->syncPermissions($pegawaiPermissions);
 
-        $this->command?->info('Hak Akses (Permissions) untuk Role Keuangan (PA, PPK, PPTK, Staf Keuangan, Bendahara, Admin, Pegawai) telah berhasil disinkronisasi.');
+        // === 8. Setup Role Pegawai Kontrak (Tanpa Data Kepegawaian ASN, LHK & Keuangan) ===
+        // Hanya: Izin/Sakit/Cuti, Profil Pegawai, Presensi, serta Surat Tugas & Tim Kreatif
+        $pegawaiKontrakPermissions = Permission::whereIn('name', [
+            'ViewAny:AbsensiHarian',
+            'View:AbsensiHarian',
+            'ViewAny:LogAbsensi',
+            'View:LogAbsensi',
+            'ViewAny:HariLibur',
+            'View:HariLibur',
+            'ViewAny:PengajuanIzin',
+            'View:PengajuanIzin',
+            'Create:PengajuanIzin',
+            'Update:PengajuanIzin',
+            'Delete:PengajuanIzin',
+            'View:User',
+            'Update:User',
+            'View:Dashboard',
+            'View:EditProfilePage',
+            'View:LatestAbsensiWidget',
+            'View:PegawaiAbsensiBulanChartWidget',
+            'View:PegawaiAbsensiBulanStatsWidget',
+        ])->get();
+        $pegawaiKontrakRole->syncPermissions($pegawaiKontrakPermissions);
+
+        $this->command?->info('Hak Akses (Permissions) untuk Role (PA, PPK, PPTK, Bendahara, Admin, Pegawai, Pegawai Kontrak) telah berhasil disinkronisasi.');
     }
 }

@@ -240,7 +240,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
                 $q->whereDoesntHave('roles', function ($sub) {
                     $sub->whereIn('name', ['super_admin', 'admin_kepegawaian', 'admin_keuangan']);
                 })->orWhereHas('roles', function ($sub) {
-                    $sub->where('name', 'pegawai');
+                    $sub->whereIn('name', ['pegawai', 'pegawai_kontrak']);
                 });
             });
     }
@@ -396,6 +396,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             'admin_kepegawaian',
             'admin_keuangan',
             'pegawai',
+            'pegawai_kontrak',
             'panel_user',
             'pa',
             'ppk',

@@ -253,6 +253,7 @@ class UsersTable
                         'pptk' => 'info',
                         'jf' => 'success',
                         'bendahara' => 'amber',
+                        'pegawai_kontrak' => 'warning',
                         default => 'gray',
                     })
                     ->formatStateUsing(fn(string $state): string => match ($state) {
@@ -266,6 +267,7 @@ class UsersTable
                         'jf' => 'JF',
                         'bendahara' => 'Bendahara',
                         'pegawai' => 'Pegawai',
+                        'pegawai_kontrak' => 'Pegawai Kontrak',
                         default => ucwords(str_replace('_', ' ', $state)),
                     })
                     ->searchable()
@@ -439,8 +441,8 @@ class UsersTable
                     ->action(function (\App\Models\User $record, array $data) {
                         $selectedRoles = $data['roles'] ?? [];
 
-                        // Pegawai dinas otomatis tetap memiliki role dasar 'pegawai'
-                        if (!in_array('pegawai', $selectedRoles)) {
+                        // Pegawai dinas otomatis tetap memiliki role dasar 'pegawai' kecuali memilih role khusus 'pegawai_kontrak'
+                        if (!in_array('pegawai', $selectedRoles) && !in_array('pegawai_kontrak', $selectedRoles)) {
                             $selectedRoles[] = 'pegawai';
                         }
 
