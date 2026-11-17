@@ -143,12 +143,44 @@ class SuratTugas extends Model
         }
     }
 
-    public static function generateNomorSurat(): string
+    public static function generateNomorSurat(?\Carbon\CarbonInterface $tanggal = null): string
     {
-        $tahun = now()->year;
-        $urutan = static::query()->whereYear('created_at', $tahun)->count() + 1;
+        $date = $tanggal ? \Carbon\Carbon::instance($tanggal) : now();
+        $tahun = (int) $date->year;
+        $bulanRomawi = [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII',
+        ][(int) $date->month] ?? 'I';
 
-        return sprintf('094/%03d/ST-DISPARPORA/%d', $urutan, $tahun);
+        // Ambil nomor urut tertinggi pada tahun berjalan agar selalu berlanjut walau ganti bulan
+        $maxUrutan = 0;
+        $existingNumbers = static::query()
+            ->whereNotNull('nomor_surat')
+            ->where(function ($q) use ($tahun): void {
+                $q->where('nomor_surat', 'like', "ST/%/TK/%/{$tahun}")
+                    ->orWhere('nomor_surat', 'like', "ST/%/TK/{$tahun}");
+            })
+            ->pluck('nomor_surat');
+
+        foreach ($existingNumbers as $nomor) {
+            if (preg_match('/^ST\/(\d+)\/TK\//', (string) $nomor, $matches)) {
+                $maxUrutan = max($maxUrutan, (int) $matches[1]);
+            }
+        }
+
+        $urutanBerikutnya = $maxUrutan + 1;
+
+        return sprintf('ST/%04d/TK/%s/%d', $urutanBerikutnya, $bulanRomawi, $tahun);
     }
 
     public static function defaultDasarSurat(): string
@@ -185,7 +217,7 @@ class SuratTugas extends Model
         }
 
         if (blank($this->nomor_surat)) {
-            $this->nomor_surat = sprintf('ST/%04d/TK/%d', $this->id, now()->year);
+            $this->nomor_surat = static::generateNomorSurat($this->ditandatangani_at ?? now());
         }
 
         $this->ditandatangani_at = $this->ditandatangani_at ?? now();
