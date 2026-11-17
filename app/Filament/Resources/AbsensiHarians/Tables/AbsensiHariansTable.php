@@ -119,6 +119,42 @@ class AbsensiHariansTable
             ->filtersLayout(FiltersLayout::AboveContent)
             ->filtersFormColumns(3)
             ->filters([
+                Filter::make('bulan')
+                    ->label('Bulan Absensi (Sudah Masuk)')
+                    ->form([
+                        Select::make('bulan')
+                            ->label('Pilih Bulan Sudah Masuk')
+                            ->options(fn (): array => self::getAvailableMonthOptions())
+                            ->placeholder('Semua Bulan')
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, $livewire): void {
+                                if (filled($state)) {
+                                    $livewire->tableFilters['tanggal']['tanggal'] = null;
+                                }
+                            }),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $ym = $data['bulan'] ?? null;
+                        if (blank($ym) || ! str_contains((string) $ym, '-')) {
+                            return $query;
+                        }
+
+                        [$year, $month] = explode('-', (string) $ym, 2);
+
+                        return $query
+                            ->whereYear('tanggal', (int) $year)
+                            ->whereMonth('tanggal', (int) $month);
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        $ym = $data['bulan'] ?? null;
+                        if (blank($ym) || ! str_contains((string) $ym, '-')) {
+                            return null;
+                        }
+
+                        return 'Bulan: ' . Carbon::createFromFormat('Y-m', (string) $ym)->translatedFormat('F Y');
+                    }),
+
                 Filter::make('tanggal')
                     ->label('Filter Tanggal')
                     ->form([
@@ -129,7 +165,12 @@ class AbsensiHariansTable
                             ->maxDate(now()) // Tanggal yang belum aktif (masa depan) otomatis disabled!
                             ->native(false)
                             ->closeOnDateSelection()
-                            ->live(),
+                            ->live()
+                            ->afterStateUpdated(function ($state, $livewire): void {
+                                if (filled($state)) {
+                                    $livewire->tableFilters['bulan']['bulan'] = null;
+                                }
+                            }),
                     ])
                     ->query(
                         fn(Builder $query, array $data): Builder =>
@@ -468,6 +509,81 @@ class AbsensiHariansTable
                     ->label('Tambah Absensi Harian')
                     ->icon('heroicon-o-plus-circle')
                     ->url(\App\Filament\Resources\AbsensiHarians\AbsensiHarianResource::getUrl('create')),
+
+                Action::make('hapus_per_bulan')
+                    ->label('Hapus Absensi Per Bulan')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->visible(fn (): bool => $currentUser?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+                    ->modalHeading('Hapus Data Absensi Per Bulan')
+                    ->modalDescription('Gunakan fitur ini untuk membersihkan data absensi pada bulan tertentu agar Anda dapat memulai atau menarik ulang data absensi dari awal.')
+                    ->modalSubmitActionLabel('Ya, Hapus Data Bulan Ini')
+                    ->requiresConfirmation()
+                    ->form([
+                        Select::make('bulan')
+                            ->label('Pilih Bulan Absensi (Sudah Masuk)')
+                            ->options(fn (): array => self::getAvailableMonthOptions())
+                            ->searchable()
+                            ->required()
+                            ->helperText('Hanya menampilkan bulan yang sudah memiliki data absensi harian.'),
+                        \Filament\Forms\Components\Checkbox::make('hapus_log_mentah')
+                            ->label('Sekaligus hapus Log Mentah Mesin/Mobile pada bulan tersebut')
+                            ->default(true)
+                            ->helperText('Direkomendasikan aktif agar log mesin/mobile di bulan tersebut juga bersih.'),
+                        \Filament\Forms\Components\Checkbox::make('hapus_permanen')
+                            ->label('Hapus Permanen (termasuk foto presensi)')
+                            ->default(true)
+                            ->helperText('Menghapus baris secara permanen dari database (bukan soft delete).'),
+                    ])
+                    ->action(function (array $data): void {
+                        $ym = (string) ($data['bulan'] ?? '');
+                        if (! str_contains($ym, '-')) {
+                            return;
+                        }
+
+                        [$year, $month] = array_map('intval', explode('-', $ym, 2));
+                        $labelBulan = Carbon::createFromDate($year, $month, 1)->translatedFormat('F Y');
+                        $hapusLog = (bool) ($data['hapus_log_mentah'] ?? false);
+                        $hapusPermanen = (bool) ($data['hapus_permanen'] ?? true);
+
+                        $deletedHarian = 0;
+                        $deletedLog = 0;
+
+                        \Illuminate\Support\Facades\DB::transaction(function () use ($year, $month, $hapusLog, $hapusPermanen, &$deletedHarian, &$deletedLog): void {
+                            $query = \App\Models\AbsensiHarian::withTrashed()
+                                ->whereYear('tanggal', $year)
+                                ->whereMonth('tanggal', $month);
+
+                            if ($hapusPermanen) {
+                                $records = (clone $query)->get(['id', 'foto_masuk', 'foto_pulang', 'bukti']);
+                                foreach ($records as $rec) {
+                                    $files = array_filter([$rec->foto_masuk, $rec->foto_pulang, $rec->bukti]);
+                                    if (! empty($files)) {
+                                        \Illuminate\Support\Facades\Storage::disk('public')->delete($files);
+                                    }
+                                }
+                                $deletedHarian = (clone $query)->forceDelete();
+                            } else {
+                                $deletedHarian = \App\Models\AbsensiHarian::query()
+                                    ->whereYear('tanggal', $year)
+                                    ->whereMonth('tanggal', $month)
+                                    ->delete();
+                            }
+
+                            if ($hapusLog) {
+                                $deletedLog = LogAbsensi::query()
+                                    ->whereYear('waktu_absensi', $year)
+                                    ->whereMonth('waktu_absensi', $month)
+                                    ->delete();
+                            }
+                        });
+
+                        \Filament\Notifications\Notification::make()
+                            ->title("Data Absensi {$labelBulan} Dihapus")
+                            ->body("Berhasil menghapus {$deletedHarian} data absensi harian" . ($hapusLog ? " dan {$deletedLog} log mentah." : '.'))
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -506,5 +622,27 @@ class AbsensiHariansTable
                         ->deselectRecordsAfterCompletion(),
                 ]),
             ]);
+    }
+
+    /**
+     * Daftar bulan yang sudah memiliki data absensi harian (format Y-m => Label).
+     *
+     * @return array<string, string>
+     */
+    private static function getAvailableMonthOptions(): array
+    {
+        return \App\Models\AbsensiHarian::query()
+            ->selectRaw("DATE_FORMAT(tanggal, '%Y-%m') as ym, COUNT(*) as total")
+            ->whereNotNull('tanggal')
+            ->groupBy('ym')
+            ->orderByDesc('ym')
+            ->get()
+            ->mapWithKeys(function ($row): array {
+                $ym = (string) $row->ym;
+                $label = Carbon::createFromFormat('Y-m', $ym)->translatedFormat('F Y');
+
+                return [$ym => "{$label} ({$row->total} data)"];
+            })
+            ->all();
     }
 }

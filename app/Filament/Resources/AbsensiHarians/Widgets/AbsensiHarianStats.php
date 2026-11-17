@@ -32,11 +32,15 @@ class AbsensiHarianStats extends BaseWidget
             $totalPegawaiInstansi = User::query()->count();
         }
 
-        // Ambil filter tanggal aktif jika diset oleh pengguna
+        // Ambil filter tanggal atau bulan aktif jika diset oleh pengguna
         $filterData = $this->tableFilters['tanggal']['tanggal'] ?? null;
+        $filterBulan = $this->tableFilters['bulan']['bulan'] ?? null;
         if (!empty($filterData)) {
             $labelPeriode = Carbon::parse($filterData)->translatedFormat('d F Y');
             $tanggalParam = Carbon::parse($filterData)->toDateString();
+        } elseif (!empty($filterBulan) && str_contains((string) $filterBulan, '-')) {
+            $labelPeriode = Carbon::createFromFormat('Y-m', (string) $filterBulan)->translatedFormat('F Y');
+            $tanggalParam = Carbon::today()->toDateString();
         } else {
             $labelPeriode = Carbon::today()->translatedFormat('d F Y');
             $tanggalParam = Carbon::today()->toDateString();
