@@ -435,6 +435,8 @@ class UsersTable
                     ->label('Hubungkan ke Mesin')
                     ->icon('heroicon-o-link')
                     ->color('warning')
+                    ->disabled()
+                    ->tooltip('Tombol hubungkan ke mesin dinonaktifkan.')
                     ->visible(fn(\App\Models\User $record) => empty($record->nomor_absensi))
                     ->form([
                         Select::make('nomor_absensi')
