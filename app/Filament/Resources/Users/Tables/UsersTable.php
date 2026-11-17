@@ -351,7 +351,11 @@ class UsersTable
             ])
             ->defaultSort('created_at', 'asc')
             ->recordActions([
-                Impersonate::make(),
+                Impersonate::make()
+                    ->label(false)
+                    ->tooltip('Login sebagai pegawai ini (khusus Super Admin)')
+                    ->redirectTo('/admin')
+                    ->backTo(fn (): string => \App\Filament\Resources\Users\UserResource::getUrl('index')),
                 ViewAction::make()
                     ->label(false),
                 EditAction::make()

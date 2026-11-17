@@ -411,6 +411,22 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
+     * Hanya Super Admin yang diizinkan melakukan impersonate (login sebagai pegawai lain).
+     */
+    public function canImpersonate(): bool
+    {
+        return (bool) $this->aktif && $this->hasRole('super_admin');
+    }
+
+    /**
+     * Akun Super Admin tidak boleh di-impersonate; hanya akun aktif non-superadmin yang bisa.
+     */
+    public function canBeImpersonated(): bool
+    {
+        return (bool) $this->aktif && ! $this->hasRole('super_admin');
+    }
+
+    /**
      * Format nomor WhatsApp terstandarisasi internasional (diawali 62)
      */
     public function getWhatsappNumberAttribute(): ?string

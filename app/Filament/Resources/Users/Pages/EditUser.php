@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use STS\FilamentImpersonate\Actions\Impersonate;
 
 class EditUser extends EditRecord
 {
@@ -32,6 +33,9 @@ class EditUser extends EditRecord
                 ->color('danger')
                 ->url($this->getResource()::getUrl('index')),
             // ViewAction::make(),
+            Impersonate::make()
+                ->redirectTo('/admin')
+                ->backTo(fn (): string => $this->getResource()::getUrl('index')),
             DeleteAction::make(),
         ];
     }
