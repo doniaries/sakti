@@ -51,7 +51,7 @@ class UserForm
                                     ->imageResizeTargetWidth('600')
                                     ->imageResizeTargetHeight('600')
                                     ->disk('public')
-                                    ->directory(fn ($record): string => $record?->id ? "dokumen_pegawai/{$record->id}/avatars" : 'avatars')
+                                    ->directory(fn($record): string => $record?->id ? "dokumen_pegawai/{$record->id}/avatars" : 'avatars')
                                     ->maxSize(1024)
                                     ->openable()
                                     ->downloadable()
@@ -71,7 +71,7 @@ class UserForm
                                                 ->label('Nama Lengkap')
                                                 ->placeholder('Contoh: AHMAD FAUZI, S.KOM')
                                                 ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
+                                                ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                                                 ->required()
                                                 ->maxLength(255),
 
@@ -116,18 +116,18 @@ class UserForm
                                                 ->label('Password Login')
                                                 ->password()
                                                 ->revealable()
-                                                ->placeholder(fn (string $operation): string => $operation === 'create' ? 'Minimal 6 karakter...' : 'Kosongkan jika tidak diubah...')
-                                                ->formatStateUsing(fn () => '')
+                                                ->placeholder(fn(string $operation): string => $operation === 'create' ? 'Minimal 6 karakter...' : 'Kosongkan jika tidak diubah...')
+                                                ->formatStateUsing(fn() => '')
                                                 ->autocomplete('new-password')
                                                 ->extraInputAttributes([
                                                     'autocomplete' => 'new-password',
                                                     'data-lpignore' => 'true',
                                                 ])
-                                                ->required(fn (string $operation): bool => $operation === 'create')
+                                                ->required(fn(string $operation): bool => $operation === 'create')
                                                 ->minLength(6)
                                                 ->maxLength(255)
-                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Hash::make($state) : null)
-                                                ->dehydrated(fn (?string $state): bool => filled($state)),
+                                                ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Hash::make($state) : null)
+                                                ->dehydrated(fn(?string $state): bool => filled($state)),
                                         ]),
                                 ])
                                     ->columnSpan([
@@ -259,8 +259,8 @@ class UserForm
                         // Tab 2: Pangkat / Golongan (MyASN Style)
                         Tab::make('Pangkat / Golongan')
                             ->icon('heroicon-m-shield-check')
-                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Section::make('Tingkat Eselon Jabatan')
                                     ->icon('heroicon-o-chart-bar')
@@ -308,7 +308,7 @@ class UserForm
                                                         Select::make('golongan')
                                                             ->label('Pangkat / Golongan Ruang')
                                                             ->options(GolonganRuang::class)
-                                                            ->required()
+                                                            // ->required()
                                                             ->searchable(),
 
                                                         TextInput::make('nama_pangkat')
@@ -318,8 +318,8 @@ class UserForm
 
                                                         DatePicker::make('tmt_golongan')
                                                             ->label('TMT Golongan')
-                                                            ->displayFormat('d/m/Y')
-                                                            ->required(),
+                                                            // ->required()
+                                                            ->displayFormat('d/m/Y'),
 
                                                         TextInput::make('nomor_sk')
                                                             ->label('Nomor SK Kenaikan Pangkat')
@@ -343,7 +343,7 @@ class UserForm
                                                             ->maxSize(2048)
                                                             // ->required()
                                                             ->disk('public')
-                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/golongan" : 'dokumen_golongan')
+                                                            ->directory(fn($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/golongan" : 'dokumen_golongan')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
                                                                 return (string) str('sk-golongan-' . str()->random(16) . '.pdf');
                                                             })
@@ -359,8 +359,8 @@ class UserForm
                         // Tab 3: Jabatan & Penugasan (MyASN Style)
                         Tab::make('Jabatan')
                             ->icon('heroicon-m-briefcase')
-                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Grid::make([
                                     'default' => 1,
@@ -553,7 +553,7 @@ class UserForm
                                                             ->maxSize(2048)
                                                             ->required()
                                                             ->disk('public')
-                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/jabatan" : 'dokumen_jabatan')
+                                                            ->directory(fn($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/jabatan" : 'dokumen_jabatan')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
                                                                 return (string) str('sk-jabatan-' . str()->random(16) . '.pdf');
                                                             })
@@ -569,8 +569,8 @@ class UserForm
                         // Tab 4: Pendidikan
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
-                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Section::make('Riwayat Pendidikan Formal')
                                     ->description('Kelola seluruh riwayat pendidikan pegawai mulai dari jenjang SD, SLTP, SLTA, Diploma, S1, S2, hingga S3 beserta berkas scan Ijazah (PDF) yang dapat diunduh kembali.')
@@ -646,7 +646,7 @@ class UserForm
                                                             ->maxSize(2048)
                                                             ->required()
                                                             ->disk('public')
-                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/ijazah" : 'dokumen_pendidikan')
+                                                            ->directory(fn($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/ijazah" : 'dokumen_pendidikan')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
                                                                 return (string) str('ijazah-' . str()->random(16) . '.pdf');
                                                             })
@@ -673,7 +673,7 @@ class UserForm
                                             ->label('Daftar Sertifikat & Diklat')
                                             ->addActionLabel('+ Tambah Sertifikat / Diklat')
                                             ->collapsible()
-                                            ->itemLabel(fn (array $state): ?string => filled($state['nama_sertifikat'] ?? null)
+                                            ->itemLabel(fn(array $state): ?string => filled($state['nama_sertifikat'] ?? null)
                                                 ? $state['nama_sertifikat']
                                                 : 'Sertifikat / Diklat')
                                             ->schema([
@@ -723,7 +723,7 @@ class UserForm
                                                             ->maxSize(2048)
                                                             ->required()
                                                             ->disk('public')
-                                                            ->directory(fn ($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/sertifikat" : 'dokumen_sertifikat')
+                                                            ->directory(fn($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/sertifikat" : 'dokumen_sertifikat')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
                                                                 return (string) str('sertifikat-' . str()->random(16) . '.pdf');
                                                             })
@@ -739,8 +739,8 @@ class UserForm
                         // Tab 5: Keluarga
                         Tab::make('Keluarga')
                             ->icon('heroicon-m-user-group')
-                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
+                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
                             ->schema([
                                 Section::make('Data Administrasi Kependudukan & Keluarga')
                                     ->icon('heroicon-o-user-group')
@@ -783,7 +783,7 @@ class UserForm
                                                 $user = Auth::user();
                                                 return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
                                             })
-                                            ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
+                                            ->getOptionLabelFromRecordUsing(fn($record) => match ($record->name) {
                                                 'super_admin' => 'Super Admin (Sistem Penuh)',
                                                 'admin' => 'Admin Dinas (Kasubag Umum / Kepegawaian)',
                                                 'pa' => 'PA (Kepala Dinas / Pengguna Anggaran)',
