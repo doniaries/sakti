@@ -27,11 +27,24 @@ class CreateUser extends CreateRecord
         ];
     }
 
-    protected function mutateFormDataBeforeSave(array $data): array
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
         unset($data['password_confirmation']);
 
+        if (empty($data['status_kepegawaian'])) {
+            $data['status_kepegawaian'] = \App\Enums\StatusKepegawaian::PNS->value;
+        }
+
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        if ($this->record->hasRole('pegawai_kontrak')) {
+            $this->record->updateQuietly([
+                'status_kepegawaian' => \App\Enums\StatusKepegawaian::KONTRAK,
+            ]);
+        }
     }
 
     protected function getRedirectUrl(): string

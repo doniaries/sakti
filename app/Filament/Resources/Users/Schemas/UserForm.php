@@ -79,6 +79,7 @@ class UserForm
                                                 ->label('NIP')
                                                 ->mask('99999999 999999 9 999')
                                                 ->placeholder('Contoh: 19720407 199202 1 002')
+                                                ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles')))
                                                 ->maxLength(30),
                                         ]),
 
@@ -259,8 +260,8 @@ class UserForm
                         // Tab 2: Pangkat / Golongan (MyASN Style)
                         Tab::make('Pangkat / Golongan')
                             ->icon('heroicon-m-shield-check')
-                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian'), $get('roles')))
                             ->schema([
                                 Section::make('Tingkat Eselon Jabatan')
                                     ->icon('heroicon-o-chart-bar')
@@ -279,6 +280,7 @@ class UserForm
                                             ->relationship('riwayatGolongan')
                                             ->label('Daftar Riwayat Pangkat / Golongan')
                                             ->addActionLabel('+ Tambah Riwayat Pangkat/Golongan')
+                                            ->defaultItems(0)
                                             ->reorderableWithButtons()
                                             ->collapsible()
                                             ->cloneable()
@@ -359,8 +361,8 @@ class UserForm
                         // Tab 3: Jabatan & Penugasan (MyASN Style)
                         Tab::make('Jabatan')
                             ->icon('heroicon-m-briefcase')
-                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian'), $get('roles')))
                             ->schema([
                                 Grid::make([
                                     'default' => 1,
@@ -375,7 +377,10 @@ class UserForm
                                                     ->label('Status Kepegawaian')
                                                     ->options(\App\Enums\StatusKepegawaian::class)
                                                     ->default(\App\Enums\StatusKepegawaian::PNS)
-                                                    ->required()
+                                                    ->live()
+                                                    ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak(null, $get('roles')))
+                                                    ->dehydrated()
+                                                    ->required(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => ! self::isKontrak(null, $get('roles')))
                                                     ->columnSpanFull(),
 
                                                 Select::make('bidang_id')
@@ -483,6 +488,7 @@ class UserForm
                                             ->relationship('riwayatJabatan')
                                             ->label('Daftar Riwayat Jabatan')
                                             ->addActionLabel('+ Tambah Riwayat Jabatan')
+                                            ->defaultItems(0)
                                             ->reorderableWithButtons()
                                             ->collapsible()
                                             ->cloneable()
@@ -509,18 +515,18 @@ class UserForm
                                                         TextInput::make('nama_jabatan')
                                                             ->label('Nama Jabatan')
                                                             ->placeholder('Contoh: Kepala BIDANG PEMASARAN PARIWISATA')
-                                                            ->required()
+                                                            // ->required()
                                                             ->columnSpan(2),
 
                                                         Select::make('jenis_jabatan')
                                                             ->label('Jenis Jabatan')
+                                                            ->required()
                                                             ->options([
                                                                 'Jabatan Struktural' => 'Jabatan Struktural',
                                                                 'Jabatan Fungsional' => 'Jabatan Fungsional',
                                                                 'Jabatan Pelaksana' => 'Jabatan Pelaksana',
                                                             ])
-                                                            ->default('Jabatan Struktural')
-                                                            ->required(),
+                                                            ->default('Jabatan Struktural'),
 
                                                         TextInput::make('unit_kerja')
                                                             ->label('Unit Kerja / SKPD')
@@ -551,7 +557,7 @@ class UserForm
                                                             ->acceptedFileTypes(['application/pdf'])
                                                             ->rules(['file', 'mimes:pdf', 'max:2048'])
                                                             ->maxSize(2048)
-                                                            ->required()
+                                                            // ->required()
                                                             ->disk('public')
                                                             ->directory(fn($livewire): string => isset($livewire->record?->id) ? "dokumen_pegawai/{$livewire->record->id}/jabatan" : 'dokumen_jabatan')
                                                             ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file): string {
@@ -569,8 +575,8 @@ class UserForm
                         // Tab 4: Pendidikan
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
-                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian'), $get('roles')))
                             ->schema([
                                 Section::make('Riwayat Pendidikan Formal')
                                     ->description('Kelola seluruh riwayat pendidikan pegawai mulai dari jenjang SD, SLTP, SLTA, Diploma, S1, S2, hingga S3 beserta berkas scan Ijazah (PDF) yang dapat diunduh kembali.')
@@ -580,6 +586,7 @@ class UserForm
                                             ->relationship('riwayatPendidikan')
                                             ->label('Daftar Riwayat Pendidikan')
                                             ->addActionLabel('+ Tambah Riwayat Pendidikan')
+                                            ->defaultItems(0)
                                             ->reorderableWithButtons()
                                             ->collapsible()
                                             ->cloneable()
@@ -672,6 +679,7 @@ class UserForm
                                             ->relationship('riwayatSertifikat')
                                             ->label('Daftar Sertifikat & Diklat')
                                             ->addActionLabel('+ Tambah Sertifikat / Diklat')
+                                            ->defaultItems(0)
                                             ->collapsible()
                                             ->itemLabel(fn(array $state): ?string => filled($state['nama_sertifikat'] ?? null)
                                                 ? $state['nama_sertifikat']
@@ -739,8 +747,8 @@ class UserForm
                         // Tab 5: Keluarga
                         Tab::make('Keluarga')
                             ->icon('heroicon-m-user-group')
-                            ->disabled(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian')))
-                            ->extraAttributes(fn(\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian')))
+                            ->disabled(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles')))
+                            ->extraAttributes(fn (\Filament\Schemas\Components\Utilities\Get $get): array => self::disabledTabAttributes($get('status_kepegawaian'), $get('roles')))
                             ->schema([
                                 Section::make('Data Administrasi Kependudukan & Keluarga')
                                     ->icon('heroicon-o-user-group')
@@ -798,6 +806,12 @@ class UserForm
                                             ->multiple()
                                             ->preload()
                                             ->searchable()
+                                            ->live()
+                                            ->afterStateUpdated(function ($state, \Filament\Schemas\Components\Utilities\Set $set): void {
+                                                if (self::isKontrak(null, $state)) {
+                                                    $set('status_kepegawaian', \App\Enums\StatusKepegawaian::KONTRAK->value);
+                                                }
+                                            })
                                             ->columnSpanFull(),
                                     ]),
                             ]),
@@ -805,21 +819,42 @@ class UserForm
             ]);
     }
 
-    private static function isKontrak(mixed $status): bool
+    private static function isKontrak(mixed $status, mixed $roles = null): bool
     {
         $value = $status instanceof \App\Enums\StatusKepegawaian
             ? $status->value
             : (string) $status;
 
-        return $value === \App\Enums\StatusKepegawaian::KONTRAK->value;
+        if ($value === \App\Enums\StatusKepegawaian::KONTRAK->value) {
+            return true;
+        }
+
+        if (is_array($roles) && ! empty($roles)) {
+            static $kontrakRoleId = null;
+            if ($kontrakRoleId === null) {
+                $kontrakRoleId = \Spatie\Permission\Models\Role::query()
+                    ->where('name', 'pegawai_kontrak')
+                    ->value('id') ?? 0;
+            }
+
+            if ($kontrakRoleId > 0 && in_array($kontrakRoleId, array_map('intval', $roles), true)) {
+                return true;
+            }
+
+            if (in_array('pegawai_kontrak', $roles, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
      * @return array<string, mixed>
      */
-    private static function disabledTabAttributes(mixed $status): array
+    private static function disabledTabAttributes(mixed $status, mixed $roles = null): array
     {
-        if (! self::isKontrak($status)) {
+        if (! self::isKontrak($status, $roles)) {
             return [];
         }
 
