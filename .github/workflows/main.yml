@@ -88,6 +88,9 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: ${{ secrets.FTP_PORT || 21 }}
+          protocol: ftp
+          security: loose
+          timeout: 300000
           server-dir: ${{ secrets.FTP_SERVER_DIR || './' }}
           state-name: sync-state.json
           exclude: |
