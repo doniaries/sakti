@@ -62,7 +62,7 @@ class UserInfolist
                                     ->password()
                                     ->revealable()
                                     ->placeholder('Kosongkan jika tidak diubah...')
-                                    ->rule('nullable|min:6')
+                                    ->rules(['nullable', 'min:6'])
                                     ->maxLength(255),
                             ])
                             ->action(function ($record, array $data): void {

@@ -124,7 +124,7 @@ class UserForm
                                                     'data-lpignore' => 'true',
                                                 ])
                                                 ->required(fn (string $operation): bool => $operation === 'create')
-                                                ->rule(fn (string $operation): string => $operation === 'create' ? 'required|min:6' : 'nullable|min:6')
+                                                ->minLength(6)
                                                 ->maxLength(255)
                                                 ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Hash::make($state) : null)
                                                 ->dehydrated(fn (?string $state): bool => filled($state)),
