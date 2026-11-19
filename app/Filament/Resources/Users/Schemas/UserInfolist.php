@@ -251,7 +251,7 @@ class UserInfolist
                                                     ->label('Ubah')
                                                     ->icon('heroicon-o-pencil-square')
                                                     ->size('sm')
-                                                    ->color('gray')
+                                                    ->color('primary')
                                                     ->slideOver()
                                                     ->modalHeading('Ubah Identitas Personal')
                                                     ->visible(function (User $record): bool {
@@ -344,7 +344,7 @@ class UserInfolist
                                                     ->label('Ubah')
                                                     ->icon('heroicon-o-pencil-square')
                                                     ->size('sm')
-                                                    ->color('gray')
+                                                    ->color('primary')
                                                     ->slideOver()
                                                     ->modalHeading('Ubah Kontak & Administrasi')
                                                     ->visible(function (User $record): bool {
