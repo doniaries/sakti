@@ -105,6 +105,22 @@ class UserInfolist
                                     ->defaultImageUrl(fn($record) => 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&background=0D8ABC&color=fff')
                                     ->circular()
                                     ->disk('public')
+                                    ->extraImgAttributes(['class' => 'cursor-pointer hover:opacity-90 transition'])
+                                    ->action(
+                                        Action::make('zoom_foto_profil')
+                                            ->modalHeading(fn (User $record): string => 'Foto Profil — ' . $record->name)
+                                            ->modalSubmitAction(false)
+                                            ->modalCancelActionLabel('Tutup')
+                                            ->modalContent(function (User $record): \Illuminate\Support\HtmlString {
+                                                $url = $record->avatar_url
+                                                    ? Storage::disk('public')->url($record->avatar_url)
+                                                    : 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&background=0D8ABC&color=fff&size=512';
+
+                                                return new \Illuminate\Support\HtmlString(
+                                                    '<div class="flex justify-center"><img src="' . e($url) . '" alt="' . e($record->name) . '" class="max-h-[75vh] w-auto rounded-xl object-contain shadow-lg" /></div>'
+                                                );
+                                            })
+                                    )
                                     ->columnSpan([
                                         'default' => 1,
                                         'md' => 1,
