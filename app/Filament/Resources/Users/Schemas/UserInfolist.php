@@ -318,17 +318,6 @@ class UserInfolist
                             return $authUser?->can('update', $record) ?? false;
                         }),
                 ])->alignEnd(),
-
-                Section::make('Jabatan, Penugasan & Jadwal Kerja')
-                    ->icon('heroicon-o-briefcase')
-                    ->columns(['default' => 2, 'md' => 5])
-                    ->schema([
-                        TextEntry::make('jabatan.nama')->label('Jabatan Saat Ini')->weight('bold')->placeholder('Belum Ditentukan'),
-                        TextEntry::make('eselon')->label('Eselon Jabatan')->badge()->color('warning')->placeholder('Non Eselon'),
-                        TextEntry::make('status_kerja')->label('Tipe Kerja')->badge()->color(fn($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
-                        TextEntry::make('jadwalKerja.nama')->label('Shift / Jadwal Kerja')->badge()->color('info')->placeholder('Jadwal Default Sistem'),
-                        TextEntry::make('jabatan_tim_kreatif')->label('Tim Kreatif Dinas')->badge()->placeholder('Bukan Anggota Tim Kreatif'),
-                    ]),
             ]);
     }
 
