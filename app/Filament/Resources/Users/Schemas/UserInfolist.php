@@ -610,10 +610,12 @@ class UserInfolist
         return TextEntry::make($attribute)
             ->label($label)
             ->formatStateUsing(fn($state): string => filled($state) ? 'Preview PDF' : 'Belum diunggah')
-            ->icon(fn($state): string => filled($state) ? 'heroicon-m-eye' : 'heroicon-m-x-circle')
             ->color(fn($state): string => filled($state) ? 'primary' : 'gray')
-            ->action(
+            ->prefixAction(
                 Action::make('preview_' . $attribute)
+                    ->icon('heroicon-m-eye')
+                    ->color('primary')
+                    ->tooltip('Pratinjau PDF')
                     ->modalHeading($label)
                     ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->modalSubmitAction(false)
