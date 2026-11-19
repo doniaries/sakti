@@ -83,10 +83,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/berita-acara-bmd/{beritaAcaraBmd}/cetak', [\App\Http\Controllers\BeritaAcaraBmdPrintController::class, 'cetak'])
         ->name('admin.berita-acara-bmd.cetak');
     Route::get('/admin/pegawai/berkas/preview', function (\Illuminate\Http\Request $request) {
-        $path = ltrim((string) $request->query('path', ''), '/');
-        abort_if($path === '' || str_contains($path, '..') || ! \Illuminate\Support\Facades\Storage::disk('public')->exists($path), 404);
+        /** @var \App\Models\User|null $authUser */
+        $authUser = \Illuminate\Support\Facades\Auth::user();
+        abort_unless($authUser, 403);
 
-        return response()->file(\Illuminate\Support\Facades\Storage::disk('public')->path($path), [
+        $path = ltrim(str_replace('\\', '/', (string) $request->query('path', '')), '/');
+        abort_if($path === '' || str_contains($path, '..'), 404);
+
+        $baseDir = realpath(storage_path('app/public'));
+        $fullPath = realpath(storage_path('app/public/' . $path));
+        abort_if($baseDir === false || $fullPath === false || ! str_starts_with($fullPath, $baseDir . DIRECTORY_SEPARATOR) || ! is_file($fullPath), 404);
+
+        if (preg_match('#^dokumen_pegawai/(\d+)/#', $path, $matches)) {
+            $owner = \App\Models\User::query()->find((int) $matches[1]);
+            abort_unless($owner && ($authUser->id === $owner->id || $authUser->can('view', $owner)), 403);
+        } elseif (preg_match('#^(dokumen_ijazah|dokumen_sk_jabatan|dokumen_sk_golongan|dokumen_sertifikat)/#', $path)) {
+            $isAuthorized = $authUser->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'pptk'])
+                || $authUser->riwayatPendidikan()->where('file_ijazah', $path)->exists()
+                || $authUser->riwayatJabatan()->where('file_sk_jabatan', $path)->exists()
+                || $authUser->riwayatGolongan()->where('file_sk_golongan', $path)->exists();
+            abort_unless($isAuthorized, 403);
+        } else {
+            abort(403);
+        }
+
+        return response()->file($fullPath, [
             'Content-Type' => 'application/octet-stream',
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'private, max-age=300',
@@ -103,27 +124,26 @@ Route::get('livewire/update', function () {
 
 // Fallback jika hosting cPanel/VPS belum menjalankan storage:link atau Nginx memblokir static symlink
 Route::get('/storage/{path}', function (string $path) {
-    $filePath = storage_path('app/public/' . $path);
+    $cleanPath = ltrim(str_replace('\\', '/', $path), '/');
+    abort_if($cleanPath === '' || str_contains($cleanPath, '..'), 404);
 
-    if (! file_exists($filePath)) {
-        $privatePath = storage_path('app/private/' . $path);
-        if (file_exists($privatePath)) {
-            return response()->file($privatePath);
-        }
-        abort(404);
-    }
+    $baseDir = realpath(storage_path('app/public'));
+    $filePath = realpath(storage_path('app/public/' . $cleanPath));
+
+    abort_if($baseDir === false || $filePath === false || ! str_starts_with($filePath, $baseDir . DIRECTORY_SEPARATOR) || ! is_file($filePath), 404);
 
     return response()->file($filePath);
 })->where('path', '.*');
 
 // Route direct streaming file storage publik jika symlink public/storage belum aktif
 Route::get('/media-file/{path}', function (string $path) {
-    $cleanPath = str_replace(['..', '\\'], ['', '/'], $path);
-    $filePath = storage_path('app/public/' . $cleanPath);
+    $cleanPath = ltrim(str_replace('\\', '/', $path), '/');
+    abort_if($cleanPath === '' || str_contains($cleanPath, '..'), 404);
 
-    if (! file_exists($filePath)) {
-        abort(404);
-    }
+    $baseDir = realpath(storage_path('app/public'));
+    $filePath = realpath(storage_path('app/public/' . $cleanPath));
+
+    abort_if($baseDir === false || $filePath === false || ! str_starts_with($filePath, $baseDir . DIRECTORY_SEPARATOR) || ! is_file($filePath), 404);
 
     return response()->file($filePath);
 })->where('path', '.*')->name('media.serve');
