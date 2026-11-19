@@ -409,6 +409,29 @@ class UserForm
                                                         ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
                                                         ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
                                                         ->value('id'))
+                                                    ->afterStateHydrated(function (Select $component, $state, ?User $record): void {
+                                                        if (filled($state)) {
+                                                            return;
+                                                        }
+
+                                                        $isKadis = $record && (
+                                                            $record->hasAnyRole(['pa', 'kadis'])
+                                                            || str_contains(strtolower((string) ($record->jabatan?->nama ?? '')), 'kepala dinas')
+                                                        );
+
+                                                        if ($isKadis) {
+                                                            return;
+                                                        }
+
+                                                        $kadisId = User::query()
+                                                            ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
+                                                            ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
+                                                            ->value('id');
+
+                                                        if ($kadisId && $kadisId !== $record?->id) {
+                                                            $component->state($kadisId);
+                                                        }
+                                                    })
                                                     ->searchable()
                                                     ->preload()
                                                     ->placeholder('Kosongkan jika Kepala Dinas')

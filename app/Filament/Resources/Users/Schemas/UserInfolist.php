@@ -14,6 +14,7 @@ use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -638,6 +639,20 @@ class UserInfolist
                                     ]),
                             ]),
                     ]),
+
+                Actions::make([
+                    Action::make('ubah_data_pegawai')
+                        ->label('Ubah Data Pegawai')
+                        ->icon('heroicon-o-pencil-square')
+                        ->color('primary')
+                        ->url(fn (User $record): string => UserResource::getUrl('edit', ['record' => $record]))
+                        ->visible(function (User $record): bool {
+                            /** @var User|null $authUser */
+                            $authUser = Auth::user();
+
+                            return $authUser?->can('update', $record) ?? false;
+                        }),
+                ])->alignEnd(),
             ]);
     }
 
