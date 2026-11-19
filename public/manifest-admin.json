@@ -1,0 +1,26 @@
+{
+    "id": "/admin",
+    "name": "SAKTI Disparpora Sijunjung",
+    "short_name": "SAKTI",
+    "description": "Sistem Administrasi Kinerja Terintegrasi Disparpora Kab. Sijunjung",
+    "start_url": "/admin",
+    "scope": "/admin",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#ffffff",
+    "theme_color": "#f59e0b",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

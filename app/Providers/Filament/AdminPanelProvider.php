@@ -131,6 +131,10 @@ class AdminPanelProvider extends PanelProvider
             ->defaultAvatarProvider(\App\Filament\AvatarProviders\SaktiAvatarProvider::class)
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn(): string => view('filament.hooks.pwa-head')->render()
+            )
+            ->renderHook(
                 PanelsRenderHook::GLOBAL_SEARCH_BEFORE,
                 fn(): string => view('filament.hooks.topbar-menu')->render()
             )
