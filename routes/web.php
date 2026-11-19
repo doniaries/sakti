@@ -82,6 +82,15 @@ Route::middleware('auth')->group(function () {
         ->name('admin.buku-inventaris.cetak');
     Route::get('/admin/berita-acara-bmd/{beritaAcaraBmd}/cetak', [\App\Http\Controllers\BeritaAcaraBmdPrintController::class, 'cetak'])
         ->name('admin.berita-acara-bmd.cetak');
+    Route::get('/admin/pegawai/berkas/preview', function (\Illuminate\Http\Request $request) {
+        $path = ltrim((string) $request->query('path', ''), '/');
+        abort_if($path === '' || str_contains($path, '..') || ! \Illuminate\Support\Facades\Storage::disk('public')->exists($path), 404);
+
+        return response()->file(\Illuminate\Support\Facades\Storage::disk('public')->path($path), [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="preview"',
+        ]);
+    })->name('admin.pegawai.berkas.preview');
 });
 
 // Fallback jika browser melakukan GET pada endpoint livewire/update

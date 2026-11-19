@@ -66,7 +66,7 @@ class RiwayatJabatanRelationManager extends RelationManager
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
                     ->modalContent(function (Model $record): HtmlString {
-                        $url = asset('storage/' . ltrim((string) $record->file_sk, '/'));
+                        $url = route('admin.pegawai.berkas.preview', ['path' => (string) $record->file_sk]);
 
                         return new HtmlString(
                             '<iframe src="' . e($url) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
