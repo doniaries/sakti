@@ -258,157 +258,26 @@ class UserInfolist
                         }),
                 ])->alignEnd(),
 
-                Tabs::make('DataPegawaiTabs')
-                    ->tabs([
-                        // Tab 1: Data Utama
-                        Tab::make('Data Utama')
-                            ->icon('heroicon-m-user')
-                            ->schema([
-                                Grid::make([
-                                    'default' => 1,
-                                    'lg' => 2,
-                                ])
-                                    ->schema([
-                                        Section::make('Kontak & Administrasi')
-                                            ->icon('heroicon-o-envelope')
-                                            ->columns(2)
-                                            ->schema([
-                                                TextEntry::make('nik')
-                                                    ->label('NIK')
-                                                    ->icon('heroicon-m-credit-card')
-                                                    ->formatStateUsing(fn(?string $state): ?string => $state && str_contains(strtoupper($state), 'E+') ? number_format((float) $state, 0, '', '') : $state)
-                                                    ->copyable()
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('agama')
-                                                    ->label('Agama')
-                                                    ->icon('heroicon-m-bookmark')
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('alamat')
-                                                    ->label('Alamat Domisili')
-                                                    ->icon('heroicon-m-home')
-                                                    ->placeholder('-')
-                                                    ->columnSpanFull(),
-
-                                                TextEntry::make('no_telp')
-                                                    ->label('Nomor Telepon')
-                                                    ->icon('heroicon-m-phone')
-                                                    ->placeholder('0'),
-
-                                                TextEntry::make('email')
-                                                    ->label('Email User')
-                                                    ->icon('heroicon-m-at-symbol')
-                                                    ->copyable(),
-
-                                                TextEntry::make('npwp')
-                                                    ->label('Nomor NPWP')
-                                                    ->icon('heroicon-m-wallet')
-                                                    ->copyable()
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('tanggal_npwp')
-                                                    ->label('Tanggal NPWP')
-                                                    ->date('d/m/Y')
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('no_bpjs')
-                                                    ->label('Nomor BPJS')
-                                                    ->icon('heroicon-m-shield-check')
-                                                    ->copyable()
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('no_taspen')
-                                                    ->label('Nomor Taspen')
-                                                    ->icon('heroicon-m-building-library')
-                                                    ->copyable()
-                                                    ->placeholder('-'),
-                                            ]),
-
-                                        Section::make('Penugasan & Jadwal Kerja')
-                                            ->icon('heroicon-o-clock')
-                                            ->columns(3)
-                                            ->schema([
-                                                TextEntry::make('status_kerja')
-                                                    ->label('Tipe Kerja')
-                                                    ->badge()
-                                                    ->color(fn($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')
-                                                    ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
-
-                                                TextEntry::make('jadwalKerja.nama')
-                                                    ->label('Shift / Jadwal Kerja')
-                                                    ->badge()
-                                                    ->color('info')
-                                                    ->placeholder('Jadwal Default Sistem'),
-
-                                                TextEntry::make('jabatan_tim_kreatif')
-                                                    ->label('Tim Kreatif Dinas')
-                                                    ->badge()
-                                                    ->placeholder('Bukan Anggota Tim Kreatif'),
-                                            ]),
-                                    ]),
-                            ]),
-
-                        Tab::make('Jabatan')
-                            ->icon('heroicon-m-briefcase')
-                            ->disabled(fn($record): bool => self::isKontrak($record))
-                            ->extraAttributes(fn($record): array => self::disabledTabAttributes($record))
-                            ->schema([
-                                Section::make('Informasi Jabatan & Unit Kerja Saat Ini')
-                                    ->columns(2)
-                                    ->schema([
-                                        TextEntry::make('jabatan.jenis_jabatan')
-                                            ->label('Jenis Jabatan')
-                                            ->state(fn($record) => $record->jabatan?->nama ? (str_contains($record->jabatan->nama, 'Kepala') || str_contains($record->jabatan->nama, 'Sekretaris') || str_contains($record->jabatan->nama, 'Kabid') || str_contains($record->jabatan->nama, 'Kasubbag') ? 'Jabatan Struktural' : 'Jabatan Fungsional / Pelaksana') : '-')
-                                            ->badge()
-                                            ->color('primary'),
-
-                                        TextEntry::make('jabatan.nama')
-                                            ->label('Nama Jabatan')
-                                            ->weight('bold')
-                                            ->placeholder('Belum Ditentukan'),
-
-                                        TextEntry::make('atasan.name')
-                                            ->label('Atasan Langsung')
-                                            ->icon('heroicon-m-user-circle')
-                                            ->placeholder('Pimpinan Tertinggi (Tidak Ada Atasan Langsung)'),
-
-                                        TextEntry::make('eselon')
-                                            ->label('Eselon Jabatan')
-                                            ->badge()
-                                            ->color('warning')
-                                            ->placeholder('Non Eselon'),
-                                    ]),
-                            ]),
-
-                        Tab::make('Keluarga')
-                            ->icon('heroicon-m-user-group')
-                            ->disabled(fn($record): bool => self::isKontrak($record))
-                            ->extraAttributes(fn($record): array => self::disabledTabAttributes($record))
-                            ->schema([
-                                Section::make('Data Anggota Keluarga & Kependudukan')
-                                    ->columns(2)
-                                    ->schema([
-                                        TextEntry::make('no_kk')
-                                            ->label('Nomor Kartu Keluarga (KK)')
-                                            ->icon('heroicon-m-identification')
-                                            ->copyable()
-                                            ->placeholder('-'),
-
-                                        TextEntry::make('nik')
-                                            ->label('Nomor Induk Kependudukan (NIK)')
-                                            ->icon('heroicon-m-credit-card')
-                                            ->copyable()
-                                            ->placeholder('-'),
-
-                                        TextEntry::make('alamat')
-                                            ->label('Alamat Domisili Keluarga')
-                                            ->icon('heroicon-m-home')
-                                            ->placeholder('-')
-                                            ->columnSpanFull(),
-                                    ]),
-                            ]),
+                Grid::make(["default" => 1, "lg" => 2])->schema([
+                    Section::make("Kontak & Administrasi")->icon("heroicon-o-envelope")->columns(2)->schema([
+                        TextEntry::make("nik")->label("NIK")->icon("heroicon-m-credit-card")->formatStateUsing(fn (?string $state): ?string => $state && str_contains(strtoupper($state), "E+") ? number_format((float) $state, 0, "", "") : $state)->copyable()->placeholder("-"),
+                        TextEntry::make("no_kk")->label("Nomor Kartu Keluarga (KK)")->icon("heroicon-m-identification")->copyable()->placeholder("-"),
+                        TextEntry::make("agama")->label("Agama")->icon("heroicon-m-bookmark")->placeholder("-"),
+                        TextEntry::make("no_telp")->label("Nomor Telepon")->icon("heroicon-m-phone")->placeholder("-"),
+                        TextEntry::make("alamat")->label("Alamat Domisili")->icon("heroicon-m-home")->placeholder("-")->columnSpanFull(),
+                        TextEntry::make("npwp")->label("Nomor NPWP")->icon("heroicon-m-wallet")->copyable()->placeholder("-"),
+                        TextEntry::make("tanggal_npwp")->label("Tanggal NPWP")->date("d/m/Y")->placeholder("-"),
+                        TextEntry::make("no_bpjs")->label("Nomor BPJS")->icon("heroicon-m-shield-check")->copyable()->placeholder("-"),
+                        TextEntry::make("no_taspen")->label("Nomor Taspen")->icon("heroicon-m-building-library")->copyable()->placeholder("-"),
                     ]),
+                    Section::make("Jabatan, Penugasan & Jadwal Kerja")->icon("heroicon-o-briefcase")->columns(2)->schema([
+                        TextEntry::make("jabatan.nama")->label("Jabatan Saat Ini")->weight("bold")->placeholder("Belum Ditentukan"),
+                        TextEntry::make("eselon")->label("Eselon Jabatan")->badge()->color("warning")->placeholder("Non Eselon"),
+                        TextEntry::make("status_kerja")->label("Tipe Kerja")->badge()->color(fn ($state) => strtolower($state ?? "wfo") === "wfh" ? "warning" : "success")->formatStateUsing(fn ($state) => strtoupper($state ?? "WFO")),
+                        TextEntry::make("jadwalKerja.nama")->label("Shift / Jadwal Kerja")->badge()->color("info")->placeholder("Jadwal Default Sistem"),
+                        TextEntry::make("jabatan_tim_kreatif")->label("Tim Kreatif Dinas")->badge()->placeholder("Bukan Anggota Tim Kreatif")->columnSpanFull(),
+                    ]),
+                ]),
             ]);
     }
 
