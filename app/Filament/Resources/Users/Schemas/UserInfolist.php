@@ -276,8 +276,8 @@ class UserInfolist
                                             TextEntry::make('status_kerja')
                                                 ->label('Tipe Kerja')
                                                 ->badge()
-                                                ->color(fn ($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')
-                                                ->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
+                                                ->color(fn($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')
+                                                ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
 
                                             TextEntry::make('jadwalKerja.nama')
                                                 ->label('Shift / Jadwal Kerja')
@@ -303,21 +303,6 @@ class UserInfolist
                                     ]),
                             ]),
                     ]),
-
-                // Tab Navigasi MyASN
-                Actions::make([
-                    Action::make('ubah_data_pegawai')
-                        ->label('Ubah Data Pegawai')
-                        ->icon('heroicon-o-pencil-square')
-                        ->color('primary')
-                        ->url(fn(User $record): string => UserResource::getUrl('edit', ['record' => $record]))
-                        ->visible(function (User $record): bool {
-                            /** @var User|null $authUser */
-                            $authUser = Auth::user();
-
-                            return $authUser?->can('update', $record) ?? false;
-                        }),
-                ])->alignEnd(),
             ]);
     }
 
