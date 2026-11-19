@@ -108,7 +108,6 @@ class SuratTugasForm
                                             modifyQueryUsing: fn (Builder $query): Builder => $query
                                                 ->bukanSuperAdmin()
                                                 ->where('aktif', true)
-                                                ->whereNotNull('jabatan_tim_kreatif')
                                                 ->where(function (Builder $q): void {
                                                     $q->whereNull('eselon')
                                                         ->orWhere('eselon', Eselon::NON_ESELON->value);
@@ -120,7 +119,7 @@ class SuratTugasForm
 
                                             return $jabatanTim
                                                 ? "{$record->name} — {$jabatanTim}"
-                                                : $record->name;
+                                                : "{$record->name} — Staf";
                                         })
                                         ->multiple()
                                         ->searchable()

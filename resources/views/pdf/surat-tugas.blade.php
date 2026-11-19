@@ -185,7 +185,7 @@
                                 <td></td>
                                 <td>Jabatan</td>
                                 <td>:</td>
-                                <td>{{ $pegawai->jabatan?->nama ?? '-' }}</td>
+                                <td>{{ $pegawai->jabatan_tim_kreatif?->getLabel() ?? '-' }}</td>
                             </tr>
                         </table>
                     @endforeach
@@ -239,7 +239,7 @@
                     <tr>
                         <td>{{ filled($surat->keterangan) ? '3.' : '2.' }}</td>
                         <td>
-                            Melaksanakan tugas dengan penuh tanggung jawab dan profesional.
+                            Melaksanakan tugas dengan penuh tanggung jawab dan saling mendukung lintas peran sesuai kebutuhan kegiatan di lapangan.
                         </td>
                     </tr>
                 </table>
@@ -332,7 +332,7 @@
                             @endif
                         </td>
                         <td>{{ $pegawai->pangkat_golongan?->getLabel() ?? '-' }}</td>
-                        <td>{{ $pegawai->jabatan?->nama ?? '-' }}</td>
+                        <td>{{ $pegawai->jabatan_tim_kreatif?->getLabel() ?? '-' }}</td>
                     </tr>
                 @endforeach
             </tbody>
