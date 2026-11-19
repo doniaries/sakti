@@ -628,7 +628,7 @@ class UserInfolist
                     ->icon('heroicon-m-arrow-down-tray')
                     ->color('success')
                     ->tooltip('Unduh Berkas PDF')
-                    ->visible(fn($record): bool => filled($record->{$attribute} ?? null) && Storage::disk('public')->exists((string) $record->{$attribute}))
+                    ->visible(fn($record): bool => filled($record->{$attribute} ?? null))
                     ->action(function ($record) use ($attribute) {
                         $path = (string) ($record->{$attribute} ?? '');
 
