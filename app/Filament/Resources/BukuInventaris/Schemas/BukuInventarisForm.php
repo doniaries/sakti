@@ -57,26 +57,74 @@ class BukuInventarisForm
                     ->description('Detail merek, nomor sertifikat/mesin, bahan fisik, ukuran, dan kondisi barang.')
                     ->columns(3)
                     ->schema([
-                        TextInput::make('merk_type')
+                        Select::make('merk_type')
                             ->label('Merk / Type')
-                            ->placeholder('Contoh: Toyota / Kijang Inova, Tiger / TG4800E'),
+                            ->searchable()
+                            ->placeholder('Pilih atau tambah Merk / Type')
+                            ->options(fn (): array => BukuInventaris::query()
+                                ->whereNotNull('merk_type')
+                                ->where('merk_type', '!=', '')
+                                ->where('merk_type', '!=', '-')
+                                ->distinct()
+                                ->orderBy('merk_type')
+                                ->pluck('merk_type', 'merk_type')
+                                ->all())
+                            ->createOptionForm([
+                                TextInput::make('value')
+                                    ->label('Merk / Type Baru')
+                                    ->required()
+                                    ->maxLength(255),
+                            ])
+                            ->createOptionUsing(fn (array $data): string => trim((string) $data['value'])),
 
                         TextInput::make('nomor_sertifikat_pabrik_chasis_mesin')
                             ->label('No. Sertifikat / Pabrik / Chasis / Mesin')
                             ->placeholder('Nomor dokumen legalitas atau nomor mesin'),
 
-                        TextInput::make('bahan')
+                        Select::make('bahan')
                             ->label('Bahan')
-                            ->placeholder('Contoh: Besi, Kayu, Beton, Campuran'),
+                            ->searchable()
+                            ->placeholder('Pilih atau tambah Bahan')
+                            ->options(fn (): array => BukuInventaris::query()
+                                ->whereNotNull('bahan')
+                                ->where('bahan', '!=', '')
+                                ->where('bahan', '!=', '-')
+                                ->distinct()
+                                ->orderBy('bahan')
+                                ->pluck('bahan', 'bahan')
+                                ->all())
+                            ->createOptionForm([
+                                TextInput::make('value')
+                                    ->label('Nama Bahan Baru')
+                                    ->required()
+                                    ->maxLength(100),
+                            ])
+                            ->createOptionUsing(fn (array $data): string => trim((string) $data['value'])),
 
                         TextInput::make('ukuran_konstruksi')
                             ->label('Ukuran / Konstruksi (P, S, D)')
                             ->placeholder('Contoh: 782.5, 1498, atau 36')
                             ->helperText('Konstruksi: P = Permanen, S/SP = Semi Permanen, D = Darurat. Kendaraan: CC. Luas: M2.'),
 
-                        TextInput::make('satuan')
+                        Select::make('satuan')
                             ->label('Satuan')
-                            ->placeholder('Contoh: M2, CC, Unit, Buah, Set'),
+                            ->searchable()
+                            ->placeholder('Pilih atau tambah Satuan')
+                            ->options(fn (): array => BukuInventaris::query()
+                                ->whereNotNull('satuan')
+                                ->where('satuan', '!=', '')
+                                ->where('satuan', '!=', '-')
+                                ->distinct()
+                                ->orderBy('satuan')
+                                ->pluck('satuan', 'satuan')
+                                ->all())
+                            ->createOptionForm([
+                                TextInput::make('value')
+                                    ->label('Nama Satuan Baru')
+                                    ->required()
+                                    ->maxLength(50),
+                            ])
+                            ->createOptionUsing(fn (array $data): string => trim((string) $data['value'])),
 
                         Select::make('keadaan_barang')
                             ->label('Keadaan Barang')
