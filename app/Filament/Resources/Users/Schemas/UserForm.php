@@ -164,249 +164,255 @@ class UserForm
 
                 Tabs::make('FormDetailPegawaiTabs')
                     ->tabs([
-                        Tab::make('Data Personal, Kontak & Administrasi')
-                            ->icon('heroicon-o-document-text')
+                        Tab::make('Data Pribadi & Kontak')
+                            ->icon('heroicon-o-user')
                             ->columns([
                                 'default' => 1,
                                 'md' => 3,
                             ])
                             ->schema([
-                        TextInput::make('nik')
-                            ->label('NIK')
-                            ->mask('9999999999999999')
-                            ->placeholder('16 digit NIK...')
-                            ->maxLength(20)
-                            ->numeric(),
+                                TextInput::make('nik')
+                                    ->label('NIK')
+                                    ->mask('9999999999999999')
+                                    ->placeholder('16 digit NIK...')
+                                    ->maxLength(20)
+                                    ->numeric(),
 
-                        TextInput::make('no_kk')
-                            ->label('Nomor KK')
-                            ->mask('9999999999999999')
-                            ->placeholder('16 digit No. KK...')
-                            ->maxLength(20)
-                            ->numeric(),
+                                TextInput::make('no_kk')
+                                    ->label('Nomor KK')
+                                    ->mask('9999999999999999')
+                                    ->placeholder('16 digit No. KK...')
+                                    ->maxLength(20)
+                                    ->numeric(),
 
-                        Select::make('agama')
-                            ->label('Agama')
-                            ->options([
-                                'Islam' => 'Islam',
-                                'Kristen' => 'Kristen',
-                                'Katolik' => 'Katolik',
-                                'Hindu' => 'Hindu',
-                                'Buddha' => 'Buddha',
-                                'Konghucu' => 'Konghucu',
+                                Select::make('agama')
+                                    ->label('Agama')
+                                    ->options([
+                                        'Islam' => 'Islam',
+                                        'Kristen' => 'Kristen',
+                                        'Katolik' => 'Katolik',
+                                        'Hindu' => 'Hindu',
+                                        'Buddha' => 'Buddha',
+                                        'Konghucu' => 'Konghucu',
+                                    ]),
+
+                                Select::make('jenis_kelamin')
+                                    ->label('Jenis Kelamin')
+                                    ->options(JenisKelamin::class),
+
+                                TextInput::make('tempat_lahir')
+                                    ->label('Tempat Lahir')
+                                    ->placeholder('Kota/Kab tempat lahir...')
+                                    ->maxLength(100),
+
+                                DatePicker::make('tanggal_lahir')
+                                    ->label('Tanggal Lahir')
+                                    ->displayFormat('d/m/Y'),
+
+                                TextInput::make('no_hp')
+                                    ->label('Nomor HP / WhatsApp')
+                                    ->tel()
+                                    ->placeholder('Contoh: 081234567890')
+                                    ->helperText('Otomatis disimpan dengan format +62.')
+                                    ->formatStateUsing(function (?string $state): ?string {
+                                        if (blank($state)) {
+                                            return null;
+                                        }
+                                        $clean = preg_replace('/[^\d]/', '', $state);
+                                        if (str_starts_with($clean, '62')) {
+                                            return '0' . substr($clean, 2);
+                                        }
+                                        if (str_starts_with($clean, '0')) {
+                                            return $clean;
+                                        }
+
+                                        return '0' . $clean;
+                                    })
+                                    ->dehydrateStateUsing(function (?string $state): ?string {
+                                        if (blank($state)) {
+                                            return null;
+                                        }
+                                        $clean = preg_replace('/[^\d]/', '', $state);
+                                        if (str_starts_with($clean, '0')) {
+                                            $clean = substr($clean, 1);
+                                        } elseif (str_starts_with($clean, '62')) {
+                                            $clean = substr($clean, 2);
+                                        }
+
+                                        return '+62' . $clean;
+                                    })
+                                    ->maxLength(25),
+
+                                TextInput::make('no_telp')
+                                    ->label('Nomor Telepon')
+                                    ->tel()
+                                    ->placeholder('Nomor telepon rumah/kantor...')
+                                    ->maxLength(25),
+
+                                Textarea::make('alamat')
+                                    ->label('Alamat Domisili')
+                                    ->placeholder('Alamat lengkap domisili...')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
                             ]),
 
-                        Select::make('jenis_kelamin')
-                            ->label('Jenis Kelamin')
-                            ->options(JenisKelamin::class),
+                        Tab::make('Administrasi & Jaminan')
+                            ->icon('heroicon-o-document-text')
+                            ->columns([
+                                'default' => 1,
+                                'md' => 2,
+                            ])
+                            ->schema([
+                                TextInput::make('npwp')
+                                    ->label('Nomor NPWP')
+                                    ->placeholder('Contoh: 15.988.184.6-203.000')
+                                    ->mask('99.999.999.9-999.999')
+                                    ->maxLength(30),
 
-                        TextInput::make('tempat_lahir')
-                            ->label('Tempat Lahir')
-                            ->placeholder('Kota/Kab tempat lahir...')
-                            ->maxLength(100),
+                                DatePicker::make('tanggal_npwp')
+                                    ->label('Tanggal NPWP')
+                                    ->displayFormat('d/m/Y'),
 
-                        DatePicker::make('tanggal_lahir')
-                            ->label('Tanggal Lahir')
-                            ->displayFormat('d/m/Y'),
+                                TextInput::make('no_bpjs')
+                                    ->label('Nomor BPJS')
+                                    ->placeholder('Nomor Kartu BPJS...')
+                                    ->maxLength(30),
 
-                        TextInput::make('no_hp')
-                            ->label('Nomor HP / WhatsApp')
-                            ->tel()
-                            ->placeholder('Contoh: 081234567890')
-                            ->helperText('Otomatis disimpan dengan format +62.')
-                            ->formatStateUsing(function (?string $state): ?string {
-                                if (blank($state)) {
-                                    return null;
-                                }
-                                $clean = preg_replace('/[^\d]/', '', $state);
-                                if (str_starts_with($clean, '62')) {
-                                    return '0' . substr($clean, 2);
-                                }
-                                if (str_starts_with($clean, '0')) {
-                                    return $clean;
-                                }
+                                TextInput::make('no_taspen')
+                                    ->label('Nomor Taspen')
+                                    ->placeholder('Nomor Kartu Taspen...')
+                                    ->maxLength(30),
+                            ]),
 
-                                return '0' . $clean;
-                            })
-                            ->dehydrateStateUsing(function (?string $state): ?string {
-                                if (blank($state)) {
-                                    return null;
-                                }
-                                $clean = preg_replace('/[^\d]/', '', $state);
-                                if (str_starts_with($clean, '0')) {
-                                    $clean = substr($clean, 1);
-                                } elseif (str_starts_with($clean, '62')) {
-                                    $clean = substr($clean, 2);
-                                }
-
-                                return '+62' . $clean;
-                            })
-                            ->maxLength(25),
-
-                        TextInput::make('no_telp')
-                            ->label('Nomor Telepon')
-                            ->tel()
-                            ->placeholder('Nomor telepon rumah/kantor...')
-                            ->maxLength(25),
-
-                        TextInput::make('npwp')
-                            ->label('Nomor NPWP')
-                            ->placeholder('Contoh: 15.988.184.6-203.000')
-                            ->mask('99.999.999.9-999.999')
-                            ->maxLength(30),
-
-                        DatePicker::make('tanggal_npwp')
-                            ->label('Tanggal NPWP')
-                            ->displayFormat('d/m/Y'),
-
-                        TextInput::make('no_bpjs')
-                            ->label('Nomor BPJS')
-                            ->placeholder('Nomor Kartu BPJS...')
-                            ->maxLength(30),
-
-                        TextInput::make('no_taspen')
-                            ->label('Nomor Taspen')
-                            ->placeholder('Nomor Kartu Taspen...')
-                            ->maxLength(30),
-
-                        Textarea::make('alamat')
-                            ->label('Alamat Domisili')
-                            ->placeholder('Alamat lengkap domisili...')
-                            ->rows(2)
-                            ->columnSpanFull(),
-                    ]),
-
-                        Tab::make('Jabatan, Penugasan & Jadwal Kerja')
+                        Tab::make('Jabatan & Penugasan')
                             ->icon('heroicon-o-briefcase')
                             ->columns([
                                 'default' => 1,
                                 'md' => 3,
                             ])
                             ->schema([
-                        Select::make('status_kepegawaian')
-                            ->label('Status Kepegawaian')
-                            ->options(StatusKepegawaian::class)
-                            ->default(StatusKepegawaian::PNS)
-                            ->live()
-                            ->disabled(fn (Get $get): bool => self::isKontrak(null, $get('roles')))
-                            ->dehydrated()
-                            ->required(fn (Get $get): bool => ! self::isKontrak(null, $get('roles'))),
+                                Select::make('status_kepegawaian')
+                                    ->label('Status Kepegawaian')
+                                    ->options(StatusKepegawaian::class)
+                                    ->default(StatusKepegawaian::PNS)
+                                    ->live()
+                                    ->disabled(fn (Get $get): bool => self::isKontrak(null, $get('roles')))
+                                    ->dehydrated()
+                                    ->required(fn (Get $get): bool => ! self::isKontrak(null, $get('roles'))),
 
-                        Select::make('bidang_id')
-                            ->label('Bidang')
-                            ->relationship('bidang', 'nama')
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Kosongkan jika Kepala Dinas'),
+                                Select::make('bidang_id')
+                                    ->label('Bidang')
+                                    ->relationship('bidang', 'nama')
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Kosongkan jika Kepala Dinas'),
 
-                        Select::make('jabatan_id')
-                            ->label('Jabatan Saat Ini')
-                            ->relationship('jabatan', 'nama')
-                            ->searchable()
-                            ->preload(),
+                                Select::make('jabatan_id')
+                                    ->label('Jabatan Saat Ini')
+                                    ->relationship('jabatan', 'nama')
+                                    ->searchable()
+                                    ->preload(),
 
-                        Select::make('eselon')
-                            ->label('Eselon Jabatan')
-                            ->options(Eselon::class)
-                            ->placeholder('Non Eselon')
-                            ->hidden(fn (Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles'))),
+                                Select::make('eselon')
+                                    ->label('Eselon Jabatan')
+                                    ->options(Eselon::class)
+                                    ->placeholder('Non Eselon')
+                                    ->hidden(fn (Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles'))),
 
-                        Select::make('atasan_id')
-                            ->label('Atasan Langsung')
-                            ->relationship('atasan', 'name', fn ($query) => $query->bukanSuperAdmin())
-                            ->default(fn () => User::query()
-                                ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
-                                ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
-                                ->value('id'))
-                            ->afterStateHydrated(function (Select $component, $state, ?User $record): void {
-                                if (filled($state)) {
-                                    return;
-                                }
+                                Select::make('atasan_id')
+                                    ->label('Atasan Langsung')
+                                    ->relationship('atasan', 'name', fn ($query) => $query->bukanSuperAdmin())
+                                    ->default(fn () => User::query()
+                                        ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
+                                        ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
+                                        ->value('id'))
+                                    ->afterStateHydrated(function (Select $component, $state, ?User $record): void {
+                                        if (filled($state)) {
+                                            return;
+                                        }
 
-                                $isKadis = $record && (
-                                    $record->hasAnyRole(['pa', 'kadis'])
-                                    || str_contains(strtolower((string) ($record->jabatan?->nama ?? '')), 'kepala dinas')
-                                );
+                                        $isKadis = $record && (
+                                            $record->hasAnyRole(['pa', 'kadis'])
+                                            || str_contains(strtolower((string) ($record->jabatan?->nama ?? '')), 'kepala dinas')
+                                        );
 
-                                if ($isKadis) {
-                                    return;
-                                }
+                                        if ($isKadis) {
+                                            return;
+                                        }
 
-                                $kadisId = User::query()
-                                    ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
-                                    ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
-                                    ->value('id');
+                                        $kadisId = User::query()
+                                            ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
+                                            ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
+                                            ->value('id');
 
-                                if ($kadisId && $kadisId !== $record?->id) {
-                                    $component->state($kadisId);
-                                }
-                            })
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Kosongkan jika Kepala Dinas'),
+                                        if ($kadisId && $kadisId !== $record?->id) {
+                                            $component->state($kadisId);
+                                        }
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('Kosongkan jika Kepala Dinas'),
 
-                        Select::make('anggaran_role')
-                            ->label('Peran Anggaran (PA/PPK/PPTK)')
-                            ->options(AnggaranRole::class)
-                            ->placeholder('Bukan Pejabat Anggaran')
-                            ->searchable(),
+                                Select::make('anggaran_role')
+                                    ->label('Peran Anggaran (PA/PPK/PPTK)')
+                                    ->options(AnggaranRole::class)
+                                    ->placeholder('Bukan Pejabat Anggaran')
+                                    ->searchable(),
 
-                        Select::make('jabatan_tim_kreatif')
-                            ->label('Tim Kreatif Dinas')
-                            ->options(JabatanTimKreatif::class)
-                            ->placeholder('Bukan Anggota Tim Kreatif')
-                            ->searchable(),
+                                Select::make('jabatan_tim_kreatif')
+                                    ->label('Tim Kreatif Dinas')
+                                    ->options(JabatanTimKreatif::class)
+                                    ->placeholder('Bukan Anggota Tim Kreatif')
+                                    ->searchable(),
 
-                        Select::make('status_kerja')
-                            ->label('Tipe Kerja')
-                            ->options([
-                                'wfo' => 'WFO (Work From Office)',
-                                'wfh' => 'WFH (Work From Home)',
+                                Toggle::make('is_pengelola_aset')
+                                    ->label('Pengelola Aset / Pengurus Barang')
+                                    ->default(false)
+                                    ->inline(false),
+                            ]),
+
+                        Tab::make('Jadwal Kerja & Cuti')
+                            ->icon('heroicon-o-clock')
+                            ->columns([
+                                'default' => 1,
+                                'md' => 3,
                             ])
-                            ->default('wfo')
-                            ->required(),
+                            ->schema([
+                                Select::make('status_kerja')
+                                    ->label('Tipe Kerja')
+                                    ->options([
+                                        'wfo' => 'WFO (Work From Office)',
+                                        'wfh' => 'WFH (Work From Home)',
+                                    ])
+                                    ->default('wfo')
+                                    ->required(),
 
-                        Select::make('jadwal_kerja_id')
-                            ->label('Shift / Jadwal Kerja')
-                            ->relationship('jadwalKerja', 'nama')
-                            ->placeholder('Jadwal Default Sistem')
-                            ->searchable()
-                            ->preload(),
+                                Select::make('jadwal_kerja_id')
+                                    ->label('Shift / Jadwal Kerja')
+                                    ->relationship('jadwalKerja', 'nama')
+                                    ->placeholder('Jadwal Default Sistem')
+                                    ->searchable()
+                                    ->preload(),
 
-                        TextInput::make('nomor_absensi')
-                            ->label('ID Mesin Presensi (PIN)')
-                            ->maxLength(50)
-                            ->readOnly(function () {
-                                /** @var \App\Models\User|null $user */
-                                $user = Auth::user();
+                                TextInput::make('kuota_cuti')
+                                    ->label('Kuota Cuti Tahunan')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(365)
+                                    ->default(12)
+                                    ->suffix('Hari')
+                                    ->disabled(function () {
+                                        /** @var \App\Models\User|null $user */
+                                        $user = Auth::user();
 
-                                return ! ($user && ($user->hasRole('super_admin') || $user->hasRole('admin')));
-                            }),
+                                        return ! ($user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false);
+                                    })
+                                    ->dehydrated(function () {
+                                        /** @var \App\Models\User|null $user */
+                                        $user = Auth::user();
 
-                        TextInput::make('kuota_cuti')
-                            ->label('Kuota Cuti Tahunan')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(365)
-                            ->default(12)
-                            ->suffix('Hari')
-                            ->disabled(function () {
-                                /** @var \App\Models\User|null $user */
-                                $user = Auth::user();
-
-                                return ! ($user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false);
-                            })
-                            ->dehydrated(function () {
-                                /** @var \App\Models\User|null $user */
-                                $user = Auth::user();
-
-                                return $user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false;
-                            }),
-
-                        Toggle::make('is_pengelola_aset')
-                            ->label('Pengelola Aset / Pengurus Barang')
-                            ->default(false)
-                            ->inline(false),
+                                        return $user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false;
+                                    }),
                             ]),
                     ]),
             ]);
