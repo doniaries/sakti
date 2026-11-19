@@ -605,17 +605,15 @@ class UserInfolist
             ]);
     }
 
-    private static function pdfAttachmentEntry(string $attribute, string $label): TextEntry
+    private static function pdfAttachmentEntry(string $attribute, string $label): Actions
     {
-        return TextEntry::make($attribute)
-            ->label($label)
-            ->formatStateUsing(fn($state): string => filled($state) ? 'Lihat Berkas' : 'Belum diunggah')
-            ->color(fn($state): string => filled($state) ? 'primary' : 'gray')
-            ->prefixAction(
-                Action::make('preview_' . $attribute)
-                    ->icon('heroicon-m-eye')
-                    ->color('primary')
-                    ->tooltip('Lihat Berkas')
+        return Actions::make([
+            Action::make('lihat_' . $attribute)
+                ->label('Lihat Berkas')
+                ->icon('heroicon-o-eye')
+                ->button()
+                ->size('sm')
+                ->color('primary')
                     ->modalHeading($label)
                     ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->modalSubmitAction(false)
@@ -647,23 +645,8 @@ class UserInfolist
 
                                 return response()->download(Storage::disk('public')->path($path));
                             }),
-                    ])
-            )
-            ->suffixAction(
-                Action::make('unduh_' . $attribute)
-                    ->icon('heroicon-m-arrow-down-tray')
-                    ->color('success')
-                    ->tooltip('Unduh Berkas PDF')
-                    ->visible(fn($record): bool => filled($record->{$attribute} ?? null))
-                    ->action(function ($record) use ($attribute) {
-                        $path = (string) ($record->{$attribute} ?? '');
-
-                        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-                        $disk = Storage::disk('public');
-
-                        return $disk->download($path);
-                    })
-            );
+                    ]),
+        ]);
     }
 
     private static function isKontrak(mixed $record): bool
