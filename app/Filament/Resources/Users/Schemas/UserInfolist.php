@@ -354,7 +354,16 @@ class UserInfolist
                                                         'no_taspen' => $record->no_taspen,
                                                     ])
                                                     ->form([
-                                                        TextInput::make('agama')->label('Agama')->maxLength(50),
+                                                        Select::make('agama')
+                                                            ->label('Agama')
+                                                            ->options([
+                                                                'Islam' => 'Islam',
+                                                                'Kristen Protestan' => 'Kristen Protestan',
+                                                                'Katolik' => 'Katolik',
+                                                                'Hindu' => 'Hindu',
+                                                                'Buddha' => 'Buddha',
+                                                                'Konghucu' => 'Konghucu',
+                                                            ]),
                                                         Textarea::make('alamat')->label('Alamat Domisili')->rows(2),
                                                         TextInput::make('no_hp')->label('Nomor HP / WhatsApp')->maxLength(30),
                                                         TextInput::make('no_telp')->label('Nomor Telepon')->maxLength(30),

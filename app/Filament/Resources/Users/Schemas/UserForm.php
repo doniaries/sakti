@@ -55,6 +55,7 @@ class UserForm
                                     ->disk('public')
                                     ->directory(fn($record): string => $record?->id ? "dokumen_pegawai/{$record->id}/avatars" : 'avatars')
                                     ->maxSize(1024)
+                                    ->preserveFilenames(false)
                                     ->openable()
                                     ->downloadable()
                                     ->alignCenter()
