@@ -4,14 +4,25 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Users\RelationManagers;
 
+use App\Enums\PangkatGolongan;
 use App\Filament\Resources\Users\Pages\ViewUser;
+use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
@@ -24,6 +35,46 @@ class RiwayatGolonganRelationManager extends RelationManager
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
         return $pageClass === ViewUser::class;
+    }
+
+    public function isReadOnly(): bool
+    {
+        /** @var User|null $authUser */
+        $authUser = Auth::user();
+
+        return ! ($authUser?->can('update', $this->getOwnerRecord()) ?? false);
+    }
+
+    public function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Select::make('golongan')
+                    ->label('Pangkat / Golongan')
+                    ->options(PangkatGolongan::class)
+                    ->required(),
+
+                DatePicker::make('tmt_golongan')
+                    ->label('TMT Golongan')
+                    ->displayFormat('d/m/Y'),
+
+                TextInput::make('nomor_sk')
+                    ->label('Nomor SK')
+                    ->maxLength(100),
+
+                DatePicker::make('tanggal_sk')
+                    ->label('Tanggal SK')
+                    ->displayFormat('d/m/Y'),
+
+                FileUpload::make('file_sk')
+                    ->label('Berkas SK Pangkat (PDF, Maks. 2 MB)')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->maxSize(2048)
+                    ->disk('public')
+                    ->directory(fn (): string => "dokumen_pegawai/{$this->getOwnerRecord()->getKey()}/sk_pangkat")
+                    ->preserveFilenames(false)
+                    ->columnSpanFull(),
+            ]);
     }
 
     public function table(Table $table): Table
@@ -48,6 +99,11 @@ class RiwayatGolonganRelationManager extends RelationManager
                     ->label('Tanggal SK')
                     ->date('d/m/Y')
                     ->placeholder('-'),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->label('Tambah Pangkat / Golongan')
+                    ->icon('heroicon-o-plus-circle'),
             ])
             ->recordActions([
                 Action::make('preview_pdf')
@@ -82,6 +138,9 @@ class RiwayatGolonganRelationManager extends RelationManager
 
                         return response()->download(Storage::disk('public')->path($path));
                     }),
+
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->paginated(false);
     }
