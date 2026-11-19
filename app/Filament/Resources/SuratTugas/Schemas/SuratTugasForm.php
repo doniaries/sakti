@@ -69,21 +69,21 @@ class SuratTugasForm
                                         ]),
 
                                     Select::make('penanggung_jawab_id')
-                                        ->label('Penanggung Jawab Kegiatan (Kepala Bidang / JF)')
+                                        ->label('Penanggung Jawab Kegiatan')
                                         ->relationship(
                                             name: 'penanggungJawab',
                                             titleAttribute: 'name',
                                             modifyQueryUsing: fn (Builder $query): Builder => $query
                                                 ->bukanSuperAdmin()
                                                 ->where('aktif', true)
-                                                ->where(function (Builder $q): void {
-                                                    $q->whereHas('roles', fn (Builder $r) => $r->whereIn('name', ['kabid', 'kepala_bidang', 'jf']))
-                                                        ->orWhereIn('id', \App\Models\Bidang::query()->whereNotNull('kepala_id')->select('kepala_id'))
-                                                        ->orWhereHas('jabatan', fn (Builder $j) => $j
-                                                            ->where('nama', 'like', '%kepala bidang%')
-                                                            ->orWhere('nama', 'like', '%fungsional%')
-                                                            ->orWhere('nama', 'like', '%ahli %'));
-                                                })
+                                                ->whereIn('eselon', [
+                                                    Eselon::II_A->value,
+                                                    Eselon::II_B->value,
+                                                    Eselon::III_A->value,
+                                                    Eselon::III_B->value,
+                                                    Eselon::IV_A->value,
+                                                    Eselon::IV_B->value,
+                                                ])
                                                 ->with('jabatan')
                                                 ->orderBy('name')
                                         )
@@ -97,7 +97,7 @@ class SuratTugasForm
                                         ->searchable()
                                         ->preload()
                                         ->required()
-                                        ->helperText('Wajib diisi oleh Kepala Bidang atau JF sebagai pimpinan penanggung jawab di lokasi kegiatan.')
+                                        ->helperText('Wajib diisi oleh pejabat bereselon sebagai pimpinan penanggung jawab di lokasi kegiatan.')
                                         ->columnSpanFull(),
 
                                     Select::make('pegawais')
