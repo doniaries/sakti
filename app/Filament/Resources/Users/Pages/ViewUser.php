@@ -5,11 +5,27 @@ namespace App\Filament\Resources\Users\Pages;
 use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Icons\Heroicon;
 use STS\FilamentImpersonate\Actions\Impersonate;
 
 class ViewUser extends ViewRecord
 {
     protected static string $resource = UserResource::class;
+
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return 'Informasi Pegawai';
+    }
+
+    public function getContentTabIcon(): string|\BackedEnum|null
+    {
+        return Heroicon::OutlinedIdentification;
+    }
 
     protected function getHeaderActions(): array
     {
