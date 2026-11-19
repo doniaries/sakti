@@ -80,6 +80,8 @@ Route::middleware('auth')->group(function () {
         ->name('surat-tugas.download-word');
     Route::get('/admin/buku-inventaris/cetak', [\App\Http\Controllers\BukuInventarisPrintController::class, 'cetak'])
         ->name('admin.buku-inventaris.cetak');
+    Route::get('/admin/berita-acara-bmd/{beritaAcaraBmd}/cetak', [\App\Http\Controllers\BeritaAcaraBmdPrintController::class, 'cetak'])
+        ->name('admin.berita-acara-bmd.cetak');
 });
 
 // Fallback jika browser melakukan GET pada endpoint livewire/update
