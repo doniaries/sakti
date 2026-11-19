@@ -21,10 +21,6 @@ class BeritaAcaraBmdForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $pegawaiOptions = User::query()->orderBy('name')->pluck('name', 'id')->all();
-        $defaultImelda = User::query()->with('jabatan')->where('name', 'like', '%IMELDA%')->first();
-        $defaultImeldaJabatan = filled($defaultImelda?->jabatan?->nama) ? $defaultImelda->jabatan->nama : 'Pengurus Barang';
-
         return $schema
             ->columns(1)
             ->components([
@@ -85,9 +81,10 @@ class BeritaAcaraBmdForm
                                     ->schema([
                                         Select::make('pihak_pertama_id')
                                             ->label('Pilih Pegawai (Opsional)')
-                                            ->options($pegawaiOptions)
-                                            ->default($defaultImelda?->id)
+                                            ->relationship('pihakPertama', 'name', fn ($query) => $query->orderBy('name'))
+                                            ->default(fn () => User::query()->where('name', 'like', '%IMELDA%')->value('id'))
                                             ->searchable()
+                                            ->preload()
                                             ->live()
                                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                                 if (! $state) {
@@ -102,20 +99,20 @@ class BeritaAcaraBmdForm
                                             }),
                                         TextInput::make('pihak_pertama_nama')
                                             ->label('Nama Lengkap')
-                                            ->default($defaultImelda?->name ?? 'IMELDA SANGGETA, A.Md')
+                                            ->default(fn () => User::query()->where('name', 'like', '%IMELDA%')->value('name') ?? 'IMELDA SANGGETA, A.Md')
                                             ->required(),
                                         Grid::make(2)
                                             ->schema([
                                                 TextInput::make('pihak_pertama_nip')
                                                     ->label('NIP')
-                                                    ->default($defaultImelda?->nip ?? '19751009 200501 2 002'),
+                                                    ->default(fn () => User::query()->where('name', 'like', '%IMELDA%')->value('nip') ?? '19751009 200501 2 002'),
                                                 TextInput::make('pihak_pertama_pangkat')
                                                     ->label('Pangkat / Golongan')
                                                     ->placeholder('Contoh: Penata III/c'),
                                             ]),
                                         TextInput::make('pihak_pertama_jabatan')
                                             ->label('Jabatan')
-                                            ->default($defaultImeldaJabatan),
+                                            ->default(fn () => User::query()->with('jabatan')->where('name', 'like', '%IMELDA%')->first()?->jabatan?->nama ?? 'Pengurus Barang'),
                                         TextInput::make('pihak_pertama_instansi')
                                             ->label('Instansi')
                                             ->default('Dinas Pariwisata Pemuda dan Olahraga'),
@@ -125,8 +122,9 @@ class BeritaAcaraBmdForm
                                     ->schema([
                                         Select::make('pihak_kedua_id')
                                             ->label('Pilih Pegawai Dinas')
-                                            ->options($pegawaiOptions)
+                                            ->relationship('pihakKedua', 'name', fn ($query) => $query->orderBy('name'))
                                             ->searchable()
+                                            ->preload()
                                             ->live()
                                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                                 if (! $state) {
