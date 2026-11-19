@@ -44,12 +44,26 @@ class BukuInventarisTable
                 ]);
             })
             ->columns([
-                TextColumn::make('nomor_urut')
+                /* TextColumn::make('nomor_urut')
                     ->label('Urut')
                     ->sortable()
                     ->alignCenter()
-                    ->width('60px'),
-
+                    ->width('60px'), */
+                TextColumn::make('nama_barang')
+                    ->label('Nama / Jenis Barang')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->color('primary')
+                    ->wrap()
+                    ->extraHeaderAttributes([
+                        'class' => 'sticky left-0 z-20 bg-gray-50 dark:bg-gray-800 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]',
+                        'style' => 'position: sticky; left: 0; z-index: 20;',
+                    ])
+                    ->extraCellAttributes([
+                        'class' => 'sticky left-0 z-10 bg-white dark:bg-gray-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]',
+                        'style' => 'position: sticky; left: 0; z-index: 10;',
+                    ]),
                 TextColumn::make('kode_barang')
                     ->label('Kode Barang')
                     ->searchable()
@@ -67,13 +81,7 @@ class BukuInventarisTable
                     ->color('gray')
                     ->width('110px'),
 
-                TextColumn::make('nama_barang')
-                    ->label('Nama / Jenis Barang')
-                    ->searchable()
-                    ->sortable()
-                    ->weight('bold')
-                    ->color('primary')
-                    ->wrap(),
+
 
                 TextColumn::make('merk_type')
                     ->label('Merk / Type')
@@ -121,36 +129,37 @@ class BukuInventarisTable
                 TextColumn::make('keadaan_barang')
                     ->label('Keadaan')
                     ->badge()
-                    ->colors([
-                        'success' => 'Baik',
-                        'warning' => 'Kurang Baik',
-                        'danger' => 'Rusak Berat',
-                    ])
+                    ->color(fn(?string $state): string => match (strtolower(trim((string) $state))) {
+                        'baik', 'b' => 'success',
+                        'kurang baik', 'kb' => 'warning',
+                        'rusak berat', 'rb' => 'danger',
+                        default => 'gray',
+                    })
                     ->alignCenter()
                     ->sortable(),
 
                 TextColumn::make('jumlah_barang')
                     ->label('Jml')
-                    ->formatStateUsing(fn ($state): string => number_format((int) $state, 0, ',', '.'))
+                    ->formatStateUsing(fn($state): string => number_format((int) $state, 0, ',', '.'))
                     ->alignCenter()
                     ->sortable()
                     ->width('60px')
                     ->summarize(
                         Sum::make()
                             ->label('Total Barang')
-                            ->formatStateUsing(fn ($state): string => number_format((int) $state, 0, ',', '.'))
+                            ->formatStateUsing(fn($state): string => number_format((int) $state, 0, ',', '.'))
                     ),
 
                 TextColumn::make('harga')
                     ->label('Harga Perolehan (Rp)')
-                    ->formatStateUsing(fn ($state): string => FormatHelper::rupiah((float) $state))
+                    ->formatStateUsing(fn($state): string => FormatHelper::rupiah((float) $state))
                     ->sortable()
                     ->alignEnd()
                     ->weight('bold')
                     ->summarize(
                         Sum::make()
                             ->label('Total Nilai Aset')
-                            ->formatStateUsing(fn ($state): string => FormatHelper::rupiah((float) $state))
+                            ->formatStateUsing(fn($state): string => FormatHelper::rupiah((float) $state))
                     ),
 
                 TextColumn::make('keterangan')

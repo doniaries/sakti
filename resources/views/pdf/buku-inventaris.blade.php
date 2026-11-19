@@ -110,6 +110,61 @@
             padding: 4px 2px;
         }
 
+        .badge-kondisi {
+            display: inline-block;
+            padding: 1.5px 5px;
+            font-size: 6.5pt;
+            font-weight: bold;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .badge-baik {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 0.5pt solid #86efac;
+        }
+        .badge-kb {
+            background-color: #ffedd5;
+            color: #9a3412;
+            border: 0.5pt solid #fdba74;
+        }
+        .badge-rb {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 0.5pt solid #fca5a5;
+        }
+
+        .legend-box {
+            margin-top: 10px;
+            border: 0.5pt solid #cbd5e1;
+            background-color: #f8fafc;
+            padding: 6px 10px;
+            font-size: 6.5pt;
+            page-break-inside: avoid;
+        }
+        .legend-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .legend-table td {
+            border: none;
+            padding: 1px 4px;
+            vertical-align: top;
+        }
+        .legend-title {
+            font-weight: bold;
+            font-size: 7pt;
+            margin-bottom: 2px;
+            color: #1e293b;
+            text-transform: uppercase;
+        }
+        .legend-list {
+            margin: 0;
+            padding-left: 12px;
+            line-height: 1.35;
+            color: #334155;
+        }
+
         .signature-table {
             width: 100%;
             border-collapse: collapse;
@@ -250,7 +305,21 @@
                     <td class="text-center">{{ $item->tahun_pembelian ?: '-' }}</td>
                     <td class="text-center">{{ $item->ukuran_konstruksi ?: '-' }}</td>
                     <td class="text-center">{{ $item->satuan ?: '-' }}</td>
-                    <td class="text-center">{{ $item->keadaan_barang ?: 'Baik' }}</td>
+                    <td class="text-center">
+                        @php
+                            $kb = trim((string) ($item->keadaan_barang ?? 'Baik'));
+                            $lowerKb = strtolower($kb);
+                        @endphp
+                        @if(in_array($lowerKb, ['baik', 'b']))
+                            <span class="badge-kondisi badge-baik">Baik</span>
+                        @elseif(in_array($lowerKb, ['kurang baik', 'kb']))
+                            <span class="badge-kondisi badge-kb">Kurang Baik</span>
+                        @elseif(in_array($lowerKb, ['rusak berat', 'rb']))
+                            <span class="badge-kondisi badge-rb">Rusak Berat</span>
+                        @else
+                            <span>{{ $kb }}</span>
+                        @endif
+                    </td>
                     <td class="text-center">{{ $item->jumlah_barang }}</td>
                     <td class="text-right font-bold">{{ number_format((float) $item->harga, 2, ',', '.') }}</td>
                     <td class="text-left">{{ $item->keterangan ?: '-' }}</td>
@@ -270,6 +339,30 @@
             </tr>
         </tfoot>
     </table>
+
+    <!-- Catatan & Legenda Kode Standar KIB -->
+    <div class="legend-box">
+        <table class="legend-table">
+            <tr>
+                <td style="width: 50%; padding-right: 15px;">
+                    <div class="legend-title">Keterangan Keadaan Barang (Kolom 12):</div>
+                    <ul class="legend-list">
+                        <li><span class="badge-kondisi badge-baik">Baik (B)</span> : Aset dalam kondisi prima, berfungsi normal, dan siap pakai.</li>
+                        <li><span class="badge-kondisi badge-kb">Kurang Baik (KB)</span> : Aset mengalami penurunan fungsi ringan / perlu perbaikan berkala.</li>
+                        <li><span class="badge-kondisi badge-rb">Rusak Berat (RB)</span> : Aset rusak total, tidak dapat digunakan, dan diusulkan penghapusan.</li>
+                    </ul>
+                </td>
+                <td style="width: 50%; padding-left: 10px;">
+                    <div class="legend-title">Arti Kode Ukuran Barang / Konstruksi (P, S, D) (Kolom 10):</div>
+                    <ul class="legend-list">
+                        <li><strong>P (Permanen)</strong> : Bangunan/konstruksi kokoh dan bersifat tetap (beton bertulang/batu bata).</li>
+                        <li><strong>S atau SP (Semi Permanen)</strong> : Konstruksi gabungan permanen & nonpermanen (dinding bata sebagian & kayu).</li>
+                        <li><strong>D (Darurat)</strong> : Konstruksi sementara atau sederhana (bilik bambu, papan kayu tipis, seng).</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <!-- Tanda Tangan Resmi -->
     <table class="signature-table">

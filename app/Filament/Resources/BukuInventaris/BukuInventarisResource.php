@@ -42,6 +42,13 @@ class BukuInventarisResource extends Resource
         return BukuInventarisTable::configure($table);
     }
 
+    public static function getWidgets(): array
+    {
+        return [
+            \App\Filament\Resources\BukuInventaris\Widgets\BukuInventarisOverviewWidget::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [

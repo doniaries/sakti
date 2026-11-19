@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\BukuInventaris\Schemas;
 
+use App\Models\BukuInventaris;
 use App\Support\FormatHelper;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,11 +26,19 @@ class BukuInventarisForm
                         TextInput::make('nomor_urut')
                             ->label('Nomor Urut')
                             ->numeric()
+                            ->default(fn (): int => ((int) BukuInventaris::max('nomor_urut')) + 1)
+                            ->helperText('Otomatis melanjutkan nomor urut terakhir.')
                             ->required(),
 
                         TextInput::make('kode_barang')
                             ->label('Kode Barang')
-                            ->placeholder('Contoh: 01.01.01.05.001')
+                            ->placeholder('01.01.01.05.001')
+                            ->mask('99.99.99.99.999')
+                            ->regex('/^\d{2}\.\d{2}\.\d{2}\.\d{2}\.\d{3}$/')
+                            ->validationMessages([
+                                'regex' => 'Format kode barang harus 99.99.99.99.999 (contoh: 01.01.01.05.001)',
+                            ])
+                            ->helperText('Format standar Permendagri 108 / SIMBADA memakai titik.')
                             ->required(),
 
                         TextInput::make('register')
@@ -60,8 +69,9 @@ class BukuInventarisForm
                             ->placeholder('Contoh: Besi, Kayu, Beton, Campuran'),
 
                         TextInput::make('ukuran_konstruksi')
-                            ->label('Ukuran / Konstruksi')
-                            ->placeholder('Contoh: 3080, 1998, 782.5'),
+                            ->label('Ukuran / Konstruksi (P, S, D)')
+                            ->placeholder('Contoh: 782.5, 1498, atau 36')
+                            ->helperText('Konstruksi: P = Permanen, S/SP = Semi Permanen, D = Darurat. Kendaraan: CC. Luas: M2.'),
 
                         TextInput::make('satuan')
                             ->label('Satuan')
@@ -70,9 +80,9 @@ class BukuInventarisForm
                         Select::make('keadaan_barang')
                             ->label('Keadaan Barang')
                             ->options([
-                                'Baik' => 'Baik (B)',
-                                'Kurang Baik' => 'Kurang Baik (KB)',
-                                'Rusak Berat' => 'Rusak Berat (RB)',
+                                'Baik' => 'Baik (B) - Hijau',
+                                'Kurang Baik' => 'Kurang Baik (KB) - Orange',
+                                'Rusak Berat' => 'Rusak Berat (RB) - Merah',
                             ])
                             ->default('Baik')
                             ->required(),
