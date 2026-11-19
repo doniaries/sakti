@@ -22,6 +22,8 @@ class BeritaAcaraBmdForm
     public static function configure(Schema $schema): Schema
     {
         $pegawaiOptions = User::query()->orderBy('name')->pluck('name', 'id')->all();
+        $defaultImelda = User::query()->with('jabatan')->where('name', 'like', '%IMELDA%')->first();
+        $defaultImeldaJabatan = filled($defaultImelda?->jabatan?->nama) ? $defaultImelda->jabatan->nama : 'Pengurus Barang';
 
         return $schema
             ->columns(1)
@@ -84,35 +86,36 @@ class BeritaAcaraBmdForm
                                         Select::make('pihak_pertama_id')
                                             ->label('Pilih Pegawai (Opsional)')
                                             ->options($pegawaiOptions)
+                                            ->default($defaultImelda?->id)
                                             ->searchable()
                                             ->live()
                                             ->afterStateUpdated(function (Set $set, ?string $state): void {
                                                 if (! $state) {
                                                     return;
                                                 }
-                                                $user = User::query()->find($state);
+                                                $user = User::query()->with('jabatan')->find($state);
                                                 if ($user) {
                                                     $set('pihak_pertama_nama', $user->name);
-                                                    $set('pihak_pertama_nip', $user->nip ?? '');
-                                                    $set('pihak_pertama_jabatan', $user->jabatan ?? 'Pengurus Barang');
+                                                    $set('pihak_pertama_nip', filled($user->nip) ? $user->nip : '-');
+                                                    $set('pihak_pertama_jabatan', filled($user->jabatan?->nama) ? $user->jabatan->nama : '-');
                                                 }
                                             }),
                                         TextInput::make('pihak_pertama_nama')
                                             ->label('Nama Lengkap')
-                                            ->default('IMELDA SANGGETA, A. Md')
+                                            ->default($defaultImelda?->name ?? 'IMELDA SANGGETA, A.Md')
                                             ->required(),
                                         Grid::make(2)
                                             ->schema([
                                                 TextInput::make('pihak_pertama_nip')
                                                     ->label('NIP')
-                                                    ->default('19751009 200501 2 002'),
+                                                    ->default($defaultImelda?->nip ?? '19751009 200501 2 002'),
                                                 TextInput::make('pihak_pertama_pangkat')
                                                     ->label('Pangkat / Golongan')
                                                     ->placeholder('Contoh: Penata III/c'),
                                             ]),
                                         TextInput::make('pihak_pertama_jabatan')
                                             ->label('Jabatan')
-                                            ->default('Pengurus Barang'),
+                                            ->default($defaultImeldaJabatan),
                                         TextInput::make('pihak_pertama_instansi')
                                             ->label('Instansi')
                                             ->default('Dinas Pariwisata Pemuda dan Olahraga'),
@@ -129,11 +132,11 @@ class BeritaAcaraBmdForm
                                                 if (! $state) {
                                                     return;
                                                 }
-                                                $user = User::query()->find($state);
+                                                $user = User::query()->with('jabatan')->find($state);
                                                 if ($user) {
                                                     $set('pihak_kedua_nama', $user->name);
-                                                    $set('pihak_kedua_nip', $user->nip ?? '-');
-                                                    $set('pihak_kedua_jabatan', $user->jabatan ?? '');
+                                                    $set('pihak_kedua_nip', filled($user->nip) ? $user->nip : '-');
+                                                    $set('pihak_kedua_jabatan', filled($user->jabatan?->nama) ? $user->jabatan->nama : '-');
                                                 }
                                             }),
                                         TextInput::make('pihak_kedua_nama')
