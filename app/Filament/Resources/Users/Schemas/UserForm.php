@@ -679,9 +679,7 @@ class UserForm
 
                                                                 return $options;
                                                             })
-                                                            ->live()
-                                                            ->required()
-                                                            ->searchable(),
+                                                            ->required(),
 
                                                         TextInput::make('nama_institusi')
                                                             ->label('Nama Sekolah / Perguruan Tinggi')
