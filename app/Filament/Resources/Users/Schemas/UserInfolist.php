@@ -176,12 +176,11 @@ class UserInfolist
 
                                             TextEntry::make('no_hp')
                                                 ->label('Nomor HP / WhatsApp')
-                                                ->icon('heroicon-m-device-phone-mobile')
                                                 ->copyable()
                                                 ->tooltip('Klik untuk menyalin nomor')
-                                                ->suffixAction(
+                                                ->prefixAction(
                                                     Action::make('chat_whatsapp')
-                                                        ->icon('heroicon-o-chat-bubble-oval-left-ellipsis')
+                                                        ->icon('fab-whatsapp')
                                                         ->color('success')
                                                         ->tooltip('Chat via WhatsApp')
                                                         ->visible(fn (User $record): bool => filled($record->whatsapp_url))
