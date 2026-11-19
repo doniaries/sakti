@@ -77,6 +77,7 @@ class DatabaseSeeder extends Seeder
             NotifikasiKeuanganSeeder::class,
             ActivityLogSeeder::class,
             PortalLinkSeeder::class,
+            BukuInventarisSeeder::class,
             // SatuTahunStressTestSeeder::class, // Aktifkan seeder ini jika ingin menguji 1 tahun data (~20.000 data) di server online
         ]);
 
