@@ -7,12 +7,17 @@ namespace App\Filament\Resources\BukuInventaris\Pages;
 use App\Filament\Resources\BukuInventaris\BukuInventarisResource;
 use App\Filament\Resources\BukuInventaris\Widgets\BukuInventarisOverviewWidget;
 use App\Models\BukuInventaris;
+use App\Services\BukuInventarisPdfImporter;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Radio;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 
 class ListBukuInventaris extends ListRecords
@@ -86,6 +91,57 @@ class ListBukuInventaris extends ListRecords
                         ->url(fn (): string => route('admin.buku-inventaris.cetak'))
                         ->openUrlInNewTab(),
                 ]),
+
+            Action::make('import_pdf_bkad')
+                ->label('Update dari PDF BKAD')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('warning')
+                ->modalHeading('Update Data Aset dari PDF BKAD')
+                ->modalDescription('Unggah file PDF Buku Inventaris Gabungan resmi dari sistem aset BKAD untuk memperbarui atau menyinkronkan data inventaris.')
+                ->form([
+                    FileUpload::make('pdf_file')
+                        ->label('File PDF BKAD (Buku Inventaris Gabungan)')
+                        ->acceptedFileTypes(['application/pdf'])
+                        ->disk('local')
+                        ->directory('temp-imports')
+                        ->required(),
+                    Radio::make('mode')
+                        ->label('Mode Sinkronisasi')
+                        ->options([
+                            'upsert' => 'Update & Tambah Data Baru (Pertahankan data yang tidak berubah)',
+                            'replace' => 'Ganti Total (Hapus sementara data lama, ganti 100% sesuai PDF)',
+                        ])
+                        ->default('upsert')
+                        ->required(),
+                ])
+                ->action(function (array $data, BukuInventarisPdfImporter $importer): void {
+                    $relativePath = $data['pdf_file'];
+                    $fullPath = Storage::disk('local')->path($relativePath);
+
+                    try {
+                        $result = $importer->import($fullPath, $data['mode'] ?? 'upsert');
+
+                        Notification::make()
+                            ->title('Sinkronisasi PDF BKAD Berhasil')
+                            ->body(sprintf(
+                                'Terbaca: %d baris | Ditambahkan: %d | Diperbarui: %d | Total Nilai: Rp %s',
+                                $result['total_parsed'],
+                                $result['inserted'],
+                                $result['updated'],
+                                number_format($result['total_harga'], 2, ',', '.')
+                            ))
+                            ->success()
+                            ->send();
+                    } catch (\Throwable $e) {
+                        Notification::make()
+                            ->title('Gagal Memproses PDF BKAD')
+                            ->body($e->getMessage())
+                            ->danger()
+                            ->send();
+                    } finally {
+                        Storage::disk('local')->delete($relativePath);
+                    }
+                }),
 
             CreateAction::make()
                 ->label('Tambah Aset')
