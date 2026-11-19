@@ -29,26 +29,13 @@ class ListMenus extends ListRecords
                     $initialResources = $rawState['initial_resources'] ?? $data['initial_resources'] ?? [];
                     $targetResource = $rawState['target_resource'] ?? $data['target_resource'] ?? null;
 
+                    $isDirectResource = filled($targetResource);
+
                     if ($targetResource) {
                         if (empty($initialResources)) {
                             $initialResources = [$targetResource];
                         } elseif (! in_array($targetResource, $initialResources, true)) {
                             array_unshift($initialResources, $targetResource);
-                        }
-                    }
-
-                    // Jika initial_resources masih kosong, coba cocokkan secara cerdas berdasarkan nama menu
-                    if (empty($initialResources)) {
-                        $catalog = ResourceItemType::getCatalog();
-                        $menuName = trim((string) ($data['name'] ?? ''));
-                        foreach ($catalog as $class => $meta) {
-                            if (strcasecmp((string) $meta['label'], $menuName) === 0) {
-                                $initialResources = [$class];
-                                if (empty($data['icon']) || $data['icon'] === 'heroicon-o-folder') {
-                                    $data['icon'] = $meta['icon'];
-                                }
-                                break;
-                            }
                         }
                     }
 
@@ -75,7 +62,10 @@ class ListMenus extends ListRecords
                                 'title' => $meta['label'],
                                 'url' => $meta['path'],
                                 'icon' => $meta['icon'],
-                                'data' => ['target_class' => $class],
+                                'data' => [
+                                    'target_class' => $class,
+                                    'is_direct_resource' => $isDirectResource && $class === $targetResource,
+                                ],
                                 'is_visible' => true,
                                 'order' => $order++,
                             ]);

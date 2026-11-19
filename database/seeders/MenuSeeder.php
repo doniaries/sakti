@@ -90,9 +90,19 @@ class MenuSeeder extends Seeder
                     ],
                 ],
                 [
+                    'name' => 'Aset & Inventaris',
+                    'icon' => 'heroicon-o-archive-box',
+                    'sort' => 5,
+                    'locations' => ['sidebar'],
+                    'items' => [
+                        ['title' => 'Buku Inventaris', 'url' => '/admin/buku-inventaris'],
+                        ['title' => 'Berita Acara BMD', 'url' => '/admin/berita-acara-bmds'],
+                    ],
+                ],
+                [
                     'name' => 'Pengaturan',
                     'icon' => 'heroicon-o-cog-6-tooth',
-                    'sort' => 5,
+                    'sort' => 6,
                     'locations' => ['sidebar'],
                     'items' => [
                         ['title' => 'Konfigurasi Sistem', 'url' => '/admin/pengaturan-aplikasis'],
@@ -106,7 +116,7 @@ class MenuSeeder extends Seeder
                 [
                     'name' => 'Menu Builder',
                     'icon' => 'heroicon-o-bars-3',
-                    'sort' => 6,
+                    'sort' => 7,
                     'locations' => ['sidebar'],
                     'items' => [],
                 ],

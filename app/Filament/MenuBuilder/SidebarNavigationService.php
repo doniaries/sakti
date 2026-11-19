@@ -108,7 +108,11 @@ class SidebarNavigationService
                 }
             }
 
-            if (count($navItems) === 1 && (! isset($tree[0]->children) || $tree[0]->children->isEmpty())) {
+            $isDirectResource = count($navItems) === 1
+                && (! isset($tree[0]->children) || $tree[0]->children->isEmpty())
+                && (bool) ($tree[0]->data['is_direct_resource'] ?? false);
+
+            if ($isDirectResource) {
                 /** @var NavigationItem $singleItem */
                 $singleItem = $navItems[0];
                 if ($menu->icon && $menu->icon !== 'heroicon-o-folder') {
