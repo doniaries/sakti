@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources\BukuInventaris\Tables;
 
 use App\Models\BukuInventaris;
+use App\Support\FormatHelper;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -38,6 +40,7 @@ class BukuInventarisTable
                     'harga',
                     'keterangan',
                     'created_at',
+                    'updated_at',
                 ]);
             })
             ->columns([
@@ -80,7 +83,7 @@ class BukuInventarisTable
                     ->toggleable(),
 
                 TextColumn::make('nomor_sertifikat_pabrik_chasis_mesin')
-                    ->label('No. Sertifikat/Mesin')
+                    ->label('No. Sertifikat / Pabrik / Chasis / Mesin')
                     ->searchable()
                     ->placeholder('-')
                     ->wrap()
@@ -128,16 +131,27 @@ class BukuInventarisTable
 
                 TextColumn::make('jumlah_barang')
                     ->label('Jml')
+                    ->formatStateUsing(fn ($state): string => number_format((int) $state, 0, ',', '.'))
                     ->alignCenter()
                     ->sortable()
-                    ->width('50px'),
+                    ->width('60px')
+                    ->summarize(
+                        Sum::make()
+                            ->label('Total Barang')
+                            ->formatStateUsing(fn ($state): string => number_format((int) $state, 0, ',', '.'))
+                    ),
 
                 TextColumn::make('harga')
-                    ->label('Harga (Rp)')
-                    ->money('IDR', locale: 'id')
+                    ->label('Harga Perolehan (Rp)')
+                    ->formatStateUsing(fn ($state): string => FormatHelper::rupiah((float) $state))
                     ->sortable()
                     ->alignEnd()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->summarize(
+                        Sum::make()
+                            ->label('Total Nilai Aset')
+                            ->formatStateUsing(fn ($state): string => FormatHelper::rupiah((float) $state))
+                    ),
 
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
@@ -145,11 +159,19 @@ class BukuInventarisTable
                     ->placeholder('-')
                     ->wrap()
                     ->toggleable(),
+
+                FormatHelper::dateTimeColumn('created_at', 'Waktu Dibuat')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                FormatHelper::dateTimeColumn('updated_at', 'Waktu Diperbarui')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('nomor_urut', 'asc')
+            ->emptyStateHeading('Belum Ada Data Inventaris')
+            ->emptyStateDescription('Data buku inventaris gabungan belum tersedia.')
             ->filters([
                 SelectFilter::make('tahun_pembelian')
-                    ->label('Filter Tahun Perolehan')
+                    ->label('Tahun Perolehan')
                     ->options(function (): array {
                         return BukuInventaris::query()
                             ->whereNotNull('tahun_pembelian')
@@ -160,7 +182,7 @@ class BukuInventarisTable
                     }),
 
                 SelectFilter::make('keadaan_barang')
-                    ->label('Filter Keadaan')
+                    ->label('Keadaan Barang')
                     ->options([
                         'Baik' => 'Baik',
                         'Kurang Baik' => 'Kurang Baik',
@@ -168,7 +190,7 @@ class BukuInventarisTable
                     ]),
 
                 SelectFilter::make('asal_perolehan')
-                    ->label('Filter Asal Perolehan')
+                    ->label('Asal Perolehan')
                     ->options([
                         'Pembelian' => 'Pembelian',
                         'Mutasi' => 'Mutasi',

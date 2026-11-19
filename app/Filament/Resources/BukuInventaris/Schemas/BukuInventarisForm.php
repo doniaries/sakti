@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\BukuInventaris\Schemas;
 
+use App\Support\FormatHelper;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -104,11 +105,7 @@ class BukuInventarisForm
                             ->default(1)
                             ->required(),
 
-                        TextInput::make('harga')
-                            ->label('Harga Perolehan (Rp)')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->default(0)
+                        FormatHelper::rupiahInput('harga', 'Harga Perolehan (Rp)')
                             ->required()
                             ->columnSpanFull(),
 
