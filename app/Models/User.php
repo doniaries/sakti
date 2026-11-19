@@ -506,13 +506,43 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
     /**
      * Apakah user berhak membuat & mengubah Surat Tugas:
-     * Super Admin, Administrasi Tim Kreatif, dan Kepala Bidang.
+     * Super Admin, Administrator, Administrasi Tim Kreatif, dan Kepala Bidang.
      */
     public function canManageSuratTugas(): bool
     {
-        return $this->hasRole('super_admin')
+        return $this->hasAnyRole(['super_admin', 'admin'])
             || $this->isAdminTimKreatif()
             || $this->isKepalaBidang();
+    }
+
+    /**
+     * Apakah user berhak membuat, mengubah, dan menghapus data Aset & Berita Acara BMD:
+     * hanya Super Admin dan Pengelola Aset.
+     */
+    public function canManageAset(): bool
+    {
+        return $this->hasRole('super_admin') || (bool) $this->is_pengelola_aset;
+    }
+
+    /**
+     * Apakah user berhak melihat data Aset & Berita Acara BMD (rahasia dinas):
+     * Super Admin, Pengelola Aset, Kadis (PA), Kabid, dan JF.
+     */
+    public function canViewAset(): bool
+    {
+        if ($this->canManageAset()) {
+            return true;
+        }
+
+        if ($this->hasAnyRole(['pa', 'kadis', 'jf']) || $this->isKepalaBidang()) {
+            return true;
+        }
+
+        $jabatan = strtolower((string) ($this->jabatan?->nama ?? ''));
+
+        return str_contains($jabatan, 'kepala dinas')
+            || str_contains($jabatan, 'fungsional')
+            || str_contains($jabatan, 'ahli ');
     }
 
     /**

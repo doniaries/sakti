@@ -13,6 +13,10 @@ class BeritaAcaraBmdPrintController extends Controller
 {
     public function cetak(Request $request, BeritaAcaraBmd $beritaAcaraBmd): Response
     {
+        /** @var \App\Models\User|null $user */
+        $user = auth()->user();
+        abort_unless($user?->canViewAset() ?? false, 403);
+
         $beritaAcaraBmd->load('items');
 
         $logoPath = public_path('images/logo-sijunjung.png');

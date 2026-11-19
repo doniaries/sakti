@@ -4,65 +4,61 @@ declare(strict_types=1);
 
 namespace App\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\BukuInventaris;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class BukuInventarisPolicy
 {
     use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
+
+    public function viewAny(User $authUser): bool
     {
-        return $authUser->can('ViewAny:BukuInventaris')
-            || $authUser->hasRole('pegawai')
-            || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canViewAset();
     }
 
-    public function view(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
+    public function view(User $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->can('View:BukuInventaris')
-            || $authUser->hasRole('pegawai')
-            || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canViewAset();
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(User $authUser): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 
-    public function update(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
+    public function update(User $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 
-    public function delete(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
+    public function delete(User $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function deleteAny(User $authUser): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 
-    public function restore(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
+    public function restore(User $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 
-    public function restoreAny(AuthUser $authUser): bool
+    public function restoreAny(User $authUser): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 
-    public function forceDelete(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
+    public function forceDelete(User $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
+    public function forceDeleteAny(User $authUser): bool
     {
-        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
+        return $authUser->canManageAset();
     }
 }

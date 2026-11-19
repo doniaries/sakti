@@ -96,6 +96,12 @@ class ListBukuInventaris extends ListRecords
                 ->label('Update dari PDF BKAD')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->color('warning')
+                ->visible(function (): bool {
+                    /** @var \App\Models\User|null $user */
+                    $user = auth()->user();
+
+                    return $user?->canManageAset() ?? false;
+                })
                 ->modalHeading('Update Data Aset dari PDF BKAD')
                 ->modalDescription('Unggah file PDF Buku Inventaris Gabungan resmi dari sistem aset BKAD untuk memperbarui atau menyinkronkan data inventaris.')
                 ->form([

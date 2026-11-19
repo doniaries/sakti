@@ -20,6 +20,10 @@ class BukuInventarisPrintController extends Controller
      */
     public function cetak(Request $request): Response
     {
+        /** @var User|null $user */
+        $user = auth()->user();
+        abort_unless($user?->canViewAset() ?? false, 403);
+
         ini_set('memory_limit', '512M');
         set_time_limit(180);
 
