@@ -653,6 +653,8 @@ class UserForm
                                                 ])
                                                     ->schema([
                                                         Select::make('jenjang')
+                                                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                                                            ->live()
                                                             ->label('Jenjang Pendidikan')
                                                             ->options(JenjangPendidikan::class)
                                                             ->required()
