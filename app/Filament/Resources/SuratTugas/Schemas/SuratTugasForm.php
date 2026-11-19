@@ -32,7 +32,7 @@ class SuratTugasForm
                     ->schema([
                         // Kolom Kiri (2/3): Detail Kegiatan, Tim Bertugas & Catatan
                         Group::make([
-                            Section::make('Detail Kegiatan & Tim Bertugas')
+                            Section::make('Detail Kegiatan & Tim Kreatif Publikasi dan Promosi')
                                 ->schema([
                                     TextInput::make('nama_kegiatan')
                                         ->label('Nama Kegiatan')
@@ -69,7 +69,7 @@ class SuratTugasForm
                                         ]),
 
                                     Select::make('penanggung_jawab_id')
-                                        ->label('Penanggung Jawab Kegiatan')
+                                        ->label('Penanggung Jawab Kegiatan Bidang')
                                         ->relationship(
                                             name: 'penanggungJawab',
                                             titleAttribute: 'name',
@@ -101,7 +101,7 @@ class SuratTugasForm
                                         ->columnSpanFull(),
 
                                     Select::make('pegawais')
-                                        ->label('Tim yang Bertugas (Tim Kreatif Dinas)')
+                                        ->label('Pelaksana Teknis / Tim Kreatif yang Bertugas')
                                         ->relationship(
                                             name: 'pegawais',
                                             titleAttribute: 'name',

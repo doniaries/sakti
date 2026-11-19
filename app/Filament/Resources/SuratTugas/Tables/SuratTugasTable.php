@@ -58,6 +58,12 @@ class SuratTugasTable
                     ->placeholder('-')
                     ->limit(30),
 
+                TextColumn::make('penanggungJawab.name')
+                    ->label('Penanggung Jawab Bidang')
+                    ->searchable()
+                    ->placeholder('-')
+                    ->wrap(),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
@@ -66,7 +72,7 @@ class SuratTugasTable
                     ->sortable(),
 
                 TextColumn::make('pegawais_count')
-                    ->label('Tim & Dibaca')
+                    ->label('Tim Kreatif & Dibaca')
                     ->badge()
                     ->color('info')
                     ->formatStateUsing(fn(SuratTugas $record): string => "{$record->pegawais_sudah_baca_count}/{$record->pegawais_count} Dibaca")

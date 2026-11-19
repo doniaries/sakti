@@ -229,7 +229,7 @@
                         <tr>
                             <td></td>
                             <td>
-                                Penanggung Jawab Kegiatan: <strong>{{ $surat->penanggungJawab->name }}</strong>
+                                Penanggung Jawab Kegiatan Bidang: <strong>{{ $surat->penanggungJawab->name }}</strong>
                                 @if ($surat->penanggungJawab->jabatan?->nama)
                                     ({{ $surat->penanggungJawab->jabatan->nama }})
                                 @endif
