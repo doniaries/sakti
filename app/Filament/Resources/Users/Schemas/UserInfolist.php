@@ -276,6 +276,7 @@ class UserInfolist
                                                 TextEntry::make('nik')
                                                     ->label('NIK')
                                                     ->icon('heroicon-m-credit-card')
+                                                    ->formatStateUsing(fn (?string $state): ?string => $state && str_contains(strtoupper($state), 'E+') ? number_format((float) $state, 0, '', '') : $state)
                                                     ->copyable()
                                                     ->placeholder('-'),
 
