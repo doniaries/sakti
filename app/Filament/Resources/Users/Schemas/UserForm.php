@@ -17,6 +17,8 @@ use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -160,13 +162,15 @@ class UserForm
                             ]),
                     ]),
 
-                Section::make('Data Personal, Kontak & Administrasi')
-                    ->icon('heroicon-o-document-text')
-                    ->columns([
-                        'default' => 1,
-                        'md' => 3,
-                    ])
-                    ->schema([
+                Tabs::make('FormDetailPegawaiTabs')
+                    ->tabs([
+                        Tab::make('Data Personal, Kontak & Administrasi')
+                            ->icon('heroicon-o-document-text')
+                            ->columns([
+                                'default' => 1,
+                                'md' => 3,
+                            ])
+                            ->schema([
                         TextInput::make('nik')
                             ->label('NIK')
                             ->mask('9999999999999999')
@@ -272,13 +276,13 @@ class UserForm
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Jabatan, Penugasan & Jadwal Kerja')
-                    ->icon('heroicon-o-briefcase')
-                    ->columns([
-                        'default' => 1,
-                        'md' => 3,
-                    ])
-                    ->schema([
+                        Tab::make('Jabatan, Penugasan & Jadwal Kerja')
+                            ->icon('heroicon-o-briefcase')
+                            ->columns([
+                                'default' => 1,
+                                'md' => 3,
+                            ])
+                            ->schema([
                         Select::make('status_kepegawaian')
                             ->label('Status Kepegawaian')
                             ->options(StatusKepegawaian::class)
@@ -403,6 +407,7 @@ class UserForm
                             ->label('Pengelola Aset / Pengurus Barang')
                             ->default(false)
                             ->inline(false),
+                            ]),
                     ]),
             ]);
     }
