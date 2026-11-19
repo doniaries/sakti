@@ -42,7 +42,7 @@ class UserInfolist
                             ->icon('heroicon-m-key')
                             ->color('info')
                             ->button()
-                            ->visible(fn ($record): bool => (\Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false) || \Illuminate\Support\Facades\Auth::id() === $record->id)
+                            ->visible(fn($record): bool => (\Illuminate\Support\Facades\Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false) || \Illuminate\Support\Facades\Auth::id() === $record->id)
                             ->modalHeading('Ubah Nama, Email & Password')
                             ->modalDescription('Perbarui nama lengkap, email login, atau password pegawai secara langsung.')
                             ->modalWidth('md')
@@ -93,7 +93,7 @@ class UserInfolist
                             ->icon('heroicon-m-pencil-square')
                             ->color('warning')
                             ->button()
-                            ->visible(fn ($record): bool => UserResource::canEdit($record))
+                            ->visible(fn($record): bool => UserResource::canEdit($record))
                             ->url(fn($record) => UserResource::getUrl('edit', ['record' => $record])),
                     ])
                     ->schema([
@@ -110,7 +110,7 @@ class UserInfolist
                                     ->extraImgAttributes(['class' => 'cursor-pointer hover:opacity-90 transition'])
                                     ->action(
                                         Action::make('zoom_foto_profil')
-                                            ->modalHeading(fn (User $record): string => 'Foto Profil — ' . $record->name)
+                                            ->modalHeading(fn(User $record): string => 'Foto Profil — ' . $record->name)
                                             ->modalSubmitAction(false)
                                             ->modalCancelActionLabel('Tutup')
                                             ->modalContent(function (User $record): \Illuminate\Support\HtmlString {
@@ -238,7 +238,7 @@ class UserInfolist
                         ->label('Ubah Data Pegawai')
                         ->icon('heroicon-o-pencil-square')
                         ->color('primary')
-                        ->url(fn (User $record): string => UserResource::getUrl('edit', ['record' => $record]))
+                        ->url(fn(User $record): string => UserResource::getUrl('edit', ['record' => $record]))
                         ->visible(function (User $record): bool {
                             /** @var User|null $authUser */
                             $authUser = Auth::user();
@@ -283,11 +283,6 @@ class UserInfolist
                                                     ->label('Nomor Telepon')
                                                     ->icon('heroicon-m-phone')
                                                     ->placeholder('0'),
-
-                                                TextEntry::make('email')
-                                                    ->label('Email User')
-                                                    ->icon('heroicon-m-at-symbol')
-                                                    ->copyable(),
 
                                                 TextEntry::make('npwp')
                                                     ->label('Nomor NPWP')
@@ -340,8 +335,8 @@ class UserInfolist
                         // Tab 2: Pangkat / Golongan (MyASN Style)
                         Tab::make('Pangkat / Golongan')
                             ->icon('heroicon-m-shield-check')
-                            ->disabled(fn ($record): bool => self::isKontrak($record))
-                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
+                            ->disabled(fn($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Riwayat Pangkat & Golongan Ruang')
                                     ->description('Daftar riwayat kenaikan pangkat dan golongan ruang yang tercatat beserta berkas SK Pangkat asli.')
@@ -391,8 +386,8 @@ class UserInfolist
                         // Tab 3: Jabatan & Posisi (MyASN Style)
                         Tab::make('Jabatan')
                             ->icon('heroicon-m-briefcase')
-                            ->disabled(fn ($record): bool => self::isKontrak($record))
-                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
+                            ->disabled(fn($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Informasi Jabatan & Unit Kerja Saat Ini')
                                     ->columns(2)
@@ -467,8 +462,8 @@ class UserInfolist
                         // Tab 4: Pendidikan
                         Tab::make('Pendidikan')
                             ->icon('heroicon-m-academic-cap')
-                            ->disabled(fn ($record): bool => self::isKontrak($record))
-                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
+                            ->disabled(fn($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Riwayat Pendidikan Formal')
                                     ->description('Daftar riwayat jenjang pendidikan formal yang tercatat dan lampiran berkas Ijazah asli.')
@@ -527,7 +522,7 @@ class UserInfolist
                                                         TextEntry::make('jenis')
                                                             ->label('Jenis')
                                                             ->badge()
-                                                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                                            ->formatStateUsing(fn(?string $state): string => match ($state) {
                                                                 'diklat' => 'Diklat',
                                                                 'bimtek' => 'Bimtek / Workshop',
                                                                 'penghargaan' => 'Penghargaan',
@@ -564,8 +559,8 @@ class UserInfolist
                         // Tab 5: Keluarga & Lainnya
                         Tab::make('Keluarga')
                             ->icon('heroicon-m-user-group')
-                            ->disabled(fn ($record): bool => self::isKontrak($record))
-                            ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
+                            ->disabled(fn($record): bool => self::isKontrak($record))
+                            ->extraAttributes(fn($record): array => self::disabledTabAttributes($record))
                             ->schema([
                                 Section::make('Data Anggota Keluarga & Kependudukan')
                                     ->columns(2)
@@ -597,9 +592,9 @@ class UserInfolist
     {
         return TextEntry::make($attribute)
             ->label($label)
-            ->formatStateUsing(fn ($state): string => filled($state) ? 'Preview PDF' : 'Belum diunggah')
-            ->icon(fn ($state): string => filled($state) ? 'heroicon-m-eye' : 'heroicon-m-x-circle')
-            ->color(fn ($state): string => filled($state) ? 'primary' : 'gray')
+            ->formatStateUsing(fn($state): string => filled($state) ? 'Preview PDF' : 'Belum diunggah')
+            ->icon(fn($state): string => filled($state) ? 'heroicon-m-eye' : 'heroicon-m-x-circle')
+            ->color(fn($state): string => filled($state) ? 'primary' : 'gray')
             ->url(function ($record) use ($attribute): ?string {
                 $path = $record->{$attribute} ?? null;
                 if (blank($path)) {
@@ -616,7 +611,7 @@ class UserInfolist
                     ->icon('heroicon-m-arrow-down-tray')
                     ->color('success')
                     ->tooltip('Unduh Berkas PDF')
-                    ->visible(fn ($record): bool => filled($record->{$attribute} ?? null) && Storage::disk('public')->exists((string) $record->{$attribute}))
+                    ->visible(fn($record): bool => filled($record->{$attribute} ?? null) && Storage::disk('public')->exists((string) $record->{$attribute}))
                     ->action(function ($record) use ($attribute) {
                         $path = (string) ($record->{$attribute} ?? '');
 
