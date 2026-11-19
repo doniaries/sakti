@@ -612,17 +612,41 @@ class UserInfolist
             ->formatStateUsing(fn($state): string => filled($state) ? 'Preview PDF' : 'Belum diunggah')
             ->icon(fn($state): string => filled($state) ? 'heroicon-m-eye' : 'heroicon-m-x-circle')
             ->color(fn($state): string => filled($state) ? 'primary' : 'gray')
-            ->url(function ($record) use ($attribute): ?string {
-                $path = $record->{$attribute} ?? null;
-                if (blank($path)) {
-                    return null;
-                }
+            ->action(
+                Action::make('preview_' . $attribute)
+                    ->modalHeading($label)
+                    ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->visible(fn($record): bool => filled($record->{$attribute} ?? null))
+                    ->modalContent(function ($record) use ($attribute): \Illuminate\Support\HtmlString {
+                        $path = (string) ($record->{$attribute} ?? '');
+                        $url = asset('storage/' . ltrim($path, '/'));
 
-                /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
-                $disk = Storage::disk('public');
+                        return new \Illuminate\Support\HtmlString(
+                            '<iframe src="' . e($url) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
+                        );
+                    })
+                    ->extraModalFooterActions([
+                        Action::make('download_' . $attribute)
+                            ->label('Unduh PDF')
+                            ->icon('heroicon-o-arrow-down-tray')
+                            ->color('danger')
+                            ->action(function ($record) use ($attribute) {
+                                $path = (string) ($record->{$attribute} ?? '');
+                                if ($path === '' || ! Storage::disk('public')->exists($path)) {
+                                    Notification::make()
+                                        ->title('Berkas PDF tidak ditemukan di server.')
+                                        ->danger()
+                                        ->send();
 
-                return $disk->url($path);
-            }, shouldOpenInNewTab: true)
+                                    return null;
+                                }
+
+                                return response()->download(Storage::disk('public')->path($path));
+                            }),
+                    ])
+            )
             ->suffixAction(
                 Action::make('unduh_' . $attribute)
                     ->icon('heroicon-m-arrow-down-tray')
