@@ -258,58 +258,6 @@ class UserInfolist
                                     'lg' => 2,
                                 ])
                                     ->schema([
-                                        Section::make('Identitas Personal')
-                                            ->icon('heroicon-o-identification')
-                                            ->columns(2)
-                                            ->schema([
-                                                TextEntry::make('nip')
-                                                    ->label('NIP')
-                                                    ->icon('heroicon-m-hashtag')
-                                                    ->copyable()
-                                                    ->weight('bold'),
-
-                                                TextEntry::make('nik')
-                                                    ->label('NIK')
-                                                    ->icon('heroicon-m-credit-card')
-                                                    ->copyable()
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('name')
-                                                    ->label('Nama Pegawai')
-                                                    ->icon('heroicon-m-user')
-                                                    ->weight('medium'),
-
-                                                TextEntry::make('jenis_kelamin')
-                                                    ->label('Jenis Kelamin')
-                                                    ->badge()
-                                                    ->color(fn($state) => match ($state?->value ?? $state) {
-                                                        'L', 'Laki-Laki' => 'info',
-                                                        'P', 'Perempuan' => 'danger',
-                                                        default => 'gray',
-                                                    }),
-
-                                                TextEntry::make('gelar_depan')
-                                                    ->label('Gelar Depan')
-                                                    ->icon('heroicon-m-academic-cap')
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('gelar_belakang')
-                                                    ->label('Gelar Belakang')
-                                                    ->icon('heroicon-m-academic-cap')
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('tempat_lahir')
-                                                    ->label('Tempat Lahir')
-                                                    ->icon('heroicon-m-map-pin')
-                                                    ->placeholder('-'),
-
-                                                TextEntry::make('tanggal_lahir')
-                                                    ->label('Tanggal Lahir')
-                                                    ->date('d F Y')
-                                                    ->icon('heroicon-m-calendar')
-                                                    ->placeholder('-'),
-                                            ]),
-
                                         Section::make('Kontak & Administrasi')
                                             ->icon('heroicon-o-envelope')
                                             ->columns(2)
@@ -363,6 +311,28 @@ class UserInfolist
                                                     ->icon('heroicon-m-building-library')
                                                     ->copyable()
                                                     ->placeholder('-'),
+                                            ]),
+
+                                        Section::make('Penugasan & Jadwal Kerja')
+                                            ->icon('heroicon-o-clock')
+                                            ->columns(3)
+                                            ->schema([
+                                                TextEntry::make('status_kerja')
+                                                    ->label('Tipe Kerja')
+                                                    ->badge()
+                                                    ->color(fn($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')
+                                                    ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
+
+                                                TextEntry::make('jadwalKerja.nama')
+                                                    ->label('Shift / Jadwal Kerja')
+                                                    ->badge()
+                                                    ->color('info')
+                                                    ->placeholder('Jadwal Default Sistem'),
+
+                                                TextEntry::make('jabatan_tim_kreatif')
+                                                    ->label('Tim Kreatif Dinas')
+                                                    ->badge()
+                                                    ->placeholder('Bukan Anggota Tim Kreatif'),
                                             ]),
                                     ]),
                             ]),
