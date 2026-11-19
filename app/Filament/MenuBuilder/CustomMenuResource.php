@@ -59,7 +59,7 @@ class CustomMenuResource extends BaseMenuResource
                     ->visible($locations !== [])
                     ->afterStateHydrated(fn (CheckboxList $component, ?Menu $record) => $component->state($record ? $record->locations->pluck('location')->all() : ['sidebar']))
                     ->saveRelationshipsUsing(fn (Menu $record, array $state) => $record->syncLocations($state))
-                    ->dehydrated(true),
+                    ->dehydrated(false),
                 Toggle::make('is_visible')
                     ->label(__('filament-menu-builder::menu-builder.resource.is_visible'))
                     ->default(true),
@@ -114,7 +114,7 @@ class CustomMenuResource extends BaseMenuResource
                             ]);
                         }
                     })
-                    ->dehydrated(true),
+                    ->dehydrated(false),
             ]);
     }
 

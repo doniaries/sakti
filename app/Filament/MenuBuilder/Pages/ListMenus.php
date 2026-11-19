@@ -23,9 +23,11 @@ class ListMenus extends ListRecords
         return [
             CreateAction::make()
                 ->createAnother(false)
-                ->using(function (array $data, string $model): Model {
-                    $locations = $data['locations'] ?? ['sidebar'];
-                    $initialResources = $data['initial_resources'] ?? [];
+                ->using(function (array $data, string $model, CreateAction $action): Model {
+                    $rawState = $action->getFormData();
+                    $locations = $rawState['locations'] ?? $data['locations'] ?? ['sidebar'];
+                    $initialResources = $rawState['initial_resources'] ?? $data['initial_resources'] ?? [];
+
                     unset($data['locations'], $data['initial_resources']);
 
                     /** @var Menu $record */
