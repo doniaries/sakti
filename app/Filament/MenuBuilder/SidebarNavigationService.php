@@ -114,21 +114,61 @@ class SidebarNavigationService
                 }
             }
 
-            if ($navItems !== []) {
+            if (count($navItems) === 1 && (! isset($tree[0]->children) || $tree[0]->children->isEmpty())) {
+                /** @var NavigationItem $singleItem */
+                $singleItem = $navItems[0];
+                if ($menu->icon && $menu->icon !== 'heroicon-o-folder') {
+                    $singleItem->icon($menu->icon);
+                }
+                $groups[] = NavigationGroup::make()->items([$singleItem]);
+            } elseif ($navItems !== []) {
                 $groups[] = NavigationGroup::make($menu->translated('name'))
                     ->icon($menu->icon ?: 'heroicon-o-folder')
                     ->items($navItems)
                     ->collapsed();
             } else {
-                // Walau belum ada sub menunya, tetap tampilkan menu di sidebar
-                $groups[] = NavigationGroup::make($menu->translated('name'))
-                    ->icon($menu->icon ?: 'heroicon-o-folder')
-                    ->items([
+                // Menu belum memiliki sub-menu: cek apakah cocok dengan katalog resource
+                $catalog = ResourceItemType::getCatalog();
+                $matchedClass = null;
+                $matchedMeta = null;
+
+                foreach ($catalog as $class => $meta) {
+                    if (strcasecmp((string) $meta['label'], trim((string) $menu->name)) === 0) {
+                        $matchedClass = $class;
+                        $matchedMeta = $meta;
+                        break;
+                    }
+                }
+
+                if ($matchedMeta) {
+                    try {
+                        $menu->items()->create([
+                            'type' => 'resource',
+                            'title' => $matchedMeta['label'],
+                            'url' => $matchedMeta['path'],
+                            'icon' => $matchedMeta['icon'],
+                            'data' => ['target_class' => $matchedClass],
+                            'is_visible' => true,
+                            'order' => 1,
+                        ]);
+                    } catch (\Throwable) {
+                        // ignore if fail
+                    }
+
+                    $directItem = NavigationItem::make($menu->translated('name'))
+                        ->url(fn (): string => (string) $matchedMeta['path'])
+                        ->icon($menu->icon && $menu->icon !== 'heroicon-o-folder' ? $menu->icon : $matchedMeta['icon'])
+                        ->isActiveWhen(fn (): bool => request()->is(ltrim((string) $matchedMeta['path'], '/') . '*'));
+
+                    $groups[] = NavigationGroup::make()->items([$directItem]);
+                } else {
+                    // Walau belum ada sub menunya dan bukan resource, tetap tampilkan menu di sidebar
+                    $groups[] = NavigationGroup::make()->items([
                         NavigationItem::make($menu->translated('name'))
                             ->url(fn (): string => CustomMenuResource::canAccess() ? CustomMenuResource::getUrl('edit', ['record' => $menu]) : '#')
                             ->icon($menu->icon ?: 'heroicon-o-folder'),
-                    ])
-                    ->collapsed(false);
+                    ]);
+                }
             }
         }
 

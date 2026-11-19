@@ -27,8 +27,32 @@ class ListMenus extends ListRecords
                     $rawState = $action->getFormData();
                     $locations = $rawState['locations'] ?? $data['locations'] ?? ['sidebar'];
                     $initialResources = $rawState['initial_resources'] ?? $data['initial_resources'] ?? [];
+                    $targetResource = $rawState['target_resource'] ?? $data['target_resource'] ?? null;
 
-                    unset($data['locations'], $data['initial_resources']);
+                    if ($targetResource) {
+                        if (empty($initialResources)) {
+                            $initialResources = [$targetResource];
+                        } elseif (! in_array($targetResource, $initialResources, true)) {
+                            array_unshift($initialResources, $targetResource);
+                        }
+                    }
+
+                    // Jika initial_resources masih kosong, coba cocokkan secara cerdas berdasarkan nama menu
+                    if (empty($initialResources)) {
+                        $catalog = ResourceItemType::getCatalog();
+                        $menuName = trim((string) ($data['name'] ?? ''));
+                        foreach ($catalog as $class => $meta) {
+                            if (strcasecmp((string) $meta['label'], $menuName) === 0) {
+                                $initialResources = [$class];
+                                if (empty($data['icon']) || $data['icon'] === 'heroicon-o-folder') {
+                                    $data['icon'] = $meta['icon'];
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    unset($data['locations'], $data['initial_resources'], $data['target_resource']);
 
                     /** @var Menu $record */
                     $record = $model::query()->create($data);

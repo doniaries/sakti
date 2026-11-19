@@ -10,7 +10,7 @@ class EditMenu extends BaseEditMenu
 {
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        unset($data['locations'], $data['initial_resources']);
+        unset($data['locations'], $data['initial_resources'], $data['target_resource']);
 
         return parent::mutateFormDataBeforeSave($data);
     }
