@@ -225,6 +225,17 @@
                             </td>
                         </tr>
                     @endif
+                    @if ($surat->penanggungJawab)
+                        <tr>
+                            <td></td>
+                            <td>
+                                Penanggung Jawab Kegiatan: <strong>{{ $surat->penanggungJawab->name }}</strong>
+                                @if ($surat->penanggungJawab->jabatan?->nama)
+                                    ({{ $surat->penanggungJawab->jabatan->nama }})
+                                @endif
+                            </td>
+                        </tr>
+                    @endif
                     <tr>
                         <td>{{ filled($surat->keterangan) ? '3.' : '2.' }}</td>
                         <td>

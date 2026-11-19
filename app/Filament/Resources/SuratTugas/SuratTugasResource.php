@@ -115,12 +115,13 @@ class SuratTugasResource extends Resource
         $user = Auth::user();
 
         $query = parent::getEloquentQuery()
-            ->with(['penandatangan'])
+            ->with(['penandatangan', 'penanggungJawab'])
             ->withCount(['pegawais', 'pegawaisSudahBaca']);
 
         if ($user && ! $user->canManageSuratTugas()) {
             $query->where(function (Builder $q) use ($user): void {
                 $q->where('penandatangan_id', $user->id)
+                    ->orWhere('penanggung_jawab_id', $user->id)
                     ->orWhereHas('pegawais', fn (Builder $sub) => $sub->where('users.id', $user->id));
             });
         }

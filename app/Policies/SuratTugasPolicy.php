@@ -24,6 +24,7 @@ class SuratTugasPolicy
         }
 
         return $suratTugas->penandatangan_id === $authUser->id
+            || $suratTugas->penanggung_jawab_id === $authUser->id
             || $suratTugas->pegawais()->where('users.id', $authUser->id)->exists();
     }
 

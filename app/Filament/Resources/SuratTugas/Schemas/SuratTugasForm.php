@@ -68,6 +68,38 @@ class SuratTugasForm
                                                 ->maxLength(255),
                                         ]),
 
+                                    Select::make('penanggung_jawab_id')
+                                        ->label('Penanggung Jawab Kegiatan (Kepala Bidang / JF)')
+                                        ->relationship(
+                                            name: 'penanggungJawab',
+                                            titleAttribute: 'name',
+                                            modifyQueryUsing: fn (Builder $query): Builder => $query
+                                                ->bukanSuperAdmin()
+                                                ->where('aktif', true)
+                                                ->where(function (Builder $q): void {
+                                                    $q->whereHas('roles', fn (Builder $r) => $r->whereIn('name', ['kabid', 'kepala_bidang', 'jf']))
+                                                        ->orWhereIn('id', \App\Models\Bidang::query()->whereNotNull('kepala_id')->select('kepala_id'))
+                                                        ->orWhereHas('jabatan', fn (Builder $j) => $j
+                                                            ->where('nama', 'like', '%kepala bidang%')
+                                                            ->orWhere('nama', 'like', '%fungsional%')
+                                                            ->orWhere('nama', 'like', '%ahli %'));
+                                                })
+                                                ->with('jabatan')
+                                                ->orderBy('name')
+                                        )
+                                        ->getOptionLabelFromRecordUsing(function (User $record): string {
+                                            $jabatan = $record->jabatan?->nama;
+
+                                            return $jabatan
+                                                ? "{$record->name} — {$jabatan}"
+                                                : $record->name;
+                                        })
+                                        ->searchable()
+                                        ->preload()
+                                        ->required()
+                                        ->helperText('Wajib diisi oleh Kepala Bidang atau JF sebagai pimpinan penanggung jawab di lokasi kegiatan.')
+                                        ->columnSpanFull(),
+
                                     Select::make('pegawais')
                                         ->label('Tim yang Bertugas (Tim Kreatif Dinas)')
                                         ->relationship(

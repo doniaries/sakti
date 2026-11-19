@@ -26,6 +26,7 @@ class SuratTugas extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'lokasi',
+        'penanggung_jawab_id',
         'keterangan',
         'file_tte',
         'status',
@@ -67,6 +68,11 @@ class SuratTugas extends Model
         return $this->belongsToMany(User::class, 'surat_tugas_user')
             ->withPivot(['peran_tugas', 'dibaca_at'])
             ->withTimestamps();
+    }
+
+    public function penanggungJawab(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'penanggung_jawab_id');
     }
 
     public function pegawaisSudahBaca(): BelongsToMany
