@@ -89,14 +89,8 @@ class SidebarNavigationService
         $hasMenuBuilderLink = false;
 
         foreach ($menus as $menu) {
-            if ($menu->items->isEmpty() && strcasecmp((string) $menu->name, 'Menu Builder') === 0 && CustomMenuResource::canAccess()) {
-                $groups[] = NavigationGroup::make()->items([
-                    NavigationItem::make($menu->translated('name'))
-                        ->url(fn (): string => CustomMenuResource::getUrl())
-                        ->icon($menu->icon ?: 'heroicon-o-bars-3')
-                        ->isActiveWhen(fn (): bool => request()->is('admin/menus*')),
-                ]);
-                $hasMenuBuilderLink = true;
+            // Jangan masukkan atau proses menu builder dari tabel menus
+            if (strcasecmp((string) $menu->name, 'Menu Builder') === 0) {
                 continue;
             }
 
@@ -172,12 +166,14 @@ class SidebarNavigationService
             }
         }
 
-        if ($menus->isEmpty() && ! $hasMenuBuilderLink && CustomMenuResource::canAccess()) {
-            $topItems[] = NavigationItem::make('Menu Builder')
-                ->url(fn (): string => CustomMenuResource::getUrl())
-                ->icon('heroicon-o-bars-3')
-                ->isActiveWhen(fn (): bool => request()->is('admin/menus*'))
-                ->sort(count($topItems) + 1);
+        if (! $hasMenuBuilderLink && CustomMenuResource::canAccess()) {
+            $groups[] = NavigationGroup::make()->items([
+                NavigationItem::make('Menu Builder')
+                    ->url(fn (): string => CustomMenuResource::getUrl())
+                    ->icon('heroicon-o-bars-3')
+                    ->isActiveWhen(fn (): bool => request()->is('admin/menus*'))
+                    ->sort(999),
+            ]);
         }
 
         return $builder->items($topItems)->groups($groups);

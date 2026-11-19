@@ -40,7 +40,8 @@ class CustomMenuResource extends BaseMenuResource
         $resourceDescriptions = [];
 
         foreach ($catalog as $class => $meta) {
-            $resourceOptions[$class] = $meta['label'];
+            $status = isset($assigned[$class]) ? " [Di: {$assigned[$class]['location']}]" : '';
+            $resourceOptions[$class] = "{$meta['label']}{$status} • {$meta['path']}";
             $resourceDescriptions[$class] = isset($assigned[$class])
                 ? "Sudah di menu: {$assigned[$class]['location']} • {$meta['path']}"
                 : "Belum ada di menu • {$meta['path']}";
@@ -53,7 +54,6 @@ class CustomMenuResource extends BaseMenuResource
                     ->label('Pilih Resource / Halaman (Jadikan Menu Utama Langsung)')
                     ->helperText('Pilih jika menu ini ditujukan langsung untuk suatu resource/halaman (Menu Utama tanpa folder dropdown). Nama & Ikon akan otomatis terisi.')
                     ->options($resourceOptions)
-                    ->descriptions($resourceDescriptions)
                     ->searchable()
                     ->placeholder('-- Pilih Resource / Halaman Utama --')
                     ->live()
@@ -140,6 +140,7 @@ class CustomMenuResource extends BaseMenuResource
     public static function table(Table $table): Table
     {
         return parent::table($table)
+            ->modifyQueryUsing(fn ($query) => $query->where('name', 'not like', '%Menu Builder%'))
             ->pushColumns([
                 \Filament\Tables\Columns\TextColumn::make('sort')
                     ->label('Urutan Tampil')
