@@ -59,7 +59,7 @@ class CustomMenuResource extends BaseMenuResource
                     ->visible($locations !== [])
                     ->afterStateHydrated(fn (CheckboxList $component, ?Menu $record) => $component->state($record ? $record->locations->pluck('location')->all() : ['sidebar']))
                     ->saveRelationshipsUsing(fn (Menu $record, array $state) => $record->syncLocations($state))
-                    ->dehydrated(false),
+                    ->dehydrated(true),
                 Toggle::make('is_visible')
                     ->label(__('filament-menu-builder::menu-builder.resource.is_visible'))
                     ->default(true),
@@ -114,7 +114,7 @@ class CustomMenuResource extends BaseMenuResource
                             ]);
                         }
                     })
-                    ->dehydrated(false),
+                    ->dehydrated(true),
             ]);
     }
 
@@ -134,7 +134,7 @@ class CustomMenuResource extends BaseMenuResource
     public static function getPages(): array
     {
         return [
-            'index' => \Datlechin\FilamentMenuBuilder\Resources\MenuResource\Pages\ListMenus::route('/'),
+            'index' => \App\Filament\MenuBuilder\Pages\ListMenus::route('/'),
             'edit' => \App\Filament\MenuBuilder\Pages\EditMenu::route('/{record}/edit'),
         ];
     }

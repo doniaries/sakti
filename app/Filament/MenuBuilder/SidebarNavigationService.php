@@ -16,6 +16,7 @@ use App\Filament\Resources\AbsensiHarians\AbsensiHarianResource;
 use App\Filament\Resources\ActivityLogs\ActivityLogResource;
 use App\Filament\Resources\Aktivitas\AktivitasResource;
 use App\Filament\Resources\Bidangs\BidangResource;
+use App\Filament\Resources\BukuInventaris\BukuInventarisResource;
 use App\Filament\Resources\HariLiburs\HariLiburResource;
 use App\Filament\Resources\Instansis\InstansiResource;
 use App\Filament\Resources\Jabatans\JabatanResource;
@@ -118,6 +119,16 @@ class SidebarNavigationService
                     ->icon($menu->icon ?: 'heroicon-o-folder')
                     ->items($navItems)
                     ->collapsed();
+            } else {
+                // Walau belum ada sub menunya, tetap tampilkan menu di sidebar
+                $groups[] = NavigationGroup::make($menu->translated('name'))
+                    ->icon($menu->icon ?: 'heroicon-o-folder')
+                    ->items([
+                        NavigationItem::make($menu->translated('name'))
+                            ->url(fn (): string => CustomMenuResource::canAccess() ? CustomMenuResource::getUrl('edit', ['record' => $menu]) : '#')
+                            ->icon($menu->icon ?: 'heroicon-o-folder'),
+                    ])
+                    ->collapsed(false);
             }
         }
 
