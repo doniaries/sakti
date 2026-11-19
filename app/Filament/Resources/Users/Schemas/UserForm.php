@@ -405,10 +405,14 @@ class UserForm
                                                 Select::make('atasan_id')
                                                     ->label('Atasan Langsung')
                                                     ->relationship('atasan', 'name', fn($query) => $query->bukanSuperAdmin())
+                                                    ->default(fn () => User::query()
+                                                        ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
+                                                        ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
+                                                        ->value('id'))
                                                     ->searchable()
                                                     ->preload()
                                                     ->placeholder('Kosongkan jika Kepala Dinas')
-                                                    ->helperText('Kepala Dinas tidak memiliki atasan langsung di lingkungan dinas.')
+                                                    ->helperText('Otomatis mengarah ke Kepala Dinas jika tidak diubah. Kosongkan khusus untuk Kepala Dinas.')
                                                     ->columnSpanFull(),
 
                                                 Select::make('anggaran_role')

@@ -21,6 +21,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -113,7 +114,7 @@ class UserInfolist
                                             ->modalCancelActionLabel('Tutup')
                                             ->modalContent(function (User $record): \Illuminate\Support\HtmlString {
                                                 $url = $record->avatar_url
-                                                    ? Storage::disk('public')->url($record->avatar_url)
+                                                    ? asset('storage/' . ltrim((string) $record->avatar_url, '/'))
                                                     : 'https://ui-avatars.com/api/?name=' . urlencode($record->name) . '&background=0D8ABC&color=fff&size=512';
 
                                                 return new \Illuminate\Support\HtmlString(
@@ -253,7 +254,12 @@ class UserInfolist
                                                     ->color('gray')
                                                     ->slideOver()
                                                     ->modalHeading('Ubah Identitas Personal')
-                                                    ->visible(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                                                    ->visible(function (User $record): bool {
+                                                        /** @var User|null $authUser */
+                                                        $authUser = Auth::user();
+
+                                                        return $authUser?->can('update', $record) ?? false;
+                                                    })
                                                     ->fillForm(fn (User $record): array => [
                                                         'nip' => $record->nip,
                                                         'nik' => $record->nik,
@@ -341,7 +347,12 @@ class UserInfolist
                                                     ->color('gray')
                                                     ->slideOver()
                                                     ->modalHeading('Ubah Kontak & Administrasi')
-                                                    ->visible(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                                                    ->visible(function (User $record): bool {
+                                                        /** @var User|null $authUser */
+                                                        $authUser = Auth::user();
+
+                                                        return $authUser?->can('update', $record) ?? false;
+                                                    })
                                                     ->fillForm(fn (User $record): array => [
                                                         'agama' => $record->agama,
                                                         'alamat' => $record->alamat,
