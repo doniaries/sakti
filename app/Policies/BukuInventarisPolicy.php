@@ -42,4 +42,23 @@ class BukuInventarisPolicy
         return $authUser->can('DeleteAny:BukuInventaris');
     }
 
+    public function restore(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
+    {
+        return $authUser->can('Restore:BukuInventaris') || $authUser->can('Delete:BukuInventaris');
+    }
+
+    public function restoreAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('RestoreAny:BukuInventaris') || $authUser->can('DeleteAny:BukuInventaris');
+    }
+
+    public function forceDelete(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
+    {
+        return $authUser->can('ForceDelete:BukuInventaris') || $authUser->can('Delete:BukuInventaris');
+    }
+
+    public function forceDeleteAny(AuthUser $authUser): bool
+    {
+        return $authUser->can('ForceDeleteAny:BukuInventaris') || $authUser->can('DeleteAny:BukuInventaris');
+    }
 }

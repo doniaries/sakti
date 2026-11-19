@@ -2,261 +2,124 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Buku Inventaris Gabungan - Dinas Pariwisata, Pemuda dan Olah Raga</title>
+    <title>Buku Inventaris Gabungan</title>
     <style>
         @page {
-            margin: 1.2cm 1.2cm 1.2cm 1.2cm;
-            size: 935.43pt 609.45pt landscape; /* F4 / Folio Landscape */
+            margin: 1cm;
+            size: 935.43pt 609.45pt landscape;
         }
         body {
-            font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
-            font-size: 7.5pt;
-            line-height: 1.2;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 7pt;
+            line-height: 1.15;
             color: #000;
             margin: 0;
             padding: 0;
         }
-        .header-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 8px;
-        }
-        .header-table td {
-            vertical-align: middle;
-            border: none;
-            padding: 0;
-        }
-        .logo-cell {
-            width: 65px;
-            text-align: left;
-        }
-        .logo-img {
-            height: 60px;
-            width: auto;
-        }
-        .title-cell {
-            text-align: center;
-        }
-        .title-main {
-            font-size: 11pt;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin-bottom: 3px;
-        }
-        .title-sub {
-            font-size: 11pt;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        .meta-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 10px;
-            font-size: 8pt;
-        }
-        .meta-table td {
-            border: none;
-            padding: 1.5px 0;
-            vertical-align: top;
-        }
-        .meta-label {
-            width: 160px;
-        }
-        .meta-sep {
-            width: 15px;
-            text-align: center;
-        }
-        .meta-val {
-            font-weight: normal;
-        }
+        .header-table, .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
+        .header-table td, .meta-table td { border: none; padding: 1px 0; }
+        .title-main { font-size: 11pt; font-weight: bold; text-align: center; }
+        .title-sub { font-size: 11pt; font-weight: bold; text-align: center; margin-bottom: 5px; }
 
         .content-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 7pt;
+            font-size: 6.5pt;
             table-layout: fixed;
+            page-break-after: always;
         }
-        .content-table th, 
-        .content-table td {
+        .content-table:last-of-type {
+            page-break-after: auto;
+        }
+        .content-table th, .content-table td {
             border: 0.5pt solid #000;
-            padding: 3px 2px;
+            padding: 2.5px 2px;
             vertical-align: middle;
             word-wrap: break-word;
-            overflow-wrap: break-word;
         }
         .content-table thead th {
             text-align: center;
             font-weight: bold;
             background-color: #f7f7f7;
         }
-        .col-num {
+        .col-num th {
             background-color: #f0f0f0;
-            font-weight: bold;
-            text-align: center;
-            font-size: 6.5pt;
+            font-size: 6pt;
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
         .text-left { text-align: left; }
         .font-bold { font-weight: bold; }
-        .nowrap { white-space: nowrap; }
-
-        .total-row td {
-            font-weight: bold;
-            background-color: #f2f2f2;
-            padding: 4px 2px;
-        }
 
         .badge-kondisi {
             display: inline-block;
-            padding: 1.5px 5px;
-            font-size: 6.5pt;
+            padding: 1px 4px;
+            font-size: 6pt;
             font-weight: bold;
-            border-radius: 3px;
-            text-align: center;
+            border-radius: 2px;
         }
-        .badge-baik {
-            background-color: #dcfce7;
-            color: #166534;
-            border: 0.5pt solid #86efac;
-        }
-        .badge-kb {
-            background-color: #ffedd5;
-            color: #9a3412;
-            border: 0.5pt solid #fdba74;
-        }
-        .badge-rb {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 0.5pt solid #fca5a5;
-        }
+        .badge-baik { background-color: #dcfce7; color: #166534; }
+        .badge-kb { background-color: #ffedd5; color: #9a3412; }
+        .badge-rb { background-color: #fee2e2; color: #991b1b; }
 
         .legend-box {
             margin-top: 10px;
-            border: 0.5pt solid #cbd5e1;
-            background-color: #f8fafc;
-            padding: 6px 10px;
-            font-size: 6.5pt;
+            border: 0.5pt solid #ccc;
+            padding: 5px 8px;
+            font-size: 6pt;
             page-break-inside: avoid;
         }
-        .legend-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .legend-table td {
-            border: none;
-            padding: 1px 4px;
-            vertical-align: top;
-        }
-        .legend-title {
-            font-weight: bold;
-            font-size: 7pt;
-            margin-bottom: 2px;
-            color: #1e293b;
-            text-transform: uppercase;
-        }
-        .legend-list {
-            margin: 0;
-            padding-left: 12px;
-            line-height: 1.35;
-            color: #334155;
-        }
-
         .signature-table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 25px;
-            font-size: 8pt;
+            margin-top: 15px;
+            font-size: 7.5pt;
             page-break-inside: avoid;
         }
-        .signature-table td {
-            border: none;
-            vertical-align: top;
-            padding: 0;
-        }
-        .signature-col-left {
-            width: 45%;
-            text-align: center;
-        }
-        .signature-col-mid {
-            width: 10%;
-        }
-        .signature-col-right {
-            width: 45%;
-            text-align: center;
-        }
-        .spacer {
-            height: 60px;
-        }
+        .signature-table td { border: none; text-align: center; }
+        .spacer { height: 45px; }
     </style>
 </head>
 <body>
 
-    <!-- Header Instansi -->
-    <table class="header-table">
-        <tr>
-            <td class="logo-cell">
-                @if(!empty($logoBase64))
-                    <img src="data:image/png;base64,{{ $logoBase64 }}" class="logo-img" alt="Logo">
-                @endif
-            </td>
-            <td class="title-cell">
-                <div class="title-main">PEMERINTAH KABUPATEN SIJUNJUNG</div>
-                <div class="title-sub">BUKU INVENTARIS GABUNGAN</div>
-            </td>
-            <td style="width: 65px;"></td>
-        </tr>
-    </table>
+@php
+    $chunks = $items->chunk(25);
+@endphp
 
-    <!-- Metadata OPD -->
-    <table class="meta-table">
-        <tr>
-            <td class="meta-label">Provinsi</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-val">{{ $provinsi }}</td>
-        </tr>
-        <tr>
-            <td class="meta-label">Kab./Kota</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-val">{{ $kabupaten }}</td>
-        </tr>
-        <tr>
-            <td class="meta-label">Bidang</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-val">{{ $bidang }}</td>
-        </tr>
-        <tr>
-            <td class="meta-label">Unit Organisasi</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-val">{{ $unitOrganisasi }}</td>
-        </tr>
-        <tr>
-            <td class="meta-label">Sub Unit Organisasi</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-val">{{ $subUnitOrganisasi }}</td>
-        </tr>
-        <tr>
-            <td class="meta-label">U P B</td>
-            <td class="meta-sep">:</td>
-            <td class="meta-val">{{ $upb }}</td>
-        </tr>
-    </table>
+@foreach($chunks as $pageIndex => $chunk)
+    @if($loop->first)
+        <div class="title-main">PEMERINTAH KABUPATEN SIJUNJUNG</div>
+        <div class="title-sub">BUKU INVENTARIS GABUNGAN</div>
+        <table class="meta-table">
+            <tr>
+                <td style="width: 140px;">Provinsi / Kab./Kota</td>
+                <td>: {{ $provinsi }} / {{ $kabupaten }}</td>
+                <td style="width: 120px;">Unit Organisasi</td>
+                <td>: {{ $unitOrganisasi }}</td>
+            </tr>
+            <tr>
+                <td>Bidang / UPB</td>
+                <td>: {{ $bidang }} / {{ $upb }}</td>
+                <td>Halaman</td>
+                <td>: {{ $pageIndex + 1 }} dari {{ $chunks->count() }}</td>
+            </tr>
+        </table>
+    @else
+        <div style="font-size: 6.5pt; margin-bottom: 4px; font-weight: bold;">
+            BUKU INVENTARIS GABUNGAN — {{ $unitOrganisasi }} (Halaman {{ $pageIndex + 1 }} dari {{ $chunks->count() }})
+        </div>
+    @endif
 
-    <!-- Tabel 15 Kolom Inventaris -->
     <table class="content-table">
         <thead>
             <tr>
                 <th colspan="3" style="width: 17%;">NOMOR</th>
                 <th colspan="3" style="width: 35%;">SPESIFIKASI BARANG</th>
                 <th rowspan="3" style="width: 5%;">Bahan</th>
-                <th rowspan="3" style="width: 6%;">Asal/Cara<br>Perolehan<br>Barang</th>
-                <th rowspan="3" style="width: 4%;">Tahun<br>Pem-<br>belian</th>
-                <th rowspan="3" style="width: 5%;">Ukuran<br>Barang/<br>Konstruksi<br>(P, S, D)</th>
+                <th rowspan="3" style="width: 6%;">Asal Usul</th>
+                <th rowspan="3" style="width: 4%;">Tahun</th>
+                <th rowspan="3" style="width: 5%;">Ukuran (P/S/D)</th>
                 <th rowspan="3" style="width: 4%;">Satuan</th>
-                <th rowspan="3" style="width: 5%;">Keadaan<br>Barang<br>(B/KB/RB)</th>
+                <th rowspan="3" style="width: 5%;">Kondisi</th>
                 <th colspan="2" style="width: 11%;">JUMLAH</th>
                 <th rowspan="3" style="width: 8%;">Keterangan</th>
             </tr>
@@ -265,34 +128,18 @@
                 <th style="width: 8%;">Kode Barang</th>
                 <th rowspan="2" style="width: 6%;">Register</th>
                 <th rowspan="2" style="width: 15%;">Nama / Jenis Barang</th>
-                <th rowspan="2" style="width: 9%;">Merk /<br>Type</th>
-                <th rowspan="2" style="width: 11%;">No. Sertifikat<br>No. Pabrik<br>No. Chasis<br>No. Mesin</th>
+                <th rowspan="2" style="width: 9%;">Merk / Type</th>
+                <th rowspan="2" style="width: 11%;">No. Sertifikat/Pabrik/Mesin</th>
                 <th rowspan="2" style="width: 3%;">Barang</th>
                 <th rowspan="2" style="width: 8%;">Harga</th>
             </tr>
-            <tr>
-                <th>1.3.</th>
-            </tr>
+            <tr><th>1.3.</th></tr>
             <tr class="col-num">
-                <th>1</th>
-                <th>2</th>
-                <th>3</th>
-                <th>4</th>
-                <th>5</th>
-                <th>6</th>
-                <th>7</th>
-                <th>8</th>
-                <th>9</th>
-                <th>10</th>
-                <th>11</th>
-                <th>12</th>
-                <th>13</th>
-                <th>14</th>
-                <th>15</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th>
             </tr>
         </thead>
         <tbody>
-            @forelse($items as $item)
+            @foreach($chunk as $item)
                 <tr>
                     <td class="text-center">{{ $item->nomor_urut }}</td>
                     <td class="text-center">{{ $item->kode_barang }}</td>
@@ -324,66 +171,46 @@
                     <td class="text-right font-bold">{{ number_format((float) $item->harga, 2, ',', '.') }}</td>
                     <td class="text-left">{{ $item->keterangan ?: '-' }}</td>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="15" class="text-center" style="padding: 15px;">Tidak ada data inventaris yang ditemukan.</td>
-                </tr>
-            @endforelse
+            @endforeach
         </tbody>
-        <tfoot>
-            <tr class="total-row">
-                <td colspan="12" class="text-center">Total</td>
-                <td class="text-center">{{ $totalBarang }}</td>
-                <td class="text-right">{{ number_format($totalHarga, 2, ',', '.') }}</td>
-                <td></td>
-            </tr>
-        </tfoot>
+        @if($loop->last)
+            <tfoot>
+                <tr style="font-weight: bold; background-color: #f2f2f2;">
+                    <td colspan="12" class="text-center">Total</td>
+                    <td class="text-center">{{ $totalBarang }}</td>
+                    <td class="text-right">{{ number_format($totalHarga, 2, ',', '.') }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        @endif
     </table>
+@endforeach
 
-    <!-- Catatan & Legenda Kode Standar KIB -->
-    <div class="legend-box">
-        <table class="legend-table">
-            <tr>
-                <td style="width: 50%; padding-right: 15px;">
-                    <div class="legend-title">Keterangan Keadaan Barang (Kolom 12):</div>
-                    <ul class="legend-list">
-                        <li><span class="badge-kondisi badge-baik">Baik (B)</span> : Aset dalam kondisi prima, berfungsi normal, dan siap pakai.</li>
-                        <li><span class="badge-kondisi badge-kb">Kurang Baik (KB)</span> : Aset mengalami penurunan fungsi ringan / perlu perbaikan berkala.</li>
-                        <li><span class="badge-kondisi badge-rb">Rusak Berat (RB)</span> : Aset rusak total, tidak dapat digunakan, dan diusulkan penghapusan.</li>
-                    </ul>
-                </td>
-                <td style="width: 50%; padding-left: 10px;">
-                    <div class="legend-title">Arti Kode Ukuran Barang / Konstruksi (P, S, D) (Kolom 10):</div>
-                    <ul class="legend-list">
-                        <li><strong>P (Permanen)</strong> : Bangunan/konstruksi kokoh dan bersifat tetap (beton bertulang/batu bata).</li>
-                        <li><strong>S atau SP (Semi Permanen)</strong> : Konstruksi gabungan permanen & nonpermanen (dinding bata sebagian & kayu).</li>
-                        <li><strong>D (Darurat)</strong> : Konstruksi sementara atau sederhana (bilik bambu, papan kayu tipis, seng).</li>
-                    </ul>
-                </td>
-            </tr>
-        </table>
-    </div>
+<div class="legend-box">
+    <strong>Arti Kode Ukuran Barang / Konstruksi (P, S, D) Kolom 10:</strong>
+    P = Permanen (konstruksi kokoh dan tetap), S/SP = Semi Permanen (gabungan permanen & nonpermanen), D = Darurat (sementara/sederhana).
+    &bull; <strong>Kondisi Kolom 12:</strong> Baik (B), Kurang Baik (KB), Rusak Berat (RB).
+</div>
 
-    <!-- Tanda Tangan Resmi -->
-    <table class="signature-table">
-        <tr>
-            <td class="signature-col-left">
-                <div class="font-bold">MENGETAHUI</div>
-                <div class="font-bold">{{ $jabatanKadis }}</div>
-                <div class="spacer"></div>
-                <div class="font-bold" style="text-decoration: underline;">{{ $namaKadis }}</div>
-                <div>NIP. {{ $nipKadis }}</div>
-            </td>
-            <td class="signature-col-mid"></td>
-            <td class="signature-col-right">
-                <div>Muaro Sijunjung, {{ $tanggalCetak }}</div>
-                <div class="font-bold">{{ $jabatanPengurus }}</div>
-                <div class="spacer"></div>
-                <div class="font-bold" style="text-decoration: underline;">{{ $namaPengurus }}</div>
-                <div>NIP. {{ $nipPengurus }}</div>
-            </td>
-        </tr>
-    </table>
+<table class="signature-table">
+    <tr>
+        <td style="width: 45%;">
+            <div class="font-bold">MENGETAHUI</div>
+            <div class="font-bold">{{ $jabatanKadis }}</div>
+            <div class="spacer"></div>
+            <div class="font-bold" style="text-decoration: underline;">{{ $namaKadis }}</div>
+            <div>NIP. {{ $nipKadis }}</div>
+        </td>
+        <td style="width: 10%;"></td>
+        <td style="width: 45%;">
+            <div>Muaro Sijunjung, {{ $tanggalCetak }}</div>
+            <div class="font-bold">{{ $jabatanPengurus }}</div>
+            <div class="spacer"></div>
+            <div class="font-bold" style="text-decoration: underline;">{{ $namaPengurus }}</div>
+            <div>NIP. {{ $nipPengurus }}</div>
+        </td>
+    </tr>
+</table>
 
 </body>
 </html>
