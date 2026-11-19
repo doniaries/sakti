@@ -359,16 +359,6 @@ class UserInfolist
                             ->disabled(fn ($record): bool => self::isKontrak($record))
                             ->extraAttributes(fn ($record): array => self::disabledTabAttributes($record))
                             ->schema([
-                                Section::make('Tingkat Eselon')
-                                    ->columns(2)
-                                    ->schema([
-                                        TextEntry::make('eselon')
-                                            ->label('Eselon Jabatan')
-                                            ->badge()
-                                            ->color('warning')
-                                            ->placeholder('Non Eselon'),
-                                    ]),
-
                                 Section::make('Riwayat Pangkat & Golongan Ruang')
                                     ->description('Daftar riwayat kenaikan pangkat dan golongan ruang yang tercatat beserta berkas SK Pangkat asli.')
                                     ->icon('heroicon-o-academic-cap')
@@ -457,11 +447,11 @@ class UserInfolist
                                             ->color('info')
                                             ->placeholder('Jadwal Default Sistem'),
 
-                                        TextEntry::make('nomor_absensi')
-                                            ->label('ID Mesin Presensi (PIN)')
+                                        TextEntry::make('eselon')
+                                            ->label('Eselon Jabatan')
                                             ->badge()
-                                            ->color('secondary')
-                                            ->placeholder('Belum Terhubung Mesin'),
+                                            ->color('warning')
+                                            ->placeholder('Non Eselon'),
 
                                         TextEntry::make('jabatan_tim_kreatif')
                                             ->label('Tim Kreatif Dinas')
