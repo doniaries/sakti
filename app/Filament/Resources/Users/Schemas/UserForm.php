@@ -46,6 +46,8 @@ class UserForm
                                     ->label('Foto Profil (Avatar)')
                                     ->avatar()
                                     ->image()
+                                    ->imageEditor()
+                                    ->circleCropper()
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                                     ->imageResizeMode('cover')
                                     ->imageResizeTargetWidth('600')
