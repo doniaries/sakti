@@ -233,6 +233,20 @@ class UserInfolist
                     ]),
 
                 // Tab Navigasi MyASN
+                Actions::make([
+                    Action::make('ubah_data_pegawai')
+                        ->label('Ubah Data Pegawai')
+                        ->icon('heroicon-o-pencil-square')
+                        ->color('primary')
+                        ->url(fn (User $record): string => UserResource::getUrl('edit', ['record' => $record]))
+                        ->visible(function (User $record): bool {
+                            /** @var User|null $authUser */
+                            $authUser = Auth::user();
+
+                            return $authUser?->can('update', $record) ?? false;
+                        }),
+                ])->alignEnd(),
+
                 Tabs::make('DataPegawaiTabs')
                     ->tabs([
                         // Tab 1: Data Utama
@@ -629,20 +643,6 @@ class UserInfolist
                                     ]),
                             ]),
                     ]),
-
-                Actions::make([
-                    Action::make('ubah_data_pegawai')
-                        ->label('Ubah Data Pegawai')
-                        ->icon('heroicon-o-pencil-square')
-                        ->color('primary')
-                        ->url(fn (User $record): string => UserResource::getUrl('edit', ['record' => $record]))
-                        ->visible(function (User $record): bool {
-                            /** @var User|null $authUser */
-                            $authUser = Auth::user();
-
-                            return $authUser?->can('update', $record) ?? false;
-                        }),
-                ])->alignEnd(),
             ]);
     }
 
