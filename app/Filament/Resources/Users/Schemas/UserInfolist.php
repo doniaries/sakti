@@ -609,7 +609,7 @@ class UserInfolist
     {
         return TextEntry::make($attribute)
             ->label($label)
-            ->formatStateUsing(fn($state): string => filled($state) ? 'Preview PDF' : 'Belum diunggah')
+            ->formatStateUsing(fn($state): string => filled($state) ? 'Lihat Berkas' : 'Belum diunggah')
             ->color(fn($state): string => filled($state) ? 'primary' : 'gray')
             ->prefixAction(
                 Action::make('preview_' . $attribute)
