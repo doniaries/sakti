@@ -174,12 +174,19 @@ class UserInfolist
                                                 ->weight('medium')
                                                 ->placeholder('-'),
 
-                                            TextEntry::make('nik')
-                                                ->label('NIK')
-                                                ->icon('heroicon-m-credit-card')
+                                            TextEntry::make('no_hp')
+                                                ->label('Nomor HP / WhatsApp')
+                                                ->icon('heroicon-m-device-phone-mobile')
                                                 ->copyable()
-                                                ->tooltip('Klik untuk menyalin NIK')
-                                                ->helperText('Klik untuk menyalin')
+                                                ->tooltip('Klik untuk menyalin nomor')
+                                                ->suffixAction(
+                                                    Action::make('chat_whatsapp')
+                                                        ->icon('heroicon-o-chat-bubble-oval-left-ellipsis')
+                                                        ->color('success')
+                                                        ->tooltip('Chat via WhatsApp')
+                                                        ->visible(fn (User $record): bool => filled($record->whatsapp_url))
+                                                        ->url(fn (User $record): ?string => $record->whatsapp_url, shouldOpenInNewTab: true)
+                                                )
                                                 ->placeholder('-'),
 
                                             TextEntry::make('bidang.nama')
@@ -223,6 +230,11 @@ class UserInfolist
                                                 ->badge()
                                                 ->color('success')
                                                 ->visible(fn($record): bool => filled($record->jf_id)),
+                                            TextEntry::make('no_hp')
+                                                ->label('Nomor HP / WhatsApp')
+                                                ->icon('heroicon-m-device-phone-mobile')
+                                                ->copyable()
+                                                ->placeholder('-'),
                                         ]),
                                 ])
                                     ->columnSpan([
@@ -262,6 +274,12 @@ class UserInfolist
                                             ->icon('heroicon-o-envelope')
                                             ->columns(2)
                                             ->schema([
+                                                TextEntry::make('nik')
+                                                    ->label('NIK')
+                                                    ->icon('heroicon-m-credit-card')
+                                                    ->copyable()
+                                                    ->placeholder('-'),
+
                                                 TextEntry::make('agama')
                                                     ->label('Agama')
                                                     ->icon('heroicon-m-bookmark')
@@ -273,16 +291,15 @@ class UserInfolist
                                                     ->placeholder('-')
                                                     ->columnSpanFull(),
 
-                                                TextEntry::make('no_hp')
-                                                    ->label('Nomor HP / WhatsApp')
-                                                    ->icon('heroicon-m-device-phone-mobile')
-                                                    ->copyable()
-                                                    ->placeholder('-'),
-
                                                 TextEntry::make('no_telp')
                                                     ->label('Nomor Telepon')
                                                     ->icon('heroicon-m-phone')
                                                     ->placeholder('0'),
+
+                                                TextEntry::make('email')
+                                                    ->label('Email User')
+                                                    ->icon('heroicon-m-at-symbol')
+                                                    ->copyable(),
 
                                                 TextEntry::make('npwp')
                                                     ->label('Nomor NPWP')
