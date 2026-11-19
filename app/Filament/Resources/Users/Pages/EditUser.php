@@ -40,6 +40,11 @@ class EditUser extends EditRecord
         ];
     }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('view', ['record' => $this->getRecord()]);
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         if (empty($data['password'])) {
@@ -48,10 +53,5 @@ class EditUser extends EditRecord
         unset($data['password_confirmation']);
 
         return $data;
-    }
-
-    protected function getRedirectUrl(): string
-    {
-        return $this->getResource()::getUrl('index');
     }
 }
