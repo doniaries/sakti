@@ -438,39 +438,16 @@ class UserInfolist
                                             ->weight('bold')
                                             ->placeholder('Belum Ditentukan'),
 
-                                        TextEntry::make('bidang.nama')
-                                            ->label('Bidang / Unit Kerja')
-                                            ->badge()
-                                            ->color(fn(?string $state): string => \App\Models\Bidang::badgeColor($state))
-                                            ->placeholder('Kepala Dinas'),
-
                                         TextEntry::make('atasan.name')
                                             ->label('Atasan Langsung')
                                             ->icon('heroicon-m-user-circle')
                                             ->placeholder('Pimpinan Tertinggi (Tidak Ada Atasan Langsung)'),
-
-                                        TextEntry::make('status_kerja')
-                                            ->label('Tipe Kerja')
-                                            ->badge()
-                                            ->color(fn($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')
-                                            ->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
-
-                                        TextEntry::make('jadwalKerja.nama')
-                                            ->label('Shift / Jadwal Kerja')
-                                            ->badge()
-                                            ->color('info')
-                                            ->placeholder('Jadwal Default Sistem'),
 
                                         TextEntry::make('eselon')
                                             ->label('Eselon Jabatan')
                                             ->badge()
                                             ->color('warning')
                                             ->placeholder('Non Eselon'),
-
-                                        TextEntry::make('jabatan_tim_kreatif')
-                                            ->label('Tim Kreatif Dinas')
-                                            ->badge()
-                                            ->placeholder('Bukan Anggota Tim Kreatif'),
                                     ]),
 
                                 Section::make('Riwayat Jabatan Pegawai')
