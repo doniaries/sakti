@@ -421,6 +421,12 @@ class UserForm
                                                     ->placeholder('Bukan Anggota Tim Kreatif')
                                                     ->searchable()
                                                     ->columnSpanFull(),
+
+                                                Toggle::make('is_pengelola_aset')
+                                                    ->label('Pengelola Aset / Pengurus Barang')
+                                                    ->helperText('Pegawai ini berhak menambah, mengubah, dan menghapus data Buku Inventaris (Role tetap Pegawai).')
+                                                    ->default(false)
+                                                    ->columnSpanFull(),
                                             ]),
 
                                         Section::make('Presensi & Operasional Kerja')

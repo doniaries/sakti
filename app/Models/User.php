@@ -54,6 +54,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'jabatan_id',
         'anggaran_role',
         'jabatan_tim_kreatif',
+        'is_pengelola_aset',
         'bidang_id',
         'jf_id',
         'tempat_lahir',
@@ -117,6 +118,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             'eselon' => \App\Enums\Eselon::class,
             'anggaran_role' => \App\Enums\AnggaranRole::class,
             'jabatan_tim_kreatif' => \App\Enums\JabatanTimKreatif::class,
+            'is_pengelola_aset' => 'boolean',
         ];
     }
 

@@ -6,6 +6,7 @@ namespace App\Filament\Resources\BukuInventaris\Schemas;
 
 use App\Models\BukuInventaris;
 use App\Support\FormatHelper;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -123,6 +124,19 @@ class BukuInventarisForm
                             ->label('Keterangan Tambahan')
                             ->placeholder('Catatan peruntukan barang, lokasi pemakaian, status peminjaman, dll.')
                             ->rows(3)
+                            ->columnSpanFull(),
+
+                        FileUpload::make('photo')
+                            ->label('Foto Barang / Aset')
+                            ->image()
+                            ->disk('public')
+                            ->directory('buku-inventaris/photos')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->maxSize(2048)
+                            ->imageResizeMode('contain')
+                            ->imageResizeTargetWidth('1024')
+                            ->imageResizeTargetHeight('1024')
+                            ->helperText('Format JPG/PNG/WEBP, maks. 2MB. Gambar otomatis diperkecil (maks. 1024px) untuk menghemat ruang server.')
                             ->columnSpanFull(),
                     ]),
             ]);

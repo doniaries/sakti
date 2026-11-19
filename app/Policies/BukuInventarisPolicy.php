@@ -14,51 +14,55 @@ class BukuInventarisPolicy
     
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:BukuInventaris');
+        return $authUser->can('ViewAny:BukuInventaris')
+            || $authUser->hasRole('pegawai')
+            || (bool) $authUser->is_pengelola_aset;
     }
 
     public function view(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->can('View:BukuInventaris');
+        return $authUser->can('View:BukuInventaris')
+            || $authUser->hasRole('pegawai')
+            || (bool) $authUser->is_pengelola_aset;
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return $authUser->can('Create:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 
     public function update(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->can('Update:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 
     public function delete(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->can('Delete:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('DeleteAny:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 
     public function restore(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->can('Restore:BukuInventaris') || $authUser->can('Delete:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return $authUser->can('RestoreAny:BukuInventaris') || $authUser->can('DeleteAny:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 
     public function forceDelete(AuthUser $authUser, BukuInventaris $bukuInventaris): bool
     {
-        return $authUser->can('ForceDelete:BukuInventaris') || $authUser->can('Delete:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ForceDeleteAny:BukuInventaris') || $authUser->can('DeleteAny:BukuInventaris');
+        return $authUser->hasRole('super_admin') || (bool) $authUser->is_pengelola_aset;
     }
 }

@@ -27,4 +27,13 @@ class BukuInventaris extends Model
     {
         return 'Rp ' . number_format((float) $this->harga, 2, ',', '.');
     }
+
+    protected static function booted(): void
+    {
+        static::forceDeleting(function (BukuInventaris $record): void {
+            if ($record->photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($record->photo);
+            }
+        });
+    }
 }

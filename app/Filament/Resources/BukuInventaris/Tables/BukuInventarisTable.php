@@ -14,6 +14,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -44,6 +45,7 @@ class BukuInventarisTable
                     'jumlah_barang',
                     'harga',
                     'keterangan',
+                    'photo',
                     'created_at',
                     'updated_at',
                     'deleted_at',
@@ -70,6 +72,11 @@ class BukuInventarisTable
                         'class' => 'sticky left-0 z-10 bg-white dark:bg-gray-900 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]',
                         'style' => 'position: sticky; left: 0; z-index: 10;',
                     ]),
+                ImageColumn::make('photo')
+                    ->label('Foto')
+                    ->disk('public')
+                    ->square()
+                    ->toggleable(),
                 TextColumn::make('kode_barang')
                     ->label('Kode Barang')
                     ->searchable()
