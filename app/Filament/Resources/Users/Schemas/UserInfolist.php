@@ -3,7 +3,11 @@
 namespace App\Filament\Resources\Users\Schemas;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Models\User;
 use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\ImageEntry;
@@ -225,6 +229,42 @@ class UserInfolist
                                         Section::make('Identitas Personal')
                                             ->icon('heroicon-o-identification')
                                             ->columns(2)
+                                            ->headerActions([
+                                                Action::make('ubah_identitas')
+                                                    ->label('Ubah')
+                                                    ->icon('heroicon-o-pencil-square')
+                                                    ->size('sm')
+                                                    ->color('gray')
+                                                    ->slideOver()
+                                                    ->modalHeading('Ubah Identitas Personal')
+                                                    ->visible(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                                                    ->fillForm(fn (User $record): array => [
+                                                        'nip' => $record->nip,
+                                                        'nik' => $record->nik,
+                                                        'name' => $record->name,
+                                                        'jenis_kelamin' => $record->jenis_kelamin?->value ?? $record->jenis_kelamin,
+                                                        'gelar_depan' => $record->gelar_depan,
+                                                        'gelar_belakang' => $record->gelar_belakang,
+                                                        'tempat_lahir' => $record->tempat_lahir,
+                                                        'tanggal_lahir' => $record->tanggal_lahir,
+                                                    ])
+                                                    ->form([
+                                                        TextInput::make('nip')->label('NIP')->maxLength(50),
+                                                        TextInput::make('nik')->label('NIK')->maxLength(50),
+                                                        TextInput::make('name')->label('Nama Pegawai')->required()->maxLength(255),
+                                                        Select::make('jenis_kelamin')
+                                                            ->label('Jenis Kelamin')
+                                                            ->options(['L' => 'Laki-Laki', 'P' => 'Perempuan']),
+                                                        TextInput::make('gelar_depan')->label('Gelar Depan')->maxLength(50),
+                                                        TextInput::make('gelar_belakang')->label('Gelar Belakang')->maxLength(100),
+                                                        TextInput::make('tempat_lahir')->label('Tempat Lahir')->maxLength(100),
+                                                        DatePicker::make('tanggal_lahir')->label('Tanggal Lahir')->displayFormat('d/m/Y'),
+                                                    ])
+                                                    ->action(function (User $record, array $data): void {
+                                                        $record->update($data);
+                                                        Notification::make()->title('Identitas personal berhasil diperbarui')->success()->send();
+                                                    }),
+                                            ])
                                             ->schema([
                                                 TextEntry::make('nip')
                                                     ->label('NIP')
@@ -277,6 +317,42 @@ class UserInfolist
                                         Section::make('Kontak & Administrasi')
                                             ->icon('heroicon-o-envelope')
                                             ->columns(2)
+                                            ->headerActions([
+                                                Action::make('ubah_kontak')
+                                                    ->label('Ubah')
+                                                    ->icon('heroicon-o-pencil-square')
+                                                    ->size('sm')
+                                                    ->color('gray')
+                                                    ->slideOver()
+                                                    ->modalHeading('Ubah Kontak & Administrasi')
+                                                    ->visible(fn (User $record): bool => auth()->user()?->can('update', $record) ?? false)
+                                                    ->fillForm(fn (User $record): array => [
+                                                        'agama' => $record->agama,
+                                                        'alamat' => $record->alamat,
+                                                        'no_hp' => $record->no_hp,
+                                                        'no_telp' => $record->no_telp,
+                                                        'email' => $record->email,
+                                                        'npwp' => $record->npwp,
+                                                        'tanggal_npwp' => $record->tanggal_npwp,
+                                                        'no_bpjs' => $record->no_bpjs,
+                                                        'no_taspen' => $record->no_taspen,
+                                                    ])
+                                                    ->form([
+                                                        TextInput::make('agama')->label('Agama')->maxLength(50),
+                                                        Textarea::make('alamat')->label('Alamat Domisili')->rows(2),
+                                                        TextInput::make('no_hp')->label('Nomor HP / WhatsApp')->maxLength(30),
+                                                        TextInput::make('no_telp')->label('Nomor Telepon')->maxLength(30),
+                                                        TextInput::make('email')->label('Email User')->email()->required()->maxLength(255),
+                                                        TextInput::make('npwp')->label('Nomor NPWP')->maxLength(50),
+                                                        DatePicker::make('tanggal_npwp')->label('Tanggal NPWP')->displayFormat('d/m/Y'),
+                                                        TextInput::make('no_bpjs')->label('Nomor BPJS')->maxLength(50),
+                                                        TextInput::make('no_taspen')->label('Nomor Taspen')->maxLength(50),
+                                                    ])
+                                                    ->action(function (User $record, array $data): void {
+                                                        $record->update($data);
+                                                        Notification::make()->title('Kontak & administrasi berhasil diperbarui')->success()->send();
+                                                    }),
+                                            ])
                                             ->schema([
                                                 TextEntry::make('agama')
                                                     ->label('Agama')
