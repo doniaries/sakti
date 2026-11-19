@@ -20,6 +20,8 @@ class BeritaAcaraBmdResource extends Resource
 {
     protected static ?string $model = BeritaAcaraBmd::class;
 
+    protected static ?string $slug = 'berita-acara-bmds';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentText;
 
     protected static ?string $modelLabel = 'Berita Acara BMD';

@@ -24,10 +24,12 @@ class BeritaAcaraBmdForm
         $pegawaiOptions = User::query()->orderBy('name')->pluck('name', 'id')->all();
 
         return $schema
+            ->columns(1)
             ->components([
                 Section::make('Informasi Dokumen Berita Acara')
+                    ->description('Tentukan jenis berita acara, nomor surat, tanggal, kondisi, dan lokasi penggunaan.')
                     ->schema([
-                        Grid::make(3)
+                        Grid::make(['default' => 1, 'md' => 3])
                             ->schema([
                                 Select::make('jenis')
                                     ->label('Jenis Berita Acara')
@@ -52,7 +54,7 @@ class BeritaAcaraBmdForm
                                     ->required(),
                             ]),
 
-                        Grid::make(2)
+                        Grid::make(['default' => 1, 'md' => 2])
                             ->schema([
                                 Select::make('kondisi_barang')
                                     ->label('Kondisi Barang Saat Diserahkan')
@@ -73,8 +75,9 @@ class BeritaAcaraBmdForm
                     ]),
 
                 Section::make('Pihak Pertama & Pihak Kedua')
+                    ->description('Pilih pegawai dinas untuk mengisi data nama, NIP, dan jabatan secara otomatis.')
                     ->schema([
-                        Grid::make(2)
+                        Grid::make(['default' => 1, 'lg' => 2])
                             ->schema([
                                 Section::make('Pihak Pertama (Yang Menyerahkan)')
                                     ->schema([
