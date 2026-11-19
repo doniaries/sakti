@@ -653,10 +653,32 @@ class UserForm
                                                 ])
                                                     ->schema([
                                                         Select::make('jenjang')
-                                                            ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                                                            ->live()
                                                             ->label('Jenjang Pendidikan')
-                                                            ->options(JenjangPendidikan::class)
+                                                            ->options(function (Get $get, $state): array {
+                                                                $currentValue = $state instanceof JenjangPendidikan ? $state->value : (string) ($state ?? '');
+                                                                $items = $get('../../riwayatPendidikan') ?? [];
+                                                                $selected = [];
+
+                                                                foreach ($items as $item) {
+                                                                    $val = $item['jenjang'] ?? null;
+                                                                    if ($val instanceof JenjangPendidikan) {
+                                                                        $val = $val->value;
+                                                                    }
+                                                                    if (filled($val) && (string) $val !== $currentValue) {
+                                                                        $selected[] = (string) $val;
+                                                                    }
+                                                                }
+
+                                                                $options = [];
+                                                                foreach (JenjangPendidikan::cases() as $case) {
+                                                                    if (! in_array($case->value, $selected, true)) {
+                                                                        $options[$case->value] = $case->getLabel();
+                                                                    }
+                                                                }
+
+                                                                return $options;
+                                                            })
+                                                            ->live()
                                                             ->required()
                                                             ->searchable(),
 
