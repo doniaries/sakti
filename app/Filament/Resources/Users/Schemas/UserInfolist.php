@@ -174,20 +174,6 @@ class UserInfolist
                                                 ->weight('medium')
                                                 ->placeholder('-'),
 
-                                            TextEntry::make('no_hp')
-                                                ->label('Nomor HP / WhatsApp')
-                                                ->copyable()
-                                                ->tooltip('Klik untuk menyalin nomor')
-                                                ->prefixAction(
-                                                    Action::make('chat_whatsapp')
-                                                        ->icon('fab-whatsapp')
-                                                        ->color('success')
-                                                        ->tooltip('Chat via WhatsApp')
-                                                        ->visible(fn(User $record): bool => filled($record->whatsapp_url))
-                                                        ->url(fn(User $record): ?string => $record->whatsapp_url, shouldOpenInNewTab: true)
-                                                )
-                                                ->placeholder('-'),
-
                                             TextEntry::make('bidang.nama')
                                                 ->label('Bidang')
                                                 ->icon('heroicon-m-building-office')
@@ -233,7 +219,7 @@ class UserInfolist
                                             TextEntry::make('nik')
                                                 ->label('NIK')
                                                 ->icon('heroicon-m-credit-card')
-                                                ->formatStateUsing(fn (?string $state): ?string => $state && str_contains(strtoupper($state), 'E+') ? number_format((float) $state, 0, '', '') : $state)
+                                                ->formatStateUsing(fn(?string $state): ?string => $state && str_contains(strtoupper($state), 'E+') ? number_format((float) $state, 0, '', '') : $state)
                                                 ->copyable()
                                                 ->placeholder('-'),
 
@@ -276,6 +262,34 @@ class UserInfolist
                                                 ->copyable()
                                                 ->placeholder('-'),
 
+                                            TextEntry::make('jabatan.nama')
+                                                ->label('Jabatan Saat Ini')
+                                                ->weight('bold')
+                                                ->placeholder('Belum Ditentukan'),
+
+                                            TextEntry::make('eselon')
+                                                ->label('Eselon Jabatan')
+                                                ->badge()
+                                                ->color('warning')
+                                                ->placeholder('Non Eselon'),
+
+                                            TextEntry::make('status_kerja')
+                                                ->label('Tipe Kerja')
+                                                ->badge()
+                                                ->color(fn ($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')
+                                                ->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
+
+                                            TextEntry::make('jadwalKerja.nama')
+                                                ->label('Shift / Jadwal Kerja')
+                                                ->badge()
+                                                ->color('info')
+                                                ->placeholder('Jadwal Default Sistem'),
+
+                                            TextEntry::make('jabatan_tim_kreatif')
+                                                ->label('Tim Kreatif Dinas')
+                                                ->badge()
+                                                ->placeholder('Bukan Anggota Tim Kreatif'),
+
                                             TextEntry::make('alamat')
                                                 ->label('Alamat Domisili')
                                                 ->icon('heroicon-m-home')
@@ -311,7 +325,7 @@ class UserInfolist
                     ->schema([
                         TextEntry::make('jabatan.nama')->label('Jabatan Saat Ini')->weight('bold')->placeholder('Belum Ditentukan'),
                         TextEntry::make('eselon')->label('Eselon Jabatan')->badge()->color('warning')->placeholder('Non Eselon'),
-                        TextEntry::make('status_kerja')->label('Tipe Kerja')->badge()->color(fn ($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')->formatStateUsing(fn ($state) => strtoupper($state ?? 'WFO')),
+                        TextEntry::make('status_kerja')->label('Tipe Kerja')->badge()->color(fn($state) => strtolower($state ?? 'wfo') === 'wfh' ? 'warning' : 'success')->formatStateUsing(fn($state) => strtoupper($state ?? 'WFO')),
                         TextEntry::make('jadwalKerja.nama')->label('Shift / Jadwal Kerja')->badge()->color('info')->placeholder('Jadwal Default Sistem'),
                         TextEntry::make('jabatan_tim_kreatif')->label('Tim Kreatif Dinas')->badge()->placeholder('Bukan Anggota Tim Kreatif'),
                     ]),
@@ -327,38 +341,38 @@ class UserInfolist
                 ->button()
                 ->size('sm')
                 ->color('primary')
-                    ->modalHeading($label)
-                    ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
-                    ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Tutup')
-                    ->visible(fn($record): bool => filled($record->{$attribute} ?? null))
-                    ->modalContent(function ($record) use ($attribute): \Illuminate\Support\HtmlString {
-                        $path = (string) ($record->{$attribute} ?? '');
-                        $url = asset('storage/' . ltrim($path, '/'));
+                ->modalHeading($label)
+                ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel('Tutup')
+                ->visible(fn($record): bool => filled($record->{$attribute} ?? null))
+                ->modalContent(function ($record) use ($attribute): \Illuminate\Support\HtmlString {
+                    $path = (string) ($record->{$attribute} ?? '');
+                    $url = asset('storage/' . ltrim($path, '/'));
 
-                        return new \Illuminate\Support\HtmlString(
-                            '<iframe src="' . e($url) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
-                        );
-                    })
-                    ->extraModalFooterActions([
-                        Action::make('download_' . $attribute)
-                            ->label('Unduh PDF')
-                            ->icon('heroicon-o-arrow-down-tray')
-                            ->color('danger')
-                            ->action(function ($record) use ($attribute) {
-                                $path = (string) ($record->{$attribute} ?? '');
-                                if ($path === '' || ! Storage::disk('public')->exists($path)) {
-                                    Notification::make()
-                                        ->title('Berkas PDF tidak ditemukan di server.')
-                                        ->danger()
-                                        ->send();
+                    return new \Illuminate\Support\HtmlString(
+                        '<iframe src="' . e($url) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
+                    );
+                })
+                ->extraModalFooterActions([
+                    Action::make('download_' . $attribute)
+                        ->label('Unduh PDF')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('danger')
+                        ->action(function ($record) use ($attribute) {
+                            $path = (string) ($record->{$attribute} ?? '');
+                            if ($path === '' || ! Storage::disk('public')->exists($path)) {
+                                Notification::make()
+                                    ->title('Berkas PDF tidak ditemukan di server.')
+                                    ->danger()
+                                    ->send();
 
-                                    return null;
-                                }
+                                return null;
+                            }
 
-                                return response()->download(Storage::disk('public')->path($path));
-                            }),
-                    ]),
+                            return response()->download(Storage::disk('public')->path($path));
+                        }),
+                ]),
         ]);
     }
 
