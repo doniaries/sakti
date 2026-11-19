@@ -109,6 +109,10 @@ class SuratTugasForm
                                                 ->bukanSuperAdmin()
                                                 ->where('aktif', true)
                                                 ->whereNotNull('jabatan_tim_kreatif')
+                                                ->where(function (Builder $q): void {
+                                                    $q->whereNull('eselon')
+                                                        ->orWhere('eselon', Eselon::NON_ESELON->value);
+                                                })
                                                 ->orderBy('name')
                                         )
                                         ->getOptionLabelFromRecordUsing(function (User $record): string {
