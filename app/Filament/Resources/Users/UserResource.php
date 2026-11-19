@@ -66,7 +66,9 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            \App\Filament\Resources\Users\RelationManagers\RiwayatPendidikanRelationManager::class,
+            \App\Filament\Resources\Users\RelationManagers\RiwayatJabatanRelationManager::class,
+            \App\Filament\Resources\Users\RelationManagers\RiwayatGolonganRelationManager::class,
         ];
     }
 
