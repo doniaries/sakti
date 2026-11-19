@@ -127,7 +127,11 @@ class RiwayatJabatanRelationManager extends RelationManager
                         $url = route('admin.pegawai.berkas.preview', ['path' => (string) $record->file_sk]);
 
                         return new HtmlString(
-                            '<iframe src="' . e($url) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
+                            '<div x-data="{ url: null, loading: true, error: false }" x-init="fetch(' . e(json_encode($url)) . ', { credentials: \'same-origin\' }).then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }).then(buf => { url = URL.createObjectURL(new Blob([buf], { type: \'application/pdf\' })); loading = false; }).catch(() => { error = true; loading = false; })" class="w-full">'
+                            . '<template x-if="loading"><div class="flex items-center justify-center text-sm text-gray-500" style="height: 75vh;">Memuat pratinjau dokumen PDF...</div></template>'
+                            . '<template x-if="error"><div class="flex items-center justify-center text-sm text-danger-600" style="height: 75vh;">Gagal memuat pratinjau PDF. Silakan gunakan tombol Unduh.</div></template>'
+                            . '<template x-if="url"><iframe :src="url" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe></template>'
+                            . '</div>'
                         );
                     }),
 

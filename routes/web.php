@@ -87,8 +87,9 @@ Route::middleware('auth')->group(function () {
         abort_if($path === '' || str_contains($path, '..') || ! \Illuminate\Support\Facades\Storage::disk('public')->exists($path), 404);
 
         return response()->file(\Illuminate\Support\Facades\Storage::disk('public')->path($path), [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="preview"',
+            'Content-Type' => 'application/octet-stream',
+            'X-Content-Type-Options' => 'nosniff',
+            'Cache-Control' => 'private, max-age=300',
         ]);
     })->name('admin.pegawai.berkas.preview');
 });
