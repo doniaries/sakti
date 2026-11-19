@@ -183,8 +183,8 @@ class UserInfolist
                                                         ->icon('fab-whatsapp')
                                                         ->color('success')
                                                         ->tooltip('Chat via WhatsApp')
-                                                        ->visible(fn (User $record): bool => filled($record->whatsapp_url))
-                                                        ->url(fn (User $record): ?string => $record->whatsapp_url, shouldOpenInNewTab: true)
+                                                        ->visible(fn(User $record): bool => filled($record->whatsapp_url))
+                                                        ->url(fn(User $record): ?string => $record->whatsapp_url, shouldOpenInNewTab: true)
                                                 )
                                                 ->placeholder('-'),
 
@@ -276,7 +276,7 @@ class UserInfolist
                                                 TextEntry::make('nik')
                                                     ->label('NIK')
                                                     ->icon('heroicon-m-credit-card')
-                                                    ->formatStateUsing(fn (?string $state): ?string => $state && str_contains(strtoupper($state), 'E+') ? number_format((float) $state, 0, '', '') : $state)
+                                                    ->formatStateUsing(fn(?string $state): ?string => $state && str_contains(strtoupper($state), 'E+') ? number_format((float) $state, 0, '', '') : $state)
                                                     ->copyable()
                                                     ->placeholder('-'),
 
@@ -615,7 +615,7 @@ class UserInfolist
                 Action::make('preview_' . $attribute)
                     ->icon('heroicon-m-eye')
                     ->color('primary')
-                    ->tooltip('Pratinjau PDF')
+                    ->tooltip('Lihat Berkas')
                     ->modalHeading($label)
                     ->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->modalSubmitAction(false)
