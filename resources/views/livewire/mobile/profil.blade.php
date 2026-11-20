@@ -1019,6 +1019,26 @@
                             <span class="font-bold font-mono text-slate-800">{{ $user->no_taspen ?? '-' }}</span>
                         </div>
                     </div>
+
+                    <div class="pt-3 border-t border-slate-100 space-y-2">
+                        <h4 class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Unit Kerja &amp; Atasan</h4>
+                        <div class="flex justify-between py-1 text-xs">
+                            <span class="text-slate-400 font-medium">Status Kepegawaian</span>
+                            <span class="font-bold text-slate-800 text-right">{{ $user->status_kepegawaian?->getLabel() ?? ($user->status_kepegawaian ?? '-') }}</span>
+                        </div>
+                        <div class="flex justify-between py-1 text-xs">
+                            <span class="text-slate-400 font-medium">Jabatan Saat Ini</span>
+                            <span class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? '-' }}</span>
+                        </div>
+                        <div class="flex justify-between py-1 text-xs">
+                            <span class="text-slate-400 font-medium">Bidang Dinas</span>
+                            <span class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</span>
+                        </div>
+                        <div class="flex justify-between py-1 text-xs">
+                            <span class="text-slate-400 font-medium">Atasan Langsung</span>
+                            <span class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
+                        </div>
+                    </div>
                 </div>
             @endif
 
@@ -1110,29 +1130,6 @@
             <!-- TAB 3: JABATAN -->
             @if ($activeTab === 'jabatan')
                 <div class="space-y-3">
-                    <!-- Posisi Sekarang -->
-                    <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Unit Kerja &amp; Atasan</h3>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">Status Kepegawaian</span>
-                            <span class="font-bold text-slate-800 text-right">{{ $user->status_kepegawaian?->getLabel() ?? ($user->status_kepegawaian ?? '-') }}</span>
-                        </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">Jabatan Saat Ini</span>
-                            <span class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? '-' }}</span>
-                        </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">Bidang Dinas</span>
-                            <span
-                                class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</span>
-                        </div>
-                        <div class="flex justify-between py-1.5 text-xs">
-                            <span class="text-slate-400 font-medium">Atasan Langsung</span>
-                            <span
-                                class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
-                        </div>
-                    </div>
-
                     <!-- Riwayat Jabatan -->
                     <div class="flex items-center justify-between px-1 pt-2">
                         <h3
