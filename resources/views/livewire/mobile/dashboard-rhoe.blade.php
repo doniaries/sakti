@@ -78,15 +78,37 @@
                     @endif
                     <button type="button" @click="notifSheet = true"
                         class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0">
-                        <i class="fa-solid fa-bell text-sm {{ $unreadNotifCount > 0 ? 'fa-shake text-amber-300' : '' }}"
-                            @if ($unreadNotifCount > 0) style="--fa-animation-duration: 2.2s;" @endif></i>
+                        <i class="fa-solid fa-bell text-sm {{ $unreadNotifCount > 0 ? 'text-amber-300 notif-bell-ring' : '' }}"></i>
                         @if ($unreadNotifCount > 0)
-                            <span class="absolute top-1 right-1 flex h-2.5 w-2.5">
-                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="absolute top-0.5 right-0.5 flex h-2.5 w-2.5 notif-dot-move">
+                                <span class="notif-dot-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                                 <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 ring-2 ring-sky-800"></span>
                             </span>
                         @endif
                     </button>
+                    @if ($unreadNotifCount > 0)
+                        <style>
+                            @keyframes notifBellRing {
+                                0%, 100% { transform: rotate(0deg); }
+                                15% { transform: rotate(16deg); }
+                                30% { transform: rotate(-14deg); }
+                                45% { transform: rotate(10deg); }
+                                60% { transform: rotate(-8deg); }
+                                75% { transform: rotate(4deg); }
+                            }
+                            @keyframes notifDotMove {
+                                0%, 100% { transform: translateY(0) scale(1); }
+                                50% { transform: translateY(-2px) scale(1.18); }
+                            }
+                            @keyframes notifDotPing {
+                                0% { transform: scale(1); opacity: 0.8; }
+                                75%, 100% { transform: scale(2.2); opacity: 0; }
+                            }
+                            .notif-bell-ring { transform-origin: top center; animation: notifBellRing 1.6s ease-in-out infinite; }
+                            .notif-dot-move { animation: notifDotMove 1.1s ease-in-out infinite; }
+                            .notif-dot-ping { animation: notifDotPing 1.4s cubic-bezier(0, 0, 0.2, 1) infinite; }
+                        </style>
+                    @endif
                 </div>
             </div>
 
