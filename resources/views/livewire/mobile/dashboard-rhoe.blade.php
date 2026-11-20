@@ -78,9 +78,13 @@
                     @endif
                     <button type="button" @click="notifSheet = true"
                         class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0">
-                        <i class="fa-solid fa-bell text-sm"></i>
+                        <i class="fa-solid fa-bell text-sm {{ $unreadNotifCount > 0 ? 'fa-shake text-amber-300' : '' }}"
+                            @if ($unreadNotifCount > 0) style="--fa-animation-duration: 2.2s;" @endif></i>
                         @if ($unreadNotifCount > 0)
-                            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-sky-800"></span>
+                            <span class="absolute top-1 right-1 flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 ring-2 ring-sky-800"></span>
+                            </span>
                         @endif
                     </button>
                 </div>
