@@ -64,21 +64,37 @@
             </div>
         </div>
 
-        <!-- Baris 2: Jadwal Kerja & Jarak Lokasi (1 Baris Tipis Inline) -->
+        <!-- Baris 2: Jadwal Kerja & Batas Radius Kantor (Sesuai Pengaturan Absensi) -->
         <div class="mt-2 pt-2 border-t border-white/15 flex items-center justify-between gap-2 text-[11px] relative z-10">
             <span class="text-sky-100 font-semibold truncate">
                 <i class="fa-regular fa-calendar-check text-sky-300 mr-1"></i>{{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
             </span>
-            <button type="button" @click="detectPosition(true)" title="Refresh GPS"
-                class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border cursor-pointer active:scale-95 transition"
-                :class="isWfh
-                    ? 'bg-amber-500/20 border-amber-400/30 text-amber-200'
-                    : (isWithinRadius === false
-                        ? 'bg-rose-500/25 border-rose-400/40 text-rose-200'
-                        : 'bg-emerald-500/25 border-emerald-400/40 text-emerald-200')">
-                <i class="fa-solid fa-location-dot text-[9px]"></i>
-                <span x-text="isWfh ? 'Bebas WFH' : currentDistanceText">Cek GPS...</span>
-            </button>
+            <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border {{ $isWfh ? 'bg-amber-500/20 border-amber-400/30 text-amber-200' : 'bg-sky-400/20 border-sky-300/35 text-sky-100' }}">
+                <i class="fa-solid fa-bullseye text-[9px]"></i>
+                <span>{{ $isWfh ? 'Bebas WFH' : 'Radius: ' . $maxRadius . ' m' }}</span>
+            </span>
+        </div>
+
+        <!-- Baris 3: Ringkasan Status Absen Datang & Pulang (Compact 2 Kolom) -->
+        <div class="mt-2 grid grid-cols-2 gap-2 relative z-10">
+            <div class="rounded-xl bg-black/20 border border-white/15 px-2.5 py-1.5 flex items-center justify-between">
+                <div>
+                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 font-bold block">Datang</span>
+                    <span class="text-xs font-black font-mono {{ $sudahMasuk ? 'text-emerald-300' : 'text-white/50' }}">
+                        {{ $sudahMasuk ? substr($absenHarian->jam_masuk, 0, 5) . ' WIB' : '--:--' }}
+                    </span>
+                </div>
+                <i class="fa-solid {{ $sudahMasuk ? 'fa-circle-check text-emerald-400' : 'fa-clock text-white/40' }} text-sm"></i>
+            </div>
+            <div class="rounded-xl bg-black/20 border border-white/15 px-2.5 py-1.5 flex items-center justify-between">
+                <div>
+                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 font-bold block">Pulang</span>
+                    <span class="text-xs font-black font-mono {{ $sudahPulang ? 'text-sky-300' : 'text-white/50' }}">
+                        {{ $sudahPulang ? substr($absenHarian->jam_pulang, 0, 5) . ' WIB' : '--:--' }}
+                    </span>
+                </div>
+                <i class="fa-solid {{ $sudahPulang ? 'fa-check-double text-sky-300' : 'fa-clock text-white/40' }} text-sm"></i>
+            </div>
         </div>
 
         <!-- Warning GPS jika belum diizinkan -->
@@ -129,7 +145,7 @@
             <div class="flex items-center gap-1.5 shrink-0">
                 <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold border"
                     :class="isWithinRadius === false ? 'bg-rose-500/15 text-rose-500 border-rose-400/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-400/30'"
-                    x-text="currentDistanceText"></span>
+                    x-text="'Jarak: ' + currentDistanceText"></span>
                 <button type="button" @click="detectPosition(true)"
                     class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
                     <i class="fa-solid fa-crosshairs text-[10px]"></i>
@@ -168,174 +184,21 @@
         </div>
     </div>
 
-    <!-- KARTU UTAMA PRESENSI (2 KOLOM SEJAJAR: ABSEN DATANG & ABSEN PULANG) -->
-    <div class="grid grid-cols-2 gap-3 mb-4">
-        <!-- 1. KARTU ABSEN DATANG -->
-        <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-200/90 flex flex-col justify-between min-h-[190px] transition-all {{ $sudahMasuk ? 'ring-2 ring-emerald-500/20 bg-emerald-50/20' : '' }}">
-            <div>
-                <!-- Header Icon & Status Badge -->
-                <div class="flex items-center justify-between mb-2">
-                    <div class="w-8 h-8 rounded-xl flex items-center justify-center text-sm {{ $sudahMasuk ? 'bg-emerald-500 text-white shadow-xs' : 'bg-emerald-50 text-emerald-600' }}">
-                        <i class="fa-solid {{ $sudahMasuk ? 'fa-check' : 'fa-arrow-right-to-bracket' }}"></i>
-                    </div>
-                    @if ($sudahMasuk)
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            Tercatat
-                        </span>
-                    @else
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                            Pagi
-                        </span>
-                    @endif
-                </div>
-
-                <!-- Judul Kartu -->
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 block">Absen Datang</span>
-
-                <!-- Jam Masuk -->
-                <div class="mt-1">
-                    <div class="text-xl font-black font-mono tracking-tight {{ $sudahMasuk ? 'text-emerald-700' : 'text-slate-300' }}">
-                        {{ $sudahMasuk ? substr($absenHarian->jam_masuk, 0, 5) : '--:--' }}
-                        <span class="text-[10px] font-bold font-sans {{ $sudahMasuk ? 'text-emerald-600' : 'text-slate-300' }}">WIB</span>
-                    </div>
-                    <span class="text-[10px] font-medium block mt-0.5 truncate text-slate-400">
-                        {{ $sudahMasuk ? ($absenHarian->status?->getLabel() ?? 'Hadir Tepat Waktu') : 'Buka: ' . $bukaMasuk }}
-                    </span>
-                </div>
-            </div>
-
-            <!-- Tombol Aksi Absen Datang -->
-            <div class="mt-3">
-                @if ($hariLiburHariIni)
-                    <div class="w-full py-2 px-2.5 rounded-xl bg-amber-50 text-amber-800 font-bold text-[11px] flex items-center justify-center space-x-1.5 border border-amber-200 text-center">
-                        <i class="fa-solid fa-calendar-xmark text-amber-600 text-xs"></i>
-                        <span>Hari Libur: {{ $hariLiburHariIni->nama }}</span>
-                    </div>
-                @elseif ($sudahMasuk)
-                    <button type="button" disabled
-                        class="w-full py-2 px-2.5 rounded-xl bg-emerald-100/80 text-emerald-800 font-bold text-xs flex items-center justify-center space-x-1 border border-emerald-200 cursor-default">
-                        <i class="fa-solid fa-circle-check text-emerald-600 text-xs"></i>
-                        <span>Sudah Datang</span>
-                    </button>
-                @elseif ($lewatBatasMasuk)
-                    <button type="button"
-                        @click="window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'danger', title: 'Waktu Absen Telah Berakhir', message: 'Batas akhir absen masuk telah lewat (Pukul {{ $tutupMasuk }} WIB). Anda tercatat Alpa hari ini.' } }))"
-                        class="w-full py-2 px-2.5 rounded-xl bg-rose-100 text-rose-800 font-extrabold text-xs flex items-center justify-center space-x-1 border border-rose-300 cursor-not-allowed">
-                        <i class="fa-solid fa-lock text-rose-600 text-xs"></i>
-                        <span>Waktu Lewat</span>
-                    </button>
-                @elseif ($belumBukaMasuk)
-                    <button type="button"
-                        @click="window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warning', title: 'Belum Dibuka', message: 'Presensi masuk dibuka mulai pukul {{ $bukaMasuk }} WIB.' } }))"
-                        class="w-full py-2 px-2.5 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs flex items-center justify-center space-x-1 border border-slate-200 cursor-not-allowed">
-                        <i class="fa-solid fa-clock text-slate-400 text-xs"></i>
-                        <span>Belum Buka</span>
-                    </button>
-                @else
-                    <button type="button" @click="doPunch('masuk')"
-                        :disabled="loadingMasuk || (!isWfh && isWithinRadius !== true)"
-                        :class="(!isWfh && isWithinRadius !== true) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
-                        class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5">
-                        <template x-if="loadingMasuk">
-                            <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
-                        </template>
-                        <template x-if="!loadingMasuk">
-                            <i class="fa-solid fa-fingerprint text-sm"></i>
-                        </template>
-                        <span x-text="loadingMasuk ? 'Memproses...' : 'Absen Datang'">Absen Datang</span>
-                    </button>
-                @endif
-            </div>
+    <!-- Status Hari Libur / Selesai / Di Luar Radius (Ringkas di Bawah Peta) -->
+    @if ($hariLiburHariIni)
+        <div class="mb-3 p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
+            <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
         </div>
-
-        <!-- 2. KARTU ABSEN PULANG -->
-        <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-200/90 flex flex-col justify-between min-h-[190px] transition-all {{ $sudahPulang ? 'ring-2 ring-sky-500/20 bg-sky-50/20' : '' }}">
-            <div>
-                <!-- Header Icon & Status Badge -->
-                <div class="flex items-center justify-between mb-2">
-                    <div class="w-8 h-8 rounded-xl flex items-center justify-center text-sm {{ $sudahPulang ? 'bg-sky-500 text-white shadow-xs' : ($sudahMasuk ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-400') }}">
-                        <i class="fa-solid {{ $sudahPulang ? 'fa-check-double' : 'fa-arrow-right-from-bracket' }}"></i>
-                    </div>
-                    @if ($sudahPulang)
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-sky-100 text-sky-800 border border-sky-300">
-                            Selesai
-                        </span>
-                    @elseif (!$sudahMasuk)
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-400 border border-slate-200">
-                            Sore
-                        </span>
-                    @elseif ($belumJamPulang)
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
-                            Buka {{ $jamPulangResmi }}
-                        </span>
-                    @else
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase bg-amber-100 text-amber-800 border border-amber-300 flex items-center">
-                            <span class="w-1 h-1 rounded-full bg-amber-500 animate-pulse mr-1"></span>Siap
-                        </span>
-                    @endif
-                </div>
-
-                <!-- Judul Kartu -->
-                <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-600 block">Absen Pulang</span>
-
-                <!-- Jam Pulang -->
-                <div class="mt-1">
-                    <div class="text-xl font-black font-mono tracking-tight {{ $sudahPulang ? 'text-sky-700' : 'text-slate-300' }}">
-                        {{ $sudahPulang ? substr($absenHarian->jam_pulang, 0, 5) : '--:--' }}
-                        <span class="text-[10px] font-bold font-sans {{ $sudahPulang ? 'text-sky-600' : 'text-slate-300' }}">WIB</span>
-                    </div>
-                    <span class="text-[10px] font-medium block mt-0.5 truncate text-slate-400">
-                        {{ $sudahPulang ? 'Tugas Selesai' : 'Pulang: ' . $jamPulangResmi . ' WIB' }}
-                    </span>
-                </div>
-            </div>
-
-            <!-- Tombol Aksi Absen Pulang -->
-            <div class="mt-3">
-                @if ($sudahPulang)
-                    <button type="button" disabled
-                        class="w-full py-2 px-2.5 rounded-xl bg-sky-100/80 text-sky-800 font-bold text-xs flex items-center justify-center space-x-1 border border-sky-200 cursor-default">
-                        <i class="fa-solid fa-circle-check text-sky-600 text-xs"></i>
-                        <span>Sudah Pulang</span>
-                    </button>
-                @elseif (!$sudahMasuk)
-                    <button type="button"
-                        @click="window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warning', title: 'Belum Absen Datang', message: 'Harap lakukan Absen Datang terlebih dahulu sebelum Absen Pulang.' } }))"
-                        class="w-full py-2 px-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center space-x-1.5 border border-slate-200 cursor-not-allowed">
-                        <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
-                        <span>Belum Datang</span>
-                    </button>
-                @elseif ($belumJamPulang)
-                    <button type="button"
-                        @click="window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warning', title: 'Belum Jam Pulang', message: 'Tombol absen pulang baru aktif ketika jam pulang sudah masuk (Pukul {{ $jamPulangResmi }} WIB).' } }))"
-                        class="w-full py-2 px-2.5 rounded-xl bg-slate-100 text-slate-500 font-bold text-xs flex items-center justify-center space-x-1 border border-slate-200 cursor-not-allowed">
-                        <i class="fa-solid fa-clock text-slate-400 text-xs"></i>
-                        <span>Belum Jam Pulang</span>
-                    </button>
-                @elseif ($lewatBatasPulang)
-                    <button type="button"
-                        @click="window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'danger', title: 'Waktu Pulang Lewat', message: 'Batas akhir absen pulang telah lewat (Pukul {{ $tutupPulang }} WIB).' } }))"
-                        class="w-full py-2 px-2.5 rounded-xl bg-rose-100 text-rose-800 font-extrabold text-xs flex items-center justify-center space-x-1 border border-rose-300 cursor-not-allowed">
-                        <i class="fa-solid fa-lock text-rose-600 text-xs"></i>
-                        <span>Waktu Lewat</span>
-                    </button>
-                @else
-                    <button type="button" @click="doPunch('pulang')"
-                        :disabled="loadingPulang || (!isWfh && isWithinRadius === false)"
-                        :class="(!isWfh && isWithinRadius === false) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
-                        class="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs shadow-md shadow-amber-500/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5">
-                        <template x-if="loadingPulang">
-                            <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
-                        </template>
-                        <template x-if="!loadingPulang">
-                            <i class="fa-solid fa-fingerprint text-sm"></i>
-                        </template>
-                        <span x-text="loadingPulang ? 'Memproses...' : 'Absen Pulang'">Absen Pulang</span>
-                    </button>
-                @endif
-            </div>
+    @elseif ($sudahMasuk && $sudahPulang)
+        <div class="mb-3 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
+            <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
         </div>
-    </div>
+    @else
+        <div x-show="!isWfh && isWithinRadius === false" x-cloak
+            class="mb-3 p-3 rounded-2xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold text-center">
+            <i class="fa-solid fa-location-crosshairs mr-1"></i> Anda berada di luar radius kantor (<span x-text="currentDistanceText"></span>). Mendekatlah ke area kantor untuk mengaktifkan tombol absen.
+        </div>
+    @endif
 
     <!-- Info Jabatan & PIN Mesin (Polesan Elegan Sesuai Better-UI) -->
     @if (!empty($user->jabatan?->nama) || !empty($user->nomor_absensi))
