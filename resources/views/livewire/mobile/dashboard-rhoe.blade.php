@@ -271,7 +271,11 @@
                 <div class="grid grid-cols-7 gap-1.5">
                     @foreach ($riwayat7Hari as $item)
                         @php
-                            $st = $item['status'] ?? null;
+                            $rawStatus = $item['status'] ?? null;
+                            $st = $rawStatus instanceof \BackedEnum ? (string) $rawStatus->value : (string) ($rawStatus ?? '');
+                            $stLabel = $rawStatus instanceof \Filament\Support\Contracts\HasLabel
+                                ? (string) $rawStatus->getLabel()
+                                : ($st !== '' ? ucfirst(str_replace('_', ' ', $st)) : 'Belum ada');
                             $dotClass = match ($st) {
                                 'hadir' => 'bg-emerald-500 text-white',
                                 'terlambat' => 'bg-amber-500 text-white',
@@ -279,7 +283,7 @@
                                 default => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400',
                             };
                         @endphp
-                        <div title="{{ ($item['hari'] ?? '') . ' ' . ($item['tgl'] ?? '') . ' — ' . ($st ? ucfirst($st) : 'Belum ada') }}"
+                        <div title="{{ ($item['hari'] ?? '') . ' ' . ($item['tgl'] ?? '') . ' — ' . $stLabel }}"
                             class="flex flex-col items-center gap-1">
                             <span class="text-[9px] font-bold text-zinc-400 uppercase">{{ $item['hari'] ?? '' }}</span>
                             <div class="w-8 h-8 rounded-xl {{ $dotClass }} flex items-center justify-center text-[11px] font-extrabold shadow-xs">
