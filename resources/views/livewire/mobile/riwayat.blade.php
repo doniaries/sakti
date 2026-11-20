@@ -124,11 +124,20 @@
         <div class="space-y-3">
     <!-- Filter Tanggal -->
     <div class="flex items-center gap-2 mb-3">
-        <input type="date" wire:model.live="filterTanggal"
-            class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-xs focus:border-amber-400 focus:outline-none">
+        <div class="relative flex-1">
+            <button type="button" onclick="this.nextElementSibling.showPicker?.() || this.nextElementSibling.click()"
+                class="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold shadow-xs hover:border-amber-400 transition cursor-pointer {{ $filterTanggal ? 'text-slate-800 border-amber-300 bg-amber-50/40' : 'text-slate-500' }}">
+                <span class="flex items-center gap-2">
+                    <i class="fa-regular fa-calendar text-amber-500"></i>
+                    <span>{{ $filterTanggal ? \Carbon\Carbon::parse($filterTanggal)->translatedFormat('d F Y') : 'Pilih Tanggal...' }}</span>
+                </span>
+                <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+            <input type="date" wire:model.live="filterTanggal" class="sr-only" aria-label="Pilih Tanggal">
+        </div>
         @if ($filterTanggal)
             <button type="button" wire:click="$set('filterTanggal', '')"
-                class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold cursor-pointer">
+                class="px-3 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 text-xs font-bold cursor-pointer">
                 Reset
             </button>
         @endif
