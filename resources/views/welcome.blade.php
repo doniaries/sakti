@@ -276,10 +276,10 @@
                     class="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-slate-300 flex items-center justify-center hover:text-white transition-colors cursor-pointer">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
                 </button>
-                <button type="button" @click="infoModal = true"
-                    class="w-8 h-8 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 flex items-center justify-center hover:text-white transition-colors cursor-pointer">
+                <a href="{{ route('panduan') }}" title="Panduan Pengguna"
+                    class="w-8 h-8 rounded-full bg-sky-500/15 border border-sky-400/30 text-sky-300 flex items-center justify-center hover:text-white transition-colors">
                     <i class="fa-solid fa-circle-question text-xs"></i>
-                </button>
+                </a>
             </div>
         </div>
 
@@ -575,32 +575,6 @@
                     <p class="text-sm">Belum ada kartu portal yang aktif. Silakan tambahkan melalui Panel Admin.</p>
                 </div>
             @endforelse
-        </div>
-
-        <!-- Info Bar Keamanan & Shortcut Admin -->
-        <div
-            class="mt-10 max-w-4xl mx-auto w-full bg-white/[0.03] backdrop-blur-md rounded-2xl p-4 border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
-            <div class="flex items-center gap-2 text-slate-300">
-                <i class="fa-solid fa-shield-heart text-sky-400"></i>
-                <span>Keamanan Terproteksi: Geofencing GPS, Enkripsi Log & Verifikasi QR SPJ</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <button type="button" @click="infoModal = true"
-                    class="hover:text-white transition cursor-pointer flex items-center gap-1.5 text-sky-300 font-semibold">
-                    <i class="fa-solid fa-circle-question"></i>
-                    <span>Panduan Alur Sistem</span>
-                </button>
-                @auth
-                    @if (auth()->user()->hasAnyRole(['super_admin', 'admin']))
-                        <span class="text-white/20">|</span>
-                        <a href="{{ url('/admin/portal-links') }}"
-                            class="hover:text-amber-300 transition flex items-center gap-1 text-amber-400 font-semibold">
-                            <i class="fa-solid fa-gear"></i>
-                            <span>Kelola Portal</span>
-                        </a>
-                    @endif
-                @endauth
-            </div>
         </div>
 
         <!-- ======================================================== -->

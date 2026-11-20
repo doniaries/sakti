@@ -14,6 +14,8 @@ Route::get('/', function () {
     return view('welcome', compact('pengaturan', 'portalLinks'));
 })->name('portal');
 
+Route::get('/panduan', fn () => view('panduan'))->name('panduan');
+
 Route::post('/portal/logout', function () {
     auth()->logout();
     request()->session()->invalidate();
