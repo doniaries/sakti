@@ -1,21 +1,26 @@
 {
-    "name": "Absensi LHK Mobile",
-    "short_name": "Absensi",
-    "description": "Sistem Absensi & Laporan Kerja Harian",
+    "id": "/mobile/dashboard",
+    "name": "SAKTI Mobile — Absensi & LHK",
+    "short_name": "SAKTI Mobile",
+    "description": "Sistem Absensi & Laporan Harian Kinerja Disparpora Kabupaten Sijunjung",
     "start_url": "/mobile/dashboard",
+    "scope": "/mobile",
     "display": "standalone",
-    "background_color": "#F0F4F8",
+    "orientation": "portrait-primary",
+    "background_color": "#F8FAFC",
     "theme_color": "#1B6CA8",
     "icons": [
         {
             "src": "/icons/icon-192x192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         },
         {
             "src": "/icons/icon-512x512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any maskable"
         }
     ]
 }

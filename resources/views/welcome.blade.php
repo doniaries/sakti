@@ -8,7 +8,7 @@
     <meta name="google-site-verification" content="1l9WVhQ-bVhmRSL4KJIOxPk9MJ1NRdE99cOTtxgHEK4" />
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/') }}">
-    <title>{{ $pengaturan->nama_aplikasi ?? 'SAKTI Parpora' }} - {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga Kabupaten Sijunjung' }}</title>
+    <title>Portal Parpora – Dinas Pariwisata, Pemuda dan Olahraga</title>
     <meta name="description" content="{{ $pengaturan->deskripsi_singkat ?? 'SAKTI (Sistem Administrasi Kinerja Terintegrasi) Dinas Pariwisata, Pemuda dan Olahraga (Disparpora) Kabupaten Sijunjung. Portal resmi presensi pegawai, Laporan Harian Kinerja (LHK), dan administrasi terpadu.' }}">
     <meta name="keywords" content="SAKTI, SAKTI Parpora, SAKTI Sijunjung, SAKTI Disparpora Sijunjung, Sistem Administrasi Kinerja Terintegrasi, Disparpora Kabupaten Sijunjung, Absensi Disparpora Sijunjung">
 
@@ -309,7 +309,7 @@
                             <div class="absolute inset-0 bg-radial from-sky-500/20 to-transparent pointer-events-none">
                             </div>
                             <span
-                                class="text-xs sm:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-teal-200">SAKTI</span>
+                                class="text-xs sm:text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-white to-teal-200">PORTAL</span>
                             <span
                                 class="text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wider text-amber-300">PARPORA</span>
                         </div>
@@ -340,17 +340,17 @@
             <h1
                 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-none mb-2
                        text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-100 to-sky-300 drop-shadow-sm">
-                {{ $pengaturan->nama_aplikasi ?? 'SAKTI' }}
+                PORTAL PARPORA
             </h1>
             <p class="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed mb-4">
-                {{ $pengaturan->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}
+                Portal Layanan Digital Disparpora Sijunjung
             </p>
 
             <!-- Slogan Mandat ala BKN ASN Digital (Capsule Pill) -->
             <div
                 class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-[11px] sm:text-xs text-sky-200 font-medium shadow-sm mb-4">
                 <i class="fa-solid fa-quote-left text-sky-400 text-[10px]"></i>
-                <span>Transformasi Digital Pelayanan Kepegawaian</span>
+                <span>Satu Portal untuk Semua Layanan Disparpora</span>
                 <i class="fa-solid fa-quote-right text-sky-400 text-[10px]"></i>
             </div>
 

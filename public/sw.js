@@ -1,6 +1,9 @@
-const CACHE_NAME = 'absensi-lhk-v2';
+const CACHE_NAME = 'sakti-pwa-v3';
 const urlsToCache = [
-  '/manifest.json'
+  '/manifest.json',
+  '/manifest-admin.json',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', function(event) {
@@ -29,13 +32,14 @@ self.addEventListener('activate', function(event) {
 });
 
 self.addEventListener('fetch', function(event) {
-  // JANGAN PERNAH cache halaman HTML atau Livewire request!
+  // Jangan pernah cache halaman HTML, Livewire, Admin, atau Mobile!
   const url = new URL(event.request.url);
   if (
-    event.request.method !== 'GET' || 
-    event.request.mode === 'navigate' || 
-    url.pathname.startsWith('/livewire') || 
-    url.pathname.startsWith('/mobile')
+    event.request.method !== 'GET' ||
+    event.request.mode === 'navigate' ||
+    url.pathname.startsWith('/livewire') ||
+    url.pathname.startsWith('/mobile') ||
+    url.pathname.startsWith('/admin')
   ) {
     return;
   }
