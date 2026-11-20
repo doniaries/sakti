@@ -26,7 +26,7 @@
         <div class="flex items-center space-x-4 relative z-10">
             <div class="relative">
                 <img src="{{ $user->avatar_image_url }}" alt="Avatar Pegawai"
-                    class="w-16 h-16 rounded-2xl object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20">
+                    class="w-16 h-16 rounded-full object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20">
 
                 <label
                     class="absolute -bottom-1 -right-1 w-7 h-7 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-full flex items-center justify-center text-xs cursor-pointer shadow-md font-bold hover:scale-110 active:scale-95 transition-transform ring-2 ring-slate-900"
