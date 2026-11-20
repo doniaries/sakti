@@ -290,6 +290,18 @@ class Persetujuan extends Component
                 ->get()
             : collect();
 
+        if (! request()->query('tab')) {
+            if ($this->tab === 'izin' && $izinList->isEmpty()) {
+                if ($suratTugasList->isNotEmpty()) {
+                    $this->tab = 'surat_tugas';
+                } elseif ($lhkList->isNotEmpty()) {
+                    $this->tab = 'lhk';
+                } elseif ($spjList->isNotEmpty()) {
+                    $this->tab = 'spj';
+                }
+            }
+        }
+
         return view('livewire.mobile.persetujuan', [
             'izinList' => $izinList,
             'lhkList' => $lhkList,

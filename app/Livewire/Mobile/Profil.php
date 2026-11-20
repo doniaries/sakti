@@ -253,11 +253,13 @@ class Profil extends Component
         $freshUser = User::findOrFail(Auth::id());
         $freshUser->update($data);
 
-        // Reset password state
+        // Reset password state & kembali ke tampilan index Profil
         $this->password = '';
         $this->password_confirmation = '';
+        $this->isEditing = false;
+        $this->fullEditMode = false;
 
-        session()->flash('notify', [
+        $this->dispatch('notify', [
             'type' => 'success',
             'title' => 'Tersimpan!',
             'message' => 'Data profil Anda berhasil diperbarui.',
