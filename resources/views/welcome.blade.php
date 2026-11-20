@@ -335,6 +335,16 @@
             color: #0f172a !important;
             background-color: #ffffff !important;
         }
+
+        html.portal-light .portal-footer {
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            color: #334155 !important;
+        }
+
+        html.portal-light .portal-footer .portal-footer-sub {
+            color: #475569 !important;
+        }
     </style>
     <script>
         (function () {
@@ -1100,14 +1110,23 @@
 
     <!-- Footer -->
     <footer
-        class="w-full border-t border-white/[0.06] py-4 text-center text-[11px] text-slate-500 relative z-10 bg-slate-950/40 backdrop-blur-sm">
-        <p class="font-medium">
-            &copy; {{ date('Y') }} {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata Pemuda dan Olahraga' }} &bull;
-            Kabupaten
-            Sijunjung
+        class="portal-footer w-full border-t border-white/10 pt-5 pb-24 md:py-5 px-4 text-center text-xs text-slate-300 relative z-10 bg-slate-950/70 backdrop-blur-md transition-colors">
+        <p class="font-bold tracking-tight">
+            &copy; {{ date('Y') }} {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung' }}
         </p>
-        <p class="text-[10px] text-slate-600 mt-0.5">
-            {{ $pengaturan->versi_aplikasi ?? 'v1.0' }} &bull; Filament Admin & Livewire Mobile PWA
+        @if (! empty($pengaturan->alamat_kantor))
+            <p class="portal-footer-sub text-[11px] text-slate-400 mt-0.5">
+                {{ $pengaturan->alamat_kantor }}
+            </p>
+        @endif
+        <p class="portal-footer-sub text-[10px] text-slate-400 mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5">
+            <span>{{ $pengaturan->versi_aplikasi ?? 'v1.0.0' }}</span>
+            @if (! empty($pengaturan->pembuat_aplikasi))
+                <span>&bull;</span>
+                <span>{{ $pengaturan->pembuat_aplikasi }}</span>
+            @endif
+            <span>&bull;</span>
+            <a href="{{ route('panduan') }}" class="text-sky-500 hover:underline font-semibold">Panduan Pengguna</a>
         </p>
     </footer>
 
