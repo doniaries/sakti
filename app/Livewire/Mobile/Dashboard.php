@@ -176,7 +176,10 @@ class Dashboard extends Component
             ? min(100, (int) round(($totalMenitBulanIni / $targetBulananAsn['target_menit']) * 100))
             : 0;
 
-        return view('livewire.mobile.dashboard', [
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $tema = request()->query('tema', $pengaturan->portal_theme ?? 'default');
+
+        return view($tema === 'rhoe' ? 'livewire.mobile.dashboard-rhoe' : 'livewire.mobile.dashboard', [
             'user' => $user,
             'hariLiburHariIni' => $hariLiburHariIni,
             'unreadNotifCount' => $unreadNotifCount,
