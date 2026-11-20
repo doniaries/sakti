@@ -11,6 +11,13 @@
                 <p class="text-xs text-sky-100 font-medium">Statistik & Biodata Kepegawaian</p>
             </div>
             <div class="flex items-center space-x-2">
+                @if (auth()->user()?->hasRole('super_admin'))
+                    <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
+                        class="w-8 h-8 rounded-xl bg-white/15 hover:bg-white/25 text-white transition flex items-center justify-center border border-white/20 shadow-xs active:scale-95 cursor-pointer"
+                        title="Pengaturan Modul Sistem" aria-label="Pengaturan Modul Sistem">
+                        <i class="fa-solid fa-sliders text-xs"></i>
+                    </a>
+                @endif
                 @if (auth()->user()?->hasRole('super_admin') && !session()->has('impersonate_original_id'))
                     <button type="button" wire:click="$set('showImpersonateModal', true)"
                         class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs flex items-center gap-1.5 border border-white/20 active:scale-95 transition cursor-pointer"
@@ -1062,27 +1069,6 @@
                     </div>
                 </div>
             @endif
-        @endif
-
-        <!-- TOMBOL PENGATURAN MODUL SISTEM (KHUSUS SUPER ADMIN) -->
-        @if (auth()->user()?->hasRole('super_admin'))
-            <div class="mt-5">
-                <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
-                    class="w-full bg-white hover:bg-sky-50/70 rounded-2xl p-4 shadow-xs border border-sky-200/80 flex items-center justify-between gap-3 transition active:scale-[0.99]">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-sm shrink-0">
-                            <i class="fa-solid fa-sliders"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-xs font-extrabold text-slate-800">Pengaturan Modul Sistem</p>
-                            <p class="text-[10px] text-slate-500 truncate">Aktifkan / nonaktifkan menu Web, Mobile &
-                                Android</p>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-xs text-sky-600 shrink-0"></i>
-                </a>
-            </div>
         @endif
 
         <!-- Tombol Keluar dari Akun (Logout) -->
