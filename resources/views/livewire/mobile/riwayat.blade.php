@@ -1,29 +1,32 @@
 <div class="p-5 pb-24">
-    <!-- Top Header: Title & Print Button -->
-    <div class="flex justify-between items-center mb-4">
-        <div>
-            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Riwayat Absensi</h1>
-            <p class="text-xs text-slate-500 font-medium">Rekapitulasi kehadiran pegawai</p>
+    <!-- Hero Biru Gradient Melengkung + Month Navigator Mengambang -->
+    <section class="-mx-5 -mt-5 mb-4">
+        <div class="rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-12 text-white shadow-lg shadow-sky-950/20">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight">Riwayat Absensi</h1>
+                    <p class="text-xs text-sky-100 font-medium">Rekapitulasi kehadiran pegawai</p>
+                </div>
+                <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $bulan, 'tahun' => $tahun, 'status' => $filterStatus]) }}" 
+                   target="_blank"
+                   class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs flex items-center shadow-md shadow-red-500/25 active:scale-95 transition-all">
+                    <i class="fa-solid fa-file-pdf mr-1.5 text-sm"></i>
+                    <span>Cetak PDF</span>
+                </a>
+            </div>
         </div>
-        <!-- Tombol Print PDF untuk pimpinan / arsip -->
-        <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $bulan, 'tahun' => $tahun, 'status' => $filterStatus]) }}" 
-           target="_blank"
-           class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs flex items-center shadow-md shadow-red-500/25 active:scale-95 transition-all">
-            <i class="fa-solid fa-file-pdf mr-1.5 text-sm"></i>
-            <span>Cetak PDF</span>
-        </a>
-    </div>
 
-    <!-- Month Navigator -->
-    <div class="flex items-center justify-between bg-white px-4 py-2 rounded-2xl shadow-xs border border-slate-200/80 mb-4">
-        <button wire:click="prevMonth" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors">
-            <i class="fa-solid fa-chevron-left text-xs"></i>
-        </button>
-        <span class="text-sm font-bold text-slate-800 tracking-wide">{{ $bulanNama }}</span>
-        <button wire:click="nextMonth" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors">
-            <i class="fa-solid fa-chevron-right text-xs"></i>
-        </button>
-    </div>
+        <!-- Month Navigator -->
+        <div class="relative z-10 -mt-7 mx-5 flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl shadow-lg shadow-sky-950/10 border border-slate-200/80">
+            <button wire:click="prevMonth" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+            </button>
+            <span class="text-sm font-bold text-slate-800 tracking-wide">{{ $bulanNama }}</span>
+            <button wire:click="nextMonth" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+        </div>
+    </section>
 
     <!-- Card Hitung Jumlah Kehadiran (Rekap Ringkas) -->
     <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white p-4 rounded-3xl shadow-xl shadow-sky-950/20 mb-5 relative overflow-hidden border border-white/15">

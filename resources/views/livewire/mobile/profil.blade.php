@@ -1,32 +1,27 @@
 <div class="p-5 pb-28">
-    <!-- Top Bar -->
-    <div class="flex items-center justify-between mb-5">
-        <div>
-            <h1 class="text-xl font-extrabold text-slate-800 tracking-tight">Profil Pegawai</h1>
-            <p class="text-xs text-slate-500 font-medium">Statistik & Biodata Kepegawaian</p>
-        </div>
-        <div class="flex items-center space-x-2">
-            <button wire:click="toggleEdit"
-                class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center transition-all shadow-xs {{ $isEditing ? 'bg-slate-200 text-slate-700' : 'bg-sky-500 text-white shadow-sky-500/25 active:scale-95' }}">
-                <i class="fa-solid {{ $isEditing ? 'fa-xmark' : 'fa-pen-to-square' }} mr-1.5"></i>
-                {{ $isEditing ? 'Batal' : 'Edit Profil' }}
-            </button>
-            <button wire:click="logout" wire:confirm="Apakah Anda yakin ingin keluar dari akun?"
-                class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 transition flex items-center justify-center border border-rose-200/80 shadow-xs active:scale-95 cursor-pointer"
-                title="Keluar dari Akun">
-                <i class="fa-solid fa-right-from-bracket text-xs"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Header Avatar & Nama (Vibrant Gradient & Legible Typography) -->
-    <div
-        class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-5 shadow-xl shadow-sky-950/20 mb-6 relative isolate overflow-hidden border border-white/15">
-        <!-- Glow accents -->
-        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-400/20 rounded-full blur-2xl pointer-events-none">
-        </div>
-        <div class="absolute -left-10 -top-10 w-32 h-32 bg-teal-400/15 rounded-full blur-2xl pointer-events-none"></div>
+    <!-- Hero Biru Gradient Melengkung (Top Bar + Identitas Pegawai) -->
+    <div class="-mx-5 -mt-5 mb-5 rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-7 text-white shadow-lg shadow-sky-950/20 relative isolate overflow-hidden">
         <x-mobile.logo-ornament />
+
+        <!-- Top Bar -->
+        <div class="flex items-center justify-between mb-4 relative z-10">
+            <div>
+                <h1 class="text-xl font-extrabold tracking-tight">Profil Pegawai</h1>
+                <p class="text-xs text-sky-100 font-medium">Statistik & Biodata Kepegawaian</p>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button wire:click="toggleEdit"
+                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center transition-all shadow-xs {{ $isEditing ? 'bg-white/20 text-white' : 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95' }}">
+                    <i class="fa-solid {{ $isEditing ? 'fa-xmark' : 'fa-pen-to-square' }} mr-1.5"></i>
+                    {{ $isEditing ? 'Batal' : 'Edit Profil' }}
+                </button>
+                <button wire:click="logout" wire:confirm="Apakah Anda yakin ingin keluar dari akun?"
+                    class="w-8 h-8 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 text-rose-100 transition flex items-center justify-center border border-rose-300/30 shadow-xs active:scale-95 cursor-pointer"
+                    title="Keluar dari Akun">
+                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                </button>
+            </div>
+        </div>
 
         <div class="flex items-center space-x-4 relative z-10">
             <div class="relative">
