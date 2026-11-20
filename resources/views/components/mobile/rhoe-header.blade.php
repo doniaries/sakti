@@ -25,7 +25,7 @@
 
     <div class="relative z-10 flex items-center justify-between gap-2">
         <!-- Brand -->
-        <a href="{{ route('mobile.dashboard') }}" wire:navigate class="flex items-center gap-2.5 min-w-0 group">
+        <a href="{{ route('mobile.absensi') }}" wire:navigate class="flex items-center gap-2.5 min-w-0 group">
             <div class="w-9 h-9 rounded-2xl bg-white/20 dark:bg-white/10 border border-white/25 backdrop-blur-md p-1.5 flex items-center justify-center shadow-sm shrink-0 group-active:scale-95 transition-transform">
                 <img src="{{ asset('favicon.png') }}" alt="Logo" class="w-full h-full object-contain">
             </div>

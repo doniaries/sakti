@@ -356,11 +356,18 @@
         @auth
         <div class="bottom-nav-wrapper">
             <nav class="bottom-nav">
-                <!-- 1. Dashboard -->
-                <a href="{{ route('mobile.dashboard') }}" class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}" wire:navigate>
-                    <i class="fa-solid fa-house"></i>
-                    <span>Beranda</span>
-                </a>
+                <!-- 1. LHK (atau Beranda jika LHK nonaktif) -->
+                @if (\App\Models\PengaturanAplikasi::isModuleEnabled('lhk'))
+                    <a href="{{ route('mobile.lhk.index') }}" class="nav-item {{ request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>LHK</span>
+                    </a>
+                @else
+                    <a href="{{ route('mobile.dashboard') }}" class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}" wire:navigate>
+                        <i class="fa-solid fa-house"></i>
+                        <span>Beranda</span>
+                    </a>
+                @endif
 
                 <!-- 2. Riwayat -->
                 <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') ? 'active' : '' }}" wire:navigate>
@@ -368,29 +375,22 @@
                     <span>Riwayat</span>
                 </a>
 
-                <!-- 3. TOMBOL NAVIGASI PRESENSI TENGAH (Navigasi ke Halaman Presensi) -->
+                <!-- 3. TOMBOL NAVIGASI PRESENSI TENGAH (Halaman Utama Presensi + Peta Radius) -->
                 <div class="center-absen-btn-wrapper">
                     <a href="{{ route('mobile.absensi') }}" 
                        wire:navigate
                        class="center-absen-btn group ring-4 ring-sky-300 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-emerald-400 shadow-emerald-500/30' : '' }}"
-                       title="Halaman Presensi Kehadiran">
+                       title="Halaman Utama Presensi Kehadiran">
                         <i class="fa-solid fa-fingerprint"></i>
                         <span>PRESENSI</span>
                     </a>
                 </div>
 
-                <!-- 4. LHK (atau Izin jika LHK dinonaktifkan) -->
-                @if (\App\Models\PengaturanAplikasi::isModuleEnabled('lhk'))
-                    <a href="{{ route('mobile.lhk.index') }}" class="nav-item {{ request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
-                        <i class="fa-solid fa-file-pen"></i>
-                        <span>LHK</span>
-                    </a>
-                @elseif (\App\Models\PengaturanAplikasi::isModuleEnabled('izin'))
-                    <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate>
-                        <i class="fa-solid fa-envelope-open-text"></i>
-                        <span>Izin</span>
-                    </a>
-                @endif
+                <!-- 4. Izin & Cuti -->
+                <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate>
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                    <span>Izin</span>
+                </a>
 
                 <!-- 5. Profil (Halaman sama dengan data pegawai Filament & bisa diedit) -->
                 <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate>

@@ -29,7 +29,7 @@ class Login extends Component
     public function mount()
     {
         if (Auth::check()) {
-            return redirect()->route('mobile.dashboard');
+            return redirect()->route('mobile.absensi');
         }
     }
 
@@ -54,7 +54,7 @@ class Login extends Component
 
         if (Auth::attempt(['email' => $user->email, 'password' => $this->password], $this->remember)) {
             request()->session()->regenerate();
-            return redirect()->intended(route('mobile.dashboard'));
+            return redirect()->intended(route('mobile.absensi'));
         }
 
         $this->addError('password', 'Kata sandi yang Anda masukkan salah. Silakan periksa kembali.');

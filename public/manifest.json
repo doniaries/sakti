@@ -1,9 +1,9 @@
 {
-    "id": "/mobile/dashboard",
+    "id": "/mobile/absensi",
     "name": "SAKTI Mobile — Absensi & LHK",
     "short_name": "SAKTI Mobile",
     "description": "Sistem Absensi & Laporan Harian Kinerja Disparpora Kabupaten Sijunjung",
-    "start_url": "/mobile/dashboard",
+    "start_url": "/mobile/absensi",
     "scope": "/mobile",
     "display": "standalone",
     "orientation": "portrait-primary",
