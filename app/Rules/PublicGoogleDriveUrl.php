@@ -19,48 +19,74 @@ class PublicGoogleDriveUrl implements ValidationRule
         $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
         $host = strtolower((string) parse_url($url, PHP_URL_HOST));
 
-        if ($scheme !== 'https' || ! in_array($host, ['drive.google.com', 'docs.google.com'], true)) {
-            $fail('Link bukti wajib menggunakan tautan HTTPS Google Drive (drive.google.com atau docs.google.com).');
+        if ($scheme !== 'https' || $host !== 'drive.google.com') {
+            $fail('Link bukti wajib berupa tautan file gambar dari Google Drive (https://drive.google.com/...).');
+
+            return;
+        }
+
+        if (str_contains($url, '/folders/')) {
+            $fail('Link bukti harus berupa file gambar langsung, bukan tautan folder Google Drive.');
+
+            return;
+        }
+
+        $fileId = $this->extractFileId($url);
+        if ($fileId === null) {
+            $fail('Format tautan file Google Drive tidak valid. Salin link langsung dari file gambar di Google Drive.');
 
             return;
         }
 
         try {
-            $response = Http::timeout(5)
+            $response = Http::timeout(6)
                 ->withHeaders([
                     'User-Agent' => 'Mozilla/5.0 (compatible; SAKTI-Disparpora/1.0)',
+                    'Range' => 'bytes=0-31',
                 ])
-                ->withoutRedirecting()
-                ->get($url);
+                ->get("https://drive.google.com/uc?export=view&id={$fileId}");
 
             $status = $response->status();
-            $location = strtolower((string) $response->header('Location'));
+            $effectiveUri = strtolower((string) $response->effectiveUri());
+            $contentType = strtolower((string) $response->header('Content-Type'));
 
-            if (in_array($status, [301, 302, 303, 307, 308], true)) {
-                if (
-                    str_contains($location, 'accounts.google.com')
-                    || str_contains($location, 'servicelogin')
-                    || str_contains($location, 'signin')
-                ) {
-                    $fail("Link Google Drive masih bersifat Privat. Ubah pengaturan berbagi menjadi 'Siapa saja yang memiliki link' (Pelihat) agar bukti dapat diperiksa.");
-
-                    return;
-                }
-            }
-
-            if (in_array($status, [401, 403], true)) {
-                $fail("Akses Google Drive masih dibatasi (Privat). Ubah ke 'Siapa saja yang memiliki link' (Pelihat).");
+            if (
+                str_contains($effectiveUri, 'accounts.google.com')
+                || str_contains($effectiveUri, 'servicelogin')
+                || str_contains($effectiveUri, 'signin')
+                || in_array($status, [401, 403], true)
+            ) {
+                $fail("Link Google Drive masih bersifat Privat. Ubah akses berbagi menjadi 'Siapa saja yang memiliki link' (Pelihat) agar gambar dapat diperiksa.");
 
                 return;
             }
 
             if ($status === 404) {
-                $fail('File atau folder Google Drive tidak ditemukan (404). Pastikan tautan benar dan belum dihapus.');
+                $fail('File gambar Google Drive tidak ditemukan (404). Pastikan tautan benar dan belum dihapus.');
+
+                return;
+            }
+
+            if (! str_starts_with($contentType, 'image/')) {
+                $fail('File bukti Google Drive harus berupa gambar (JPG, PNG, atau WEBP). File non-gambar (PDF, dokumen, atau video) tidak diterima.');
 
                 return;
             }
         } catch (ConnectionException) {
-            // Jika server sedang offline/timeout, tetap loloskan selama domain Google Drive valid.
+            // Jika server sedang offline/timeout, tetap loloskan selama format file ID Google Drive valid.
         }
+    }
+
+    private function extractFileId(string $url): ?string
+    {
+        if (preg_match('~drive\.google\.com/file/d/([a-zA-Z0-9_-]+)~', $url, $m)) {
+            return $m[1];
+        }
+
+        if (preg_match('~[?&]id=([a-zA-Z0-9_-]+)~', $url, $m)) {
+            return $m[1];
+        }
+
+        return null;
     }
 }
