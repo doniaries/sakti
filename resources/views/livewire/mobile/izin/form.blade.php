@@ -14,7 +14,6 @@
     <!-- Category Filter Selector (Izin, Sakit, Cuti) -->
     <div class="mb-5">
         <label class="block text-xs font-bold text-slate-700 mb-2">Kategori Pengajuan</label>
-        <div class="grid grid-cols-3 gap-2 w-full">
         @php
             $countByKat = fn (string $kat) => $riwayatPengajuan->filter(fn ($p) => ($p->jenisIzin?->kategori?->value ?? $p->jenisIzin?->kategori) === $kat)->count();
         @endphp

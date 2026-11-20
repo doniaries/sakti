@@ -146,8 +146,49 @@
         @if ($isEditing)
             <form wire:submit="save" class="space-y-4">
                 <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-100 space-y-4">
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Edit Biodata & Kontak
-                    </h3>
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">
+                            @if ($activeTab === 'pendidikan') Edit Pendidikan Terakhir
+                            @elseif ($activeTab === 'keluarga') Edit Data Keluarga
+                            @elseif ($activeTab === 'golongan') Data Pangkat &amp; Golongan
+                            @elseif ($activeTab === 'jabatan') Data Jabatan &amp; Unit Kerja
+                            @else Edit Biodata &amp; Kontak Utama
+                            @endif
+                        </h3>
+                        <button type="button" wire:click="toggleEdit" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Tutup</button>
+                    </div>
+
+                    @if ($activeTab === 'golongan' || $activeTab === 'jabatan')
+                        <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-800 leading-relaxed">
+                            Riwayat <strong>{{ $activeTab === 'golongan' ? 'Pangkat / Golongan' : 'Jabatan & Unit Kerja' }}</strong> dikelola terpusat oleh Admin Kepegawaian melalui Panel Admin SAKTI.
+                        </div>
+                    @elseif ($activeTab === 'pendidikan')
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang Pendidikan</label>
+                                <input type="text" wire:model="jenjang_pendidikan" placeholder="S1 / S2" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jurusan / Pendidikan</label>
+                                <input type="text" wire:model="pendidikan" placeholder="Manajemen / Hukum" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                        </div>
+                    @elseif ($activeTab === 'keluarga')
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">NIK</label>
+                                <input type="text" wire:model="nik" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">No. KK</label>
+                                <input type="text" wire:model="no_kk" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Keluarga</label>
+                            <textarea wire:model="alamat" rows="2" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                        </div>
+                    @else
 
                     @if ($errors->any())
                         <div
@@ -163,6 +204,40 @@
                             </ul>
                         </div>
                     @endif
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Kelamin</label>
+                            <select wire:model="jenis_kelamin" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                <option value="">- Pilih -</option>
+                                <option value="L">Laki-laki (L)</option>
+                                <option value="P">Perempuan (P)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Agama</label>
+                            <select wire:model="agama" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                <option value="">- Pilih -</option>
+                                <option value="Islam">Islam</option>
+                                <option value="Kristen">Kristen</option>
+                                <option value="Katolik">Katolik</option>
+                                <option value="Hindu">Hindu</option>
+                                <option value="Buddha">Buddha</option>
+                                <option value="Konghucu">Konghucu</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tempat Lahir</label>
+                            <input type="text" wire:model="tempat_lahir" placeholder="Contoh: Padang" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Lahir</label>
+                            <input type="date" wire:model="tanggal_lahir" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                    </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
@@ -302,15 +377,18 @@
                             @enderror
                         </div>
                     </div>
+                    @endif
 
-                    <button type="submit" wire:loading.attr="disabled"
-                        class="w-full py-3 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-600/30 active:scale-95 transition-all flex items-center justify-center space-x-2">
-                        <span wire:loading.remove wire:target="save">Simpan Perubahan</span>
-                        <span wire:loading wire:target="save" class="flex items-center space-x-2">
-                            <i class="fa-solid fa-spinner fa-spin"></i>
-                            <span>Menyimpan...</span>
-                        </span>
-                    </button>
+                    @if (!in_array($activeTab, ['golongan', 'jabatan']))
+                        <button type="submit" wire:loading.attr="disabled"
+                            class="w-full py-3 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-600/30 active:scale-95 transition-all flex items-center justify-center space-x-2">
+                            <span wire:loading.remove wire:target="save">Simpan Perubahan</span>
+                            <span wire:loading wire:target="save" class="flex items-center space-x-2">
+                                <i class="fa-solid fa-spinner fa-spin"></i>
+                                <span>Menyimpan...</span>
+                            </span>
+                        </button>
+                    @endif
                 </div>
             </form>
         @else
