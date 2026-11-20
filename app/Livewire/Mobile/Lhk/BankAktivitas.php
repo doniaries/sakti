@@ -185,9 +185,10 @@ class BankAktivitas extends Component
 
     public function render()
     {
-        $userId = Auth::id();
+        /** @var User $user */
+        $user = Auth::user();
 
-        $myAktivitas = Aktivitas::where('user_id', $userId)
+        $myAktivitas = Aktivitas::untukUser($user)
             ->when($this->search !== '', function ($q) {
                 $term = '%' . trim($this->search) . '%';
                 $q->where(function ($sub) use ($term) {
