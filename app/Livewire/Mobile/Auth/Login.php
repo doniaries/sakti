@@ -62,6 +62,9 @@ class Login extends Component
 
     public function render()
     {
-        return view('livewire.mobile.auth.login');
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $tema = request()->query('tema', $pengaturan->portal_theme ?? 'default');
+
+        return view($tema === 'rhoe' ? 'livewire.mobile.auth.login-rhoe' : 'livewire.mobile.auth.login');
     }
 }
