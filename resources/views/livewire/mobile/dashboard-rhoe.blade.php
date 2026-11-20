@@ -110,21 +110,14 @@
             </div>
         </div>
 
-        <!-- Row 3: 1 Smart Context-Aware Primary Button -->
-        @if ($aksiUtama === 'masuk')
-            <button type="button" @click="doPunch('masuk')" :disabled="punching"
-                class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60">
-                <i x-show="!punching" class="fa-solid fa-fingerprint text-sm"></i>
-                <i x-show="punching" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
-                <span x-text="punching ? 'Mengambil Lokasi GPS...' : 'Tap Absen Masuk Sekarang'"></span>
-            </button>
-        @elseif ($aksiUtama === 'pulang')
-            <button type="button" @click="doPunch('pulang')" :disabled="punching"
-                class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-sky-600/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60">
-                <i x-show="!punching" class="fa-solid fa-right-from-bracket text-sm"></i>
-                <i x-show="punching" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
-                <span x-text="punching ? 'Mengambil Lokasi GPS...' : 'Tap Absen Pulang Sekarang'"></span>
-            </button>
+        <!-- Row 3: Arahkan Presensi ke Halaman Presensi (1 Pintu dengan Peta & Radius GPS) -->
+        @if ($aksiUtama !== 'selesai')
+            <a href="{{ route('mobile.absensi') }}" wire:navigate
+                class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-teal-500 hover:from-sky-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-lg shadow-sky-600/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
+                <i class="fa-solid fa-location-crosshairs text-sm"></i>
+                <span>{{ $aksiUtama === 'masuk' ? 'Buka Halaman Presensi Masuk' : 'Buka Halaman Presensi Pulang' }}</span>
+                <i class="fa-solid fa-arrow-right text-[11px]"></i>
+            </a>
         @else
             <div class="w-full py-3 px-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2">
                 <i class="fa-solid fa-circle-check"></i>

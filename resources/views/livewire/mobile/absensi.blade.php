@@ -46,14 +46,14 @@
             <i class="fa-solid fa-fingerprint"></i>
         </div>
         
-        <!-- Baris 1: Live Digital Clock & Identity Header -->
+        <!-- Baris 1: Live Digital Clock & Tanggal (Simpel & Profesional) -->
         <div class="flex items-center justify-between pb-3 border-b border-white/15 relative z-10">
             <div class="flex items-center space-x-2.5">
                 <div class="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md text-sky-200 flex items-center justify-center text-sm border border-white/20 shrink-0">
                     <i class="fa-regular fa-clock"></i>
                 </div>
                 <div>
-                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 block font-bold leading-tight">Waktu Server Resmi</span>
+                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 block font-bold leading-tight">Waktu Server</span>
                     <div class="flex items-baseline space-x-1.5 mt-0.5">
                         @if ($modeSimulasi && !empty($simulasiJamAktif))
                             <span class="text-2xl font-black font-mono tracking-tight text-amber-300 leading-none">{{ $simulasiJamAktif }}:00</span>
@@ -62,26 +62,6 @@
                         @endif
                         <span class="text-[10px] font-bold text-amber-300 font-mono">WIB</span>
                     </div>
-                    @if ($modeSimulasi && $isAdmin)
-                        <div class="flex flex-wrap items-center gap-1 mt-1.5">
-                            <input type="time" wire:model.live="simulasiJamAktif"
-                                class="rounded-lg bg-white/15 border border-white/25 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 focus:outline-none">
-                            <button type="button" wire:click="setSimulasiJam('07:25')"
-                                class="px-1.5 py-0.5 rounded-lg bg-emerald-500/30 hover:bg-emerald-500/50 border border-emerald-300/40 text-[9px] font-bold text-emerald-100">
-                                07:25
-                            </button>
-                            <button type="button" wire:click="setSimulasiJam('17:00')"
-                                class="px-1.5 py-0.5 rounded-lg bg-amber-500/30 hover:bg-amber-500/50 border border-amber-300/40 text-[9px] font-bold text-amber-100">
-                                17:00
-                            </button>
-                            @if (!empty($simulasiJamAktif))
-                                <button type="button" wire:click="setSimulasiJam(null)"
-                                    class="px-1.5 py-0.5 rounded-lg bg-white/15 hover:bg-white/25 text-[9px] font-bold text-amber-200">
-                                    Reset
-                                </button>
-                            @endif
-                        </div>
-                    @endif
                 </div>
             </div>
             <div class="text-right flex flex-col items-end">
@@ -89,53 +69,36 @@
                     <span class="w-1.5 h-1.5 rounded-full {{ $isWfh ? 'bg-amber-400' : 'bg-emerald-400' }} animate-pulse mr-1.5 inline-block"></span>
                     <span>{{ $isWfh ? 'WFH' : 'WFO' }}</span>
                 </span>
-                <div class="flex items-center text-xs font-bold text-white drop-shadow-xs">
-                    <i class="fa-regular fa-calendar-days text-sky-300 text-[11px] mr-1.5"></i>
-                    <span>{{ now()->translatedFormat('l, d F Y') }}</span>
+                <div class="text-[11px] font-semibold text-sky-100">
+                    {{ now()->translatedFormat('l, d M Y') }}
                 </div>
             </div>
         </div>
 
-        <!-- Baris 2: Jadwal & Toleransi (Tile Terpadu Concentric Radius) -->
-        <div class="grid grid-cols-2 gap-2 my-2.5 text-xs relative z-10">
-            <!-- Jadwal Kerja -->
-            <div class="bg-black/20 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center space-x-2">
-                <div class="w-7 h-7 rounded-lg bg-sky-400/20 text-sky-300 flex items-center justify-center text-xs shrink-0 border border-sky-400/20">
-                    <i class="fa-regular fa-calendar-check"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="text-[9px] text-sky-200/80 uppercase font-bold tracking-wider block truncate">Jadwal Kerja (ASN 7j 30m)</span>
-                    <span class="font-extrabold font-mono text-xs text-white block truncate">{{ $jamMasukResmi }} - {{ $jamPulangResmi }} <span class="text-[9px] font-sans font-medium text-sky-200">WIB</span></span>
-                    <span class="text-[9px] text-sky-200/80 block truncate">
-                        {{ $selesai ? "Tercatat: {$durasiKerjaHariIni} / {$targetHarianAsn}" : '37j 30m/minggu (non-istirahat)' }}
-                    </span>
-                </div>
+        <!-- Baris 2: Jadwal Kerja (Ringkas, Tanpa Batas Hadir) -->
+        <div class="my-2.5 bg-black/20 backdrop-blur-xs rounded-xl px-3 py-2 border border-white/15 flex items-center justify-between text-xs relative z-10">
+            <div class="flex items-center space-x-2 min-w-0">
+                <i class="fa-regular fa-calendar-check text-sky-300 text-xs shrink-0"></i>
+                <span class="text-[11px] text-sky-100 font-semibold truncate">Jadwal Kerja</span>
             </div>
-
-            <!-- Toleransi Terlambat -->
-            <div class="bg-black/20 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center space-x-2">
-                <div class="w-7 h-7 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center text-xs shrink-0 border border-amber-400/20">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="text-[9px] text-amber-200/90 uppercase font-bold tracking-wider block truncate">Batas Hadir</span>
-                    <span class="font-extrabold text-xs text-amber-300 block truncate">s.d {{ $batasToleransi }} <span class="text-[9px] font-normal text-amber-200/80">(+{{ $toleransi }}m)</span></span>
-                </div>
-            </div>
+            <span class="font-extrabold font-mono text-xs text-white shrink-0">
+                {{ $jamMasukResmi }} - {{ $jamPulangResmi }} <span class="text-[9px] font-sans font-medium text-sky-200">WIB</span>
+            </span>
         </div>
 
-        <!-- Baris 3: Lokasi Kantor & Jarak User (Satu Baris Kompak & Elegan) -->
-        <div class="bg-black/25 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center justify-between relative z-10">
-            <div class="flex items-center space-x-2.5 min-w-0 pr-2">
-                <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 flex items-center justify-center text-xs shrink-0">
-                    <i class="fa-solid fa-location-dot"></i>
-                </div>
+        <!-- Baris 3: Lokasi Kantor, Jarak User & Tombol Refresh Manual -->
+        <div class="bg-black/25 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center justify-between gap-2 relative z-10">
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <button type="button" @click="detectPosition(true)" title="Refresh Lokasi GPS"
+                    class="w-7 h-7 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/30 text-emerald-300 flex items-center justify-center text-xs shrink-0 cursor-pointer active:scale-90 transition">
+                    <i class="fa-solid fa-arrows-rotate" :class="gpsStatus === 'loading' ? 'fa-spin' : ''"></i>
+                </button>
                 <div class="min-w-0">
                     <span class="text-xs font-extrabold text-white truncate block">
                         {{ Str::before($alamatKantor, ',') }}
                     </span>
-                    <span class="text-[10px] text-sky-200/75 block truncate">
-                        Radius {{ $maxRadius }} meter &bull; {{ Str::after($alamatKantor, ',') ? Str::limit(trim(Str::after($alamatKantor, ',')), 32) : 'Muaro Sijunjung' }}
+                    <span class="text-[10px] text-sky-200/80 block truncate">
+                        Radius {{ $maxRadius }}m &bull; Ketuk ikon untuk refresh GPS
                     </span>
                 </div>
             </div>

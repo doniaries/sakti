@@ -347,6 +347,60 @@
             <x-mobile.rhoe-header />
         @endif
 
+        <!-- Global Navigation Skeleton Overlay (Muncul otomatis saat pindah menu wire:navigate > 120ms) -->
+        <div x-data="{
+                navigating: false,
+                timer: null,
+                startNav() {
+                    clearTimeout(this.timer);
+                    this.timer = setTimeout(() => { this.navigating = true; }, 120);
+                },
+                endNav() {
+                    clearTimeout(this.timer);
+                    this.navigating = false;
+                }
+            }"
+            x-init="
+                document.addEventListener('livewire:navigate', () => startNav());
+                document.addEventListener('livewire:navigated', () => endNav());
+            "
+            x-show="navigating"
+            x-cloak
+            x-transition.opacity.duration.150ms
+            class="fixed inset-0 z-40 max-w-[440px] mx-auto bg-slate-50/95 dark:bg-[#09090b]/95 backdrop-blur-xs pt-20 pb-24 px-4 space-y-4 pointer-events-none">
+            <!-- Hero Card Skeleton -->
+            <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-3 animate-pulse">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-slate-200 dark:bg-zinc-800 shrink-0"></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="h-3 w-24 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                        <div class="h-3.5 w-40 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                    </div>
+                </div>
+                <div class="h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800/80"></div>
+                <div class="h-11 rounded-2xl bg-slate-200 dark:bg-zinc-800"></div>
+            </div>
+            <!-- 2-Col Bento Skeleton -->
+            <div class="grid grid-cols-2 gap-3 animate-pulse">
+                <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5 space-y-2">
+                    <div class="h-2.5 w-16 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                    <div class="h-5 w-20 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                    <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-zinc-800"></div>
+                </div>
+                <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5 space-y-2">
+                    <div class="h-2.5 w-16 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                    <div class="h-5 w-20 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                    <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-zinc-800"></div>
+                </div>
+            </div>
+            <!-- List Card Skeleton -->
+            <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-2.5 animate-pulse">
+                <div class="h-3 w-32 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                <div class="h-3 w-full rounded-full bg-slate-100 dark:bg-zinc-800/80"></div>
+                <div class="h-3 w-3/4 rounded-full bg-slate-100 dark:bg-zinc-800/80"></div>
+            </div>
+        </div>
+
         <!-- Content -->
         <div class="content-area {{ !auth()->check() ? '!pb-0 h-screen overflow-hidden' : '' }}">
             {{ $slot }}
