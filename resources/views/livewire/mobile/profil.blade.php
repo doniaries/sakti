@@ -67,6 +67,14 @@
                     <span class="text-amber-300 font-bold mr-1.5">#</span>
                     <span>NIP: {{ $user->nip ?? '-' }}</span>
                 </div>
+                <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    <span class="px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold uppercase text-emerald-200">
+                        {{ $user->status_kerja ?? 'WFO' }}
+                    </span>
+                    <span class="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-medium text-sky-100">
+                        {{ $user->jadwalKerja->nama ?? 'Jadwal Reguler' }}
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -625,40 +633,16 @@
                 <div class="space-y-3">
                     <!-- Posisi Sekarang -->
                     <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Jabatan & Shift
-                            Kerja
-                            Saat Ini</h3>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">Jabatan</span>
-                            <span
-                                class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? 'Belum Ditentukan' }}</span>
-                        </div>
+                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Unit Kerja &amp; Atasan</h3>
                         <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
                             <span class="text-slate-400 font-medium">Bidang Dinas</span>
                             <span
                                 class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</span>
                         </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                        <div class="flex justify-between py-1.5 text-xs">
                             <span class="text-slate-400 font-medium">Atasan Langsung</span>
                             <span
                                 class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
-                        </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">Tipe Kerja</span>
-                            <span
-                                class="px-2.5 py-0.5 rounded-full font-bold uppercase {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600' }}">
-                                {{ $user->status_kerja ?? 'WFO' }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">Shift Kerja</span>
-                            <span
-                                class="font-bold text-slate-800">{{ $user->jadwalKerja->nama ?? 'Jadwal Default Sistem' }}</span>
-                        </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">ID Mesin (PIN)</span>
-                            <span
-                                class="font-bold font-mono text-slate-800">{{ $user->nomor_absensi ?? 'Belum Terhubung' }}</span>
                         </div>
                     </div>
 
