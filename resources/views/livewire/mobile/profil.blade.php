@@ -53,10 +53,10 @@
                 </div>
                 @php
                     $namaLengkap = $user->name;
-                    if ($user->gelar_depan && !str_starts_with($namaLengkap, $user->gelar_depan)) {
+                    if ($user->gelar_depan && stripos($namaLengkap, $user->gelar_depan) === false) {
                         $namaLengkap = $user->gelar_depan . ' ' . $namaLengkap;
                     }
-                    if ($user->gelar_belakang && !str_contains($namaLengkap, $user->gelar_belakang)) {
+                    if ($user->gelar_belakang && stripos($namaLengkap, $user->gelar_belakang) === false) {
                         $namaLengkap .= ', ' . $user->gelar_belakang;
                     }
                 @endphp
