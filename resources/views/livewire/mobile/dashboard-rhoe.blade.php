@@ -54,7 +54,7 @@
         };
     @endphp
     <section class="-mx-4 -mt-4">
-        <div class="relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-600 px-5 pt-5 pb-12 text-white shadow-lg shadow-emerald-950/15">
+        <div class="relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-12 text-white shadow-lg shadow-sky-950/20">
             <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
 
             <!-- Row 1: Avatar + Sapaan + Bell -->
@@ -63,7 +63,7 @@
                     <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
                         class="w-10 h-10 rounded-full object-cover ring-2 ring-white/50 shrink-0">
                     <div class="min-w-0">
-                        <div class="text-[11px] text-emerald-100 font-medium">{{ $sapaan }},</div>
+                        <div class="text-[11px] text-sky-100 font-medium">{{ $sapaan }},</div>
                         <h1 class="text-sm font-extrabold tracking-tight truncate">{{ $user->name }}</h1>
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                     class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0">
                     <i class="fa-solid fa-bell text-sm"></i>
                     @if ($unreadNotifCount > 0)
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-emerald-700"></span>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-sky-800"></span>
                     @endif
                 </button>
             </div>
@@ -79,21 +79,21 @@
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
             <div class="mt-5 flex items-end justify-between gap-3 relative z-10">
                 <div>
-                    <div class="text-[11px] text-emerald-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
+                    <div class="text-[11px] text-sky-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
                     <div class="flex items-baseline gap-1 font-mono mt-0.5">
                         <span x-text="jam" class="text-3xl font-black tracking-tight">--:--</span>
-                        <span x-text="':' + detik" class="text-sm font-bold text-emerald-200"></span>
-                        <span class="text-[10px] font-bold text-emerald-200 ml-0.5">WIB</span>
+                        <span x-text="':' + detik" class="text-sm font-bold text-sky-200"></span>
+                        <span class="text-[10px] font-bold text-sky-200 ml-0.5">WIB</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 text-right">
                     <div>
-                        <div class="text-[10px] text-emerald-100">Masuk</div>
+                        <div class="text-[10px] text-sky-100">Masuk</div>
                         <div class="text-xs font-black font-mono">{{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') : '--:--' }}</div>
                     </div>
                     <div class="w-px h-6 bg-white/20"></div>
                     <div>
-                        <div class="text-[10px] text-emerald-100">Pulang</div>
+                        <div class="text-[10px] text-sky-100">Pulang</div>
                         <div class="text-xs font-black font-mono">{{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') : '--:--' }}</div>
                     </div>
                 </div>

@@ -189,7 +189,7 @@ class AttendancePunchService
                 'success' => true,
                 'type' => 'success',
                 'title' => 'Absen Masuk Berhasil!',
-                'message' => "Tercatat pada pukul {$now} WIB ({$labelStatus}){$extraMsg}. Selamat bertugas!",
+                'message' => "Tercatat pada pukul {$now} WIB ({$labelStatus}){$extraMsg}. Semangat bertugas, {$user->name}!",
                 'jam' => $now,
                 'status' => $status,
             ];
@@ -281,7 +281,7 @@ class AttendancePunchService
                 'success' => true,
                 'type' => 'success',
                 'title' => 'Absen Keluar Berhasil!',
-                'message' => "Tercatat pada pukul {$now} WIB{$noteMsg}{$extraMsg}. Terima kasih atas dedikasi dan kerja keras Anda hari ini!",
+                'message' => "Tercatat pada pukul {$now} WIB{$noteMsg}{$extraMsg}. Terima kasih atas dedikasi dan semangatnya hari ini, {$user->name}!",
                 'jam' => $now,
                 'is_pulang_cepat' => $isPulangCepat,
             ];
