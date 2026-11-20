@@ -372,57 +372,94 @@
             x-cloak
             x-transition.opacity.duration.150ms
             class="fixed inset-0 z-40 max-w-[440px] mx-auto bg-slate-50 dark:bg-[#09090b] pb-24 space-y-4 pointer-events-none">
-            <!-- Hero Gradient Skeleton + Floating Layanan Card -->
-            <div class="animate-pulse">
-                <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 space-y-5">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-300 dark:bg-zinc-700 shrink-0"></div>
-                            <div class="space-y-1.5">
-                                <div class="h-2.5 w-20 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                                <div class="h-3.5 w-36 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+            <!-- 1. Skeleton Beranda -->
+            <template x-if="target === 'dashboard'">
+                <div class="space-y-4 animate-pulse">
+                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 space-y-5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-300 dark:bg-zinc-700 shrink-0"></div>
+                                <div class="space-y-1.5">
+                                    <div class="h-2.5 w-20 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                                    <div class="h-3.5 w-36 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                                </div>
                             </div>
+                            <div class="w-9 h-9 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
                         </div>
-                        <div class="w-9 h-9 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                    </div>
-                    <div class="flex items-end justify-between">
-                        <div class="space-y-2">
-                            <div class="h-2.5 w-28 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                        <div class="flex items-end justify-between">
                             <div class="h-7 w-32 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                            <div class="h-8 w-24 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
                         </div>
+                    </div>
+                    <div class="-mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5">
+                        <div class="grid grid-cols-4 gap-3">
+                            @for ($i = 0; $i < 8; $i++)
+                                <div class="flex flex-col items-center gap-1.5">
+                                    <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
+                                    <div class="h-2 w-10 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
+                    <div class="px-4 grid grid-cols-2 gap-3">
+                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5"></div>
+                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5"></div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 2. Skeleton Presensi -->
+            <template x-if="target === 'absensi'">
+                <div class="space-y-4 animate-pulse">
+                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 flex items-center justify-between">
+                        <div class="h-5 w-40 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                        <div class="h-9 w-20 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
+                    </div>
+                    <div class="-mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-3">
+                        <div class="h-7 w-32 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
+                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
+                        </div>
+                    </div>
+                    <div class="mx-4 h-56 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                </div>
+            </template>
+
+            <!-- 3. Skeleton Riwayat -->
+            <template x-if="target === 'riwayat'">
+                <div class="space-y-4 animate-pulse">
+                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 flex items-center justify-between">
+                        <div class="h-5 w-36 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
                         <div class="h-8 w-24 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
                     </div>
-                </div>
-                <div class="-mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5 shadow-sm">
-                    <div class="grid grid-cols-4 gap-3">
-                        @for ($i = 0; $i < 8; $i++)
-                            <div class="flex flex-col items-center gap-1.5">
-                                <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
-                                <div class="h-2 w-10 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                            </div>
+                    <div class="-mt-8 mx-4 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                    <div class="mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 grid grid-cols-3 gap-2">
+                        @for ($i = 0; $i < 6; $i++)
+                            <div class="h-12 rounded-xl bg-slate-100 dark:bg-zinc-800"></div>
                         @endfor
                     </div>
+                    <div class="mx-4 space-y-2.5">
+                        <div class="h-20 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                        <div class="h-20 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                    </div>
                 </div>
-            </div>
-            <!-- 2-Col Bento Skeleton -->
-            <div class="px-4 grid grid-cols-2 gap-3 animate-pulse">
-                <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5 space-y-2">
-                    <div class="h-2.5 w-16 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                    <div class="h-5 w-20 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                    <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-zinc-800"></div>
+            </template>
+
+            <!-- 4. Skeleton Izin & Profil -->
+            <template x-if="target === 'izin' || target === 'profil'">
+                <div class="space-y-4 animate-pulse">
+                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-10 flex items-center justify-between">
+                        <div class="h-5 w-40 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                        <div class="h-8 w-24 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
+                    </div>
+                    <div class="mx-4 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                    <div class="mx-4 space-y-3">
+                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                    </div>
                 </div>
-                <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5 space-y-2">
-                    <div class="h-2.5 w-16 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                    <div class="h-5 w-20 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                    <div class="h-1.5 w-full rounded-full bg-slate-100 dark:bg-zinc-800"></div>
-                </div>
-            </div>
-            <!-- List Card Skeleton -->
-            <div class="mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-3 animate-pulse">
-                <div class="h-3 w-32 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                <div class="h-3 w-full rounded-full bg-slate-100 dark:bg-zinc-800/80"></div>
-                <div class="h-3 w-3/4 rounded-full bg-slate-100 dark:bg-zinc-800/80"></div>
-            </div>
+            </template>
         </div>
 
         <!-- Content -->
