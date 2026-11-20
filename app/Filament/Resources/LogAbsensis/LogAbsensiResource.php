@@ -22,10 +22,7 @@ class LogAbsensiResource extends Resource
 {
     protected static ?string $model = LogAbsensi::class;
 
-    public static function shouldRegisterNavigation(): bool
-    {
-        return false;
-    }
+    protected static ?string $navigationLabel = 'Log Web & Mobile';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
     protected static ?string $modelLabel = 'Log Absensi';
