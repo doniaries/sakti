@@ -505,25 +505,30 @@
                      }"></div>
 
                 <!-- Animated Icon Ring -->
-                <div class="mx-auto w-16 h-16 rounded-3xl flex items-center justify-center text-2xl mb-4 shadow-lg transition-transform duration-300"
-                     :class="{
-                        'bg-rose-50 text-rose-500 ring-8 ring-rose-500/10 shadow-rose-500/20': type === 'error',
-                        'bg-emerald-50 text-emerald-500 ring-8 ring-emerald-500/10 shadow-emerald-500/20': type === 'success',
-                        'bg-amber-50 text-amber-500 ring-8 ring-amber-500/10 shadow-amber-500/20': type === 'warning',
-                        'bg-sky-50 text-sky-500 ring-8 ring-sky-500/10 shadow-sky-500/20': type === 'info'
-                     }">
-                    <template x-if="type === 'error'">
-                        <i class="fa-solid fa-xmark"></i>
-                    </template>
+                <div class="relative mx-auto w-16 h-16 mb-4 flex items-center justify-center">
                     <template x-if="type === 'success'">
-                        <i class="fa-solid fa-check"></i>
+                        <span class="absolute inset-0 rounded-full bg-emerald-400/35 animate-ping"></span>
                     </template>
-                    <template x-if="type === 'warning'">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                    </template>
-                    <template x-if="type === 'info'">
-                        <i class="fa-solid fa-info"></i>
-                    </template>
+                    <div class="relative w-16 h-16 rounded-full flex items-center justify-center text-2xl shadow-lg transition-transform duration-300"
+                         :class="{
+                            'bg-rose-50 text-rose-500 ring-8 ring-rose-500/10 shadow-rose-500/20': type === 'error',
+                            'bg-gradient-to-br from-emerald-500 to-teal-600 text-white ring-8 ring-emerald-500/20 shadow-emerald-500/30 animate-bounce': type === 'success',
+                            'bg-amber-50 text-amber-500 ring-8 ring-amber-500/10 shadow-amber-500/20': type === 'warning',
+                            'bg-sky-50 text-sky-500 ring-8 ring-sky-500/10 shadow-sky-500/20': type === 'info'
+                         }">
+                        <template x-if="type === 'error'">
+                            <i class="fa-solid fa-xmark"></i>
+                        </template>
+                        <template x-if="type === 'success'">
+                            <i class="fa-solid fa-check"></i>
+                        </template>
+                        <template x-if="type === 'warning'">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </template>
+                        <template x-if="type === 'info'">
+                            <i class="fa-solid fa-info"></i>
+                        </template>
+                    </div>
                 </div>
 
                 <!-- Title & Message -->
