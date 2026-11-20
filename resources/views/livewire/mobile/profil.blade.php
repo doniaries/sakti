@@ -21,11 +21,12 @@
 
     <!-- Header Avatar & Nama (Vibrant Gradient & Legible Typography) -->
     <div
-        class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-5 shadow-xl shadow-sky-950/20 mb-6 relative overflow-hidden border border-white/15">
+        class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-5 shadow-xl shadow-sky-950/20 mb-6 relative isolate overflow-hidden border border-white/15">
         <!-- Glow accents -->
         <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-sky-400/20 rounded-full blur-2xl pointer-events-none">
         </div>
         <div class="absolute -left-10 -top-10 w-32 h-32 bg-teal-400/15 rounded-full blur-2xl pointer-events-none"></div>
+        <x-mobile.logo-ornament />
 
         <div class="flex items-center space-x-4 relative z-10">
             <div class="relative">

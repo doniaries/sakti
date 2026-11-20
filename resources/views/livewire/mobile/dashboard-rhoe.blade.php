@@ -46,7 +46,8 @@
     <!-- 1. UNIFIED HERO COMMAND CARD (Profil + Jam + Status + 1 Tombol Aksi Cerdas) -->
     <section class="rounded-3xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm space-y-4">
         <!-- Row 1: Identitas Pegawai (tema sama dengan halaman Profil) -->
-        <div class="-mx-4 -mt-4 rounded-t-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] p-4 text-white flex items-center gap-3">
+        <div class="relative isolate overflow-hidden -mx-4 -mt-4 rounded-t-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] p-4 text-white flex items-center gap-3">
+                <x-mobile.logo-ornament />
                 <label class="relative shrink-0 cursor-pointer group" title="Ketuk untuk ganti foto profil">
                     <input type="file" wire:model="new_avatar" accept="image/*" class="hidden">
                     <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"

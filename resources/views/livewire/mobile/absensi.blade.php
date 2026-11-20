@@ -40,7 +40,8 @@
 
         <!-- Row 1: Identitas Pegawai (tema sama dengan halaman Profil) -->
         @auth
-        <div class="-mx-4 -mt-4 mb-1 rounded-t-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] p-4 text-white flex items-center gap-3">
+        <div class="relative isolate overflow-hidden -mx-4 -mt-4 mb-1 rounded-t-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] p-4 text-white flex items-center gap-3">
+            <x-mobile.logo-ornament />
             <img src="{{ auth()->user()->avatar_image_url }}"
                  alt="{{ auth()->user()->name }}"
                  class="w-14 h-14 rounded-2xl object-cover ring-2 ring-white/30 shadow-md shrink-0">
