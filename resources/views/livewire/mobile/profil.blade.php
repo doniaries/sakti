@@ -40,18 +40,166 @@
             </div>
         </div>
 
-        <div class="flex items-center space-x-4 relative z-10">
-            <div class="relative">
+        <div class="flex items-center space-x-4 relative z-10"
+            x-data="{
+                cropOpen: false,
+                imgSrc: '',
+                imgEl: null,
+                zoom: 1,
+                rotation: 0,
+                offsetX: 0,
+                offsetY: 0,
+                dragging: false,
+                startX: 0,
+                startY: 0,
+                saving: false,
+                openCropper(e) {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        this.imgSrc = ev.target.result;
+                        const img = new Image();
+                        img.onload = () => {
+                            this.imgEl = img;
+                            this.zoom = 1;
+                            this.rotation = 0;
+                            this.offsetX = 0;
+                            this.offsetY = 0;
+                            this.cropOpen = true;
+                            this.$nextTick(() => this.drawPreview());
+                        };
+                        img.src = this.imgSrc;
+                    };
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                },
+                startDrag(e) {
+                    this.dragging = true;
+                    const pt = e.touches ? e.touches[0] : e;
+                    this.startX = pt.clientX - this.offsetX;
+                    this.startY = pt.clientY - this.offsetY;
+                },
+                onDrag(e) {
+                    if (!this.dragging) return;
+                    const pt = e.touches ? e.touches[0] : e;
+                    this.offsetX = pt.clientX - this.startX;
+                    this.offsetY = pt.clientY - this.startY;
+                    this.drawPreview();
+                },
+                endDrag() {
+                    this.dragging = false;
+                },
+                drawPreview() {
+                    const canvas = this.$refs.cropCanvas;
+                    if (!canvas || !this.imgEl) return;
+                    const size = 240;
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, size, size);
+                    ctx.save();
+                    ctx.translate(size / 2 + this.offsetX, size / 2 + this.offsetY);
+                    ctx.rotate((this.rotation * Math.PI) / 180);
+                    const baseScale = Math.max(size / this.imgEl.width, size / this.imgEl.height);
+                    const scale = baseScale * this.zoom;
+                    ctx.drawImage(
+                        this.imgEl,
+                        (-this.imgEl.width * scale) / 2,
+                        (-this.imgEl.height * scale) / 2,
+                        this.imgEl.width * scale,
+                        this.imgEl.height * scale
+                    );
+                    ctx.restore();
+                },
+                async saveCrop() {
+                    if (!this.imgEl || this.saving) return;
+                    this.saving = true;
+                    const out = document.createElement('canvas');
+                    const size = 512;
+                    const ratio = size / 240;
+                    out.width = size;
+                    out.height = size;
+                    const ctx = out.getContext('2d');
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, size, size);
+                    ctx.save();
+                    ctx.translate(size / 2 + this.offsetX * ratio, size / 2 + this.offsetY * ratio);
+                    ctx.rotate((this.rotation * Math.PI) / 180);
+                    const baseScale = Math.max(size / this.imgEl.width, size / this.imgEl.height);
+                    const scale = baseScale * this.zoom;
+                    ctx.drawImage(
+                        this.imgEl,
+                        (-this.imgEl.width * scale) / 2,
+                        (-this.imgEl.height * scale) / 2,
+                        this.imgEl.width * scale,
+                        this.imgEl.height * scale
+                    );
+                    ctx.restore();
+                    const dataUrl = out.toDataURL('image/jpeg', 0.9);
+                    await $wire.saveCroppedAvatar(dataUrl);
+                    this.saving = false;
+                    this.cropOpen = false;
+                }
+            }"
+        >
+            <label class="relative block cursor-pointer group shrink-0" title="Klik foto untuk ubah & crop (Maks. 2MB)">
                 <img src="{{ $user->avatar_image_url }}" alt="Avatar Pegawai"
-                    class="w-16 h-16 rounded-full object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20">
+                    class="w-16 h-16 rounded-full object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20 group-hover:brightness-90 group-active:scale-95 transition">
+                <input type="file" @change="openCropper($event)" class="hidden" accept="image/*">
+            </label>
 
-                <label
-                    class="absolute -bottom-1 -right-1 w-7 h-7 bg-amber-400 hover:bg-amber-300 text-slate-900 rounded-full flex items-center justify-center text-xs cursor-pointer shadow-md font-bold hover:scale-110 active:scale-95 transition-transform ring-2 ring-slate-900"
-                    title="Ganti Foto Profil Langsung (Maks. 2MB)">
-                    <i class="fa-solid fa-camera"></i>
-                    <input type="file" wire:model="new_avatar" class="hidden" accept="image/*">
-                </label>
-            </div>
+            <template x-teleport="body">
+                <div x-show="cropOpen" x-cloak @keydown.escape.window="cropOpen = false"
+                    class="fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-xs flex items-end sm:items-center justify-center p-4"
+                    @click.self="cropOpen = false">
+                    <div class="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm font-extrabold text-slate-800">Edit &amp; Crop Foto Profil</h3>
+                                <p class="text-[11px] text-slate-500">Geser foto atau atur zoom agar pas di tengah</p>
+                            </div>
+                            <button type="button" @click="cropOpen = false"
+                                class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center cursor-pointer">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex justify-center">
+                            <div class="relative w-[240px] h-[240px] rounded-full overflow-hidden border-4 border-sky-500/30 shadow-inner bg-slate-900 touch-none cursor-grab active:cursor-grabbing"
+                                @mousedown="startDrag($event)" @mousemove.window="onDrag($event)" @mouseup.window="endDrag()"
+                                @touchstart.prevent="startDrag($event)" @touchmove.prevent="onDrag($event)" @touchend="endDrag()">
+                                <canvas x-ref="cropCanvas" class="w-[240px] h-[240px] block"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-xs font-bold text-slate-600 shrink-0"><i class="fa-solid fa-magnifying-glass-plus mr-1 text-sky-600"></i>Zoom</span>
+                                <input type="range" min="1" max="3" step="0.05" x-model.number="zoom" @input="drawPreview()"
+                                    class="w-full accent-sky-600 cursor-pointer">
+                                <button type="button" @click="rotation = (rotation + 90) % 360; drawPreview()"
+                                    class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold shrink-0 cursor-pointer"
+                                    title="Putar 90°">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-1">
+                            <button type="button" @click="cropOpen = false"
+                                class="flex-1 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="button" @click="saveCrop()" :disabled="saving"
+                                class="flex-1 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white text-xs font-bold shadow-md shadow-sky-600/25 cursor-pointer">
+                                <span x-show="!saving">Simpan Foto</span>
+                                <span x-show="saving"><i class="fa-solid fa-spinner fa-spin mr-1"></i>Menyimpan...</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
 
             <div class="flex-1 min-w-0">
                 <div
@@ -134,7 +282,13 @@
             </button>
         @else
             <div class="px-4 py-2 rounded-2xl text-xs font-bold bg-sky-600 text-white shadow-xs">
-                <i class="fa-solid fa-pen-to-square mr-1.5"></i>Mode Edit Profil
+                <i class="fa-solid fa-pen-to-square mr-1.5"></i>{{ match ($activeTab) {
+                    'golongan' => 'Mode Edit Pangkat / Golongan',
+                    'jabatan' => 'Mode Edit Jabatan',
+                    'pendidikan' => 'Mode Edit Pendidikan',
+                    'keluarga' => 'Mode Edit Keluarga',
+                    default => 'Mode Edit Data Utama',
+                } }}
             </div>
         @endif
     </div>
@@ -144,7 +298,13 @@
             <button type="button" wire:click="toggleEdit(true)"
                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-bold flex items-center gap-1.5 border border-sky-200/70 transition active:scale-95 cursor-pointer">
                 <i class="fa-solid fa-pen-to-square text-[11px]"></i>
-                <span>Ubah Data</span>
+                <span>{{ match ($activeTab) {
+                    'golongan' => 'Ubah Pangkat / Golongan',
+                    'jabatan' => 'Ubah Jabatan',
+                    'pendidikan' => 'Ubah Pendidikan',
+                    'keluarga' => 'Ubah Data Keluarga',
+                    default => 'Ubah Data Utama',
+                } }}</span>
             </button>
         </div>
     @endif
@@ -213,11 +373,11 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal SK</label>
-                                    <input type="date" wire:model="gol_tanggal_sk" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                    <x-mobile.date-picker wire:model="gol_tanggal_sk" clearable />
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">TMT Golongan</label>
-                                    <input type="date" wire:model="gol_tmt_golongan" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                    <x-mobile.date-picker wire:model="gol_tmt_golongan" clearable />
                                 </div>
                             </div>
                             <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
@@ -288,11 +448,11 @@
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal SK</label>
-                                    <input type="date" wire:model="jab_tanggal_sk" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                    <x-mobile.date-picker wire:model="jab_tanggal_sk" clearable />
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">TMT Jabatan</label>
-                                    <input type="date" wire:model="jab_tmt_jabatan" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                    <x-mobile.date-picker wire:model="jab_tmt_jabatan" clearable />
                                 </div>
                             </div>
                             <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
@@ -410,7 +570,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Lahir</label>
-                            <input type="date" wire:model="tanggal_lahir" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <x-mobile.date-picker wire:model="tanggal_lahir" clearable />
                         </div>
                     </div>
 

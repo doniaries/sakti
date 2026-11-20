@@ -21,8 +21,10 @@
 
         <div class="mb-4">
             <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Tanggal LHK</label>
-            <input type="date" wire:model.live="tanggal"
-                class="w-full bg-[#F5F7FA] dark:bg-[#0F1E33] border border-slate-200/70 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#1B6CA8] transition">
+            <x-mobile.date-picker
+                wire:model.live="tanggal"
+                buttonClass="w-full bg-[#F5F7FA] dark:bg-[#0F1E33] border border-slate-200/70 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-[#1B6CA8] transition"
+            />
         </div>
 
         @if (!$absenHariIni && !$existingLhk)

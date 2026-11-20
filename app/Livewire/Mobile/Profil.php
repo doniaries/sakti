@@ -300,6 +300,47 @@ class Profil extends Component
         ]);
     }
 
+    public function saveCroppedAvatar(string $dataUrl): void
+    {
+        if (! preg_match('/^data:image\/(jpeg|jpg|png|webp);base64,(.+)$/i', $dataUrl, $matches)) {
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'title' => 'Format Tidak Valid',
+                'message' => 'Pilih file gambar JPG, PNG, atau WEBP.',
+            ]);
+            return;
+        }
+
+        $binary = base64_decode($matches[2], true);
+        if ($binary === false || strlen($binary) > 2 * 1024 * 1024) {
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'title' => 'Ukuran Terlalu Besar',
+                'message' => 'Ukuran foto hasil crop maksimal 2MB.',
+            ]);
+            return;
+        }
+
+        /** @var User $freshUser */
+        $freshUser = User::findOrFail(Auth::id());
+
+        $oldAvatar = $freshUser->avatar_url;
+        if (! empty($oldAvatar) && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldAvatar)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($oldAvatar);
+        }
+
+        $ext = strtolower($matches[1]) === 'jpeg' ? 'jpg' : strtolower($matches[1]);
+        $path = 'avatars/' . $freshUser->id . '_' . time() . '.' . $ext;
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, $binary);
+        $freshUser->update(['avatar_url' => $path]);
+
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Foto Profil Diperbarui!',
+            'message' => 'Foto profil hasil crop berhasil disimpan.',
+        ]);
+    }
+
     public function toggleEdit(bool $full = false): void
     {
         $this->fullEditMode = $full;
