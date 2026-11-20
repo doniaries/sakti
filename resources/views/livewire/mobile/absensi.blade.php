@@ -54,9 +54,17 @@
                      class="w-11 h-11 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 shadow-xs shrink-0">
                 <div class="min-w-0">
                     <h2 class="text-sm font-black tracking-tight text-zinc-900 dark:text-white truncate">{{ auth()->user()->name }}</h2>
-                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
-                        {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}{{ auth()->user()->nip ? ' • NIP ' . auth()->user()->nip : '' }}
-                    </p>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">{{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}</p>
+                    @if (auth()->user()->nip)
+                        <button type="button"
+                            x-data="{ copied: false }"
+                            @click="navigator.clipboard.writeText('{{ auth()->user()->nip }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
+                            class="mt-0.5 inline-flex items-center gap-1 text-[11px] font-mono text-zinc-500 dark:text-zinc-400 hover:text-sky-600 cursor-pointer select-all"
+                            title="Salin NIP">
+                            <span>NIP {{ auth()->user()->nip }}</span>
+                            <i class="fa-regular text-[10px]" :class="copied ? 'fa-circle-check text-emerald-500' : 'fa-copy'"></i>
+                        </button>
+                    @endif
                 </div>
             </div>
             <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider {{ $isWfh ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' }}">
@@ -161,9 +169,6 @@
                 </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-                <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold border"
-                    :class="isWithinRadius === false ? 'bg-rose-500/15 text-rose-500 border-rose-400/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-400/30'"
-                    x-text="'Jarak: ' + currentDistanceText"></span>
                 <button type="button" @click="detectPosition(true)"
                     class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
                     <i class="fa-solid fa-crosshairs text-[10px]"></i>
