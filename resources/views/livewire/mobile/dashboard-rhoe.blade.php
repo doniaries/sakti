@@ -247,50 +247,35 @@
         @endif
     </main>
 
-    <!-- Bottom Sheet: Notifikasi -->
-    <div x-show="notifSheet" x-cloak class="fixed inset-0 z-50 flex items-end justify-center">
-        <div x-show="notifSheet" x-transition.opacity @click="notifSheet = false"
-            class="fixed inset-0 bg-black/50 backdrop-blur-xs"></div>
-
-        <div x-show="notifSheet"
-            x-transition:enter="transition ease-out duration-250"
-            x-transition:enter-start="translate-y-full"
-            x-transition:enter-end="translate-y-0"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="translate-y-0"
-            x-transition:leave-end="translate-y-full"
-            class="relative w-full max-w-[440px] max-h-[75vh] flex flex-col rounded-t-3xl bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-5 shadow-2xl z-10">
-            <div class="w-10 h-1 rounded-full bg-zinc-300 dark:bg-zinc-700 mx-auto mb-3 shrink-0"></div>
-            <div class="flex items-center justify-between mb-3 shrink-0">
-                <h3 class="text-sm font-extrabold">Notifikasi ({{ $unreadNotifCount }})</h3>
-                <div class="flex items-center gap-2">
-                    @if ($unreadNotifCount > 0)
-                        <button type="button" wire:click="markAllNotificationsAsRead"
-                            class="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline cursor-pointer">
-                            Tandai Dibaca
-                        </button>
-                    @endif
-                    <button type="button" @click="notifSheet = false" class="text-zinc-400 hover:text-zinc-600 cursor-pointer">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
+    <!-- Rhoe UI Modal: Notifikasi -->
+    <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin &amp; kinerja">
+        <div class="space-y-2">
+            @forelse ($recentNotifications as $notif)
+                <div wire:click="markNotificationAsRead('{{ $notif->id }}')"
+                    class="p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
+                    <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
+                    <p class="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
+                    <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
                 </div>
-            </div>
-
-            <div class="overflow-y-auto space-y-2 pr-1">
-                @forelse ($recentNotifications as $notif)
-                    <div wire:click="markNotificationAsRead('{{ $notif->id }}')"
-                        class="p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/70 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
-                        <div class="text-xs font-bold">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
-                        <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
-                        <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
-                    </div>
-                @empty
-                    <div class="py-8 text-center text-xs text-zinc-400">
-                        <i class="fa-regular fa-bell-slash text-2xl mb-2 block opacity-50"></i>
-                        Belum ada notifikasi.
-                    </div>
-                @endforelse
-            </div>
+            @empty
+                <div class="py-8 text-center text-xs text-zinc-400">
+                    <i class="fa-regular fa-bell-slash text-2xl mb-2 block opacity-50"></i>
+                    Belum ada notifikasi.
+                </div>
+            @endforelse
         </div>
-    </div>
+
+        <x-slot:footer>
+            @if ($unreadNotifCount > 0)
+                <button type="button" wire:click="markAllNotificationsAsRead"
+                    class="px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition-colors cursor-pointer">
+                    Tandai Semua Dibaca
+                </button>
+            @endif
+            <button type="button" @click="notifSheet = false"
+                class="px-3.5 py-2 rounded-xl bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-xs font-bold cursor-pointer">
+                Tutup
+            </button>
+        </x-slot:footer>
+    </x-mobile.rhoe-modal>
 </div>
