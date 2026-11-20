@@ -17,8 +17,8 @@ use Livewire\Component;
 #[Title('Absensi - Absensi LHK Mobile')]
 class Absensi extends Component
 {
-    public $latitude;
-    public $longitude;
+    public float|string|null $latitude = null;
+    public float|string|null $longitude = null;
     public bool $modeSimulasi = false;
     public ?string $simulasiJamAktif = null;
 
@@ -246,7 +246,7 @@ class Absensi extends Component
     /**
      * Fitur Admin: Set titik koordinat kantor ke posisi GPS saat ini
      */
-    public function setLokasiKantorKeSaya($lat, $lng): void
+    public function setLokasiKantorKeSaya(float|string|null $lat, float|string|null $lng): void
     {
         /** @var User $user */
         $user = Auth::user();
