@@ -91,18 +91,11 @@
                     </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Kode</label>
-                        <input type="text" wire:model="kode" placeholder="1"
-                            class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi (Menit)</label>
-                        <input type="number" min="1" wire:model="menit"
-                            class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
-                        @error('menit') <span class="text-rose-500 text-[10px]">{{ $message }}</span> @enderror
-                    </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi (Menit)</label>
+                    <input type="number" min="1" wire:model="menit"
+                        class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
+                    @error('menit') <span class="text-rose-500 text-[10px]">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
