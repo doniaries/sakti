@@ -2,31 +2,37 @@
     /** @var \App\Models\User|null $authUser */
     $authUser = auth()->user();
     $unreadCount = $authUser ? $authUser->unreadNotifications()->count() : 0;
-    $isAdminUser = $authUser && $authUser->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'ppk', 'pptk', 'bendahara']);
+    $isAdminUser =
+        $authUser &&
+        $authUser->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa', 'ppk', 'pptk', 'bendahara']);
 @endphp
 
 <header x-data="{
-        isDark: document.documentElement.classList.contains('dark'),
-        unreadCount: {{ (int) $unreadCount }},
-        toggleTheme() {
-            if (window.toggleMobileTheme) {
-                window.toggleMobileTheme();
-                this.isDark = document.documentElement.classList.contains('dark');
-            }
+    isDark: document.documentElement.classList.contains('dark'),
+    unreadCount: {{ (int) $unreadCount }},
+    toggleTheme() {
+        if (window.toggleMobileTheme) {
+            window.toggleMobileTheme();
+            this.isDark = document.documentElement.classList.contains('dark');
         }
-    }"
-    @mobile-theme-changed.window="isDark = $event.detail.dark"
+    }
+}" @mobile-theme-changed.window="isDark = $event.detail.dark"
     @notif-count-updated.window="unreadCount = $event.detail.count ?? 0"
     class="sticky top-0 z-30 relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-sky-600 via-blue-600 to-teal-500 dark:from-slate-900 dark:via-sky-950 dark:to-teal-950 text-white shadow-lg shadow-sky-900/15 dark:shadow-black/40 border-b border-white/15 dark:border-sky-400/15 px-4 pt-3.5 pb-4 transition-colors duration-300">
 
     <!-- Subtle Ambient Glow & Curved Accent -->
-    <div class="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/15 dark:bg-sky-400/15 blur-2xl"></div>
-    <div class="pointer-events-none absolute -bottom-10 -left-8 w-28 h-28 rounded-full bg-teal-300/20 dark:bg-emerald-400/10 blur-2xl"></div>
+    <div
+        class="pointer-events-none absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/15 dark:bg-sky-400/15 blur-2xl">
+    </div>
+    <div
+        class="pointer-events-none absolute -bottom-10 -left-8 w-28 h-28 rounded-full bg-teal-300/20 dark:bg-emerald-400/10 blur-2xl">
+    </div>
 
     <div class="relative z-10 flex items-center justify-between gap-2">
         <!-- Brand -->
         <a href="{{ route('mobile.dashboard') }}" wire:navigate class="flex items-center gap-2.5 min-w-0 group">
-            <div class="w-9 h-9 rounded-2xl bg-white/20 dark:bg-white/10 border border-white/25 backdrop-blur-md p-1.5 flex items-center justify-center shadow-sm shrink-0 group-active:scale-95 transition-transform">
+            <div
+                class="w-9 h-9 rounded-2xl bg-white/20 dark:bg-white/10 border border-white/25 backdrop-blur-md p-1.5 flex items-center justify-center shadow-sm shrink-0 group-active:scale-95 transition-transform">
                 <img src="{{ asset('favicon.png') }}" alt="Logo" class="w-full h-full object-contain">
             </div>
             <div class="min-w-0">
@@ -40,13 +46,10 @@
         <!-- Action Buttons -->
         <div class="flex items-center gap-1.5 shrink-0">
             <!-- Notification Bell with Badge -->
-            <button type="button"
-                @click="window.dispatchEvent(new CustomEvent('open-notif-sheet'))"
-                title="Notifikasi"
+            <button type="button" @click="window.dispatchEvent(new CustomEvent('open-notif-sheet'))" title="Notifikasi"
                 class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 dark:bg-white/10 dark:hover:bg-white/15 border border-white/20 text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer backdrop-blur-md">
                 <i class="fa-regular fa-bell text-xs"></i>
-                <span x-show="unreadCount > 0" x-cloak
-                    x-text="unreadCount > 9 ? '9+' : unreadCount"
+                <span x-show="unreadCount > 0" x-cloak x-text="unreadCount > 9 ? '9+' : unreadCount"
                     class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center shadow">
                 </span>
             </button>
