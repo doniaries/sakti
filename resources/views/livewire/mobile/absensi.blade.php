@@ -64,15 +64,21 @@
             </div>
         </div>
 
-        <!-- Baris 2: Jadwal Kerja & Batas Radius Kantor (Sesuai Pengaturan Absensi) -->
+        <!-- Baris 2: Jadwal Kerja & Perbandingan Jarak User vs Radius Kantor -->
         <div class="mt-2 pt-2 border-t border-white/15 flex items-center justify-between gap-2 text-[11px] relative z-10">
             <span class="text-sky-100 font-semibold truncate">
                 <i class="fa-regular fa-calendar-check text-sky-300 mr-1"></i>{{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
             </span>
-            <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border {{ $isWfh ? 'bg-amber-500/20 border-amber-400/30 text-amber-200' : 'bg-sky-400/20 border-sky-300/35 text-sky-100' }}">
-                <i class="fa-solid fa-bullseye text-[9px]"></i>
-                <span>{{ $isWfh ? 'Bebas WFH' : 'Radius: ' . $maxRadius . ' m' }}</span>
-            </span>
+            <button type="button" @click="detectPosition(true)" title="Ketuk untuk refresh GPS"
+                class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border cursor-pointer active:scale-95 transition"
+                :class="isWfh
+                    ? 'bg-amber-500/20 border-amber-400/30 text-amber-200'
+                    : (isWithinRadius === false
+                        ? 'bg-rose-500/25 border-rose-400/40 text-rose-100'
+                        : 'bg-emerald-500/25 border-emerald-400/40 text-emerald-100')">
+                <i class="fa-solid fa-location-dot text-[9px]"></i>
+                <span x-text="isWfh ? 'Bebas WFH' : ('Jarak ' + currentDistanceText + ' / Radius {{ $maxRadius }}m')">Cek GPS...</span>
+            </button>
         </div>
 
         <!-- Baris 3: Ringkasan Status Absen Datang & Pulang (Compact 2 Kolom) -->
