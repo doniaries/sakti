@@ -202,6 +202,11 @@
                             {{ $catName }}
                         </button>
                     @endforeach
+                    <a href="{{ route('panduan') }}"
+                        class="px-3.5 py-1.5 rounded-full text-xs font-extrabold border transition-all inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-sm shadow-emerald-600/25">
+                        <i class="fa-solid fa-book-open text-[11px]"></i>
+                        <span>Panduan Pengguna</span>
+                    </a>
                 </div>
             @endif
         </section>
@@ -255,10 +260,26 @@
         </p>
     </footer>
 
-    <!-- Floating Theme Toggle -->
-    <div class="fixed bottom-5 right-4 z-50 opacity-50 hover:opacity-100 transition-opacity">
+    <!-- Floating Scroll Up/Down + Theme Toggle -->
+    <div x-data="{
+            scrolled: false,
+            checkScroll() { this.scrolled = window.scrollY > 180; },
+            scrollAction() {
+                window.scrollTo({ top: this.scrolled ? 0 : document.documentElement.scrollHeight, behavior: 'smooth' });
+            }
+        }"
+        x-init="checkScroll()"
+        @scroll.window="checkScroll()"
+        class="fixed bottom-5 right-4 z-50 flex items-center gap-2 opacity-45 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
+        <button type="button" @click="scrollAction()"
+            :title="scrolled ? 'Kembali ke Atas' : 'Gulir ke Bawah'"
+            class="w-9 h-9 md:w-10 md:h-10 rounded-full rhoe-surface bg-zinc-900/70 border border-white/15 shadow-md backdrop-blur-md flex items-center justify-center cursor-pointer active:scale-90 transition-transform">
+            <i x-show="!scrolled" class="fa-solid fa-arrow-down text-sky-400 text-xs md:text-sm animate-bounce"></i>
+            <i x-show="scrolled" x-cloak class="fa-solid fa-arrow-up text-sky-400 text-xs md:text-sm animate-bounce"></i>
+        </button>
+
         <button type="button" onclick="window.toggleRhoeTheme()"
-            class="w-10 h-10 rounded-full rhoe-surface bg-zinc-900/80 border border-white/15 shadow-lg flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
+            class="w-9 h-9 md:w-10 md:h-10 rounded-full rhoe-surface bg-zinc-900/70 border border-white/15 shadow-md backdrop-blur-md flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
             title="Ganti Mode Terang / Gelap">
             <i x-show="!isLight" class="fa-solid fa-sun text-amber-400 text-sm"></i>
             <i x-show="isLight" x-cloak class="fa-solid fa-moon text-zinc-700 text-sm"></i>
