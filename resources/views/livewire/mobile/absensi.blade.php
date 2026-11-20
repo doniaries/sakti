@@ -24,6 +24,20 @@
         </div>
     </div>
 
+    @auth
+    <div class="mb-3 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
+        <img src="{{ auth()->user()->avatar_image_url }}"
+             alt="{{ auth()->user()->name }}"
+             class="w-11 h-11 rounded-full object-cover ring-2 ring-sky-100 shrink-0">
+        <div class="min-w-0 flex-1">
+            <p class="text-sm font-extrabold text-slate-800 truncate">{{ auth()->user()->name }}</p>
+            <p class="text-[11px] text-slate-500 font-medium truncate">
+                {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}{{ auth()->user()->nip ? ' • NIP ' . auth()->user()->nip : '' }}
+            </p>
+        </div>
+    </div>
+    @endauth
+
     <!-- Status Hari Libur / Selesai (Hanya tampil jika libur atau sudah selesai) -->
     @if ($hariLiburHariIni)
         <div class="mb-3 p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">

@@ -121,6 +121,7 @@ class Absensi extends Component
             'type' => $result['type'] ?? ($result['success'] ? 'success' : 'error'),
             'title' => $result['title'] ?? 'Presensi Kehadiran',
             'message' => $result['message'] ?? '',
+            'show_user' => (bool) ($result['success'] ?? false),
         ]);
     }
 
