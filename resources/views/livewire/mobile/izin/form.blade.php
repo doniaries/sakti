@@ -15,22 +15,26 @@
     <div class="mb-5">
         <label class="block text-xs font-bold text-slate-700 mb-2">Kategori Pengajuan</label>
         <div class="grid grid-cols-3 gap-2">
+        @php
+            $countByKat = fn (string $kat) => $riwayatPengajuan->filter(fn ($p) => ($p->jenisIzin?->kategori?->value ?? $p->jenisIzin?->kategori) === $kat)->count();
+        @endphp
+        <div class="grid grid-cols-3 gap-2">
             <button type="button" wire:click="setKategori('izin')"
-                class="py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'izin' ? 'bg-sky-50 border-sky-500 text-sky-700 ring-2 ring-sky-500/20' : 'bg-white border-slate-200 text-slate-600' }}">
-                <i
-                    class="fa-solid fa-envelope-open-text mb-1 text-sm {{ $kategoriFilter === 'izin' ? 'text-sky-600' : 'text-slate-400' }}"></i>
+                class="relative py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'izin' ? 'bg-sky-100/90 border-sky-500 text-sky-800 ring-2 ring-sky-500/20' : 'bg-sky-50/60 border-sky-200/70 text-sky-700' }}">
+                <span class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-full bg-sky-600 text-white text-[9px] font-extrabold">{{ $countByKat('izin') }}</span>
+                <i class="fa-solid fa-envelope-open-text mb-1 text-sm text-sky-600"></i>
                 <span>Izin</span>
             </button>
             <button type="button" wire:click="setKategori('sakit')"
-                class="py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'sakit' ? 'bg-rose-50 border-rose-500 text-rose-700 ring-2 ring-rose-500/20' : 'bg-white border-slate-200 text-slate-600' }}">
-                <i
-                    class="fa-solid fa-notes-medical mb-1 text-sm {{ $kategoriFilter === 'sakit' ? 'text-rose-600' : 'text-slate-400' }}"></i>
+                class="relative py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'sakit' ? 'bg-rose-100/90 border-rose-500 text-rose-800 ring-2 ring-rose-500/20' : 'bg-rose-50/60 border-rose-200/70 text-rose-700' }}">
+                <span class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[9px] font-extrabold">{{ $countByKat('sakit') }}</span>
+                <i class="fa-solid fa-notes-medical mb-1 text-sm text-rose-600"></i>
                 <span>Sakit</span>
             </button>
             <button type="button" wire:click="setKategori('cuti')"
-                class="py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'cuti' ? 'bg-amber-50 border-amber-500 text-amber-700 ring-2 ring-amber-500/20' : 'bg-white border-slate-200 text-slate-600' }}">
-                <i
-                    class="fa-solid fa-umbrella-beach mb-1 text-sm {{ $kategoriFilter === 'cuti' ? 'text-amber-600' : 'text-slate-400' }}"></i>
+                class="relative py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'cuti' ? 'bg-amber-100/90 border-amber-500 text-amber-800 ring-2 ring-amber-500/20' : 'bg-amber-50/60 border-amber-200/70 text-amber-700' }}">
+                <span class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-full bg-amber-600 text-white text-[9px] font-extrabold">{{ $countByKat('cuti') }}</span>
+                <i class="fa-solid fa-umbrella-beach mb-1 text-sm text-amber-600"></i>
                 <span>Cuti</span>
             </button>
         </div>
