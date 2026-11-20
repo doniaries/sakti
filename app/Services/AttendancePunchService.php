@@ -174,6 +174,10 @@ class AttendancePunchService
                 'jam_masuk' => $now,
                 'latitude_masuk' => $lat,
                 'longitude_masuk' => $lng,
+                'log_pulang_id' => null,
+                'jam_pulang' => null,
+                'latitude_pulang' => null,
+                'longitude_pulang' => null,
                 'is_absen_mobile' => true,
                 'jadwal_kerja_id' => $jadwal?->id,
             ]);
