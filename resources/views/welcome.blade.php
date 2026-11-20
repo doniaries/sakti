@@ -8,30 +8,37 @@
     <meta name="google-site-verification" content="1l9WVhQ-bVhmRSL4KJIOxPk9MJ1NRdE99cOTtxgHEK4" />
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/') }}">
-    <title>Portal Parpora – Dinas Pariwisata, Pemuda dan Olahraga</title>
-    <meta name="description" content="{{ $pengaturan->deskripsi_singkat ?? 'SAKTI (Sistem Administrasi Kinerja Terintegrasi) Dinas Pariwisata, Pemuda dan Olahraga (Disparpora) Kabupaten Sijunjung. Portal resmi presensi pegawai, Laporan Harian Kinerja (LHK), dan administrasi terpadu.' }}">
-    <meta name="keywords" content="SAKTI, SAKTI Parpora, SAKTI Sijunjung, SAKTI Disparpora Sijunjung, Sistem Administrasi Kinerja Terintegrasi, Disparpora Kabupaten Sijunjung, Absensi Disparpora Sijunjung">
+    <title>Portal Parpora Sijunjung – SAKTI Parpora | Dinas Pariwisata, Pemuda dan Olahraga</title>
+    <meta name="description" content="Portal Parpora Sijunjung (SAKTI Parpora) – Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Disparpora) Kabupaten Sijunjung. Akses presensi pegawai, Laporan Harian Kinerja (LHK), SPJ, dan layanan terpadu Parpora Sijunjung.">
+    <meta name="keywords" content="Portal Parpora, Portal Parpora Sijunjung, SAKTI Parpora, SAKTI Parpora Sijunjung, Parpora Sijunjung, Disparpora Sijunjung, Sistem Administrasi Kinerja Terintegrasi, Absensi Disparpora Sijunjung">
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:site_name" content="{{ $pengaturan->nama_aplikasi ?? 'SAKTI Parpora Sijunjung' }}">
-    <meta property="og:title" content="{{ $pengaturan->nama_aplikasi ?? 'SAKTI Parpora' }} - {{ $pengaturan->nama_dinas ?? 'Disparpora Kabupaten Sijunjung' }}">
-    <meta property="og:description" content="{{ $pengaturan->deskripsi_singkat ?? 'Sistem Administrasi Kinerja Terintegrasi (SAKTI) Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.' }}">
-    <meta property="og:image" content="{{ asset('favicon.png') }}">
+    <meta property="og:site_name" content="Portal Parpora Sijunjung (SAKTI Parpora)">
+    <meta property="og:title" content="Portal Parpora Sijunjung – SAKTI Parpora | Disparpora Kabupaten Sijunjung">
+    <meta property="og:description" content="Satu Portal untuk Semua Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Parpora) Kabupaten Sijunjung, termasuk SAKTI Parpora, Presensi Mobile, dan LHK.">
+    <meta property="og:image" content="{{ asset('icons/icon-512x512.png') }}">
 
     <!-- Structured Data (JSON-LD) -->
     @php
         $jsonLd = [
             '@context' => 'https://schema.org',
             '@type' => 'WebApplication',
-            'name' => ($pengaturan->nama_aplikasi ?? 'SAKTI Parpora') . ' - ' . ($pengaturan->nama_dinas ?? 'Disparpora Kabupaten Sijunjung'),
-            'alternateName' => ['SAKTI Parpora', 'SAKTI Sijunjung', 'SAKTI Disparpora'],
+            'name' => 'Portal Parpora Sijunjung – SAKTI Parpora',
+            'alternateName' => [
+                'Portal Parpora',
+                'Portal Parpora Sijunjung',
+                'SAKTI Parpora',
+                'SAKTI Parpora Sijunjung',
+                'Parpora Sijunjung',
+                'SAKTI Disparpora Sijunjung',
+            ],
             'url' => url('/'),
             'applicationCategory' => 'GovernmentApplication',
             'operatingSystem' => 'Web, Android, iOS',
-            'description' => $pengaturan->deskripsi_singkat ?? 'Sistem Administrasi Kinerja Terintegrasi Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.',
+            'description' => 'Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Parpora) Kabupaten Sijunjung – SAKTI Parpora (Sistem Administrasi Kinerja Terintegrasi).',
             'publisher' => [
                 '@type' => 'GovernmentOrganization',
                 'name' => $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung',
