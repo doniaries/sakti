@@ -15,15 +15,15 @@ use Livewire\Component;
 #[Title('Riwayat Absensi - Absensi LHK Mobile')]
 class Riwayat extends Component
 {
-    public $bulan;
-    public $tahun;
+    public int $bulan;
+    public int $tahun;
 
     #[Url(as: 'status')]
-    public $filterStatus = 'semua';
+    public string $filterStatus = 'semua';
 
-    public $filterTanggal = '';
+    public string $filterTanggal = '';
 
-    public $selectedAbsensi = null;
+    public ?AbsensiHarian $selectedAbsensi = null;
     public bool $showDetailModal = false;
 
     public function bukaDetail(int $id): void
