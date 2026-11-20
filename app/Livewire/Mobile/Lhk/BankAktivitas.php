@@ -18,6 +18,7 @@ class BankAktivitas extends Component
     public string $kode = '';
     public string $nama_aktivitas = '';
     public int $menit = 30;
+    public string $tipe = 'khusus';
 
     public bool $showFormModal = false;
     public bool $showBulkModal = false;

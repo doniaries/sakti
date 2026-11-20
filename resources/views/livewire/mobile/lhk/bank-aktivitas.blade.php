@@ -92,6 +92,14 @@
                 </div>
 
                 <div>
+                    <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tipe Aktivitas</label>
+                    <select wire:model="tipe" class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
+                        <option value="khusus">Khusus (Pribadi / Bidang)</option>
+                        <option value="umum">Umum (Semua Pegawai)</option>
+                    </select>
+                </div>
+
+                <div>
                     <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi (Menit)</label>
                     <input type="number" min="1" wire:model="menit"
                         class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
