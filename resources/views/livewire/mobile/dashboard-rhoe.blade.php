@@ -173,35 +173,6 @@
         <i class="fa-solid fa-chevron-right text-xs text-white/70"></i>
     </a>
 
-    <!-- 4. LAYANAN -->
-    @php
-        $layanan = [
-            ['route' => 'mobile.lhk.index', 'icon' => 'fa-clipboard-list', 'label' => 'LHK', 'color' => 'bg-violet-500/15 text-violet-600 dark:text-violet-400'],
-            ['route' => 'mobile.izin.index', 'icon' => 'fa-envelope-open-text', 'label' => 'Izin & Cuti', 'color' => 'bg-amber-500/15 text-amber-600 dark:text-amber-400'],
-            ['route' => 'mobile.riwayat', 'icon' => 'fa-clock-rotate-left', 'label' => 'Riwayat', 'color' => 'bg-sky-500/15 text-sky-600 dark:text-sky-400'],
-            ['route' => 'mobile.hari-libur', 'icon' => 'fa-calendar-day', 'label' => 'Hari Libur', 'color' => 'bg-rose-500/15 text-rose-600 dark:text-rose-400'],
-            ['route' => 'mobile.lhk.bank-aktivitas', 'icon' => 'fa-box-archive', 'label' => 'Bank Aktivitas', 'color' => 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'],
-            ['route' => 'mobile.reputasi', 'icon' => 'fa-medal', 'label' => 'Reputasi', 'color' => 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'],
-            ['route' => 'mobile.persetujuan', 'icon' => 'fa-file-signature', 'label' => 'Persetujuan', 'color' => 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'],
-            ['route' => 'mobile.profil', 'icon' => 'fa-circle-user', 'label' => 'Profil', 'color' => 'bg-zinc-500/15 text-zinc-600 dark:text-zinc-300'],
-        ];
-    @endphp
-    <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-xs">
-        <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white mb-3">Layanan</h2>
-        <div class="grid grid-cols-4 gap-x-2 gap-y-3">
-            @foreach ($layanan as $item)
-                @if (Route::has($item['route']))
-                    <a href="{{ route($item['route']) }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-                        <div class="w-11 h-11 rounded-2xl {{ $item['color'] }} flex items-center justify-center text-base">
-                            <i class="fa-solid {{ $item['icon'] }}"></i>
-                        </div>
-                        <span class="text-[10px] font-semibold text-zinc-600 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
-                    </a>
-                @endif
-            @endforeach
-        </div>
-    </section>
-
     <!-- 5. RIWAYAT ABSEN 7 HARI -->
     <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-xs">
         <div class="flex items-center justify-between mb-2">
