@@ -611,7 +611,10 @@
                 </div>
                 @endauth
 
-                <p class="text-sm text-slate-500 mt-2 leading-relaxed font-medium" x-text="message"></p>
+                <p class="text-sm text-slate-500 mt-3 leading-relaxed font-medium" x-text="message"></p>
+                @auth
+                <p x-show="showUser || type === 'success'" class="text-sm font-black text-slate-950 mt-1.5">{{ auth()->user()->name }}</p>
+                @endauth
 
                 <!-- Action Button -->
                 <div class="mt-6">
