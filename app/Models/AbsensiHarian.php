@@ -83,6 +83,18 @@ class AbsensiHarian extends Model
                     Storage::disk('public')->delete($model->$file);
                 }
             }
+
+            $logIds = array_filter([$model->log_masuk_id, $model->log_pulang_id]);
+            if ($logIds !== []) {
+                LogAbsensi::query()->whereIn('id', $logIds)->delete();
+            }
+
+            if ($model->user_id && $model->tanggal) {
+                LogAbsensi::query()
+                    ->where('user_id', $model->user_id)
+                    ->whereDate('waktu_absensi', $model->tanggal)
+                    ->delete();
+            }
         });
     }
 

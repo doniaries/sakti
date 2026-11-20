@@ -20,6 +20,11 @@ class MesinAbsensiResource extends Resource
 {
     protected static ?string $model = MesinAbsensi::class;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     protected static ?string $modelLabel = 'Mesin Absensi';
 
     protected static ?string $pluralModelLabel = 'Pengaturan Mesin';
