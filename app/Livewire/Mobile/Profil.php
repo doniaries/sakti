@@ -5,8 +5,10 @@ namespace App\Livewire\Mobile;
 use App\Enums\Eselon;
 use App\Enums\GolonganRuang;
 use App\Enums\JenjangPendidikan;
+use App\Enums\StatusKepegawaian;
 use App\Models\AbsensiHarian;
 use App\Models\Bidang;
+use App\Models\Jabatan;
 use App\Models\Lhk;
 use App\Models\PengaturanAplikasi;
 use App\Models\RiwayatGolongan;
@@ -39,6 +41,7 @@ class Profil extends Component
 
     // Editable Fields
     public $name = '';
+    public string $nip = '';
     public $email = '';
     public $no_hp = '';
     public $no_telp = '';
@@ -48,6 +51,7 @@ class Profil extends Component
     public $nik = '';
     public $no_kk = '';
     public $npwp = '';
+    public string $tanggal_npwp = '';
     public $no_bpjs = '';
     public $no_taspen = '';
     public $tempat_lahir = '';
@@ -71,6 +75,8 @@ class Profil extends Component
     public bool $gol_is_terakhir = true;
 
     // Tab Jabatan
+    public string $status_kepegawaian = '';
+    public ?int $jabatan_id = null;
     public ?int $bidang_id = null;
     public ?int $atasan_id = null;
     public ?int $editingJabatanId = null;
@@ -158,6 +164,7 @@ class Profil extends Component
         $user = Auth::user()->load(['jabatan', 'bidang', 'atasan', 'jadwalKerja', 'riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan']);
 
         $this->name = $user->name ?? '';
+        $this->nip = $user->nip ?? '';
         $this->email = $user->email ?? '';
         $this->no_hp = $user->no_hp ?? '';
         $this->no_telp = $user->no_telp ?? '';
@@ -167,6 +174,7 @@ class Profil extends Component
         $this->nik = $user->nik ?? '';
         $this->no_kk = $user->no_kk ?? '';
         $this->npwp = $user->npwp ?? '';
+        $this->tanggal_npwp = $user->tanggal_npwp ? $user->tanggal_npwp->format('Y-m-d') : '';
         $this->no_bpjs = $user->no_bpjs ?? '';
         $this->no_taspen = $user->no_taspen ?? '';
         $this->tempat_lahir = $user->tempat_lahir ?? '';
@@ -176,6 +184,8 @@ class Profil extends Component
         $this->pendidikan = $user->pendidikan ?? '';
         $this->jenjang_pendidikan = $user->jenjang_pendidikan ?? '';
         $this->eselon = (string) ($user->eselon?->value ?? ($user->eselon ?? ''));
+        $this->status_kepegawaian = (string) ($user->status_kepegawaian?->value ?? ($user->status_kepegawaian ?? ''));
+        $this->jabatan_id = $user->jabatan_id;
         $this->bidang_id = $user->bidang_id;
         $this->atasan_id = $user->atasan_id;
         $this->password = '';
@@ -426,6 +436,8 @@ class Profil extends Component
     private function saveJabatan(User $freshUser): void
     {
         $freshUser->update([
+            'status_kepegawaian' => $this->status_kepegawaian ?: null,
+            'jabatan_id' => $this->jabatan_id ?: null,
             'bidang_id' => $this->bidang_id ?: null,
             'atasan_id' => $this->atasan_id ?: null,
         ]);
@@ -524,6 +536,7 @@ class Profil extends Component
 
         $data = [
             'name' => $this->name,
+            'nip' => $this->nip ?: null,
             'email' => $this->email,
             'no_hp' => $this->no_hp,
             'no_telp' => $this->no_telp,
@@ -533,6 +546,7 @@ class Profil extends Component
             'nik' => $this->nik,
             'no_kk' => $this->no_kk,
             'npwp' => $this->npwp,
+            'tanggal_npwp' => $this->tanggal_npwp ?: null,
             'no_bpjs' => $this->no_bpjs,
             'no_taspen' => $this->no_taspen,
             'tempat_lahir' => $this->tempat_lahir,
@@ -652,6 +666,8 @@ class Profil extends Component
             'eselonOptions' => Eselon::cases(),
             'golonganOptions' => GolonganRuang::cases(),
             'jenjangOptions' => JenjangPendidikan::cases(),
+            'statusKepegawaianOptions' => StatusKepegawaian::cases(),
+            'jabatanOptions' => Jabatan::orderBy('nama')->get(['id', 'nama']),
             'bidangOptions' => Bidang::orderBy('nama')->get(['id', 'nama']),
             'atasanOptions' => User::where('id', '!=', $user->id)->orderBy('name')->get(['id', 'name']),
         ]);

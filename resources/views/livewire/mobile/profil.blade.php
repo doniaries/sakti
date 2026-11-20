@@ -339,18 +339,24 @@
                         <div class="pt-3 border-t border-slate-100 space-y-3">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pangkat &amp; Golongan</span>
-                                <button type="button" wire:click="newGolongan" class="text-[11px] font-bold text-sky-600 hover:text-sky-700 cursor-pointer">+ Tambah Baru</button>
+                                <button type="button" wire:click="newGolongan"
+                                    class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingGolonganId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    <span>Tambah Baru</span>
+                                </button>
                             </div>
-                            @if ($user->riwayatGolongan->isNotEmpty())
-                                <div class="flex gap-1.5 overflow-x-auto pb-1">
-                                    @foreach ($user->riwayatGolongan as $rg)
-                                        <button type="button" wire:click="editGolongan({{ $rg->id }})"
-                                            class="px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border {{ $editingGolonganId === $rg->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
-                                            {{ $rg->golongan?->value ?? (string) $rg->golongan }}
-                                        </button>
-                                    @endforeach
-                                </div>
-                            @endif
+                            <div class="flex gap-1.5 overflow-x-auto pb-1">
+                                @foreach ($user->riwayatGolongan as $rg)
+                                    <button type="button" wire:click="editGolongan({{ $rg->id }})"
+                                        class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingGolonganId === $rg->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                        <i class="fa-solid fa-pen text-[9px]"></i>
+                                        <span>{{ $rg->golongan?->value ?? (string) $rg->golongan }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
+                            <div class="px-3 py-2 rounded-xl text-[11px] font-semibold {{ $editingGolonganId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
+                                {{ $editingGolonganId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
+                            </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang</label>
@@ -387,6 +393,26 @@
                         </div>
                     @elseif ($activeTab === 'jabatan')
                         <div class="grid grid-cols-1 gap-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Status Kepegawaian</label>
+                                    <select wire:model="status_kepegawaian" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                        <option value="">- Pilih Status -</option>
+                                        @foreach ($statusKepegawaianOptions as $st)
+                                            <option value="{{ $st->value }}">{{ $st->getLabel() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Jabatan Saat Ini</label>
+                                    <select wire:model="jabatan_id" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                        <option value="">- Pilih Jabatan -</option>
+                                        @foreach ($jabatanOptions as $jab)
+                                            <option value="{{ $jab->id }}">{{ $jab->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Bidang Dinas</label>
                                 <select wire:model="bidang_id" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
@@ -410,18 +436,26 @@
                         <div class="pt-3 border-t border-slate-100 space-y-3">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Jabatan</span>
-                                <button type="button" wire:click="newJabatan" class="text-[11px] font-bold text-sky-600 hover:text-sky-700 cursor-pointer">+ Tambah Baru</button>
+                                <button type="button" wire:click="newJabatan"
+                                    class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingJabatanId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
+                                    <i class="fa-solid fa-plus text-[10px]"></i>
+                                    <span>Tambah Baru</span>
+                                </button>
                             </div>
                             @if ($user->riwayatJabatan->isNotEmpty())
                                 <div class="flex gap-1.5 overflow-x-auto pb-1">
                                     @foreach ($user->riwayatJabatan as $rj)
                                         <button type="button" wire:click="editJabatan({{ $rj->id }})"
-                                            class="px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border {{ $editingJabatanId === $rj->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
-                                            {{ \Illuminate\Support\Str::limit($rj->nama_jabatan, 24) }}
+                                            class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingJabatanId === $rj->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                            <i class="fa-solid fa-pen text-[9px]"></i>
+                                            <span>{{ \Illuminate\Support\Str::limit($rj->nama_jabatan, 24) }}</span>
                                         </button>
                                     @endforeach
                                 </div>
                             @endif
+                            <div class="px-3 py-2 rounded-xl text-[11px] font-semibold {{ $editingJabatanId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
+                                {{ $editingJabatanId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
+                            </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan</label>
                                 <input type="text" wire:model="jab_nama_jabatan" placeholder="Contoh: Kepala Bidang..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -463,18 +497,26 @@
                     @elseif ($activeTab === 'pendidikan')
                         <div class="flex items-center justify-between gap-2">
                             <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pendidikan Formal</span>
-                            <button type="button" wire:click="newPendidikan" class="text-[11px] font-bold text-sky-600 hover:text-sky-700 cursor-pointer">+ Tambah Baru</button>
+                            <button type="button" wire:click="newPendidikan"
+                                class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingPendidikanId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>Tambah Baru</span>
+                            </button>
                         </div>
                         @if ($user->riwayatPendidikan->isNotEmpty())
                             <div class="flex gap-1.5 overflow-x-auto pb-1">
                                 @foreach ($user->riwayatPendidikan as $rp)
                                     <button type="button" wire:click="editPendidikan({{ $rp->id }})"
-                                        class="px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border {{ $editingPendidikanId === $rp->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
-                                        {{ $rp->jenjang?->value ?? (string) $rp->jenjang }} - {{ \Illuminate\Support\Str::limit($rp->jurusan ?: $rp->nama_institusi, 18) }}
+                                        class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingPendidikanId === $rp->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                        <i class="fa-solid fa-pen text-[9px]"></i>
+                                        <span>{{ $rp->jenjang?->value ?? (string) $rp->jenjang }} - {{ \Illuminate\Support\Str::limit($rp->jurusan ?: $rp->nama_institusi, 18) }}</span>
                                     </button>
                                 @endforeach
                             </div>
                         @endif
+                        <div class="px-3 py-2 rounded-xl text-[11px] font-semibold {{ $editingPendidikanId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
+                            {{ $editingPendidikanId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang</label>
@@ -574,13 +616,20 @@
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
-                        <input type="text" wire:model="name"
-                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        @error('name')
-                            <span class="text-[11px] text-rose-500">{{ $message }}</span>
-                        @enderror
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
+                            <input type="text" wire:model="name"
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            @error('name')
+                                <span class="text-[11px] text-rose-500">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">NIP</label>
+                            <input type="text" wire:model="nip" placeholder="19xxxxxxxx..."
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
@@ -640,6 +689,33 @@
                             class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                     </div>
 
+                    <div class="pt-3 border-t border-slate-100 space-y-3">
+                        <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider block">Administrasi &amp; Jaminan</span>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
+                                <input type="text" wire:model="npwp" placeholder="15.988.xxx..."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal NPWP</label>
+                                <x-mobile.date-picker wire:model="tanggal_npwp" clearable />
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">No. BPJS</label>
+                                <input type="text" wire:model="no_bpjs"
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Taspen</label>
+                                <input type="text" wire:model="no_taspen"
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                        </div>
+                    </div>
+
                     @if ($fullEditMode)
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -650,18 +726,6 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">No. KK</label>
                                 <input type="text" wire:model="no_kk"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
-                                <input type="text" wire:model="npwp"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">No. BPJS</label>
-                                <input type="text" wire:model="no_bpjs"
                                     class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                             </div>
                         </div>
@@ -943,6 +1007,10 @@
                             <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
                         </div>
                         <div class="flex justify-between py-1 text-xs">
+                            <span class="text-slate-400 font-medium">Tanggal NPWP</span>
+                            <span class="font-bold text-slate-800">{{ $user->tanggal_npwp ? $user->tanggal_npwp->format('d/m/Y') : '-' }}</span>
+                        </div>
+                        <div class="flex justify-between py-1 text-xs">
                             <span class="text-slate-400 font-medium">BPJS Kesehatan</span>
                             <span class="font-bold font-mono text-slate-800">{{ $user->no_bpjs ?? '-' }}</span>
                         </div>
@@ -1045,6 +1113,14 @@
                     <!-- Posisi Sekarang -->
                     <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
                         <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Unit Kerja &amp; Atasan</h3>
+                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                            <span class="text-slate-400 font-medium">Status Kepegawaian</span>
+                            <span class="font-bold text-slate-800 text-right">{{ $user->status_kepegawaian?->getLabel() ?? ($user->status_kepegawaian ?? '-') }}</span>
+                        </div>
+                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                            <span class="text-slate-400 font-medium">Jabatan Saat Ini</span>
+                            <span class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? '-' }}</span>
+                        </div>
                         <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
                             <span class="text-slate-400 font-medium">Bidang Dinas</span>
                             <span
