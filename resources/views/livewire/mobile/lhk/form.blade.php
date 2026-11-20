@@ -249,5 +249,5 @@
             <span wire:loading.remove>Simpan LHK</span>
             <span wire:loading><i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> Menyimpan...</span>
         </button>
-    @endif\r\n
+    @endif
 </div>

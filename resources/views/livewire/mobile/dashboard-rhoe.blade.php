@@ -87,8 +87,8 @@
             </div>
 
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
-            <div class="mt-5 flex items-end justify-between gap-3 relative z-10">
-                <div>
+            <div class="mt-5 flex items-center justify-between gap-3 relative z-10">
+                <div class="min-w-0">
                     <div class="text-[11px] text-sky-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
                     <div class="flex items-baseline gap-1 font-mono mt-0.5">
                         <span x-text="jam" class="text-3xl font-black tracking-tight">--:--</span>
@@ -96,15 +96,15 @@
                         <span class="text-[10px] font-bold text-sky-200 ml-0.5">WIB</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-3 text-right">
+                <div class="flex items-center gap-3 pl-3.5 border-l border-white/25 text-right shrink-0">
                     <div>
-                        <div class="text-[10px] text-sky-100">Masuk</div>
-                        <div class="text-xs font-black font-mono">{{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') : '--:--' }}</div>
+                        <div class="text-[11px] font-semibold text-sky-100">Masuk</div>
+                        <div class="text-base sm:text-lg font-black font-mono leading-tight">{{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') : '--:--' }}</div>
                     </div>
-                    <div class="w-px h-6 bg-white/20"></div>
+                    <div class="w-px h-8 bg-white/20"></div>
                     <div>
-                        <div class="text-[10px] text-sky-100">Pulang</div>
-                        <div class="text-xs font-black font-mono">{{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') : '--:--' }}</div>
+                        <div class="text-[11px] font-semibold text-sky-100">Pulang</div>
+                        <div class="text-base sm:text-lg font-black font-mono leading-tight">{{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') : '--:--' }}</div>
                     </div>
                 </div>
             </div>
