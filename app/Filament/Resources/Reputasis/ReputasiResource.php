@@ -44,7 +44,7 @@ class ReputasiResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return \App\Models\PengaturanAplikasi::isModuleEnabled('lhk') && parent::canViewAny();
+        return \App\Models\PengaturanAplikasi::isModuleEnabled('reputasi') && parent::canViewAny();
     }
 
     public static function getPages(): array

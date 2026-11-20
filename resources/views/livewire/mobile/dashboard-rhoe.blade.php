@@ -104,19 +104,19 @@
         @php
             $layanan = [
                 ['route' => 'mobile.absensi', 'icon' => 'fa-fingerprint', 'label' => 'Presensi', 'color' => 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'],
-                ['route' => 'mobile.lhk.create', 'icon' => 'fa-pen-to-square', 'label' => 'Isi LHK', 'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400'],
-                ['route' => 'mobile.izin.index', 'icon' => 'fa-envelope-open-text', 'label' => 'Izin & Cuti', 'color' => 'bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'],
+                ['route' => 'mobile.lhk.create', 'module' => 'lhk', 'icon' => 'fa-pen-to-square', 'label' => 'Isi LHK', 'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400'],
+                ['route' => 'mobile.izin.index', 'module' => 'izin', 'icon' => 'fa-envelope-open-text', 'label' => 'Izin & Cuti', 'color' => 'bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400'],
                 ['route' => 'mobile.riwayat', 'icon' => 'fa-clock-rotate-left', 'label' => 'Riwayat', 'color' => 'bg-violet-50 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400'],
                 ['route' => 'mobile.hari-libur', 'icon' => 'fa-calendar-day', 'label' => 'Hari Libur', 'color' => 'bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400'],
-                ['route' => 'mobile.lhk.bank-aktivitas', 'icon' => 'fa-box-archive', 'label' => 'Bank Aktivitas', 'color' => 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'],
-                ['route' => 'mobile.reputasi', 'icon' => 'fa-medal', 'label' => 'Reputasi', 'color' => 'bg-yellow-50 dark:bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'],
+                ['route' => 'mobile.lhk.bank-aktivitas', 'module' => 'lhk', 'icon' => 'fa-box-archive', 'label' => 'Bank Aktivitas', 'color' => 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'],
+                ['route' => 'mobile.reputasi', 'module' => 'reputasi', 'icon' => 'fa-medal', 'label' => 'Reputasi', 'color' => 'bg-yellow-50 dark:bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'],
                 ['route' => 'mobile.persetujuan', 'icon' => 'fa-file-signature', 'label' => 'Persetujuan', 'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400'],
             ];
         @endphp
         <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3.5 shadow-lg shadow-emerald-950/10">
             <div class="grid grid-cols-4 gap-x-2 gap-y-3">
                 @foreach ($layanan as $item)
-                    @if (Route::has($item['route']))
+                    @if (Route::has($item['route']) && (empty($item['module']) || \App\Models\PengaturanAplikasi::isModuleEnabled($item['module'])))
                         <a href="{{ route($item['route']) }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                             <div class="w-11 h-11 rounded-2xl {{ $item['color'] }} flex items-center justify-center text-base">
                                 <i class="fa-solid {{ $item['icon'] }}"></i>
