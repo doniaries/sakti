@@ -1,29 +1,6 @@
 <div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)] space-y-3.5 text-zinc-900 dark:text-zinc-100" x-data="absensiApp()">
-    <!-- Top Bar: Header & GPS Status -->
-    <div class="flex items-center justify-between pt-1">
-        <h1 class="text-lg font-extrabold text-zinc-900 dark:text-white tracking-tight">Presensi Kehadiran</h1>
-        <div class="flex items-center gap-2 pl-3 border-l-2 border-sky-500">
-            <span class="text-4xl font-black leading-none tracking-tighter text-zinc-900 dark:text-white tabular-nums">{{ now()->format('d') }}</span>
-            <div class="leading-tight">
-                <div class="text-xs font-extrabold text-sky-600 dark:text-sky-400">{{ now()->translatedFormat('l') }}</div>
-                <div class="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">{{ now()->translatedFormat('M Y') }}</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Status Hari Libur / Selesai -->
-    @if ($hariLiburHariIni)
-        <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
-            <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
-        </div>
-    @elseif ($sudahMasuk && $sudahPulang)
-        <div class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
-            <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
-        </div>
-    @endif
-
-    <!-- UNIFIED HERO CARD (Identitas Pegawai + Jam + Jadwal + Status Datang/Pulang) -->
-    <section class="rounded-3xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm space-y-3.5"
+    <!-- Hero Biru Gradient Melengkung + Kartu Mengambang -->
+    <section class="-mx-4 -mt-4"
         x-data="{ 
             time: '--:--:--',
             initClock() {
@@ -37,6 +14,31 @@
             }
         }" 
         x-init="initClock()">
+
+        <div class="relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-12 text-white shadow-lg shadow-sky-950/20">
+            <div class="flex items-center justify-between">
+                <h1 class="text-lg font-extrabold tracking-tight">Presensi Kehadiran</h1>
+                <div class="flex items-center gap-2 pl-3 border-l-2 border-amber-400">
+                    <span class="text-3xl font-black leading-none tracking-tighter tabular-nums">{{ now()->format('d') }}</span>
+                    <div class="leading-tight">
+                        <div class="text-xs font-extrabold text-amber-300">{{ now()->translatedFormat('l') }}</div>
+                        <div class="text-[10px] font-semibold uppercase tracking-wider text-sky-100">{{ now()->translatedFormat('M Y') }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-lg shadow-sky-950/10 space-y-3.5">
+            <!-- Status Hari Libur / Selesai -->
+            @if ($hariLiburHariIni)
+                <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
+                    <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
+                </div>
+            @elseif ($sudahMasuk && $sudahPulang)
+                <div class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
+                    <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
+                </div>
+            @endif
 
         <!-- Row 1: Live Clock, Jadwal Kerja & Jarak (Tanpa duplikasi info pegawai) -->
         <div class="flex items-center justify-between gap-2">
@@ -118,6 +120,7 @@
                 </div>
             </div>
         @endif
+        </div>
     </section>
 
     <!-- PETA & TITIK KOORDINAT GPS (LANGSUNG DI ATAS TOMBOL ABSEN) -->
