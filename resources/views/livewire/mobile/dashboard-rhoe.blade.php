@@ -157,65 +157,88 @@
         </div>
     </section>
 
-    <!-- 3. 7-DAY ATTENDANCE TIMELINE -->
-    @if (! empty($riwayat7Hari))
-        <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-xs">
-            <div class="flex items-center justify-between mb-3">
-                <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white">Rekap 7 Hari Terakhir</h2>
-                <a href="{{ route('mobile.riwayat') }}" wire:navigate class="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
-                    Detail &rarr;
-                </a>
-            </div>
-            <div class="grid grid-cols-7 gap-1.5">
-                @foreach ($riwayat7Hari as $item)
-                    @php
-                        $rawStatus = $item['status'] ?? null;
-                        $st = $rawStatus instanceof \BackedEnum ? (string) $rawStatus->value : (string) ($rawStatus ?? '');
-                        $stLabel = $rawStatus instanceof \Filament\Support\Contracts\HasLabel
-                            ? (string) $rawStatus->getLabel()
-                            : ($st !== '' ? ucfirst(str_replace('_', ' ', $st)) : 'Belum ada');
-                        $pillClass = match ($st) {
-                            'hadir' => 'bg-emerald-500 text-white shadow-emerald-500/20',
-                            'terlambat' => 'bg-amber-500 text-white shadow-amber-500/20',
-                            'izin', 'cuti', 'dinas_luar' => 'bg-sky-500 text-white shadow-sky-500/20',
-                            default => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400',
-                        };
-                    @endphp
-                    <div title="{{ ($item['hari'] ?? '') . ' ' . ($item['tgl'] ?? '') . ' — ' . $stLabel }}"
-                        class="flex flex-col items-center gap-1">
-                        <span class="text-[9px] font-bold text-zinc-400 uppercase">{{ $item['hari'] ?? '' }}</span>
-                        <div class="w-8 h-8 rounded-xl {{ $pillClass }} flex items-center justify-center text-[11px] font-extrabold shadow-xs">
-                            {{ $item['tgl'] ?? '-' }}
+    <!-- 3. QUICK LHK -->
+    <a href="{{ route('mobile.lhk.create') }}" wire:navigate
+        class="rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-4 flex items-center gap-3 shadow-md shadow-violet-600/20 active:scale-[0.98] transition-transform">
+        <div class="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center text-lg shrink-0">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <div class="text-sm font-extrabold">Isi LHK Hari Ini</div>
+            <div class="text-[11px] text-violet-100 truncate">Catat laporan kinerja harian Anda</div>
+        </div>
+        <i class="fa-solid fa-chevron-right text-xs text-white/70"></i>
+    </a>
+
+    <!-- 4. LAYANAN -->
+    @php
+        $layanan = [
+            ['route' => 'mobile.lhk.index', 'icon' => 'fa-clipboard-list', 'label' => 'LHK', 'color' => 'bg-violet-500/15 text-violet-600 dark:text-violet-400'],
+            ['route' => 'mobile.izin.index', 'icon' => 'fa-envelope-open-text', 'label' => 'Izin & Cuti', 'color' => 'bg-amber-500/15 text-amber-600 dark:text-amber-400'],
+            ['route' => 'mobile.riwayat', 'icon' => 'fa-clock-rotate-left', 'label' => 'Riwayat', 'color' => 'bg-sky-500/15 text-sky-600 dark:text-sky-400'],
+            ['route' => 'mobile.hari-libur', 'icon' => 'fa-calendar-day', 'label' => 'Hari Libur', 'color' => 'bg-rose-500/15 text-rose-600 dark:text-rose-400'],
+            ['route' => 'mobile.lhk.bank-aktivitas', 'icon' => 'fa-box-archive', 'label' => 'Bank Aktivitas', 'color' => 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'],
+            ['route' => 'mobile.reputasi', 'icon' => 'fa-medal', 'label' => 'Reputasi', 'color' => 'bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'],
+            ['route' => 'mobile.persetujuan', 'icon' => 'fa-file-signature', 'label' => 'Persetujuan', 'color' => 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'],
+            ['route' => 'mobile.profil', 'icon' => 'fa-circle-user', 'label' => 'Profil', 'color' => 'bg-zinc-500/15 text-zinc-600 dark:text-zinc-300'],
+        ];
+    @endphp
+    <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-xs">
+        <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white mb-3">Layanan</h2>
+        <div class="grid grid-cols-4 gap-x-2 gap-y-3">
+            @foreach ($layanan as $item)
+                @if (Route::has($item['route']))
+                    <a href="{{ route($item['route']) }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                        <div class="w-11 h-11 rounded-2xl {{ $item['color'] }} flex items-center justify-center text-base">
+                            <i class="fa-solid {{ $item['icon'] }}"></i>
                         </div>
+                        <span class="text-[10px] font-semibold text-zinc-600 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
+                    </a>
+                @endif
+            @endforeach
+        </div>
+    </section>
+
+    <!-- 5. RIWAYAT ABSEN 7 HARI -->
+    <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-xs">
+        <div class="flex items-center justify-between mb-2">
+            <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white">Riwayat Absen</h2>
+            <a href="{{ route('mobile.riwayat') }}" wire:navigate class="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
+                Lihat Semua &rarr;
+            </a>
+        </div>
+        <ul class="divide-y divide-zinc-100 dark:divide-zinc-800">
+            @foreach ($riwayat7Hari as $item)
+                @php
+                    $rawStatus = $item['status'] ?? null;
+                    $st = $rawStatus instanceof \BackedEnum ? (string) $rawStatus->value : (string) ($rawStatus ?? '');
+                    $stLabel = $rawStatus instanceof \Filament\Support\Contracts\HasLabel
+                        ? (string) $rawStatus->getLabel()
+                        : ($st !== '' ? ucfirst(str_replace('_', ' ', $st)) : 'Belum ada');
+                    $badgeClass = match ($st) {
+                        'hadir' => 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+                        'terlambat' => 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
+                        'izin', 'cuti', 'dinas_luar' => 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
+                        'alpha', 'tidak_hadir' => 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
+                        default => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500',
+                    };
+                @endphp
+                <li class="py-2.5 flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                        <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $item['hari'] }}</div>
+                        <div class="text-[10px] text-zinc-400">{{ $item['tanggal'] }}</div>
                     </div>
-                @endforeach
-            </div>
-        </section>
-    @endif
-
-    <!-- 4. QUICK ACTIONS (Ringkas, Tanpa Duplikasi Bottom Nav) -->
-    <section class="grid grid-cols-2 gap-3">
-        <a href="{{ route('mobile.lhk.index') }}" wire:navigate
-            class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-xs">
-            <div class="w-9 h-9 rounded-xl bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center text-sm shrink-0">
-                <i class="fa-solid fa-clipboard-list"></i>
-            </div>
-            <div class="min-w-0">
-                <div class="text-xs font-extrabold text-zinc-900 dark:text-white truncate">Isi LHK</div>
-                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">Laporan harian</div>
-            </div>
-        </a>
-
-        <a href="{{ route('mobile.izin.index') }}" wire:navigate
-            class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-xs">
-            <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm shrink-0">
-                <i class="fa-solid fa-envelope-open-text"></i>
-            </div>
-            <div class="min-w-0">
-                <div class="text-xs font-extrabold text-zinc-900 dark:text-white truncate">Izin &amp; Cuti</div>
-                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">Ajukan cepat</div>
-            </div>
-        </a>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300">
+                            {{ $item['jam_masuk'] ? substr($item['jam_masuk'], 0, 5) : '--:--' }}
+                            <span class="text-zinc-300 dark:text-zinc-600">–</span>
+                            {{ $item['jam_pulang'] ? substr($item['jam_pulang'], 0, 5) : '--:--' }}
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $badgeClass }}">{{ $stLabel }}</span>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
     </section>
 
     <!-- Rhoe UI Modal: Notifikasi -->

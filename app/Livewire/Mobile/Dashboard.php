@@ -161,18 +161,23 @@ class Dashboard extends Component
         $belumJamPulang = (!$isAdmin && $nowTime < $jamPulangResmi);
         $lewatBatasPulang = (!$isAdmin && $sudahMasuk && !$sudahPulang && $nowTime > $tutupPulang);
 
-        // Riwayat 7 Hari Terakhir
+        $absensi7Hari = AbsensiHarian::query()
+            ->where('user_id', $user->id)
+            ->whereBetween('tanggal', [$today->copy()->subDays(6)->format('Y-m-d'), $today->format('Y-m-d')])
+            ->get()
+            ->keyBy(fn (AbsensiHarian $a) => \Illuminate\Support\Carbon::parse($a->tanggal)->format('Y-m-d'));
+
         $riwayat7Hari = [];
-        for ($i = 6; $i >= 0; $i--) {
+        for ($i = 0; $i <= 6; $i++) {
             $date = $today->copy()->subDays($i);
-            $absen = AbsensiHarian::where('user_id', $user->id)
-                ->where('tanggal', $date->format('Y-m-d'))
-                ->first();
-            
+            $absen = $absensi7Hari->get($date->format('Y-m-d'));
+
             $riwayat7Hari[] = [
-                'hari' => $date->format('D'),
-                'status' => $absen ? $absen->status : 'tidak_hadir',
-                'jam_masuk' => $absen ? $absen->jam_masuk : null,
+                'hari' => $date->translatedFormat('l'),
+                'tanggal' => $date->translatedFormat('d M Y'),
+                'status' => $absen?->status,
+                'jam_masuk' => $absen?->jam_masuk,
+                'jam_pulang' => $absen?->jam_pulang,
             ];
         }
 
