@@ -598,16 +598,13 @@
                 <h3 class="text-lg font-extrabold text-slate-800 tracking-tight" x-text="title">Peringatan!</h3>
 
                 @auth
-                <div x-show="showUser || type === 'success'" class="mt-3 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 border border-slate-100 text-left">
+                <div x-show="showUser || type === 'success'" class="mt-3 flex flex-col items-center gap-1.5">
                     <img src="{{ auth()->user()->avatar_image_url }}"
                          alt="{{ auth()->user()->name }}"
-                         class="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-300 shrink-0">
-                    <div class="min-w-0 flex-1">
-                        <p class="text-sm font-black text-slate-900 truncate">{{ auth()->user()->name }}</p>
-                        <p class="text-[11px] text-slate-500 font-medium truncate">
-                            {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}{{ auth()->user()->nip ? ' • ' . auth()->user()->nip : '' }}
-                        </p>
-                    </div>
+                         class="w-16 h-16 rounded-full object-cover ring-4 ring-emerald-200 shadow-md">
+                    <span class="px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
+                        {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}
+                    </span>
                 </div>
                 @endauth
 
