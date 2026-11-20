@@ -24,11 +24,6 @@
                         <span>Kembali</span>
                     </button>
                 @endif
-                <button wire:click="toggleEdit"
-                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center transition-all shadow-xs {{ $isEditing ? 'bg-white/20 text-white' : 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95' }}">
-                    <i class="fa-solid {{ $isEditing ? 'fa-xmark' : 'fa-pen-to-square' }} mr-1.5"></i>
-                    {{ $isEditing ? 'Batal' : 'Edit Profil' }}
-                </button>
                 <button type="button" @click="confirmLogout = true"
                     class="w-8 h-8 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 text-rose-100 transition flex items-center justify-center border border-rose-300/30 shadow-xs active:scale-95 cursor-pointer"
                     title="Keluar dari Akun">
