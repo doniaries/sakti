@@ -675,7 +675,7 @@
                     </button>
                 @endforeach
                 <a href="{{ route('panduan') }}"
-                    class="px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-200 inline-flex items-center gap-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-400/40 shadow-sm">
+                    class="px-4 py-2 rounded-full text-xs font-extrabold border transition-all duration-200 inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-600/25">
                     <i class="fa-solid fa-book-open text-[11px]"></i>
                     <span>Panduan Pengguna</span>
                 </a>
