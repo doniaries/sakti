@@ -21,7 +21,8 @@ class Dashboard extends Component
 {
     use WithFileUploads;
 
-    public $new_avatar;
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
+    public mixed $new_avatar = null;
 
     /**
      * Upload dan ganti foto profil langsung dari dashboard
