@@ -218,7 +218,47 @@
         }
 
         html.portal-light .portal-bg-layer {
-            background: linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 45%, #f8fafc 100%) !important;
+            background: linear-gradient(180deg, #7dd3fc 0%, #bae6fd 32%, #e0f2fe 65%, #fef3c7 100%) !important;
+        }
+
+        #dayScenery {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        html.portal-light #dayScenery {
+            opacity: 1;
+        }
+
+        @keyframes cloudFloatSlow {
+            0%, 100% {
+                transform: translateX(0px);
+            }
+            50% {
+                transform: translateX(28px);
+            }
+        }
+
+        @keyframes cloudFloatReverse {
+            0%, 100% {
+                transform: translateX(0px);
+            }
+            50% {
+                transform: translateX(-24px);
+            }
+        }
+
+        .day-cloud-1 {
+            animation: cloudFloatSlow 18s ease-in-out infinite;
+        }
+
+        .day-cloud-2 {
+            animation: cloudFloatReverse 24s ease-in-out infinite;
+        }
+
+        .day-cloud-3 {
+            animation: cloudFloatSlow 21s ease-in-out infinite;
         }
 
         html.portal-light #skyStars,
@@ -313,6 +353,37 @@
 
     <!-- Background Gradient Langit Malam / Siang -->
     <div class="portal-bg-layer fixed inset-0 bg-gradient-to-b from-[#070B1A] via-[#0C1530] to-[#0A1225] z-0 transition-all duration-500"></div>
+
+    <!-- Visual Siang: Matahari, Awan & Pegunungan (Hanya Tampil di Mode Terang) -->
+    <div id="dayScenery" class="fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <!-- Matahari & Cahaya Hangat -->
+        <div class="absolute -top-10 right-6 sm:right-20 w-44 h-44 sm:w-64 sm:h-64 rounded-full bg-amber-300/35 blur-3xl"></div>
+        <div class="absolute top-6 right-10 sm:top-10 sm:right-24 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-yellow-200 via-amber-300 to-orange-300 shadow-[0_0_55px_rgba(251,191,36,0.75)]"></div>
+
+        <!-- Awan Melayang -->
+        <svg class="day-cloud-1 absolute top-12 left-[6%] w-36 sm:w-52 text-white/85 drop-shadow-sm" viewBox="0 0 200 70" fill="currentColor">
+            <path d="M35 58h125a22 22 0 0 0 4-43.6A32 32 0 0 0 104 8a28 28 0 0 0-50 13.5A20 20 0 0 0 35 58Z" />
+        </svg>
+        <svg class="day-cloud-2 absolute top-24 right-[14%] w-28 sm:w-44 text-white/75" viewBox="0 0 200 70" fill="currentColor">
+            <path d="M35 58h125a22 22 0 0 0 4-43.6A32 32 0 0 0 104 8a28 28 0 0 0-50 13.5A20 20 0 0 0 35 58Z" />
+        </svg>
+        <svg class="day-cloud-3 absolute top-40 left-[22%] w-24 sm:w-36 text-white/60 hidden sm:block" viewBox="0 0 200 70" fill="currentColor">
+            <path d="M35 58h125a22 22 0 0 0 4-43.6A32 32 0 0 0 104 8a28 28 0 0 0-50 13.5A20 20 0 0 0 35 58Z" />
+        </svg>
+
+        <!-- Siluet Pegunungan Berlapis (Khas Geopark Silokek Sijunjung) -->
+        <svg class="absolute bottom-0 inset-x-0 w-full h-44 sm:h-64 md:h-72" viewBox="0 0 1440 320" preserveAspectRatio="none">
+            <!-- Pegunungan Jauh -->
+            <path fill="#7dd3fc" fill-opacity="0.45"
+                d="M0,224L80,192C160,160,320,96,480,106.7C640,117,800,203,960,208C1120,213,1280,139,1360,101.3L1440,64L1440,320L0,320Z" />
+            <!-- Pegunungan Tengah -->
+            <path fill="#34d399" fill-opacity="0.45"
+                d="M0,256L96,213.3C192,171,384,85,576,106.7C768,128,960,256,1152,261.3C1344,267,1392,181,1440,149.3L1440,320L0,320Z" />
+            <!-- Perbukitan Depan -->
+            <path fill="#059669" fill-opacity="0.35"
+                d="M0,288L120,261.3C240,235,480,181,720,197.3C960,213,1200,299,1320,288L1440,277.3L1440,320L0,320Z" />
+        </svg>
+    </div>
 
     <!-- Star Layers (Bintang Statis) -->
     <div class="sky-canvas" id="skyStars"></div>
