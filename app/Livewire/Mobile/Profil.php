@@ -37,6 +37,7 @@ class Profil extends Component
     public $no_telp = '';
     public $alamat = '';
     public $agama = '';
+    public string $jenis_kelamin = '';
     public $nik = '';
     public $no_kk = '';
     public $npwp = '';
@@ -124,6 +125,7 @@ class Profil extends Component
         $this->no_telp = $user->no_telp ?? '';
         $this->alamat = $user->alamat ?? '';
         $this->agama = $user->agama ?? '';
+        $this->jenis_kelamin = (string) ($user->jenis_kelamin?->value ?? ($user->jenis_kelamin ?? ''));
         $this->nik = $user->nik ?? '';
         $this->no_kk = $user->no_kk ?? '';
         $this->npwp = $user->npwp ?? '';
@@ -222,6 +224,7 @@ class Profil extends Component
             'no_telp' => $this->no_telp,
             'alamat' => $this->alamat,
             'agama' => $this->agama,
+            'jenis_kelamin' => $this->jenis_kelamin ?: null,
             'nik' => $this->nik,
             'no_kk' => $this->no_kk,
             'npwp' => $this->npwp,
