@@ -18,12 +18,12 @@
     @if ($isPimpinan)
         <div class="relative z-10 -mt-10 flex rounded-2xl bg-white p-1.5 mb-5 shadow-lg shadow-sky-950/10 border border-slate-200/80">
             <button type="button" wire:click="setTab('saya')"
-                class="flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $activeTab === 'saya' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+                class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 {{ $activeTab === 'saya' ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
                 <i class="fa-solid fa-user text-[11px]"></i>
                 <span>Pengajuan Saya</span>
             </button>
             <button type="button" wire:click="setTab('verifikasi')"
-                class="flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 {{ $activeTab === 'verifikasi' ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
+                class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 {{ $activeTab === 'verifikasi' ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
                 <i class="fa-solid fa-clipboard-check text-[11px]"></i>
                 <span>Verifikasi Bawahan</span>
                 @if ($countMenungguBawahan > 0)
