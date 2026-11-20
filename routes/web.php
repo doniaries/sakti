@@ -18,6 +18,7 @@ Route::get('/', function (\Illuminate\Http\Request $request) {
 })->name('portal');
 
 Route::get('/panduan', fn () => view('panduan'))->name('panduan');
+Route::get('/mobile', fn () => redirect()->route('mobile.dashboard'));
 
 Route::post('/portal/logout', function () {
     auth()->logout();
