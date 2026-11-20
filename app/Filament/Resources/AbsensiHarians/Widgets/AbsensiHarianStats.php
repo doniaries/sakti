@@ -13,8 +13,8 @@ class AbsensiHarianStats extends BaseWidget
 {
     use InteractsWithPageTable;
 
-    // Refresh realtime setiap 15 detik tanpa cache
-    protected ?string $pollingInterval = '15s';
+    // Refresh realtime setiap 5 detik tanpa cache
+    protected ?string $pollingInterval = '5s';
 
     protected function getTablePage(): string
     {

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PengajuanIzinStatsWidget extends StatsOverviewWidget
 {
-    protected ?string $pollingInterval = '10s';
+    protected ?string $pollingInterval = '5s';
 
     protected function getColumns(): int | array
     {
