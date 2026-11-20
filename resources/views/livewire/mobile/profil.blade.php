@@ -199,32 +199,6 @@
                         class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">NIK</label>
-                        <input type="text" wire:model="nik"
-                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">No. KK</label>
-                        <input type="text" wire:model="no_kk"
-                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
-                        <input type="text" wire:model="npwp"
-                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">No. BPJS</label>
-                        <input type="text" wire:model="no_bpjs"
-                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                    </div>
-                </div>
-
                 <!-- Keamanan & Password Akun (Hanya Diisi Ketika Mau Diganti Saja) -->
                 <div class="border-t border-slate-100 pt-3.5 space-y-3">
                     <div>
@@ -430,9 +404,12 @@
                         <span>Ubah Data</span>
                     </button>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs">
                     <span class="text-slate-400 font-medium">NIP</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->nip ?? '-' }}</span>
+                    <button type="button" x-data="{ copied: false }" @if($user->nip) @click="navigator.clipboard.writeText('{{ $user->nip }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })" @endif class="inline-flex items-center gap-1.5 font-bold font-mono text-slate-800 hover:text-amber-600 cursor-pointer">
+                        <span>{{ $user->nip ?? '-' }}</span>
+                        @if($user->nip)<i class="fa-regular text-[10px]" :class="copied ? 'fa-circle-check text-emerald-500' : 'fa-copy text-slate-400'"></i>@endif
+                    </button>
                 </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
                     <span class="text-slate-400 font-medium">Jenis Kelamin</span>
@@ -448,13 +425,19 @@
                     <span class="text-slate-400 font-medium">Agama</span>
                     <span class="font-bold text-slate-800">{{ $user->agama ?? '-' }}</span>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs">
                     <span class="text-slate-400 font-medium">No. HP / WhatsApp</span>
-                    <span class="font-bold text-sky-600">{{ $user->no_hp ?? '-' }}</span>
+                    <button type="button" x-data="{ copied: false }" @if($user->no_hp) @click="navigator.clipboard.writeText('{{ $user->no_hp }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })" @endif class="inline-flex items-center gap-1.5 font-bold text-sky-600 hover:text-amber-600 cursor-pointer">
+                        <span>{{ $user->no_hp ?? '-' }}</span>
+                        @if($user->no_hp)<i class="fa-regular text-[10px]" :class="copied ? 'fa-circle-check text-emerald-500' : 'fa-copy text-slate-400'"></i>@endif
+                    </button>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs">
                     <span class="text-slate-400 font-medium">Email User</span>
-                    <span class="font-bold text-slate-800 truncate max-w-[200px]">{{ $user->email }}</span>
+                    <button type="button" x-data="{ copied: false }" @click="navigator.clipboard.writeText('{{ $user->email }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })" class="inline-flex items-center gap-1.5 font-bold text-slate-800 hover:text-amber-600 cursor-pointer max-w-[210px]">
+                        <span class="truncate">{{ $user->email }}</span>
+                        <i class="fa-regular text-[10px] shrink-0" :class="copied ? 'fa-circle-check text-emerald-500' : 'fa-copy text-slate-400'"></i>
+                    </button>
                 </div>
                 <div class="py-1.5 text-xs">
                     <span class="text-slate-400 font-medium block mb-1">Alamat Domisili</span>
