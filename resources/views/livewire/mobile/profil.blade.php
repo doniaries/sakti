@@ -1,4 +1,4 @@
-<div class="p-5 pb-28">
+<div class="p-5 pb-28" x-data="{ confirmLogout: false }">
     <!-- Hero Biru Gradient Melengkung (Top Bar + Identitas Pegawai) -->
     <div class="-mx-5 -mt-5 mb-5 rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-7 text-white shadow-lg shadow-sky-950/20 relative isolate overflow-hidden">
         <x-mobile.logo-ornament />
@@ -29,7 +29,7 @@
                     <i class="fa-solid {{ $isEditing ? 'fa-xmark' : 'fa-pen-to-square' }} mr-1.5"></i>
                     {{ $isEditing ? 'Batal' : 'Edit Profil' }}
                 </button>
-                <button wire:click="logout" wire:confirm="Apakah Anda yakin ingin keluar dari akun?"
+                <button type="button" @click="confirmLogout = true"
                     class="w-8 h-8 rounded-xl bg-rose-500/20 hover:bg-rose-500/35 text-rose-100 transition flex items-center justify-center border border-rose-300/30 shadow-xs active:scale-95 cursor-pointer"
                     title="Keluar dari Akun">
                     <i class="fa-solid fa-right-from-bracket text-xs"></i>
@@ -794,7 +794,7 @@
 
     <!-- Tombol Keluar dari Akun (Logout) -->
     <div class="mt-8 pt-4 border-t border-slate-200/80">
-        <button wire:click="logout" wire:confirm="Apakah Anda yakin ingin keluar dari akun ini?"
+        <button type="button" @click="confirmLogout = true"
             class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-rose-50 text-rose-600 font-extrabold text-xs border border-rose-200 shadow-xs flex items-center justify-center space-x-2 transition active:scale-98 cursor-pointer">
             <i class="fa-solid fa-power-off text-rose-500 text-sm"></i>
             <span>Keluar dari Akun (Logout)</span>
@@ -830,4 +830,29 @@
             </div>
         </div>
     @endif
+
+    <!-- Modern Confirm Logout Modal -->
+    <div x-show="confirmLogout" x-cloak x-transition.opacity.duration.150ms
+        class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-5">
+        <div @click.outside="confirmLogout = false" x-transition.scale.95.duration.150ms
+            class="w-full max-w-xs rounded-3xl bg-white p-6 shadow-2xl text-center space-y-4">
+            <div class="mx-auto w-14 h-14 rounded-full bg-rose-50 text-rose-500 ring-8 ring-rose-500/10 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
+            <div>
+                <h3 class="text-base font-extrabold text-slate-900">Keluar dari Akun?</h3>
+                <p class="text-xs text-slate-500 mt-1">Sesi Anda akan diakhiri dan harus masuk kembali untuk mengakses presensi.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button type="button" @click="confirmLogout = false"
+                    class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" wire:click="logout"
+                    class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold shadow-md shadow-rose-600/25 cursor-pointer">
+                    Ya, Keluar
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
