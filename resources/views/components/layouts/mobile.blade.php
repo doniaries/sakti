@@ -256,8 +256,15 @@
             backdrop-filter: blur(12px);
         }
         html.dark .content-area .bg-slate-50,
-        html.dark .content-area .bg-gray-50 {
-            background-color: rgba(15, 28, 46, 0.85) !important;
+        html.dark .content-area .bg-slate-50\/80,
+        html.dark .content-area .bg-gray-50,
+        html.dark .content-area .bg-sky-50,
+        html.dark .content-area .bg-sky-50\/80,
+        html.dark .content-area .bg-blue-50,
+        html.dark .content-area [class*="from-sky-50"],
+        html.dark .content-area [class*="from-blue-50"],
+        html.dark .content-area [class*="from-slate-50"] {
+            background: rgba(15, 28, 46, 0.88) !important;
         }
         html.dark .content-area .bg-slate-100,
         html.dark .content-area .bg-gray-100,
@@ -265,13 +272,22 @@
         html.dark .content-area .bg-slate-200\/80,
         html.dark .content-area .bg-slate-200\/70,
         html.dark .content-area .bg-gray-200 {
-            background-color: rgba(30, 41, 59, 0.85) !important;
+            background-color: rgba(30, 41, 59, 0.88) !important;
         }
         html.dark .content-area .border-slate-100,
         html.dark .content-area .border-slate-200,
+        html.dark .content-area .border-slate-300,
         html.dark .content-area .border-gray-100,
-        html.dark .content-area .border-gray-200 {
+        html.dark .content-area .border-gray-200,
+        html.dark .content-area .border-sky-100,
+        html.dark .content-area .border-sky-200 {
             border-color: rgba(51, 65, 85, 0.65) !important;
+        }
+        html.dark .content-area .text-sky-700,
+        html.dark .content-area .text-sky-600,
+        html.dark .content-area .text-blue-700,
+        html.dark .content-area .text-blue-600 {
+            color: #38BDF8 !important;
         }
         html.dark .content-area .text-slate-900,
         html.dark .content-area .text-slate-800,

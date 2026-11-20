@@ -213,7 +213,7 @@
             </div>
         </a>
 
-        <a href="{{ route('mobile.izin') }}" wire:navigate
+        <a href="{{ route('mobile.izin.index') }}" wire:navigate
             class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-xs">
             <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm shrink-0">
                 <i class="fa-solid fa-envelope-open-text"></i>
