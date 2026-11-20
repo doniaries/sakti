@@ -222,13 +222,13 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
             color: #FFFFFF;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 25px -3px rgba(5, 150, 105, 0.45), 0 0 0 5px #F8FAFC;
+            box-shadow: 0 10px 25px -3px rgba(245, 158, 11, 0.45), 0 0 0 5px #F8FAFC;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-decoration: none;
         }
@@ -365,21 +365,41 @@
             x-show="navigating"
             x-cloak
             x-transition.opacity.duration.150ms
-            class="fixed inset-0 z-40 max-w-[440px] mx-auto bg-slate-50/95 dark:bg-[#09090b]/95 backdrop-blur-xs pt-20 pb-24 px-4 space-y-4 pointer-events-none">
-            <!-- Hero Card Skeleton -->
-            <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-3 animate-pulse">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-200 dark:bg-zinc-800 shrink-0"></div>
-                    <div class="flex-1 space-y-2">
-                        <div class="h-3 w-24 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                        <div class="h-3.5 w-40 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+            class="fixed inset-0 z-40 max-w-[440px] mx-auto bg-slate-50/95 dark:bg-[#09090b]/95 backdrop-blur-xs pb-24 space-y-4 pointer-events-none">
+            <!-- Hero Gradient Skeleton + Floating Layanan Card -->
+            <div class="animate-pulse">
+                <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 space-y-5">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-300 dark:bg-zinc-700 shrink-0"></div>
+                            <div class="space-y-1.5">
+                                <div class="h-2.5 w-20 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                                <div class="h-3.5 w-36 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                            </div>
+                        </div>
+                        <div class="w-9 h-9 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                    </div>
+                    <div class="flex items-end justify-between">
+                        <div class="space-y-2">
+                            <div class="h-2.5 w-28 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                            <div class="h-7 w-32 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
+                        </div>
+                        <div class="h-8 w-24 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
                     </div>
                 </div>
-                <div class="h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800/80"></div>
-                <div class="h-11 rounded-2xl bg-slate-200 dark:bg-zinc-800"></div>
+                <div class="-mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5 shadow-sm">
+                    <div class="grid grid-cols-4 gap-3">
+                        @for ($i = 0; $i < 8; $i++)
+                            <div class="flex flex-col items-center gap-1.5">
+                                <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
+                                <div class="h-2 w-10 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
             </div>
             <!-- 2-Col Bento Skeleton -->
-            <div class="grid grid-cols-2 gap-3 animate-pulse">
+            <div class="px-4 grid grid-cols-2 gap-3 animate-pulse">
                 <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5 space-y-2">
                     <div class="h-2.5 w-16 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
                     <div class="h-5 w-20 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
@@ -392,7 +412,7 @@
                 </div>
             </div>
             <!-- List Card Skeleton -->
-            <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-2.5 animate-pulse">
+            <div class="mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-3 animate-pulse">
                 <div class="h-3 w-32 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
                 <div class="h-3 w-full rounded-full bg-slate-100 dark:bg-zinc-800/80"></div>
                 <div class="h-3 w-3/4 rounded-full bg-slate-100 dark:bg-zinc-800/80"></div>
@@ -424,7 +444,7 @@
                 <div class="center-absen-btn-wrapper">
                     <a href="{{ route('mobile.absensi') }}" 
                        wire:navigate
-                       class="center-absen-btn group ring-4 ring-emerald-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-emerald-400 shadow-emerald-500/30' : '' }}"
+                       class="center-absen-btn group ring-4 ring-amber-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-amber-400 shadow-amber-500/30' : '' }}"
                        title="Halaman Presensi Kehadiran">
                         <i class="fa-solid fa-fingerprint"></i>
                         <span>PRESENSI</span>
