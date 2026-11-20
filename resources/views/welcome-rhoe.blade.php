@@ -101,6 +101,17 @@
         html.rhoe-light .rhoe-heading {
             background-image: linear-gradient(to bottom, #09090b, #3f3f46) !important;
         }
+        html.rhoe-light .rhoe-hero-badge {
+            background: rgba(255, 255, 255, 0.88) !important;
+            border-color: rgba(2, 132, 199, 0.35) !important;
+            color: #0369a1 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+        }
+        html.rhoe-light .rhoe-card-badge {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
     </style>
     <script>
         (function () {
@@ -202,7 +213,7 @@
             </div>
 
             <!-- Shimmer Pill Badge -->
-            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full shimmer-border border border-sky-400/30 text-[11px] font-semibold text-sky-400 mb-4">
+            <div class="rhoe-hero-badge inline-flex items-center gap-2 px-3.5 py-1 rounded-full shimmer-border border border-sky-400/30 text-[11px] font-bold text-sky-400 mb-4">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <span>Pemerintah Kabupaten Sijunjung &bull; Tahun Anggaran {{ \App\Models\PengaturanAplikasi::getTahunAnggaranAktif() }}</span>
             </div>
@@ -270,7 +281,7 @@
                                 <i class="{{ $link->fa_icon }}"></i>
                             </div>
                             @if ($link->badge)
-                                <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider {{ $tokens['badge'] }} truncate max-w-[85px] sm:max-w-none">
+                                <span class="rhoe-card-badge px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider {{ $tokens['badge'] }} truncate max-w-[95px] sm:max-w-none">
                                     {{ $link->badge }}
                                 </span>
                             @endif
