@@ -158,21 +158,189 @@
                         <button type="button" wire:click="toggleEdit" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Tutup</button>
                     </div>
 
-                    @if ($activeTab === 'golongan' || $activeTab === 'jabatan')
-                        <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-800 leading-relaxed">
-                            Riwayat <strong>{{ $activeTab === 'golongan' ? 'Pangkat / Golongan' : 'Jabatan & Unit Kerja' }}</strong> dikelola terpusat oleh Admin Kepegawaian melalui Panel Admin SAKTI.
+                    @if ($activeTab === 'golongan')
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tingkat Eselon Jabatan</label>
+                            <select wire:model="eselon" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                <option value="">- Pilih Eselon -</option>
+                                @foreach ($eselonOptions as $es)
+                                    <option value="{{ $es->value }}">{{ $es->getLabel() }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pangkat &amp; Golongan</span>
+                                <button type="button" wire:click="newGolongan" class="text-[11px] font-bold text-sky-600 hover:text-sky-700 cursor-pointer">+ Tambah Baru</button>
+                            </div>
+                            @if ($user->riwayatGolongan->isNotEmpty())
+                                <div class="flex gap-1.5 overflow-x-auto pb-1">
+                                    @foreach ($user->riwayatGolongan as $rg)
+                                        <button type="button" wire:click="editGolongan({{ $rg->id }})"
+                                            class="px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border {{ $editingGolonganId === $rg->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                            {{ $rg->golongan?->value ?? (string) $rg->golongan }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang</label>
+                                    <select wire:model="gol_golongan" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                        <option value="">- Pilih Golongan -</option>
+                                        @foreach ($golonganOptions as $gol)
+                                            <option value="{{ $gol->value }}">{{ $gol->getLabel() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pangkat</label>
+                                    <input type="text" wire:model="gol_nama_pangkat" placeholder="Otomatis jika kosong" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK Pangkat</label>
+                                <input type="text" wire:model="gol_nomor_sk" placeholder="Nomor SK..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal SK</label>
+                                    <input type="date" wire:model="gol_tanggal_sk" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">TMT Golongan</label>
+                                    <input type="date" wire:model="gol_tmt_golongan" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                <input type="checkbox" wire:model="gol_is_terakhir" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                                <span>Jadikan Pangkat Terakhir</span>
+                            </label>
+                        </div>
+                    @elseif ($activeTab === 'jabatan')
+                        <div class="grid grid-cols-1 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Bidang Dinas</label>
+                                <select wire:model="bidang_id" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                    <option value="">- Kepala Dinas / Tanpa Bidang -</option>
+                                    @foreach ($bidangOptions as $bidang)
+                                        <option value="{{ $bidang->id }}">{{ $bidang->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Atasan Langsung</label>
+                                <select wire:model="atasan_id" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                    <option value="">- Pimpinan Tertinggi -</option>
+                                    @foreach ($atasanOptions as $atasan)
+                                        <option value="{{ $atasan->id }}">{{ $atasan->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-100 space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Jabatan</span>
+                                <button type="button" wire:click="newJabatan" class="text-[11px] font-bold text-sky-600 hover:text-sky-700 cursor-pointer">+ Tambah Baru</button>
+                            </div>
+                            @if ($user->riwayatJabatan->isNotEmpty())
+                                <div class="flex gap-1.5 overflow-x-auto pb-1">
+                                    @foreach ($user->riwayatJabatan as $rj)
+                                        <button type="button" wire:click="editJabatan({{ $rj->id }})"
+                                            class="px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border {{ $editingJabatanId === $rj->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                            {{ \Illuminate\Support\Str::limit($rj->nama_jabatan, 24) }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan</label>
+                                <input type="text" wire:model="jab_nama_jabatan" placeholder="Contoh: Kepala Bidang..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Jabatan</label>
+                                    <select wire:model="jab_jenis_jabatan" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                        <option value="Struktural">Struktural</option>
+                                        <option value="Fungsional">Fungsional</option>
+                                        <option value="Pelaksana">Pelaksana</option>
+                                        <option value="PPPK">PPPK</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Unit Kerja</label>
+                                    <input type="text" wire:model="jab_unit_kerja" placeholder="Dinas / Bagian" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK Jabatan</label>
+                                <input type="text" wire:model="jab_nomor_sk" placeholder="Nomor SK..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal SK</label>
+                                    <input type="date" wire:model="jab_tanggal_sk" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">TMT Jabatan</label>
+                                    <input type="date" wire:model="jab_tmt_jabatan" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                <input type="checkbox" wire:model="jab_is_sekarang" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                                <span>Jadikan Jabatan Sekarang</span>
+                            </label>
                         </div>
                     @elseif ($activeTab === 'pendidikan')
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pendidikan Formal</span>
+                            <button type="button" wire:click="newPendidikan" class="text-[11px] font-bold text-sky-600 hover:text-sky-700 cursor-pointer">+ Tambah Baru</button>
+                        </div>
+                        @if ($user->riwayatPendidikan->isNotEmpty())
+                            <div class="flex gap-1.5 overflow-x-auto pb-1">
+                                @foreach ($user->riwayatPendidikan as $rp)
+                                    <button type="button" wire:click="editPendidikan({{ $rp->id }})"
+                                        class="px-2.5 py-1 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border {{ $editingPendidikanId === $rp->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                        {{ $rp->jenjang?->value ?? (string) $rp->jenjang }} - {{ \Illuminate\Support\Str::limit($rp->jurusan ?: $rp->nama_institusi, 18) }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang Pendidikan</label>
-                                <input type="text" wire:model="jenjang_pendidikan" placeholder="S1 / S2" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang</label>
+                                <select wire:model="pend_jenjang" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                    <option value="">- Pilih Jenjang -</option>
+                                    @foreach ($jenjangOptions as $jen)
+                                        <option value="{{ $jen->value }}">{{ $jen->getLabel() }}</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Jurusan / Pendidikan</label>
-                                <input type="text" wire:model="pendidikan" placeholder="Manajemen / Hukum" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Lulus</label>
+                                <input type="number" wire:model="pend_tahun_lulus" placeholder="2020" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                             </div>
                         </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Perguruan Tinggi</label>
+                            <input type="text" wire:model="pend_nama_institusi" placeholder="Contoh: Universitas Andalas" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jurusan / Prodi</label>
+                                <input type="text" wire:model="pend_jurusan" placeholder="Hukum / Manajemen" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Ijazah</label>
+                                <input type="text" wire:model="pend_nomor_ijazah" placeholder="Nomor Ijazah..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                            <input type="checkbox" wire:model="pend_is_terakhir" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                            <span>Jadikan Pendidikan Terakhir</span>
+                        </label>
                     @elseif ($activeTab === 'keluarga')
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -379,16 +547,14 @@
                     </div>
                     @endif
 
-                    @if (!in_array($activeTab, ['golongan', 'jabatan']))
-                        <button type="submit" wire:loading.attr="disabled"
-                            class="w-full py-3 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-600/30 active:scale-95 transition-all flex items-center justify-center space-x-2">
-                            <span wire:loading.remove wire:target="save">Simpan Perubahan</span>
-                            <span wire:loading wire:target="save" class="flex items-center space-x-2">
-                                <i class="fa-solid fa-spinner fa-spin"></i>
-                                <span>Menyimpan...</span>
-                            </span>
-                        </button>
-                    @endif
+                    <button type="submit" wire:loading.attr="disabled"
+                        class="w-full py-3 bg-sky-600 hover:bg-sky-700 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-md shadow-sky-600/30 active:scale-95 transition-all flex items-center justify-center space-x-2">
+                        <span wire:loading.remove wire:target="save">Simpan Perubahan</span>
+                        <span wire:loading wire:target="save" class="flex items-center space-x-2">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <span>Menyimpan...</span>
+                        </span>
+                    </button>
                 </div>
             </form>
         @else

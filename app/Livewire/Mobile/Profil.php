@@ -2,9 +2,16 @@
 
 namespace App\Livewire\Mobile;
 
+use App\Enums\Eselon;
+use App\Enums\GolonganRuang;
+use App\Enums\JenjangPendidikan;
 use App\Models\AbsensiHarian;
+use App\Models\Bidang;
 use App\Models\Lhk;
 use App\Models\PengaturanAplikasi;
+use App\Models\RiwayatGolongan;
+use App\Models\RiwayatJabatan;
+use App\Models\RiwayatPendidikan;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +59,37 @@ class Profil extends Component
     public $password = '';
     public $password_confirmation = '';
     public $new_avatar;
+
+    // Tab Pangkat / Golongan
+    public string $eselon = '';
+    public ?int $editingGolonganId = null;
+    public string $gol_golongan = '';
+    public string $gol_nama_pangkat = '';
+    public string $gol_nomor_sk = '';
+    public string $gol_tanggal_sk = '';
+    public string $gol_tmt_golongan = '';
+    public bool $gol_is_terakhir = true;
+
+    // Tab Jabatan
+    public ?int $bidang_id = null;
+    public ?int $atasan_id = null;
+    public ?int $editingJabatanId = null;
+    public string $jab_nama_jabatan = '';
+    public string $jab_jenis_jabatan = 'Struktural';
+    public string $jab_unit_kerja = '';
+    public string $jab_nomor_sk = '';
+    public string $jab_tanggal_sk = '';
+    public string $jab_tmt_jabatan = '';
+    public bool $jab_is_sekarang = true;
+
+    // Tab Pendidikan
+    public ?int $editingPendidikanId = null;
+    public string $pend_jenjang = '';
+    public string $pend_nama_institusi = '';
+    public string $pend_jurusan = '';
+    public string $pend_tahun_lulus = '';
+    public string $pend_nomor_ijazah = '';
+    public bool $pend_is_terakhir = true;
 
     /** @var array<string, bool> */
     public array $modulAktif = [];
@@ -117,7 +155,7 @@ class Profil extends Component
     public function loadUserData()
     {
         /** @var User $user */
-        $user = Auth::user()->load(['jabatan', 'bidang', 'atasan', 'jadwalKerja']);
+        $user = Auth::user()->load(['jabatan', 'bidang', 'atasan', 'jadwalKerja', 'riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan']);
 
         $this->name = $user->name ?? '';
         $this->email = $user->email ?? '';
@@ -137,8 +175,93 @@ class Profil extends Component
         $this->gelar_belakang = $user->gelar_belakang ?? '';
         $this->pendidikan = $user->pendidikan ?? '';
         $this->jenjang_pendidikan = $user->jenjang_pendidikan ?? '';
+        $this->eselon = (string) ($user->eselon?->value ?? ($user->eselon ?? ''));
+        $this->bidang_id = $user->bidang_id;
+        $this->atasan_id = $user->atasan_id;
         $this->password = '';
         $this->password_confirmation = '';
+
+        $latestGol = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true) ?? $user->riwayatGolongan->first();
+        $this->fillGolonganForm($latestGol);
+
+        $latestJab = $user->riwayatJabatan->firstWhere('is_jabatan_sekarang', true) ?? $user->riwayatJabatan->first();
+        $this->fillJabatanForm($latestJab);
+
+        $latestPend = $user->riwayatPendidikan->firstWhere('is_pendidikan_terakhir', true) ?? $user->riwayatPendidikan->last();
+        $this->fillPendidikanForm($latestPend);
+    }
+
+    private function fillGolonganForm(?RiwayatGolongan $item): void
+    {
+        $this->editingGolonganId = $item?->id;
+        $this->gol_golongan = (string) ($item?->golongan?->value ?? ($item?->golongan ?? ''));
+        $this->gol_nama_pangkat = $item?->nama_pangkat ?? '';
+        $this->gol_nomor_sk = $item?->nomor_sk ?? '';
+        $this->gol_tanggal_sk = $item?->tanggal_sk ? $item->tanggal_sk->format('Y-m-d') : '';
+        $this->gol_tmt_golongan = $item?->tmt_golongan ? $item->tmt_golongan->format('Y-m-d') : '';
+        $this->gol_is_terakhir = $item ? (bool) $item->is_golongan_terakhir : true;
+    }
+
+    private function fillJabatanForm(?RiwayatJabatan $item): void
+    {
+        $this->editingJabatanId = $item?->id;
+        $this->jab_nama_jabatan = $item?->nama_jabatan ?? '';
+        $this->jab_jenis_jabatan = $item?->jenis_jabatan ?? 'Struktural';
+        $this->jab_unit_kerja = $item?->unit_kerja ?? '';
+        $this->jab_nomor_sk = $item?->nomor_sk ?? '';
+        $this->jab_tanggal_sk = $item?->tanggal_sk ? $item->tanggal_sk->format('Y-m-d') : '';
+        $this->jab_tmt_jabatan = $item?->tmt_jabatan ? $item->tmt_jabatan->format('Y-m-d') : '';
+        $this->jab_is_sekarang = $item ? (bool) $item->is_jabatan_sekarang : true;
+    }
+
+    private function fillPendidikanForm(?RiwayatPendidikan $item): void
+    {
+        $this->editingPendidikanId = $item?->id;
+        $this->pend_jenjang = (string) ($item?->jenjang?->value ?? ($item?->jenjang ?? ''));
+        $this->pend_nama_institusi = $item?->nama_institusi ?? '';
+        $this->pend_jurusan = $item?->jurusan ?? '';
+        $this->pend_tahun_lulus = $item?->tahun_lulus ? (string) $item->tahun_lulus : '';
+        $this->pend_nomor_ijazah = $item?->nomor_ijazah ?? '';
+        $this->pend_is_terakhir = $item ? (bool) $item->is_pendidikan_terakhir : true;
+    }
+
+    public function newGolongan(): void
+    {
+        $this->fillGolonganForm(null);
+    }
+
+    public function editGolongan(int $id): void
+    {
+        $item = RiwayatGolongan::where('user_id', Auth::id())->find($id);
+        if ($item) {
+            $this->fillGolonganForm($item);
+        }
+    }
+
+    public function newJabatan(): void
+    {
+        $this->fillJabatanForm(null);
+    }
+
+    public function editJabatan(int $id): void
+    {
+        $item = RiwayatJabatan::where('user_id', Auth::id())->find($id);
+        if ($item) {
+            $this->fillJabatanForm($item);
+        }
+    }
+
+    public function newPendidikan(): void
+    {
+        $this->fillPendidikanForm(null);
+    }
+
+    public function editPendidikan(int $id): void
+    {
+        $item = RiwayatPendidikan::where('user_id', Auth::id())->find($id);
+        if ($item) {
+            $this->fillPendidikanForm($item);
+        }
     }
 
     public function setTab($tab)
@@ -182,7 +305,7 @@ class Profil extends Component
         $this->fullEditMode = $full;
         $this->isEditing = !$this->isEditing;
         if ($this->isEditing) {
-            $this->activeTab = 'utama';
+            $this->loadUserData();
             $this->password = '';
             $this->password_confirmation = '';
         } else {
@@ -192,6 +315,149 @@ class Profil extends Component
     }
 
     public function save()
+    {
+        /** @var User $freshUser */
+        $freshUser = User::findOrFail(Auth::id());
+
+        if ($this->activeTab === 'golongan') {
+            $this->saveGolongan($freshUser);
+        } elseif ($this->activeTab === 'jabatan') {
+            $this->saveJabatan($freshUser);
+        } elseif ($this->activeTab === 'pendidikan') {
+            $this->savePendidikan($freshUser);
+        } elseif ($this->activeTab === 'keluarga') {
+            $freshUser->update([
+                'nik' => $this->nik ?: null,
+                'no_kk' => $this->no_kk ?: null,
+                'alamat' => $this->alamat ?: null,
+            ]);
+        } else {
+            $this->saveUtama($freshUser);
+        }
+
+        $this->password = '';
+        $this->password_confirmation = '';
+        $this->isEditing = false;
+        $this->fullEditMode = false;
+        $this->loadUserData();
+
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Tersimpan!',
+            'message' => 'Data profil Anda berhasil diperbarui.',
+        ]);
+    }
+
+    private function saveGolongan(User $freshUser): void
+    {
+        $freshUser->update(['eselon' => $this->eselon ?: null]);
+
+        if ($this->gol_golongan === '') {
+            return;
+        }
+
+        if ($this->gol_is_terakhir) {
+            RiwayatGolongan::where('user_id', $freshUser->id)
+                ->when($this->editingGolonganId, fn ($q) => $q->where('id', '!=', $this->editingGolonganId))
+                ->update(['is_golongan_terakhir' => false]);
+        }
+
+        $payload = [
+            'golongan' => $this->gol_golongan,
+            'nama_pangkat' => $this->gol_nama_pangkat,
+            'nomor_sk' => $this->gol_nomor_sk ?: null,
+            'tanggal_sk' => $this->gol_tanggal_sk ?: null,
+            'tmt_golongan' => $this->gol_tmt_golongan ?: null,
+            'is_golongan_terakhir' => $this->gol_is_terakhir,
+        ];
+
+        $existing = $this->editingGolonganId
+            ? RiwayatGolongan::where('user_id', $freshUser->id)->find($this->editingGolonganId)
+            : null;
+
+        if ($existing) {
+            $existing->update($payload);
+        } else {
+            RiwayatGolongan::create($payload + ['user_id' => $freshUser->id]);
+        }
+    }
+
+    private function saveJabatan(User $freshUser): void
+    {
+        $freshUser->update([
+            'bidang_id' => $this->bidang_id ?: null,
+            'atasan_id' => $this->atasan_id ?: null,
+        ]);
+
+        if (trim($this->jab_nama_jabatan) === '') {
+            return;
+        }
+
+        if ($this->jab_is_sekarang) {
+            RiwayatJabatan::where('user_id', $freshUser->id)
+                ->when($this->editingJabatanId, fn ($q) => $q->where('id', '!=', $this->editingJabatanId))
+                ->update(['is_jabatan_sekarang' => false]);
+        }
+
+        $payload = [
+            'nama_jabatan' => trim($this->jab_nama_jabatan),
+            'jenis_jabatan' => $this->jab_jenis_jabatan ?: 'Struktural',
+            'unit_kerja' => $this->jab_unit_kerja ?: null,
+            'nomor_sk' => $this->jab_nomor_sk ?: null,
+            'tanggal_sk' => $this->jab_tanggal_sk ?: null,
+            'tmt_jabatan' => $this->jab_tmt_jabatan ?: null,
+            'is_jabatan_sekarang' => $this->jab_is_sekarang,
+        ];
+
+        $existing = $this->editingJabatanId
+            ? RiwayatJabatan::where('user_id', $freshUser->id)->find($this->editingJabatanId)
+            : null;
+
+        if ($existing) {
+            $existing->update($payload);
+        } else {
+            RiwayatJabatan::create($payload + ['user_id' => $freshUser->id]);
+        }
+    }
+
+    private function savePendidikan(User $freshUser): void
+    {
+        if ($this->pend_jenjang !== '' && trim($this->pend_nama_institusi) !== '') {
+            if ($this->pend_is_terakhir) {
+                RiwayatPendidikan::where('user_id', $freshUser->id)
+                    ->when($this->editingPendidikanId, fn ($q) => $q->where('id', '!=', $this->editingPendidikanId))
+                    ->update(['is_pendidikan_terakhir' => false]);
+            }
+
+            $payload = [
+                'jenjang' => $this->pend_jenjang,
+                'nama_institusi' => trim($this->pend_nama_institusi),
+                'jurusan' => $this->pend_jurusan ?: null,
+                'tahun_lulus' => $this->pend_tahun_lulus !== '' ? (int) $this->pend_tahun_lulus : null,
+                'nomor_ijazah' => $this->pend_nomor_ijazah ?: null,
+                'is_pendidikan_terakhir' => $this->pend_is_terakhir,
+            ];
+
+            $existing = $this->editingPendidikanId
+                ? RiwayatPendidikan::where('user_id', $freshUser->id)->find($this->editingPendidikanId)
+                : null;
+
+            if ($existing) {
+                $existing->update($payload);
+            } else {
+                RiwayatPendidikan::create($payload + ['user_id' => $freshUser->id]);
+            }
+
+            return;
+        }
+
+        $freshUser->update([
+            'jenjang_pendidikan' => $this->jenjang_pendidikan ?: null,
+            'pendidikan' => $this->pendidikan ?: null,
+        ]);
+    }
+
+    private function saveUtama(User $freshUser): void
     {
         // Sanitize nomor WhatsApp jika diisi (bersihkan non-angka dan standardisasi awal ke 08)
         if (!empty(trim((string) $this->no_hp))) {
@@ -204,11 +470,9 @@ class Profil extends Component
             $this->no_hp = null;
         }
 
-        $userId = Auth::id();
-
         $this->validate([
             'name' => 'required|string|max:255',
-            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($userId)],
+            'email' => ['required', 'email', 'max:255', \Illuminate\Validation\Rule::unique('users', 'email')->ignore($freshUser->id)],
             'no_hp' => ['nullable', 'string', 'max:20'],
         ], [
             'name.required' => 'Nama lengkap wajib diisi.',
@@ -252,21 +516,7 @@ class Profil extends Component
             $data['password'] = Hash::make($this->password);
         }
 
-        /** @var User $freshUser */
-        $freshUser = User::findOrFail(Auth::id());
         $freshUser->update($data);
-
-        // Reset password state & kembali ke tampilan index Profil
-        $this->password = '';
-        $this->password_confirmation = '';
-        $this->isEditing = false;
-        $this->fullEditMode = false;
-
-        $this->dispatch('notify', [
-            'type' => 'success',
-            'title' => 'Tersimpan!',
-            'message' => 'Data profil Anda berhasil diperbarui.',
-        ]);
     }
 
     public function impersonateUser(int $targetUserId): void
@@ -310,7 +560,7 @@ class Profil extends Component
     public function render()
     {
         /** @var User $user */
-        $user = User::with(['jabatan', 'bidang', 'atasan', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
+        $user = User::with(['jabatan', 'bidang', 'atasan', 'jadwalKerja', 'riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])->find(Auth::id()) ?? Auth::user();
 
         // Statistik Bulan dan Tahun Terpilih
         $selectedDate = Carbon::createFromDate($this->tahun, $this->bulan, 1);
@@ -358,6 +608,11 @@ class Profil extends Component
             'bulan' => $this->bulan,
             'tahun' => $this->tahun,
             'impersonateCandidates' => $impersonateCandidates,
+            'eselonOptions' => Eselon::cases(),
+            'golonganOptions' => GolonganRuang::cases(),
+            'jenjangOptions' => JenjangPendidikan::cases(),
+            'bidangOptions' => Bidang::orderBy('nama')->get(['id', 'nama']),
+            'atasanOptions' => User::where('id', '!=', $user->id)->orderBy('name')->get(['id', 'name']),
         ]);
     }
 }
