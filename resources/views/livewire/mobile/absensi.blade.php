@@ -24,6 +24,22 @@
         </div>
     </div>
 
+    <!-- Status Hari Libur / Selesai / Di Luar Radius (Tampil di Atas Tanpa Scroll) -->
+    @if ($hariLiburHariIni)
+        <div class="mb-3 p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
+            <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
+        </div>
+    @elseif ($sudahMasuk && $sudahPulang)
+        <div class="mb-3 p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
+            <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
+        </div>
+    @else
+        <div x-show="!isWfh && isWithinRadius === false" x-cloak
+            class="mb-3 p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold text-center">
+            <i class="fa-solid fa-location-crosshairs mr-1"></i> Anda berada di luar radius kantor (<span x-text="currentDistanceText"></span>). Mendekatlah ke area kantor untuk mengaktifkan tombol absen.
+        </div>
+    @endif
+
     <!-- CARD UTAMA: WAKTU SERVER, JADWAL & LOKASI KANTOR (SESUAI PEDOMAN BETTER-UI) -->
     <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-4 shadow-xl shadow-sky-950/20 mb-4 relative overflow-hidden border border-white/15"
         x-data="{ 
@@ -189,22 +205,6 @@
             <span class="text-slate-400 font-medium">Pin Biru = Posisi Anda</span>
         </div>
     </div>
-
-    <!-- Status Hari Libur / Selesai / Di Luar Radius (Ringkas di Bawah Peta) -->
-    @if ($hariLiburHariIni)
-        <div class="mb-3 p-3 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
-            <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
-        </div>
-    @elseif ($sudahMasuk && $sudahPulang)
-        <div class="mb-3 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
-            <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
-        </div>
-    @else
-        <div x-show="!isWfh && isWithinRadius === false" x-cloak
-            class="mb-3 p-3 rounded-2xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold text-center">
-            <i class="fa-solid fa-location-crosshairs mr-1"></i> Anda berada di luar radius kantor (<span x-text="currentDistanceText"></span>). Mendekatlah ke area kantor untuk mengaktifkan tombol absen.
-        </div>
-    @endif
 
     <!-- Info Jabatan & PIN Mesin (Polesan Elegan Sesuai Better-UI) -->
     @if (!empty($user->jabatan?->nama) || !empty($user->nomor_absensi))
