@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
@@ -61,6 +62,21 @@ class AbsensiHarian extends Model
         });
 
         static::deleting(function ($model) {
+            $hasLhk = Lhk::query()
+                ->where('user_id', $model->user_id)
+                ->whereDate('tanggal', $model->tanggal)
+                ->exists();
+
+            if ($hasLhk) {
+                Notification::make()
+                    ->danger()
+                    ->title('Absensi Tidak Dapat Dihapus')
+                    ->body('Data absensi ini terkait dengan Laporan Harian Kinerja (LHK) pegawai pada tanggal yang sama. Hapus LHK terkait terlebih dahulu jika benar-benar diperlukan.')
+                    ->send();
+
+                return false;
+            }
+
             $files = ['foto_masuk', 'foto_pulang', 'bukti'];
             foreach ($files as $file) {
                 if ($model->$file) {

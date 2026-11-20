@@ -21,6 +21,21 @@ class Bidang extends Model
                 $bidang->singkatan = self::getInisialBidang($bidang->nama);
             }
         });
+
+        static::deleting(function (Bidang $bidang): ?bool {
+            $hasUsers = User::query()->where('bidang_id', $bidang->id)->exists();
+            if ($hasUsers) {
+                \Filament\Notifications\Notification::make()
+                    ->danger()
+                    ->title('Bidang Tidak Dapat Dihapus')
+                    ->body('Bidang ini masih memiliki pegawai aktif yang terhubung.')
+                    ->send();
+
+                return false;
+            }
+
+            return null;
+        });
     }
 
     public function kepala()
