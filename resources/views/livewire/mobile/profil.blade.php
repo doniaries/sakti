@@ -46,8 +46,17 @@
                     class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-extrabold text-sky-200 uppercase tracking-wider mb-1">
                     {{ $user->jabatan->nama ?? 'Pegawai' }}
                 </div>
+                @php
+                    $namaLengkap = $user->name;
+                    if ($user->gelar_depan && !str_starts_with($namaLengkap, $user->gelar_depan)) {
+                        $namaLengkap = $user->gelar_depan . ' ' . $namaLengkap;
+                    }
+                    if ($user->gelar_belakang && !str_contains($namaLengkap, $user->gelar_belakang)) {
+                        $namaLengkap .= ', ' . $user->gelar_belakang;
+                    }
+                @endphp
                 <h2 class="text-base font-extrabold truncate tracking-tight text-white drop-shadow-xs">
-                    {{ trim(($user->gelar_depan ? $user->gelar_depan . ' ' : '') . $user->name . ($user->gelar_belakang ? ', ' . $user->gelar_belakang : '')) }}
+                    {{ trim($namaLengkap) }}
                 </h2>
                 <div class="flex items-center text-xs text-sky-100 font-mono mt-1 font-medium">
                     <span class="text-amber-300 font-bold mr-1.5">#</span>
@@ -422,8 +431,14 @@
         <!-- TAB 1: DATA UTAMA -->
         @if ($activeTab === 'utama')
             <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Identitas & Kontak Utama
-                </h3>
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">Identitas & Kontak Utama</h3>
+                    <button type="button" wire:click="toggleEdit"
+                        class="px-2.5 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-[11px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
+                        <i class="fa-solid fa-pen-to-square text-[10px]"></i>
+                        <span>Ubah Data</span>
+                    </button>
+                </div>
                 <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
                     <span class="text-slate-400 font-medium">NIP</span>
                     <span class="font-bold font-mono text-slate-800">{{ $user->nip ?? '-' }}</span>
