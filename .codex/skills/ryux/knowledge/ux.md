@@ -1,0 +1,356 @@
+# UX architecture
+
+Structures screens and flows so people find their way: information architecture, navigation, grouping, and progressive disclosure.
+
+> Group UX · Delivery Gate area UX · RYUX 2.23.6. Levels are defined in `SKILL.md`.
+
+Choose structure from the user's goal, not from a template.
+
+- **Information architecture**: what objects and tasks exist, how users name them, and how they
+  look for them (browse, search, or follow a notification).
+- **Navigation**: the minimum set of destinations, named in the user's words. Where am I, and how
+  do I get back?
+- **Flows**: list the steps; remove steps that only serve the system. Multi-step flows show
+  progress and a reviewable summary.
+- **Grouping**: by meaning (task, time, status), with labels.
+- **Progressive disclosure**: what the current decision needs first; rare options behind a
+  clearly labeled control.
+- **Search, filter, sort**: only when the content is long enough to need them, matching how
+  users hunt.
+- **Recovery paths**: every flow has a way back and a way out.
+
+**Laws of UX, measured.** Critique and QA run these on every screen; a law is checked by what can
+be counted or measured on the render, and a fail is a finding with the measured value as its evidence.
+Miller's limit is about holding things in memory, not a cap on menu items.
+
+| Law | Measure | Passes when | Rule |
+| --- | --- | --- | --- |
+| Fitts | the primary action's size, and its distance from what it acts on | 44 by 44 pt or more (48 dp on Android), every target 24 px or more; next to its content; on a phone, in thumb reach or a sticky bar | RX-A11Y-02, RX-RD-03 |
+| Hick, choice overload | options in one decision, visible at once | one primary action; seven or fewer peer options, or grouped under labels | RX-PR-03 |
+| Explicit differences | the attributes of peer options (services, plans, methods) | the attributes that differ come first, in the same order on every option; shared details in one line above | RX-UX-14 |
+| Von Restorff | elements wearing the action colour or the strongest contrast | only the primary action, one per view | RX-UI-01, RX-UI-04 |
+| Serial position | where the primary action and the key fact sit | on the first screen, and again at the end of a long page or list | RX-UX-13 |
+| Proximity, common region, uniform connectedness | the gap inside a group against the gap between groups | the inside gap half the outside gap or less; a label closer to its own field than to the next | RX-UX-01, RX-FM-01 |
+| Miller, chunking, working memory | long strings, and what the user must carry between screens | numbers grouped in threes or fours (a virtual account, a phone number); nothing carried in memory from one screen to the next | RX-UX-08 |
+| Change blindness | values that change outside the element touched (a total, a count, a badge) | each one is next to its control, or marked where it lands (a short highlight or a number transition) | RX-IX-02 |
+| Doherty, flow | time to visible feedback; interruptions | feedback under 400 ms, progress after about 1 s; no dialog interrupting a task that does not need it | RX-IX-02 |
+| Information scent | the words on each link and button | each names where it leads or what it does; no "Selengkapnya", "Learn more", "Klik di sini", or a bare "Lanjut" when a specific action exists | RX-CD-12 |
+| Jakob | where the logo, navigation, search, cart, and back sit | where the platform and the category put them, or a written reason | RX-DS-02 |
+| Goal-gradient, Zeigarnik | progress in a multi-step task | steps done and steps left are shown | RX-UX-02 |
+| Peak-end | the success and the failure ends | both designed: what happened and what to do next | RX-IX-01, RX-EC-01 |
+| Tesler, Occam | the removal test on each element | removing it loses information or an action | RX-AS-05, RX-AS-06 |
+| Postel, Parkinson | input formats accepted; fields the product could fill | spaces, dashes, and +62 or 0 accepted and normalised; known values filled | RX-FM-05 |
+| Selective attention | how the key message is styled | not like an ad or a banner, not only in a rotating carousel | RX-AS-05 |
+| Paradox of the active user | where help sits | inline at the point of need; no tutorial blocking first use | RX-CD-16 |
+| Prägnanz | icons and marks at their smallest size | recognisable at 16 to 24 px | RX-UI-20 |
+| Visual hierarchy, squint test | the render blurred (about 8 px) or seen at a quarter of its size | the three things that still stand out are Frame's "seen first", in that order | RX-UI-01 |
+| Similarity | elements that share a colour, a shape, or a style | one meaning per shared colour or shape: a group's colour is not reused for something unrelated, and a picture wears the colour of the text it belongs to | RX-UI-04 |
+| Natural mapping | each control's layout against what it changes | minus left of plus, earlier left of later, a slider or stepper moving the way its value grows, each control beside the thing it changes | RX-DS-02 |
+| Cognitive bias | defaults, anchors, scarcity | no pre-ticked add-on, no invented anchor price, no invented scarcity | RX-AS-04 |
+| Aesthetic-usability, Pareto | the test plan | judged on task success and time, not on liking the look; the top tasks tested first | RX-UX-12 |
+
+Reason like a senior designer: a principle, where it applies, where it does not, and what it costs.
+
+```
+Rule:       Recognition over recall (RX-UX-08)
+Context:    a complex enterprise form filled many times a day
+Decision:   show previously selected values and recent entries
+Trade-off:  higher visual density
+Reason:     less memory burden in a repeated workflow
+```
+
+**Research methods, by question** (NNGroup). RYUX plans research; people run it. Pick the method from
+the question, not from habit: what people do (behavioral) over what they say (attitudinal) for
+usability; qualitative for why and how to fix, quantitative for how many and how much.
+
+| Question | Phase | Method |
+| --- | --- | --- |
+| What problem do people have, in their own setting? | discover | field study, contextual inquiry, diary study, user interview |
+| What does the business need, and what limits it? | discover | stakeholder interview, requirements and constraints |
+| Is the core idea worth building? | discover | concept test |
+| How do people group and name this content? | design | card sort (open: they name the groups; closed: yours) |
+| Can people find things in this structure? | design | tree test (text-only hierarchy: success, directness, time) |
+| Can people do the task with this design, and why do they fail? | design | qualitative usability test, moderated or unmoderated (RX-UX-12) |
+| Which look fits the brand words? | design | desirability study (pick attributes for each alternative) |
+| How good is it, against before or a competitor? | assess | usability benchmark (time, success, errors) |
+| Which variant performs better in real use? | assess | A/B test, analytics, clickstream |
+| How do many people feel about it? | assess | survey, customer feedback |
+
+Most projects need more than one method. A single method, or none, is a choice to write down.
+
+## User flows and journey maps
+
+A user flow is one task in one product: the steps and the system's answers, minutes long (RX-UX-18). A journey
+map is a goal across channels and days, with what the person thinks and feels (RX-UX-19). Use a flow to design
+screens, a journey map to decide which moments are worth designing; the flow is a deep dive into one phase.
+
+**Before a flow or a journey map, ask** once, at most four questions, and only what the brief, DESIGN.md, and
+the repo do not already answer:
+1. Who is the actor, and what situation are they in?
+2. What is the scenario, and what goal ends it?
+3. Where does it start (the trigger) and where does it end?
+4. What data exists: interviews, analytics, support tickets, research (ryux MCP `search_research`)?
+
+Put it in the file the user names, else docs/ in the project; Figma or FigJam only when connected and asked.
+
+**A flow, as Mermaid.** Decisions are diamonds; every failure branch returns to the task or ends with a way
+out. Labels in the interface language. A short example (buying a prepaid electricity token):
+
+```mermaid
+flowchart TD
+  A[Token listrik hampir habis: buka aplikasi] --> B[Masukkan nomor meter]
+  B --> C{Nomor meter ditemukan?}
+  C -- Tidak --> C2[Pesan: cek nomor di meteran] --> B
+  C -- Ya --> D[Lihat nama pelanggan, pilih nominal]
+  D --> E[Bayar]
+  E --> F{Pembayaran berhasil?}
+  F -- Tidak --> F2[Saldo tetap, coba metode lain] --> E
+  F -- Ya --> G{Token terbit?}
+  G -- Belum --> G2[Status diproses: token menyusul di riwayat dan notifikasi, saldo aman]
+  G -- Ya --> H[Token 20 digit tampil, bisa disalin: selesai]
+```
+
+**Make it ready for screens.** A flow or journey deliverable goes on to design, so it also carries:
+- the success criteria, written before any structure is chosen;
+- for the riskiest decision in the flow (when the price is final, when the user pays, what happens on a
+  mismatch), two or three flow structures side by side, with the recommendation, the runner-up, and when to switch;
+- the assumptions in one table: each with its confidence, impact if wrong, and how to validate it;
+- a screen list: per screen its primary and secondary action and the states it must have (RX-EC-01).
+Keep one actor for one journey: no second persona until evidence says a second group behaves differently.
+
+Under it, list each failure branch with its way back ("pembayaran gagal: saldo tidak terpotong, coba metode
+lain") so each maps to a state in the design (RX-EC-01).
+
+**A journey map, as a table.** Columns are the phases; rows are the lenses. Above it: the actor, the scenario
+and expectations, and whether the map is research-based or assumption-based. The Source row says where each
+cell comes from (each cell cites its source): a cited study or user data, or "asumsi"; a mixed map has both.
+
+| Lens | Sadar token menipis | Membeli | Menunggu token | Memasukkan token | Setelahnya |
+| --- | --- | --- | --- | --- | --- |
+| Actions | ... | ... | ... | ... | ... |
+| Thoughts | ... | ... | ... | ... | ... |
+| Emotions | ... | ... | ... | ... | ... |
+| Touchpoints | ... | ... | ... | ... | ... |
+| Pain points | ... | ... | ... | ... | ... |
+| Opportunities (owner) | ... | ... | ... | ... | ... |
+| Source | asumsi | asumsi | ... | ... | ... |
+
+The phases agree with the map's own recommendations: when an opportunity says to defer a step (sign-up after
+the first order), the phases and the flow show it deferred, not as its own phase.
+
+An assumption-based map marks each guessed cell (asumsi) and ends with how to test the riskiest guesses: who
+to ask, the method (knowledge/ux.md, research methods), and the answer that would change the map. In Figma or
+FigJam, draw the same rows and columns when it is connected and asked for.
+
+Does not cover: per-action behavior (see `knowledge/interaction.md`), forms (see `knowledge/forms.md`), or states
+(see `knowledge/edge-cases.md`).
+
+## Evidence from RYUX Knowledge
+
+How Indonesian apps sequence and structure this flow: `get_flow` for a reference flow, `compare_apps` to compare steps across apps. Without the ryux MCP, say the evidence comes from the design and standards alone.
+
+> Hard Gates always apply, whichever skills are loaded: no invented numbers, people, urgency, business
+> rules, or terms; no placeholder shipped as final; no missing critical states. Labeled sample data is
+> not an invented number; an unconfirmed capability is never presented as confirmed. See `SKILL.md`.
+
+## Rules
+
+### RX-UX-01 [Required] Structure from the user's goal
+
+- Do: Choose the information architecture and pattern from what users come to do and how they look for it. Keep together what the user checks together, and show each fact once.
+- Do not: Apply a stock SaaS layout (sidebar, KPI cards, table) because it is familiar, or show the same fact twice on one screen (the merchant or the amount in the summary and again in a row, the balance in the header and in a card).
+- Why: The right structure depends on the task; a template answers a different question. A repeated fact costs reading time and leaves the user to wonder which one is right. (NNGroup information architecture research; Gestalt proximity and common region (Palmer 1992): items close together or in one container read as one group; ryux four-problems blind rating, rater 1 (product designer), 2026-10-16: repeated facts were a reason not to ship; Pareto principle (Juran, after Pareto): a few tasks carry most of the use, so they get the structure first; uniform connectedness (Palmer and Rock 1994): elements joined by a line or a shared fill read as related)
+- Not when: the product already has an established structure users rely on; change it only with evidence
+- Trade-off: a less familiar layout can cost users a moment of learning
+- Check: review
+
+### RX-UX-02 [Preferred] Where am I, what's left, how do I leave
+
+- Do: Give each screen a clear title and keep a back or cancel path visible; in multi-step flows show the current step ("Langkah 2 dari 3") and a summary the user can review before committing. Show how close the goal is, and let an interrupted task resume where it stopped instead of starting over.
+- Do not: Leave screens without a title or a way out, or run a multi-step flow with no sense of progress or review.
+- Why: Orientation, progress, and an exit lower anxiety and abandonment. (NNGroup wayfinding and progress-indicator research; Nielsen heuristic 3; goal-gradient effect (Hull 1932; Kivetz, Urminsky and Zheng 2006): people speed up as the goal comes into view; Zeigarnik effect (Zeigarnik 1927): unfinished tasks stay on the mind, so a resumable task is less likely to be abandoned)
+- Not when: a focused full-screen step such as payment in progress, where leaving would lose state; say how to cancel instead
+- Trade-off: a persistent title and back path take vertical space on small screens
+- Check: heuristic_eval H-03
+
+### RX-UX-06 [Contextual] Search, filter, and sort that match the hunt
+
+- When: a list or catalog is longer than a screen or two
+- Do: Offer search, filters, or sorting that match how users look for items, show active filters, and give a one-step way to clear them.
+  - A shopping home names the product and puts the search entry at the top; categories alone make a person who knows the title hunt for it.
+- Do not: Add every possible filter, or hide which filters are applied.
+- Why: Users narrow by the attributes they care about; invisible filters cause "missing" items. (NNGroup filtering and faceted search research; owner blind review 2026-11-18 of the Rak FigCraft A/B (secondhand books, Yogyakarta; no skill vs RYUX, one run each): a shelf with categories only, no search and no product name)
+- Not when: the list fits in a screen or two; filters slow down scanning
+- Trade-off: each filter is UI to maintain and can hide items users expect to see
+- Check: review
+
+### RX-UX-07 [Contextual] Ask for sign-in when it is needed
+
+- When: a flow asks for an account (checkout, saving, history)
+- Do: Let users browse and build a cart first, then offer fast sign-in (OTP, WhatsApp, Google) or a guest path at the point it is needed.
+- Do not: Force account creation before the user can see or try anything.
+- Why: Early forced registration is a well-documented cause of abandonment. (NNGroup and Baymard checkout research)
+- Not when: the core value requires an identity from the start (banking, a personal ledger)
+- Trade-off: late sign-in can lose a cart or draft if it is not carried over
+- Check: review
+
+### RX-UX-08 [Preferred] Recognition over recall; the product carries the load
+
+- Do: Show options and context (recent items, saved addresses, visible choices) instead of asking users to remember them.
+  - Take over what users would otherwise read, remember, or decide: a smart default from the last choice, information they entered shown again where they need it, a picture where it is faster than text, and familiar patterns that need no learning.
+  - Cut extraneous load (decoration, redundant links, meaningless type flourishes, a new pattern for a solved problem) and keep the intrinsic load, the content and decisions that are the task itself.
+- Do not: Make users retype or recall information the app already has, or cut content the task needs to make the screen look lighter.
+- Why: Working memory is small; every task the product takes over leaves more of it for the decisions that matter. (Nielsen heuristic 6 (1994); limited working memory (Miller 1956; Cowan 2001); NNGroup minimize cognitive load (intrinsic and extraneous load; avoid clutter, build on mental models, offload tasks))
+- Not when: a one-time task, where showing history or saved values adds clutter
+- Trade-off: higher visual density; more on screen to scan
+- Check: heuristic_eval H-06
+
+### RX-UX-10 [Required] Change what is broken, keep what works
+
+- Do: Before changing an existing screen or flow, list what works today (from Analyze, the user, or analytics) and keep it. Every significant change names the problem it fixes and its evidence (a Critique finding, a user report, a metric); a pattern with no named problem stays as it is. Report what was kept as well as what changed.
+- Do not: Replace a working layout, component, or interaction for novelty; restyle parts the brief did not ask to change; or treat "more modern" as a problem by itself.
+- Why: A redesign that throws away what people already know costs them relearning and can make the product worse while looking newer. (ryux design principle (owner, 2026-10-19); Jakob's law (people expect a product to work like the ones they already know); ryux run: judge and motion benchmarks 2026-10-18; written for RYUX)
+- Not when: a new product or screen with nothing to keep, or a brief that asks to replace the whole design
+- Trade-off: a redesign can look less new; the gain is in fewer regressions and less relearning
+- Check: the change list, each with its problem and evidence; the kept list; review
+
+### RX-UX-11 [Contextual] Accelerators for frequent users
+
+- When: people use the product often (daily payments, ordering, messaging, work tools)
+- Do: Give frequent users faster paths that novices can ignore: recent and saved items, repeat order or transfer, defaults from the last choice, search that jumps to an action, and keyboard shortcuts or gestures where the platform has them.
+  - Keep every accelerator a second path: the visible, standard path still works and stays the one a new user sees.
+- Do not: Make a gesture or shortcut the only way to an action, or fill a first-time screen with power-user controls.
+- Why: The same product serves first-time and daily users; accelerators save the daily user time without costing the newcomer clarity. (Nielsen heuristic 7 (flexibility and efficiency of use); NNGroup 10 usability heuristics)
+- Not when: a one-off or rarely used flow (a sign-up, a yearly tax form)
+- Trade-off: each accelerator is one more thing to design, test, and keep consistent
+- Check: heuristic_eval H-07
+
+### RX-UX-12 [Contextual] A test plan travels with the design
+
+- When: the work is a new flow, a consequential change (payment, sign-up, navigation, a core task), or a recommendation on an open brief
+- Do: Close the design or build with a usability test plan a person can run; RYUX prepares it, people run it. When the open question is not usability, name the method that answers it instead (a tree test for a navigation change, a concept test for an open idea, a desirability study for a look; knowledge/ux.md, research methods):
+  - research questions: the open unknowns, the Frame success criteria, and the heuristic evaluation findings marked as needing a test
+  - three to five task scenarios that are realistic, ask the participant to do something rather than describe it, and use none of the interface's labels or steps ("Kamu ingin membayar pesanan makan siang dengan saldo e-wallet", not "Ketuk Bayar lalu pilih GoPay")
+  - participants: five per user group for a qualitative test; around forty when the goal is a number
+  - a success measure per task, taken from the Frame criteria, and a satisfaction measure: the Single Ease Question after each task, the System Usability Scale for the whole, so releases can be compared
+  - after launch: the metrics to watch (task success, time on task, errors, completion, support tickets) and the baseline to measure before release
+  - Plan at least two rounds of test and fix; a result that changes the context or the criteria sends the work back to Understand or Frame.
+  - Before a full design exists (a proposal or a direction), the Decision Receipt's Test field is the minimum plan: never close a recommendation without it.
+- Do not: Claim the design was tested with users, present AI-simulated users as participants, or write tasks that name the buttons to tap.
+- Why: Rules and heuristics find likely problems; only people using the design show which ones are real, and a baseline is what makes the after-launch number mean something. (NNGroup when to use which UX research methods (Rohrer 2022) and UX research cheat sheet (Farrell 2017): the method follows the question; NNGroup usability testing 101; NNGroup how many test users (5 per group, about 40 for quantitative); NNGroup Usability 101 (Nielsen): SEQ and SUS as the standard satisfaction measures; NNGroup task scenarios; NNGroup iterative design (at least three versions); NNGroup establishing baselines; NNGroup design thinking (test and implement))
+- Not when: a small change (a colour, one label, spacing) or when the user says no test plan
+- Trade-off: a plan nobody runs is only a list; say who should run it and when
+- Check: review
+
+### RX-UX-13 [Preferred] A page's sections answer the visitor's questions, in their order
+
+- When: a marketing or landing page, onboarding, or any page read top to bottom to reach one decision
+- Do: Before the layout, write the questions this visitor has, in the order they have them, from the audience and the page goal (RX-PR-13): for a first-time saver, "what is this?", "is it for someone like me?", "what do I get for a small amount?", "can I trust it?", "how do I start?".
+  - Each section answers one question; a question the visitor does not have gets no section, and a section that answers none is cut.
+  - The order of the questions is the order of the page; the primary action sits where the visitor is ready for it, and again at the end.
+  - The visual concept gives each section its form (RX-UI-27); it never adds a section or changes the order.
+  - When the answer that decides is a number nobody confirmed (the minimum buy, a price, a fee), ask for it with the fact questions (RX-PR-13); when no answer can come, answer the question with what is confirmed and no number, and put that number first in the handoff's open questions as what the visitor needs most. Never a made-up number (RX-PR-02).
+- Do not: Start from the usual section list (hero, features, how it works, FAQ, call to action) and fill it, or let a visual idea decide which sections exist.
+- Why: A page that follows a template answers questions nobody asked and skips the one that decides; the visitor's own questions are what make the structure specific to this product. (Content strategy and conversion practice (a page as the answer to the reader's questions in order); NNGroup inverted pyramid; landing-gold concept-system trial 2026-10-31: a concept carried into every section still sat on the template order, as an independent reviewer and the owner noted; serial position effect (Ebbinghaus 1885; Murdock 1962): people recall the first and last items of a sequence best, so the action sits early and again at the end; owner blind review 2026-11-08 of the Raja Emas landing rerun (RYUX 2.22.5, docs/benchmarks/landing-gold): no run showed a minimum buy (the brief confirmed none), and the owner named it the most important missing fact for small savers in three of four pages)
+- Not when: task UI (a list, a form, a dashboard), where the user's task sets the structure (RX-UX-01)
+- Trade-off: the order can differ from what the team expects to see; show the question list with the layout
+- Check: review: the question list in Frame, and each section mapped to one question
+
+### RX-UX-14 [Preferred] Options show what sets them apart
+
+- When: the user picks between two or more peer options: services, plans, tiers, delivery or payment methods, design directions
+- Do: Put the attributes that differ first and make them visible at a glance (price, what is included, time, the one limit); keep what every option shares in one line above the options, not repeated in each.
+  - Show the same attributes in the same order on every option, so they compare row by row.
+  - Mark a recommended option only when the brief or the evidence names one, and say why.
+  - On a pricing section: every plan carries its own action, a free start sits in the same row as the paid plans, and on mobile the plans run cheapest first. The question a visitor still has at the price (what happens after the free ones, can I stop) gets a short answer on the page, from confirmed facts only.
+- Do not: Repeat the same feature list in every card so the differences hide in the middle, or make options look identical except for a name.
+- Why: People weigh every trade-off only when the options are few and the differences are easy to see; when they have to hunt for the difference, they take the first option that seems good enough. (NNGroup psychology study guide: explicit differences, compensatory and noncompensatory decisions, satisficing; Hick's law and choice overload (RX-PR-03); written for RYUX; owner blind ratings 2026-11-13 of an AI product-photo landing (not published): pricing without an action per plan, the free start left out of the plans, mobile plans most expensive first, and no answer to what happens after the free photos)
+- Not when: a single option, or options that differ only in one value the control already shows (a size picker, a time slot)
+- Trade-off: shared details move out of the cards; a reader who reads only one card sees less
+- Check: review: list each option's attributes; the differing ones come first and in the same order on every option; on a pricing section, count the plans and the plans with their own action (the gate's UX line), and every plan, the free start included, sits in one row
+
+### RX-UX-15 [Preferred] A running total sits with the action it pays for
+
+- When: a screen sums what the user picks (a cart, a booking, an order with quantities or add-ons) and ends in an action that commits to that sum
+- Do: Show the total in the bar that holds the primary action, pinned to the bottom on a phone, and update it as the user picks; the line items and fees stay on the review screen or open from the total.
+  - Say what the total covers when part of it is unknown ("+ biaya perbaikan setelah dicek"), next to the figure.
+  - A summary above the list may repeat the choice, never the only place the total lives.
+- Do not: Put the only total above the list it sums, where it moves as items are added and scrolls away from the button that commits to it.
+- Why: People check the price at the moment they commit; a total next to the button is read with it, and one at the top must be remembered or scrolled back to, and loses its context as the list grows. (Gestalt proximity; Nielsen heuristics 1 (visibility of system status) and 6 (recognition rather than recall); Fitts's law (a pinned bar keeps the action in thumb reach, RX-RD-03); written for RYUX)
+- Not when: one fixed price with no choices; a long statement or invoice read top to bottom
+- Trade-off: a pinned bar takes vertical space on every scroll position
+- Check: render at 390 with the most items the brief allows: the total and the primary action are visible together without scrolling
+
+### RX-UX-16 [Preferred] What decides is shown; details open on demand
+
+- When: a screen holds more than most users need at once: price breakdowns, terms, specifications, advanced settings, long explanations
+- Do: Show what most users need to decide on the first level: the option's price, the total before commitment (RX-IX-05), and the one limit that changes the choice.
+  - Put the rest one tap away behind a control that names what it opens ("Lihat rincian biaya", "Syarat pembatalan"), not "Selengkapnya" (RX-CD-12).
+  - Two levels at most; when a third seems needed, simplify the content first.
+  - Never hide a fee, a condition, or a cost the user will pay: disclosure postpones detail, it does not hide what decides.
+  - When the user buys from an independent seller (a marketplace, a secondhand copy), what decides includes trust: the seller's record (rating, sales, how long they have sold), how long a single copy is held for this buyer, and how the payment is protected (held until the buyer confirms delivery, or the refund path). State each as an open rule when the brief does not decide it (RX-PR-02).
+- Do not: List every price, fee, and condition on the first screen of a choice, or hide a cost behind a disclosure until after the user has committed.
+- Why: Fewer things on the first level make the important ones easier to see and the task faster; details stay available for the few who want them. (NNGroup Progressive Disclosure (Nielsen 2006): frequent needs first, two levels at most, a control labelled with what it reveals; Hick's law (more options, slower choice); owner review of the Sejuk bland test 2026-11-07 ("terlalu banyak menampilkan harga dari awal"); owner blind review 2026-11-18 of the Rak FigCraft A/B (secondhand books, Yogyakarta; no skill vs RYUX, one run each): the RYUX flow showed no seller rating, no hold time on a one-copy book, and no payment protection, where the no-skill flow showed all three)
+- Not when: a review or receipt screen whose job is the full breakdown
+- Trade-off: a detail behind a tap is missed by people who needed it; choose the split from what most users need
+- Check: per screen: list what is on the first level and what is behind a control; each control names its contents; no third level; nothing the user pays is only behind the control before commitment
+
+### RX-UX-17 [Preferred] The dominant usability quality follows the usage cadence
+
+- Do: Name how often one person repeats this task, and let that pick the usability quality the design optimizes and the criteria test: learnability for a task done once or rarely (onboarding, e-KYC, a mortgage application), efficiency for a tool used daily (a cashier flow, an ops dashboard, an editor), memorability for a task people return to after months (an annual renewal, yearly tax, a report filed each quarter). Write the cadence and the chosen quality into the Frame criteria, and critique with that lens: a daily tool is judged on steps and time for the practiced user, a rare task on whether a first-timer succeeds unaided, a returning task on whether it works without remembering.
+- Do not: Optimize every screen for the first-time user, judge a daily ops tool by its friendliness to beginners, or build a returned-to-after-a-year flow that relies on what users remember from last time.
+- Why: Which usability quality matters most depends on how often the same person does the task; criteria that ignore the cadence praise the wrong design. (NNGroup Usability 101 (Nielsen): usability's five quality components (learnability, efficiency, memorability, errors, satisfaction) and their relative importance by product type — a yearly tax app leans on learnability, a daily professional tool on efficiency; owner review 2026-11-11; written for RYUX)
+- Not when: the cadence is unknown and no evidence sets it: write it as an open question and design for the first use
+- Trade-off: efficiency for the practiced user (density, accelerators) can cost the newcomer clarity; RX-UX-11 serves both
+- Check: the Frame criteria name the cadence and the dominant quality; Critique weighs its findings with that lens
+
+### RX-UX-18 [Required] A user flow shows every path, not only the happy one
+
+- When: a flow is designed, changed, or asked for (a user flow, task flow, or wireflow)
+- Do: Read the screens or routes first when the product exists, then draw the flow for one task in one product:
+  - The entry point: where the user arrives from and what they came to do.
+  - The steps, each a user action and the system's response.
+  - The decisions, each with every answer it can take.
+  - Every failure branch the brief or the product can produce (a payment that fails, a slot that is taken, data that does not match), each with its way back to the task.
+  - The end point: what done looks like to the user, and what they see there.
+  - Write it as a Mermaid flowchart with a list of the failure branches and their ways back (knowledge/ux.md, User flows and journey maps); draw it in Figma or FigJam only when it is connected and asked for.
+- Do not: Draw only the happy path, leave a failure branch without a way back, or end the flow at the last button instead of at what the user sees when it is done.
+- Why: A flow is where missing states and dead ends show up before they are built; the happy path alone hides exactly the screens that fail in use. (NNGroup User Journeys vs. User Flows (Kaplan, 2023): a flow is one task in one product, the user's steps and the system's responses; RYUX critical states and interaction outcomes (RX-EC-01, RX-IX-01); written for RYUX)
+- Not when: a single screen with no branches, where the view x state matrix (RX-EC-01) covers it
+- Trade-off: a full flow takes longer than a happy path; the failure branches are what the build would otherwise discover late
+- Check: the flow names its entry, decisions, failure branches with ways back, and its end; each failure branch maps to a state in the design
+
+### RX-UX-19 [Required] A journey map says where every row comes from
+
+- When: a user journey map or customer journey map is asked for
+- Do: Before making it, ask what the brief and the repo do not answer: the actor, the scenario and its goal, where the journey starts and ends, and what data exists (interviews, analytics, support tickets, research).
+  - Its parts follow NNGroup: the actor; the scenario and expectations; the phases; per phase the actions, thoughts (mindsets), and emotions; and the opportunities. The touchpoints and an owner per opportunity are RYUX additions.
+  - With research from the user or the ryux MCP (search_research), each cell cites its source (a study with its page and sample, an analytics report, a ticket set) as in the core evidence model. When research covers only some cells, it is a mixed map: cited cells and asumsi cells side by side, and the title says mixed.
+  - With none, the map is titled assumption-based (a hypothesis map): every thought, emotion, and pain point is marked as a guess, and the map ends with how to test the riskiest guesses (RX-UX-12).
+  - Use the table in knowledge/ux.md, User flows and journey maps.
+- Do not: Write emotions, quotes, or pain points as if users said them when no one asked them, invent percentages or scores, or leave out the source row.
+- Why: A journey map is only as reliable as the evidence behind it; an invented emotion reads like research and sends the design after a problem nobody has. (NNGroup Journey Mapping 101 (Wang and Gibbons): actor, scenario and expectations, phases, actions, mindsets and emotions, opportunities; research-based maps and hypothesis maps that make assumptions explicit; owner decision 2026-11-19 (ask first; research through the MCP or labelled persona assumptions))
+- Trade-off: a map marked as guesses looks less finished; it says what to research next instead of hiding it
+- Check: every row has a source (a cited study, user data, or asumsi); an assumption-based map is titled so and ends with tests
+
+### RX-UX-20 [Required] Name the size of the change: polish, revamp, or redesign
+
+- When: the ask is to improve or restyle an existing screen, page, or flow
+- Do: Name which of three changes the request is, and keep what that size keeps. Adding a feature, fixing a bug, or a named small edit (rename a button, add a filter) is none of the three: do it without asking.
+  - Polish: the flow and the basic look stay; details, hierarchy, and states are tidied (capabilities/build.md, Polish).
+  - Revamp: the flow and the functions stay; the look and the screen structure change a lot. Run capabilities/design.md, stages 2 to 5, with the flow locked, and in a code project then implement it through capabilities/build.md.
+    - A revamp changes the visual language, not only the layout: the type scale and pairing, surfaces, component shapes, icons, and density; a re-layout in the same paint is a polish. A result with the same surfaces (the same background, the same white cards) and a new arrangement reads as a restructure, not a revamp: change the surfaces too, unless DESIGN.md or the brand system sets them as brand surfaces; then the type, shapes, and density carry the change, and the reply says so. A revamp of a product with a direction offers structures, not new visual directions: the action colour keeps its one use, and there is no new ornament or motif on a task screen (money, a form, a confirmation). Inside the brand the change still shows, and keeps what people read: a field keeps the product's surface pattern (a white card on an off-white page, not a grey fill that reads as disabled) and marks an error on its border and message, not the whole field; the title keeps the context it carried (Top up via BCA), or that context sits next to it; and the revamp reaches the next task on the screens that exist (a Copy on the active VA card where the flow already lands) and adds no screen to the flow.
+    - The brand anchors stay unless the user says otherwise: the logo, the name, and the primary accent. Record each change to the DESIGN.md direction as old -> new. Controls people know (Help, back, the cart) keep their place unless a named reason moves them, and the reply says what moved and why. Behaviour is part of the flow: when a button is enabled, when validation shows, and how many taps a retry takes stay as they were unless the reply names the change and why; a retry stays one tap. A button that opens a confirmation names the step (Lanjut, Tinjau), not the result the confirmation's own button names.
+    - It covers every state, the error, empty, loading, and offline states as much as the happy one: list the states first, by name, in the reply (the view x state matrix, RX-EC-01) and render each one before and after. A state left as it was is named in the reply with its reason.
+    - An error or offline state keeps what is known, from data the app already has: the order or item summary, and the last status with its time if the app holds it, next to the retry, not a bare message on an empty screen (RX-EC-06). Help stays active there; a failure is when help matters most, and one way to it is enough: keep the Help people know where it is and do not add a second help row in the content. When the screen already has two, keep the one people know and name the removed one in the reply. The error state is composed for the screen: what is known and the actions fill its space, not a short card above an empty screen. A need for data the app does not keep (a cache of the last status) is a new function: list it in the reply as a proposal, and do not build it in a revamp.
+    - Disclosure never hides what a state needs: the step times that explain a late order stay visible while it is late, and a just placed order shows its items, since that is when people check them. A list follows the state: open where its contents matter, a one-line summary that opens while people only wait, so the waiting screen is not as long as before (on an order screen: open when placed, unavailable, or delivered; folded while preparing or on the way). Each state leads with the items it is about: an out-of-stock state shows the unavailable items first, the rest after, and a state that asks for a decision keeps more weight than an ordinary item (its own frame or colour), not the same weight as the list. The status keeps its weight when a figure becomes the hero: a late or failed order changes the hero itself, not only an accent, a changed time shows the old one struck through next to the new one, with a text label a screen reader reads ("was 6:40"), not only in a sentence, and the hero leaves the next action and the map or main content on the first screen.
+    - Labels fit: a stepper's labels fit at 320 px and at 200% text without wrapping, or it shows fewer labels (the current step named, the rest as marks). Fewer is not none: a stepper in the hero names the current step there, not only in a list further down.
+    - Clear the standing clutter: stacked notes merge into one, and no toast or floating control covers content or the docked action bar. The main actions of a mobile screen sit in the thumb zone (a docked bar), not mid-page.
+  - Redesign: the flow, the information architecture, and the problem itself may be rethought, starting from evidence (research, analytics, a Critique), and drawn as a new flow (RX-UX-18).
+  - The asks listed under Polish (premium, cleaner, easier to find, a find-it or mood ask) name polish.
+  - When the request names none (perbaiki, bikin lebih bagus, improve this), ask once before changing anything, with the three options and what each would change on this screen. When it names one, do not ask.
+  - RX-UX-10 applies to all three: list what works, and change only what has a named problem.
+- Do not: Turn a polish into a revamp, change the flow or functions in a revamp, start a redesign without evidence, or guess the size of an ambiguous request.
+- Why: The three sizes promise different risks: users relearn nothing after a polish, the look after a revamp, and the task itself after a redesign; a wrong guess either breaks what people know or under-delivers. (owner definitions 2026-11-19; owner blind ratings 2026-11-19 of the UX flow benchmark B2 (order tracking revamp), rounds 2 to 5, and B3 with its reruns (Kantong top up revamp, 2026-11-19; a rule that said the revamp ends at "the screen that shows the result" made both variance runs add a result screen, flow 3 v 4); NNGroup Radical Redesign or Incremental Change? (Loranger, 2015): improve incrementally by default, overhaul only when evidence shows small fixes cannot solve it)
+- Trade-off: one question before work on an ambiguous request; it costs less than redoing the wrong size
+- Check: the reply names the size; an ambiguous request got one question before the first change; a revamp keeps the flow and handlers, and has before and after renders of every state in the matrix; a moved control has its reason in the reply, the error state fills its screen, a stepper names the current step, and a changed time shows the old time struck through with a text label
