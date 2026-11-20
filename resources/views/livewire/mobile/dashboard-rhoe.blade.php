@@ -191,38 +191,40 @@
                 Lihat Semua &rarr;
             </a>
         </div>
-        <ul class="divide-y divide-zinc-100 dark:divide-zinc-800">
-            @foreach ($riwayat7Hari as $item)
-                @php
-                    $rawStatus = $item['status'] ?? null;
-                    $st = $rawStatus instanceof \BackedEnum ? (string) $rawStatus->value : (string) ($rawStatus ?? '');
-                    $stLabel = $rawStatus instanceof \Filament\Support\Contracts\HasLabel
-                        ? (string) $rawStatus->getLabel()
-                        : ($st !== '' ? ucfirst(str_replace('_', ' ', $st)) : 'Belum ada');
-                    $badgeClass = match ($st) {
-                        'hadir' => 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
-                        'terlambat' => 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
-                        'izin', 'cuti', 'dinas_luar' => 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
-                        'alpha', 'tidak_hadir' => 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
-                        default => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500',
-                    };
-                @endphp
-                <li class="py-2.5 flex items-center justify-between gap-3">
-                    <div class="min-w-0">
-                        <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $item['hari'] }}</div>
-                        <div class="text-[10px] text-zinc-400">{{ $item['tanggal'] }}</div>
-                    </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300">
-                            {{ $item['jam_masuk'] ? substr($item['jam_masuk'], 0, 5) : '--:--' }}
-                            <span class="text-zinc-300 dark:text-zinc-600">–</span>
-                            {{ $item['jam_pulang'] ? substr($item['jam_pulang'], 0, 5) : '--:--' }}
-                        </span>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $badgeClass }}">{{ $stLabel }}</span>
-                    </div>
-                </li>
-            @endforeach
-        </ul>
+        <x-mobile.scroll-list maxHeight="max-h-[260px]">
+            <ul class="divide-y divide-zinc-100 dark:divide-zinc-800">
+                @foreach ($riwayat7Hari as $item)
+                    @php
+                        $rawStatus = $item['status'] ?? null;
+                        $st = $rawStatus instanceof \BackedEnum ? (string) $rawStatus->value : (string) ($rawStatus ?? '');
+                        $stLabel = $rawStatus instanceof \Filament\Support\Contracts\HasLabel
+                            ? (string) $rawStatus->getLabel()
+                            : ($st !== '' ? ucfirst(str_replace('_', ' ', $st)) : 'Belum ada');
+                        $badgeClass = match ($st) {
+                            'hadir' => 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+                            'terlambat' => 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
+                            'izin', 'cuti', 'dinas_luar' => 'bg-sky-500/15 text-sky-700 dark:text-sky-300',
+                            'alpha', 'tidak_hadir' => 'bg-rose-500/15 text-rose-700 dark:text-rose-300',
+                            default => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500',
+                        };
+                    @endphp
+                    <li class="py-2.5 flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $item['hari'] }}</div>
+                            <div class="text-[10px] text-zinc-400">{{ $item['tanggal'] }}</div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300">
+                                {{ $item['jam_masuk'] ? substr($item['jam_masuk'], 0, 5) : '--:--' }}
+                                <span class="text-zinc-300 dark:text-zinc-600">–</span>
+                                {{ $item['jam_pulang'] ? substr($item['jam_pulang'], 0, 5) : '--:--' }}
+                            </span>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $badgeClass }}">{{ $stLabel }}</span>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+        </x-mobile.scroll-list>
     </section>
 
     <!-- Rhoe UI Modal: Notifikasi -->
