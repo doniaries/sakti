@@ -369,8 +369,19 @@
                                 this.updateUserMarker(uLat, uLng);
 
                                 if (manual) {
+                                    const outOfRadius = !this.isWfh && this.isWithinRadius === false;
                                     window.dispatchEvent(new CustomEvent('notify', {
-                                        detail: { type: 'success', title: 'GPS OK', message: `Lokasi GPS aktif (${this.currentDistanceText}).` }
+                                        detail: outOfRadius
+                                            ? {
+                                                type: 'warning',
+                                                title: 'Di Luar Radius Kantor',
+                                                message: `Jarak Anda ${this.currentDistanceText} (maksimal radius ${this.maxRadius} meter). Silakan mendekat ke area kantor sesuai aturan.`
+                                            }
+                                            : {
+                                                type: 'success',
+                                                title: 'GPS OK',
+                                                message: `Lokasi GPS aktif (${this.currentDistanceText}).`
+                                            }
                                     }));
                                 }
                             },
