@@ -555,12 +555,12 @@
                 <h3 class="text-lg font-extrabold text-slate-800 tracking-tight" x-text="title">Peringatan!</h3>
 
                 @auth
-                <div x-show="showUser" class="mt-3 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 border border-slate-100 text-left">
+                <div x-show="showUser || type === 'success'" class="mt-3 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 border border-slate-100 text-left">
                     <img src="{{ auth()->user()->avatar_image_url }}"
                          alt="{{ auth()->user()->name }}"
-                         class="w-11 h-11 rounded-full object-cover ring-2 ring-emerald-200 shrink-0">
+                         class="w-12 h-12 rounded-full object-cover ring-2 ring-emerald-300 shrink-0">
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user()->name }}</p>
+                        <p class="text-sm font-black text-slate-900 truncate">{{ auth()->user()->name }}</p>
                         <p class="text-[11px] text-slate-500 font-medium truncate">
                             {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}{{ auth()->user()->nip ? ' • ' . auth()->user()->nip : '' }}
                         </p>
