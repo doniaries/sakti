@@ -147,12 +147,7 @@
                         {{ $sisaCuti > 0 ? 'Tersedia' : 'Habis' }}
                     </span>
                 </div>
-                <div class="grid grid-cols-3 gap-2 relative z-10 text-center">
-                    <div class="bg-black/20 backdrop-blur-xs rounded-2xl p-2.5 border border-white/10">
-                        <span class="text-[10px] text-amber-100 block font-semibold">Total Pagu</span>
-                        <span class="text-lg font-black tracking-tight text-white">{{ $totalKuotaCuti }}</span>
-                        <span class="text-[9px] text-amber-200 block">Hari/Tahun</span>
-                    </div>
+                <div class="grid grid-cols-2 gap-2.5 relative z-10 text-center">
                     <div class="bg-black/20 backdrop-blur-xs rounded-2xl p-2.5 border border-white/10">
                         <span class="text-[10px] text-amber-100 block font-semibold">Terpakai</span>
                         <span class="text-lg font-black tracking-tight text-white">{{ $cutiTerpakai }}</span>
