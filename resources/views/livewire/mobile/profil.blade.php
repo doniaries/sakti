@@ -87,10 +87,6 @@
     <!-- Navigation Tabs (Termasuk Tab Statistik & Data Pegawai) -->
     <div class="flex space-x-2 overflow-x-auto pb-2 mb-5 no-scrollbar">
         @if (!$isEditing)
-            <button wire:click="setTab('statistik')"
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'statistik' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-chart-pie text-xs mr-1.5"></i>Statistik Kehadiran
-            </button>
             <button wire:click="setTab('utama')"
                 class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'utama' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
                 <i class="fa-solid fa-user text-xs mr-1.5"></i>Data Utama

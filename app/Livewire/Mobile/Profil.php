@@ -20,7 +20,7 @@ class Profil extends Component
 {
     use WithFileUploads;
 
-    public $activeTab = 'statistik'; // 'statistik', 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
+    public $activeTab = 'utama'; // 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
     public $isEditing = false;
 
     // Filter Statistik Bulan & Tahun
