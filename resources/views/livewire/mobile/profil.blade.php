@@ -123,7 +123,7 @@
         @endif
     </div>
 
-    @if (!$isEditing && $activeTab !== 'utama')
+    @if (!$isEditing)
         <div class="flex justify-end mb-3">
             <button type="button" wire:click="toggleEdit(true)"
                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-bold flex items-center gap-1.5 border border-sky-200/70 transition active:scale-95 cursor-pointer">
@@ -438,14 +438,7 @@
         <!-- TAB 1: DATA UTAMA -->
         @if ($activeTab === 'utama')
             <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">Identitas & Kontak Utama</h3>
-                    <button type="button" wire:click="toggleEdit(true)"
-                        class="px-2.5 py-1 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-[11px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
-                        <i class="fa-solid fa-pen-to-square text-[10px]"></i>
-                        <span>Ubah Data</span>
-                    </button>
-                </div>
+                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Identitas & Kontak Utama</h3>
                 <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs">
                     <span class="text-slate-400 font-medium">NIP</span>
                     <button type="button" x-data="{ copied: false }" @if($user->nip) @click="navigator.clipboard.writeText('{{ $user->nip }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })" @endif class="inline-flex items-center gap-1.5 font-bold font-mono text-slate-800 hover:text-amber-600 cursor-pointer">
