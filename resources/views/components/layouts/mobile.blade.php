@@ -319,6 +319,13 @@
         html.dark .content-area textarea::placeholder {
             color: #64748B !important;
         }
+        @keyframes androidPopIn {
+            0% { opacity: 0; transform: translateY(28px) scale(0.94); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .android-modal-anim {
+            animation: androidPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
     </style>
     @livewireStyles
 </head>
