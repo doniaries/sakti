@@ -42,21 +42,29 @@
             </span>
         </div>
 
-        <div class="grid grid-cols-4 gap-2 text-center">
-            <div class="bg-emerald-50/70 rounded-2xl p-2 border border-emerald-200/60">
-                <span class="text-lg font-black text-emerald-600 block leading-tight">{{ $rekap['hadir'] }}</span>
+        <div class="grid grid-cols-3 gap-1.5 text-center">
+            <div class="bg-emerald-50/70 rounded-xl py-1.5 px-1 border border-emerald-200/60">
+                <span class="text-base font-black text-emerald-600 block leading-tight">{{ $rekap['hadir'] }}</span>
                 <span class="text-[9px] font-bold text-emerald-700 uppercase tracking-tight">Hadir</span>
             </div>
-            <div class="bg-amber-50/70 rounded-2xl p-2 border border-amber-200/60">
-                <span class="text-lg font-black text-amber-600 block leading-tight">{{ $rekap['terlambat'] }}</span>
+            <div class="bg-amber-50/70 rounded-xl py-1.5 px-1 border border-amber-200/60">
+                <span class="text-base font-black text-amber-600 block leading-tight">{{ $rekap['terlambat'] }}</span>
                 <span class="text-[9px] font-bold text-amber-700 uppercase tracking-tight">Telat</span>
             </div>
-            <div class="bg-sky-50/70 rounded-2xl p-2 border border-sky-200/60">
-                <span class="text-lg font-black text-sky-600 block leading-tight">{{ $rekap['dinas_luar'] + $rekap['izin_sakit'] }}</span>
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-tight">DL/Izin</span>
+            <div class="bg-sky-50/70 rounded-xl py-1.5 px-1 border border-sky-200/60">
+                <span class="text-base font-black text-sky-600 block leading-tight">{{ $rekap['dinas_luar'] }}</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-tight">DL</span>
             </div>
-            <div class="bg-rose-50/70 rounded-2xl p-2 border border-rose-200/60">
-                <span class="text-lg font-black text-rose-600 block leading-tight">{{ $rekap['alpa'] }}</span>
+            <div class="bg-indigo-50/70 rounded-xl py-1.5 px-1 border border-indigo-200/60">
+                <span class="text-base font-black text-indigo-600 block leading-tight">{{ $rekap['izin_sakit'] }}</span>
+                <span class="text-[9px] font-bold text-indigo-700 uppercase tracking-tight">Izin</span>
+            </div>
+            <div class="bg-violet-50/70 rounded-xl py-1.5 px-1 border border-violet-200/60">
+                <span class="text-base font-black text-violet-600 block leading-tight">{{ $rekap['cuti'] }}</span>
+                <span class="text-[9px] font-bold text-violet-700 uppercase tracking-tight">Cuti</span>
+            </div>
+            <div class="bg-rose-50/70 rounded-xl py-1.5 px-1 border border-rose-200/60">
+                <span class="text-base font-black text-rose-600 block leading-tight">{{ $rekap['alpa'] }}</span>
                 <span class="text-[9px] font-bold text-rose-700 uppercase tracking-tight">Alpa</span>
             </div>
         </div>
