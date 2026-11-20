@@ -28,57 +28,56 @@
         </div>
     </section>
 
-    <!-- Card Hitung Jumlah Kehadiran (Rekap Ringkas) -->
-    <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white p-4 rounded-3xl shadow-xl shadow-sky-950/20 mb-5 relative overflow-hidden border border-white/15">
-        <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-sky-400/20 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="flex items-center justify-between mb-3 relative z-10">
+    <!-- Card Hitung Jumlah Kehadiran (Putih Bersih, Selaras Beranda) -->
+    <div class="bg-white text-slate-800 p-4 rounded-2xl shadow-xs mb-5 border border-slate-200/80">
+        <div class="flex items-center justify-between mb-3">
             <div class="flex items-center space-x-2">
-                <div class="w-7 h-7 rounded-lg bg-white/20 backdrop-blur-md flex items-center justify-center text-xs text-sky-200">
+                <div class="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center text-xs text-sky-600">
                     <i class="fa-solid fa-chart-pie"></i>
                 </div>
-                <span class="text-xs font-bold text-sky-200 uppercase tracking-wider">Rekapitulasi Kehadiran</span>
+                <span class="text-xs font-extrabold text-slate-700 uppercase tracking-wider">Rekapitulasi Kehadiran</span>
             </div>
-            <span class="text-xs font-extrabold text-amber-300 bg-black/25 backdrop-blur-md px-2.5 py-0.5 rounded-full border border-white/10">
+            <span class="text-xs font-extrabold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/80">
                 Total: {{ $rekap['total'] }} Hari
             </span>
         </div>
 
-        <div class="grid grid-cols-4 gap-2 text-center relative z-10">
-            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
-                <span class="text-lg font-black text-emerald-300 block leading-tight">{{ $rekap['hadir'] }}</span>
-                <span class="text-[9px] font-bold text-sky-100 uppercase tracking-tight">Hadir</span>
+        <div class="grid grid-cols-4 gap-2 text-center">
+            <div class="bg-emerald-50/70 rounded-2xl p-2 border border-emerald-200/60">
+                <span class="text-lg font-black text-emerald-600 block leading-tight">{{ $rekap['hadir'] }}</span>
+                <span class="text-[9px] font-bold text-emerald-700 uppercase tracking-tight">Hadir</span>
             </div>
-            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
-                <span class="text-lg font-black text-amber-300 block leading-tight">{{ $rekap['terlambat'] }}</span>
-                <span class="text-[9px] font-bold text-sky-100 uppercase tracking-tight">Telat</span>
+            <div class="bg-amber-50/70 rounded-2xl p-2 border border-amber-200/60">
+                <span class="text-lg font-black text-amber-600 block leading-tight">{{ $rekap['terlambat'] }}</span>
+                <span class="text-[9px] font-bold text-amber-700 uppercase tracking-tight">Telat</span>
             </div>
-            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
-                <span class="text-lg font-black text-cyan-300 block leading-tight">{{ $rekap['dinas_luar'] + $rekap['izin_sakit'] }}</span>
-                <span class="text-[9px] font-bold text-sky-100 uppercase tracking-tight">DL/Izin</span>
+            <div class="bg-sky-50/70 rounded-2xl p-2 border border-sky-200/60">
+                <span class="text-lg font-black text-sky-600 block leading-tight">{{ $rekap['dinas_luar'] + $rekap['izin_sakit'] }}</span>
+                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-tight">DL/Izin</span>
             </div>
-            <div class="bg-white/15 backdrop-blur-md rounded-2xl p-2 border border-white/10">
-                <span class="text-lg font-black text-rose-300 block leading-tight">{{ $rekap['alpa'] }}</span>
-                <span class="text-[9px] font-bold text-rose-200 uppercase tracking-tight">Alpa</span>
+            <div class="bg-rose-50/70 rounded-2xl p-2 border border-rose-200/60">
+                <span class="text-lg font-black text-rose-600 block leading-tight">{{ $rekap['alpa'] }}</span>
+                <span class="text-[9px] font-bold text-rose-700 uppercase tracking-tight">Alpa</span>
             </div>
         </div>
 
         <!-- Rekap Jam Kerja ASN Bulanan (7j 30m/hari • 37j 30m/minggu) -->
-        <div class="mt-3 pt-3 border-t border-white/15 relative z-10">
+        <div class="mt-3 pt-3 border-t border-slate-100">
             <div class="flex items-center justify-between text-xs mb-1.5">
-                <span class="text-sky-100 font-bold flex items-center gap-1.5">
-                    <i class="fa-solid fa-business-time text-cyan-300"></i>
+                <span class="text-slate-600 font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-business-time text-sky-500"></i>
                     Jam Kerja Bulan Ini
                 </span>
-                <span class="font-mono font-extrabold text-white">
+                <span class="font-mono font-extrabold text-slate-900">
                     {{ $jamKerjaBulanan['total_format'] }}
-                    <span class="text-[10px] font-normal text-sky-200">/ {{ $jamKerjaBulanan['target_format'] }} ({{ $jamKerjaBulanan['persen'] }}%)</span>
+                    <span class="text-[10px] font-normal text-slate-400">/ {{ $jamKerjaBulanan['target_format'] }} ({{ $jamKerjaBulanan['persen'] }}%)</span>
                 </span>
             </div>
-            <div class="w-full h-1.5 rounded-full bg-black/30 overflow-hidden mb-1">
-                <div class="h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-500"
+            <div class="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden mb-1">
+                <div class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-500"
                      style="width: {{ $jamKerjaBulanan['persen'] }}%"></div>
             </div>
-            <p class="text-[10px] text-sky-200/80">
+            <p class="text-[10px] text-slate-400">
                 Ketentuan ASN: {{ $jamKerjaBulanan['target_harian_format'] }}/hari &bull; {{ $jamKerjaBulanan['target_mingguan_format'] }}/minggu ({{ $jamKerjaBulanan['hari_kerja'] }} hari kerja, non-istirahat)
             </p>
         </div>
