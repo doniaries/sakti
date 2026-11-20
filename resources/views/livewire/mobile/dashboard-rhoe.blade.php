@@ -162,15 +162,15 @@
 
     <!-- 3. QUICK LHK -->
     <a href="{{ route('mobile.lhk.create') }}" wire:navigate
-        class="rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-4 flex items-center gap-3 shadow-md shadow-violet-600/20 active:scale-[0.98] transition-transform">
-        <div class="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center text-lg shrink-0">
+        class="rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-yellow-500 text-slate-950 p-4 flex items-center gap-3 shadow-md shadow-amber-500/25 active:scale-[0.98] transition-transform">
+        <div class="w-11 h-11 rounded-xl bg-white/35 flex items-center justify-center text-lg shrink-0 text-amber-950">
             <i class="fa-solid fa-pen-to-square"></i>
         </div>
         <div class="min-w-0 flex-1">
             <div class="text-sm font-extrabold">Isi LHK Hari Ini</div>
-            <div class="text-[11px] text-violet-100 truncate">Catat laporan kinerja harian Anda</div>
+            <div class="text-[11px] text-amber-950/80 font-medium truncate">Catat laporan kinerja harian Anda</div>
         </div>
-        <i class="fa-solid fa-chevron-right text-xs text-white/70"></i>
+        <i class="fa-solid fa-chevron-right text-xs text-amber-950/70"></i>
     </a>
 
     <!-- 5. RIWAYAT ABSEN 7 HARI -->
