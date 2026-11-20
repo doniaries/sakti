@@ -210,13 +210,109 @@
         [x-cloak] {
             display: none !important;
         }
+
+        /* ===== AUTO DAYTIME / LIGHT MODE ===== */
+        html.portal-light body {
+            background-color: #f0f9ff !important;
+            color: #0f172a !important;
+        }
+
+        html.portal-light .portal-bg-layer {
+            background: linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 45%, #f8fafc 100%) !important;
+        }
+
+        html.portal-light #skyStars,
+        html.portal-light #cometLayer {
+            opacity: 0 !important;
+            transition: opacity 0.4s ease;
+        }
+
+        html.portal-light header h1 {
+            background-image: linear-gradient(to right, #0f172a, #0369a1, #0284c7) !important;
+        }
+
+        html.portal-light header h2 {
+            color: #1e293b !important;
+        }
+
+        html.portal-light header p {
+            color: #475569 !important;
+        }
+
+        html.portal-light header .bg-emerald-500\/15 {
+            background-color: rgba(16, 185, 129, 0.12) !important;
+            border-color: rgba(5, 150, 105, 0.3) !important;
+            color: #047857 !important;
+        }
+
+        html.portal-light header .bg-white\/\[0\.04\] {
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+            color: #334155 !important;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+        }
+
+        html.portal-light header .bg-amber-500\/15 {
+            background-color: rgba(245, 158, 11, 0.15) !important;
+            border-color: rgba(217, 119, 6, 0.35) !important;
+            color: #b45309 !important;
+        }
+
+        html.portal-light header .text-amber-300 {
+            color: #b45309 !important;
+        }
+
+        html.portal-light .portal-topbar-mobile {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border-color: rgba(148, 163, 184, 0.25) !important;
+        }
+
+        html.portal-light .portal-topbar-mobile .text-white {
+            color: #0f172a !important;
+        }
+
+        html.portal-light .portal-topbar-mobile .text-slate-400,
+        html.portal-light .portal-topbar-mobile .text-slate-300 {
+            color: #475569 !important;
+        }
+
+        html.portal-light .portal-bottom-nav {
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            border-color: rgba(148, 163, 184, 0.3) !important;
+            box-shadow: 0 -8px 25px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        html.portal-light .portal-cat-inactive {
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            color: #334155 !important;
+            border-color: rgba(148, 163, 184, 0.35) !important;
+        }
+
+        html.portal-light .portal-cat-inactive:hover {
+            color: #0f172a !important;
+            background-color: #ffffff !important;
+        }
     </style>
+    <script>
+        (function () {
+            const saved = localStorage.getItem('portal_theme_override');
+            const hour = new Date().getHours();
+            const isLight = saved ? saved === 'light' : (hour >= 6 && hour < 18);
+            document.documentElement.classList.toggle('portal-light', isLight);
+        })();
+
+        window.togglePortalTheme = function () {
+            const isLight = document.documentElement.classList.toggle('portal-light');
+            localStorage.setItem('portal_theme_override', isLight ? 'light' : 'dark');
+            window.dispatchEvent(new CustomEvent('portal-theme-changed', { detail: { light: isLight } }));
+        };
+    </script>
 </head>
 
-<body class="bg-[#070B1A] text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+<body class="bg-[#070B1A] text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300">
 
-    <!-- Background Gradient Langit Malam -->
-    <div class="fixed inset-0 bg-gradient-to-b from-[#070B1A] via-[#0C1530] to-[#0A1225] z-0"></div>
+    <!-- Background Gradient Langit Malam / Siang -->
+    <div class="portal-bg-layer fixed inset-0 bg-gradient-to-b from-[#070B1A] via-[#0C1530] to-[#0A1225] z-0 transition-all duration-500"></div>
 
     <!-- Star Layers (Bintang Statis) -->
     <div class="sky-canvas" id="skyStars"></div>
@@ -255,7 +351,7 @@
         <!-- TOP APP BAR KHUSUS MOBILE (ALA ASN DIGITAL BKN)          -->
         <!-- ======================================================== -->
         <div
-            class="md:hidden sticky top-0 z-30 -mx-4 -mt-6 mb-5 px-4 py-3 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between">
+            class="portal-topbar-mobile md:hidden sticky top-0 z-30 -mx-4 -mt-6 mb-5 px-4 py-3 bg-slate-950/85 backdrop-blur-xl border-b border-white/10 flex items-center justify-between transition-colors">
             <div class="flex items-center gap-2.5">
                 <img src="{{ asset('images/kabupaten-sijunjung.png') }}" alt="Logo Sijunjung"
                     class="w-8 h-8 object-contain drop-shadow-md">
@@ -464,7 +560,7 @@
                     <button type="button" @click="activeCategory = '{{ $cat }}'"
                         :class="activeCategory === '{{ $cat }}' ?
                             'bg-sky-500 text-slate-950 font-black shadow-lg shadow-sky-500/30 border-sky-400' :
-                            'bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
+                            'portal-cat-inactive bg-white/[0.04] text-slate-400 hover:text-white border-white/10'"
                         class="px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-200 cursor-pointer">
                         {{ $catName }}
                     </button>
@@ -581,7 +677,7 @@
         <!-- FLOATING BOTTOM NAVBAR MOBILE (INSPIRASI BKN ASN DIGITAL) -->
         <!-- ======================================================== -->
         <nav
-            class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-2xl border-t border-sky-500/20 shadow-[0_-10px_35px_rgba(0,0,0,0.6)] px-6 py-1.5 pb-safe">
+            class="portal-bottom-nav md:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-2xl border-t border-sky-500/20 shadow-[0_-10px_35px_rgba(0,0,0,0.6)] px-6 py-1.5 pb-safe transition-colors">
             <div class="max-w-md mx-auto flex items-end justify-between relative">
                 <!-- Tab 1: Beranda -->
                 <button type="button"
@@ -1032,6 +1128,20 @@
             scheduleNextComet();
         })();
     </script>
+    <!-- Floating Light / Dark Theme Toggle Button -->
+    <div x-data="{ isLight: document.documentElement.classList.contains('portal-light') }"
+        @portal-theme-changed.window="isLight = $event.detail.light"
+        class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50">
+        <button type="button" onclick="window.togglePortalTheme()"
+            :title="isLight ? 'Beralih ke Mode Gelap (Malam)' : 'Beralih ke Mode Terang (Siang)'"
+            :class="isLight
+                ? 'bg-slate-900 text-amber-300 border-slate-700 hover:bg-slate-800 shadow-slate-900/25'
+                : 'bg-white/95 text-amber-500 border-white/40 hover:bg-white shadow-sky-500/25'"
+            class="w-11 h-11 md:w-12 md:h-12 rounded-full border backdrop-blur-md shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
+            <i x-show="!isLight" class="fa-solid fa-sun text-base md:text-lg"></i>
+            <i x-show="isLight" x-cloak class="fa-solid fa-moon text-base md:text-lg"></i>
+        </button>
+    </div>
 </body>
 
 </html>
