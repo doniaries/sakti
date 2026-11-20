@@ -69,23 +69,23 @@
 
         <!-- Row 3: Ringkasan Status Absen Datang & Pulang -->
         <div class="grid grid-cols-2 gap-2.5">
-            <div class="rounded-2xl border px-3 py-2.5 flex items-center justify-between {{ $sudahMasuk ? 'bg-emerald-50/90 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
-                <div>
-                    <span class="text-[10px] uppercase tracking-wider font-extrabold block {{ $sudahMasuk ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }}">Datang</span>
-                    <span class="text-xs font-black font-mono {{ $sudahMasuk ? 'text-emerald-950 dark:text-emerald-200' : 'text-amber-800 dark:text-amber-200' }}">
-                        {{ $sudahMasuk ? substr($absenHarian->jam_masuk, 0, 5) . ' WIB' : '--:--' }}
-                    </span>
-                </div>
-                <i class="fa-solid {{ $sudahMasuk ? 'fa-circle-check text-emerald-600' : 'fa-clock text-amber-500' }} text-sm"></i>
+            <div class="rounded-2xl border px-3 py-3 text-center {{ $sudahMasuk ? 'bg-emerald-50/90 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
+                <span class="text-[10px] uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahMasuk ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }}">
+                    <i class="fa-solid {{ $sudahMasuk ? 'fa-circle-check text-emerald-600' : 'fa-clock text-amber-500' }}"></i>
+                    <span>Datang</span>
+                </span>
+                <span class="mt-1 text-lg font-black font-mono block leading-tight {{ $sudahMasuk ? 'text-emerald-950 dark:text-emerald-200' : 'text-amber-800 dark:text-amber-200' }}">
+                    {{ $sudahMasuk ? substr($absenHarian->jam_masuk, 0, 5) . ' WIB' : '--:--' }}
+                </span>
             </div>
-            <div class="rounded-2xl border px-3 py-2.5 flex items-center justify-between {{ $sudahPulang ? 'bg-sky-50/90 dark:bg-sky-500/15 border-sky-200 dark:border-sky-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
-                <div>
-                    <span class="text-[10px] uppercase tracking-wider font-extrabold block {{ $sudahPulang ? 'text-sky-700 dark:text-sky-300' : 'text-amber-700 dark:text-amber-300' }}">Pulang</span>
-                    <span class="text-xs font-black font-mono {{ $sudahPulang ? 'text-sky-950 dark:text-sky-200' : 'text-amber-800 dark:text-amber-200' }}">
-                        {{ $sudahPulang ? substr($absenHarian->jam_pulang, 0, 5) . ' WIB' : '--:--' }}
-                    </span>
-                </div>
-                <i class="fa-solid {{ $sudahPulang ? 'fa-check-double text-sky-600' : 'fa-clock text-amber-500' }} text-sm"></i>
+            <div class="rounded-2xl border px-3 py-3 text-center {{ $sudahPulang ? 'bg-sky-50/90 dark:bg-sky-500/15 border-sky-200 dark:border-sky-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
+                <span class="text-[10px] uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahPulang ? 'text-sky-700 dark:text-sky-300' : 'text-amber-700 dark:text-amber-300' }}">
+                    <i class="fa-solid {{ $sudahPulang ? 'fa-check-double text-sky-600' : 'fa-clock text-amber-500' }}"></i>
+                    <span>Pulang</span>
+                </span>
+                <span class="mt-1 text-lg font-black font-mono block leading-tight {{ $sudahPulang ? 'text-sky-950 dark:text-sky-200' : 'text-amber-800 dark:text-amber-200' }}">
+                    {{ $sudahPulang ? substr($absenHarian->jam_pulang, 0, 5) . ' WIB' : '--:--' }}
+                </span>
             </div>
         </div>
 
