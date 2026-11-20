@@ -21,6 +21,8 @@ class Profil extends Component
     use WithFileUploads;
 
     public $activeTab = 'utama'; // 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
+    public string $impersonateSearch = '';
+    public bool $showImpersonateModal = false;
     public $isEditing = false;
 
     // Filter Statistik Bulan & Tahun
@@ -258,8 +260,32 @@ class Profil extends Component
             'title' => 'Tersimpan!',
             'message' => 'Data profil Anda berhasil diperbarui.',
         ]);
+    }
 
-        return redirect()->route('mobile.dashboard');
+    public function impersonateUser(int $targetUserId): void
+    {
+        /** @var User|null $current */
+        $current = Auth::user();
+        if (!$current || (!$current->hasRole('super_admin') && !session()->has('impersonate_original_id'))) {
+            return;
+        }
+
+        if (!session()->has('impersonate_original_id')) {
+            session(['impersonate_original_id' => $current->id]);
+        }
+
+        Auth::loginUsingId($targetUserId);
+        $this->redirect(route('mobile.dashboard'), navigate: true);
+    }
+
+    public function stopImpersonating(): void
+    {
+        $originalId = session()->pull('impersonate_original_id');
+        if ($originalId) {
+            Auth::loginUsingId($originalId);
+        }
+
+        $this->redirect(route('mobile.profil'), navigate: true);
     }
 
     /**
@@ -307,12 +333,24 @@ class Profil extends Component
                 ->count(),
         ];
 
+        $impersonateCandidates = $user->hasRole('super_admin')
+            ? User::query()
+                ->where('id', '!=', $user->id)
+                ->when($this->impersonateSearch, fn ($q) => $q->where(fn ($sub) => $sub
+                    ->where('name', 'like', '%' . $this->impersonateSearch . '%')
+                    ->orWhere('nip', 'like', '%' . $this->impersonateSearch . '%')))
+                ->orderBy('name')
+                ->limit(15)
+                ->get(['id', 'name', 'nip'])
+            : collect();
+
         return view('livewire.mobile.profil', [
             'user' => $user,
             'statistik' => $statistik,
             'bulanNama' => $selectedDate->translatedFormat('F Y'),
             'bulan' => $this->bulan,
             'tahun' => $this->tahun,
+            'impersonateCandidates' => $impersonateCandidates,
         ]);
     }
 }

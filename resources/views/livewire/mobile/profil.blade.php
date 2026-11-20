@@ -10,6 +10,20 @@
                 <p class="text-xs text-sky-100 font-medium">Statistik & Biodata Kepegawaian</p>
             </div>
             <div class="flex items-center space-x-2">
+                @if (auth()->user()?->hasRole('super_admin') && !session()->has('impersonate_original_id'))
+                    <button type="button" wire:click="$set('showImpersonateModal', true)"
+                        class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs flex items-center gap-1.5 border border-white/20 active:scale-95 transition cursor-pointer"
+                        title="Pindah Akun Pegawai">
+                        <i class="fa-solid fa-user-secret text-xs"></i>
+                        <span>Pindah Akun</span>
+                    </button>
+                @elseif (session()->has('impersonate_original_id'))
+                    <button type="button" wire:click="stopImpersonating"
+                        class="px-3 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-xs flex items-center gap-1.5 active:scale-95 transition cursor-pointer">
+                        <i class="fa-solid fa-rotate-left text-xs"></i>
+                        <span>Kembali</span>
+                    </button>
+                @endif
                 <button wire:click="toggleEdit"
                     class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center transition-all shadow-xs {{ $isEditing ? 'bg-white/20 text-white' : 'bg-amber-400 hover:bg-amber-300 text-slate-950 active:scale-95' }}">
                     <i class="fa-solid {{ $isEditing ? 'fa-xmark' : 'fa-pen-to-square' }} mr-1.5"></i>
@@ -787,4 +801,33 @@
         </button>
         <p class="text-center text-[10px] text-slate-400 mt-2.5">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p>
     </div>
+
+    @if ($showImpersonateModal)
+        <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-4">
+            <div class="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-extrabold text-slate-800">Pindah Akun Pegawai</h3>
+                    <button type="button" wire:click="$set('showImpersonateModal', false)" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+                <input type="text" wire:model.live.debounce.250ms="impersonateSearch" placeholder="Cari nama atau NIP..."
+                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs focus:border-amber-400 focus:outline-none">
+                <div class="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                    @forelse ($impersonateCandidates as $cand)
+                        <button type="button" wire:click="impersonateUser({{ $cand->id }})"
+                            class="w-full py-2.5 px-2 text-left hover:bg-amber-50 rounded-xl transition flex items-center justify-between cursor-pointer">
+                            <div class="min-w-0">
+                                <div class="text-xs font-bold text-slate-800 truncate">{{ $cand->name }}</div>
+                                <div class="text-[10px] font-mono text-slate-400">{{ $cand->nip ?? '-' }}</div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-[10px] text-amber-500"></i>
+                        </button>
+                    @empty
+                        <p class="py-6 text-center text-xs text-slate-400">Pegawai tidak ditemukan.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
