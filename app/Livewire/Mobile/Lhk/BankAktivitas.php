@@ -37,7 +37,11 @@ class BankAktivitas extends Component
 
     public function openEdit(int $id): void
     {
-        $item = Aktivitas::where('user_id', Auth::id())->find($id);
+        /** @var User|null $user */
+        $user = Auth::user();
+        $item = ($user && $user->hasAnyRole(['super_admin', 'admin']))
+            ? Aktivitas::find($id)
+            : Aktivitas::where('user_id', Auth::id())->find($id);
         if (! $item) {
             return;
         }
@@ -47,6 +51,7 @@ class BankAktivitas extends Component
         $this->kode = (string) ($item->kode ?? '');
         $this->nama_aktivitas = (string) $item->nama_aktivitas;
         $this->menit = (int) $item->menit;
+        $this->tipe = is_null($item->user_id) && is_null($item->bidang_id) ? 'umum' : 'khusus';
         $this->showFormModal = true;
     }
 

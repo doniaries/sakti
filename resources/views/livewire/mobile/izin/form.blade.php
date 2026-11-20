@@ -14,11 +14,11 @@
     <!-- Category Filter Selector (Izin, Sakit, Cuti) -->
     <div class="mb-5">
         <label class="block text-xs font-bold text-slate-700 mb-2">Kategori Pengajuan</label>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-3 gap-2 w-full">
         @php
             $countByKat = fn (string $kat) => $riwayatPengajuan->filter(fn ($p) => ($p->jenisIzin?->kategori?->value ?? $p->jenisIzin?->kategori) === $kat)->count();
         @endphp
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-3 gap-2 w-full">
             <button type="button" wire:click="setKategori('izin')"
                 class="relative py-2.5 px-2 rounded-2xl border text-xs font-bold transition-all flex flex-col items-center shadow-xs {{ $kategoriFilter === 'izin' ? 'bg-sky-100/90 border-sky-500 text-sky-800 ring-2 ring-sky-500/20' : 'bg-sky-50/60 border-sky-200/70 text-sky-700' }}">
                 <span class="absolute top-1.5 right-1.5 px-1.5 py-0.2 rounded-full bg-sky-600 text-white text-[9px] font-extrabold">{{ $countByKat('izin') }}</span>

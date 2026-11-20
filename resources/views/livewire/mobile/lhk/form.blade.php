@@ -63,6 +63,7 @@
         @endif
     </div>
 
+    @if ($absenHariIni || $existingLhk)
     <!-- Rincian Pekerjaan -->
     <div class="bg-white dark:bg-[#132338]/90 rounded-2xl p-5 shadow-xs border border-slate-200/80 dark:border-slate-700/60 mb-6">
         <div class="flex justify-between items-center mb-4 border-b border-slate-100 dark:border-slate-700/60 pb-2">
@@ -179,4 +180,4 @@
         <span wire:loading.remove>Simpan LHK</span>
         <span wire:loading><i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> Menyimpan...</span>
     </button>
-</div>
+    @endif\r\n</div>
