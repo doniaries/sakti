@@ -21,6 +21,7 @@ class Profil extends Component
     use WithFileUploads;
 
     public $activeTab = 'utama'; // 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
+    public bool $fullEditMode = false;
     public string $impersonateSearch = '';
     public bool $showImpersonateModal = false;
     public $isEditing = false;
@@ -174,8 +175,9 @@ class Profil extends Component
         ]);
     }
 
-    public function toggleEdit()
+    public function toggleEdit(bool $full = false): void
     {
+        $this->fullEditMode = $full;
         $this->isEditing = !$this->isEditing;
         if ($this->isEditing) {
             $this->activeTab = 'utama';
