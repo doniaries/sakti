@@ -417,8 +417,8 @@
                     <span>Beranda</span>
                 </a>
 
-                <!-- 2. Riwayat -->
-                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') ? 'active' : '' }}" wire:navigate>
+                <!-- 2. Riwayat & LHK -->
+                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
                     <i class="fa-solid fa-calendar-days"></i>
                     <span>Riwayat</span>
                 </a>
@@ -434,15 +434,7 @@
                     </a>
                 </div>
 
-                <!-- 4. LHK (Di Dekat Izin) -->
-                @if (\App\Models\PengaturanAplikasi::isModuleEnabled('lhk'))
-                    <a href="{{ route('mobile.lhk.index') }}" class="nav-item {{ request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
-                        <i class="fa-solid fa-file-pen"></i>
-                        <span>LHK</span>
-                    </a>
-                @endif
-
-                <!-- 5. Izin & Cuti -->
+                <!-- 4. Izin & Cuti -->
                 <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate>
                     <i class="fa-solid fa-envelope-open-text"></i>
                     <span>Izin</span>

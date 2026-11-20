@@ -7,6 +7,7 @@ use App\Models\Aktivitas;
 use App\Models\JadwalKerja;
 use App\Models\Lhk;
 use App\Models\LhkPekerjaan;
+use App\Rules\PublicGoogleDriveUrl;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -35,15 +36,7 @@ class Form extends Component
             'pekerjaans.*.bukti_url' => [
                 'nullable',
                 'url',
-                function (string $attribute, mixed $value, \Closure $fail): void {
-                    if (empty($value)) {
-                        return;
-                    }
-                    $host = strtolower((string) parse_url((string) $value, PHP_URL_HOST));
-                    if (! in_array($host, ['drive.google.com', 'docs.google.com'], true)) {
-                        $fail('Link bukti harus berupa tautan Google Drive (drive.google.com atau docs.google.com).');
-                    }
-                },
+                new PublicGoogleDriveUrl(),
             ],
         ];
     }
