@@ -173,6 +173,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\RedirectNonAdminToMobile::class,
             ])
             ->plugins([
                 \Wallacemartinss\FilamentIconPicker\FilamentIconPickerPlugin::make(),
