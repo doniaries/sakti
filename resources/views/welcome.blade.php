@@ -479,14 +479,14 @@
         <!-- ======================================================== -->
         <!-- GRID KARTU NON-PETAK (ORGANIC SQUIRCLE & SATELLITE CARDS)-->
         <!-- ======================================================== -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 w-full">
+        <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6 w-full">
             @forelse($portalLinksCollection as $link)
                 @php
                     $tokens = $link->style_tokens;
                     $shapeClass = match ($link->bentuk) {
-                        'capsule' => 'rounded-[44px]',
-                        'circle' => 'rounded-[36px]',
-                        default => 'rounded-[32px] sm:rounded-[36px]',
+                        'capsule' => 'rounded-2xl sm:rounded-[44px]',
+                        'circle' => 'rounded-2xl sm:rounded-[36px]',
+                        default => 'rounded-2xl sm:rounded-[32px] lg:rounded-[36px]',
                     };
                 @endphp
                 <div x-show="matches('{{ $link->kategori }}', '{{ addslashes($link->judul) }}', '{{ addslashes($link->deskripsi ?? '') }}')"
@@ -494,35 +494,35 @@
                     x-transition:enter-start="opacity-0 scale-95 translate-y-3"
                     x-transition:enter-end="opacity-100 scale-100 translate-y-0"
                     onclick="if (!event.target.closest('a, button, input, label')) { if ('{{ $link->target ?? '_self' }}' === '_blank') { window.open('{{ $link->link_url }}', '_blank'); } else { window.location.href = '{{ $link->link_url }}'; } }"
-                    class="group relative cursor-pointer {{ $shapeClass }} bg-gradient-to-b {{ $tokens['card_bg'] }} border {{ $tokens['border'] }} p-6 sm:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl {{ $tokens['shadow_hover'] }} overflow-hidden">
+                    class="group relative cursor-pointer {{ $shapeClass }} bg-gradient-to-b {{ $tokens['card_bg'] }} border {{ $tokens['border'] }} p-3.5 sm:p-6 lg:p-7 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1.5 sm:hover:-translate-y-2 hover:shadow-2xl {{ $tokens['shadow_hover'] }} overflow-hidden">
 
                     <!-- Ambient Glow Blur di Sudut -->
                     <div
-                        class="absolute -right-8 -top-8 w-32 h-32 {{ $tokens['glow_ambient'] }} rounded-full blur-2xl transition-all pointer-events-none">
+                        class="absolute -right-6 -top-6 sm:-right-8 sm:-top-8 w-20 h-20 sm:w-32 sm:h-32 {{ $tokens['glow_ambient'] }} rounded-full blur-2xl transition-all pointer-events-none">
                     </div>
 
                     <div>
                         <!-- Header Row: Elevated Squircle Icon & Badges -->
-                        <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-start justify-between gap-1.5 mb-2.5 sm:mb-4">
                             <div
-                                class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl sm:rounded-[22px] {{ $tokens['icon_box'] }} flex items-center justify-center text-xl sm:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                class="w-10 h-10 sm:w-14 sm:h-14 shrink-0 rounded-xl sm:rounded-[22px] {{ $tokens['icon_box'] }} flex items-center justify-center text-base sm:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                                 <i class="{{ $link->fa_icon }}"></i>
                             </div>
 
-                            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                            <div class="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-end">
                                 <!-- Lampiran Download Button (Jika Ada Berkas) -->
                                 @if ($link->lampiran_path)
                                     <a href="{{ $link->lampiran_url }}" target="_blank" download
                                         title="Unduh Berkas Lampiran"
-                                        class="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[10px] font-bold tracking-wider uppercase transition-colors inline-flex items-center gap-1 shadow-sm">
-                                        <i class="fa-solid fa-paperclip text-[9px]"></i>
-                                        <span>Berkas</span>
+                                        class="px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[8px] sm:text-[10px] font-bold tracking-wider uppercase transition-colors inline-flex items-center gap-1 shadow-sm">
+                                        <i class="fa-solid fa-paperclip text-[8px] sm:text-[9px]"></i>
+                                        <span class="hidden sm:inline">Berkas</span>
                                     </a>
                                 @endif
 
                                 @if ($link->badge)
                                     <span
-                                        class="px-3 py-1 rounded-full {{ $tokens['badge'] }} text-[10px] font-extrabold tracking-wider uppercase">
+                                        class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full {{ $tokens['badge'] }} text-[8px] sm:text-[10px] font-extrabold tracking-wider uppercase truncate max-w-[78px] sm:max-w-none">
                                         {{ $link->badge }}
                                     </span>
                                 @endif
@@ -531,21 +531,22 @@
 
                         <!-- Judul & Deskripsi Fitur -->
                         <h3
-                            class="text-lg sm:text-xl font-black text-white tracking-tight mb-2 {{ $tokens['text_accent'] }} transition-colors">
+                            class="text-xs sm:text-xl font-black text-white leading-snug tracking-tight mb-1 sm:mb-2 line-clamp-2 {{ $tokens['text_accent'] }} transition-colors">
                             {{ $link->judul }}
                         </h3>
-                        <p class="text-xs sm:text-[13px] text-slate-300 leading-relaxed mb-6 font-normal">
+                        <p class="text-[10px] sm:text-[13px] text-slate-300/90 leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none mb-3 sm:mb-6 font-normal">
                             {{ $link->deskripsi }}
                         </p>
                     </div>
 
                     <!-- Footer Action Button -->
-                    <div class="pt-2">
+                    <div class="pt-1 sm:pt-2">
                         <a href="{{ $link->link_url }}" target="{{ $link->target ?? '_self' }}"
-                            class="w-full py-3.5 px-5 rounded-2xl {{ $tokens['btn'] }} font-black text-xs sm:text-sm transition-all flex items-center justify-center gap-2 active:scale-95 shadow-md">
-                            <span>Akses Layanan</span>
+                            class="w-full py-2 px-3 sm:py-3.5 sm:px-5 rounded-xl sm:rounded-2xl {{ $tokens['btn'] }} font-black text-[11px] sm:text-sm transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 shadow-md">
+                            <span>Buka</span>
+                            <span class="hidden sm:inline">Layanan</span>
                             <i
-                                class="fa-solid fa-arrow-right text-xs transition-transform group-hover:translate-x-1.5"></i>
+                                class="fa-solid fa-arrow-right text-[10px] sm:text-xs transition-transform group-hover:translate-x-1.5"></i>
                         </a>
 
                         @auth
