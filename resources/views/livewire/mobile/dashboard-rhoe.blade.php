@@ -43,89 +43,92 @@
         </div>
     @endif
 
-    <!-- 1. UNIFIED HERO COMMAND CARD (Profil + Jam + Status + 1 Tombol Aksi Cerdas) -->
-    <section class="rounded-3xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm space-y-4">
-        <!-- Row 1: Identitas Pegawai (tema sama dengan halaman Profil) -->
-        <div class="relative isolate overflow-hidden -mx-4 -mt-4 rounded-t-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] p-4 text-white flex items-center gap-3">
-                <x-mobile.logo-ornament />
-                <label class="relative shrink-0 cursor-pointer group" title="Ketuk untuk ganti foto profil">
-                    <input type="file" wire:model="new_avatar" accept="image/*" class="hidden">
+    <!-- 1. HERO HIJAU EMERALD + KARTU AKSI MENGAMBANG (Referensi) -->
+    @php
+        $hour = (int) now()->format('H');
+        $sapaan = match (true) {
+            $hour >= 4 && $hour < 11 => 'Selamat pagi',
+            $hour >= 11 && $hour < 15 => 'Selamat siang',
+            $hour >= 15 && $hour < 18 => 'Selamat sore',
+            default => 'Selamat malam',
+        };
+    @endphp
+    <section class="-mx-4 -mt-4">
+        <div class="relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-600 px-5 pt-5 pb-12 text-white shadow-lg shadow-emerald-950/15">
+            <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+
+            <!-- Row 1: Avatar + Sapaan + Bell -->
+            <div class="flex items-center justify-between gap-3 relative z-10">
+                <div class="flex items-center gap-3 min-w-0">
                     <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
-                        class="w-14 h-14 rounded-2xl object-cover ring-2 ring-white/30 shadow-md group-hover:opacity-80 transition-opacity">
-                    <span wire:loading wire:target="new_avatar"
-                        class="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
-                        <i class="fa-solid fa-circle-notch fa-spin text-white text-xs"></i>
-                    </span>
-                </label>
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-1.5">
-                        <span class="inline-block max-w-full truncate px-2 py-0.5 rounded-full bg-white/15 border border-white/20 text-[9px] font-extrabold uppercase tracking-wider text-sky-100">
-                            {{ $user->jabatan?->nama ?? 'Pegawai' }}
-                        </span>
-                        <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/25 text-[9px] font-black uppercase tracking-wider {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'text-amber-300' : 'text-emerald-300' }}">
-                            <span class="w-1.5 h-1.5 rounded-full {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-400' : 'bg-emerald-400' }} animate-pulse"></span>
-                            {{ strtoupper($user->status_kerja ?? 'WFO') }}
-                        </span>
+                        class="w-10 h-10 rounded-full object-cover ring-2 ring-white/50 shrink-0">
+                    <div class="min-w-0">
+                        <div class="text-[11px] text-emerald-100 font-medium">{{ $sapaan }},</div>
+                        <h1 class="text-sm font-extrabold tracking-tight truncate">{{ $user->name }}</h1>
                     </div>
-                    <h1 class="mt-1 text-sm font-black tracking-tight truncate">{{ $user->name }}</h1>
-                    @if ($user->nip)
-                        <button type="button"
-                            x-data="{ copied: false }"
-                            @click="navigator.clipboard.writeText('{{ $user->nip }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
-                            class="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-mono text-sky-100 hover:text-white cursor-pointer"
-                            title="Salin NIP">
-                            <span class="text-amber-300 font-bold">#</span>
-                            <span>NIP: {{ $user->nip }}</span>
-                            <i class="fa-regular text-[10px]" :class="copied ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
-                        </button>
+                </div>
+                <button type="button" @click="notifSheet = true"
+                    class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0">
+                    <i class="fa-solid fa-bell text-sm"></i>
+                    @if ($unreadNotifCount > 0)
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-emerald-700"></span>
                     @endif
-                </div>
-        </div>
-
-        <!-- Row 2: Live Clock + Today's Timestamps (Compact Split) -->
-        <div class="rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200/70 dark:border-zinc-800/80 px-4 py-3 flex items-center justify-between gap-3">
-            <div>
-                <div class="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">
-                    {{ now()->translatedFormat('l, d M Y') }}
-                </div>
-                <div class="flex items-baseline gap-1 font-mono mt-0.5">
-                    <span x-text="jam" class="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">--:--</span>
-                    <span x-text="':' + detik" class="text-xs font-bold text-zinc-400"></span>
-                    <span class="text-[10px] font-extrabold text-sky-600 dark:text-sky-400 ml-0.5">WIB</span>
-                </div>
+                </button>
             </div>
 
-            <div class="flex items-center gap-3 text-right">
+            <!-- Row 2: Jam Live & Status Masuk/Pulang -->
+            <div class="mt-5 flex items-end justify-between gap-3 relative z-10">
                 <div>
-                    <div class="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Masuk</div>
-                    <div class="text-xs font-black font-mono {{ $hariIni['jam_masuk'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400' }}">
-                        {{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') : '--:--' }}
+                    <div class="text-[11px] text-emerald-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
+                    <div class="flex items-baseline gap-1 font-mono mt-0.5">
+                        <span x-text="jam" class="text-3xl font-black tracking-tight">--:--</span>
+                        <span x-text="':' + detik" class="text-sm font-bold text-emerald-200"></span>
+                        <span class="text-[10px] font-bold text-emerald-200 ml-0.5">WIB</span>
                     </div>
                 </div>
-                <div class="w-px h-7 bg-zinc-200 dark:bg-zinc-800"></div>
-                <div>
-                    <div class="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Pulang</div>
-                    <div class="text-xs font-black font-mono {{ $hariIni['jam_pulang'] ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400' }}">
-                        {{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') : '--:--' }}
+                <div class="flex items-center gap-3 text-right">
+                    <div>
+                        <div class="text-[10px] text-emerald-100">Masuk</div>
+                        <div class="text-xs font-black font-mono">{{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') : '--:--' }}</div>
+                    </div>
+                    <div class="w-px h-6 bg-white/20"></div>
+                    <div>
+                        <div class="text-[10px] text-emerald-100">Pulang</div>
+                        <div class="text-xs font-black font-mono">{{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') : '--:--' }}</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Row 3: Arahkan Presensi ke Halaman Presensi (1 Pintu dengan Peta & Radius GPS) -->
-        @if ($aksiUtama !== 'selesai')
-            <a href="{{ route('mobile.absensi') }}" wire:navigate
-                class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-teal-500 hover:from-sky-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-lg shadow-sky-600/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
-                <i class="fa-solid fa-location-crosshairs text-sm"></i>
-                <span>{{ $aksiUtama === 'masuk' ? 'Buka Halaman Presensi Masuk' : 'Buka Halaman Presensi Pulang' }}</span>
-                <i class="fa-solid fa-arrow-right text-[11px]"></i>
-            </a>
-        @else
-            <div class="w-full py-3 px-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2">
-                <i class="fa-solid fa-circle-check"></i>
-                <span>Presensi Masuk &amp; Pulang Hari Ini Selesai</span>
+        <!-- Overlapping White Quick Action Card -->
+        <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3.5 shadow-lg shadow-emerald-950/10">
+            <div class="grid grid-cols-4 gap-2">
+                <a href="{{ route('mobile.absensi') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center">Presensi</span>
+                </a>
+                <a href="{{ route('mobile.lhk.create') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                    <div class="w-11 h-11 rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center">Isi LHK</span>
+                </a>
+                <a href="{{ route('mobile.izin.index') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                    <div class="w-11 h-11 rounded-2xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center">Izin</span>
+                </a>
+                <a href="{{ route('mobile.riwayat') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                    <div class="w-11 h-11 rounded-2xl bg-violet-50 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                    </div>
+                    <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center">Riwayat</span>
+                </a>
             </div>
-        @endif
+        </div>
     </section>
 
     <!-- 2. COMPACT BENTO METRICS (Jam Kerja Efektif ASN) -->

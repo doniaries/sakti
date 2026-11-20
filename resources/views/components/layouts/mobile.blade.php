@@ -222,13 +222,13 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: #FFFFFF;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 25px -3px rgba(2, 132, 199, 0.4), 0 0 0 5px #F8FAFC;
+            box-shadow: 0 10px 25px -3px rgba(5, 150, 105, 0.45), 0 0 0 5px #F8FAFC;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-decoration: none;
         }
@@ -344,9 +344,6 @@
             </div>
         @endif
 
-        @if (auth()->check() && $isRhoeMobile)
-            <x-mobile.rhoe-header />
-        @endif
 
         <!-- Global Navigation Skeleton Overlay (Muncul otomatis saat pindah menu wire:navigate > 120ms) -->
         <div x-data="{
@@ -427,7 +424,7 @@
                 <div class="center-absen-btn-wrapper">
                     <a href="{{ route('mobile.absensi') }}" 
                        wire:navigate
-                       class="center-absen-btn group ring-4 ring-sky-300 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-emerald-400 shadow-emerald-500/30' : '' }}"
+                       class="center-absen-btn group ring-4 ring-emerald-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-emerald-400 shadow-emerald-500/30' : '' }}"
                        title="Halaman Presensi Kehadiran">
                         <i class="fa-solid fa-fingerprint"></i>
                         <span>PRESENSI</span>
