@@ -98,6 +98,7 @@ class Dashboard extends Component
         }
 
         $user->unreadNotifications()->where('id', $id)->update(['read_at' => now()]);
+        $this->dispatch('notif-count-updated', count: $user->unreadNotifications()->count());
     }
 
     public function markAllNotificationsAsRead(): void
@@ -109,6 +110,19 @@ class Dashboard extends Component
         }
 
         $user->unreadNotifications()->update(['read_at' => now()]);
+        $this->dispatch('notif-count-updated', count: 0);
+    }
+
+    public function clearAllNotifications(): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user) {
+            return;
+        }
+
+        $user->notifications()->delete();
+        $this->dispatch('notif-count-updated', count: 0);
     }
 
     public function render()

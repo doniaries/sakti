@@ -226,7 +226,7 @@
     </section>
 
     <!-- Rhoe UI Modal: Notifikasi -->
-    <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin &amp; kinerja">
+    <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin, dan kinerja">
         <div class="space-y-2">
             @forelse ($recentNotifications as $notif)
                 <div wire:click="markNotificationAsRead('{{ $notif->id }}')"
@@ -246,8 +246,14 @@
         <x-slot:footer>
             @if ($unreadNotifCount > 0)
                 <button type="button" wire:click="markAllNotificationsAsRead"
-                    class="px-3.5 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition-colors cursor-pointer">
-                    Tandai Semua Dibaca
+                    class="px-3 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition-colors cursor-pointer">
+                    Tandai Dibaca
+                </button>
+            @endif
+            @if ($recentNotifications->isNotEmpty())
+                <button type="button" wire:click="clearAllNotifications"
+                    class="px-3 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-600 dark:text-rose-400 text-xs font-bold transition-colors cursor-pointer">
+                    Bersihkan
                 </button>
             @endif
             <button type="button" @click="notifSheet = false"

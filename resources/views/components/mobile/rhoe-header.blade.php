@@ -7,6 +7,7 @@
 
 <header x-data="{
         isDark: document.documentElement.classList.contains('dark'),
+        unreadCount: {{ (int) $unreadCount }},
         toggleTheme() {
             if (window.toggleMobileTheme) {
                 window.toggleMobileTheme();
@@ -15,6 +16,7 @@
         }
     }"
     @mobile-theme-changed.window="isDark = $event.detail.dark"
+    @notif-count-updated.window="unreadCount = $event.detail.count ?? 0"
     class="sticky top-0 z-30 relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-sky-600 via-blue-600 to-teal-500 dark:from-slate-900 dark:via-sky-950 dark:to-teal-950 text-white shadow-lg shadow-sky-900/15 dark:shadow-black/40 border-b border-white/15 dark:border-sky-400/15 px-4 pt-3.5 pb-4 transition-colors duration-300">
 
     <!-- Subtle Ambient Glow & Curved Accent -->
@@ -43,11 +45,10 @@
                 title="Notifikasi"
                 class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 dark:bg-white/10 dark:hover:bg-white/15 border border-white/20 text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer backdrop-blur-md">
                 <i class="fa-regular fa-bell text-xs"></i>
-                @if ($unreadCount > 0)
-                    <span class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center shadow">
-                        {{ $unreadCount > 9 ? '9+' : $unreadCount }}
-                    </span>
-                @endif
+                <span x-show="unreadCount > 0" x-cloak
+                    x-text="unreadCount > 9 ? '9+' : unreadCount"
+                    class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center shadow">
+                </span>
             </button>
 
             <!-- Icon Morph Theme Toggle -->
