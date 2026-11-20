@@ -1,56 +1,36 @@
-<div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)]" x-data="absensiApp()">
-    <!-- Top Bar: Header & Status Pegawai -->
-    <div class="flex items-center justify-between mb-3 pt-1">
+infro<div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)] space-y-3.5 text-zinc-900 dark:text-zinc-100" x-data="absensiApp()">
+    <!-- Top Bar: Header & GPS Status -->
+    <div class="flex items-center justify-between pt-1">
         <div>
-            <h1 class="text-lg font-extrabold text-slate-800 tracking-tight">Presensi Kehadiran</h1>
-            <p class="text-[11px] text-slate-500 font-medium">{{ now()->translatedFormat('l, d F Y') }}</p>
+            <h1 class="text-lg font-extrabold text-zinc-900 dark:text-white tracking-tight">Presensi Kehadiran</h1>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{{ now()->translatedFormat('l, d F Y') }}</p>
         </div>
-        <div class="flex items-center space-x-1.5">
-            <span
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider {{ $isWfh ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-sky-100 text-sky-800 border border-sky-300' }}">
-                {{ $isWfh ? 'WFH' : 'WFO' }}
-            </span>
-            <button type="button" @click="detectPosition(true)"
-                :class="gpsStatus === 'ok'
-                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-400/30'
-                    : (gpsStatus === 'blocked'
-                        ? 'bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-400/40 animate-pulse'
-                        : 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/30')"
-                class="px-2 py-0.5 border rounded-full text-[10px] font-bold flex items-center shadow-xs cursor-pointer transition">
-                <span class="w-1.5 h-1.5 rounded-full mr-1"
-                    :class="gpsStatus === 'ok' ? 'bg-emerald-500' : (gpsStatus === 'blocked' ? 'bg-rose-500' : 'bg-sky-500 animate-ping')"></span>
-                <span x-text="gpsStatus === 'ok' ? 'GPS OK' : (gpsStatus === 'blocked' ? 'GPS Nonaktif' : 'Cek GPS...')">GPS</span>
-            </button>
-        </div>
+        <button type="button" @click="detectPosition(true)"
+            :class="gpsStatus === 'ok'
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-400/30'
+                : (gpsStatus === 'blocked'
+                    ? 'bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-400/40 animate-pulse'
+                    : 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/30')"
+            class="px-2.5 py-1 border rounded-full text-[10px] font-bold flex items-center shadow-xs cursor-pointer transition">
+            <span class="w-1.5 h-1.5 rounded-full mr-1.5"
+                :class="gpsStatus === 'ok' ? 'bg-emerald-500' : (gpsStatus === 'blocked' ? 'bg-rose-500' : 'bg-sky-500 animate-ping')"></span>
+            <span x-text="gpsStatus === 'ok' ? 'GPS OK' : (gpsStatus === 'blocked' ? 'GPS Nonaktif' : 'Cek GPS...')">GPS</span>
+        </button>
     </div>
 
-    @auth
-    <div class="mb-3 flex items-center gap-3 rounded-2xl bg-white p-3 shadow-sm border border-slate-100">
-        <img src="{{ auth()->user()->avatar_image_url }}"
-             alt="{{ auth()->user()->name }}"
-             class="w-11 h-11 rounded-full object-cover ring-2 ring-sky-100 shrink-0">
-        <div class="min-w-0 flex-1">
-            <p class="text-sm font-extrabold text-slate-800 truncate">{{ auth()->user()->name }}</p>
-            <p class="text-[11px] text-slate-500 font-medium truncate">
-                {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}{{ auth()->user()->nip ? ' • NIP ' . auth()->user()->nip : '' }}
-            </p>
-        </div>
-    </div>
-    @endauth
-
-    <!-- Status Hari Libur / Selesai (Hanya tampil jika libur atau sudah selesai) -->
+    <!-- Status Hari Libur / Selesai -->
     @if ($hariLiburHariIni)
-        <div class="mb-3 p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
+        <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
             <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
         </div>
     @elseif ($sudahMasuk && $sudahPulang)
-        <div class="mb-3 p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
+        <div class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
             <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
         </div>
     @endif
 
-    <!-- CARD UTAMA: WAKTU SERVER, JADWAL & LOKASI KANTOR (SESUAI PEDOMAN BETTER-UI) -->
-    <div class="bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white rounded-3xl p-4 shadow-xl shadow-sky-950/20 mb-4 relative overflow-hidden border border-white/15"
+    <!-- UNIFIED HERO CARD (Identitas Pegawai + Jam + Jadwal + Status Datang/Pulang) -->
+    <section class="rounded-3xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm space-y-3.5"
         x-data="{ 
             time: '--:--:--',
             initClock() {
@@ -64,86 +44,93 @@
             }
         }" 
         x-init="initClock()">
-        
-        <!-- Background Glow Accent & Decorative Watermark Icon (Identik Dashboard) -->
-        <div class="absolute -right-6 -bottom-6 w-36 h-36 bg-sky-400/20 rounded-full blur-2xl pointer-events-none"></div>
-        <div class="absolute -right-3 -top-3 text-white/[0.07] text-8xl pointer-events-none">
-            <i class="fa-solid fa-fingerprint"></i>
-        </div>
-        
-        <!-- Baris 1: Jam Live + Mode Kerja & Tanggal (Ultra Compact) -->
-        <div class="flex items-center justify-between gap-2 relative z-10">
-            <div class="flex items-baseline space-x-1.5">
-                @if ($modeSimulasi && !empty($simulasiJamAktif))
-                    <span class="text-2xl font-black font-mono tracking-tight text-amber-300 leading-none">{{ $simulasiJamAktif }}:00</span>
-                @else
-                    <span class="text-2xl font-black font-mono tracking-tight text-white leading-none" x-text="time">--:--:--</span>
-                @endif
-                <span class="text-[10px] font-bold text-amber-300 font-mono">WIB</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-black/30 border border-white/15 {{ $isWfh ? 'text-amber-300' : 'text-emerald-300' }}">
-                    {{ $isWfh ? 'WFH' : 'WFO' }}
-                </span>
-                <span class="text-[11px] font-semibold text-sky-100">{{ now()->translatedFormat('D, d M') }}</span>
-            </div>
-        </div>
 
-        <!-- Baris 2: Jadwal Kerja & Perbandingan Jarak User vs Radius Kantor -->
-        <div class="mt-2 pt-2 border-t border-white/15 flex items-center justify-between gap-2 text-[11px] relative z-10">
-            <span class="text-sky-100 font-semibold truncate">
-                <i class="fa-regular fa-calendar-check text-sky-300 mr-1"></i>{{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
+        <!-- Row 1: Compact User Identity -->
+        @auth
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <img src="{{ auth()->user()->avatar_image_url }}"
+                     alt="{{ auth()->user()->name }}"
+                     class="w-11 h-11 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 shadow-xs shrink-0">
+                <div class="min-w-0">
+                    <h2 class="text-sm font-black tracking-tight text-zinc-900 dark:text-white truncate">{{ auth()->user()->name }}</h2>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+                        {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}{{ auth()->user()->nip ? ' • NIP ' . auth()->user()->nip : '' }}
+                    </p>
+                </div>
+            </div>
+            <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider {{ $isWfh ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' }}">
+                <span class="w-1.5 h-1.5 rounded-full {{ $isWfh ? 'bg-amber-500' : 'bg-emerald-500' }} animate-pulse"></span>
+                {{ $isWfh ? 'WFH' : 'WFO' }}
             </span>
+        </div>
+        @endauth
+
+        <!-- Row 2: Live Clock, Jadwal Kerja & Jarak -->
+        <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
+            <div>
+                <div class="flex items-baseline gap-1">
+                    @if ($modeSimulasi && !empty($simulasiJamAktif))
+                        <span class="text-2xl font-black font-mono tracking-tight text-amber-600 dark:text-amber-400 leading-none">{{ $simulasiJamAktif }}:00</span>
+                    @else
+                        <span class="text-2xl font-black font-mono tracking-tight text-zinc-900 dark:text-white leading-none" x-text="time">--:--:--</span>
+                    @endif
+                    <span class="text-[10px] font-bold text-zinc-400 font-mono">WIB</span>
+                </div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium mt-1">
+                    <i class="fa-regular fa-clock text-sky-500 mr-1"></i>Jadwal {{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
+                </p>
+            </div>
             <button type="button" @click="detectPosition(true)" title="Ketuk untuk refresh GPS"
-                class="shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border cursor-pointer active:scale-95 transition"
+                class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer active:scale-95 transition"
                 :class="isWfh
-                    ? 'bg-amber-500/20 border-amber-400/30 text-amber-200'
+                    ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/15 dark:border-amber-500/30 dark:text-amber-300'
                     : (isWithinRadius === false
-                        ? 'bg-rose-500/25 border-rose-400/40 text-rose-100'
-                        : 'bg-emerald-500/25 border-emerald-400/40 text-emerald-100')">
-                <i class="fa-solid fa-location-dot text-[9px]"></i>
-                <span x-text="isWfh ? 'Bebas WFH' : ('Jarak ' + currentDistanceText + ' / Radius {{ $maxRadius }}m')">Cek GPS...</span>
+                        ? 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/15 dark:border-rose-500/30 dark:text-rose-300'
+                        : 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300')">
+                <i class="fa-solid fa-location-dot text-[10px]"></i>
+                <span x-text="isWfh ? 'Bebas WFH' : (currentDistanceText + ' / {{ $maxRadius }}m')">Cek GPS...</span>
             </button>
         </div>
 
-        <!-- Baris 3: Ringkasan Status Absen Datang & Pulang (Compact 2 Kolom) -->
-        <div class="mt-2 grid grid-cols-2 gap-2 relative z-10">
-            <div class="rounded-xl bg-black/20 border border-white/15 px-2.5 py-1.5 flex items-center justify-between">
+        <!-- Row 3: Ringkasan Status Absen Datang & Pulang -->
+        <div class="grid grid-cols-2 gap-2.5">
+            <div class="rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/60 px-3 py-2 flex items-center justify-between">
                 <div>
-                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 font-bold block">Datang</span>
-                    <span class="text-xs font-black font-mono {{ $sudahMasuk ? 'text-emerald-300' : 'text-white/50' }}">
+                    <span class="text-[10px] uppercase tracking-wider text-zinc-400 font-bold block">Datang</span>
+                    <span class="text-xs font-black font-mono {{ $sudahMasuk ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400' }}">
                         {{ $sudahMasuk ? substr($absenHarian->jam_masuk, 0, 5) . ' WIB' : '--:--' }}
                     </span>
                 </div>
-                <i class="fa-solid {{ $sudahMasuk ? 'fa-circle-check text-emerald-400' : 'fa-clock text-white/40' }} text-sm"></i>
+                <i class="fa-solid {{ $sudahMasuk ? 'fa-circle-check text-emerald-500' : 'fa-clock text-zinc-300 dark:text-zinc-600' }} text-sm"></i>
             </div>
-            <div class="rounded-xl bg-black/20 border border-white/15 px-2.5 py-1.5 flex items-center justify-between">
+            <div class="rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200/70 dark:border-zinc-700/60 px-3 py-2 flex items-center justify-between">
                 <div>
-                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 font-bold block">Pulang</span>
-                    <span class="text-xs font-black font-mono {{ $sudahPulang ? 'text-sky-300' : 'text-white/50' }}">
+                    <span class="text-[10px] uppercase tracking-wider text-zinc-400 font-bold block">Pulang</span>
+                    <span class="text-xs font-black font-mono {{ $sudahPulang ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400' }}">
                         {{ $sudahPulang ? substr($absenHarian->jam_pulang, 0, 5) . ' WIB' : '--:--' }}
                     </span>
                 </div>
-                <i class="fa-solid {{ $sudahPulang ? 'fa-check-double text-sky-300' : 'fa-clock text-white/40' }} text-sm"></i>
+                <i class="fa-solid {{ $sudahPulang ? 'fa-check-double text-sky-500' : 'fa-clock text-zinc-300 dark:text-zinc-600' }} text-sm"></i>
             </div>
         </div>
 
         <!-- Warning GPS jika belum diizinkan -->
         <template x-if="gpsWarning">
-            <div class="mt-2 p-2 rounded-xl bg-amber-500/20 border border-amber-400/30 text-[10px] text-amber-200 flex items-center justify-between relative z-10">
+            <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-[11px] text-amber-800 dark:text-amber-300 flex items-center justify-between">
                 <div class="flex items-center space-x-1.5">
-                    <i class="fa-solid fa-triangle-exclamation text-amber-300"></i>
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
                     <span>Izin lokasi browser nonaktif.</span>
                 </div>
-                <button type="button" @click="detectPosition()" class="underline font-bold text-amber-200 hover:text-white cursor-pointer">Aktifkan</button>
+                <button type="button" @click="detectPosition()" class="underline font-bold text-amber-700 dark:text-amber-200 cursor-pointer">Aktifkan</button>
             </div>
         </template>
 
         <!-- Baris 4: Admin Tools (Hanya Tampil Jika Role SuperAdmin / Admin Dinas) -->
         @if ($isAdmin)
-            <div class="mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between relative z-10 text-[10px]">
-                <span class="font-bold text-amber-300 uppercase tracking-wider flex items-center">
-                    <i class="fa-solid fa-screwdriver-wrench mr-1.5 text-xs text-amber-400"></i> Mode Admin
+            <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[10px]">
+                <span class="font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-screwdriver-wrench mr-1.5 text-xs"></i> Mode Admin
                 </span>
                 <div class="flex items-center space-x-1.5">
                     <a href="{{ route('mobile.pengaturan-lokasi') }}" wire:navigate
@@ -152,14 +139,14 @@
                         <span>Atur Peta & Titik</span>
                     </a>
                     <button wire:click="simulasiResetMasuk"
-                        class="px-2.5 py-1 bg-white/20 hover:bg-white/30 text-white font-bold rounded-lg transition-transform duration-150 ease-out active:scale-[0.96] cursor-pointer"
+                        class="px-2.5 py-1 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 font-bold rounded-lg transition-transform duration-150 ease-out active:scale-[0.96] cursor-pointer"
                         title="Kosongkan presensi hari ini untuk uji ulang">
                         Reset Hari Ini
                     </button>
                 </div>
             </div>
         @endif
-    </div>
+    </section>
 
     <!-- PETA & TITIK KOORDINAT GPS (LANGSUNG DI ATAS TOMBOL ABSEN) -->
     <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs mb-4">
