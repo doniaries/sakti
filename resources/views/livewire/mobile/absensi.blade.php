@@ -3,19 +3,12 @@
     <div class="flex items-center justify-between pt-1">
         <div>
             <h1 class="text-lg font-extrabold text-zinc-900 dark:text-white tracking-tight">Presensi Kehadiran</h1>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{{ now()->translatedFormat('l, d F Y') }}</p>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{{ now()->translatedFormat('l') }}</p>
         </div>
-        <button type="button" @click="detectPosition(true)"
-            :class="gpsStatus === 'ok'
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-400/30'
-                : (gpsStatus === 'blocked'
-                    ? 'bg-rose-50 text-rose-700 border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-400/40 animate-pulse'
-                    : 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-400/30')"
-            class="px-2.5 py-1 border rounded-full text-[10px] font-bold flex items-center shadow-xs cursor-pointer transition">
-            <span class="w-1.5 h-1.5 rounded-full mr-1.5"
-                :class="gpsStatus === 'ok' ? 'bg-emerald-500' : (gpsStatus === 'blocked' ? 'bg-rose-500' : 'bg-sky-500 animate-ping')"></span>
-            <span x-text="gpsStatus === 'ok' ? 'GPS OK' : (gpsStatus === 'blocked' ? 'GPS Nonaktif' : 'Cek GPS...')">GPS</span>
-        </button>
+        <div class="text-right leading-none">
+            <div class="text-3xl font-black text-zinc-900 dark:text-white tracking-tight">{{ now()->format('d') }}</div>
+            <div class="mt-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{{ now()->translatedFormat('M Y') }}</div>
+        </div>
     </div>
 
     <!-- Status Hari Libur / Selesai -->
@@ -172,6 +165,16 @@
                 </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
+                <span class="px-2 py-1 border rounded-lg text-[10px] font-bold flex items-center gap-1.5"
+                    :class="gpsStatus === 'ok'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-400/30'
+                        : (gpsStatus === 'blocked'
+                            ? 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-400/30'
+                            : 'bg-zinc-50 text-zinc-600 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700')">
+                    <span class="w-1.5 h-1.5 rounded-full"
+                        :class="gpsStatus === 'ok' ? 'bg-emerald-500' : (gpsStatus === 'blocked' ? 'bg-rose-500' : 'bg-zinc-400')"></span>
+                    <span x-text="gpsStatus === 'ok' ? 'GPS OK' : (gpsStatus === 'blocked' ? 'GPS Nonaktif' : 'Mencari...')">GPS</span>
+                </span>
                 <button type="button" @click="detectPosition(true)"
                     class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
                     <i class="fa-solid fa-crosshairs text-[10px]"></i>
