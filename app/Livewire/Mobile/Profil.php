@@ -401,8 +401,6 @@ class Profil extends Component
 
     private function saveGolongan(User $freshUser): void
     {
-        $freshUser->update(['eselon' => $this->eselon ?: null]);
-
         if ($this->gol_golongan === '') {
             return;
         }
@@ -438,6 +436,7 @@ class Profil extends Component
         $freshUser->update([
             'status_kepegawaian' => $this->status_kepegawaian ?: null,
             'jabatan_id' => $this->jabatan_id ?: null,
+            'eselon' => $this->eselon ?: null,
             'bidang_id' => $this->bidang_id ?: null,
             'atasan_id' => $this->atasan_id ?: null,
         ]);
