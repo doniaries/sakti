@@ -6,7 +6,8 @@
     <title>{{ $title ?? 'Absensi LHK Mobile' }}</title>
     
     <!-- PWA Setup -->
-    <link rel="icon" type="image/png" href="{{ asset('icons/icon-192x192.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=2">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
     <meta name="theme-color" content="#1B6CA8">
     <meta name="mobile-web-app-capable" content="yes">

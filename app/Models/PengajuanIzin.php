@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Support\QrCodeHelper;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -13,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PengajuanIzin extends Model
 {
-    use SoftDeletes;
     use HasFactory;
 
     protected $table = 'pengajuan_izins';

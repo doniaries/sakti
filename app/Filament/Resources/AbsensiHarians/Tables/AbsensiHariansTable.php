@@ -550,7 +550,7 @@ class AbsensiHariansTable
                         $deletedLog = 0;
 
                         \Illuminate\Support\Facades\DB::transaction(function () use ($year, $month, $hapusLog, $hapusPermanen, &$deletedHarian, &$deletedLog): void {
-                            $query = \App\Models\AbsensiHarian::withTrashed()
+                            $query = \App\Models\AbsensiHarian::query()
                                 ->whereYear('tanggal', $year)
                                 ->whereMonth('tanggal', $month);
 

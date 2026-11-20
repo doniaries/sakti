@@ -162,10 +162,9 @@ class Absensi extends Component
             ->whereDate('waktu_absensi', $todayStr)
             ->delete();
 
-        AbsensiHarian::withTrashed()
-            ->where('user_id', $user->id)
+        AbsensiHarian::where('user_id', $user->id)
             ->where('tanggal', $todayStr)
-            ->forceDelete();
+            ->delete();
 
         $this->modeSimulasi = true;
 
