@@ -37,62 +37,13 @@
             }
         }
     }"
-    class="min-h-screen pb-28 bg-[#fafafa] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 relative overflow-x-hidden transition-colors duration-300">
+    @open-notif-sheet.window="notifSheet = true"
+    class="min-h-screen pb-28 bg-transparent text-zinc-900 dark:text-zinc-100 relative overflow-x-hidden transition-colors duration-300">
 
     <!-- Subtle Rhoe Dot Grid -->
-    <div class="pointer-events-none fixed inset-0 opacity-50 dark:opacity-80"
+    <div class="pointer-events-none fixed inset-0 opacity-40 dark:opacity-70"
         style="background-image: radial-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px); background-size: 22px 22px; mask-image: radial-gradient(ellipse 90% 50% at 50% 0%, #000 45%, transparent 100%);">
     </div>
-
-    <!-- Top App Bar (Actions + Tooltips + Icon Morph + Badge) -->
-    <header class="sticky top-0 z-30 bg-white/85 dark:bg-zinc-950/85 backdrop-blur-xl border-b border-zinc-200/80 dark:border-zinc-800/80 px-4 py-3">
-        <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5 min-w-0">
-                <img src="{{ asset('favicon.png') }}" alt="Logo" class="w-8 h-8 rounded-xl object-contain bg-zinc-100 dark:bg-zinc-900 p-1 border border-zinc-200 dark:border-zinc-800">
-                <div class="min-w-0">
-                    <div class="text-xs font-black tracking-tight truncate">SAKTI PARPORA</div>
-                    <div class="text-[10px] text-sky-600 dark:text-sky-400 font-bold uppercase tracking-wider truncate">Presensi &amp; Kinerja</div>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-1.5">
-                <!-- Notification Bell with Unread Badge -->
-                <button type="button" @click="notifSheet = true" title="Notifikasi"
-                    class="relative w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300 active:scale-90 transition-transform cursor-pointer">
-                    <i class="fa-regular fa-bell text-xs"></i>
-                    @if ($unreadNotifCount > 0)
-                        <span class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center shadow">
-                            {{ $unreadNotifCount > 9 ? '9+' : $unreadNotifCount }}
-                        </span>
-                    @endif
-                </button>
-
-                <!-- Icon Morph Theme Toggle -->
-                <button type="button" @click="toggleTheme()" title="Ganti Mode Terang / Gelap"
-                    class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center active:scale-90 transition-transform cursor-pointer">
-                    <i x-show="!isDark" class="fa-solid fa-moon text-zinc-700 text-xs"></i>
-                    <i x-show="isDark" x-cloak class="fa-solid fa-sun text-amber-400 text-xs"></i>
-                </button>
-
-                @if ($hariIni['is_admin'])
-                    <a href="{{ url('/admin') }}" title="Panel Admin"
-                        class="w-9 h-9 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-600 dark:text-amber-400 flex items-center justify-center active:scale-90 transition-transform">
-                        <i class="fa-solid fa-shield-halved text-xs"></i>
-                    </a>
-                @endif
-
-                <a href="{{ route('portal') }}" title="Portal Beranda"
-                    class="w-9 h-9 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center active:scale-90 transition-transform">
-                    <i class="fa-solid fa-house text-xs"></i>
-                </a>
-
-                <button type="button" wire:click="logout" title="Keluar"
-                    class="w-9 h-9 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center active:scale-90 transition-transform cursor-pointer">
-                    <i class="fa-solid fa-right-from-bracket text-xs"></i>
-                </button>
-            </div>
-        </div>
-    </header>
 
     <main class="relative z-10 px-4 pt-4 space-y-4">
         <!-- 1. Avatar Info Card (Rhoe UI Pattern) -->

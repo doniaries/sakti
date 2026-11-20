@@ -260,7 +260,11 @@
             background-color: rgba(15, 28, 46, 0.85) !important;
         }
         html.dark .content-area .bg-slate-100,
-        html.dark .content-area .bg-gray-100 {
+        html.dark .content-area .bg-gray-100,
+        html.dark .content-area .bg-slate-200,
+        html.dark .content-area .bg-slate-200\/80,
+        html.dark .content-area .bg-slate-200\/70,
+        html.dark .content-area .bg-gray-200 {
             background-color: rgba(30, 41, 59, 0.85) !important;
         }
         html.dark .content-area .border-slate-100,
@@ -304,7 +308,9 @@
 <body>
     <div class="mobile-container">
         @php
-            $isSimulasiAktif = (bool) (\App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi || session('mode_simulasi_absensi', false));
+            $pengaturanMobile = \App\Models\PengaturanAplikasi::getPengaturan();
+            $isSimulasiAktif = (bool) ($pengaturanMobile->mode_simulasi || session('mode_simulasi_absensi', false));
+            $isRhoeMobile = request()->query('tema', $pengaturanMobile->portal_theme ?? 'default') === 'rhoe';
         @endphp
         @if ($isSimulasiAktif)
             <!-- Sticky Warning Mode Simulasi Aktif untuk Seluruh Pegawai -->
@@ -319,6 +325,10 @@
                     </a>
                 @endif
             </div>
+        @endif
+
+        @if (auth()->check() && $isRhoeMobile)
+            <x-mobile.rhoe-header />
         @endif
 
         <!-- Content -->
