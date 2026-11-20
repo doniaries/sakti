@@ -21,6 +21,8 @@ class Riwayat extends Component
     #[Url(as: 'status')]
     public $filterStatus = 'semua';
 
+    public $filterTanggal = '';
+
     public $selectedAbsensi = null;
     public bool $showDetailModal = false;
 
@@ -100,6 +102,10 @@ class Riwayat extends Component
             } else {
                 $query->where('status', $this->filterStatus);
             }
+        }
+
+        if ($this->filterTanggal) {
+            $query->whereDate('tanggal', $this->filterTanggal);
         }
 
         $riwayat = $query->orderBy('tanggal', 'desc')->get();

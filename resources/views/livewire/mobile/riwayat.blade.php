@@ -122,6 +122,19 @@
         </div>
     @else
         <div class="space-y-3">
+    <!-- Filter Tanggal -->
+    <div class="flex items-center gap-2 mb-3">
+        <input type="date" wire:model.live="filterTanggal"
+            class="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-xs focus:border-amber-400 focus:outline-none">
+        @if ($filterTanggal)
+            <button type="button" wire:click="$set('filterTanggal', '')"
+                class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold cursor-pointer">
+                Reset
+            </button>
+        @endif
+    </div>
+
+    <x-mobile.scroll-list :count="$riwayat->count()" label="Daftar Riwayat Absensi">
             @foreach($riwayat as $item)
                 @php
                     $status = $item->status?->value ?? $item->status;
@@ -220,6 +233,7 @@
                     @endif
                 </div>
             @endforeach
+    </x-mobile.scroll-list>
         </div>
     @endif
 
