@@ -858,7 +858,7 @@
         @if ($showImpersonateModal)
             <div
                 class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-4">
-                <div class="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl space-y-3">
+                <div class="android-modal-anim w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl space-y-3">
                     <div class="flex items-center justify-between">
                         <h3 class="text-sm font-extrabold text-slate-800">Pindah Akun Pegawai</h3>
                         <button type="button" wire:click="$set('showImpersonateModal', false)"
