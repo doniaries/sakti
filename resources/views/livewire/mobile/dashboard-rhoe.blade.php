@@ -118,7 +118,7 @@
                 @foreach ($layanan as $item)
                     @if (Route::has($item['route']) && (empty($item['module']) || \App\Models\PengaturanAplikasi::isModuleEnabled($item['module'])))
                         <a href="{{ route($item['route']) }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-                            <div class="w-11 h-11 rounded-2xl {{ $item['color'] }} flex items-center justify-center text-base">
+                            <div class="w-11 h-11 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base">
                                 <i class="fa-solid {{ $item['icon'] }}"></i>
                             </div>
                             <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
