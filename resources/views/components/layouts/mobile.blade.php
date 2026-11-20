@@ -348,8 +348,14 @@
         <!-- Global Navigation Skeleton Overlay (Muncul otomatis saat pindah menu wire:navigate > 120ms) -->
         <div x-data="{
                 navigating: false,
+                target: 'dashboard',
                 timer: null,
-                startNav() {
+                startNav(e) {
+                    const url = e?.detail?.url?.pathname || '';
+                    this.target = url.includes('/absensi') ? 'absensi'
+                        : (url.includes('/riwayat') ? 'riwayat'
+                        : (url.includes('/izin') ? 'izin'
+                        : (url.includes('/profil') ? 'profil' : 'dashboard')));
                     clearTimeout(this.timer);
                     this.timer = setTimeout(() => { this.navigating = true; }, 120);
                 },
@@ -359,13 +365,13 @@
                 }
             }"
             x-init="
-                document.addEventListener('livewire:navigate', () => startNav());
+                document.addEventListener('livewire:navigate', (e) => startNav(e));
                 document.addEventListener('livewire:navigated', () => endNav());
             "
             x-show="navigating"
             x-cloak
             x-transition.opacity.duration.150ms
-            class="fixed inset-0 z-40 max-w-[440px] mx-auto bg-slate-50/95 dark:bg-[#09090b]/95 backdrop-blur-xs pb-24 space-y-4 pointer-events-none">
+            class="fixed inset-0 z-40 max-w-[440px] mx-auto bg-slate-50 dark:bg-[#09090b] pb-24 space-y-4 pointer-events-none">
             <!-- Hero Gradient Skeleton + Floating Layanan Card -->
             <div class="animate-pulse">
                 <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 space-y-5">
