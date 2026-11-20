@@ -1,13 +1,13 @@
 <div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)] space-y-3.5 text-zinc-900 dark:text-zinc-100" x-data="absensiApp()">
     <!-- Top Bar: Header & GPS Status -->
     <div class="flex items-center justify-between pt-1">
-        <div>
-            <h1 class="text-lg font-extrabold text-zinc-900 dark:text-white tracking-tight">Presensi Kehadiran</h1>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">{{ now()->translatedFormat('l') }}</p>
-        </div>
-        <div class="text-right leading-none">
-            <div class="text-3xl font-black text-zinc-900 dark:text-white tracking-tight">{{ now()->format('d') }}</div>
-            <div class="mt-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{{ now()->translatedFormat('M Y') }}</div>
+        <h1 class="text-lg font-extrabold text-zinc-900 dark:text-white tracking-tight">Presensi Kehadiran</h1>
+        <div class="flex items-center gap-2 pl-3 border-l-2 border-sky-500">
+            <span class="text-4xl font-black leading-none tracking-tighter text-zinc-900 dark:text-white tabular-nums">{{ now()->format('d') }}</span>
+            <div class="leading-tight">
+                <div class="text-xs font-extrabold text-sky-600 dark:text-sky-400">{{ now()->translatedFormat('l') }}</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">{{ now()->translatedFormat('M Y') }}</div>
+            </div>
         </div>
     </div>
 
