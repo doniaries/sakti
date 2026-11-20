@@ -46,86 +46,39 @@
             <i class="fa-solid fa-fingerprint"></i>
         </div>
         
-        <!-- Baris 1: Live Digital Clock & Tanggal (Simpel & Profesional) -->
-        <div class="flex items-center justify-between pb-3 border-b border-white/15 relative z-10">
-            <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded-xl bg-white/15 backdrop-blur-md text-sky-200 flex items-center justify-center text-sm border border-white/20 shrink-0">
-                    <i class="fa-regular fa-clock"></i>
-                </div>
-                <div>
-                    <span class="text-[9px] uppercase tracking-wider text-sky-200/80 block font-bold leading-tight">Waktu Server</span>
-                    <div class="flex items-baseline space-x-1.5 mt-0.5">
-                        @if ($modeSimulasi && !empty($simulasiJamAktif))
-                            <span class="text-2xl font-black font-mono tracking-tight text-amber-300 leading-none">{{ $simulasiJamAktif }}:00</span>
-                        @else
-                            <span class="text-2xl font-black font-mono tracking-tight text-white leading-none" x-text="time">--:--:--</span>
-                        @endif
-                        <span class="text-[10px] font-bold text-amber-300 font-mono">WIB</span>
-                    </div>
-                </div>
+        <!-- Baris 1: Jam Live + Mode Kerja & Tanggal (Ultra Compact) -->
+        <div class="flex items-center justify-between gap-2 relative z-10">
+            <div class="flex items-baseline space-x-1.5">
+                @if ($modeSimulasi && !empty($simulasiJamAktif))
+                    <span class="text-2xl font-black font-mono tracking-tight text-amber-300 leading-none">{{ $simulasiJamAktif }}:00</span>
+                @else
+                    <span class="text-2xl font-black font-mono tracking-tight text-white leading-none" x-text="time">--:--:--</span>
+                @endif
+                <span class="text-[10px] font-bold text-amber-300 font-mono">WIB</span>
             </div>
-            <div class="text-right flex flex-col items-end">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/30 backdrop-blur-md border border-white/15 {{ $isWfh ? 'text-amber-300' : 'text-emerald-300' }} flex items-center shadow-xs mb-1">
-                    <span class="w-1.5 h-1.5 rounded-full {{ $isWfh ? 'bg-amber-400' : 'bg-emerald-400' }} animate-pulse mr-1.5 inline-block"></span>
-                    <span>{{ $isWfh ? 'WFH' : 'WFO' }}</span>
+            <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-black/30 border border-white/15 {{ $isWfh ? 'text-amber-300' : 'text-emerald-300' }}">
+                    {{ $isWfh ? 'WFH' : 'WFO' }}
                 </span>
-                <div class="text-[11px] font-semibold text-sky-100">
-                    {{ now()->translatedFormat('l, d M Y') }}
-                </div>
+                <span class="text-[11px] font-semibold text-sky-100">{{ now()->translatedFormat('D, d M') }}</span>
             </div>
         </div>
 
-        <!-- Baris 2: Jadwal Kerja (Ringkas, Tanpa Batas Hadir) -->
-        <div class="my-2.5 bg-black/20 backdrop-blur-xs rounded-xl px-3 py-2 border border-white/15 flex items-center justify-between text-xs relative z-10">
-            <div class="flex items-center space-x-2 min-w-0">
-                <i class="fa-regular fa-calendar-check text-sky-300 text-xs shrink-0"></i>
-                <span class="text-[11px] text-sky-100 font-semibold truncate">Jadwal Kerja</span>
-            </div>
-            <span class="font-extrabold font-mono text-xs text-white shrink-0">
-                {{ $jamMasukResmi }} - {{ $jamPulangResmi }} <span class="text-[9px] font-sans font-medium text-sky-200">WIB</span>
+        <!-- Baris 2: Jadwal Kerja & Jarak Lokasi (1 Baris Tipis Inline) -->
+        <div class="mt-2 pt-2 border-t border-white/15 flex items-center justify-between gap-2 text-[11px] relative z-10">
+            <span class="text-sky-100 font-semibold truncate">
+                <i class="fa-regular fa-calendar-check text-sky-300 mr-1"></i>{{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
             </span>
-        </div>
-
-        <!-- Baris 3: Lokasi Kantor, Jarak User & Tombol Refresh Manual -->
-        <div class="bg-black/25 backdrop-blur-xs rounded-xl p-2.5 border border-white/15 flex items-center justify-between gap-2 relative z-10">
-            <div class="flex items-center space-x-2.5 min-w-0">
-                <button type="button" @click="detectPosition(true)" title="Refresh Lokasi GPS"
-                    class="w-7 h-7 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/35 border border-emerald-400/30 text-emerald-300 flex items-center justify-center text-xs shrink-0 cursor-pointer active:scale-90 transition">
-                    <i class="fa-solid fa-arrows-rotate" :class="gpsStatus === 'loading' ? 'fa-spin' : ''"></i>
-                </button>
-                <div class="min-w-0">
-                    <span class="text-xs font-extrabold text-white truncate block">
-                        {{ Str::before($alamatKantor, ',') }}
-                    </span>
-                    <span class="text-[10px] text-sky-200/80 block truncate">
-                        Radius {{ $maxRadius }}m &bull; Ketuk ikon untuk refresh GPS
-                    </span>
-                </div>
-            </div>
-
-            <!-- Status Jarak Real-Time Pill -->
-            <div class="shrink-0 text-right">
-                <template x-if="isWfh">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 border border-amber-400/30 text-amber-300">
-                        <i class="fa-solid fa-house-laptop mr-1 text-[9px]"></i> Bebas WFH
-                    </span>
-                </template>
-                <template x-if="!isWfh && isWithinRadius === true">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/25 border border-emerald-400/40 text-emerald-300 shadow-xs">
-                        <i class="fa-solid fa-circle-check mr-1 text-[9px]"></i> <span x-text="currentDistanceText">0 meter</span>
-                    </span>
-                </template>
-                <template x-if="!isWfh && isWithinRadius === false">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/25 border border-rose-400/40 text-rose-300 shadow-xs">
-                        <i class="fa-solid fa-circle-xmark mr-1 text-[9px]"></i> <span x-text="currentDistanceText">Luar Radius</span>
-                    </span>
-                </template>
-                <template x-if="!isWfh && isWithinRadius === null">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-400/20 border border-sky-300/30 text-sky-200 animate-pulse">
-                        <i class="fa-solid fa-satellite-dish mr-1 text-[9px]"></i> Cek GPS...
-                    </span>
-                </template>
-            </div>
+            <button type="button" @click="detectPosition(true)" title="Refresh GPS"
+                class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold border cursor-pointer active:scale-95 transition"
+                :class="isWfh
+                    ? 'bg-amber-500/20 border-amber-400/30 text-amber-200'
+                    : (isWithinRadius === false
+                        ? 'bg-rose-500/25 border-rose-400/40 text-rose-200'
+                        : 'bg-emerald-500/25 border-emerald-400/40 text-emerald-200')">
+                <i class="fa-solid fa-location-dot text-[9px]"></i>
+                <span x-text="isWfh ? 'Bebas WFH' : currentDistanceText">Cek GPS...</span>
+            </button>
         </div>
 
         <!-- Warning GPS jika belum diizinkan -->
