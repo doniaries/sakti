@@ -1,4 +1,4 @@
-infro<div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)] space-y-3.5 text-zinc-900 dark:text-zinc-100" x-data="absensiApp()">
+<div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)] space-y-3.5 text-zinc-900 dark:text-zinc-100" x-data="absensiApp()">
     <!-- Top Bar: Header & GPS Status -->
     <div class="flex items-center justify-between pt-1">
         <div>
