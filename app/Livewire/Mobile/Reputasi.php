@@ -66,7 +66,6 @@ class Reputasi extends Component
         // Rekan kerja (selain diri sendiri)
         $rekanKerjas = User::query()
             ->where('id', '!=', $currentUserId)
-            ->where('status_pegawai', 'aktif')
             ->orderBy('name', 'asc')
             ->get();
 
