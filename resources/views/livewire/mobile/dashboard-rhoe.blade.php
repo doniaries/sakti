@@ -1,12 +1,4 @@
 @php
-    $hour = (int) now()->format('H');
-    $sapaan = match (true) {
-        $hour >= 4 && $hour < 11 => 'Selamat Pagi',
-        $hour >= 11 && $hour < 15 => 'Selamat Siang',
-        $hour >= 15 && $hour < 18 => 'Selamat Sore',
-        default => 'Selamat Malam',
-    };
-
     $aksiUtama = ! $hariIni['sudah_masuk']
         ? 'masuk'
         : (! $hariIni['sudah_pulang'] ? 'pulang' : 'selesai');
@@ -53,31 +45,40 @@
 
     <!-- 1. UNIFIED HERO COMMAND CARD (Profil + Jam + Status + 1 Tombol Aksi Cerdas) -->
     <section class="rounded-3xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm space-y-4">
-        <!-- Row 1: Compact User Identity -->
-        <div class="flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3 min-w-0">
+        <!-- Row 1: Identitas Pegawai (tema sama dengan halaman Profil) -->
+        <div class="-mx-4 -mt-4 rounded-t-3xl bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] p-4 text-white flex items-center gap-3">
                 <label class="relative shrink-0 cursor-pointer group" title="Ketuk untuk ganti foto profil">
                     <input type="file" wire:model="new_avatar" accept="image/*" class="hidden">
                     <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
-                        class="w-11 h-11 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 shadow-xs group-hover:opacity-80 transition-opacity">
+                        class="w-14 h-14 rounded-2xl object-cover ring-2 ring-white/30 shadow-md group-hover:opacity-80 transition-opacity">
                     <span wire:loading wire:target="new_avatar"
                         class="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
                         <i class="fa-solid fa-circle-notch fa-spin text-white text-xs"></i>
                     </span>
                 </label>
-                <div class="min-w-0">
-                    <div class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{{ $sapaan }},</div>
-                    <h1 class="text-sm font-black tracking-tight text-zinc-900 dark:text-white truncate">{{ $user->name }}</h1>
-                    <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
-                        {{ $user->jabatan?->nama ?? 'Pegawai' }}@if ($user->bidang?->nama) &bull; {{ $user->bidang->nama }} @endif
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                        <span class="inline-block max-w-full truncate px-2 py-0.5 rounded-full bg-white/15 border border-white/20 text-[9px] font-extrabold uppercase tracking-wider text-sky-100">
+                            {{ $user->jabatan?->nama ?? 'Pegawai' }}
+                        </span>
+                        <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/25 text-[9px] font-black uppercase tracking-wider {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'text-amber-300' : 'text-emerald-300' }}">
+                            <span class="w-1.5 h-1.5 rounded-full {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-400' : 'bg-emerald-400' }} animate-pulse"></span>
+                            {{ strtoupper($user->status_kerja ?? 'WFO') }}
+                        </span>
                     </div>
+                    <h1 class="mt-1 text-sm font-black tracking-tight truncate">{{ $user->name }}</h1>
+                    @if ($user->nip)
+                        <button type="button"
+                            x-data="{ copied: false }"
+                            @click="navigator.clipboard.writeText('{{ $user->nip }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
+                            class="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-mono text-sky-100 hover:text-white cursor-pointer"
+                            title="Salin NIP">
+                            <span class="text-amber-300 font-bold">#</span>
+                            <span>NIP: {{ $user->nip }}</span>
+                            <i class="fa-regular text-[10px]" :class="copied ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
+                        </button>
+                    @endif
                 </div>
-            </div>
-
-            <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' }}">
-                <span class="w-1.5 h-1.5 rounded-full {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-500' : 'bg-emerald-500' }} animate-pulse"></span>
-                {{ strtoupper($user->status_kerja ?? 'WFO') }}
-            </span>
         </div>
 
         <!-- Row 2: Live Clock + Today's Timestamps (Compact Split) -->
