@@ -229,12 +229,31 @@
     <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin, dan kinerja">
         <div class="space-y-2">
             @forelse ($recentNotifications as $notif)
-                <div wire:click="markNotificationAsRead('{{ $notif->id }}')"
-                    class="p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
-                    <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
-                    <p class="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
-                    <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
-                </div>
+                @php
+                    $notifUrl = $notif->data['url'] ?? ($notif->data['actions'][0]['url'] ?? null);
+                    $isFilamentUrl = $notifUrl && str_contains($notifUrl, '/admin');
+                @endphp
+                @if ($notifUrl)
+                    <a href="{{ $notifUrl }}"
+                       @if ($isFilamentUrl) target="_blank" rel="noopener" @else wire:navigate @endif
+                       wire:click="markNotificationAsRead('{{ $notif->id }}')"
+                       @click="notifSheet = false"
+                       class="block p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
+                            <i class="fa-solid {{ $isFilamentUrl ? 'fa-arrow-up-right-from-square' : 'fa-chevron-right' }} text-[10px] text-zinc-400"></i>
+                        </div>
+                        <p class="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
+                        <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
+                    </a>
+                @else
+                    <div wire:click="markNotificationAsRead('{{ $notif->id }}')"
+                        class="p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
+                        <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
+                        <p class="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
+                        <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
+                    </div>
+                @endif
             @empty
                 <div class="py-8 text-center text-xs text-zinc-400">
                     <i class="fa-regular fa-bell-slash text-2xl mb-2 block opacity-50"></i>

@@ -56,7 +56,11 @@
                             <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-[10px] font-bold">
                                 {{ $item->menit }} Menit
                             </span>
+                            @if (($item->status ?? 'pending') === 'disetujui')
+                                <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">Disetujui</span>
+                            @endif
                         </div>
+                        @if (($item->status ?? 'pending') !== 'disetujui' || auth()->user()?->hasAnyRole(['super_admin', 'admin']))
                         <div class="flex items-center gap-1.5">
                             <button type="button" wire:click="openEdit({{ $item->id }})"
                                 class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-sky-600 flex items-center justify-center text-xs transition" title="Ubah">
@@ -68,6 +72,7 @@
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
+                        @endif
                     </div>
                     <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
                         {{ $item->nama_aktivitas }}
