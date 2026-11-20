@@ -1,10 +1,22 @@
+@php
+    $hour = (int) now()->format('H');
+    $sapaan = match (true) {
+        $hour >= 4 && $hour < 11 => 'Selamat Pagi',
+        $hour >= 11 && $hour < 15 => 'Selamat Siang',
+        $hour >= 15 && $hour < 18 => 'Selamat Sore',
+        default => 'Selamat Malam',
+    };
+
+    $aksiUtama = ! $hariIni['sudah_masuk']
+        ? 'masuk'
+        : (! $hariIni['sudah_pulang'] ? 'pulang' : 'selesai');
+@endphp
+
 <div x-data="{
         notifSheet: false,
-        activeTooltip: null,
-        isDark: document.documentElement.classList.contains('dark'),
         jam: '--:--',
         detik: '--',
-        punching: null,
+        punching: false,
         init() {
             const tick = () => {
                 const d = new Date();
@@ -14,238 +26,204 @@
             tick();
             setInterval(tick, 1000);
         },
-        toggleTheme() {
-            if (window.toggleMobileTheme) {
-                window.toggleMobileTheme();
-                this.isDark = document.documentElement.classList.contains('dark');
-            }
-        },
         doPunch(jenis) {
-            this.punching = jenis;
+            if (this.punching || jenis === 'selesai') return;
+            this.punching = true;
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        $wire.ambilAbsen(jenis, pos.coords.latitude, pos.coords.longitude).finally(() => this.punching = null);
-                    },
-                    () => {
-                        $wire.ambilAbsen(jenis, null, null).finally(() => this.punching = null);
-                    },
+                    (pos) => $wire.ambilAbsen(jenis, pos.coords.latitude, pos.coords.longitude).finally(() => this.punching = false),
+                    () => $wire.ambilAbsen(jenis, null, null).finally(() => this.punching = false),
                     { enableHighAccuracy: true, timeout: 8000 }
                 );
             } else {
-                $wire.ambilAbsen(jenis, null, null).finally(() => this.punching = null);
+                $wire.ambilAbsen(jenis, null, null).finally(() => this.punching = false);
             }
         }
     }"
     @open-notif-sheet.window="notifSheet = true"
-    class="min-h-screen pb-28 bg-transparent text-zinc-900 dark:text-zinc-100 relative overflow-x-hidden transition-colors duration-300">
+    class="pb-28 px-4 pt-4 space-y-4 text-zinc-900 dark:text-zinc-100">
 
-    <!-- Subtle Rhoe Dot Grid -->
-    <div class="pointer-events-none fixed inset-0 opacity-40 dark:opacity-70"
-        style="background-image: radial-gradient(rgba(148, 163, 184, 0.22) 1px, transparent 1px); background-size: 22px 22px; mask-image: radial-gradient(ellipse 90% 50% at 50% 0%, #000 45%, transparent 100%);">
-    </div>
+    <!-- Holiday Notice (Hanya tampil saat hari libur) -->
+    @if ($hariLiburHariIni)
+        <div class="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 px-3.5 py-2.5 flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-300">
+            <i class="fa-solid fa-calendar-day text-amber-500"></i>
+            <span class="font-bold truncate">Hari Libur: {{ $hariLiburHariIni->nama }}</span>
+        </div>
+    @endif
 
-    <main class="relative z-10 px-4 pt-4 space-y-4">
-        <!-- 1. Avatar Info Card (Rhoe UI Pattern) -->
-        <section class="rounded-3xl bg-white dark:bg-zinc-900/85 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm flex items-center gap-3.5">
-            <label class="relative shrink-0 cursor-pointer group" title="Ketuk untuk ganti foto profil">
-                <input type="file" wire:model="new_avatar" accept="image/*" class="hidden">
-                <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
-                    class="w-14 h-14 rounded-2xl object-cover border-2 border-sky-500/30 shadow-md group-hover:opacity-80 transition-opacity">
-                <span wire:loading.remove wire:target="new_avatar"
-                    class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white dark:border-zinc-900 flex items-center justify-center">
-                    <i class="fa-solid fa-camera text-[8px] text-white"></i>
-                </span>
-                <!-- Loading Indicator saat upload avatar -->
-                <span wire:loading wire:target="new_avatar"
-                    class="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
-                    <i class="fa-solid fa-circle-notch fa-spin text-white text-sm"></i>
-                </span>
-            </label>
-
-            <div class="min-w-0 flex-1">
-                <h1 class="text-sm font-black tracking-tight text-zinc-900 dark:text-white truncate">
-                    {{ $user->name }}
-                </h1>
-                <p class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 truncate">
-                    NIP. {{ $user->nip ?: '-' }}
-                </p>
-                <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 text-[10px] font-bold">
-                        <i class="fa-solid fa-briefcase text-[9px]"></i>
-                        <span>{{ $user->jabatan?->nama ?? 'Pegawai' }}</span>
+    <!-- 1. UNIFIED HERO COMMAND CARD (Profil + Jam + Status + 1 Tombol Aksi Cerdas) -->
+    <section class="rounded-3xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm space-y-4">
+        <!-- Row 1: Compact User Identity -->
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <label class="relative shrink-0 cursor-pointer group" title="Ketuk untuk ganti foto profil">
+                    <input type="file" wire:model="new_avatar" accept="image/*" class="hidden">
+                    <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
+                        class="w-11 h-11 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-700 shadow-xs group-hover:opacity-80 transition-opacity">
+                    <span wire:loading wire:target="new_avatar"
+                        class="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
+                        <i class="fa-solid fa-circle-notch fa-spin text-white text-xs"></i>
                     </span>
-                    @if ($user->bidang?->nama)
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-[10px] font-semibold">
-                            {{ $user->bidang->nama }}
-                        </span>
-                    @endif
+                </label>
+                <div class="min-w-0">
+                    <div class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">{{ $sapaan }},</div>
+                    <h1 class="text-sm font-black tracking-tight text-zinc-900 dark:text-white truncate">{{ $user->name }}</h1>
+                    <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
+                        {{ $user->jabatan?->nama ?? 'Pegawai' }}@if ($user->bidang?->nama) &bull; {{ $user->bidang->nama }} @endif
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- Holiday Banner (Feedback Alert) -->
-        @if ($hariLiburHariIni)
-            <div class="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-3.5 flex items-center gap-3 text-xs text-amber-800 dark:text-amber-300">
-                <i class="fa-solid fa-calendar-day text-amber-500 text-base"></i>
+            <span class="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' : 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' }}">
+                <span class="w-1.5 h-1.5 rounded-full {{ strtolower($user->status_kerja ?? 'wfo') === 'wfh' ? 'bg-amber-500' : 'bg-emerald-500' }} animate-pulse"></span>
+                {{ strtoupper($user->status_kerja ?? 'WFO') }}
+            </span>
+        </div>
+
+        <!-- Row 2: Live Clock + Today's Timestamps (Compact Split) -->
+        <div class="rounded-2xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200/70 dark:border-zinc-800/80 px-4 py-3 flex items-center justify-between gap-3">
+            <div>
+                <div class="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">
+                    {{ now()->translatedFormat('l, d M Y') }}
+                </div>
+                <div class="flex items-baseline gap-1 font-mono mt-0.5">
+                    <span x-text="jam" class="text-2xl font-black tracking-tight text-zinc-900 dark:text-white">--:--</span>
+                    <span x-text="':' + detik" class="text-xs font-bold text-zinc-400"></span>
+                    <span class="text-[10px] font-extrabold text-sky-600 dark:text-sky-400 ml-0.5">WIB</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 text-right">
                 <div>
-                    <div class="font-extrabold">Hari Libur: {{ $hariLiburHariIni->nama }}</div>
-                    <div class="text-[11px] opacity-85">Presensi reguler tidak diwajibkan hari ini.</div>
+                    <div class="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Masuk</div>
+                    <div class="text-xs font-black font-mono {{ $hariIni['jam_masuk'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-400' }}">
+                        {{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') : '--:--' }}
+                    </div>
                 </div>
+                <div class="w-px h-7 bg-zinc-200 dark:bg-zinc-800"></div>
+                <div>
+                    <div class="text-[9px] font-bold uppercase tracking-wider text-zinc-400">Pulang</div>
+                    <div class="text-xs font-black font-mono {{ $hariIni['jam_pulang'] ? 'text-sky-600 dark:text-sky-400' : 'text-zinc-400' }}">
+                        {{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') : '--:--' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: 1 Smart Context-Aware Primary Button -->
+        @if ($aksiUtama === 'masuk')
+            <button type="button" @click="doPunch('masuk')" :disabled="punching"
+                class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60">
+                <i x-show="!punching" class="fa-solid fa-fingerprint text-sm"></i>
+                <i x-show="punching" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+                <span x-text="punching ? 'Mengambil Lokasi GPS...' : 'Tap Absen Masuk Sekarang'"></span>
+            </button>
+        @elseif ($aksiUtama === 'pulang')
+            <button type="button" @click="doPunch('pulang')" :disabled="punching"
+                class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-extrabold text-xs shadow-lg shadow-sky-600/20 flex items-center justify-center gap-2 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60">
+                <i x-show="!punching" class="fa-solid fa-right-from-bracket text-sm"></i>
+                <i x-show="punching" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+                <span x-text="punching ? 'Mengambil Lokasi GPS...' : 'Tap Absen Pulang Sekarang'"></span>
+            </button>
+        @else
+            <div class="w-full py-3 px-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-bold text-xs flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Presensi Masuk &amp; Pulang Hari Ini Selesai</span>
             </div>
         @endif
+    </section>
 
-        <!-- 2. Live Clock & Mode Kerja Card -->
-        <section class="rounded-3xl bg-white dark:bg-zinc-900/85 border border-zinc-200/90 dark:border-zinc-800 p-5 text-center shadow-sm">
-            <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1">
-                {{ now()->translatedFormat('l, d F Y') }}
+    <!-- 2. COMPACT BENTO METRICS (Jam Kerja Efektif ASN) -->
+    <section class="grid grid-cols-2 gap-3">
+        <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-xs">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Hari Ini</span>
+                <span class="text-[10px] font-extrabold text-sky-600 dark:text-sky-400">{{ $jamKerjaAsn['persen_harian'] }}%</span>
             </div>
-            <div class="flex items-baseline justify-center gap-1.5 font-mono">
-                <span x-text="jam" class="text-4xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">--:--</span>
-                <span x-text="':' + detik" class="text-lg font-bold text-zinc-400"></span>
-                <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400 ml-1">WIB</span>
+            <div class="text-base font-black font-mono text-zinc-900 dark:text-white leading-tight">
+                {{ $jamKerjaAsn['harian_format'] }}
             </div>
-            <div class="mt-2.5 flex flex-wrap items-center justify-center gap-2">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">
-                    <i class="fa-solid fa-location-dot text-[10px]"></i>
-                    <span>Mode Kerja: {{ strtoupper($user->status_kerja ?? 'WFO') === 'WFH' ? 'WFH (Fleksibel)' : 'WFO (Radius Kantor)' }}</span>
-                </span>
+            <div class="text-[10px] text-zinc-400 mt-0.5">Target {{ $jamKerjaAsn['target_harian_format'] }}</div>
+            <div class="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 mt-2.5 overflow-hidden">
+                <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $jamKerjaAsn['persen_harian'] }}%"></div>
             </div>
-        </section>
+        </div>
 
-        <!-- 3. Action Buttons: Absen Masuk & Pulang + Loading Indicator + Tooltip -->
-        <section class="grid grid-cols-2 gap-3">
-            <!-- Absen Masuk -->
-            <button type="button"
-                @click="doPunch('masuk')"
-                :disabled="punching !== null || {{ $hariIni['sudah_masuk'] ? 'true' : 'false' }}"
-                title="Jam masuk: {{ $hariIni['buka_masuk'] ?? '06:30' }} - {{ $hariIni['tutup_masuk'] ?? '12:00' }}"
-                class="relative rounded-2xl p-4 text-left transition-all active:scale-[0.97] shadow-md cursor-pointer disabled:cursor-not-allowed
-                    {{ $hariIni['sudah_masuk']
-                        ? 'bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
-                        : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/25' }}">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="w-8 h-8 rounded-xl {{ $hariIni['sudah_masuk'] ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-300' : 'bg-white/20 text-white' }} flex items-center justify-center text-sm">
-                        <i x-show="punching !== 'masuk'" class="fa-solid {{ $hariIni['sudah_masuk'] ? 'fa-circle-check' : 'fa-right-to-bracket' }}"></i>
-                        <i x-show="punching === 'masuk'" x-cloak class="fa-solid fa-circle-notch fa-spin"></i>
-                    </div>
-                    <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full {{ $hariIni['sudah_masuk'] ? 'bg-emerald-500/20' : 'bg-white/20' }}">
-                        {{ $hariIni['sudah_masuk'] ? 'Tercatat' : 'Masuk' }}
-                    </span>
-                </div>
-                <div class="text-xs font-black tracking-tight">
-                    <span x-show="punching !== 'masuk'">{{ $hariIni['sudah_masuk'] ? 'SUDAH MASUK' : 'ABSEN MASUK' }}</span>
-                    <span x-show="punching === 'masuk'" x-cloak>MENGIRIM GPS...</span>
-                </div>
-                <div class="text-[10px] opacity-85 mt-0.5 font-mono">
-                    {{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') . ' WIB' : 'Tap untuk presensi' }}
-                </div>
-            </button>
-
-            <!-- Absen Pulang -->
-            <button type="button"
-                @click="doPunch('pulang')"
-                :disabled="punching !== null || {{ (! $hariIni['sudah_masuk'] || $hariIni['sudah_pulang']) ? 'true' : 'false' }}"
-                title="Jam pulang resmi: {{ $hariIni['jam_pulang_resmi'] ?? '16:00' }}"
-                class="relative rounded-2xl p-4 text-left transition-all active:scale-[0.97] shadow-sm cursor-pointer disabled:cursor-not-allowed
-                    {{ $hariIni['sudah_pulang']
-                        ? 'bg-sky-50 dark:bg-sky-500/15 border border-sky-300 dark:border-sky-500/30 text-sky-800 dark:text-sky-300'
-                        : ($hariIni['sudah_masuk']
-                            ? 'bg-sky-600 hover:bg-sky-500 text-white shadow-sky-600/25'
-                            : 'bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-400') }}">
-                <div class="flex items-center justify-between mb-2">
-                    <div class="w-8 h-8 rounded-xl {{ $hariIni['sudah_pulang'] ? 'bg-sky-500/20 text-sky-600 dark:text-sky-300' : ($hariIni['sudah_masuk'] ? 'bg-white/20 text-white' : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400') }} flex items-center justify-center text-sm">
-                        <i x-show="punching !== 'pulang'" class="fa-solid {{ $hariIni['sudah_pulang'] ? 'fa-circle-check' : ($hariIni['sudah_masuk'] ? 'fa-right-from-bracket' : 'fa-lock') }}"></i>
-                        <i x-show="punching === 'pulang'" x-cloak class="fa-solid fa-circle-notch fa-spin"></i>
-                    </div>
-                    <span class="text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full {{ $hariIni['sudah_pulang'] ? 'bg-sky-500/20' : ($hariIni['sudah_masuk'] ? 'bg-white/20' : 'bg-zinc-200 dark:bg-zinc-800') }}">
-                        {{ $hariIni['sudah_pulang'] ? 'Selesai' : 'Pulang' }}
-                    </span>
-                </div>
-                <div class="text-xs font-black tracking-tight">
-                    <span x-show="punching !== 'pulang'">{{ $hariIni['sudah_pulang'] ? 'SUDAH PULANG' : 'ABSEN PULANG' }}</span>
-                    <span x-show="punching === 'pulang'" x-cloak>MENGIRIM GPS...</span>
-                </div>
-                <div class="text-[10px] opacity-85 mt-0.5 font-mono">
-                    {{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') . ' WIB' : ($hariIni['sudah_masuk'] ? 'Tap untuk pulang' : 'Menunggu Masuk') }}
-                </div>
-            </button>
-        </section>
-
-        <!-- 4. Jam Kerja Efektif ASN (Bento Progress Card + Badge) -->
-        <section class="rounded-3xl bg-white dark:bg-zinc-900/85 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xs">
-                        <i class="fa-solid fa-clock"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white">Jam Kerja Efektif ASN</h2>
-                        <p class="text-[10px] text-zinc-500 dark:text-zinc-400">Standar {{ $jamKerjaAsn['target_harian_format'] }}/hari &bull; {{ $jamKerjaAsn['target_mingguan_format'] }}/minggu</p>
-                    </div>
-                </div>
-                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 text-[11px] font-black">
-                    {{ $jamKerjaAsn['persen_bulanan'] }}%
-                </span>
+        <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-xs">
+            <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Bulan Ini</span>
+                <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">{{ $jamKerjaAsn['persen_bulanan'] }}%</span>
             </div>
-
-            <div class="grid grid-cols-2 gap-2.5">
-                <div class="rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200/70 dark:border-zinc-800 p-3">
-                    <div class="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold">Hari Ini</div>
-                    <div class="text-xs font-black font-mono mt-0.5">
-                        {{ $jamKerjaAsn['harian_format'] }} <span class="text-[10px] font-normal text-zinc-400">/ {{ $jamKerjaAsn['target_harian_format'] }}</span>
-                    </div>
-                    <div class="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 mt-2 overflow-hidden">
-                        <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $jamKerjaAsn['persen_harian'] }}%"></div>
-                    </div>
-                </div>
-
-                <div class="rounded-2xl bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200/70 dark:border-zinc-800 p-3">
-                    <div class="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold">Bulan Ini</div>
-                    <div class="text-xs font-black font-mono text-sky-600 dark:text-sky-400 mt-0.5">
-                        {{ $jamKerjaAsn['bulanan_format'] }} <span class="text-[10px] font-normal text-zinc-400">/ {{ $jamKerjaAsn['target_bulanan_format'] }}</span>
-                    </div>
-                    <div class="w-full h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800 mt-2 overflow-hidden">
-                        <div class="h-full rounded-full bg-emerald-500 transition-all duration-500" style="width: {{ $jamKerjaAsn['persen_bulanan'] }}%"></div>
-                    </div>
-                </div>
+            <div class="text-base font-black font-mono text-zinc-900 dark:text-white leading-tight">
+                {{ $jamKerjaAsn['bulanan_format'] }}
             </div>
-        </section>
+            <div class="text-[10px] text-zinc-400 mt-0.5">Target {{ $jamKerjaAsn['target_bulanan_format'] }}</div>
+            <div class="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 mt-2.5 overflow-hidden">
+                <div class="h-full rounded-full bg-emerald-500 transition-all duration-500" style="width: {{ $jamKerjaAsn['persen_bulanan'] }}%"></div>
+            </div>
+        </div>
+    </section>
 
-        <!-- 5. 7-Day Mini Status Strip with Tooltips -->
-        @if (! empty($riwayat7Hari))
-            <section class="rounded-3xl bg-white dark:bg-zinc-900/85 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-sm">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-xs font-extrabold">Kehadiran 7 Hari Terakhir</h2>
-                    <a href="{{ route('mobile.riwayat') }}" class="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline">Lihat Semua</a>
-                </div>
-                <div class="grid grid-cols-7 gap-1.5">
-                    @foreach ($riwayat7Hari as $item)
-                        @php
-                            $rawStatus = $item['status'] ?? null;
-                            $st = $rawStatus instanceof \BackedEnum ? (string) $rawStatus->value : (string) ($rawStatus ?? '');
-                            $stLabel = $rawStatus instanceof \Filament\Support\Contracts\HasLabel
-                                ? (string) $rawStatus->getLabel()
-                                : ($st !== '' ? ucfirst(str_replace('_', ' ', $st)) : 'Belum ada');
-                            $dotClass = match ($st) {
-                                'hadir' => 'bg-emerald-500 text-white',
-                                'terlambat' => 'bg-amber-500 text-white',
-                                'izin', 'cuti', 'dinas_luar' => 'bg-sky-500 text-white',
-                                default => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400',
-                            };
-                        @endphp
-                        <div title="{{ ($item['hari'] ?? '') . ' ' . ($item['tgl'] ?? '') . ' — ' . $stLabel }}"
-                            class="flex flex-col items-center gap-1">
-                            <span class="text-[9px] font-bold text-zinc-400 uppercase">{{ $item['hari'] ?? '' }}</span>
-                            <div class="w-8 h-8 rounded-xl {{ $dotClass }} flex items-center justify-center text-[11px] font-extrabold shadow-xs">
-                                {{ $item['tgl'] ?? '-' }}
-                            </div>
+    <!-- 3. 7-DAY ATTENDANCE TIMELINE -->
+    @if (! empty($riwayat7Hari))
+        <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-xs">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white">Rekap 7 Hari Terakhir</h2>
+                <a href="{{ route('mobile.riwayat') }}" wire:navigate class="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
+                    Detail &rarr;
+                </a>
+            </div>
+            <div class="grid grid-cols-7 gap-1.5">
+                @foreach ($riwayat7Hari as $item)
+                    @php
+                        $rawStatus = $item['status'] ?? null;
+                        $st = $rawStatus instanceof \BackedEnum ? (string) $rawStatus->value : (string) ($rawStatus ?? '');
+                        $stLabel = $rawStatus instanceof \Filament\Support\Contracts\HasLabel
+                            ? (string) $rawStatus->getLabel()
+                            : ($st !== '' ? ucfirst(str_replace('_', ' ', $st)) : 'Belum ada');
+                        $pillClass = match ($st) {
+                            'hadir' => 'bg-emerald-500 text-white shadow-emerald-500/20',
+                            'terlambat' => 'bg-amber-500 text-white shadow-amber-500/20',
+                            'izin', 'cuti', 'dinas_luar' => 'bg-sky-500 text-white shadow-sky-500/20',
+                            default => 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400',
+                        };
+                    @endphp
+                    <div title="{{ ($item['hari'] ?? '') . ' ' . ($item['tgl'] ?? '') . ' — ' . $stLabel }}"
+                        class="flex flex-col items-center gap-1">
+                        <span class="text-[9px] font-bold text-zinc-400 uppercase">{{ $item['hari'] ?? '' }}</span>
+                        <div class="w-8 h-8 rounded-xl {{ $pillClass }} flex items-center justify-center text-[11px] font-extrabold shadow-xs">
+                            {{ $item['tgl'] ?? '-' }}
                         </div>
-                    @endforeach
-                </div>
-            </section>
-        @endif
-    </main>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    <!-- 4. QUICK ACTIONS (Ringkas, Tanpa Duplikasi Bottom Nav) -->
+    <section class="grid grid-cols-2 gap-3">
+        <a href="{{ route('mobile.lhk.index') }}" wire:navigate
+            class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-violet-500/15 text-violet-600 dark:text-violet-400 flex items-center justify-center text-sm shrink-0">
+                <i class="fa-solid fa-clipboard-list"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xs font-extrabold text-zinc-900 dark:text-white truncate">Isi LHK</div>
+                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">Laporan harian</div>
+            </div>
+        </a>
+
+        <a href="{{ route('mobile.izin') }}" wire:navigate
+            class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform shadow-xs">
+            <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm shrink-0">
+                <i class="fa-solid fa-envelope-open-text"></i>
+            </div>
+            <div class="min-w-0">
+                <div class="text-xs font-extrabold text-zinc-900 dark:text-white truncate">Izin &amp; Cuti</div>
+                <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">Ajukan cepat</div>
+            </div>
+        </a>
+    </section>
 
     <!-- Rhoe UI Modal: Notifikasi -->
     <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin &amp; kinerja">
