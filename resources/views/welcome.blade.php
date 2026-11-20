@@ -9,8 +9,10 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/') }}">
     <title>Portal Parpora Sijunjung – SAKTI Parpora | Dinas Pariwisata, Pemuda dan Olahraga</title>
-    <meta name="description" content="Portal Parpora Sijunjung (SAKTI Parpora) – Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Disparpora) Kabupaten Sijunjung. Akses presensi pegawai, Laporan Harian Kinerja (LHK), SPJ, dan layanan terpadu Parpora Sijunjung.">
-    <meta name="keywords" content="Portal Parpora, Portal Parpora Sijunjung, SAKTI Parpora, SAKTI Parpora Sijunjung, Parpora Sijunjung, Disparpora Sijunjung, Sistem Administrasi Kinerja Terintegrasi, Absensi Disparpora Sijunjung">
+    <meta name="description"
+        content="Portal Parpora Sijunjung (SAKTI Parpora) – Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Disparpora) Kabupaten Sijunjung. Akses presensi pegawai, Laporan Harian Kinerja (LHK), SPJ, dan layanan terpadu Parpora Sijunjung.">
+    <meta name="keywords"
+        content="Portal Parpora, Portal Parpora Sijunjung, SAKTI Parpora, SAKTI Parpora Sijunjung, Parpora Sijunjung, Disparpora Sijunjung, Sistem Administrasi Kinerja Terintegrasi, Absensi Disparpora Sijunjung">
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="website">
@@ -18,7 +20,8 @@
     <meta property="og:url" content="{{ url('/') }}">
     <meta property="og:site_name" content="Portal Parpora Sijunjung (SAKTI Parpora)">
     <meta property="og:title" content="Portal Parpora Sijunjung – SAKTI Parpora | Disparpora Kabupaten Sijunjung">
-    <meta property="og:description" content="Satu Portal untuk Semua Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Parpora) Kabupaten Sijunjung, termasuk SAKTI Parpora, Presensi Mobile, dan LHK.">
+    <meta property="og:description"
+        content="Satu Portal untuk Semua Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Parpora) Kabupaten Sijunjung, termasuk SAKTI Parpora, Presensi Mobile, dan LHK.">
     <meta property="og:image" content="{{ asset('icons/icon-512x512.png') }}">
 
     <!-- Structured Data (JSON-LD) -->
@@ -38,7 +41,8 @@
             'url' => url('/'),
             'applicationCategory' => 'GovernmentApplication',
             'operatingSystem' => 'Web, Android, iOS',
-            'description' => 'Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Parpora) Kabupaten Sijunjung – SAKTI Parpora (Sistem Administrasi Kinerja Terintegrasi).',
+            'description' =>
+                'Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga (Parpora) Kabupaten Sijunjung – SAKTI Parpora (Sistem Administrasi Kinerja Terintegrasi).',
             'publisher' => [
                 '@type' => 'GovernmentOrganization',
                 'name' => $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung',
@@ -235,18 +239,24 @@
         }
 
         @keyframes cloudFloatSlow {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(0px);
             }
+
             50% {
                 transform: translateX(28px);
             }
         }
 
         @keyframes cloudFloatReverse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(0px);
             }
+
             50% {
                 transform: translateX(-24px);
             }
@@ -347,45 +357,60 @@
         }
     </style>
     <script>
-        (function () {
+        (function() {
             const saved = localStorage.getItem('portal_theme_override');
             const hour = new Date().getHours();
             const isLight = saved ? saved === 'light' : (hour >= 6 && hour < 18);
             document.documentElement.classList.toggle('portal-light', isLight);
         })();
 
-        window.togglePortalTheme = function () {
+        window.togglePortalTheme = function() {
             const isLight = document.documentElement.classList.toggle('portal-light');
             localStorage.setItem('portal_theme_override', isLight ? 'light' : 'dark');
-            window.dispatchEvent(new CustomEvent('portal-theme-changed', { detail: { light: isLight } }));
+            window.dispatchEvent(new CustomEvent('portal-theme-changed', {
+                detail: {
+                    light: isLight
+                }
+            }));
         };
     </script>
 </head>
 
-<body class="bg-[#070B1A] text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300">
+<body
+    class="bg-[#070B1A] text-slate-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300">
 
     <!-- Background Gradient Langit Malam / Siang -->
-    <div class="portal-bg-layer fixed inset-0 bg-gradient-to-b from-[#070B1A] via-[#0C1530] to-[#0A1225] z-0 transition-all duration-500"></div>
+    <div
+        class="portal-bg-layer fixed inset-0 bg-gradient-to-b from-[#070B1A] via-[#0C1530] to-[#0A1225] z-0 transition-all duration-500">
+    </div>
 
     <!-- Visual Siang: Matahari, Awan & Pegunungan (Hanya Tampil di Mode Terang) -->
     <div id="dayScenery" class="fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
         <!-- Matahari & Cahaya Hangat -->
-        <div class="absolute -top-10 right-6 sm:right-20 w-44 h-44 sm:w-64 sm:h-64 rounded-full bg-amber-300/35 blur-3xl"></div>
-        <div class="absolute top-6 right-10 sm:top-10 sm:right-24 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-yellow-200 via-amber-300 to-orange-300 shadow-[0_0_55px_rgba(251,191,36,0.75)]"></div>
+        <div
+            class="absolute -top-10 right-6 sm:right-20 w-44 h-44 sm:w-64 sm:h-64 rounded-full bg-amber-300/35 blur-3xl">
+        </div>
+        <div
+            class="absolute top-6 right-10 sm:top-10 sm:right-24 w-16 h-16 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br from-yellow-200 via-amber-300 to-orange-300 shadow-[0_0_55px_rgba(251,191,36,0.75)]">
+        </div>
 
         <!-- Awan Melayang -->
-        <svg class="day-cloud-1 absolute top-12 left-[6%] w-36 sm:w-52 text-white/85 drop-shadow-sm" viewBox="0 0 200 70" fill="currentColor">
+        <svg class="day-cloud-1 absolute top-12 left-[6%] w-36 sm:w-52 text-white/85 drop-shadow-sm"
+            viewBox="0 0 200 70" fill="currentColor">
             <path d="M35 58h125a22 22 0 0 0 4-43.6A32 32 0 0 0 104 8a28 28 0 0 0-50 13.5A20 20 0 0 0 35 58Z" />
         </svg>
-        <svg class="day-cloud-2 absolute top-24 right-[14%] w-28 sm:w-44 text-white/75" viewBox="0 0 200 70" fill="currentColor">
+        <svg class="day-cloud-2 absolute top-24 right-[14%] w-28 sm:w-44 text-white/75" viewBox="0 0 200 70"
+            fill="currentColor">
             <path d="M35 58h125a22 22 0 0 0 4-43.6A32 32 0 0 0 104 8a28 28 0 0 0-50 13.5A20 20 0 0 0 35 58Z" />
         </svg>
-        <svg class="day-cloud-3 absolute top-40 left-[22%] w-24 sm:w-36 text-white/60 hidden sm:block" viewBox="0 0 200 70" fill="currentColor">
+        <svg class="day-cloud-3 absolute top-40 left-[22%] w-24 sm:w-36 text-white/60 hidden sm:block"
+            viewBox="0 0 200 70" fill="currentColor">
             <path d="M35 58h125a22 22 0 0 0 4-43.6A32 32 0 0 0 104 8a28 28 0 0 0-50 13.5A20 20 0 0 0 35 58Z" />
         </svg>
 
         <!-- Siluet Pegunungan Berlapis (Khas Geopark Silokek Sijunjung) -->
-        <svg class="absolute bottom-0 inset-x-0 w-full h-44 sm:h-64 md:h-72" viewBox="0 0 1440 320" preserveAspectRatio="none">
+        <svg class="absolute bottom-0 inset-x-0 w-full h-44 sm:h-64 md:h-72" viewBox="0 0 1440 320"
+            preserveAspectRatio="none">
             <!-- Pegunungan Jauh -->
             <path fill="#7dd3fc" fill-opacity="0.45"
                 d="M0,224L80,192C160,160,320,96,480,106.7C640,117,800,203,960,208C1120,213,1280,139,1360,101.3L1440,64L1440,320L0,320Z" />
@@ -649,6 +674,11 @@
                         {{ $catName }}
                     </button>
                 @endforeach
+                <a href="{{ route('panduan') }}"
+                    class="px-4 py-2 rounded-full text-xs font-bold border backdrop-blur-md transition-all duration-200 inline-flex items-center gap-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border-amber-400/40 shadow-sm">
+                    <i class="fa-solid fa-book-open text-[11px]"></i>
+                    <span>Panduan Pengguna</span>
+                </a>
             </div>
         @else
             <!-- Divider Elegance -->
@@ -721,7 +751,8 @@
                             class="text-xs sm:text-xl font-black text-white leading-snug tracking-tight mb-1 sm:mb-2 line-clamp-2 {{ $tokens['text_accent'] }} transition-colors">
                             {{ $link->judul }}
                         </h3>
-                        <p class="text-[10px] sm:text-[13px] text-slate-300/90 leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none mb-3 sm:mb-6 font-normal">
+                        <p
+                            class="text-[10px] sm:text-[13px] text-slate-300/90 leading-snug sm:leading-relaxed line-clamp-2 sm:line-clamp-none mb-3 sm:mb-6 font-normal">
                             {{ $link->deskripsi }}
                         </p>
                     </div>
@@ -1112,18 +1143,20 @@
     <footer
         class="portal-footer w-full border-t border-white/10 pt-5 pb-24 md:py-5 px-4 text-center text-xs text-slate-300 relative z-10 bg-slate-950/70 backdrop-blur-md transition-colors">
         <p class="font-bold tracking-tight">
-            &copy; {{ date('Y') }} {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung' }}
+            &copy; {{ date('Y') }}
+            {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung' }}
         </p>
-        @if (! empty($pengaturan->alamat_kantor))
+        @if (!empty($pengaturan->alamat_kantor))
             <p class="portal-footer-sub text-[11px] text-slate-400 mt-0.5">
                 {{ $pengaturan->alamat_kantor }}
             </p>
         @endif
-        <p class="portal-footer-sub text-[10px] text-slate-400 mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5">
+        <p
+            class="portal-footer-sub text-[10px] text-slate-400 mt-1 flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5">
             <span>{{ $pengaturan->versi_aplikasi ?? 'v1.0.0' }}</span>
-            @if (! empty($pengaturan->pembuat_aplikasi))
+            @if (!empty($pengaturan->pembuat_aplikasi))
                 <span>&bull;</span>
-                <span>{{ $pengaturan->pembuat_aplikasi }}</span>
+                {{-- <span>{{ $pengaturan->pembuat_aplikasi }}</span> --}}
             @endif
             <span>&bull;</span>
             <a href="{{ route('panduan') }}" class="text-sky-500 hover:underline font-semibold">Panduan Pengguna</a>
@@ -1223,29 +1256,27 @@
     </script>
     <!-- Floating Action Buttons: Scroll Up/Down + Light/Dark Theme -->
     <div x-data="{
-            isLight: document.documentElement.classList.contains('portal-light'),
-            scrolled: false,
-            checkScroll() {
-                this.scrolled = window.scrollY > 180;
-            },
-            scrollAction() {
-                if (this.scrolled) {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
-                }
+        isLight: document.documentElement.classList.contains('portal-light'),
+        scrolled: false,
+        checkScroll() {
+            this.scrolled = window.scrollY > 180;
+        },
+        scrollAction() {
+            if (this.scrolled) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
             }
-        }"
-        x-init="checkScroll()"
-        @scroll.window="checkScroll()"
+        }
+    }" x-init="checkScroll()" @scroll.window="checkScroll()"
         @portal-theme-changed.window="isLight = $event.detail.light"
         class="fixed bottom-24 md:bottom-5 right-3 md:right-5 z-50 flex items-center gap-2 opacity-45 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
         <!-- Scroll Up / Down Button -->
-        <button type="button" @click="scrollAction()"
-            :title="scrolled ? 'Kembali ke Atas' : 'Gulir ke Bawah'"
+        <button type="button" @click="scrollAction()" :title="scrolled ? 'Kembali ke Atas' : 'Gulir ke Bawah'"
             :class="isLight
-                ? 'bg-white/60 text-sky-700 border-slate-300/60 hover:bg-white/95 shadow-slate-900/10'
-                : 'bg-slate-900/55 text-sky-300 border-sky-400/25 hover:bg-slate-900/90 shadow-sky-500/15'"
+                ?
+                'bg-white/60 text-sky-700 border-slate-300/60 hover:bg-white/95 shadow-slate-900/10' :
+                'bg-slate-900/55 text-sky-300 border-sky-400/25 hover:bg-slate-900/90 shadow-sky-500/15'"
             class="w-9 h-9 md:w-10 md:h-10 rounded-full border backdrop-blur-md shadow-md flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
             <i x-show="!scrolled" class="fa-solid fa-arrow-down text-xs md:text-sm animate-bounce"></i>
             <i x-show="scrolled" x-cloak class="fa-solid fa-arrow-up text-xs md:text-sm animate-bounce"></i>
@@ -1255,8 +1286,9 @@
         <button type="button" onclick="window.togglePortalTheme()"
             :title="isLight ? 'Beralih ke Mode Gelap (Malam)' : 'Beralih ke Mode Terang (Siang)'"
             :class="isLight
-                ? 'bg-slate-900/60 text-amber-300 border-slate-700/60 hover:bg-slate-900/95 shadow-slate-900/15'
-                : 'bg-white/60 text-amber-500 border-white/30 hover:bg-white/95 shadow-sky-500/15'"
+                ?
+                'bg-slate-900/60 text-amber-300 border-slate-700/60 hover:bg-slate-900/95 shadow-slate-900/15' :
+                'bg-white/60 text-amber-500 border-white/30 hover:bg-white/95 shadow-sky-500/15'"
             class="w-9 h-9 md:w-10 md:h-10 rounded-full border backdrop-blur-md shadow-md flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
             <i x-show="!isLight" class="fa-solid fa-sun text-sm md:text-base"></i>
             <i x-show="isLight" x-cloak class="fa-solid fa-moon text-sm md:text-base"></i>
