@@ -22,17 +22,18 @@ class DatabaseBackupService
     }
 
     /**
+     * @param  array<int, string>|null  $tables
      * @return array{filename: string, path: string, size: int}
      */
-    public static function createBackup(): array
+    public static function createBackup(?array $tables = null, string $prefix = 'backup'): array
     {
         $dir = self::backupDirectory();
         $dbName = (string) config('database.connections.mysql.database', 'sakti');
-        $filename = 'backup-' . $dbName . '-' . now()->format('Y-m-d_His') . '.sql';
+        $filename = $prefix . '-' . $dbName . '-' . now()->format('Y-m-d_His') . '.sql';
         $filePath = $dir . DIRECTORY_SEPARATOR . $filename;
 
-        if (! self::dumpWithMysqldump($filePath)) {
-            self::dumpWithPdo($filePath);
+        if (! self::dumpWithMysqldump($filePath, $tables)) {
+            self::dumpWithPdo($filePath, $tables);
         }
 
         return [
@@ -40,6 +41,32 @@ class DatabaseBackupService
             'path' => $filePath,
             'size' => File::size($filePath),
         ];
+    }
+
+    /**
+     * @param  array<int, string>  $tables
+     */
+    public static function truncateTables(array $tables): int
+    {
+        $existing = array_values(array_filter(
+            $tables,
+            fn (string $table): bool => \Illuminate\Support\Facades\Schema::hasTable($table)
+        ));
+
+        if ($existing === []) {
+            return 0;
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        try {
+            foreach ($existing as $table) {
+                DB::table($table)->truncate();
+            }
+        } finally {
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        }
+
+        return count($existing);
     }
 
     /**
@@ -104,7 +131,10 @@ class DatabaseBackupService
         DB::unprepared("SET FOREIGN_KEY_CHECKS=0;\n" . $sql . "\nSET FOREIGN_KEY_CHECKS=1;");
     }
 
-    private static function dumpWithMysqldump(string $filePath): bool
+    /**
+     * @param  array<int, string>|null  $tables
+     */
+    private static function dumpWithMysqldump(string $filePath, ?array $tables = null): bool
     {
         $binary = self::findBinary('mysqldump');
         if ($binary === null) {
@@ -124,6 +154,12 @@ class DatabaseBackupService
             '--result-file=' . $filePath,
             (string) ($cfg['database'] ?? 'sakti'),
         ];
+
+        if ($tables !== null && $tables !== []) {
+            foreach ($tables as $table) {
+                $args[] = $table;
+            }
+        }
 
         $env = [];
         if (filled($cfg['password'] ?? null)) {
@@ -173,7 +209,10 @@ class DatabaseBackupService
         }
     }
 
-    private static function dumpWithPdo(string $filePath): void
+    /**
+     * @param  array<int, string>|null  $tables
+     */
+    private static function dumpWithPdo(string $filePath, ?array $tables = null): void
     {
         /** @var PDO $pdo */
         $pdo = DB::connection('mysql')->getPdo();

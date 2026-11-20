@@ -235,13 +235,13 @@ class AdminPanelProvider extends PanelProvider
                 FilamentDeveloperLoginsPlugin::make()
                     ->enabled(function (): bool {
                         /** @var \App\Models\User|null $user */
-                        $user = auth()->user();
+                        $user = \Illuminate\Support\Facades\Auth::user();
 
                         return app()->environment('local') || ($user?->hasRole('super_admin') ?? false);
                     })
                     ->switchable(function (): bool {
                         /** @var \App\Models\User|null $user */
-                        $user = auth()->user();
+                        $user = \Illuminate\Support\Facades\Auth::user();
 
                         return app()->environment('local') || ($user?->hasRole('super_admin') ?? false);
                     })
