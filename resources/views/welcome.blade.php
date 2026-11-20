@@ -1220,27 +1220,27 @@
         x-init="checkScroll()"
         @scroll.window="checkScroll()"
         @portal-theme-changed.window="isLight = $event.detail.light"
-        class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50 flex items-center gap-2.5">
+        class="fixed bottom-24 md:bottom-5 right-3 md:right-5 z-50 flex items-center gap-2 opacity-45 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-300">
         <!-- Scroll Up / Down Button -->
         <button type="button" @click="scrollAction()"
             :title="scrolled ? 'Kembali ke Atas' : 'Gulir ke Bawah'"
             :class="isLight
-                ? 'bg-white/95 text-sky-600 border-slate-300/80 hover:bg-white shadow-slate-900/15'
-                : 'bg-slate-900/90 text-sky-300 border-sky-400/30 hover:bg-slate-800 shadow-sky-500/20'"
-            class="w-11 h-11 md:w-12 md:h-12 rounded-full border backdrop-blur-md shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
-            <i x-show="!scrolled" class="fa-solid fa-arrow-down text-sm md:text-base animate-bounce"></i>
-            <i x-show="scrolled" x-cloak class="fa-solid fa-arrow-up text-sm md:text-base animate-bounce"></i>
+                ? 'bg-white/60 text-sky-700 border-slate-300/60 hover:bg-white/95 shadow-slate-900/10'
+                : 'bg-slate-900/55 text-sky-300 border-sky-400/25 hover:bg-slate-900/90 shadow-sky-500/15'"
+            class="w-9 h-9 md:w-10 md:h-10 rounded-full border backdrop-blur-md shadow-md flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
+            <i x-show="!scrolled" class="fa-solid fa-arrow-down text-xs md:text-sm animate-bounce"></i>
+            <i x-show="scrolled" x-cloak class="fa-solid fa-arrow-up text-xs md:text-sm animate-bounce"></i>
         </button>
 
         <!-- Light / Dark Theme Toggle Button -->
         <button type="button" onclick="window.togglePortalTheme()"
             :title="isLight ? 'Beralih ke Mode Gelap (Malam)' : 'Beralih ke Mode Terang (Siang)'"
             :class="isLight
-                ? 'bg-slate-900 text-amber-300 border-slate-700 hover:bg-slate-800 shadow-slate-900/25'
-                : 'bg-white/95 text-amber-500 border-white/40 hover:bg-white shadow-sky-500/25'"
-            class="w-11 h-11 md:w-12 md:h-12 rounded-full border backdrop-blur-md shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
-            <i x-show="!isLight" class="fa-solid fa-sun text-base md:text-lg"></i>
-            <i x-show="isLight" x-cloak class="fa-solid fa-moon text-base md:text-lg"></i>
+                ? 'bg-slate-900/60 text-amber-300 border-slate-700/60 hover:bg-slate-900/95 shadow-slate-900/15'
+                : 'bg-white/60 text-amber-500 border-white/30 hover:bg-white/95 shadow-sky-500/15'"
+            class="w-9 h-9 md:w-10 md:h-10 rounded-full border backdrop-blur-md shadow-md flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
+            <i x-show="!isLight" class="fa-solid fa-sun text-sm md:text-base"></i>
+            <i x-show="isLight" x-cloak class="fa-solid fa-moon text-sm md:text-base"></i>
         </button>
     </div>
 </body>
