@@ -93,6 +93,7 @@
 
     <!-- List Pengajuan Izin -->
     <div class="space-y-3">
+    <x-mobile.scroll-list :count="$pengajuans->count()" label="Daftar Pengajuan">
         @forelse($pengajuans as $item)
             @php
                 $statusColor = match ($item->status) {
@@ -263,6 +264,7 @@
                 @endif
             </div>
         @endforelse
+    </x-mobile.scroll-list>
     </div>
 
     <!-- MODAL DETAIL LENGKAP PENGAJUAN -->
