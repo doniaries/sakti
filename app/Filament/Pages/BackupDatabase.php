@@ -9,11 +9,15 @@ use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Placeholder;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use UnitEnum;
 
@@ -91,48 +95,66 @@ class BackupDatabase extends Page
                 ->color('warning')
                 ->authorize(fn (): bool => static::canAccess())
                 ->requiresConfirmation()
-                ->modalHeading('Backup Terlebih Dahulu & Hapus Data Terpilih')
-                ->modalDescription('Sistem akan otomatis membuat berkas backup .sql untuk data yang Anda pilih terlebih dahulu, baru kemudian mengosongkan tabelnya. Data User, Pengaturan, dan Role tidak termasuk.')
+                ->modalWidth(Width::FourExtraLarge)
+                ->modalHeading('Pilih Tabel untuk Backup & Hapus Data')
+                ->modalDescription('Pilih tabel yang ingin di-backup terlebih dahulu, lalu dikosongkan. Periksa informasi relasi tabel di bawah agar proses restore nanti tidak error.')
                 ->modalSubmitActionLabel('Backup & Hapus Sekarang')
-                ->form([
-                    CheckboxList::make('groups')
-                        ->label('Pilih Kelompok Data yang Akan Di-backup & Dihapus')
-                        ->options([
-                            'absensi' => 'Absensi Harian & Log Mesin/Mobile (absensi_harian, log_absensi)',
-                            'lhk' => 'Laporan Harian Kinerja / LHK (lhks, lhk_pekerjaans)',
-                            'izin' => 'Pengajuan Izin & Cuti (pengajuan_izins)',
-                            'surat_tugas' => 'Surat Tugas & Penugasan (surat_tugas, surat_tugas_user)',
-                            'spj' => 'Pengajuan SPJ & Keuangan (pengajuan_spj, detail_pengajuan_spj, verifikasi_spj, riwayat_status_spj)',
-                            'persediaan' => 'Transaksi & Laporan Persediaan (transaksi_barangs, laporan_persediaans)',
-                            'aset' => 'Aset & Berita Acara BMD (buku_inventaris, berita_acara_bmds, berita_acara_bmd_items)',
-                            'kinerja_master' => 'Rencana Aksi & Aktivitas (rencana_aksis, aktivitas)',
-                            'logs' => 'Notifikasi & Log Aktivitas (notifications, activity_logs, reputasis)',
-                        ])
-                        ->columns(1)
-                        ->required(),
-                ])
-                ->action(function (array $data): void {
-                    $map = [
-                        'absensi' => ['absensi_harian', 'log_absensi'],
-                        'lhk' => ['lhk_pekerjaans', 'lhks'],
-                        'izin' => ['pengajuan_izins'],
-                        'surat_tugas' => ['surat_tugas_user', 'surat_tugas'],
-                        'spj' => ['verifikasi_spj', 'riwayat_status_spj', 'detail_pengajuan_spj', 'pengajuan_spj'],
-                        'persediaan' => ['transaksi_barangs', 'laporan_persediaans'],
-                        'aset' => ['berita_acara_bmd_items', 'berita_acara_bmds', 'buku_inventaris'],
-                        'kinerja_master' => ['rencana_aksis', 'aktivitas'],
-                        'logs' => ['notifications', 'activity_logs', 'reputasis'],
-                    ];
+                ->form(function (): array {
+                    $grouped = DatabaseBackupService::listAllTablesGrouped();
 
-                    $tables = [];
-                    foreach ($data['groups'] ?? [] as $group) {
-                        foreach ($map[$group] ?? [] as $t) {
-                            $tables[] = $t;
-                        }
-                    }
-                    $tables = array_values(array_unique($tables));
+                    return [
+                        CheckboxList::make('core_tables')
+                            ->label('Tabel Inti (Wajib / Fondasi Sistem)')
+                            ->helperText('Hati-hati: mengosongkan tabel inti akan menghapus user, role, atau master sistem.')
+                            ->options($grouped['core'])
+                            ->columns(2)
+                            ->bulkToggleable()
+                            ->live(),
+
+                        CheckboxList::make('supporting_tables')
+                            ->label('Tabel Pendukung & Transaksi')
+                            ->options($grouped['supporting'])
+                            ->columns(2)
+                            ->bulkToggleable()
+                            ->live(),
+
+                        Placeholder::make('relations_info')
+                            ->label('Informasi Hubungan / Relasi Tabel Terpilih')
+                            ->content(function (Get $get): HtmlString {
+                                $selected = array_values(array_unique(array_merge(
+                                    $get('core_tables') ?? [],
+                                    $get('supporting_tables') ?? []
+                                )));
+
+                                if ($selected === []) {
+                                    return new HtmlString('<span class="text-xs text-gray-500">Pilih satu atau lebih tabel di atas untuk melihat relasi Foreign Key-nya.</span>');
+                                }
+
+                                $warnings = DatabaseBackupService::getTableRelationWarnings($selected);
+                                if ($warnings === []) {
+                                    return new HtmlString('<span class="text-xs text-success-600 font-medium">Aman: seluruh tabel relasi yang terhubung sudah tercakup atau tidak ada ketergantungan eksternal.</span>');
+                                }
+
+                                return new HtmlString(
+                                    '<div class="text-xs text-warning-700 dark:text-warning-300 space-y-1 bg-warning-50 dark:bg-warning-950/30 p-3 rounded-lg border border-warning-200 dark:border-warning-800">'
+                                    . implode('<br>', $warnings)
+                                    . '</div>'
+                                );
+                            }),
+                    ];
+                })
+                ->action(function (array $data): void {
+                    $tables = array_values(array_unique(array_merge(
+                        $data['core_tables'] ?? [],
+                        $data['supporting_tables'] ?? []
+                    )));
 
                     if ($tables === []) {
+                        Notification::make()
+                            ->title('Tidak ada tabel yang dipilih')
+                            ->warning()
+                            ->send();
+
                         return;
                     }
 
