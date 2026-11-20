@@ -76,8 +76,8 @@
             background-image:
                 radial-gradient(circle at 90% 6%, rgba(14, 165, 233, 0.14) 0%, transparent 42%),
                 radial-gradient(circle at 10% 32%, rgba(16, 185, 129, 0.10) 0%, transparent 45%),
-                linear-gradient(to right, rgba(2, 132, 199, 0.045) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(16, 185, 129, 0.04) 1px, transparent 1px),
+                
+                
                 linear-gradient(160deg, #F8FAFC 0%, #EFF6FF 48%, #ECFDF5 100%);
             background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
             color: #0F172A;
@@ -103,8 +103,8 @@
             background-image:
                 radial-gradient(circle at 88% 7%, rgba(34, 211, 238, 0.16) 0%, transparent 40%),
                 radial-gradient(circle at 10% 34%, rgba(16, 185, 129, 0.12) 0%, transparent 44%),
-                linear-gradient(to right, rgba(56, 189, 248, 0.055) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(16, 185, 129, 0.045) 1px, transparent 1px),
+                
+                
                 linear-gradient(160deg, #0B132B 0%, #0F1E3C 52%, #081A2C 100%);
             background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
             color: #F1F5F9;
