@@ -67,13 +67,23 @@
                         <h1 class="text-sm font-extrabold tracking-tight truncate">{{ $user->name }}</h1>
                     </div>
                 </div>
-                <button type="button" @click="notifSheet = true"
-                    class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0">
-                    <i class="fa-solid fa-bell text-sm"></i>
-                    @if ($unreadNotifCount > 0)
-                        <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-sky-800"></span>
+                <div class="flex items-center gap-2 shrink-0">
+                    @if ($user->hasAnyRole(['super_admin', 'admin', 'pptk', 'ppk', 'pa', 'admin_keuangan']))
+                        <a href="/admin" target="_blank" rel="noopener"
+                            class="h-9 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            title="Buka Panel Admin SAKTI di tab baru">
+                            <i class="fa-solid fa-shield-halved text-xs"></i>
+                            <span>Panel Admin</span>
+                        </a>
                     @endif
-                </button>
+                    <button type="button" @click="notifSheet = true"
+                        class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0">
+                        <i class="fa-solid fa-bell text-sm"></i>
+                        @if ($unreadNotifCount > 0)
+                            <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-sky-800"></span>
+                        @endif
+                    </button>
+                </div>
             </div>
 
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
