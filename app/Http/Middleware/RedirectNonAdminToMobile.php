@@ -20,6 +20,9 @@ class RedirectNonAdminToMobile
         'admin',
         'admin_kepegawaian',
         'admin_keuangan',
+        'pptk',
+        'ppk',
+        'pa',
     ];
 
     public function handle(Request $request, Closure $next): Response

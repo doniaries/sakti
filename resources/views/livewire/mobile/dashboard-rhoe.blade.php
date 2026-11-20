@@ -68,7 +68,7 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    @if ($user->hasAnyRole(['super_admin', 'admin', 'pptk', 'ppk', 'pa', 'admin_keuangan']))
+                    @if ($user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'pptk', 'ppk', 'pa']))
                         <a href="/admin" target="_blank" rel="noopener"
                             class="h-9 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                             title="Buka Panel Admin SAKTI di tab baru">
