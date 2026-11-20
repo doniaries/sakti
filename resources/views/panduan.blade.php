@@ -13,7 +13,75 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+        /* Light Mode untuk Panduan Pengguna */
+        html.panduan-light body {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        html.panduan-light header {
+            background-color: rgba(255, 255, 255, 0.92) !important;
+            border-color: rgba(226, 232, 240, 0.9) !important;
+        }
+        html.panduan-light .text-white {
+            color: #0f172a !important;
+        }
+        html.panduan-light .text-slate-200,
+        html.panduan-light .text-slate-300 {
+            color: #334155 !important;
+        }
+        html.panduan-light .text-slate-400,
+        html.panduan-light .text-slate-500 {
+            color: #475569 !important;
+        }
+        html.panduan-light .bg-white\/\[0\.04\],
+        html.panduan-light .bg-white\/\[0\.03\],
+        html.panduan-light .bg-white\/5 {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        }
+        html.panduan-light .text-sky-300 {
+            color: #0284c7 !important;
+        }
+        html.panduan-light .text-emerald-300 {
+            color: #059669 !important;
+        }
+        html.panduan-light .text-amber-300 {
+            color: #d97706 !important;
+        }
+        html.panduan-light .text-purple-300 {
+            color: #7c3aed !important;
+        }
+        html.panduan-light .text-rose-300 {
+            color: #e11d48 !important;
+        }
+        html.panduan-light .text-teal-300 {
+            color: #0d9488 !important;
+        }
+        html.panduan-light footer {
+            border-color: #e2e8f0 !important;
+            background-color: #ffffff !important;
+        }
     </style>
+    <script>
+        (function () {
+            const saved = localStorage.getItem('portal_theme_override') || localStorage.getItem('rhoe_theme_override');
+            const hour = new Date().getHours();
+            const isLight = saved ? saved === 'light' : (hour >= 6 && hour < 18);
+            document.documentElement.classList.toggle('panduan-light', isLight);
+        })();
+        window.togglePanduanTheme = function () {
+            const isLight = document.documentElement.classList.toggle('panduan-light');
+            const val = isLight ? 'light' : 'dark';
+            localStorage.setItem('portal_theme_override', val);
+            localStorage.setItem('rhoe_theme_override', val);
+            const icon = document.getElementById('panduanThemeIcon');
+            if (icon) {
+                icon.className = isLight ? 'fa-solid fa-moon text-slate-700 text-xs' : 'fa-solid fa-sun text-amber-400 text-xs';
+            }
+        };
+    </script>
 </head>
 <body class="min-h-full bg-[#070B1A] text-slate-200 antialiased selection:bg-sky-500/30">
     <!-- Top Navbar -->
@@ -27,6 +95,10 @@
                 </div>
             </a>
             <div class="flex items-center gap-2">
+                <button type="button" onclick="window.togglePanduanTheme()" title="Ganti Mode Terang / Gelap"
+                    class="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors cursor-pointer">
+                    <i id="panduanThemeIcon" class="fa-solid fa-sun text-amber-400 text-xs"></i>
+                </button>
                 <a href="{{ route('portal') }}"
                     class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 transition-colors inline-flex items-center gap-1.5">
                     <i class="fa-solid fa-arrow-left text-[11px]"></i>
