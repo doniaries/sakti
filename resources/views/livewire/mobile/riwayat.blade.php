@@ -17,7 +17,7 @@
         </div>
 
         <!-- Month Navigator -->
-        <div class="relative z-10 -mt-7 mx-5 flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl shadow-lg shadow-sky-950/10 border border-slate-200/80">
+        <div class="relative z-10 -mt-7 mx-5 flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 border border-slate-200/80">
             <button wire:click="prevMonth" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-600 flex items-center justify-center transition-colors">
                 <i class="fa-solid fa-chevron-left text-xs"></i>
             </button>
@@ -29,7 +29,7 @@
     </section>
 
     <!-- Card Hitung Jumlah Kehadiran (Putih Bersih, Selaras Beranda) -->
-    <div class="bg-white text-slate-800 p-4 rounded-2xl shadow-xs mb-5 border border-slate-200/80">
+    <div class="bg-white text-slate-800 p-4 rounded-2xl shadow-md shadow-slate-900/5 mb-5 border border-slate-200/80">
         <div class="flex items-center justify-between mb-3">
             <div class="flex items-center space-x-2">
                 <div class="w-7 h-7 rounded-lg bg-sky-50 flex items-center justify-center text-xs text-sky-600">
@@ -86,34 +86,34 @@
     <!-- Filter Status Tabs (Semua, Hadir, Terlambat, DL, Izin/Sakit, Alpa) -->
     <div class="flex space-x-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
         <button wire:click="setFilter('semua')" 
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'semua' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $filterStatus === 'semua' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
             Semua
         </button>
         <button wire:click="setFilter('hadir')" 
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'hadir' ? 'bg-emerald-600 text-white shadow-emerald-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $filterStatus === 'hadir' ? 'bg-emerald-600 text-white shadow-emerald-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
             Hadir ({{ $rekap['hadir'] }})
         </button>
         <button wire:click="setFilter('terlambat')" 
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'terlambat' ? 'bg-amber-500 text-white shadow-amber-500/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $filterStatus === 'terlambat' ? 'bg-amber-500 text-white shadow-amber-500/30' : 'bg-white text-slate-600 border border-slate-200' }}">
             Terlambat ({{ $rekap['terlambat'] }})
         </button>
         <button wire:click="setFilter('dinas_luar')" 
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'dinas_luar' ? 'bg-sky-500 text-white shadow-sky-500/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $filterStatus === 'dinas_luar' ? 'bg-sky-500 text-white shadow-sky-500/30' : 'bg-white text-slate-600 border border-slate-200' }}">
             Dinas Luar ({{ $rekap['dinas_luar'] }})
         </button>
         <button wire:click="setFilter('izin_sakit')" 
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'izin_sakit' ? 'bg-indigo-600 text-white shadow-indigo-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $filterStatus === 'izin_sakit' ? 'bg-indigo-600 text-white shadow-indigo-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
             Izin & Sakit ({{ $rekap['izin_sakit'] }})
         </button>
         <button wire:click="setFilter('tidak_hadir')" 
-                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $filterStatus === 'tidak_hadir' ? 'bg-rose-600 text-white shadow-rose-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
+                class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $filterStatus === 'tidak_hadir' ? 'bg-rose-600 text-white shadow-rose-600/30' : 'bg-white text-slate-600 border border-slate-200' }}">
             Alpa ({{ $rekap['alpa'] }})
         </button>
     </div>
 
     <!-- Riwayat List Items -->
     @if($riwayat->isEmpty())
-        <div class="bg-white rounded-3xl p-8 text-center border border-slate-100 shadow-xs flex flex-col items-center">
+        <div class="bg-white rounded-3xl p-8 text-center border border-slate-100 shadow-md shadow-slate-900/5 flex flex-col items-center">
             <div class="w-16 h-16 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center text-3xl mb-3">
                 <i class="fa-solid fa-calendar-xmark"></i>
             </div>
@@ -125,7 +125,7 @@
     <!-- Filter Tanggal -->
     <div class="flex items-center gap-2 mb-3">
         <div class="relative flex-1">
-            <div class="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold shadow-xs transition {{ $filterTanggal ? 'text-slate-800 border-amber-300 bg-amber-50/40' : 'text-slate-500' }}">
+            <div class="w-full flex items-center justify-between rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold shadow-md shadow-slate-900/5 transition {{ $filterTanggal ? 'text-slate-800 border-amber-300 bg-amber-50/40' : 'text-slate-500' }}">
                 <span class="flex items-center gap-2">
                     <i class="fa-regular fa-calendar text-amber-500"></i>
                     <span>{{ $filterTanggal ? \Carbon\Carbon::parse($filterTanggal)->translatedFormat('d F Y') : 'Pilih Tanggal...' }}</span>
@@ -174,10 +174,10 @@
                 @endphp
                 
                 <div wire:key="riwayat-{{ $item->id }}" wire:click="bukaDetail({{ $item->id }})"
-                    class="bg-white p-4 rounded-2xl shadow-xs border border-slate-100 cursor-pointer hover:border-sky-300 hover:shadow-md transition active:scale-[0.98] space-y-2.5">
+                    class="bg-white p-4 rounded-2xl shadow-md shadow-slate-900/5 border border-slate-100 cursor-pointer hover:border-sky-300 hover:shadow-md transition active:scale-[0.98] space-y-2.5">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3.5 min-w-0">
-                            <div class="w-11 h-11 rounded-2xl {{ $iconColor }} flex items-center justify-center text-base shadow-xs shrink-0">
+                            <div class="w-11 h-11 rounded-2xl {{ $iconColor }} flex items-center justify-center text-base shadow-md shadow-slate-900/5 shrink-0">
                                 <i class="fa-solid fa-calendar-day"></i>
                             </div>
                             
@@ -236,7 +236,7 @@
                                 </span>
                             </div>
                             <a href="{{ route('mobile.lhk.create', ['tanggal' => $tglKey]) }}" wire:navigate @click.stop
-                               class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold transition active:scale-95 shrink-0 {{ $jumlahKegiatan > 0 ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30' : 'bg-[#1B6CA8] hover:bg-[#155685] text-white shadow-xs' }}">
+                               class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold transition active:scale-95 shrink-0 {{ $jumlahKegiatan > 0 ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30' : 'bg-[#1B6CA8] hover:bg-[#155685] text-white shadow-md shadow-slate-900/5' }}">
                                 <i class="fa-solid {{ $jumlahKegiatan > 0 ? 'fa-pen-to-square' : 'fa-plus' }} text-[10px]"></i>
                                 <span>{{ $jumlahKegiatan > 0 ? 'Edit LHK' : 'Buat LHK' }}</span>
                             </a>

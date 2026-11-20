@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-lg shadow-sky-950/10 space-y-3.5">
+        <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 space-y-3.5">
             <!-- Status Hari Libur / Selesai -->
             @if ($hariLiburHariIni)
                 <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
@@ -108,7 +108,7 @@
                 </span>
                 <div class="flex items-center space-x-1.5">
                     <a href="{{ route('mobile.pengaturan-lokasi') }}" wire:navigate
-                        class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold rounded-lg shadow-xs transition-transform duration-150 ease-out active:scale-[0.96] flex items-center gap-1 cursor-pointer">
+                        class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold rounded-lg shadow-md shadow-slate-900/5 transition-transform duration-150 ease-out active:scale-[0.96] flex items-center gap-1 cursor-pointer">
                         <i class="fa-solid fa-map-location-dot text-[10px]"></i>
                         <span>Atur Peta & Titik</span>
                     </a>
@@ -124,7 +124,7 @@
     </section>
 
     <!-- PETA & TITIK KOORDINAT GPS (LANGSUNG DI ATAS TOMBOL ABSEN) -->
-    <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs mb-4">
+    <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-md shadow-slate-900/5 mb-4">
         <div class="flex items-center justify-between gap-2 mb-2">
             <div class="flex items-center space-x-2 min-w-0">
                 <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs shrink-0">
@@ -195,7 +195,7 @@
 
     <!-- Info Jabatan & PIN Mesin (Polesan Elegan Sesuai Better-UI) -->
     @if (!empty($user->jabatan?->nama) || !empty($user->nomor_absensi))
-        <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs flex items-center justify-between text-xs mb-3">
+        <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-md shadow-slate-900/5 flex items-center justify-between text-xs mb-3">
             <div class="flex items-center space-x-2.5 min-w-0 pr-2">
                 <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-xs shrink-0">
                     <i class="fa-solid fa-id-badge"></i>

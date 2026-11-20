@@ -16,7 +16,7 @@
 
     <!-- Pimpinan Tab Navigation (Mengambang di atas lengkungan) -->
     @if ($isPimpinan)
-        <div class="relative z-10 -mt-10 flex rounded-2xl bg-white p-1.5 mb-5 shadow-lg shadow-sky-950/10 border border-slate-200/80">
+        <div class="relative z-10 -mt-10 flex rounded-2xl bg-white p-1.5 mb-5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 border border-slate-200/80">
             <button type="button" wire:click="setTab('saya')"
                 class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 {{ $activeTab === 'saya' ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
                 <i class="fa-solid fa-user text-[11px]"></i>
@@ -40,9 +40,9 @@
     @if ($activeTab === 'saya')
         <div class="grid grid-cols-3 gap-2 mb-5">
             <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all text-center">
+                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-md shadow-slate-900/5 flex flex-col items-center hover:bg-sky-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base mb-1.5 shadow-md shadow-slate-900/5">
                     <i class="fa-solid fa-envelope-open-text"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700">Izin</span>
@@ -50,9 +50,9 @@
             </a>
 
             <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-rose-50/50 active:scale-95 transition-all text-center">
+                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-md shadow-slate-900/5 flex flex-col items-center hover:bg-rose-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-base mb-1.5 shadow-md shadow-slate-900/5">
                     <i class="fa-solid fa-notes-medical"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700">Sakit</span>
@@ -60,9 +60,9 @@
             </a>
 
             <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate
-                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-xs flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all text-center">
+                class="bg-white p-3 rounded-2xl border border-slate-100 shadow-md shadow-slate-900/5 flex flex-col items-center hover:bg-amber-50/50 active:scale-95 transition-all text-center">
                 <div
-                    class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base mb-1.5 shadow-md shadow-slate-900/5">
                     <i class="fa-solid fa-umbrella-beach"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700">Cuti</span>
@@ -74,19 +74,19 @@
     <!-- Status Tabs Filter -->
     <div class="flex space-x-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
         <button wire:click="setFilter('semua')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $statusFilter === 'semua' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $statusFilter === 'semua' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
             Semua
         </button>
         <button wire:click="setFilter('menunggu')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $statusFilter === 'menunggu' ? 'bg-amber-500 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $statusFilter === 'menunggu' ? 'bg-amber-500 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
             <i class="fa-solid fa-hourglass-half mr-1 text-[10px]"></i> Menunggu
         </button>
         <button wire:click="setFilter('disetujui')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $statusFilter === 'disetujui' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $statusFilter === 'disetujui' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
             <i class="fa-solid fa-circle-check mr-1 text-[10px]"></i> Disetujui
         </button>
         <button wire:click="setFilter('ditolak')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $statusFilter === 'ditolak' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $statusFilter === 'ditolak' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
             <i class="fa-solid fa-circle-xmark mr-1 text-[10px]"></i> Ditolak
         </button>
     </div>
@@ -114,12 +114,12 @@
                 };
             @endphp
             <div wire:click="bukaDetail({{ $item->id }})"
-                class="bg-white rounded-3xl p-4 border border-slate-100 shadow-xs hover:border-sky-300 active:scale-[0.99] cursor-pointer transition-all">
+                class="bg-white rounded-3xl p-4 border border-slate-100 shadow-md shadow-slate-900/5 hover:border-sky-300 active:scale-[0.99] cursor-pointer transition-all">
                 <!-- Header Card: Pegawai (jika Verifikasi) atau Jenis Izin -->
                 <div class="flex items-start justify-between mb-2">
                     <div class="flex items-center space-x-2.5 min-w-0 pr-2">
                         <div
-                            class="w-9 h-9 rounded-xl bg-gradient-to-tr {{ $kategoriColor }} text-white flex items-center justify-center text-sm shadow-xs shrink-0">
+                            class="w-9 h-9 rounded-xl bg-gradient-to-tr {{ $kategoriColor }} text-white flex items-center justify-center text-sm shadow-md shadow-slate-900/5 shrink-0">
                             @if ($item->jenisIzin?->kategori === 'sakit')
                                 <i class="fa-solid fa-notes-medical"></i>
                             @elseif($item->jenisIzin?->kategori === 'cuti')
@@ -244,7 +244,7 @@
                 @endif
             </div>
         @empty
-            <div class="bg-white rounded-3xl p-8 border border-slate-100 text-center shadow-xs">
+            <div class="bg-white rounded-3xl p-8 border border-slate-100 text-center shadow-md shadow-slate-900/5">
                 <div
                     class="w-16 h-16 rounded-full bg-sky-50 text-sky-500 flex items-center justify-center text-2xl mx-auto mb-3 shadow-inner">
                     <i class="fa-solid fa-folder-open"></i>
@@ -345,7 +345,7 @@
                             <i class="fa-solid fa-paperclip"></i> Dokumen Bukti Pendukung
                         </span>
                         <a href="{{ asset('storage/' . $selectedPengajuan->lampiran) }}" target="_blank"
-                            class="px-3 py-1 rounded-xl bg-sky-600 text-white font-extrabold text-[11px] shadow-xs hover:bg-sky-700">
+                            class="px-3 py-1 rounded-xl bg-sky-600 text-white font-extrabold text-[11px] shadow-md shadow-slate-900/5 hover:bg-sky-700">
                             Buka Berkas
                         </a>
                     </div>

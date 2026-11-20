@@ -113,7 +113,7 @@
                 ['route' => 'mobile.persetujuan', 'icon' => 'fa-file-signature', 'label' => 'Persetujuan', 'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400'],
             ];
         @endphp
-        <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3.5 shadow-lg shadow-emerald-950/10">
+        <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3.5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5">
             <div class="grid grid-cols-4 gap-x-2 gap-y-3">
                 @foreach ($layanan as $item)
                     @if (Route::has($item['route']) && (empty($item['module']) || \App\Models\PengaturanAplikasi::isModuleEnabled($item['module'])))
@@ -131,7 +131,7 @@
 
     <!-- 2. COMPACT BENTO METRICS (Jam Kerja Efektif ASN) -->
     <section class="grid grid-cols-2 gap-3">
-        <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-xs">
+        <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-md shadow-slate-900/5">
             <div class="flex items-center justify-between mb-1.5">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Hari Ini</span>
                 <span class="text-[10px] font-extrabold text-sky-600 dark:text-sky-400">{{ $jamKerjaAsn['persen_harian'] }}%</span>
@@ -145,7 +145,7 @@
             </div>
         </div>
 
-        <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-xs">
+        <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-md shadow-slate-900/5">
             <div class="flex items-center justify-between mb-1.5">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Bulan Ini</span>
                 <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">{{ $jamKerjaAsn['persen_bulanan'] }}%</span>
@@ -174,7 +174,7 @@
     </a>
 
     <!-- 5. RIWAYAT ABSEN 7 HARI -->
-    <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-xs">
+    <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-md shadow-slate-900/5">
         <div class="flex items-center justify-between mb-2">
             <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white">Riwayat Absen</h2>
             <a href="{{ route('mobile.riwayat') }}" wire:navigate class="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
