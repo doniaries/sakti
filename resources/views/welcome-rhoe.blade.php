@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-smooth">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url('/') }}">
+    <title>Portal Parpora Sijunjung – SAKTI Parpora | Dinas Pariwisata, Pemuda dan Olahraga</title>
+    <meta name="description" content="Portal Parpora Sijunjung (SAKTI Parpora) – Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.">
+
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#09090b">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+
+    @if (app()->environment('local') && file_exists(public_path('hot')))
+        @vite(['resources/js/app.js'])
+    @endif
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        [x-cloak] { display: none !important; }
+
+        /* Animated Dot Grid Background (Rhoe UI Style) */
+        .rhoe-grid {
+            background-image: radial-gradient(rgba(148, 163, 184, 0.18) 1px, transparent 1px);
+            background-size: 24px 24px;
+            mask-image: radial-gradient(ellipse 80% 60% at 50% 20%, #000 55%, transparent 100%);
+        }
+        html.rhoe-light .rhoe-grid {
+            background-image: radial-gradient(rgba(15, 23, 42, 0.12) 1px, transparent 1px);
+        }
+
+        /* Spotlight Card Effect */
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(420px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(56, 189, 248, 0.16), transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Animated Shimmer Badge */
+        @keyframes shimmerSlide {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .shimmer-border {
+            background: linear-gradient(110deg, rgba(255,255,255,0.06) 30%, rgba(56,189,248,0.28) 50%, rgba(255,255,255,0.06) 70%);
+            background-size: 200% 100%;
+            animation: shimmerSlide 4.5s linear infinite;
+        }
+
+        /* Light Mode Overrides */
+        html.rhoe-light body {
+            background-color: #fafafa !important;
+            color: #09090b !important;
+        }
+        html.rhoe-light .rhoe-surface {
+            background-color: rgba(255, 255, 255, 0.88) !important;
+            border-color: rgba(228, 228, 231, 0.9) !important;
+            color: #09090b !important;
+        }
+        html.rhoe-light .rhoe-muted {
+            color: #52525b !important;
+        }
+        html.rhoe-light .rhoe-heading {
+            background-image: linear-gradient(to bottom, #09090b, #3f3f46) !important;
+        }
+    </style>
+    <script>
+        (function () {
+            const saved = localStorage.getItem('rhoe_theme_override');
+            const hour = new Date().getHours();
+            const isLight = saved ? saved === 'light' : (hour >= 6 && hour < 18);
+            document.documentElement.classList.toggle('rhoe-light', isLight);
+        })();
+        window.toggleRhoeTheme = function () {
+            const isLight = document.documentElement.classList.toggle('rhoe-light');
+            localStorage.setItem('rhoe_theme_override', isLight ? 'light' : 'dark');
+            window.dispatchEvent(new CustomEvent('rhoe-theme-changed', { detail: { light: isLight } }));
+        };
+    </script>
+</head>
+
+@php
+    $portalLinksCollection = collect($portalLinks ?? []);
+    $categories = $portalLinksCollection->pluck('kategori')->filter()->unique()->values();
+@endphp
+
+<body class="bg-[#09090b] text-zinc-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300"
+    x-data="{
+        activeCategory: 'all',
+        searchQuery: '',
+        isLight: document.documentElement.classList.contains('rhoe-light'),
+        matches(cat, title, desc) {
+            const catMatch = this.activeCategory === 'all' || this.activeCategory === cat;
+            if (!this.searchQuery) return catMatch;
+            const q = this.searchQuery.toLowerCase();
+            return catMatch && (title.toLowerCase().includes(q) || desc.toLowerCase().includes(q));
+        }
+    }"
+    @rhoe-theme-changed.window="isLight = $event.detail.light">
+
+    <!-- Background Dot Grid + Subtle Top Aurora -->
+    <div class="fixed inset-0 rhoe-grid pointer-events-none z-0"></div>
+    <div class="fixed -top-24 left-1/2 -translate-x-1/2 w-[680px] h-[280px] bg-gradient-to-r from-sky-500/20 via-indigo-500/20 to-emerald-500/20 blur-[110px] rounded-full pointer-events-none z-0"></div>
+
+    <!-- Top Floating Navbar (Rhoe Minimalist Bar) -->
+    <header class="sticky top-0 z-30 border-b border-white/10 rhoe-surface bg-zinc-950/75 backdrop-blur-xl">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <img src="{{ asset('images/kabupaten-sijunjung.png') }}" alt="Sijunjung" class="w-7 h-7 sm:w-8 sm:h-8 object-contain">
+                <div class="leading-tight">
+                    <div class="text-xs sm:text-sm font-extrabold tracking-tight">PORTAL PARPORA</div>
+                    <div class="text-[10px] rhoe-muted text-zinc-400 hidden sm:block">{{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga' }}</div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('panduan') }}"
+                    class="px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors inline-flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-book-open text-[10px]"></i>
+                    <span>Panduan</span>
+                </a>
+                <a href="{{ url('/admin') }}"
+                    class="px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-semibold rhoe-surface bg-white/10 hover:bg-white/15 border border-white/10 transition-colors inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-to-bracket text-[10px]"></i>
+                    <span>Masuk</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-14 flex-1">
+        <!-- Hero Section -->
+        <section class="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+            <!-- Logos -->
+            <div class="flex items-center justify-center gap-4 mb-5">
+                <img src="{{ asset('images/kabupaten-sijunjung.png') }}" alt="Kabupaten Sijunjung" class="w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow">
+                <img src="{{ asset('images/geopark-silokek.png') }}" alt="Geopark Silokek" class="w-11 h-11 sm:w-14 sm:h-14 object-contain drop-shadow">
+            </div>
+
+            <!-- Shimmer Pill Badge -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full shimmer-border border border-sky-400/30 text-[11px] font-semibold text-sky-400 mb-4">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Pemerintah Kabupaten Sijunjung &bull; Tahun Anggaran {{ \App\Models\PengaturanAplikasi::getTahunAnggaranAktif() }}</span>
+            </div>
+
+            <h1 class="rhoe-heading text-4xl sm:text-6xl font-black tracking-tight leading-[1.08] bg-gradient-to-b from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent mb-3">
+                PORTAL PARPORA
+            </h1>
+            <p class="rhoe-muted text-sm sm:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed mb-6">
+                Portal Layanan Digital Disparpora Sijunjung — Satu Portal untuk Semua Layanan Kepegawaian, Kinerja, SPJ, Aset, dan Informasi Publik.
+            </p>
+
+            <!-- Search Input (Rhoe Command Style) -->
+            <div class="max-w-md mx-auto relative mb-5">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-xs"></i>
+                <input type="text" x-model="searchQuery" placeholder="Cari layanan SAKTI, Presensi, Geopark..."
+                    class="rhoe-surface w-full rounded-2xl bg-zinc-900/80 border border-white/10 pl-10 pr-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/60 transition-all">
+            </div>
+
+            <!-- Category Filter Pills -->
+            @if ($categories->count() > 1)
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                    <button type="button" @click="activeCategory = 'all'"
+                        :class="activeCategory === 'all' ? 'bg-sky-500 text-zinc-950 font-bold border-sky-400' : 'rhoe-surface bg-zinc-900/70 text-zinc-400 border-white/10 hover:border-sky-400/40'"
+                        class="px-3.5 py-1.5 rounded-full text-xs border transition-all cursor-pointer">
+                        Semua ({{ $portalLinksCollection->count() }})
+                    </button>
+                    @foreach ($categories as $cat)
+                        @php
+                            $catName = match ($cat) {
+                                'kepegawaian' => 'Kepegawaian & Presensi',
+                                'kinerja', 'layanan_utama' => 'Kinerja & Mobile',
+                                'administrasi' => 'Panel Admin',
+                                'panduan', 'dokumen_lampiran' => 'Dokumen & Regulasi',
+                                'eksternal' => 'Layanan Eksternal',
+                                default => ucfirst(str_replace('_', ' ', $cat)),
+                            };
+                        @endphp
+                        <button type="button" @click="activeCategory = '{{ $cat }}'"
+                            :class="activeCategory === '{{ $cat }}' ? 'bg-sky-500 text-zinc-950 font-bold border-sky-400' : 'rhoe-surface bg-zinc-900/70 text-zinc-400 border-white/10 hover:border-sky-400/40'"
+                            class="px-3.5 py-1.5 rounded-full text-xs border transition-all cursor-pointer">
+                            {{ $catName }}
+                        </button>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+
+        <!-- Bento Spotlight Card Grid (2 Kolom di Mobile, 3 Kolom di Desktop) -->
+        <section class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+            @foreach ($portalLinksCollection as $link)
+                @php $tokens = $link->style_tokens; @endphp
+                <a href="{{ $link->link_url }}" target="{{ $link->target ?? '_self' }}"
+                    x-show="matches('{{ $link->kategori }}', '{{ addslashes($link->judul) }}', '{{ addslashes($link->deskripsi ?? '') }}')"
+                    x-transition
+                    onmousemove="const r = this.getBoundingClientRect(); this.style.setProperty('--mouse-x', (event.clientX - r.left) + 'px'); this.style.setProperty('--mouse-y', (event.clientY - r.top) + 'px');"
+                    class="spotlight-card rhoe-surface group rounded-2xl sm:rounded-3xl bg-zinc-900/70 border border-white/10 hover:border-sky-400/50 p-4 sm:p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-xl">
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-3 sm:mb-4">
+                            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl {{ $tokens['icon_box'] }} flex items-center justify-center text-base sm:text-xl shadow-md group-hover:scale-105 transition-transform">
+                                <i class="{{ $link->fa_icon }}"></i>
+                            </div>
+                            @if ($link->badge)
+                                <span class="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider {{ $tokens['badge'] }} truncate max-w-[85px] sm:max-w-none">
+                                    {{ $link->badge }}
+                                </span>
+                            @endif
+                        </div>
+                        <h3 class="text-xs sm:text-base font-extrabold tracking-tight leading-snug mb-1.5 line-clamp-2 group-hover:text-sky-400 transition-colors">
+                            {{ $link->judul }}
+                        </h3>
+                        <p class="rhoe-muted text-[11px] sm:text-xs text-zinc-400 leading-relaxed line-clamp-2 sm:line-clamp-3 mb-4">
+                            {{ $link->deskripsi }}
+                        </p>
+                    </div>
+
+                    <div class="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] sm:text-xs font-bold text-sky-400">
+                        <span>Buka Layanan</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
+                    </div>
+                </a>
+            @endforeach
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-white/10 rhoe-surface bg-zinc-950/70 py-5 px-4 text-center text-xs">
+        <p class="font-bold">&copy; {{ date('Y') }} {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung' }}</p>
+        @if (! empty($pengaturan->alamat_kantor))
+            <p class="rhoe-muted text-[11px] text-zinc-400 mt-0.5">{{ $pengaturan->alamat_kantor }}</p>
+        @endif
+        <p class="rhoe-muted text-[10px] text-zinc-500 mt-1">
+            {{ $pengaturan->versi_aplikasi ?? 'v1.0.0' }}
+            @if (! empty($pengaturan->pembuat_aplikasi)) &bull; {{ $pengaturan->pembuat_aplikasi }} @endif
+        </p>
+    </footer>
+
+    <!-- Floating Theme Toggle -->
+    <div class="fixed bottom-5 right-4 z-50 opacity-50 hover:opacity-100 transition-opacity">
+        <button type="button" onclick="window.toggleRhoeTheme()"
+            class="w-10 h-10 rounded-full rhoe-surface bg-zinc-900/80 border border-white/15 shadow-lg flex items-center justify-center cursor-pointer active:scale-90 transition-transform"
+            title="Ganti Mode Terang / Gelap">
+            <i x-show="!isLight" class="fa-solid fa-sun text-amber-400 text-sm"></i>
+            <i x-show="isLight" x-cloak class="fa-solid fa-moon text-zinc-700 text-sm"></i>
+        </button>
+    </div>
+</body>
+</html>

@@ -8,10 +8,13 @@ use App\Livewire\Mobile\Riwayat;
 use App\Livewire\Mobile\Lhk\Index as LhkIndex;
 use App\Livewire\Mobile\Lhk\Form as LhkForm;
 
-Route::get('/', function () {
+Route::get('/', function (\Illuminate\Http\Request $request) {
     $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
     $portalLinks = \App\Models\PortalLink::aktif()->get();
-    return view('welcome', compact('pengaturan', 'portalLinks'));
+    $tema = $request->query('tema', $pengaturan->portal_theme ?? 'default');
+    $view = $tema === 'rhoe' ? 'welcome-rhoe' : 'welcome';
+
+    return view($view, compact('pengaturan', 'portalLinks'));
 })->name('portal');
 
 Route::get('/panduan', fn () => view('panduan'))->name('panduan');

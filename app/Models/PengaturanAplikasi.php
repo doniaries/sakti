@@ -32,6 +32,7 @@ class PengaturanAplikasi extends Model
         'kontak_bantuan',
         'deskripsi',
         'modul_aktif',
+        'portal_theme',
     ];
 
     /**

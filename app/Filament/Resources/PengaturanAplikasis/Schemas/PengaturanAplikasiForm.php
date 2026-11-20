@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PengaturanAplikasis\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -43,6 +44,17 @@ class PengaturanAplikasiForm
                             ->label('Deskripsi / Ringkasan Sistem')
                             ->rows(2)
                             ->placeholder('Sistem Administrasi Kinerja Terintegrasi')
+                            ->columnSpanFull(),
+
+                        Select::make('portal_theme')
+                            ->label('Tema Halaman Depan (Portal)')
+                            ->options([
+                                'default' => 'Default — Portal Parpora (Siang/Malam + Pegunungan & Bintang)',
+                                'rhoe' => 'Modern Animated — Rhoe UI Style (Spotlight & Bento Grid)',
+                            ])
+                            ->default('default')
+                            ->required()
+                            ->helperText('Pilih tema tampilan halaman utama. Pratinjau cepat: /?tema=default atau /?tema=rhoe')
                             ->columnSpanFull(),
                     ]),
 
