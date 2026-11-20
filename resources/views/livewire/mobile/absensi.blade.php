@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <!-- Status Hari Libur / Selesai / Di Luar Radius (Tampil di Atas Tanpa Scroll) -->
+    <!-- Status Hari Libur / Selesai (Hanya tampil jika libur atau sudah selesai) -->
     @if ($hariLiburHariIni)
         <div class="mb-3 p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
             <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
@@ -32,11 +32,6 @@
     @elseif ($sudahMasuk && $sudahPulang)
         <div class="mb-3 p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
             <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
-        </div>
-    @else
-        <div x-show="!isWfh && isWithinRadius === false" x-cloak
-            class="mb-3 p-2.5 rounded-2xl bg-rose-50 dark:bg-rose-500/15 border border-rose-200 dark:border-rose-500/30 text-rose-700 dark:text-rose-300 text-xs font-bold text-center">
-            <i class="fa-solid fa-location-crosshairs mr-1"></i> Anda berada di luar radius kantor (<span x-text="currentDistanceText"></span>). Mendekatlah ke area kantor untuk mengaktifkan tombol absen.
         </div>
     @endif
 
@@ -185,13 +180,22 @@
                 </div>
             </div>
         </template>
-        <template x-if="gpsStatus === 'ok'">
+        <template x-if="gpsStatus === 'ok' && !isWfh && isWithinRadius === false">
+            <div class="mb-2 px-2.5 py-2 rounded-xl bg-rose-500/10 border border-rose-400/35 text-rose-700 dark:text-rose-300 text-[10px] font-bold flex items-center justify-between gap-2">
+                <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-location-crosshairs text-rose-500 shrink-0"></i>
+                    <span>Di luar radius kantor (<span x-text="currentDistanceText"></span>) &bull; Mendekatlah ke kantor</span>
+                </span>
+                <span class="font-mono opacity-80 shrink-0" x-text="gpsAccuracy ? '±' + gpsAccuracy + 'm' : ''"></span>
+            </div>
+        </template>
+        <template x-if="gpsStatus === 'ok' && (isWfh || isWithinRadius !== false)">
             <div class="mb-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold flex items-center justify-between">
                 <span class="flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                    <span>GPS Browser Aktif &amp; OK</span>
+                    <span x-text="isWfh ? 'Mode WFH Aktif &bull; Siap Presensi' : 'Dalam Radius Kantor &bull; Siap Presensi'"></span>
                 </span>
-                <span class="font-mono opacity-85" x-text="gpsAccuracy ? 'Akurasi ±' + gpsAccuracy + ' m' : 'Siap Presensi'"></span>
+                <span class="font-mono opacity-85" x-text="gpsAccuracy ? 'Akurasi ±' + gpsAccuracy + ' m' : 'Siap'"></span>
             </div>
         </template>
 
@@ -227,25 +231,31 @@
         </div>
     @endif
 
-    <!-- TOMBOL ABSEN MELAYANG (FLOATING 1-TAP PILL SAAT SIAP ABSEN & DALAM RADIUS) -->
+    <!-- TOMBOL ABSEN MELAYANG (SAMAR & NONAKTIF DI LUAR RADIUS, JELAS & AKTIF DI DALAM RADIUS) -->
     @if (!$hariLiburHariIni && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
-        <div x-show="isWfh || isWithinRadius === true" x-cloak x-transition
-            class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
-            <button type="button" @click="doPunch('masuk')" :disabled="loadingMasuk"
-                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-xl shadow-emerald-600/35 border border-white/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer disabled:opacity-60">
+        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <button type="button" @click="doPunch('masuk')"
+                :disabled="loadingMasuk || (!isWfh && isWithinRadius !== true)"
+                :class="(!isWfh && isWithinRadius !== true)
+                    ? 'opacity-40 grayscale cursor-not-allowed'
+                    : 'opacity-100 cursor-pointer active:scale-95 hover:from-emerald-500 hover:to-teal-400'"
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-extrabold text-xs shadow-xl shadow-emerald-600/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
                 <i x-show="!loadingMasuk" class="fa-solid fa-fingerprint text-sm"></i>
                 <i x-show="loadingMasuk" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
-                <span x-text="loadingMasuk ? 'Memproses Absen Datang...' : 'Tap Absen Datang Sekarang'"></span>
+                <span x-text="loadingMasuk ? 'Memproses Absen Datang...' : ((!isWfh && isWithinRadius !== true) ? 'Absen Datang (Di Luar Radius)' : 'Tap Absen Datang Sekarang')"></span>
             </button>
         </div>
     @elseif ($sudahMasuk && !$sudahPulang && !$belumJamPulang && !$lewatBatasPulang)
-        <div x-show="isWfh || isWithinRadius === true" x-cloak x-transition
-            class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
-            <button type="button" @click="doPunch('pulang')" :disabled="loadingPulang"
-                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs shadow-xl shadow-amber-500/35 border border-white/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer disabled:opacity-60">
+        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <button type="button" @click="doPunch('pulang')"
+                :disabled="loadingPulang || (!isWfh && isWithinRadius !== true)"
+                :class="(!isWfh && isWithinRadius !== true)
+                    ? 'opacity-40 grayscale cursor-not-allowed'
+                    : 'opacity-100 cursor-pointer active:scale-95 hover:from-amber-400 hover:to-orange-400'"
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-xs shadow-xl shadow-amber-500/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
                 <i x-show="!loadingPulang" class="fa-solid fa-fingerprint text-sm"></i>
                 <i x-show="loadingPulang" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
-                <span x-text="loadingPulang ? 'Memproses Absen Pulang...' : 'Tap Absen Pulang Sekarang'"></span>
+                <span x-text="loadingPulang ? 'Memproses Absen Pulang...' : ((!isWfh && isWithinRadius !== true) ? 'Absen Pulang (Di Luar Radius)' : 'Tap Absen Pulang Sekarang')"></span>
             </button>
         </div>
     @endif
