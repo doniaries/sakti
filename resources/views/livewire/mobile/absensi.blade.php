@@ -161,6 +161,60 @@
         @endif
     </div>
 
+    <!-- PETA & TITIK KOORDINAT GPS (LANGSUNG DI ATAS TOMBOL ABSEN) -->
+    <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs mb-4">
+        <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center space-x-2 min-w-0">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs shrink-0">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div class="min-w-0">
+                    <span class="text-xs font-extrabold text-slate-800 block leading-tight">Peta & Lokasi (GPS)</span>
+                    <span class="text-[10px] font-mono text-slate-500 block truncate" x-text="userCoordsText ? userCoordsText : 'Mencari koordinat...'"></span>
+                </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold border"
+                    :class="isWithinRadius === false ? 'bg-rose-500/15 text-rose-500 border-rose-400/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-400/30'"
+                    x-text="currentDistanceText"></span>
+                <button type="button" @click="detectPosition(true)"
+                    class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-crosshairs text-[10px]"></i>
+                    <span>Perbarui</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Banner Status GPS Browser -->
+        <template x-if="gpsStatus === 'blocked'">
+            <div class="mb-2 p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-700 dark:text-rose-200 text-[11px] flex items-center justify-between gap-2">
+                <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
+                    <span><strong>GPS Browser belum aktif!</strong> Izinkan akses Lokasi pada browser (ikon gembok/setelan di address bar), lalu tekan <strong>Perbarui</strong>.</span>
+                </div>
+            </div>
+        </template>
+        <template x-if="gpsStatus === 'ok'">
+            <div class="mb-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold flex items-center justify-between">
+                <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
+                    <span>GPS Browser Aktif &amp; OK</span>
+                </span>
+                <span class="font-mono opacity-85" x-text="gpsAccuracy ? 'Akurasi ±' + gpsAccuracy + ' m' : 'Siap Presensi'"></span>
+            </div>
+        </template>
+
+        <div wire:ignore id="absensi-map" class="w-full h-44 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/60 bg-slate-900 z-10"></div>
+
+        <div class="flex items-center justify-between mt-2 text-[10px]">
+            <span class="text-slate-500 flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                Batas Radius Kantor: <strong class="text-slate-700">{{ $maxRadius }} m</strong>
+            </span>
+            <span class="text-slate-400 font-medium">Pin Biru = Posisi Anda</span>
+        </div>
+    </div>
+
     <!-- KARTU UTAMA PRESENSI (2 KOLOM SEJAJAR: ABSEN DATANG & ABSEN PULANG) -->
     <div class="grid grid-cols-2 gap-3 mb-4">
         <!-- 1. KARTU ABSEN DATANG -->
@@ -351,61 +405,30 @@
         </div>
     @endif
 
-    <!-- Peta & Titik Koordinat GPS -->
-    <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-xs mb-4">
-        <div class="flex items-center justify-between gap-2 mb-2">
-            <div class="flex items-center space-x-2 min-w-0">
-                <div class="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xs shrink-0">
-                    <i class="fa-solid fa-map-location-dot"></i>
-                </div>
-                <div class="min-w-0">
-                    <span class="text-xs font-extrabold text-slate-800 block leading-tight">Peta & Lokasi (GPS)</span>
-                    <span class="text-[10px] font-mono text-slate-500 block truncate" x-text="userCoordsText ? userCoordsText : 'Mencari koordinat...'"></span>
-                </div>
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-                <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold border"
-                    :class="isWithinRadius === false ? 'bg-rose-500/15 text-rose-500 border-rose-400/30' : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-400/30'"
-                    x-text="currentDistanceText"></span>
-                <button type="button" @click="detectPosition(true)"
-                    class="px-2.5 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-[10px] font-bold flex items-center gap-1 transition active:scale-95 cursor-pointer">
-                    <i class="fa-solid fa-crosshairs text-[10px]"></i>
-                    <span>Perbarui</span>
-                </button>
-            </div>
+    <!-- TOMBOL ABSEN MELAYANG (FLOATING 1-TAP PILL SAAT SIAP ABSEN & DALAM RADIUS) -->
+    @if (!$hariLiburHariIni && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
+        <div x-show="modeSimulasi || isWfh || isWithinRadius === true" x-cloak x-transition
+            class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <button type="button" @click="doPunch('masuk')" :disabled="loadingMasuk"
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-xl shadow-emerald-600/35 border border-white/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer disabled:opacity-60">
+                <i x-show="!loadingMasuk" class="fa-solid fa-fingerprint text-sm"></i>
+                <i x-show="loadingMasuk" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+                <span x-text="loadingMasuk ? 'Memproses Absen Datang...' : 'Tap Absen Datang Sekarang'"></span>
+            </button>
         </div>
-
-        <!-- Banner Status GPS Browser -->
-        <template x-if="gpsStatus === 'blocked'">
-            <div class="mb-2 p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-700 dark:text-rose-200 text-[11px] flex items-center justify-between gap-2">
-                <div class="flex items-start gap-2">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
-                    <span><strong>GPS Browser belum aktif!</strong> Izinkan akses Lokasi pada browser (ikon gembok/setelan di address bar), lalu tekan <strong>Perbarui</strong>.</span>
-                </div>
-            </div>
-        </template>
-        <template x-if="gpsStatus === 'ok'">
-            <div class="mb-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold flex items-center justify-between">
-                <span class="flex items-center gap-1.5">
-                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                    <span>GPS Browser Aktif &amp; OK</span>
-                </span>
-                <span class="font-mono opacity-85" x-text="gpsAccuracy ? 'Akurasi ±' + gpsAccuracy + ' m' : 'Siap Presensi'"></span>
-            </div>
-        </template>
-
-        <div wire:ignore id="absensi-map" class="w-full h-44 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/60 bg-slate-900 z-10"></div>
-
-        <div class="flex items-center justify-between mt-2 text-[10px]">
-            <span class="text-slate-500 flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-                Batas Radius Kantor: <strong class="text-slate-700">{{ $maxRadius }} m</strong>
-            </span>
-            <span class="text-slate-400 font-medium">Pin Biru = Posisi Anda</span>
+    @elseif ($sudahMasuk && !$sudahPulang && !$belumJamPulang && !$lewatBatasPulang)
+        <div x-show="modeSimulasi || isWfh || isWithinRadius === true" x-cloak x-transition
+            class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <button type="button" @click="doPunch('pulang')" :disabled="loadingPulang"
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs shadow-xl shadow-amber-500/35 border border-white/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer disabled:opacity-60">
+                <i x-show="!loadingPulang" class="fa-solid fa-fingerprint text-sm"></i>
+                <i x-show="loadingPulang" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
+                <span x-text="loadingPulang ? 'Memproses Absen Pulang...' : 'Tap Absen Pulang Sekarang'"></span>
+            </button>
         </div>
-    </div>
+    @endif
 
-    <div class="flex flex-col items-center mt-auto pt-1 pb-1 text-slate-400 text-center">
+    <div class="flex flex-col items-center mt-auto pt-1 pb-16 text-slate-400 text-center">
         <p class="text-[10px] text-slate-400">Akurasi GPS tinggi diwajibkan untuk presensi kedinasan.</p>
     </div>
 
