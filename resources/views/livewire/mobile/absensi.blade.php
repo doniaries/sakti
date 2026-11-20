@@ -233,8 +233,8 @@
                     </button>
                 @else
                     <button type="button" @click="doPunch('masuk')"
-                        :disabled="loadingMasuk || (!{{ $modeSimulasi ? 'true' : 'false' }} && !isWfh && isWithinRadius === false)"
-                        :class="(!{{ $modeSimulasi ? 'true' : 'false' }} && !isWfh && isWithinRadius === false) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
+                        :disabled="loadingMasuk || (!isWfh && isWithinRadius !== true)"
+                        :class="(!isWfh && isWithinRadius !== true) ? 'opacity-50 cursor-not-allowed filter grayscale' : 'cursor-pointer'"
                         class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs shadow-md shadow-emerald-600/20 enabled:active:scale-[0.96] transition-transform duration-150 ease-out disabled:scale-100 flex items-center justify-center space-x-1.5">
                         <template x-if="loadingMasuk">
                             <i class="fa-solid fa-circle-notch fa-spin text-xs"></i>
@@ -360,7 +360,7 @@
 
     <!-- TOMBOL ABSEN MELAYANG (FLOATING 1-TAP PILL SAAT SIAP ABSEN & DALAM RADIUS) -->
     @if (!$hariLiburHariIni && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
-        <div x-show="modeSimulasi || isWfh || isWithinRadius === true" x-cloak x-transition
+        <div x-show="isWfh || isWithinRadius === true" x-cloak x-transition
             class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <button type="button" @click="doPunch('masuk')" :disabled="loadingMasuk"
                 class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-xs shadow-xl shadow-emerald-600/35 border border-white/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer disabled:opacity-60">
@@ -370,7 +370,7 @@
             </button>
         </div>
     @elseif ($sudahMasuk && !$sudahPulang && !$belumJamPulang && !$lewatBatasPulang)
-        <div x-show="modeSimulasi || isWfh || isWithinRadius === true" x-cloak x-transition
+        <div x-show="isWfh || isWithinRadius === true" x-cloak x-transition
             class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <button type="button" @click="doPunch('pulang')" :disabled="loadingPulang"
                 class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-extrabold text-xs shadow-xl shadow-amber-500/35 border border-white/25 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer disabled:opacity-60">

@@ -61,7 +61,7 @@ class AttendancePunchService
         $isWfh = ($user->status_kerja === 'wfh');
         $distance = self::calculateDistance($officeLat, $officeLng, $lat, $lng);
 
-        if (!$isWfh && !$bypass && $distance > $maxRadius) {
+        if (!$isWfh && !$force && $distance > $maxRadius) {
             $distMeters = round($distance);
             return [
                 'success' => false,
