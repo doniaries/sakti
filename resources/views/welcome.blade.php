@@ -1199,10 +1199,37 @@
             scheduleNextComet();
         })();
     </script>
-    <!-- Floating Light / Dark Theme Toggle Button -->
-    <div x-data="{ isLight: document.documentElement.classList.contains('portal-light') }"
+    <!-- Floating Action Buttons: Scroll Up/Down + Light/Dark Theme -->
+    <div x-data="{
+            isLight: document.documentElement.classList.contains('portal-light'),
+            scrolled: false,
+            checkScroll() {
+                this.scrolled = window.scrollY > 180;
+            },
+            scrollAction() {
+                if (this.scrolled) {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+                }
+            }
+        }"
+        x-init="checkScroll()"
+        @scroll.window="checkScroll()"
         @portal-theme-changed.window="isLight = $event.detail.light"
-        class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50">
+        class="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-50 flex items-center gap-2.5">
+        <!-- Scroll Up / Down Button -->
+        <button type="button" @click="scrollAction()"
+            :title="scrolled ? 'Kembali ke Atas' : 'Gulir ke Bawah'"
+            :class="isLight
+                ? 'bg-white/95 text-sky-600 border-slate-300/80 hover:bg-white shadow-slate-900/15'
+                : 'bg-slate-900/90 text-sky-300 border-sky-400/30 hover:bg-slate-800 shadow-sky-500/20'"
+            class="w-11 h-11 md:w-12 md:h-12 rounded-full border backdrop-blur-md shadow-xl flex items-center justify-center transition-all duration-300 active:scale-90 cursor-pointer">
+            <i x-show="!scrolled" class="fa-solid fa-arrow-down text-sm md:text-base animate-bounce"></i>
+            <i x-show="scrolled" x-cloak class="fa-solid fa-arrow-up text-sm md:text-base animate-bounce"></i>
+        </button>
+
+        <!-- Light / Dark Theme Toggle Button -->
         <button type="button" onclick="window.togglePortalTheme()"
             :title="isLight ? 'Beralih ke Mode Gelap (Malam)' : 'Beralih ke Mode Terang (Siang)'"
             :class="isLight
