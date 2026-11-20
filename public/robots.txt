@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /livewire/
 
-Sitemap: https://sakti.sijunjung.go.id/sitemap.xml
+Sitemap: https://sakti.sijunjung.cloud/sitemap.xml
