@@ -49,30 +49,30 @@
         </div>
 
         <div class="grid grid-cols-3 gap-1.5 text-center">
-            <div class="bg-emerald-50/70 rounded-xl py-1.5 px-1 border border-emerald-200/60">
+            <button type="button" wire:click="$set('filterStatus', 'hadir')" class="bg-emerald-50/70 rounded-xl py-1.5 px-1 border border-emerald-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-emerald-600 block leading-tight">{{ $rekap['hadir'] }}</span>
                 <span class="text-[9px] font-bold text-emerald-700 uppercase tracking-tight">Hadir</span>
-            </div>
-            <div class="bg-amber-50/70 rounded-xl py-1.5 px-1 border border-amber-200/60">
+            </button>
+            <button type="button" wire:click="$set('filterStatus', 'terlambat')" class="bg-amber-50/70 rounded-xl py-1.5 px-1 border border-amber-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-amber-600 block leading-tight">{{ $rekap['terlambat'] }}</span>
                 <span class="text-[9px] font-bold text-amber-700 uppercase tracking-tight">Telat</span>
-            </div>
-            <div class="bg-sky-50/70 rounded-xl py-1.5 px-1 border border-sky-200/60">
+            </button>
+            <button type="button" wire:click="$set('filterStatus', 'dinas_luar')" class="bg-sky-50/70 rounded-xl py-1.5 px-1 border border-sky-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-sky-600 block leading-tight">{{ $rekap['dinas_luar'] }}</span>
                 <span class="text-[9px] font-bold text-sky-700 uppercase tracking-tight">DL</span>
-            </div>
-            <div class="bg-indigo-50/70 rounded-xl py-1.5 px-1 border border-indigo-200/60">
+            </button>
+            <a href="{{ route('mobile.izin.index') }}" wire:navigate class="bg-indigo-50/70 rounded-xl py-1.5 px-1 border border-indigo-200/60 cursor-pointer active:scale-95 transition text-center block">
                 <span class="text-base font-black text-indigo-600 block leading-tight">{{ $rekap['izin_sakit'] }}</span>
                 <span class="text-[9px] font-bold text-indigo-700 uppercase tracking-tight">Izin</span>
-            </div>
-            <div class="bg-violet-50/70 rounded-xl py-1.5 px-1 border border-violet-200/60">
+            </a>
+            <a href="{{ route('mobile.izin.index') }}" wire:navigate class="bg-violet-50/70 rounded-xl py-1.5 px-1 border border-violet-200/60 cursor-pointer active:scale-95 transition text-center block">
                 <span class="text-base font-black text-violet-600 block leading-tight">{{ $rekap['cuti'] }}</span>
                 <span class="text-[9px] font-bold text-violet-700 uppercase tracking-tight">Cuti</span>
-            </div>
-            <div class="bg-rose-50/70 rounded-xl py-1.5 px-1 border border-rose-200/60">
+            </a>
+            <button type="button" wire:click="$set('filterStatus', 'tidak_hadir')" class="bg-rose-50/70 rounded-xl py-1.5 px-1 border border-rose-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-rose-600 block leading-tight">{{ $rekap['alpa'] }}</span>
                 <span class="text-[9px] font-bold text-rose-700 uppercase tracking-tight">Alpa</span>
-            </div>
+            </button>
         </div>
 
         <!-- Rekap Jam Kerja ASN Bulanan (7j 30m/hari • 37j 30m/minggu) -->
