@@ -484,13 +484,13 @@
         <div class="bottom-nav-wrapper">
             <nav class="bottom-nav">
                 <!-- 1. Beranda (Halaman Awal) -->
-                <a href="{{ route('mobile.dashboard') }}" class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}" wire:navigate>
+                <a href="{{ route('mobile.dashboard') }}" class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}" wire:navigate.hover>
                     <i class="fa-solid fa-house"></i>
                     <span>Beranda</span>
                 </a>
 
                 <!-- 2. Riwayat & LHK -->
-                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
+                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate.hover>
                     <i class="fa-solid fa-calendar-days"></i>
                     <span>Riwayat</span>
                 </a>
@@ -498,7 +498,7 @@
                 <!-- 3. TOMBOL NAVIGASI PRESENSI TENGAH -->
                 <div class="center-absen-btn-wrapper">
                     <a href="{{ route('mobile.absensi') }}" 
-                       wire:navigate
+                       wire:navigate.hover
                        class="center-absen-btn group ring-4 ring-amber-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-amber-400 shadow-amber-500/30' : '' }}"
                        title="Halaman Presensi Kehadiran">
                         <i class="fa-solid fa-fingerprint"></i>
@@ -507,13 +507,13 @@
                 </div>
 
                 <!-- 4. Izin & Cuti -->
-                <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate>
+                <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate.hover>
                     <i class="fa-solid fa-envelope-open-text"></i>
                     <span>Izin</span>
                 </a>
 
                 <!-- 5. Profil (Halaman sama dengan data pegawai Filament & bisa diedit) -->
-                <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate>
+                <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate.hover>
                     <i class="fa-solid fa-circle-user"></i>
                     <span>Profil</span>
                 </a>

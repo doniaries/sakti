@@ -45,7 +45,7 @@
         </div>
         <div class="flex items-center space-x-1.5">
             <!-- Notifikasi Terintegrasi Filament & Mobile -->
-            <div class="relative" x-data="{ openNotif: false }" @keydown.escape.window="openNotif = false" wire:poll.5s>
+            <div class="relative" x-data="{ openNotif: false }" @keydown.escape.window="openNotif = false" wire:poll.visible.30s>
                 <button type="button" @click="openNotif = !openNotif"
                     class="relative w-9 h-9 rounded-xl bg-white dark:bg-white/10 text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 border border-slate-200 dark:border-white/15 shadow-xs flex items-center justify-center transition cursor-pointer"
                     title="Notifikasi">
