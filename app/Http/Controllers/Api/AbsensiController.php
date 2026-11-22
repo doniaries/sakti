@@ -8,6 +8,7 @@ use App\Models\HariLibur;
 use App\Models\JadwalKerja;
 use App\Models\LogAbsensi;
 use App\Models\PengaturanAplikasi;
+use App\Services\AttendancePunchService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\URL;
@@ -262,65 +263,44 @@ class AbsensiController extends Controller
             ], 422);
         }
 
-        // ── 2. Cek absensi hari ini ───────────────────────────────────────────
+        // ── 2. Delegasikan ke AttendancePunchService (sama persis dengan PWA) ──
         $absensiHarian = AbsensiHarian::where('user_id', $user->id)
             ->whereDate('tanggal', today())
             ->first();
 
-        $jenis = ($absensiHarian?->log_masuk_id === null) ? 'masuk' : 'pulang';
+        $sudahMasuk = $absensiHarian && (! empty($absensiHarian->jam_masuk) || $absensiHarian->log_masuk_id !== null);
+        $sudahPulang = $absensiHarian && (! empty($absensiHarian->jam_pulang) || $absensiHarian->log_pulang_id !== null);
 
-        // Jika sudah lengkap, tolak
-        if ($absensiHarian?->log_masuk_id && $absensiHarian?->log_pulang_id) {
+        if ($sudahMasuk && $sudahPulang) {
             return response()->json([
                 'success' => false,
                 'message' => 'Absensi hari ini sudah lengkap (Masuk & Pulang).',
             ], 422);
         }
 
-        // ── 3. Buat LogAbsensi ───────────────────────────────────────────────
-        $log = LogAbsensi::create([
-            'user_id'           => $user->id,
-            'waktu_absensi'     => now(),
-            'jenis'             => $jenis,
-            'perangkat'         => 'mobile',
-            'metode_verifikasi' => 'gps',
-            'sumber'            => 'Mobile App',
-            'data_asli'         => [
-                'latitude'  => $request->latitude,
-                'longitude' => $request->longitude,
-                'jarak_m'   => $jarakMeter,
-            ],
-        ]);
+        $jenis = $sudahMasuk ? 'pulang' : 'masuk';
+        $result = AttendancePunchService::punch(
+            $user,
+            $jenis,
+            (float) $request->latitude,
+            (float) $request->longitude,
+            false
+        );
 
-        // ── 4. Upsert AbsensiHarian ──────────────────────────────────────────
-        $kehadiranTipe = ($user->status_kerja === 'wfh') ? 'wfh' : 'wfo';
-
-        if ($jenis === 'masuk') {
-            $absensiHarian = AbsensiHarian::updateOrCreate(
-                ['user_id' => $user->id, 'tanggal' => today()],
-                [
-                    'log_masuk_id'    => $log->id,
-                    'jam_masuk'       => now()->format('H:i:s'),
-                    'status'          => 'hadir',
-                    'jenis_kehadiran' => $kehadiranTipe,
-                    'jadwal_kerja_id' => $user->jadwal_kerja_id,
-                ]
-            );
-        } else {
-            $absensiHarian->update([
-                'log_pulang_id'   => $log->id,
-                'jam_pulang'      => now()->format('H:i:s'),
-                'jenis_kehadiran' => $absensiHarian->jenis_kehadiran ?? $kehadiranTipe,
-            ]);
+        if (! ($result['success'] ?? false)) {
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'Presensi gagal diproses.',
+            ], 422);
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Absensi ' . ($jenis === 'masuk' ? 'Masuk' : 'Pulang') . ' berhasil dicatat.',
+            'message' => $result['message'] ?? ('Absensi ' . ($jenis === 'masuk' ? 'Masuk' : 'Pulang') . ' berhasil dicatat.'),
             'data'    => [
-                'jenis'    => $jenis,
-                'waktu'    => $log->waktu_absensi->format('H:i:s'),
-                'jarak_m'  => $jarakMeter,
+                'jenis'   => $jenis,
+                'waktu'   => now()->format('H:i:s'),
+                'jarak_m' => $jarakMeter,
             ],
         ]);
     }
