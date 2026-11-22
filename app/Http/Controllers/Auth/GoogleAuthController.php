@@ -29,7 +29,10 @@ class GoogleAuthController extends Controller
             session(['google_auth_device_name' => (string) $request->query('device_name')]);
         }
 
-        return Socialite::driver('google')->redirect();
+        /** @var \Laravel\Socialite\Two\GoogleProvider $provider */
+        $provider = Socialite::driver('google');
+
+        return $provider->redirectUrl(url('/auth/google/callback'))->redirect();
     }
 
     /**
@@ -47,8 +50,10 @@ class GoogleAuthController extends Controller
         };
 
         try {
+            /** @var \Laravel\Socialite\Two\GoogleProvider $provider */
+            $provider = Socialite::driver('google');
             /** @var \Laravel\Socialite\Two\User $googleUser */
-            $googleUser = Socialite::driver('google')->user();
+            $googleUser = $provider->redirectUrl(url('/auth/google/callback'))->user();
         } catch (Throwable $e) {
             Log::warning('Google OAuth callback failed: ' . $e->getMessage());
 
