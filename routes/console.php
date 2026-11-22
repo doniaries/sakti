@@ -23,7 +23,7 @@ Artisan::command('inspire', function () {
     $deletedAbsensi = \Illuminate\Support\Facades\DB::table('absensi_harian')
         ->where('keterangan', 'Simulasi 6 Bulan')
         ->delete();
-    $deletedIzin = \Illuminate\Support\Facades\DB::table('pengajuan_izin')
+    $deletedIzin = \Illuminate\Support\Facades\DB::table('pengajuan_izins')
         ->where('alasan', 'Simulasi 6 Bulan - Keperluan Pribadi')
         ->delete();
     $this->info("Cleanup selesai: {$deletedAbsensi} absensi_harian & {$deletedIzin} pengajuan_izin dihapus.");

@@ -97,7 +97,7 @@ class SimulasiEnamBulanSeeder extends Seeder
         }
 
         foreach (array_chunk($izinRows, 500) as $chunk) {
-            DB::table('pengajuan_izin')->insert($chunk);
+            DB::table('pengajuan_izins')->insert($chunk);
         }
 
         $this->command?->info(
