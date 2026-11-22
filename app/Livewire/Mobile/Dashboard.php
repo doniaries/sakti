@@ -161,16 +161,25 @@ class Dashboard extends Component
         $belumJamPulang = (!$isAdmin && $nowTime < $jamPulangResmi);
         $lewatBatasPulang = (!$isAdmin && $sudahMasuk && !$sudahPulang && $nowTime > $tutupPulang);
 
-        $absensi7Hari = AbsensiHarian::query()
+        $workdays = [];
+        $cursor = $today->copy();
+        while (count($workdays) < 10) {
+            if ($cursor->isWeekday()) {
+                $workdays[] = $cursor->copy();
+            }
+            $cursor->subDay();
+        }
+
+        $oldestWorkday = end($workdays);
+        $absensi10Hari = AbsensiHarian::query()
             ->where('user_id', $user->id)
-            ->whereBetween('tanggal', [$today->copy()->subDays(6)->format('Y-m-d'), $today->format('Y-m-d')])
+            ->whereBetween('tanggal', [$oldestWorkday->format('Y-m-d'), $today->format('Y-m-d')])
             ->get()
             ->keyBy(fn (AbsensiHarian $a) => \Illuminate\Support\Carbon::parse($a->tanggal)->format('Y-m-d'));
 
         $riwayat7Hari = [];
-        for ($i = 0; $i <= 6; $i++) {
-            $date = $today->copy()->subDays($i);
-            $absen = $absensi7Hari->get($date->format('Y-m-d'));
+        foreach ($workdays as $date) {
+            $absen = $absensi10Hari->get($date->format('Y-m-d'));
 
             $riwayat7Hari[] = [
                 'hari' => $date->translatedFormat('l'),

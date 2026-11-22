@@ -532,9 +532,9 @@
         </div>
     </div>
 
-    <!-- Grafik Sederhana 7 Hari -->
-    <h3 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight mb-2.5 px-0.5">Kehadiran 7 Hari
-        Terakhir</h3>
+    <!-- Grafik Sederhana 10 Hari Kerja -->
+    <h3 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight mb-2.5 px-0.5">Kehadiran 10 Hari
+        Kerja Terakhir</h3>
     <div
         class="bg-white dark:bg-[#132338]/90 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs h-36 flex items-end justify-between gap-1.5">
         @foreach ($riwayat7Hari as $item)
