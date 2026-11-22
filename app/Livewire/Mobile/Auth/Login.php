@@ -38,9 +38,7 @@ class Login extends Component
         $this->validate();
 
         $email = strtolower(trim($this->email));
-        $user = \App\Models\User::query()
-            ->whereRaw('LOWER(email) = ?', [$email])
-            ->first();
+        $user = \App\Models\User::findByLoginEmail($email);
 
         if (! $user) {
             $this->addError('email', "Email ({$email}) tidak terdaftar atau berbeda dengan email akun Anda. Silakan periksa kembali atau hubungi Admin Kepegawaian.");

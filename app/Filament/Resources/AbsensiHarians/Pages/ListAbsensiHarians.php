@@ -92,7 +92,7 @@ class ListAbsensiHarians extends ListRecords
                     $userId = $data['user_id'] ?? null;
 
                     $query = AbsensiHarian::query()
-                        ->with('user:id,name,nip')
+                        ->with('user:id,name,nip,email_resmi')
                         ->whereYear('tanggal', $tahun)
                         ->whereMonth('tanggal', $bulan)
                         ->whereHas('user', fn ($q) => $q->whereNotNull('nip')->where('nip', '!=', ''));
@@ -136,6 +136,7 @@ class ListAbsensiHarians extends ListRecords
                             return [
                                 'nip' => $nipClean,
                                 'nama' => (string) $row->user?->name,
+                                'email_resmi' => $row->user?->email_resmi,
                                 'tanggal' => $row->tanggal?->format('Y-m-d'),
                                 'keterangan_id' => $keteranganId,
                                 'keterangan_label' => $status?->getLabel() ?? 'Hadir',

@@ -96,6 +96,14 @@ class UsersTable
                             })
                     ),
 
+                \Filament\Tables\Columns\TextColumn::make('email_resmi')
+                    ->label('Email Resmi')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
 
                 /*  \Filament\Tables\Columns\TextColumn::make('nomor_absensi')
                     ->label('ID Mesin')

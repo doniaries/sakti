@@ -94,11 +94,9 @@ class GoogleAuthController extends Controller
             return redirect()->to($failRedirect);
         }
 
-        // Cari user STRICT berdasarkan email terdaftar agar email Google yang berbeda tidak bisa masuk
+        // Cari user berdasarkan email utama atau email resmi (@sijunjung.go.id)
         /** @var User|null $user */
-        $user = User::query()
-            ->whereRaw('LOWER(email) = ?', [$googleEmail])
-            ->first();
+        $user = User::findByLoginEmail($googleEmail);
 
         if (! $user) {
             $linkedWithDifferentEmail = User::query()

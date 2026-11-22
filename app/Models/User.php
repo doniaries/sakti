@@ -39,6 +39,24 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
+     * Cari user berdasarkan email login utama atau email resmi (@sijunjung.go.id).
+     */
+    public static function findByLoginEmail(string $email): ?self
+    {
+        $normalized = strtolower(trim($email));
+        if ($normalized === '') {
+            return null;
+        }
+
+        return static::query()
+            ->where(function ($query) use ($normalized): void {
+                $query->whereRaw('LOWER(email) = ?', [$normalized])
+                    ->orWhereRaw('LOWER(email_resmi) = ?', [$normalized]);
+            })
+            ->first();
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
@@ -46,6 +64,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     protected $fillable = [
         'name',
         'email',
+        'email_resmi',
         'password',
         'nip',
         'status_kepegawaian',

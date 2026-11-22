@@ -49,6 +49,7 @@ class UserInfolist
                             ->fillForm(fn($record): array => [
                                 'name' => $record->name,
                                 'email' => $record->email,
+                                'email_resmi' => $record->email_resmi,
                             ])
                             ->schema([
                                 TextInput::make('name')
@@ -63,6 +64,13 @@ class UserInfolist
                                     ->required()
                                     ->unique('users', 'email', ignoreRecord: true)
                                     ->maxLength(255),
+                                TextInput::make('email_resmi')
+                                    ->label('Email Resmi (@sijunjung.go.id)')
+                                    ->email()
+                                    ->placeholder('Contoh: doniaries@sijunjung.go.id')
+                                    ->unique('users', 'email_resmi', ignoreRecord: true)
+                                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? strtolower(trim($state)) : null)
+                                    ->maxLength(255),
                                 TextInput::make('password')
                                     ->label('Password Baru')
                                     ->password()
@@ -75,6 +83,7 @@ class UserInfolist
                                 $payload = [
                                     'name' => $data['name'],
                                     'email' => $data['email'],
+                                    'email_resmi' => $data['email_resmi'] ?? null,
                                 ];
 
                                 if (filled($data['password'] ?? null)) {
@@ -171,6 +180,15 @@ class UserInfolist
                                                 ->copyable()
                                                 ->tooltip('Klik untuk menyalin Email')
                                                 ->helperText('Klik untuk menyalin')
+                                                ->weight('medium')
+                                                ->placeholder('-'),
+
+                                            TextEntry::make('email_resmi')
+                                                ->label('Email Resmi')
+                                                ->icon('heroicon-m-at-symbol')
+                                                ->copyable()
+                                                ->tooltip('Klik untuk menyalin Email Resmi')
+                                                ->helperText('Domain @sijunjung.go.id')
                                                 ->weight('medium')
                                                 ->placeholder('-'),
 

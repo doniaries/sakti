@@ -19,8 +19,9 @@ class AuthController extends Controller
         ]);
 
         $email = strtolower(trim((string) $request->input('email')));
+        $matchedUser = \App\Models\User::findByLoginEmail($email);
 
-        if (! Auth::attempt(['email' => $email, 'password' => $request->input('password')])) {
+        if (! Auth::attempt(['email' => $matchedUser?->email ?? $email, 'password' => $request->input('password')])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Email atau kata sandi tidak ditemukan di database.',

@@ -3,6 +3,7 @@
 namespace App\Filament\Pages\Auth;
 
 use App\Models\PengaturanAplikasi;
+use App\Models\User;
 use Filament\Auth\Pages\Login as BaseLogin;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\HtmlString;
@@ -54,6 +55,17 @@ class Login extends BaseLogin
                 'defaultHeading' => __('filament-panels::auth/pages/login.heading'),
             ])->render()
         );
+    }
+
+    protected function getCredentialsFromFormData(array $data): array
+    {
+        $inputEmail = strtolower(trim((string) ($data['email'] ?? '')));
+        $user = User::findByLoginEmail($inputEmail);
+
+        return [
+            'email' => $user?->email ?? $inputEmail,
+            'password' => $data['password'],
+        ];
     }
 
     protected function throwFailureValidationException(): never

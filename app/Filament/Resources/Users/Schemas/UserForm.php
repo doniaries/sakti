@@ -102,6 +102,15 @@ class UserForm
                                                 ->unique(User::class, 'email', ignoreRecord: true)
                                                 ->maxLength(255),
 
+                                            TextInput::make('email_resmi')
+                                                ->label('Email Resmi (@sijunjung.go.id)')
+                                                ->email()
+                                                ->copyable()
+                                                ->placeholder('Contoh: doniaries@sijunjung.go.id')
+                                                ->unique(User::class, 'email_resmi', ignoreRecord: true)
+                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? strtolower(trim($state)) : null)
+                                                ->maxLength(255),
+
                                             TextInput::make('password')
                                                 ->label('Password Login')
                                                 ->password()
