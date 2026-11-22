@@ -18,3 +18,13 @@ Artisan::command('inspire', function () {
 })->purpose('Hitung sisa cuti tahunan ASN ke tahun berikutnya (maks 6 hari terbawa, total maks 18 hari)');
 
 \Illuminate\Support\Facades\Schedule::command('cuti:carry-over')->yearlyOn(1, 1, '00:05');
+
+\Illuminate\Support\Facades\Artisan::command('simulasi:cleanup', function () {
+    $deletedAbsensi = \Illuminate\Support\Facades\DB::table('absensi_harian')
+        ->where('keterangan', 'Simulasi 6 Bulan')
+        ->delete();
+    $deletedIzin = \Illuminate\Support\Facades\DB::table('pengajuan_izin')
+        ->where('alasan', 'Simulasi 6 Bulan - Keperluan Pribadi')
+        ->delete();
+    $this->info("Cleanup selesai: {$deletedAbsensi} absensi_harian & {$deletedIzin} pengajuan_izin dihapus.");
+})->purpose('Hapus seluruh data simulasi 6 bulan dengan aman');
