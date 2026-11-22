@@ -12,7 +12,7 @@ class SimulasiEnamBulanSeeder extends Seeder
 {
     public function run(): void
     {
-        $users = User::query()->where('is_aktif', true)->get(['id', 'jadwal_kerja_id', 'status_kerja']);
+        $users = User::query()->get(['id', 'jadwal_kerja_id', 'status_kerja']);
         if ($users->isEmpty()) {
             $this->command?->warn('Tidak ada user aktif untuk disimulasikan.');
 
