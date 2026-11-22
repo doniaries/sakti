@@ -489,8 +489,8 @@
                     <span>Beranda</span>
                 </a>
 
-                <!-- 2. Riwayat & LHK -->
-                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate.hover>
+                <!-- 2. Riwayat & Izin -->
+                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate.hover>
                     <i class="fa-solid fa-calendar-days"></i>
                     <span>Riwayat</span>
                 </a>
@@ -506,11 +506,18 @@
                     </a>
                 </div>
 
-                <!-- 4. Izin & Cuti -->
-                <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate.hover>
-                    <i class="fa-solid fa-envelope-open-text"></i>
-                    <span>Izin</span>
-                </a>
+                <!-- 4. Persetujuan (Atasan/Admin) atau LHK (Pegawai) -->
+                @if (auth()->user()?->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'kepala_dinas', 'kabid', 'atasan']))
+                    <a href="{{ route('mobile.persetujuan') }}" class="nav-item {{ request()->routeIs('mobile.persetujuan') ? 'active' : '' }}" wire:navigate.hover>
+                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span>Persetujuan</span>
+                    </a>
+                @else
+                    <a href="{{ route('mobile.lhk.index') }}" class="nav-item {{ request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate.hover>
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>LHK</span>
+                    </a>
+                @endif
 
                 <!-- 5. Profil (Halaman sama dengan data pegawai Filament & bisa diedit) -->
                 <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate.hover>
