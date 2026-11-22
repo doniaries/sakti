@@ -79,10 +79,25 @@ class IzinController extends Controller
             'tanggal_mulai' => ['required', 'date', 'after_or_equal:today'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'alasan' => ['required', 'string', 'max:1000'],
+            'lampiran' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
         ], [
             'tanggal_mulai.after_or_equal' => 'Tanggal mulai tidak boleh sebelum hari ini.',
             'tanggal_selesai.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
+            'lampiran.mimes' => 'Format lampiran harus JPG, PNG, atau PDF.',
+            'lampiran.max' => 'Ukuran lampiran maksimal 2 MB.',
         ]);
+
+        $jenisIzin = JenisIzin::find($validated['jenis_izin_id']);
+        if ($jenisIzin?->wajib_lampiran && ! $request->hasFile('lampiran')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lampiran surat keterangan dokter/bukti wajib diunggah.',
+            ], 422);
+        }
+
+        $lampiranPath = $request->hasFile('lampiran')
+            ? $request->file('lampiran')->store('lampiran-izin', 'public')
+            : null;
 
         $mulai = Carbon::parse($validated['tanggal_mulai']);
         $selesai = Carbon::parse($validated['tanggal_selesai']);
@@ -95,6 +110,7 @@ class IzinController extends Controller
             'tanggal_selesai' => $selesai->toDateString(),
             'jumlah_hari' => $jumlahHari,
             'alasan' => $validated['alasan'],
+            'lampiran' => $lampiranPath,
             'status' => 'menunggu',
         ]);
 
