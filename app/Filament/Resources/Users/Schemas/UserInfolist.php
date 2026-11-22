@@ -250,6 +250,36 @@ class UserInfolist
                             ]),
                     ]),
 
+                Section::make('Kuota & Sisa Cuti Tahunan')
+                    ->icon('heroicon-o-calendar-days')
+                    ->description('Informasi hak cuti tahunan ASN (PP No. 11/2017 jo. PP No. 17/2020 & PerBKN No. 24/2017)')
+                    ->columns(3)
+                    ->schema([
+                        TextEntry::make('sisa_cuti')
+                            ->label('Sisa Cuti Tahunan')
+                            ->state(fn (User $record): string => ($record->sisa_cuti ?? 12) . ' Hari Kerja')
+                            ->badge()
+                            ->size(TextSize::Large)
+                            ->color(fn (User $record): string => ($record->sisa_cuti ?? 12) > 3 ? 'success' : 'danger'),
+                        TextEntry::make('cuti_terpakai')
+                            ->label('Terpakai Tahun ' . now()->year)
+                            ->state(function (User $record): string {
+                                $terpakai = (int) $record->pengajuanIzins()
+                                    ->whereHas('jenisIzin', fn ($q) => $q->where('kategori', 'cuti'))
+                                    ->where('status', 'disetujui')
+                                    ->whereYear('tanggal_mulai', now()->year)
+                                    ->sum('jumlah_hari');
+
+                                return $terpakai . ' Hari Kerja';
+                            })
+                            ->badge()
+                            ->size(TextSize::Large)
+                            ->color('warning'),
+                        TextEntry::make('status_cuti_info')
+                            ->label('Ketentuan Sisa Cuti')
+                            ->state('Maks. 6 hari terbawa ke tahun depan (total maks 18 hari kerja)'),
+                    ]),
+
                 Tabs::make('DetailPegawaiTabs')
                     ->tabs([
                         Tab::make('Identitas & Administrasi')
