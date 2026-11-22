@@ -49,12 +49,21 @@ class PersetujuanController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
 
+        $wasApproved = $pengajuanIzin->status === 'disetujui';
+
         $pengajuanIzin->update([
             'status' => 'disetujui',
             'disetujui_oleh' => $user->id,
             'disetujui_at' => now(),
             'catatan_atasan' => $request->input('catatan'),
         ]);
+
+        // Kurangi sisa_cuti pegawai otomatis jika kategori adalah cuti
+        if (! $wasApproved && $pengajuanIzin->jenisIzin?->kategori === 'cuti' && $pengajuanIzin->user) {
+            $pemohon = $pengajuanIzin->user;
+            $sisaBaru = max(0, (int) ($pemohon->sisa_cuti ?? 12) - (int) $pengajuanIzin->jumlah_hari);
+            $pemohon->update(['sisa_cuti' => $sisaBaru]);
+        }
 
         if ($pengajuanIzin->user) {
             PushNotificationService::sendToUsers(
