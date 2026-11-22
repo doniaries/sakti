@@ -20,7 +20,7 @@ use Filament\Panel;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * @method static \App\Models\User|null find(mixed $id, array $columns = ['*'])
+ * @method static \App\Models\User|null find(mixed $id, array $columns = [])
  * @method static \Illuminate\Database\Eloquent\Builder where(string|array|\Closure $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
  * @method static \Illuminate\Database\Eloquent\Builder whereNotNull(string $column)
  * @method static \Illuminate\Database\Eloquent\Builder whereNull(string $column)
@@ -305,7 +305,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     /**
      * Accessor otomatis gelar belakang jika kosong di kolom namun ada pada nama
      */
-    public function getGelarBelakangAttribute($value): ?string
+    public function getGelarBelakangAttribute(?string $value): ?string
     {
         if (!empty($value)) {
             return $value;
@@ -323,7 +323,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     /**
      * Accessor otomatis gelar depan jika kosong di kolom namun ada pada nama
      */
-    public function getGelarDepanAttribute($value): ?string
+    public function getGelarDepanAttribute(?string $value): ?string
     {
         if (!empty($value)) {
             return $value;
