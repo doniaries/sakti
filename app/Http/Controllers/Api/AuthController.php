@@ -133,4 +133,42 @@ class AuthController extends Controller
             'message' => 'Berhasil logout.',
         ]);
     }
+
+    public function getDeviceBinding(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if (! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'enabled' => (bool) Cache::get('sakti_device_binding_enabled', true),
+            ],
+        ]);
+    }
+
+    public function setDeviceBinding(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if (! $user->hasAnyRole(['super_admin', 'admin'])) {
+            return response()->json(['success' => false, 'message' => 'Akses ditolak.'], 403);
+        }
+
+        $enabled = $request->boolean('enabled', true);
+        Cache::forever('sakti_device_binding_enabled', $enabled);
+
+        return response()->json([
+            'success' => true,
+            'message' => $enabled
+                ? 'Pembatasan 1 akun 1 perangkat diaktifkan.'
+                : 'Pembatasan 1 akun 1 perangkat dinonaktifkan.',
+            'data' => [
+                'enabled' => $enabled,
+            ],
+        ]);
+    }
 }
