@@ -29,6 +29,9 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
     // Absensi
     Route::prefix('absensi')->group(function () {
         Route::get('/today', [AbsensiController::class, 'today']);
+        Route::get('/riwayat/pdf-url', [AbsensiController::class, 'riwayatPdfUrl']);
+        Route::post('/reset-today', [AbsensiController::class, 'resetToday']);
+        Route::post('/office-location', [AbsensiController::class, 'setOfficeLocation']);
         Route::get('/', [AbsensiController::class, 'index']);
         Route::post('/', [AbsensiController::class, 'store']);
     });

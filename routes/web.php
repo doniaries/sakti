@@ -41,6 +41,12 @@ Route::prefix('mobile')->group(function () {
     Route::get('/login', Login::class)->name('mobile.login');
     Route::get('/masuk', Login::class)->name('login');
 
+    // Signed PDF/Cetak routes untuk akses dari aplikasi native Flutter (tanpa cookie sesi browser)
+    Route::middleware('signed')->group(function () {
+        Route::get('/riwayat/cetak-pdf/signed', [\App\Http\Controllers\CetakLaporanController::class, 'cetakRiwayat'])->name('mobile.riwayat.signed-pdf');
+        Route::get('/pengajuan-izin/{pengajuanIzin}/cetak-pdf/signed', [\App\Http\Controllers\CetakLaporanController::class, 'cetakIzinCuti'])->name('mobile.izin.signed-pdf');
+    });
+
     
     Route::middleware('auth')->group(function () {
         Route::get('/dashboard', Dashboard::class)->name('mobile.dashboard');

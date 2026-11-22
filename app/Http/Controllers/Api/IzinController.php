@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 
 class IzinController extends Controller
 {
@@ -55,7 +56,11 @@ class IzinController extends Controller
                 'jumlah_hari' => (int) $item->jumlah_hari,
                 'alasan' => $item->alasan,
                 'status' => $item->status,
-                'pdf_url' => route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item, 'preview' => 1]),
+                'pdf_url' => URL::temporarySignedRoute('mobile.izin.signed-pdf', now()->addMinutes(30), [
+                    'pengajuanIzin' => $item->id,
+                    'uid' => $user->id,
+                    'download' => 1,
+                ]),
             ]);
 
         return response()->json([

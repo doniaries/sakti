@@ -13,8 +13,12 @@ class CetakLaporanController extends Controller
 {
     public function cetakRiwayat(Request $request)
     {
-        /** @var User $user */
+        /** @var User|null $user */
         $user = Auth::user();
+        if (! $user && $request->hasValidSignature() && $request->filled('uid')) {
+            $user = User::findOrFail((int) $request->query('uid'));
+        }
+        abort_unless($user, 401);
 
         // Admin / Superadmin bisa cetak punya bawahan/pegawai dengan menyertakan ?user_id=
         if ($request->has('user_id') && ($user->hasRole(['super_admin', 'admin']) || $user->id == $request->query('user_id'))) {
@@ -140,6 +144,8 @@ class CetakLaporanController extends Controller
         $prefix = ($pengajuanIzin->jenisIzin?->kategori === 'cuti') ? 'Formulir-Cuti-' : 'Surat-Izin-';
         $namaFile = $prefix . str($pengajuanIzin->user?->name ?? 'Pegawai')->slug() . '.pdf';
 
-        return $pdf->stream($namaFile);
+        return $request->boolean('download')
+            ? $pdf->download($namaFile)
+            : $pdf->stream($namaFile);
     }
 }
