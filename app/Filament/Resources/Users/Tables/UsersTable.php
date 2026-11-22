@@ -64,11 +64,12 @@ class UsersTable
 
                 \Filament\Tables\Columns\TextColumn::make('email')
                     ->label('Email User')
-                    ->searchable()
+                    ->searchable(['email', 'email_resmi'])
                     ->sortable()
                     ->color('info')
                     ->icon('heroicon-m-pencil-square')
-                    ->tooltip('Klik untuk mengubah email pegawai')
+                    ->description(fn ($record): ?string => filled($record->email_resmi) ? 'Resmi: ' . $record->email_resmi : 'Email resmi: -')
+                    ->tooltip('Klik untuk mengubah email login & email resmi pegawai')
                     ->action(
                         Action::make('ubah_email_cepat')
                             ->label('Ubah Email Pegawai')
@@ -76,7 +77,10 @@ class UsersTable
                             ->modalWidth('md')
                             ->modalSubmitActionLabel('Simpan Email')
                             ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
-                            ->fillForm(fn(\App\Models\User $record): array => ['email' => $record->email])
+                            ->fillForm(fn(\App\Models\User $record): array => [
+                                'email' => $record->email,
+                                'email_resmi' => $record->email_resmi,
+                            ])
                             ->form([
                                 \Filament\Forms\Components\TextInput::make('email')
                                     ->label('Email Login')
@@ -84,13 +88,24 @@ class UsersTable
                                     ->required()
                                     ->unique('users', 'email', ignoreRecord: true)
                                     ->maxLength(255),
+                                \Filament\Forms\Components\TextInput::make('email_resmi')
+                                    ->label('Email Resmi (@sijunjung.go.id)')
+                                    ->email()
+                                    ->placeholder('Contoh: doniaries@sijunjung.go.id')
+                                    ->unique('users', 'email_resmi', ignoreRecord: true)
+                                    ->maxLength(255),
                             ])
                             ->action(function (\App\Models\User $record, array $data): void {
-                                $record->update(['email' => strtolower(trim((string) $data['email']))]);
+                                $record->update([
+                                    'email' => strtolower(trim((string) $data['email'])),
+                                    'email_resmi' => filled($data['email_resmi'] ?? null)
+                                        ? strtolower(trim((string) $data['email_resmi']))
+                                        : null,
+                                ]);
 
                                 Notification::make()
                                     ->title('Email Pegawai Diperbarui')
-                                    ->body("Email {$record->name} diubah menjadi {$record->email}.")
+                                    ->body("Email {$record->name} berhasil diperbarui.")
                                     ->success()
                                     ->send();
                             })
