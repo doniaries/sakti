@@ -758,7 +758,16 @@
          class="fixed {{ auth()->check() ? 'bottom-[86px]' : 'bottom-4' }} inset-x-0 z-[55] flex justify-center px-3 pointer-events-none">
         <div class="w-full max-w-[416px] pointer-events-auto rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-sky-200/80 dark:border-sky-800/70 shadow-xl shadow-slate-900/15 p-3.5">
             <div class="flex items-center gap-3">
-                <img src="{{ asset('icons/icon-192x192.png') }}" alt="SAKTI Mobile" class="w-11 h-11 rounded-xl object-cover shrink-0 ring-1 ring-slate-200 dark:ring-slate-700">
+                @php
+                    $pwaPengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+                    $pwaLogoUrl = asset('favicon.png');
+                    if (!empty($pwaPengaturan->logo) && file_exists(public_path('storage/' . $pwaPengaturan->logo))) {
+                        $pwaLogoUrl = asset('storage/' . $pwaPengaturan->logo);
+                    } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
+                        $pwaLogoUrl = asset('images/logo-kabupaten.png');
+                    }
+                @endphp
+                <img src="{{ $pwaLogoUrl }}" alt="SAKTI Mobile" class="w-11 h-11 rounded-xl object-contain bg-white p-1 shrink-0 ring-1 ring-slate-200 dark:ring-slate-700">
                 <div class="flex-1 min-w-0">
                     <p class="text-[13px] font-extrabold text-slate-900 dark:text-slate-100 leading-tight">Instal Aplikasi SAKTI</p>
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
