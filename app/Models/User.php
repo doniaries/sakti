@@ -102,6 +102,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'device_id',
         'device_name',
         'device_bound_at',
+        'fcm_token',
         'npwp',
         'tanggal_npwp',
         'no_taspen',

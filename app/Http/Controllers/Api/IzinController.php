@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\JenisIzin;
 use App\Models\PengajuanIzin;
+use App\Models\User;
+use App\Services\PushNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -90,6 +92,19 @@ class IzinController extends Controller
             'alasan' => $validated['alasan'],
             'status' => 'menunggu',
         ]);
+
+        $recipients = User::role(['super_admin', 'admin'])->get();
+        if ($user->atasan) {
+            $recipients->push($user->atasan);
+        }
+
+        PushNotificationService::sendToUsers(
+            $recipients,
+            'Pengajuan Izin Baru',
+            "{$user->name} mengajukan izin ({$mulai->format('d/m/Y')} - {$selesai->format('d/m/Y')}).",
+            ['type' => 'izin', 'id' => (string) $izin->id],
+            'info'
+        );
 
         return response()->json([
             'success' => true,

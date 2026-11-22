@@ -51,4 +51,17 @@ class NotificationController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function saveFcmToken(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'fcm_token' => ['required', 'string', 'max:512'],
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $user->update(['fcm_token' => $validated['fcm_token']]);
+
+        return response()->json(['success' => true]);
+    }
 }

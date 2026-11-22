@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanIzin;
+use App\Services\PushNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -55,6 +56,16 @@ class PersetujuanController extends Controller
             'catatan_atasan' => $request->input('catatan'),
         ]);
 
+        if ($pengajuanIzin->user) {
+            PushNotificationService::sendToUsers(
+                [$pengajuanIzin->user],
+                'Pengajuan Izin Disetujui',
+                "Pengajuan izin Anda telah disetujui oleh {$user->name}.",
+                ['type' => 'persetujuan', 'id' => (string) $pengajuanIzin->id],
+                'success'
+            );
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Pengajuan berhasil disetujui.',
@@ -72,6 +83,16 @@ class PersetujuanController extends Controller
             'disetujui_at' => now(),
             'catatan_atasan' => $request->input('catatan', 'Ditolak melalui aplikasi mobile.'),
         ]);
+
+        if ($pengajuanIzin->user) {
+            PushNotificationService::sendToUsers(
+                [$pengajuanIzin->user],
+                'Pengajuan Izin Ditolak',
+                "Pengajuan izin Anda ditolak oleh {$user->name}.",
+                ['type' => 'persetujuan', 'id' => (string) $pengajuanIzin->id],
+                'danger'
+            );
+        }
 
         return response()->json([
             'success' => true,
