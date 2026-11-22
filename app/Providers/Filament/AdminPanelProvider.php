@@ -74,13 +74,6 @@ class AdminPanelProvider extends PanelProvider
                     }),
             ])
 
-            ->navigationGroups([
-                NavigationGroup::make('Kehadiran & Cuti'),
-                NavigationGroup::make('Kinerja & LHK'),
-                NavigationGroup::make('Kepegawaian'),
-                NavigationGroup::make('Master Data'),
-                NavigationGroup::make('Pengaturan'),
-            ])
             ->navigationItems([
                 NavigationItem::make('Presensi Mobile')
                     ->url(fn(): string => route('mobile.dashboard'), shouldOpenInNewTab: true)
