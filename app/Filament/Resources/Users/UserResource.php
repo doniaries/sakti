@@ -69,6 +69,7 @@ class UserResource extends Resource
             \App\Filament\Resources\Users\RelationManagers\RiwayatPendidikanRelationManager::class,
             \App\Filament\Resources\Users\RelationManagers\RiwayatJabatanRelationManager::class,
             \App\Filament\Resources\Users\RelationManagers\RiwayatGolonganRelationManager::class,
+            \App\Filament\Resources\Users\RelationManagers\DevicesRelationManager::class,
         ];
     }
 

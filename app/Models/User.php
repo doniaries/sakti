@@ -594,14 +594,24 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
-     * Verifikasi atau ikat perangkat mobile (1 akun hanya untuk 1 device).
+     * Daftar perangkat terdaftar milik pegawai (Android APK, PWA, PC).
+     */
+    public function devices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    /**
+     * Verifikasi atau ikat perangkat pegawai (maksimal sesuai pengaturan aplikasi, default 3 device).
+     * Mencegah satu HP Android digunakan oleh akun pegawai lain (anti-titip absen).
      *
      * @return array{ok: bool, message?: string}
      */
-    public function bindOrVerifyDevice(string $deviceId, ?string $deviceName = null): array
+    public function bindOrVerifyDevice(string $deviceId, ?string $deviceName = null, ?string $ipAddress = null): array
     {
         $cleanId = trim($deviceId);
         $cleanName = $deviceName ? trim($deviceName) : null;
+        $ip = $ipAddress ?? request()?->ip();
 
         if ($cleanId === '') {
             return [
@@ -610,20 +620,131 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             ];
         }
 
-        if (empty($this->device_id)) {
-            $this->forceFill([
+        $isBrowser = ($cleanName !== null && str_contains(strtolower($cleanName), 'browser'))
+            || str_starts_with(strtolower($cleanId), 'web-')
+            || str_starts_with(strtolower($cleanId), 'browser-');
+        $platform = $isBrowser ? 'pwa' : 'android';
+        $displayName = $cleanName ?: ($isBrowser ? 'Browser Mobile / PC' : 'Perangkat Android');
+
+        // Migrasi otomatis ikatan perangkat lama (kolom users.device_id) ke tabel user_devices
+        if (! empty($this->device_id) && \Illuminate\Support\Facades\Schema::hasTable('user_devices')) {
+            $legacyIsBrowser = str_contains(strtolower((string) $this->device_name), 'browser')
+                || str_starts_with(strtolower((string) $this->device_id), 'web-')
+                || str_starts_with(strtolower((string) $this->device_id), 'browser-');
+
+            $this->devices()->firstOrCreate(
+                ['device_id' => (string) $this->device_id],
+                [
+                    'device_name' => $this->device_name ?: ($legacyIsBrowser ? 'Browser Mobile' : 'Perangkat Android'),
+                    'platform' => $legacyIsBrowser ? 'pwa' : 'android',
+                    'last_login_at' => $this->device_bound_at ?? now(),
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        // Anti-titip absen: 1 HP Android fisik tidak boleh digunakan oleh akun pegawai lain
+        if ($platform === 'android' && \Illuminate\Support\Facades\Schema::hasTable('user_devices')) {
+            $otherBinding = UserDevice::query()
+                ->with('user:id,name')
+                ->where('device_id', $cleanId)
+                ->where('user_id', '!=', $this->id)
+                ->where('is_active', true)
+                ->first();
+
+            if ($otherBinding) {
+                $ownerName = $otherBinding->user?->name ?? 'pegawai lain';
+                \App\Services\ActivityLogger::log(
+                    'device_blocked',
+                    'Keamanan Perangkat',
+                    "Percobaan login ditolak: perangkat {$displayName} sudah terikat ke {$ownerName}.",
+                    $this,
+                    ['device_id' => $cleanId, 'device_name' => $displayName, 'platform' => $platform],
+                    $this
+                );
+
+                return [
+                    'ok' => false,
+                    'message' => "Perangkat {$displayName} sudah terdaftar atas nama {$ownerName}. Satu HP Android tidak dapat digunakan oleh akun pegawai lain.",
+                ];
+            }
+        }
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('user_devices')) {
+            $existing = $this->devices()->where('device_id', $cleanId)->first();
+
+            if ($existing) {
+                if (! $existing->is_active) {
+                    return [
+                        'ok' => false,
+                        'message' => "Perangkat {$displayName} telah dinonaktifkan oleh Admin Kepegawaian.",
+                    ];
+                }
+
+                $existing->forceFill([
+                    'device_name' => $displayName,
+                    'platform' => $platform,
+                    'ip_address' => $ip,
+                    'last_login_at' => now(),
+                ])->save();
+
+                if ($platform === 'android' || empty($this->device_id)) {
+                    $this->forceFill([
+                        'device_id' => $cleanId,
+                        'device_name' => $displayName,
+                        'device_bound_at' => $this->device_bound_at ?? now(),
+                    ])->save();
+                }
+
+                return ['ok' => true];
+            }
+
+            $maxDevices = max(1, (int) (PengaturanAplikasi::getPengaturan()->max_devices_per_user ?? 3));
+            $activeCount = $this->devices()->where('is_active', true)->count();
+
+            if ($activeCount >= $maxDevices) {
+                return [
+                    'ok' => false,
+                    'message' => "Batas maksimal {$maxDevices} perangkat per akun telah tercapai. Hapus atau reset salah satu perangkat melalui Admin Kepegawaian.",
+                ];
+            }
+
+            $this->devices()->create([
                 'device_id' => $cleanId,
-                'device_name' => $cleanName ?: 'Perangkat Android',
-                'device_bound_at' => now(),
-            ])->save();
+                'device_name' => $displayName,
+                'platform' => $platform,
+                'ip_address' => $ip,
+                'last_login_at' => now(),
+                'is_active' => true,
+            ]);
+
+            \App\Services\ActivityLogger::log(
+                'register_device',
+                'Keamanan Perangkat',
+                "Perangkat baru terdaftar: {$displayName} ({$platform}).",
+                $this,
+                ['device_id' => $cleanId, 'device_name' => $displayName, 'platform' => $platform, 'ip' => $ip],
+                $this
+            );
+
+            if ($platform === 'android' || empty($this->device_id)) {
+                $this->forceFill([
+                    'device_id' => $cleanId,
+                    'device_name' => $displayName,
+                    'device_bound_at' => now(),
+                ])->save();
+            }
 
             return ['ok' => true];
         }
 
-        if (hash_equals((string) $this->device_id, $cleanId)) {
-            if ($cleanName && $this->device_name !== $cleanName) {
-                $this->forceFill(['device_name' => $cleanName])->save();
-            }
+        // Fallback jika tabel user_devices belum dimigrasi
+        if (empty($this->device_id) || hash_equals((string) $this->device_id, $cleanId)) {
+            $this->forceFill([
+                'device_id' => $cleanId,
+                'device_name' => $displayName,
+                'device_bound_at' => $this->device_bound_at ?? now(),
+            ])->save();
 
             return ['ok' => true];
         }
@@ -637,10 +758,14 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
-     * Reset ikatan perangkat mobile agar pegawai dapat login di perangkat baru.
+     * Reset seluruh ikatan perangkat mobile agar pegawai dapat login di perangkat baru.
      */
     public function resetDeviceBinding(): void
     {
+        if (\Illuminate\Support\Facades\Schema::hasTable('user_devices')) {
+            $this->devices()->delete();
+        }
+
         $this->forceFill([
             'device_id' => null,
             'device_name' => null,
@@ -648,5 +773,12 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         ])->save();
 
         $this->tokens()->where('name', 'mobile-app')->delete();
+
+        \App\Services\ActivityLogger::log(
+            'reset_device',
+            'Keamanan Perangkat',
+            "Seluruh ikatan perangkat mobile untuk {$this->name} telah direset.",
+            $this
+        );
     }
 }

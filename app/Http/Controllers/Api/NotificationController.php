@@ -15,15 +15,33 @@ class NotificationController extends Controller
 
         $notifications = $user->notifications()
             ->latest()
-            ->limit(20)
+            ->limit(25)
             ->get(['id', 'data', 'read_at', 'created_at'])
-            ->map(fn ($n): array => [
-                'id' => $n->id,
-                'title' => $n->data['title'] ?? 'Notifikasi',
-                'body' => $n->data['body'] ?? '',
-                'read' => $n->read_at !== null,
-                'created_at' => $n->created_at?->diffForHumans(),
-            ]);
+            ->map(function ($n): array {
+                $title = (string) ($n->data['title'] ?? 'Notifikasi');
+                $rawUrl = (string) ($n->data['actions'][0]['url'] ?? '');
+                $lower = strtolower($title . ' ' . $rawUrl);
+
+                $target = 'dashboard';
+                if (str_contains($lower, 'persetujuan') || str_contains($lower, 'menunggu') || str_contains($lower, 'tinjau') || str_contains($lower, 'baru:')) {
+                    $target = 'persetujuan';
+                } elseif (str_contains($lower, 'izin') || str_contains($lower, 'cuti') || str_contains($lower, 'sakit')) {
+                    $target = 'izin';
+                } elseif (str_contains($lower, 'lhk')) {
+                    $target = 'lhk';
+                } elseif (str_contains($lower, 'absen') || str_contains($lower, 'presensi')) {
+                    $target = 'riwayat';
+                }
+
+                return [
+                    'id' => $n->id,
+                    'title' => $title,
+                    'body' => $n->data['body'] ?? '',
+                    'target' => $target,
+                    'read' => $n->read_at !== null,
+                    'created_at' => $n->created_at?->diffForHumans(),
+                ];
+            });
 
         return response()->json([
             'success' => true,
@@ -48,6 +66,16 @@ class NotificationController extends Controller
         $user = $request->user();
 
         $user->unreadNotifications()->update(['read_at' => now()]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function clearAll(Request $request): JsonResponse
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $user->notifications()->delete();
 
         return response()->json(['success' => true]);
     }

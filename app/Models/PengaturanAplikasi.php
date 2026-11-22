@@ -162,6 +162,7 @@ class PengaturanAplikasi extends Model
         'longitude_kantor' => 'float',
         'radius_meter' => 'integer',
         'tahun_anggaran_aktif' => 'integer',
+        'max_devices_per_user' => 'integer',
         'modul_aktif' => 'array',
     ];
 

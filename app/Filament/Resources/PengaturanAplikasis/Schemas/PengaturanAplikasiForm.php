@@ -104,6 +104,17 @@ class PengaturanAplikasiForm
                             ->placeholder('Contoh: v1.0.1 — Penambahan wizard pengenalan, push notifikasi, dan perbaikan performa.')
                             ->helperText('Ditampilkan di halaman Profil semua user pada aplikasi Android SAKTI Mobile.')
                             ->columnSpanFull(),
+
+                        TextInput::make('max_devices_per_user')
+                            ->label('Maksimal Perangkat Terdaftar per User')
+                            ->numeric()
+                            ->minValue(1)
+                            ->maxValue(10)
+                            ->default(3)
+                            ->required()
+                            ->prefixIcon('heroicon-m-device-phone-mobile')
+                            ->helperText('Disarankan minimal 3 perangkat (HP Android APK, Browser PWA, dan PC). Satu HP Android tetap tidak bisa dipakai login akun pegawai lain.')
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Manajemen Modul Aktif (Filament, Mobile Livewire & Flutter)')
