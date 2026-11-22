@@ -1,16 +1,9 @@
 <div class="p-5 pb-28">
     <!-- Hero Biru Gradient Melengkung -->
     <div class="-mx-5 -mt-5 mb-4 rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-10 text-white shadow-lg shadow-sky-950/20">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-xl font-extrabold tracking-tight">Pengajuan Izin & Cuti</h1>
-                <p class="text-xs text-sky-100 font-medium">Layanan Izin, Cuti & Persetujuan Pimpinan</p>
-            </div>
-            <a href="{{ route('mobile.izin.create') }}" wire:navigate
-                class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs shadow-md active:scale-95 transition-all flex items-center space-x-1.5">
-                <i class="fa-solid fa-plus text-xs"></i>
-                <span>Buat Izin</span>
-            </a>
+        <div>
+            <h1 class="text-xl font-extrabold tracking-tight">Pengajuan Izin & Cuti</h1>
+            <p class="text-xs text-sky-100 font-medium">Layanan Izin, Cuti & Persetujuan Pimpinan</p>
         </div>
     </div>
 
