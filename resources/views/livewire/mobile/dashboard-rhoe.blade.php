@@ -196,18 +196,64 @@
         </div>
     </section>
 
-    <!-- 3. QUICK LHK -->
-    <a href="{{ route('mobile.lhk.create') }}" wire:navigate
-        class="rounded-2xl bg-gradient-to-r from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white p-4 flex items-center gap-3 shadow-md shadow-sky-900/15 active:scale-[0.98] transition-transform">
-        <div class="w-11 h-11 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-lg shrink-0 text-white">
-            <i class="fa-solid fa-pen-to-square"></i>
+    <!-- 3. STATUS PRESENSI HARI INI -->
+    @if ($hariLiburHariIni && !$hariIni['sudah_masuk'])
+        <div class="rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-800/60 p-4 flex items-center gap-3 shadow-sm">
+            <div class="w-11 h-11 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center text-lg shrink-0">
+                <i class="fa-solid fa-calendar-xmark"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+                <div class="text-sm font-extrabold text-rose-900 dark:text-rose-200">Hari Libur: {{ $hariLiburHariIni->nama ?? 'Libur' }}</div>
+                <div class="text-[11px] text-rose-700/90 dark:text-rose-300/80 font-medium truncate">Tidak ada kewajiban ambil absen hari ini</div>
+            </div>
         </div>
-        <div class="min-w-0 flex-1">
-            <div class="text-sm font-extrabold">Isi LHK Hari Ini</div>
-            <div class="text-[11px] text-sky-100 font-medium truncate">Catat laporan kinerja harian Anda</div>
+    @elseif (!$hariIni['sudah_masuk'])
+        <a href="{{ route('mobile.absensi') }}" wire:navigate
+            class="rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white p-4 flex items-center gap-3 shadow-md shadow-amber-900/15 active:scale-[0.98] transition-transform">
+            <div class="w-11 h-11 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-lg shrink-0 text-white">
+                <i class="fa-solid fa-fingerprint"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+                <div class="text-sm font-extrabold">Anda Belum Ambil Absen Masuk</div>
+                <div class="text-[11px] text-amber-50 font-medium truncate">
+                    @if ($hariIni['belum_buka_masuk'])
+                        Absen masuk dibuka pukul {{ $hariIni['buka_masuk'] }} WIB
+                    @elseif ($hariIni['lewat_batas_masuk'])
+                        Batas absen ({{ $hariIni['tutup_masuk'] }} WIB) terlewat &bull; Ketuk untuk presensi
+                    @else
+                        Ketuk untuk ambil absen sebelum {{ $hariIni['tutup_masuk'] }} WIB
+                    @endif
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
+        </a>
+    @elseif (!$hariIni['sudah_pulang'])
+        <a href="{{ route('mobile.absensi') }}" wire:navigate
+            class="rounded-2xl bg-gradient-to-r from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white p-4 flex items-center gap-3 shadow-md shadow-sky-900/15 active:scale-[0.98] transition-transform">
+            <div class="w-11 h-11 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center text-lg shrink-0 text-white">
+                <i class="fa-solid fa-clock"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+                <div class="text-sm font-extrabold">Belum Ambil Absen Pulang</div>
+                <div class="text-[11px] text-sky-100 font-medium truncate">
+                    Masuk {{ substr((string) $hariIni['jam_masuk'], 0, 5) }} WIB &bull; Jadwal pulang {{ $hariIni['jam_pulang_resmi'] }} WIB
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-xs text-sky-200"></i>
+        </a>
+    @else
+        <div class="rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/60 p-4 flex items-center gap-3 shadow-sm">
+            <div class="w-11 h-11 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shrink-0">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+                <div class="text-sm font-extrabold text-emerald-900 dark:text-emerald-200">Presensi Hari Ini Lengkap</div>
+                <div class="text-[11px] text-emerald-700/90 dark:text-emerald-300/80 font-medium truncate">
+                    Masuk {{ substr((string) $hariIni['jam_masuk'], 0, 5) }} WIB &bull; Pulang {{ substr((string) $hariIni['jam_pulang'], 0, 5) }} WIB
+                </div>
+            </div>
         </div>
-        <i class="fa-solid fa-chevron-right text-xs text-sky-200"></i>
-    </a>
+    @endif
 
     <!-- 5. RIWAYAT ABSEN 7 HARI -->
     <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-md shadow-slate-900/5">
