@@ -23,6 +23,10 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
     Route::post('/me/avatar', [AuthController::class, 'updateAvatar']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
+    // Admin: Toggle pembatasan 1 akun 1 perangkat
+    Route::get('/admin/device-binding', [AuthController::class, 'getDeviceBinding']);
+    Route::post('/admin/device-binding', [AuthController::class, 'setDeviceBinding']);
+
     // Dashboard
     Route::get('/dashboard', DashboardController::class);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
@@ -41,7 +42,7 @@ class AuthController extends Controller
         $deviceId = trim((string) ($request->input('device_id') ?? $request->header('X-Device-Id', '')));
         $deviceName = trim((string) ($request->input('device_name') ?? $request->header('X-Device-Name', '')));
 
-        if ($deviceId !== '') {
+        if (Cache::get('sakti_device_binding_enabled', true) && $deviceId !== '') {
             $deviceCheck = $user->bindOrVerifyDevice($deviceId, $deviceName !== '' ? $deviceName : null);
             if (! $deviceCheck['ok']) {
                 return response()->json([

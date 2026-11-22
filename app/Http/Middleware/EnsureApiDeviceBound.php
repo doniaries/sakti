@@ -4,12 +4,17 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureApiDeviceBound
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (! Cache::get('sakti_device_binding_enabled', true)) {
+            return $next($request);
+        }
+
         /** @var \App\Models\User|null $user */
         $user = $request->user();
 
