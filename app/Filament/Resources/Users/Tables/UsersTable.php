@@ -16,6 +16,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use STS\FilamentImpersonate\Actions\Impersonate;
 
 class UsersTable
@@ -69,13 +70,13 @@ class UsersTable
                     ->color('info')
                     ->icon('heroicon-m-pencil-square')
                     ->description(fn ($record): ?string => filled($record->email_resmi) ? 'Resmi: ' . $record->email_resmi : 'Email resmi: -')
-                    ->tooltip('Klik untuk mengubah email login & email resmi pegawai')
+                    ->tooltip('Klik untuk mengubah email & password pegawai')
                     ->action(
                         Action::make('ubah_email_cepat')
-                            ->label('Ubah Email Pegawai')
-                            ->modalHeading(fn(\App\Models\User $record): string => "Ubah Email: {$record->name}")
+                            ->label('Ubah Email & Password')
+                            ->modalHeading(fn(\App\Models\User $record): string => "Ubah Email & Password: {$record->name}")
                             ->modalWidth('md')
-                            ->modalSubmitActionLabel('Simpan Email')
+                            ->modalSubmitActionLabel('Simpan Perubahan')
                             ->visible(fn(): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
                             ->fillForm(fn(\App\Models\User $record): array => [
                                 'email' => $record->email,
@@ -94,18 +95,39 @@ class UsersTable
                                     ->placeholder('Contoh: doniaries@sijunjung.go.id')
                                     ->unique('users', 'email_resmi', ignoreRecord: true)
                                     ->maxLength(255),
+                                \Filament\Forms\Components\TextInput::make('password')
+                                    ->label('Password Baru (Opsional)')
+                                    ->password()
+                                    ->revealable()
+                                    ->placeholder('Kosongkan jika tidak mengubah password...')
+                                    ->rules(['nullable', 'min:6'])
+                                    ->maxLength(255),
+                                \Filament\Forms\Components\TextInput::make('password_confirmation')
+                                    ->label('Konfirmasi Password Baru')
+                                    ->password()
+                                    ->revealable()
+                                    ->placeholder('Ulangi password baru...')
+                                    ->requiredWith('password')
+                                    ->same('password')
+                                    ->maxLength(255),
                             ])
                             ->action(function (\App\Models\User $record, array $data): void {
-                                $record->update([
+                                $payload = [
                                     'email' => strtolower(trim((string) $data['email'])),
                                     'email_resmi' => filled($data['email_resmi'] ?? null)
                                         ? strtolower(trim((string) $data['email_resmi']))
                                         : null,
-                                ]);
+                                ];
+
+                                if (filled($data['password'] ?? null)) {
+                                    $payload['password'] = Hash::make((string) $data['password']);
+                                }
+
+                                $record->update($payload);
 
                                 Notification::make()
-                                    ->title('Email Pegawai Diperbarui')
-                                    ->body("Email {$record->name} berhasil diperbarui.")
+                                    ->title('Data Akun Pegawai Diperbarui')
+                                    ->body("Data akun {$record->name} berhasil diperbarui.")
                                     ->success()
                                     ->send();
                             })

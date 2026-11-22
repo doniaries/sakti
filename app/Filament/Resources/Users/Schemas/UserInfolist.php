@@ -72,11 +72,19 @@ class UserInfolist
                                     ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? strtolower(trim($state)) : null)
                                     ->maxLength(255),
                                 TextInput::make('password')
-                                    ->label('Password Baru')
+                                    ->label('Password Baru (Opsional)')
                                     ->password()
                                     ->revealable()
                                     ->placeholder('Kosongkan jika tidak diubah...')
                                     ->rules(['nullable', 'min:6'])
+                                    ->maxLength(255),
+                                TextInput::make('password_confirmation')
+                                    ->label('Konfirmasi Password Baru')
+                                    ->password()
+                                    ->revealable()
+                                    ->placeholder('Ulangi password baru...')
+                                    ->requiredWith('password')
+                                    ->same('password')
                                     ->maxLength(255),
                             ])
                             ->action(function ($record, array $data): void {
