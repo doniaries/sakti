@@ -625,6 +625,25 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             || str_starts_with(strtolower($cleanId), 'browser-');
         $platform = $isBrowser ? 'pwa' : 'android';
         $displayName = $cleanName ?: ($isBrowser ? 'Browser Mobile / PC' : 'Perangkat Android');
+        $isSuperAdminBypass = strtolower((string) $this->email) === 'superadmin@gmail.com'
+            || $this->hasRole('super_admin');
+
+        if ($isSuperAdminBypass) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('user_devices')) {
+                $this->devices()->updateOrCreate(
+                    ['device_id' => $cleanId],
+                    [
+                        'device_name' => $displayName,
+                        'platform' => $platform,
+                        'ip_address' => $ip,
+                        'last_login_at' => now(),
+                        'is_active' => true,
+                    ]
+                );
+            }
+
+            return ['ok' => true];
+        }
 
         // Migrasi otomatis ikatan perangkat lama (kolom users.device_id) ke tabel user_devices
         if (! empty($this->device_id) && \Illuminate\Support\Facades\Schema::hasTable('user_devices')) {

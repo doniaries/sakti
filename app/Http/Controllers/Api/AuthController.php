@@ -52,7 +52,11 @@ class AuthController extends Controller
             }
         }
 
-        $user->tokens()->where('name', 'mobile-app')->delete();
+        $isSuperAdminBypass = strtolower((string) $user->email) === 'superadmin@gmail.com'
+            || $user->hasRole('super_admin');
+        if (! $isSuperAdminBypass) {
+            $user->tokens()->where('name', 'mobile-app')->delete();
+        }
         $token = $user->createToken('mobile-app', ['*'], now()->addDays(30))->plainTextToken;
 
         return response()->json([
