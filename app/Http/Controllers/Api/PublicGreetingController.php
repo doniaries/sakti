@@ -26,10 +26,15 @@ class PublicGreetingController extends Controller
         }
 
         $pengaturan = PengaturanAplikasi::getPengaturan();
+        $logoVersion = optional($pengaturan->updated_at)->timestamp ?? time();
+        $logoUrl = filled($pengaturan->logo)
+            ? asset('storage/' . $pengaturan->logo) . '?v=' . $logoVersion
+            : asset('favicon.png') . '?v=' . $logoVersion;
 
         return response()->json([
             'app_name' => $pengaturan->nama_aplikasi ?? 'SAKTI',
             'sub_nama' => $pengaturan->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi',
+            'logo_url' => $logoUrl,
             'today_holiday' => $todayLibur ? [
                 'tanggal' => $todayLibur->tanggal?->format('Y-m-d'),
                 'nama' => $todayLibur->nama,
