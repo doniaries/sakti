@@ -52,60 +52,6 @@
                 navigator.serviceWorker.register('/sw.js').catch(function () {});
             });
         }
-
-        (function () {
-            const INSTALLED_KEY = 'sakti_pwa_was_installed';
-            const DISMISSED_SESSION_KEY = 'sakti_pwa_banner_closed';
-
-            const isStandalone = function () {
-                return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-            };
-
-            // Jika sedang dibuka sebagai aplikasi PWA terinstal, tandai pernah terinstal
-            if (isStandalone()) {
-                localStorage.setItem(INSTALLED_KEY, '1');
-            }
-
-            window.__saktiPwa = {
-                deferredPrompt: null,
-                isStandalone: isStandalone,
-                wasRemoved: function () {
-                    return localStorage.getItem(INSTALLED_KEY) === '1' && !isStandalone();
-                },
-                isDismissed: function () {
-                    return sessionStorage.getItem(DISMISSED_SESSION_KEY) === '1';
-                },
-                dismiss: function () {
-                    sessionStorage.setItem(DISMISSED_SESSION_KEY, '1');
-                },
-                markInstalled: function () {
-                    localStorage.setItem(INSTALLED_KEY, '1');
-                    sessionStorage.removeItem(DISMISSED_SESSION_KEY);
-                },
-                resetAfterUninstall: function () {
-                    localStorage.removeItem(INSTALLED_KEY);
-                    sessionStorage.removeItem(DISMISSED_SESSION_KEY);
-                }
-            };
-
-            window.addEventListener('beforeinstallprompt', function (e) {
-                e.preventDefault();
-                window.__saktiPwa.deferredPrompt = e;
-
-                // Browser menandakan PWA belum/tidak terinstal lagi: aktifkan kembali notif instal
-                if (localStorage.getItem(INSTALLED_KEY) === '1') {
-                    window.__saktiPwa.resetAfterUninstall();
-                }
-
-                window.dispatchEvent(new CustomEvent('sakti:pwa-prompt-ready'));
-            });
-
-            window.addEventListener('appinstalled', function () {
-                window.__saktiPwa.deferredPrompt = null;
-                window.__saktiPwa.markInstalled();
-                window.dispatchEvent(new CustomEvent('sakti:pwa-installed'));
-            });
-        })();
     </script>
     
     <style>
@@ -411,6 +357,7 @@
                 navigating: false,
                 target: 'dashboard',
                 timer: null,
+                failSafeTimer: null,
                 startNav(e) {
                     const url = e?.detail?.url?.pathname || '';
                     this.target = url.includes('/absensi') ? 'absensi'
@@ -418,16 +365,20 @@
                         : (url.includes('/izin') ? 'izin'
                         : (url.includes('/profil') ? 'profil' : 'dashboard')));
                     clearTimeout(this.timer);
+                    clearTimeout(this.failSafeTimer);
                     this.timer = setTimeout(() => { this.navigating = true; }, 120);
+                    this.failSafeTimer = setTimeout(() => { this.endNav(); }, 6000);
                 },
                 endNav() {
                     clearTimeout(this.timer);
+                    clearTimeout(this.failSafeTimer);
                     this.navigating = false;
                 }
             }"
             x-init="
                 document.addEventListener('livewire:navigate', (e) => startNav(e));
                 document.addEventListener('livewire:navigated', () => endNav());
+                document.addEventListener('livewire:navigate-failed', () => endNav());
             "
             x-show="navigating"
             x-cloak
@@ -533,13 +484,13 @@
         <div class="bottom-nav-wrapper">
             <nav class="bottom-nav">
                 <!-- 1. Beranda (Halaman Awal) -->
-                <a href="{{ route('mobile.dashboard') }}" class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}" wire:navigate.hover>
+                <a href="{{ route('mobile.dashboard') }}" class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}" wire:navigate>
                     <i class="fa-solid fa-house"></i>
                     <span>Beranda</span>
                 </a>
 
                 <!-- 2. Riwayat & LHK -->
-                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate.hover>
+                <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate>
                     <i class="fa-solid fa-calendar-days"></i>
                     <span>Riwayat</span>
                 </a>
@@ -547,7 +498,7 @@
                 <!-- 3. TOMBOL NAVIGASI PRESENSI TENGAH -->
                 <div class="center-absen-btn-wrapper">
                     <a href="{{ route('mobile.absensi') }}" 
-                       wire:navigate.hover
+                       wire:navigate
                        class="center-absen-btn group ring-4 ring-amber-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-amber-400 shadow-amber-500/30' : '' }}"
                        title="Halaman Presensi Kehadiran">
                         <i class="fa-solid fa-fingerprint"></i>
@@ -556,13 +507,13 @@
                 </div>
 
                 <!-- 4. Izin & Cuti -->
-                <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate.hover>
+                <a href="{{ route('mobile.izin.index') }}" class="nav-item {{ request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate>
                     <i class="fa-solid fa-envelope-open-text"></i>
                     <span>Izin</span>
                 </a>
 
                 <!-- 5. Profil (Halaman sama dengan data pegawai Filament & bisa diedit) -->
-                <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate.hover>
+                <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate>
                     <i class="fa-solid fa-circle-user"></i>
                     <span>Profil</span>
                 </a>
@@ -687,112 +638,6 @@
                         <span x-text="buttonText">Mengerti</span>
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Notifikasi Instal PWA (Aktif kembali jika PWA pernah diinstal lalu dibuang) -->
-    <div x-data="{
-            show: false,
-            canPrompt: false,
-            showGuide: false,
-            isIos: /iphone|ipad|ipod/i.test(navigator.userAgent),
-            init() {
-                this.evaluate();
-                window.addEventListener('sakti:pwa-prompt-ready', () => {
-                    this.canPrompt = Boolean(window.__saktiPwa?.deferredPrompt);
-                    this.evaluate(true);
-                });
-                window.addEventListener('sakti:pwa-installed', () => {
-                    this.show = false;
-                    this.showGuide = false;
-                });
-            },
-            evaluate(force = false) {
-                const pwa = window.__saktiPwa;
-                if (!pwa || pwa.isStandalone()) {
-                    this.show = false;
-                    return;
-                }
-                this.canPrompt = Boolean(pwa.deferredPrompt);
-                if (pwa.isDismissed() && !force) {
-                    this.show = false;
-                    return;
-                }
-                // Tampilkan jika prompt browser tersedia, atau pernah diinstal lalu dibuang, atau di iOS Safari
-                if (this.canPrompt || pwa.wasRemoved() || this.isIos) {
-                    this.show = true;
-                }
-            },
-            async install() {
-                const promptEvent = window.__saktiPwa?.deferredPrompt;
-                if (promptEvent) {
-                    promptEvent.prompt();
-                    const choice = await promptEvent.userChoice.catch(() => null);
-                    window.__saktiPwa.deferredPrompt = null;
-                    this.canPrompt = false;
-                    if (choice && choice.outcome === 'accepted') {
-                        window.__saktiPwa.markInstalled();
-                        this.show = false;
-                    } else {
-                        this.showGuide = true;
-                    }
-                    return;
-                }
-                this.showGuide = !this.showGuide;
-            },
-            close() {
-                window.__saktiPwa?.dismiss();
-                this.show = false;
-                this.showGuide = false;
-            }
-         }"
-         x-show="show"
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 translate-y-4"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 translate-y-0"
-         x-transition:leave-end="opacity-0 translate-y-4"
-         x-cloak
-         class="fixed {{ auth()->check() ? 'bottom-[86px]' : 'bottom-4' }} inset-x-0 z-[55] flex justify-center px-3 pointer-events-none">
-        <div class="w-full max-w-[416px] pointer-events-auto rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-sky-200/80 dark:border-sky-800/70 shadow-xl shadow-slate-900/15 p-3.5">
-            <div class="flex items-center gap-3">
-                @php
-                    $pwaPengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
-                    $pwaLogoUrl = asset('favicon.png');
-                    if (!empty($pwaPengaturan->logo) && file_exists(public_path('storage/' . $pwaPengaturan->logo))) {
-                        $pwaLogoUrl = asset('storage/' . $pwaPengaturan->logo);
-                    } elseif (file_exists(public_path('images/logo-kabupaten.png'))) {
-                        $pwaLogoUrl = asset('images/logo-kabupaten.png');
-                    }
-                @endphp
-                <img src="{{ $pwaLogoUrl }}" alt="SAKTI Mobile" class="w-11 h-11 rounded-xl object-contain bg-white p-1 shrink-0 ring-1 ring-slate-200 dark:ring-slate-700">
-                <div class="flex-1 min-w-0">
-                    <p class="text-[13px] font-extrabold text-slate-900 dark:text-slate-100 leading-tight">Instal Aplikasi SAKTI</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
-                        Pasang ke layar utama HP untuk akses cepat &amp; nyaman.
-                    </p>
-                </div>
-                <button type="button"
-                        @click="install()"
-                        class="shrink-0 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-95 text-white text-[11px] font-bold shadow-sm transition-all">
-                    <span x-text="canPrompt ? 'Instal' : 'Cara Instal'"></span>
-                </button>
-                <button type="button"
-                        @click="close()"
-                        aria-label="Tutup notifikasi instal"
-                        class="shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <i class="fa-solid fa-xmark text-xs"></i>
-                </button>
-            </div>
-            <div x-show="showGuide" x-transition class="mt-2.5 pt-2.5 border-t border-slate-100 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                <template x-if="isIos">
-                    <span>Ketuk ikon <strong>Bagikan (Share)</strong> di Safari, lalu pilih <strong>Tambah ke Layar Utama</strong>.</span>
-                </template>
-                <template x-if="!isIos">
-                    <span>Ketuk ikon <strong>⋮ (titik tiga)</strong> di kanan atas Chrome, lalu pilih <strong>Instal aplikasi</strong> atau <strong>Tambahkan ke layar utama</strong>.</span>
-                </template>
             </div>
         </div>
     </div>

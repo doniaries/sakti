@@ -3,6 +3,7 @@
     <section class="-mx-4 -mt-4"
         x-data="{ 
             time: '--:--:--',
+            clockTimer: null,
             initClock() {
                 const pad = (n) => String(n).padStart(2, '0');
                 const update = () => {
@@ -10,7 +11,9 @@
                     this.time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
                 };
                 update();
-                setInterval(update, 1000);
+                clearInterval(this.clockTimer);
+                this.clockTimer = setInterval(update, 1000);
+                document.addEventListener('livewire:navigating', () => clearInterval(this.clockTimer), { once: true });
             }
         }" 
         x-init="initClock()">
@@ -275,6 +278,12 @@
                             this.initMap();
                             this.detectPosition();
                         });
+                        document.addEventListener('livewire:navigating', () => {
+                            if (this.map) {
+                                this.map.remove();
+                                this.map = null;
+                            }
+                        }, { once: true });
                     },
 
                     initMap() {
