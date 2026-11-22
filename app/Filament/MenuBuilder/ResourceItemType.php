@@ -53,7 +53,7 @@ class ResourceItemType extends ItemType
                 ->label('Pilih Resource / Halaman Aplikasi')
                 ->options($options)
                 ->descriptions($descriptions)
-                ->default(array_keys($assigned))
+                ->default(array_values(array_intersect(array_keys($assigned), array_keys($options))))
                 ->searchable()
                 ->bulkToggleable(),
         ];

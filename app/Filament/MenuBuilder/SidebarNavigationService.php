@@ -125,6 +125,20 @@ class SidebarNavigationService
                     ->items($navItems)
                     ->collapsed();
             } else {
+                // Jika menu memiliki sub-menu namun seluruhnya tersembunyi karena hak akses user, jangan tampilkan grupnya
+                if ($tree->isNotEmpty()) {
+                    continue;
+                }
+
+                // Menu Pengaturan hanya tampil untuk super_admin dan admin_kepegawaian
+                if (strcasecmp(trim((string) $menu->name), 'Pengaturan') === 0) {
+                    /** @var \App\Models\User|null $authUser */
+                    $authUser = \Illuminate\Support\Facades\Auth::user();
+                    if (! ($authUser?->hasAnyRole(['super_admin', 'admin_kepegawaian']) ?? false)) {
+                        continue;
+                    }
+                }
+
                 // Menu belum memiliki sub-menu: cek apakah cocok dengan katalog resource
                 $catalog = ResourceItemType::getCatalog();
                 $matchedClass = null;

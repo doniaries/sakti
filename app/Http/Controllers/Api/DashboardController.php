@@ -146,6 +146,12 @@ class DashboardController extends Controller
                 ],
                 'riwayat_7_hari'  => $riwayat7Hari,
                 'modul_aktif'     => PengaturanAplikasi::getModulAktifMap(),
+                'app_info'        => [
+                    'versi_aplikasi'   => $pengaturan->versi_aplikasi ?? 'v1.0.0',
+                    'info_update'      => $pengaturan->info_update,
+                    'pembuat_aplikasi' => $pengaturan->pembuat_aplikasi,
+                    'kontak_bantuan'   => $pengaturan->kontak_bantuan,
+                ],
             ],
         ]);
     }

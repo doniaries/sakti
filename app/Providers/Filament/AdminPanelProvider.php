@@ -181,6 +181,7 @@ class AdminPanelProvider extends PanelProvider
                 StickyTableHeaderPlugin::make(),
                 FilamentEditProfilePlugin::make()
                     ->shouldRegisterNavigation(false)
+                    ->shouldShowDeleteAccountForm(false)
                     ->shouldShowEditPasswordForm(false)
                     ->customProfileComponents([
                         \App\Livewire\Filament\CustomEditPasswordForm::class,

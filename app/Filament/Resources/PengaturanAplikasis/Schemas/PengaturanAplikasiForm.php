@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PengaturanAplikasis\Schemas;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -56,6 +57,19 @@ class PengaturanAplikasiForm
                             ->required()
                             ->helperText('Pilih tema tampilan halaman utama. Pratinjau cepat: /?tema=default atau /?tema=rhoe')
                             ->columnSpanFull(),
+
+                        FileUpload::make('logo')
+                            ->label('Logo Aplikasi (Otomatis Update Favicon, PWA & Android)')
+                            ->image()
+                            ->disk('public')
+                            ->directory('logos')
+                            ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                            ->maxSize(2048)
+                            ->imageEditor()
+                            ->openable()
+                            ->downloadable()
+                            ->helperText('Disarankan PNG transparan rasio 1:1. Saat disimpan, otomatis memperbarui favicon, ikon PWA, dan ikon launcher Android.')
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Informasi Sistem & Dukungan Teknis')
@@ -83,6 +97,13 @@ class PengaturanAplikasiForm
                                     ->placeholder('Contoh: helpdesk@lhk.go.id')
                                     ->prefixIcon('heroicon-m-envelope'),
                             ]),
+
+                        Textarea::make('info_update')
+                            ->label('Informasi Update / Catatan Rilis Aplikasi')
+                            ->rows(3)
+                            ->placeholder('Contoh: v1.0.1 — Penambahan wizard pengenalan, push notifikasi, dan perbaikan performa.')
+                            ->helperText('Ditampilkan di halaman Profil semua user pada aplikasi Android SAKTI Mobile.')
+                            ->columnSpanFull(),
                     ]),
 
                 Section::make('Manajemen Modul Aktif (Filament, Mobile Livewire & Flutter)')

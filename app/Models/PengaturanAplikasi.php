@@ -27,6 +27,7 @@ class PengaturanAplikasi extends Model
         'alamat_kantor',
         'logo',
         'versi_aplikasi',
+        'info_update',
         'tahun_anggaran_aktif',
         'pembuat_aplikasi',
         'kontak_bantuan',
@@ -144,6 +145,10 @@ class PengaturanAplikasi extends Model
 
             \Illuminate\Support\Facades\Cache::forget('pengaturan_tahun_anggaran_aktif');
             \Illuminate\Support\Facades\Cache::forget('pengaturan_modul_aktif');
+
+            if ($pengaturan->wasChanged('logo') && filled($pengaturan->logo)) {
+                \App\Services\AppLogoSyncService::syncFromStoragePath($pengaturan->logo);
+            }
         });
 
         static::deleted(function () {
