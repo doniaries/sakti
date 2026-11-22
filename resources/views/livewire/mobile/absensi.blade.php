@@ -196,10 +196,10 @@
         </div>
     </div>
 
-    <!-- Info Jabatan & PIN Mesin (Polesan Elegan Sesuai Better-UI) -->
-    @if (!empty($user->jabatan?->nama) || !empty($user->nomor_absensi))
-        <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-md shadow-slate-900/5 flex items-center justify-between text-xs mb-3">
-            <div class="flex items-center space-x-2.5 min-w-0 pr-2">
+    <!-- Info Jabatan -->
+    @if (!empty($user->jabatan?->nama))
+        <div class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-md shadow-slate-900/5 flex items-center text-xs mb-3">
+            <div class="flex items-center space-x-2.5 min-w-0">
                 <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-xs shrink-0">
                     <i class="fa-solid fa-id-badge"></i>
                 </div>
@@ -207,12 +207,6 @@
                     <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold leading-tight">Jabatan Pegawai</span>
                     <span class="font-extrabold text-slate-800 truncate block text-[11px] mt-0.5">{{ $user->jabatan->nama ?? '-' }}</span>
                 </div>
-            </div>
-            <div class="shrink-0 text-right">
-                <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold leading-tight">PIN Mesin</span>
-                <span class="px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-800 font-black font-mono text-[11px] inline-block mt-0.5">
-                    {{ $user->nomor_absensi ?? '-' }}
-                </span>
             </div>
         </div>
     @endif
