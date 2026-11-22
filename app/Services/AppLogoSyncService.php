@@ -47,7 +47,7 @@ class AppLogoSyncService
                 $targets[$androidResDir . '/mipmap-xxxhdpi/ic_launcher.png'] = 192;
             }
 
-            $flutterAsset = base_path('../sakti_mobile/assets/images/kabupaten-sijunjung.png');
+            $flutterAsset = base_path('../sakti_mobile/assets/images/logo-sakti.png');
             if (is_dir(dirname($flutterAsset))) {
                 $targets[$flutterAsset] = 512;
             }
