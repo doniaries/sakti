@@ -216,6 +216,9 @@
             payload.potongan_terlambat = '0';
         }
 
+        // Pastikan field numerik tidak kosong (mencegah HTTP 500 di PHP/MySQL strict mode)
+        if (!payload.potongan_apel) payload.potongan_apel = '0';
+
         // 4. Submit simpan
         const saveRes = await postForm('pages/ambilabsen/proses-ambil-absen.php', payload, true);
         if (String(saveRes.id) === '0') {
