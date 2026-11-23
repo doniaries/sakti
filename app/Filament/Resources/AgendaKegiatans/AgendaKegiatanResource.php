@@ -36,7 +36,15 @@ class AgendaKegiatanResource extends Resource
             return false;
         }
 
-        return $user->hasAnyRole(['super_admin', 'admin']) || $user->hasPermissionTo('kelola_agenda');
+        return $user->hasAnyRole([
+            'super_admin',
+            'admin',
+            'pa',
+            'kadis',
+            'sekretaris',
+            'kabid',
+            'kepala_bidang',
+        ]) || $user->hasPermissionTo('kelola_agenda');
     }
 
     public static function form(Schema $schema): Schema
