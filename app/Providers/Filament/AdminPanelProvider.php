@@ -80,6 +80,16 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-device-phone-mobile')
                     ->sort(2),
             ])
+            ->navigationGroups([
+                'Laporan',
+                'Tim Kreatif',
+                'Absensi',
+                'Aset & Inventaris',
+                'Master Keuangan',
+                'Keuangan',
+                'Kepegawaian',
+                'Pengaturan',
+            ])
             /* ->navigationGroups([
                 NavigationGroup::make('Keuangan')
                     ->icon('heroicon-o-banknotes')
