@@ -21,7 +21,7 @@ class AgendaKegiatanResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
+    // protected static string|\UnitEnum|null $navigationGroup = 'Absensi';
 
     protected static ?int $navigationSort = 99;
 
