@@ -99,6 +99,230 @@ class AuthController extends Controller
         ]);
     }
 
+    public function meBiodata(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $user->loadMissing([
+            'jabatan',
+            'bidang',
+            'atasan',
+            'jadwalKerja',
+            'riwayatGolongan',
+            'riwayatJabatan',
+            'riwayatPendidikan',
+        ]);
+
+        $latestGol = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true)
+            ?? $user->riwayatGolongan->first();
+        $latestPend = $user->riwayatPendidikan->firstWhere('is_pendidikan_terakhir', true)
+            ?? $user->riwayatPendidikan->last();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'utama' => [
+                    'NIP' => $user->nip ?: '-',
+                    'Jenis Kelamin' => (string) ($user->jenis_kelamin?->value ?? ($user->jenis_kelamin ?? '-')),
+                    'Tempat, Tgl Lahir' => trim(($user->tempat_lahir ?: '-') . ', ' . ($user->tanggal_lahir?->format('d/m/Y') ?? '-')),
+                    'Agama' => $user->agama ?: '-',
+                    'No. HP / WhatsApp' => $user->no_hp ?: '-',
+                    'Email Login' => $user->email ?: '-',
+                    'Email Resmi' => $user->email_resmi ?: '-',
+                    'Alamat' => $user->alamat ?: '-',
+                ],
+                'golongan' => [
+                    'Golongan / Ruang' => (string) ($latestGol?->golongan?->value ?? ($latestGol?->golongan ?? ($user->golongan ?: '-'))),
+                    'Nama Pangkat' => $latestGol?->nama_pangkat ?: '-',
+                    'TMT Golongan' => $latestGol?->tmt_golongan?->format('d/m/Y') ?? '-',
+                    'Nomor SK' => $latestGol?->nomor_sk ?: '-',
+                ],
+                'jabatan' => [
+                    'Jabatan Saat Ini' => $user->jabatan?->nama ?? '-',
+                    'Bidang / Unit' => $user->bidang?->nama ?? '-',
+                    'Atasan Langsung' => $user->atasan?->name ?? '-',
+                    'Status Kerja' => strtoupper((string) ($user->status_kerja ?? 'WFO')),
+                    'Jadwal Kerja' => $user->jadwalKerja?->nama ?? 'Jadwal Reguler',
+                ],
+                'pendidikan' => [
+                    'Jenjang Terakhir' => (string) ($latestPend?->jenjang ?? ($user->jenjang_pendidikan ?: '-')),
+                    'Jurusan / Prodi' => $latestPend?->jurusan ?: ($user->pendidikan ?: '-'),
+                    'Institusi / Sekolah' => $latestPend?->nama_sekolah ?: '-',
+                    'Tahun Lulus' => (string) ($latestPend?->tahun_lulus ?? '-'),
+                ],
+                'keluarga' => [
+                    'Status Pernikahan' => $user->status_pernikahan ?: '-',
+                    'Nama Pasangan' => $user->nama_pasangan ?: '-',
+                    'Jumlah Anak' => (string) ($user->jumlah_anak ?? '-'),
+                    'Alamat Keluarga' => $user->alamat_keluarga ?: '-',
+                ],
+            ],
+        ]);
+    }
+
+    public function updateBiodata(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $section = (string) $request->input('section', 'utama');
+        $fields = $request->input('fields', []);
+
+        if (! is_array($fields)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Format data tidak valid.',
+            ], 422);
+        }
+
+        $clean = fn (string $key): ?string => isset($fields[$key]) && trim((string) $fields[$key]) !== '' && trim((string) $fields[$key]) !== '-'
+            ? trim((string) $fields[$key])
+            : null;
+
+        if ($section === 'utama') {
+            $user->update(array_filter([
+                'no_hp' => $clean('No. HP / WhatsApp'),
+                'agama' => $clean('Agama'),
+                'alamat' => $clean('Alamat'),
+                'email_resmi' => $clean('Email Resmi'),
+            ], fn ($v) => $v !== null));
+        } elseif ($section === 'golongan') {
+            $user->update(array_filter([
+                'golongan' => $clean('Golongan / Ruang'),
+            ], fn ($v) => $v !== null));
+        } elseif ($section === 'pendidikan') {
+            $user->update(array_filter([
+                'jenjang_pendidikan' => $clean('Jenjang Terakhir'),
+                'pendidikan' => $clean('Jurusan / Prodi'),
+            ], fn ($v) => $v !== null));
+        } elseif ($section === 'keluarga') {
+            $user->update([
+                'status_pernikahan' => $clean('Status Pernikahan'),
+                'nama_pasangan' => $clean('Nama Pasangan'),
+                'jumlah_anak' => is_numeric($fields['Jumlah Anak'] ?? null)
+                    ? (int) $fields['Jumlah Anak']
+                    : $user->jumlah_anak,
+                'alamat_keluarga' => $clean('Alamat Keluarga'),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data kepegawaian berhasil diperbarui dan tersinkron ke sistem.',
+        ]);
+    }
+
+    public function meBiodata(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $user->loadMissing([
+            'jabatan',
+            'bidang',
+            'atasan',
+            'jadwalKerja',
+            'riwayatGolongan',
+            'riwayatJabatan',
+            'riwayatPendidikan',
+        ]);
+
+        $latestGol = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true)
+            ?? $user->riwayatGolongan->first();
+        $latestPend = $user->riwayatPendidikan->firstWhere('is_pendidikan_terakhir', true)
+            ?? $user->riwayatPendidikan->last();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'utama' => [
+                    'NIP' => $user->nip ?: '-',
+                    'Jenis Kelamin' => (string) ($user->jenis_kelamin?->value ?? ($user->jenis_kelamin ?? '-')),
+                    'Tempat, Tgl Lahir' => trim(($user->tempat_lahir ?: '-') . ', ' . ($user->tanggal_lahir?->format('d/m/Y') ?? '-')),
+                    'Agama' => $user->agama ?: '-',
+                    'No. HP / WhatsApp' => $user->no_hp ?: '-',
+                    'Email Login' => $user->email ?: '-',
+                    'Email Resmi' => $user->email_resmi ?: '-',
+                    'Alamat' => $user->alamat ?: '-',
+                ],
+                'golongan' => [
+                    'Golongan / Ruang' => (string) ($latestGol?->golongan?->value ?? ($latestGol?->golongan ?? ($user->golongan ?: '-'))),
+                    'Nama Pangkat' => $latestGol?->nama_pangkat ?: '-',
+                    'TMT Golongan' => $latestGol?->tmt_golongan?->format('d/m/Y') ?? '-',
+                    'Nomor SK' => $latestGol?->nomor_sk ?: '-',
+                ],
+                'jabatan' => [
+                    'Jabatan Saat Ini' => $user->jabatan?->nama ?? '-',
+                    'Bidang / Unit' => $user->bidang?->nama ?? '-',
+                    'Atasan Langsung' => $user->atasan?->name ?? '-',
+                    'Status Kerja' => strtoupper((string) ($user->status_kerja ?? 'WFO')),
+                    'Jadwal Kerja' => $user->jadwalKerja?->nama ?? 'Jadwal Reguler',
+                ],
+                'pendidikan' => [
+                    'Jenjang Terakhir' => (string) ($latestPend?->jenjang ?? ($user->jenjang_pendidikan ?: '-')),
+                    'Jurusan / Prodi' => $latestPend?->jurusan ?: ($user->pendidikan ?: '-'),
+                    'Institusi / Sekolah' => $latestPend?->nama_sekolah ?: '-',
+                    'Tahun Lulus' => (string) ($latestPend?->tahun_lulus ?? '-'),
+                ],
+                'keluarga' => [
+                    'Status Pernikahan' => $user->status_pernikahan ?: '-',
+                    'Nama Pasangan' => $user->nama_pasangan ?: '-',
+                    'Jumlah Anak' => (string) ($user->jumlah_anak ?? '-'),
+                    'Alamat Keluarga' => $user->alamat_keluarga ?: '-',
+                ],
+            ],
+        ]);
+    }
+
+    public function updateBiodata(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        $section = (string) $request->input('section', 'utama');
+        $fields = $request->input('fields', []);
+
+        if (! is_array($fields)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Format data tidak valid.',
+            ], 422);
+        }
+
+        $clean = fn (string $key): ?string => isset($fields[$key]) && trim((string) $fields[$key]) !== '' && trim((string) $fields[$key]) !== '-'
+            ? trim((string) $fields[$key])
+            : null;
+
+        if ($section === 'utama') {
+            $user->update(array_filter([
+                'no_hp' => $clean('No. HP / WhatsApp'),
+                'agama' => $clean('Agama'),
+                'alamat' => $clean('Alamat'),
+                'email_resmi' => $clean('Email Resmi'),
+            ], fn ($v) => $v !== null));
+        } elseif ($section === 'golongan') {
+            $user->update(array_filter([
+                'golongan' => $clean('Golongan / Ruang'),
+            ], fn ($v) => $v !== null));
+        } elseif ($section === 'pendidikan') {
+            $user->update(array_filter([
+                'jenjang_pendidikan' => $clean('Jenjang Terakhir'),
+                'pendidikan' => $clean('Jurusan / Prodi'),
+            ], fn ($v) => $v !== null));
+        } elseif ($section === 'keluarga') {
+            $user->update([
+                'status_pernikahan' => $clean('Status Pernikahan'),
+                'nama_pasangan' => $clean('Nama Pasangan'),
+                'jumlah_anak' => is_numeric($fields['Jumlah Anak'] ?? null)
+                    ? (int) $fields['Jumlah Anak']
+                    : $user->jumlah_anak,
+                'alamat_keluarga' => $clean('Alamat Keluarga'),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data kepegawaian berhasil diperbarui dan tersinkron ke sistem.',
+        ]);
+    }
+
     public function updateAvatar(Request $request)
     {
         $request->validate([

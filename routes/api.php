@@ -21,6 +21,8 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
 
     // Auth
     Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/me/biodata', [AuthController::class, 'meBiodata']);
+    Route::post('/me/biodata', [AuthController::class, 'updateBiodata']);
     Route::post('/me/avatar', [AuthController::class, 'updateAvatar']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
