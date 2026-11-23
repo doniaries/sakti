@@ -145,6 +145,10 @@ class PengaturanAplikasiForm
                                 Toggle::make('modul_aktif.spj')
                                     ->label('Modul Keuangan & SPJ')
                                     ->default(true),
+
+                                Toggle::make('modul_aktif.agenda')
+                                    ->label('Modul Agenda Kegiatan')
+                                    ->default(true),
                             ]),
                     ]),
             ]);
