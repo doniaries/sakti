@@ -40,6 +40,14 @@ class AgendaKegiatanController extends Controller
             ->get()
             ->map(fn (AgendaKegiatan $item) => $this->formatItem($item));
 
+        $pastAgendas = (clone $baseQuery)
+            ->whereDate('tanggal', '<', $today)
+            ->orderByDesc('tanggal')
+            ->orderByDesc('jam_mulai')
+            ->limit(15)
+            ->get()
+            ->map(fn (AgendaKegiatan $item) => $this->formatItem($item));
+
         $canCreate = $user && (
             (method_exists($user, 'hasAnyRole') && $user->hasAnyRole([
                 'super_admin', 'admin', 'pa', 'kadis', 'sekretaris', 'kabid', 'kepala_bidang',
@@ -54,6 +62,7 @@ class AgendaKegiatanController extends Controller
                 'today_count' => $todayAgendas->count(),
                 'today' => $todayAgendas->values(),
                 'upcoming' => $upcomingAgendas->values(),
+                'past' => $pastAgendas->values(),
             ],
         ]);
     }
