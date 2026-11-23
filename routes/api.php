@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AbsensiController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AgendaKegiatanController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\IzinController;
 use App\Http\Controllers\Api\LhkController;
@@ -29,6 +30,7 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
 
     // Dashboard
     Route::get('/dashboard', DashboardController::class);
+    Route::get('/agenda-kegiatan', [AgendaKegiatanController::class, 'index']);
 
     // Absensi
     Route::prefix('absensi')->group(function () {
