@@ -103,6 +103,9 @@ class IzinController extends Controller
         $selesai = Carbon::parse($validated['tanggal_selesai']);
         $jumlahHari = max(1, (int) $mulai->diffInDays($selesai) + 1);
 
+        $jenisIzin = JenisIzin::find($validated['jenis_izin_id']);
+        $isCuti = ($jenisIzin?->kategori === 'cuti');
+
         $izin = PengajuanIzin::create([
             'user_id' => $user->id,
             'jenis_izin_id' => $validated['jenis_izin_id'],
@@ -111,21 +114,24 @@ class IzinController extends Controller
             'jumlah_hari' => $jumlahHari,
             'alasan' => $validated['alasan'],
             'lampiran' => $lampiranPath,
-            'status' => 'menunggu',
+            'status' => $isCuti ? 'menunggu' : 'disetujui',
+            'disetujui_at' => $isCuti ? null : now(),
         ]);
 
-        $recipients = User::role(['super_admin', 'admin'])->get();
-        if ($user->atasan) {
-            $recipients->push($user->atasan);
-        }
+        if ($isCuti) {
+            $recipients = User::role(['super_admin', 'admin'])->get();
+            if ($user->atasan) {
+                $recipients->push($user->atasan);
+            }
 
-        PushNotificationService::sendToUsers(
-            $recipients,
-            'Pengajuan Izin Baru',
-            "{$user->name} mengajukan izin ({$mulai->format('d/m/Y')} - {$selesai->format('d/m/Y')}).",
-            ['type' => 'izin', 'id' => (string) $izin->id],
-            'info'
-        );
+            PushNotificationService::sendToUsers(
+                $recipients,
+                'Pengajuan Cuti Baru',
+                "{$user->name} mengajukan cuti ({$mulai->format('d/m/Y')} - {$selesai->format('d/m/Y')}).",
+                ['type' => 'persetujuan', 'id' => (string) $izin->id],
+                'info'
+            );
+        }
 
         return response()->json([
             'success' => true,

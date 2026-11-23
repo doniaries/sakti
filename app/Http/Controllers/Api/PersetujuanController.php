@@ -20,6 +20,7 @@ class PersetujuanController extends Controller
         $query = PengajuanIzin::query()
             ->with(['user:id,name,nip,atasan_id', 'jenisIzin:id,nama,kategori'])
             ->where('status', 'menunggu')
+            ->whereHas('jenisIzin', fn ($q) => $q->where('kategori', 'cuti'))
             ->latest('id');
 
         if (! $isAdminOrKadis) {

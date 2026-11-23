@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\AgendaDisposisi;
 use App\Models\AgendaKegiatan;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -22,6 +24,7 @@ class AgendaKegiatanController extends Controller
 
         $baseQuery = AgendaKegiatan::query()
             ->with(['disposisis' => fn ($q) => $q->where('user_id', $user?->id)])
+            ->with(['disposisis.user:id,name'])
             ->when(! $isKadisOrAdmin && $user, function ($query) use ($user) {
                 $query->whereHas('disposisis', fn ($q) => $q->where('user_id', $user->id));
             });
@@ -55,10 +58,15 @@ class AgendaKegiatanController extends Controller
             (method_exists($user, 'hasPermissionTo') && $user->hasPermissionTo('kelola_agenda'))
         );
 
+        $pegawaiList = $canCreate
+            ? User::query()->where('aktif', true)->orderBy('name')->get(['id', 'name'])
+            : collect();
+
         return response()->json([
             'success' => true,
             'data' => [
                 'can_create' => $canCreate,
+                'pegawai_list' => $pegawaiList,
                 'today_count' => $todayAgendas->count(),
                 'today' => $todayAgendas->values(),
                 'upcoming' => $upcomingAgendas->values(),
@@ -92,12 +100,41 @@ class AgendaKegiatanController extends Controller
             'tempat' => ['required', 'string', 'max:255'],
             'asal_undangan' => ['nullable', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string'],
+            'pilih_semua' => ['nullable', 'boolean'],
+            'user_ids' => ['nullable', 'array'],
+            'user_ids.*' => ['integer', 'exists:users,id'],
+            'instruksi' => ['nullable', 'string', 'max:255'],
         ]);
 
         $agenda = AgendaKegiatan::query()->create([
             ...$validated,
+            'judul' => $validated['judul'],
+            'tanggal' => $validated['tanggal'],
+            'jam_mulai' => $validated['jam_mulai'],
+            'jam_selesai' => $validated['jam_selesai'] ?? null,
+            'tempat' => $validated['tempat'],
+            'asal_undangan' => $validated['asal_undangan'] ?? null,
+            'keterangan' => $validated['keterangan'] ?? null,
             'created_by' => $user->id,
         ]);
+
+        $targetIds = ! empty($validated['pilih_semua'])
+            ? User::query()->where('aktif', true)->pluck('id')->all()
+            : ($validated['user_ids'] ?? []);
+
+        foreach (array_unique($targetIds) as $uid) {
+            AgendaDisposisi::query()->firstOrCreate(
+                [
+                    'agenda_kegiatan_id' => $agenda->id,
+                    'user_id' => (int) $uid,
+                ],
+                [
+                    'instruksi' => $validated['instruksi'] ?? null,
+                ],
+            );
+        }
+
+        $agenda->load('disposisis.user:id,name');
 
         return response()->json([
             'success' => true,
@@ -109,6 +146,11 @@ class AgendaKegiatanController extends Controller
     private function formatItem(AgendaKegiatan $item): array
     {
         $disposisi = $item->disposisis->first();
+        $peserta = $item->disposisis
+            ->map(fn ($d) => $d->user?->name)
+            ->filter()
+            ->values()
+            ->all();
 
         return [
             'id' => $item->id,
@@ -121,6 +163,7 @@ class AgendaKegiatanController extends Controller
             'asal_undangan' => $item->asal_undangan,
             'keterangan' => $item->keterangan,
             'instruksi' => $disposisi?->instruksi,
+            'peserta' => $peserta,
             'lampiran_url' => $item->lampiran_file
                 ? Storage::disk('public')->url($item->lampiran_file)
                 : null,
