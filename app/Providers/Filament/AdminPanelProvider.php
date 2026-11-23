@@ -88,6 +88,7 @@ class AdminPanelProvider extends PanelProvider
                 'Master Keuangan',
                 'Keuangan',
                 'Kepegawaian',
+                'LHK',
                 'Pengaturan',
             ])
             /* ->navigationGroups([
