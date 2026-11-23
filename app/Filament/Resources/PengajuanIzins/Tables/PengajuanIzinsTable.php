@@ -104,6 +104,7 @@ class PengajuanIzinsTable
                             Notification::make()
                                 ->title('Pengajuan Izin Disetujui')
                                 ->body("Pengajuan {$record->jenisIzin?->nama} Anda telah disetujui.")
+                                ->icon('heroicon-o-check-circle')
                                 ->success()
                                 ->sendToDatabase($record->user);
                         }
@@ -138,6 +139,7 @@ class PengajuanIzinsTable
                             Notification::make()
                                 ->title('Pengajuan Izin Ditolak')
                                 ->body("Pengajuan {$record->jenisIzin?->nama} Anda ditolak. Catatan: {$data['catatan_atasan']}")
+                                ->icon('heroicon-o-x-circle')
                                 ->danger()
                                 ->sendToDatabase($record->user);
                         }
