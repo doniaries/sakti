@@ -69,7 +69,7 @@ class UsersTable
                     ->sortable()
                     ->color('info')
                     ->icon('heroicon-m-pencil-square')
-                    ->description(fn ($record): ?string => filled($record->email_resmi) ? 'Resmi: ' . $record->email_resmi : 'Email resmi: -')
+                    ->description(fn($record): ?string => filled($record->email_resmi) ? 'Resmi: ' . $record->email_resmi : 'Email resmi: -')
                     ->tooltip('Klik untuk mengubah email & password pegawai')
                     ->action(
                         Action::make('ubah_email_cepat')
@@ -87,13 +87,21 @@ class UsersTable
                                     ->label('Email Login')
                                     ->email()
                                     ->required()
-                                    ->unique('users', 'email', ignoreRecord: true)
+                                    ->unique(
+                                        table: 'users',
+                                        column: 'email',
+                                        ignorable: fn(\App\Models\User $record): \App\Models\User => $record,
+                                    )
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('email_resmi')
                                     ->label('Email Resmi (@sijunjung.go.id)')
                                     ->email()
                                     ->placeholder('Contoh: doniaries@sijunjung.go.id')
-                                    ->unique('users', 'email_resmi', ignoreRecord: true)
+                                    ->unique(
+                                        table: 'users',
+                                        column: 'email_resmi',
+                                        ignorable: fn(\App\Models\User $record): \App\Models\User => $record,
+                                    )
                                     ->maxLength(255),
                                 \Filament\Forms\Components\TextInput::make('password')
                                     ->label('Password Baru (Opsional)')
@@ -400,7 +408,7 @@ class UsersTable
                     ->label(false)
                     ->tooltip('Login sebagai pegawai ini (khusus Super Admin)')
                     ->redirectTo('/admin')
-                    ->backTo(fn (): string => \App\Filament\Resources\Users\UserResource::getUrl('index')),
+                    ->backTo(fn(): string => \App\Filament\Resources\Users\UserResource::getUrl('index')),
                 ViewAction::make()
                     ->label(false),
                 EditAction::make()
@@ -468,10 +476,10 @@ class UsersTable
                                 ];
 
                                 return \Spatie\Permission\Models\Role::query()
-                                    ->when(! $isSuperAdmin, fn ($q) => $q->where('name', '!=', 'super_admin'))
+                                    ->when(! $isSuperAdmin, fn($q) => $q->where('name', '!=', 'super_admin'))
                                     ->orderBy('id')
                                     ->pluck('name')
-                                    ->mapWithKeys(fn (string $roleName): array => [
+                                    ->mapWithKeys(fn(string $roleName): array => [
                                         $roleName => $knownLabels[$roleName] ?? ucwords(str_replace('_', ' ', $roleName)),
                                     ])
                                     ->all();
@@ -493,7 +501,7 @@ class UsersTable
 
                                 return \Spatie\Permission\Models\Role::query()
                                     ->pluck('name')
-                                    ->mapWithKeys(fn (string $roleName): array => [
+                                    ->mapWithKeys(fn(string $roleName): array => [
                                         $roleName => $knownDescriptions[$roleName] ?? "Hak akses dinamis dari Shield Role ({$roleName}).",
                                     ])
                                     ->all();
