@@ -183,12 +183,22 @@
         payload.terdaftar = ketData.keterangan_name ?? payload.terdaftar ?? '';
         payload.CUTI = ketData.CUTI ?? payload.CUTI ?? '0';
 
-        // Parse opsi_kegiatan_id jika dikirim sebagai HTML snippet
+        // Parse opsi_kegiatan_id jika dikirim sebagai HTML snippet (bisa <input> atau <select>)
         if (ketData.kegiatan) {
             const kegDoc = new DOMParser().parseFromString(ketData.kegiatan, 'text/html');
-            const opsiEl = kegDoc.querySelector('input[name="opsi_kegiatan_id"]');
-            if (opsiEl) payload.opsi_kegiatan_id = opsiEl.value;
-            const kegInput = kegDoc.querySelector('input[name="kegiatan"]');
+            const opsiEl = kegDoc.querySelector('[name="opsi_kegiatan_id"]');
+            if (opsiEl) {
+                if (opsiEl.tagName === 'SELECT') {
+                    const opts = Array.from(opsiEl.querySelectorAll('option'));
+                    const mengikutiOpt = opts.find(
+                        (o) => o.value && /mengikuti/i.test(o.textContent) && !/tidak/i.test(o.textContent)
+                    ) || opts.find((o) => o.value && o.value !== '0');
+                    if (mengikutiOpt) payload.opsi_kegiatan_id = mengikutiOpt.value;
+                } else {
+                    payload.opsi_kegiatan_id = opsiEl.value;
+                }
+            }
+            const kegInput = kegDoc.querySelector('[name="kegiatan"]');
             if (kegInput) payload.kegiatan = kegInput.value;
         }
 
