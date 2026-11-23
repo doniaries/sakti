@@ -40,14 +40,61 @@ class AgendaKegiatanController extends Controller
             ->get()
             ->map(fn (AgendaKegiatan $item) => $this->formatItem($item));
 
+        $canCreate = $user && (
+            (method_exists($user, 'hasAnyRole') && $user->hasAnyRole([
+                'super_admin', 'admin', 'pa', 'kadis', 'sekretaris', 'kabid', 'kepala_bidang',
+            ])) ||
+            (method_exists($user, 'hasPermissionTo') && $user->hasPermissionTo('kelola_agenda'))
+        );
+
         return response()->json([
             'success' => true,
             'data' => [
+                'can_create' => $canCreate,
                 'today_count' => $todayAgendas->count(),
                 'today' => $todayAgendas->values(),
                 'upcoming' => $upcomingAgendas->values(),
             ],
         ]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $canCreate = $user && (
+            (method_exists($user, 'hasAnyRole') && $user->hasAnyRole([
+                'super_admin', 'admin', 'pa', 'kadis', 'sekretaris', 'kabid', 'kepala_bidang',
+            ])) ||
+            (method_exists($user, 'hasPermissionTo') && $user->hasPermissionTo('kelola_agenda'))
+        );
+
+        if (! $canCreate) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk membuat agenda.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'judul' => ['required', 'string', 'max:255'],
+            'tanggal' => ['required', 'date'],
+            'jam_mulai' => ['required', 'string', 'max:10'],
+            'jam_selesai' => ['nullable', 'string', 'max:10'],
+            'tempat' => ['required', 'string', 'max:255'],
+            'asal_undangan' => ['nullable', 'string', 'max:255'],
+            'keterangan' => ['nullable', 'string'],
+        ]);
+
+        $agenda = AgendaKegiatan::query()->create([
+            ...$validated,
+            'created_by' => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Agenda kegiatan berhasil ditambahkan.',
+            'data' => $this->formatItem($agenda),
+        ], 201);
     }
 
     private function formatItem(AgendaKegiatan $item): array

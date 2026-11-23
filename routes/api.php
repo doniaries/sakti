@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
     // Dashboard
     Route::get('/dashboard', DashboardController::class);
     Route::get('/agenda-kegiatan', [AgendaKegiatanController::class, 'index']);
+    Route::post('/agenda-kegiatan', [AgendaKegiatanController::class, 'store']);
 
     // Absensi
     Route::prefix('absensi')->group(function () {
