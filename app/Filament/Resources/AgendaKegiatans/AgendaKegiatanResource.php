@@ -13,12 +13,27 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class AgendaKegiatanResource extends Resource
 {
     protected static ?string $model = AgendaKegiatan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
+
+    protected static ?string $navigationLabel = 'Agenda Kegiatan';
+
+    public static function canAccess(): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasAnyRole(['super_admin', 'admin']) || $user->hasPermissionTo('kelola_agenda');
+    }
 
     public static function form(Schema $schema): Schema
     {

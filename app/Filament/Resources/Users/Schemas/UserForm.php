@@ -135,6 +135,20 @@ class UserForm
                                                     $user = Auth::user();
 
                                                     return $user?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin');
+                                                }),
+
+                                            Select::make('permissions')
+                                                ->label('Tugas Tambahan / Akses Khusus')
+                                                ->relationship('permissions', 'name')
+                                                ->multiple()
+                                                ->preload()
+                                                ->searchable()
+                                                ->helperText('Berikan akses menu tertentu (misal: kelola_agenda untuk Ajudan) tanpa mengubah Role utama.')
+                                                ->visible(function (): bool {
+                                                    /** @var \App\Models\User|null $user */
+                                                    $user = Auth::user();
+
+                                                    return $user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false;
                                                 })
                                                 ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
                                                     'super_admin' => 'Super Admin (Sistem Penuh)',
