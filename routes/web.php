@@ -60,6 +60,7 @@ Route::prefix('mobile')->group(function () {
             Route::get('/reputasi', \App\Livewire\Mobile\Reputasi::class)->name('mobile.reputasi');
         });
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
+        Route::get('/agenda', \App\Livewire\Mobile\Agenda::class)->name('mobile.agenda');
         Route::middleware('module:izin')->group(function () {
             Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
             Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');

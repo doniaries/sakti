@@ -146,6 +146,7 @@
                 ['route' => 'mobile.hari-libur', 'icon' => 'fa-calendar-day', 'label' => 'Hari Libur', 'color' => 'bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400'],
                 ['route' => 'mobile.lhk.bank-aktivitas', 'module' => 'lhk', 'icon' => 'fa-box-archive', 'label' => 'Bank Aktivitas', 'color' => 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'],
                 ['route' => 'mobile.reputasi', 'module' => 'reputasi', 'icon' => 'fa-medal', 'label' => 'Reputasi', 'color' => 'bg-yellow-50 dark:bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'],
+                ['route' => 'mobile.agenda', 'module' => 'agenda', 'icon' => 'fa-calendar-check', 'label' => 'Agenda', 'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400'],
                 ['route' => 'mobile.persetujuan', 'roles' => ['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'kabid', 'pptk', 'ppk', 'pa'], 'icon' => 'fa-file-signature', 'label' => 'Persetujuan', 'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400'],
             ];
         @endphp
