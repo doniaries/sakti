@@ -169,3 +169,30 @@ Route::middleware('web')->group(function () {
 
 
 
+
+Route::get('/robots.txt', function () {
+    $content = implode("\n", [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /admin',
+        'Disallow: /api/',
+        'Sitemap: ' . url('/sitemap.xml'),
+    ]);
+
+    return response($content, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+});
+
+Route::get('/sitemap.xml', function () {
+    $lastmod = now()->toAtomString();
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
+        . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n"
+        . '  <url>' . "\n"
+        . '    <loc>' . e(url('/')) . '</loc>' . "\n"
+        . '    <lastmod>' . $lastmod . '</lastmod>' . "\n"
+        . '    <changefreq>daily</changefreq>' . "\n"
+        . '    <priority>1.0</priority>' . "\n"
+        . '  </url>' . "\n"
+        . '</urlset>';
+
+    return response($xml, 200, ['Content-Type' => 'application/xml; charset=UTF-8']);
+});
