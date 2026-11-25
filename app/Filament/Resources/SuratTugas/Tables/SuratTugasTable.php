@@ -371,8 +371,6 @@ class SuratTugasTable
                         $copy->created_by = \Illuminate\Support\Facades\Auth::id();
                         $copy->save();
 
-                        $copy->pegawais()->sync($record->pegawais->pluck('id')->all());
-
                         \Filament\Notifications\Notification::make()
                             ->title('Surat tugas berhasil diduplikat')
                             ->success()

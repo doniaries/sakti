@@ -244,7 +244,7 @@ class SuratTugas extends Model
 
         // Ambil nomor urut tertinggi pada tahun berjalan agar selalu berlanjut walau ganti bulan
         $maxUrutan = 0;
-        $existingNumbers = static::query()
+        $existingNumbers = static::withTrashed()
             ->whereNotNull('nomor_surat')
             ->where(function ($q) use ($tahun): void {
                 $q->where('nomor_surat', 'like', "ST/%/TK/%/{$tahun}")
