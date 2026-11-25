@@ -5,14 +5,14 @@
     <title>Surat Tugas - {{ $surat->nomor_surat }}</title>
     <style>
         @page {
-            size: A4 portrait;
-            margin: 15mm 18mm 15mm 18mm;
+            size: 215mm 330mm;
+            margin: 10mm 16mm 10mm 16mm;
         }
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 10.5pt;
+            font-size: 10pt;
             color: #000;
-            line-height: 1.35;
+            line-height: 1.3;
         }
         @media screen {
             body {
