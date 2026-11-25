@@ -101,6 +101,27 @@ class SuratTugasForm
                                                 ->maxLength(20),
                                         ]),
 
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 2,
+                                    ])
+                                        ->schema([
+                                            DatePicker::make('tanggal_mulai')
+                                                ->label('Tanggal Mulai Kegiatan')
+                                                ->displayFormat('d/m/Y')
+                                                ->native(false)
+                                                ->default(now())
+                                                ->required(),
+
+                                            DatePicker::make('tanggal_selesai')
+                                                ->label('Tanggal Selesai Kegiatan')
+                                                ->displayFormat('d/m/Y')
+                                                ->native(false)
+                                                ->default(now())
+                                                ->afterOrEqual('tanggal_mulai')
+                                                ->required(),
+                                        ]),
+
                                     FileUpload::make('bukti_surat_undangan')
                                         ->label('Upload Bukti Surat Undangan')
                                         ->disk('public')
@@ -126,27 +147,6 @@ class SuratTugasForm
                                         ->required()
                                         ->maxLength(255)
                                         ->columnSpanFull(),
-
-                                    Grid::make([
-                                        'default' => 1,
-                                        'md' => 2,
-                                    ])
-                                        ->schema([
-                                            DatePicker::make('tanggal_mulai')
-                                                ->label('Tanggal Mulai')
-                                                ->displayFormat('d/m/Y')
-                                                ->native(false)
-                                                ->default(now())
-                                                ->required(),
-
-                                            DatePicker::make('tanggal_selesai')
-                                                ->label('Tanggal Selesai')
-                                                ->displayFormat('d/m/Y')
-                                                ->native(false)
-                                                ->default(now())
-                                                ->afterOrEqual('tanggal_mulai')
-                                                ->required(),
-                                        ]),
 
                                     Select::make('penanggung_jawab_ids')
                                         ->label('Penanggung Jawab Kegiatan Bidang')
