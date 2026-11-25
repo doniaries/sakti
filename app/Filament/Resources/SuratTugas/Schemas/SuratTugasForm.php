@@ -239,6 +239,7 @@ class SuratTugasForm
                                     TextInput::make('nomor_surat')
                                         ->label('Nomor Surat Tugas')
                                         ->default(fn (): string => \App\Models\SuratTugas::generateNomorSurat())
+                                        ->formatStateUsing(fn (?string $state): string => filled($state) ? $state : \App\Models\SuratTugas::generateNomorSurat())
                                         ->required()
                                         ->maxLength(100)
                                         ->helperText('Nomor surat dibuat otomatis oleh sistem, namun dapat diubah manual jika perlu perbaikan.'),

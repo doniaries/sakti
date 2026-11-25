@@ -24,7 +24,7 @@ class SuratTugasTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('id', 'desc')
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('nama_kegiatan')
                     ->label('Kegiatan')
