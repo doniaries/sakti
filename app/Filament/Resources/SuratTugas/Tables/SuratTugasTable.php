@@ -31,8 +31,10 @@ class SuratTugasTable
                     ->searchable()
                     ->wrap()
                     ->limit(120)
-                    ->extraHeaderAttributes(['class' => 'sticky left-0 z-10 min-w-[260px] bg-gray-50 dark:bg-gray-800'])
-                    ->extraCellAttributes(['class' => 'sticky left-0 z-10 min-w-[260px] bg-white dark:bg-gray-900']),
+                    ->width('340px')
+                    ->action('cetak_pdf')
+                    ->extraHeaderAttributes(['style' => 'min-width: 340px;', 'class' => 'sticky left-0 z-10 bg-gray-50 dark:bg-gray-800'])
+                    ->extraCellAttributes(['style' => 'min-width: 340px;', 'class' => 'sticky left-0 z-10 bg-white dark:bg-gray-900 cursor-pointer']),
 
                 TextColumn::make('tanggal_mulai')
                     ->label('Tgl Mulai')
@@ -191,7 +193,11 @@ class SuratTugasTable
                                 /** @var \App\Models\User|null $user */
                                 $user = \Illuminate\Support\Facades\Auth::user();
 
-                                return $user !== null && ($user->hasAnyRole(['super_admin', 'admin', 'pa', 'kadis']) || $user->isKepalaBidang() || (int) $record->penandatangan_id === (int) $user->id);
+                                return $user !== null && (
+                                    $user->hasAnyRole(['pa', 'kadis'])
+                                    || $user->isKepalaBidang()
+                                    || str_contains(strtolower((string) ($user->jabatan?->nama ?? '')), 'sekretaris')
+                                );
                             })
                             ->schema([
                                 \Filament\Forms\Components\Textarea::make('catatan_koreksi')
@@ -230,6 +236,21 @@ class SuratTugasTable
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
                     ->extraModalFooterActions([
+                        Action::make('edit_dari_preview')
+                            ->label('Edit Surat')
+                            ->icon('heroicon-o-pencil-square')
+                            ->color('primary')
+                            ->visible(function (SuratTugas $record): bool {
+                                /** @var \App\Models\User|null $user */
+                                $user = \Illuminate\Support\Facades\Auth::user();
+
+                                return $user !== null && (
+                                    $user->hasRole('super_admin')
+                                    || $user->isKepalaBidang()
+                                    || (int) $record->created_by === (int) $user->id
+                                );
+                            })
+                            ->url(fn (SuratTugas $record): string => \App\Filament\Resources\SuratTugas\SuratTugasResource::getUrl('edit', ['record' => $record])),
                         Action::make('koreksi_dari_preview')
                             ->label('Koreksi Surat')
                             ->icon('heroicon-o-arrow-uturn-left')
@@ -241,7 +262,11 @@ class SuratTugasTable
                                 /** @var \App\Models\User|null $user */
                                 $user = \Illuminate\Support\Facades\Auth::user();
 
-                                return $user !== null && ($user->hasAnyRole(['super_admin', 'admin', 'pa', 'kadis']) || $user->isKepalaBidang() || (int) $record->penandatangan_id === (int) $user->id);
+                                return $user !== null && (
+                                    $user->hasAnyRole(['pa', 'kadis'])
+                                    || $user->isKepalaBidang()
+                                    || str_contains(strtolower((string) ($user->jabatan?->nama ?? '')), 'sekretaris')
+                                );
                             })
                             ->schema([
                                 \Filament\Forms\Components\Textarea::make('catatan_koreksi')
@@ -289,6 +314,21 @@ class SuratTugasTable
                         return view('filament.surat-tugas.preview-modal', ['html' => $html]);
                     })
                     ->extraModalFooterActions([
+                        Action::make('edit_dari_preview')
+                            ->label('Edit Surat')
+                            ->icon('heroicon-o-pencil-square')
+                            ->color('primary')
+                            ->visible(function (SuratTugas $record): bool {
+                                /** @var \App\Models\User|null $user */
+                                $user = \Illuminate\Support\Facades\Auth::user();
+
+                                return $user !== null && (
+                                    $user->hasRole('super_admin')
+                                    || $user->isKepalaBidang()
+                                    || (int) $record->created_by === (int) $user->id
+                                );
+                            })
+                            ->url(fn (SuratTugas $record): string => \App\Filament\Resources\SuratTugas\SuratTugasResource::getUrl('edit', ['record' => $record])),
                         Action::make('koreksi_dari_preview')
                             ->label('Koreksi Surat')
                             ->icon('heroicon-o-arrow-uturn-left')
@@ -300,7 +340,11 @@ class SuratTugasTable
                                 /** @var \App\Models\User|null $user */
                                 $user = \Illuminate\Support\Facades\Auth::user();
 
-                                return $user !== null && ($user->hasAnyRole(['super_admin', 'admin', 'pa', 'kadis']) || $user->isKepalaBidang() || (int) $record->penandatangan_id === (int) $user->id);
+                                return $user !== null && (
+                                    $user->hasAnyRole(['pa', 'kadis'])
+                                    || $user->isKepalaBidang()
+                                    || str_contains(strtolower((string) ($user->jabatan?->nama ?? '')), 'sekretaris')
+                                );
                             })
                             ->schema([
                                 \Filament\Forms\Components\Textarea::make('catatan_koreksi')
@@ -492,7 +536,17 @@ class SuratTugasTable
                             ->send();
                     }),
 
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(function (SuratTugas $record): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+
+                        return $user !== null && (
+                            $user->hasRole('super_admin')
+                            || $user->isKepalaBidang()
+                            || (int) $record->created_by === (int) $user->id
+                        );
+                    }),
                 Action::make('duplikat')
                     ->label('Duplikat')
                     ->icon('heroicon-o-document-duplicate')
