@@ -1463,51 +1463,6 @@
             </div>
         @endif
 
-        @if (
-            $activeTab === 'sistem' &&
-                auth()->user()
-                    ?->hasAnyRole(['super_admin', 'admin']))
-            @php
-                $appCfg = \App\Models\PengaturanAplikasi::first();
-            @endphp
-            <div class="space-y-3">
-                <div class="flex items-center justify-between px-1">
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-gears"></i> Konfigurasi Sistem
-                    </h3>
-                    @if (Route::has('mobile.pengaturan-modul'))
-                        <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
-                            class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[11px] font-bold border border-sky-200">
-                            Atur Modul <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
-                        </a>
-                    @endif
-                </div>
-
-                @if ($appCfg)
-                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 text-xs">
-                        @foreach ([
-                            'Nama Aplikasi' => $appCfg->nama_aplikasi,
-                            'Sub Nama' => $appCfg->sub_nama,
-                            'Nama Dinas' => $appCfg->nama_dinas,
-                            'Kode Instansi' => $appCfg->kode_instansi,
-                            'Kepala Dinas' => $appCfg->nama_kepala_dinas,
-                            'Alamat Kantor' => $appCfg->alamat_kantor,
-                            'Radius Presensi' => ($appCfg->radius_meter ?? 0) . ' meter',
-                            'Mode Simulasi' => $appCfg->mode_simulasi ? 'Aktif' : 'Nonaktif',
-                            'Tahun Anggaran' => $appCfg->tahun_anggaran_aktif,
-                            'Versi Aplikasi' => $appCfg->versi_aplikasi,
-                            'Kontak Bantuan' => $appCfg->kontak_bantuan,
-                        ] as $label => $val)
-                            <div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0">
-                                <span class="text-slate-500 font-medium shrink-0">{{ $label }}</span>
-                                <span class="font-bold text-slate-900 text-right">{{ $val ?: '-' }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        @endif
-
         @if ($activeTab === 'administrasi')
             <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 space-y-2.5">
                 <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-1">Administrasi &amp; Nomor
