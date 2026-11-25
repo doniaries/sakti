@@ -296,25 +296,27 @@
         @enderror
     </div>
 
-    <!-- Android Material 3 Underline Tab Bar -->
-    <div class="-mx-5 px-4 mb-4 bg-white border-b border-slate-200/80 flex items-center overflow-x-auto [&::-webkit-scrollbar]:hidden" style="scrollbar-width: none;">
+    <!-- Android Material 3 Icon-Above-Label Tab Bar (6 kolom pas tanpa scroll) -->
+    <div class="-mx-5 mb-4 bg-white border-b border-slate-200/80">
         @if (!$isEditing)
-            @foreach ([
-                ['key' => 'utama', 'label' => 'Utama', 'icon' => 'fa-user'],
-                ['key' => 'administrasi', 'label' => 'Administrasi', 'icon' => 'fa-id-card'],
-                ['key' => 'golongan', 'label' => 'Pangkat', 'icon' => 'fa-shield-halved'],
-                ['key' => 'jabatan', 'label' => 'Jabatan', 'icon' => 'fa-briefcase'],
-                ['key' => 'pendidikan', 'label' => 'Pendidikan', 'icon' => 'fa-graduation-cap'],
-                ['key' => 'keluarga', 'label' => 'Keluarga', 'icon' => 'fa-people-roof'],
-            ] as $t)
-                <button type="button" wire:click="setTab('{{ $t['key'] }}')"
-                    class="px-3.5 py-2.5 text-xs font-bold whitespace-nowrap border-b-2 transition-colors flex items-center gap-1.5 cursor-pointer {{ $activeTab === $t['key'] ? 'border-sky-600 text-sky-600' : 'border-transparent text-slate-500 hover:text-slate-700' }}">
-                    <i class="fa-solid {{ $t['icon'] }} text-[11px]"></i>
-                    <span>{{ $t['label'] }}</span>
-                </button>
-            @endforeach
+            <div class="grid grid-cols-6">
+                @foreach ([
+                    ['key' => 'utama', 'label' => 'Utama', 'icon' => 'fa-user'],
+                    ['key' => 'administrasi', 'label' => 'Admin', 'icon' => 'fa-id-card'],
+                    ['key' => 'golongan', 'label' => 'Pangkat', 'icon' => 'fa-shield-halved'],
+                    ['key' => 'jabatan', 'label' => 'Jabatan', 'icon' => 'fa-briefcase'],
+                    ['key' => 'pendidikan', 'label' => 'Didik', 'icon' => 'fa-graduation-cap'],
+                    ['key' => 'keluarga', 'label' => 'Keluarga', 'icon' => 'fa-people-roof'],
+                ] as $t)
+                    <button type="button" wire:click="setTab('{{ $t['key'] }}')"
+                        class="py-2.5 px-1 flex flex-col items-center justify-center gap-1 border-b-2 transition-colors cursor-pointer {{ $activeTab === $t['key'] ? 'border-sky-600 text-sky-600' : 'border-transparent text-slate-500 hover:text-slate-700' }}">
+                        <i class="fa-solid {{ $t['icon'] }} text-xs"></i>
+                        <span class="text-[10px] font-bold leading-none truncate">{{ $t['label'] }}</span>
+                    </button>
+                @endforeach
+            </div>
         @else
-            <div class="py-2.5 text-xs font-bold text-sky-600 border-b-2 border-sky-600">
+            <div class="px-4 py-2.5 text-xs font-bold text-sky-600 border-b-2 border-sky-600">
                 <i class="fa-solid fa-pen-to-square mr-1.5"></i>{{ match ($activeTab) {
                     'administrasi' => 'Mode Edit Administrasi',
                     'golongan' => 'Mode Edit Pangkat / Golongan',
