@@ -165,6 +165,15 @@
                         </a>
                     @endif
                 @endforeach
+                @if (filled(auth()->user()?->jabatan_tim_kreatif))
+                    <button type="button" @click="document.getElementById('card-surat-tugas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })"
+                        class="flex flex-col items-center gap-1.5 group cursor-pointer">
+                        <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-file-signature text-lg"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
+                    </button>
+                @endif
             </div>
         </div>
     </section>
@@ -322,7 +331,7 @@
                 ->take(10)
                 ->get();
         @endphp
-        <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-sm space-y-3">
+        <div id="card-surat-tugas" class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-sm space-y-3">
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-sm font-extrabold text-zinc-900 dark:text-white">Surat Tugas Tim Kreatif</h3>
