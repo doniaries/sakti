@@ -1454,27 +1454,6 @@
             </div>
         @endif
 
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-                    <x-slot:footer>
-                        <div class="flex items-center gap-2">
-                            <button type="button" @click="roleModalOpen = false; $wire.set('editingRoleId', null)"
-                                class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="button" @click="roleModalOpen = false; $wire.saveRoleUsers()"
-                                class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
-                                Simpan
-                            </button>
-                        </div>
-                    </x-slot:footer>
-                </x-mobile.rhoe-modal>
-            </div>
-        @endif
-
         @if (
             $activeTab === 'sistem' &&
                 auth()->user()
