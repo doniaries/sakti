@@ -532,7 +532,7 @@
                         </div>
 
                         <x-mobile.rhoe-modal model="golModalOpen" :title="$editingGolonganId ? 'Edit Pangkat & Golongan' : 'Tambah Pangkat & Golongan'">
-                            <div class="space-y-3">
+                            <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <label class="block text-xs font-bold text-slate-700 mb-1">Golongan
@@ -805,7 +805,7 @@
                         <span>Jadikan Pendidikan Terakhir</span>
                     </label>
                 @elseif ($activeTab === 'administrasi')
-                    <div class="space-y-3">
+                    <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
                             <input type="text" wire:model="npwp" x-mask="99.999.999.9-999.999"
@@ -875,7 +875,7 @@
                         </div>
                     @endif
 
-                    <div class="space-y-3">
+                    <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
                             <input type="text" wire:model="name"
@@ -1025,7 +1025,7 @@
                     </div>
 
                     @if ($fullEditMode)
-                        <div class="space-y-3">
+                        <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">NIK</label>
                                 <input type="text" wire:model="nik" inputmode="numeric" maxlength="16"
@@ -1423,7 +1423,7 @@
                 auth()->user()
                     ?->hasAnyRole(['super_admin', 'admin']))
             @php
-                $configs = \App\Models\PengaturanAplikasi::query()->orderBy('kunci')->get();
+                $appCfg = \App\Models\PengaturanAplikasi::first();
             @endphp
             <div class="space-y-3">
                 <div class="flex items-center justify-between px-1">
@@ -1438,19 +1438,28 @@
                     @endif
                 </div>
 
-                <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2">
-                    @foreach ($configs as $cfg)
-                        <div
-                            class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0 text-xs">
-                            <div class="min-w-0">
-                                <div class="font-semibold text-slate-700">{{ $cfg->label ?: $cfg->kunci }}</div>
-                                <div class="text-[10px] font-mono text-slate-400">{{ $cfg->kunci }}</div>
+                @if ($appCfg)
+                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 text-xs">
+                        @foreach ([
+                            'Nama Aplikasi' => $appCfg->nama_aplikasi,
+                            'Sub Nama' => $appCfg->sub_nama,
+                            'Nama Dinas' => $appCfg->nama_dinas,
+                            'Kode Instansi' => $appCfg->kode_instansi,
+                            'Kepala Dinas' => $appCfg->nama_kepala_dinas,
+                            'Alamat Kantor' => $appCfg->alamat_kantor,
+                            'Radius Presensi' => ($appCfg->radius_meter ?? 0) . ' meter',
+                            'Mode Simulasi' => $appCfg->mode_simulasi ? 'Aktif' : 'Nonaktif',
+                            'Tahun Anggaran' => $appCfg->tahun_anggaran_aktif,
+                            'Versi Aplikasi' => $appCfg->versi_aplikasi,
+                            'Kontak Bantuan' => $appCfg->kontak_bantuan,
+                        ] as $label => $val)
+                            <div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0">
+                                <span class="text-slate-500 font-medium shrink-0">{{ $label }}</span>
+                                <span class="font-bold text-slate-900 text-right">{{ $val ?: '-' }}</span>
                             </div>
-                            <span
-                                class="font-bold text-slate-900 text-right break-all max-w-[45%]">{{ is_bool($cfg->nilai) ? ($cfg->nilai ? 'Aktif' : 'Nonaktif') : $cfg->nilai ?? '-' }}</span>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -1459,7 +1468,7 @@
                 auth()->user()
                     ?->hasAnyRole(['super_admin', 'admin']))
             @php
-                $configs = \App\Models\PengaturanAplikasi::query()->orderBy('kunci')->get();
+                $appCfg = \App\Models\PengaturanAplikasi::first();
             @endphp
             <div class="space-y-3">
                 <div class="flex items-center justify-between px-1">
@@ -1474,19 +1483,28 @@
                     @endif
                 </div>
 
-                <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2">
-                    @foreach ($configs as $cfg)
-                        <div
-                            class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0 text-xs">
-                            <div class="min-w-0">
-                                <div class="font-semibold text-slate-700">{{ $cfg->label ?: $cfg->kunci }}</div>
-                                <div class="text-[10px] font-mono text-slate-400">{{ $cfg->kunci }}</div>
+                @if ($appCfg)
+                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 text-xs">
+                        @foreach ([
+                            'Nama Aplikasi' => $appCfg->nama_aplikasi,
+                            'Sub Nama' => $appCfg->sub_nama,
+                            'Nama Dinas' => $appCfg->nama_dinas,
+                            'Kode Instansi' => $appCfg->kode_instansi,
+                            'Kepala Dinas' => $appCfg->nama_kepala_dinas,
+                            'Alamat Kantor' => $appCfg->alamat_kantor,
+                            'Radius Presensi' => ($appCfg->radius_meter ?? 0) . ' meter',
+                            'Mode Simulasi' => $appCfg->mode_simulasi ? 'Aktif' : 'Nonaktif',
+                            'Tahun Anggaran' => $appCfg->tahun_anggaran_aktif,
+                            'Versi Aplikasi' => $appCfg->versi_aplikasi,
+                            'Kontak Bantuan' => $appCfg->kontak_bantuan,
+                        ] as $label => $val)
+                            <div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0">
+                                <span class="text-slate-500 font-medium shrink-0">{{ $label }}</span>
+                                <span class="font-bold text-slate-900 text-right">{{ $val ?: '-' }}</span>
                             </div>
-                            <span
-                                class="font-bold text-slate-900 text-right break-all max-w-[45%]">{{ is_bool($cfg->nilai) ? ($cfg->nilai ? 'Aktif' : 'Nonaktif') : $cfg->nilai ?? '-' }}</span>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         @endif
 
@@ -1640,7 +1658,7 @@
                 @endforelse
 
                 <x-mobile.rhoe-modal model="golModalOpen" :title="$editingGolonganId ? 'Edit Pangkat & Golongan' : 'Tambah Pangkat & Golongan'">
-                    <div class="space-y-3">
+                    <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang</label>
@@ -1818,7 +1836,7 @@
                     @endforelse
 
                     <x-mobile.rhoe-modal model="jabModalOpen" :title="$editingJabatanId ? 'Edit Riwayat Jabatan' : 'Tambah Riwayat Jabatan'">
-                        <div class="space-y-3">
+                        <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Jabatan</label>
                                 <select wire:model="jab_jenis"
