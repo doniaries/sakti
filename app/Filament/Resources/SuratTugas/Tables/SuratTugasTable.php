@@ -358,7 +358,14 @@ class SuratTugasTable
                     ->modalHeading('Duplikat Surat Tugas')
                     ->modalDescription('Buat salinan surat tugas ini dengan nomor baru agar Anda bisa mengubah jam atau timnya.')
                     ->action(function (SuratTugas $record) {
-                        $copy = $record->replicate(['nomor_surat', 'file_tte', 'ditandatangani_at', 'hash_dokumen']);
+                        $copy = $record->replicate([
+                            'nomor_surat',
+                            'file_tte',
+                            'ditandatangani_at',
+                            'hash_dokumen',
+                            'pegawais_count',
+                            'pegawais_sudah_baca_count',
+                        ]);
                         $copy->status = 'draft';
                         $copy->nomor_surat = SuratTugas::generateNomorSurat();
                         $copy->created_by = \Illuminate\Support\Facades\Auth::id();
