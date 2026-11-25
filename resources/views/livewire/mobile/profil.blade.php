@@ -860,10 +860,36 @@
                             <input type="text" wire:model="nama_pasangan" placeholder="Nama pasangan..."
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Anak</label>
-                            <textarea wire:model="nama_anak" rows="2" placeholder="Pisahkan dengan koma atau baris baru..."
-                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                        <div x-data="{
+                            anakList: (() => {
+                                const arr = ($wire.nama_anak || '').split(/\r?\n|,/).map(s => s.trim()).filter(Boolean);
+                                return arr.length ? arr : [''];
+                            })(),
+                            syncAnak() {
+                                $wire.set('nama_anak', this.anakList.map(s => s.trim()).filter(Boolean).join('\n'), false);
+                            }
+                        }">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-bold text-slate-700">Nama Anak</label>
+                                <button type="button" @click="anakList.push('')"
+                                    class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200 cursor-pointer">
+                                    <i class="fa-solid fa-plus text-[9px] mr-0.5"></i> Tambah Anak
+                                </button>
+                            </div>
+                            <div class="space-y-2">
+                                <template x-for="(anak, idx) in anakList" :key="idx">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] font-bold text-slate-400 w-5 shrink-0" x-text="(idx + 1) + '.'"></span>
+                                        <input type="text" x-model="anakList[idx]" @input="syncAnak()"
+                                            :placeholder="'Nama anak ke-' + (idx + 1) + '...'"
+                                            class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                        <button type="button" x-show="anakList.length > 1" @click="anakList.splice(idx, 1); syncAnak()"
+                                            class="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 cursor-pointer">
+                                            <i class="fa-solid fa-trash text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Keluarga</label>
                         <textarea wire:model="alamat" rows="2"
@@ -2051,7 +2077,18 @@
                     </div>
                     <div class="py-1 text-xs border-b border-slate-50">
                         <span class="text-slate-400 font-medium block mb-1">Nama Anak</span>
-                        <span class="font-bold text-slate-800 whitespace-pre-line">{{ $user->nama_anak ?: '-' }}</span>
+                        @php
+                            $anakItems = array_values(array_filter(array_map('trim', preg_split('/\r?\n|,/', (string) ($user->nama_anak ?? '')))));
+                        @endphp
+                        @if (count($anakItems))
+                            <div class="space-y-0.5">
+                                @foreach ($anakItems as $idx => $anakNama)
+                                    <div class="font-bold text-slate-800">{{ $idx + 1 }}. {{ $anakNama }}</div>
+                                @endforeach
+                            </div>
+                        @else
+                            <span class="font-bold text-slate-800">-</span>
+                        @endif
                     </div>
                     <span class="text-slate-400 font-medium block mb-1">Alamat Keluarga</span>
                     <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
