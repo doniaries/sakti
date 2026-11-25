@@ -119,6 +119,7 @@ class Form extends Component
         $timKreatif = User::query()
             ->whereNotNull('jabatan_tim_kreatif')
             ->where('jabatan_tim_kreatif', '!=', '')
+            ->whereNotIn('jabatan_tim_kreatif', ['pembina', 'pengarah', 'penanggung_jawab'])
             ->orderBy('name')
             ->get(['id', 'name', 'jabatan_tim_kreatif']);
 
