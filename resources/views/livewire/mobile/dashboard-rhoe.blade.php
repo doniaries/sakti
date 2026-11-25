@@ -315,10 +315,16 @@
     <!-- Rhoe UI Modal: Surat Tugas Tim Kreatif -->
     @if (filled(auth()->user()?->jabatan_tim_kreatif))
         @php
+            $uid = auth()->id();
             $suratTugasSaya = \App\Models\SuratTugas::query()
-                ->with(['laporans' => fn ($q) => $q->where('user_id', auth()->id())])
+                ->with(['laporans' => fn ($q) => $q->where('user_id', $uid)])
                 ->where('status', 'terbit')
-                ->whereHas('pegawais', fn ($q) => $q->where('users.id', auth()->id()))
+                ->where(function ($q) use ($uid): void {
+                    $q->whereHas('pegawais', fn ($p) => $p->where('users.id', $uid))
+                        ->orWhereJsonContains('penanggung_jawab_ids', $uid)
+                        ->orWhereJsonContains('koordinator_acara_ids', $uid)
+                        ->orWhere('penanggung_jawab_id', $uid);
+                })
                 ->latest('tanggal_mulai')
                 ->take(10)
                 ->get();

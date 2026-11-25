@@ -23,7 +23,12 @@ class SuratTugasController extends Controller
             ->latest('tanggal_mulai');
 
         if (! $user->hasAnyRole(['super_admin', 'pa', 'kadis', 'admin'])) {
-            $query->whereHas('pegawais', fn ($q) => $q->where('users.id', $user->id));
+            $query->where(function ($q) use ($user): void {
+                $q->whereHas('pegawais', fn ($p) => $p->where('users.id', $user->id))
+                    ->orWhereJsonContains('penanggung_jawab_ids', $user->id)
+                    ->orWhereJsonContains('koordinator_acara_ids', $user->id)
+                    ->orWhere('penanggung_jawab_id', $user->id);
+            });
         }
 
         $items = $query->paginate(20)->through(function (SuratTugas $surat) use ($user): array {
