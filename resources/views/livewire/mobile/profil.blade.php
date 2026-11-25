@@ -319,6 +319,30 @@
                         </div>
                     </button>
                 @endforeach
+                @if (auth()->user()?->hasRole('super_admin'))
+                    <a href="/admin/shield/roles"
+                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5">
+                        <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-extrabold text-slate-800 leading-tight">Peran &amp; Akses</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Role &amp; Permission</div>
+                        </div>
+                    </a>
+                    @if (Route::has('mobile.pengaturan-modul'))
+                        <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
+                            class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-base">
+                                <i class="fa-solid fa-gears"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-extrabold text-slate-800 leading-tight">Pengaturan Sistem</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Modul &amp; Aplikasi</div>
+                            </div>
+                        </a>
+                    @endif
+                @endif
             </div>
         @else
             <div class="flex items-center justify-between mb-3">
