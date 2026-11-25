@@ -296,35 +296,25 @@
         @enderror
     </div>
 
-    <!-- Navigation Tabs (Termasuk Tab Statistik & Data Pegawai) -->
-    <div class="flex space-x-2 overflow-x-auto pb-2 mb-5 no-scrollbar">
+    <!-- Android Material 3 Underline Tab Bar -->
+    <div class="-mx-5 px-4 mb-4 bg-white border-b border-slate-200/80 flex items-center overflow-x-auto [&::-webkit-scrollbar]:hidden" style="scrollbar-width: none;">
         @if (!$isEditing)
-            <button wire:click="setTab('utama')"
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'utama' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-user text-xs mr-1.5"></i>Data Utama
-            </button>
-            <button wire:click="setTab('administrasi')"
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'administrasi' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-id-card text-xs mr-1.5"></i>Administrasi
-            </button>
-            <button wire:click="setTab('golongan')"
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'golongan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Pangkat / Golongan
-            </button>
-            <button wire:click="setTab('jabatan')"
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'jabatan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-briefcase text-xs mr-1.5"></i>Jabatan
-            </button>
-            <button wire:click="setTab('pendidikan')"
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'pendidikan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-graduation-cap text-xs mr-1.5"></i>Pendidikan
-            </button>
-            <button wire:click="setTab('keluarga')"
-                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'keluarga' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
-                <i class="fa-solid fa-people-roof text-xs mr-1.5"></i>Keluarga
-            </button>
+            @foreach ([
+                ['key' => 'utama', 'label' => 'Utama', 'icon' => 'fa-user'],
+                ['key' => 'administrasi', 'label' => 'Administrasi', 'icon' => 'fa-id-card'],
+                ['key' => 'golongan', 'label' => 'Pangkat', 'icon' => 'fa-shield-halved'],
+                ['key' => 'jabatan', 'label' => 'Jabatan', 'icon' => 'fa-briefcase'],
+                ['key' => 'pendidikan', 'label' => 'Pendidikan', 'icon' => 'fa-graduation-cap'],
+                ['key' => 'keluarga', 'label' => 'Keluarga', 'icon' => 'fa-people-roof'],
+            ] as $t)
+                <button type="button" wire:click="setTab('{{ $t['key'] }}')"
+                    class="px-3.5 py-2.5 text-xs font-bold whitespace-nowrap border-b-2 transition-colors flex items-center gap-1.5 cursor-pointer {{ $activeTab === $t['key'] ? 'border-sky-600 text-sky-600' : 'border-transparent text-slate-500 hover:text-slate-700' }}">
+                    <i class="fa-solid {{ $t['icon'] }} text-[11px]"></i>
+                    <span>{{ $t['label'] }}</span>
+                </button>
+            @endforeach
         @else
-            <div class="px-4 py-2 rounded-2xl text-xs font-bold bg-sky-600 text-white shadow-xs">
+            <div class="py-2.5 text-xs font-bold text-sky-600 border-b-2 border-sky-600">
                 <i class="fa-solid fa-pen-to-square mr-1.5"></i>{{ match ($activeTab) {
                     'administrasi' => 'Mode Edit Administrasi',
                     'golongan' => 'Mode Edit Pangkat / Golongan',
