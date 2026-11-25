@@ -75,6 +75,12 @@ class Profil extends Component
     public bool $gol_is_terakhir = false;
     public $gol_file_sk = null;
 
+    // Tab Peran & Hak Akses
+    public ?int $editingRoleId = null;
+    public string $editingRoleName = '';
+    /** @var array<int, int|string> */
+    public array $roleUserIds = [];
+
     // Tab Jabatan
     public string $status_kepegawaian = '';
     public ?int $jabatan_id = null;
@@ -284,6 +290,38 @@ class Profil extends Component
     public function setTab($tab)
     {
         $this->activeTab = $tab;
+    }
+
+    public function editRoleUsers(int $roleId): void
+    {
+        /** @var User|null $auth */
+        $auth = Auth::user();
+        abort_unless($auth && ($auth->hasRole('super_admin') || $auth->can('ViewAny:Role')), 403);
+
+        $role = \Spatie\Permission\Models\Role::with('users:id')->find($roleId);
+        if ($role) {
+            $this->editingRoleId = $role->id;
+            $this->editingRoleName = $role->name;
+            $this->roleUserIds = $role->users->pluck('id')->all();
+            $this->dispatch('open-role-modal');
+        }
+    }
+
+    public function saveRoleUsers(): void
+    {
+        /** @var User|null $auth */
+        $auth = Auth::user();
+        abort_unless($auth && ($auth->hasRole('super_admin') || $auth->can('ViewAny:Role')), 403);
+
+        if (! $this->editingRoleId) {
+            return;
+        }
+
+        $role = \Spatie\Permission\Models\Role::find($this->editingRoleId);
+        if ($role) {
+            $role->users()->sync(array_map('intval', $this->roleUserIds));
+            $this->dispatch('toast', message: "Daftar user peran {$role->name} berhasil diperbarui.");
+        }
     }
 
     public function updatedGolGolongan(?string $value): void
