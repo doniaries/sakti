@@ -1454,60 +1454,6 @@
             </div>
         @endif
 
-        @if ($activeTab === 'peran' && (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role')))
-            @php
-                $rolesList = \Spatie\Permission\Models\Role::withCount(['users', 'permissions'])
-                    ->orderBy('name')
-                    ->get();
-            @endphp
-            <div class="space-y-2.5" x-data="{ roleModalOpen: false, qRoleUser: '' }"
-                x-on:open-role-modal.window="roleModalOpen = true; qRoleUser = ''">
-                <div class="flex items-center justify-between px-1">
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-user-shield"></i> Daftar Peran &amp; Hak Akses
-                    </h3>
-                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                        {{ $rolesList->count() }} Peran
-                    </span>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    @foreach ($rolesList as $role)
-                        <div class="bg-white rounded-xl p-3 shadow-xs border border-slate-100 flex flex-col justify-between gap-2">
-                            <div class="flex items-start justify-between gap-1.5">
-                                <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
-                                <button type="button" wire:click="editRoleUsers({{ $role->id }})"
-                                    class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 cursor-pointer"
-                                    title="Edit User Peran">
-                                    <i class="fa-solid fa-pen text-[9px]"></i>
-                                </button>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <span class="px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
-                                <span class="px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-                <x-mobile.rhoe-modal model="roleModalOpen" :title="'Edit User: ' . $editingRoleName"
-                    subtitle="Pilih pegawai yang memiliki peran ini">
-                    <div class="space-y-2.5">
-                        <input type="search" x-model="qRoleUser" placeholder="Cari nama atau NIP pegawai..."
-                            class="w-full h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800 outline-none focus:border-sky-500">
-                        <div class="max-h-64 overflow-y-auto space-y-1">
-                            @foreach ($allActiveUsers as $u)
-                                <label
-                                    x-show="!qRoleUser || '{{ strtolower($u->name . ' ' . ($u->nip ?? '')) }}'.includes(qRoleUser.toLowerCase())"
-                                    class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 cursor-pointer">
-                                    <input type="checkbox" wire:model="roleUserIds" value="{{ $u->id }}"
-                                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
-                                    <div class="min-w-0">
-                                        <div class="text-xs font-semibold text-slate-800 truncate">
-                                            {{ $u->name }}</div>
-                                        @if ($u->nip)
-                                            <div class="text-[10px] font-mono text-slate-400 truncate">
-                                                {{ $u->nip }}</div>
-                                        @endif
                                     </div>
                                 </label>
                             @endforeach
