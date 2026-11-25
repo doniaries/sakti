@@ -239,10 +239,16 @@ class SuratTugasForm
                                     TextInput::make('nomor_surat')
                                         ->label('Nomor Surat Tugas')
                                         ->default(fn (): string => \App\Models\SuratTugas::generateNomorSurat())
-                                        ->disabled()
-                                        ->dehydrated(false)
+                                        ->required()
                                         ->maxLength(100)
-                                        ->helperText('Nomor surat dibuat otomatis oleh sistem (terbit saat disetujui) dan tidak dapat diubah manual.'),
+                                        ->helperText('Nomor surat dibuat otomatis oleh sistem, namun dapat diubah manual jika perlu perbaikan.'),
+
+                                    DatePicker::make('created_at')
+                                        ->label('Tanggal Pembuatan Surat')
+                                        ->displayFormat('d/m/Y')
+                                        ->native(false)
+                                        ->default(now())
+                                        ->required(),
 
                                     Select::make('penandatangan_id')
                                         ->label('Penandatangan (TTE SAKTI)')

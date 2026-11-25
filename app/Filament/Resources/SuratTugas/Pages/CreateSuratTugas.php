@@ -40,7 +40,7 @@ class CreateSuratTugas extends CreateRecord
                     $data = $this->form->getRawState();
 
                     $surat = new SuratTugas([
-                        'nomor_surat' => SuratTugas::generateNomorSurat(),
+                        'nomor_surat' => $data['nomor_surat'] ?? SuratTugas::generateNomorSurat(),
                         'nama_kegiatan' => $data['perihal_surat_undangan'] ?? ($data['nama_kegiatan'] ?? 'Nama Kegiatan Belum Diisi'),
                         'dasar_surat' => SuratTugas::defaultDasarSurat(),
                         'dasar_surat_undangan' => $data['dasar_surat_undangan'] ?? null,
@@ -64,6 +64,10 @@ class CreateSuratTugas extends CreateRecord
                         'penandatangan_id' => $data['penandatangan_id'] ?? null,
                         'status' => 'draft',
                     ]);
+
+                    $surat->created_at = filled($data['created_at'] ?? null)
+                        ? Carbon::parse($data['created_at'])
+                        : now();
 
                     $pegawaiIds = array_filter((array) ($data['pegawais'] ?? []));
                     $surat->setRelation(
