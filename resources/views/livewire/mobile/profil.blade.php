@@ -608,7 +608,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">NIP</label>
-                            <input type="text" wire:model="nip" placeholder="19xxxxxxxx..."
+                            <input type="text" wire:model="nip" x-mask="99999999 999999 9 999" inputmode="numeric" placeholder="19840426 200902 2 001"
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         </div>
 
@@ -651,7 +651,7 @@
                                 <i class="fa-brands fa-whatsapp text-emerald-600 mr-1 text-sm"></i>
                                 <span>No. WhatsApp</span>
                             </label>
-                            <input type="tel" wire:model="no_hp" placeholder="Contoh: 081234567890"
+                            <input type="tel" wire:model="no_hp" inputmode="numeric" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="Contoh: 081234567890"
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none font-mono">
                             <p class="text-[10px] text-slate-400 mt-1">Format: 08xxxxxxxxxx</p>
                             @error('no_hp')
@@ -661,27 +661,32 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">No. Telepon</label>
-                            <input type="tel" wire:model="no_telp" placeholder="Nomor telepon..."
+                            <input type="tel" wire:model="no_telp" inputmode="numeric" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="Nomor telepon..."
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label
-                                class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                                <span class="flex items-center"><i class="fa-solid fa-envelope mr-1 text-sky-600"></i>
-                                    Email
-                                    Login</span>
-                                <span class="text-[10px] text-amber-600 font-bold">*Wajib</span>
-                            </label>
+                    <div x-data="{ copied: false }">
+                        <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                            <span class="flex items-center">
+                                <i class="fa-solid fa-envelope mr-1 text-sky-600"></i>
+                                Email Login
+                            </span>
+                            <span class="text-[10px] text-amber-600 font-bold">*Wajib</span>
+                        </label>
+                        <div class="flex items-center gap-2">
                             <input type="email" wire:model="email" placeholder="email@dinas.go.id"
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
-                            <p class="text-[10px] text-slate-400 mt-1">Akun login di database</p>
-                            @error('email')
-                                <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
-                            @enderror
+                            <button type="button"
+                                @click="navigator.clipboard?.writeText($wire.email || ''); copied = true; setTimeout(() => copied = false, 1500)"
+                                class="shrink-0 px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-bold transition cursor-pointer">
+                                <i class="fa-regular" :class="copied ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
+                            </button>
                         </div>
+                        <p class="text-[10px] text-slate-400 mt-1" x-text="copied ? 'Email disalin!' : 'Akun login di database'"></p>
+                        @error('email')
+                            <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div>
@@ -692,42 +697,38 @@
 
                     <div class="pt-3 border-t border-slate-100 space-y-3">
                         <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider block">Administrasi &amp; Jaminan</span>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
-                                <input type="text" wire:model="npwp" placeholder="15.988.xxx..."
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal NPWP</label>
-                                <x-mobile.date-picker wire:model="tanggal_npwp" clearable />
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
+                            <input type="text" wire:model="npwp" x-mask="99.999.999.9-999.999" placeholder="99.999.999.9-999.999"
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">No. BPJS</label>
-                                <input type="text" wire:model="no_bpjs"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Taspen</label>
-                                <input type="text" wire:model="no_taspen"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
-                            </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal NPWP</label>
+                            <x-mobile.date-picker wire:model="tanggal_npwp" clearable />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. BPJS</label>
+                            <input type="text" wire:model="no_bpjs" inputmode="numeric" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="Nomor BPJS..."
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Taspen</label>
+                            <input type="text" wire:model="no_taspen" inputmode="numeric" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="Nomor Taspen..."
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         </div>
                     </div>
 
                     @if ($fullEditMode)
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">NIK</label>
-                                <input type="text" wire:model="nik"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <input type="text" wire:model="nik" inputmode="numeric" maxlength="16" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="16 digit NIK..."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">No. KK</label>
-                                <input type="text" wire:model="no_kk"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <input type="text" wire:model="no_kk" inputmode="numeric" maxlength="16" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="16 digit No. KK..."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-3">
