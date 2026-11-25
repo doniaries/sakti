@@ -17,18 +17,25 @@ class CreateSuratTugas extends CreateRecord
 {
     protected static string $resource = SuratTugasResource::class;
 
-    protected function getHeaderActions(): array
+    protected function getFormActions(): array
     {
         return [
-            Action::make('preview')
-                ->label('Pratinjau Surat')
-                ->icon('heroicon-o-eye')
-                ->color('info')
-                ->modalHeading('Pratinjau Surat Tugas')
-                ->modalWidth('5xl')
-                ->modalSubmitAction(false)
-                ->modalCancelActionLabel('Tutup')
-                ->modalContent(function (): View {
+            ...parent::getFormActions(),
+            $this->getPreviewAction(),
+        ];
+    }
+
+    protected function getPreviewAction(): Action
+    {
+        return Action::make('preview')
+            ->label('Pratinjau Surat')
+            ->icon('heroicon-o-eye')
+            ->color('info')
+            ->modalHeading('Pratinjau Surat Tugas')
+            ->modalWidth('5xl')
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel('Tutup')
+            ->modalContent(function (): View {
                     $data = $this->form->getRawState();
 
                     $surat = new SuratTugas([
@@ -68,8 +75,7 @@ class CreateSuratTugas extends CreateRecord
                     $html = view('pdf.surat-tugas', ['surat' => $surat])->render();
 
                     return view('filament.surat-tugas.preview-modal', ['html' => $html]);
-                }),
-        ];
+                });
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
