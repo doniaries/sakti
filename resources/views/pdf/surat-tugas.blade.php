@@ -190,10 +190,13 @@
             <td>:</td>
             <td>
                 @php
+                    $pjKepada = filled($surat->penanggung_jawab_ids)
+                        ? \App\Models\User::whereIn('id', $surat->penanggung_jawab_ids)->orderBy('eselon')->orderBy('name')->get()
+                        : ($surat->penanggungJawab ? collect([$surat->penanggungJawab]) : collect());
                     $koordinatorKepada = filled($surat->koordinator_acara_ids)
                         ? \App\Models\User::whereIn('id', $surat->koordinator_acara_ids)->orderBy('name')->get()
                         : collect();
-                    $kepadaList = $koordinatorKepada->merge($pegawais)->unique('id')->values();
+                    $kepadaList = $pjKepada->merge($koordinatorKepada)->merge($pegawais)->unique('id')->values();
                 @endphp
                 @if ($kepadaList->isEmpty())
                     <em>Belum ada pegawai yang ditugaskan.</em>
@@ -249,43 +252,6 @@
                             <td>2.</td>
                             <td>
                                 {{ $surat->keterangan }}
-                            </td>
-                        </tr>
-                    @endif
-                    @php
-                        $penanggungJawabs = filled($surat->penanggung_jawab_ids)
-                            ? \App\Models\User::with('jabatan')->whereIn('id', $surat->penanggung_jawab_ids)->orderBy('name')->get()
-                            : ($surat->penanggungJawab ? collect([$surat->penanggungJawab]) : collect());
-                        $koordinators = filled($surat->koordinator_acara_ids)
-                            ? \App\Models\User::with('jabatan')->whereIn('id', $surat->koordinator_acara_ids)->orderBy('name')->get()
-                            : collect();
-                    @endphp
-                    @if ($penanggungJawabs->isNotEmpty())
-                        <tr>
-                            <td></td>
-                            <td>
-                                Penanggung Jawab Kegiatan Bidang:
-                                @foreach ($penanggungJawabs as $pj)
-                                    <strong>{{ $pj->name }}</strong>{{ !$loop->last ? '; ' : '' }}
-                                @endforeach
-                            </td>
-                        </tr>
-                    @endif
-                    @if ($koordinators->isNotEmpty())
-                        <tr>
-                            <td></td>
-                            <td>
-                                Koordinator Acara:
-                                @foreach ($koordinators as $koord)
-                                    <strong>{{ $koord->name }}</strong>{{ !$loop->last ? '; ' : '' }}
-                                @endforeach
-                            </td>
-                        </tr>
-                    @elseif (filled($surat->koordinator_acara))
-                        <tr>
-                            <td></td>
-                            <td>
-                                Koordinator Acara: <strong>{{ $surat->koordinator_acara }}</strong>
                             </td>
                         </tr>
                     @endif
