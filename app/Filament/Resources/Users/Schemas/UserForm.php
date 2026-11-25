@@ -201,6 +201,13 @@ class UserForm
                                     ->maxLength(20)
                                     ->numeric(),
 
+                                TextInput::make('nama_pasangan')
+                                    ->label('Nama Istri / Suami')
+                                    ->maxLength(255),
+                                \Filament\Forms\Components\Textarea::make('nama_anak')
+                                    ->label('Nama Anak')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
                                 TextInput::make('no_kk')
                                     ->label('Nomor KK')
                                     ->mask('9999999999999999')

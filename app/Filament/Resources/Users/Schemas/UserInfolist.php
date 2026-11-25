@@ -297,6 +297,13 @@ class UserInfolist
                                     ->copyable()
                                     ->placeholder('-'),
 
+                                TextEntry::make('nama_pasangan')
+                                    ->label('Nama Istri / Suami')
+                                    ->placeholder('-'),
+                                TextEntry::make('nama_anak')
+                                    ->label('Nama Anak')
+                                    ->placeholder('-')
+                                    ->columnSpanFull(),
                                 TextEntry::make('no_kk')
                                     ->label('Nomor KK')
                                     ->icon('heroicon-m-identification')

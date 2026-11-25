@@ -91,6 +91,8 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         'file_ttd',
         'nik',
         'no_kk',
+        'nama_pasangan',
+        'nama_anak',
         'no_hp',
         'no_bpjs',
         'gelar_depan',
