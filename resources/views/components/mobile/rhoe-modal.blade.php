@@ -8,7 +8,7 @@
 <div x-show="{{ $model }}"
     x-cloak
     @keydown.escape.window="{{ $model }} = false"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    class="fixed inset-0 z-[999] flex items-center justify-center p-4 pb-24"
     role="dialog"
     aria-modal="true">
 
