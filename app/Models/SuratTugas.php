@@ -24,6 +24,9 @@ class SuratTugas extends Model
         'nama_kegiatan',
         'dasar_surat',
         'dasar_surat_undangan',
+        'asal_surat_undangan',
+        'tanggal_surat_undangan',
+        'ringkasan_isi_undangan',
         'bukti_surat_undangan',
         'tanggal_mulai',
         'tanggal_selesai',
@@ -48,6 +51,7 @@ class SuratTugas extends Model
         return [
             'tanggal_mulai' => 'date',
             'tanggal_selesai' => 'date',
+            'tanggal_surat_undangan' => 'date',
             'ditandatangani_at' => 'datetime',
             'penanggung_jawab_ids' => 'array',
             'koordinator_acara_ids' => 'array',

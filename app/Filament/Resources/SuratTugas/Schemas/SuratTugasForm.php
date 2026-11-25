@@ -17,6 +17,8 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -181,11 +183,39 @@ class SuratTugasForm
                                         ->rows(2)
                                         ->columnSpanFull(),
 
-                                    TextInput::make('dasar_surat_undangan')
-                                        ->label('Dasar Surat Undangan (Opsional)')
-                                        ->placeholder('Contoh: Surat Undangan Nomor 005/123/Kominfo-2026 tanggal 24 November 2026')
-                                        ->helperText('Jika diisi, akan ditambahkan pada bagian "Dasar" di dalam Surat Tugas.')
-                                        ->maxLength(500)
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 3,
+                                    ])
+                                        ->schema([
+                                            TextInput::make('dasar_surat_undangan')
+                                                ->label('Nomor Surat Undangan (Opsional)')
+                                                ->placeholder('Contoh: 005/123/Kominfo-2026')
+                                                ->maxLength(500),
+
+                                            TextInput::make('asal_surat_undangan')
+                                                ->label('Asal Surat (Opsional)')
+                                                ->placeholder('Contoh: Sekretariat Daerah Kab. Sijunjung')
+                                                ->maxLength(255),
+
+                                            DatePicker::make('tanggal_surat_undangan')
+                                                ->label('Tanggal Surat (Opsional)')
+                                                ->displayFormat('d/m/Y')
+                                                ->native(false),
+                                        ])
+                                        ->columnSpanFull(),
+
+                                    Textarea::make('ringkasan_isi_undangan')
+                                        ->label('Ringkasan Isi Surat Undangan (Opsional)')
+                                        ->placeholder('Contoh: Undangan Rapat Koordinasi Evaluasi Kinerja Tahun 2026')
+                                        ->helperText('Jika diisi dan Nama Kegiatan masih kosong, otomatis mengisi Nama Kegiatan.')
+                                        ->rows(2)
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                                            if (filled($state) && blank($get('nama_kegiatan'))) {
+                                                $set('nama_kegiatan', $state);
+                                            }
+                                        })
                                         ->columnSpanFull(),
 
                                     FileUpload::make('bukti_surat_undangan')

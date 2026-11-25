@@ -44,6 +44,11 @@ class CreateSuratTugas extends CreateRecord
                         'nama_kegiatan' => $data['nama_kegiatan'] ?? 'Nama Kegiatan Belum Diisi',
                         'dasar_surat' => SuratTugas::defaultDasarSurat(),
                         'dasar_surat_undangan' => $data['dasar_surat_undangan'] ?? null,
+                        'asal_surat_undangan' => $data['asal_surat_undangan'] ?? null,
+                        'tanggal_surat_undangan' => filled($data['tanggal_surat_undangan'] ?? null)
+                            ? Carbon::parse($data['tanggal_surat_undangan'])
+                            : null,
+                        'ringkasan_isi_undangan' => $data['ringkasan_isi_undangan'] ?? null,
                         'tanggal_mulai' => filled($data['tanggal_mulai'] ?? null)
                             ? Carbon::parse($data['tanggal_mulai'])
                             : now(),

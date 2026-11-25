@@ -148,7 +148,12 @@
             <td style="width: 14%;">Dasar</td>
             <td style="width: 3%;">:</td>
             <td>
-                @if (filled($surat->dasar_surat_undangan))
+                @php
+                    $hasUndangan = filled($surat->dasar_surat_undangan)
+                        || filled($surat->asal_surat_undangan)
+                        || filled($surat->tanggal_surat_undangan);
+                @endphp
+                @if ($hasUndangan)
                     <table class="person-item">
                         <tr>
                             <td style="width: 20px;">1.</td>
@@ -156,7 +161,13 @@
                         </tr>
                         <tr>
                             <td>2.</td>
-                            <td>{{ $surat->dasar_surat_undangan }}</td>
+                            <td>
+                                Surat Undangan
+                                @if (filled($surat->asal_surat_undangan)) dari {{ $surat->asal_surat_undangan }}@endif
+                                @if (filled($surat->dasar_surat_undangan)) Nomor {{ $surat->dasar_surat_undangan }}@endif
+                                @if (filled($surat->tanggal_surat_undangan)) tanggal {{ $surat->tanggal_surat_undangan->translatedFormat('d F Y') }}@endif
+                                @if (filled($surat->ringkasan_isi_undangan)) perihal {{ $surat->ringkasan_isi_undangan }}@endif.
+                            </td>
                         </tr>
                     </table>
                 @else
