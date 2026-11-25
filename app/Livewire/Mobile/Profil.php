@@ -72,7 +72,7 @@ class Profil extends Component
     public string $gol_nomor_sk = '';
     public string $gol_tanggal_sk = '';
     public string $gol_tmt_golongan = '';
-    public bool $gol_is_terakhir = true;
+    public bool $gol_is_terakhir = false;
     public $gol_file_sk = null;
 
     // Tab Jabatan
