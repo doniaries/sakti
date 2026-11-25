@@ -65,6 +65,9 @@ class SuratTugas extends Model
             if (blank($model->dasar_surat)) {
                 $model->dasar_surat = self::defaultDasarSurat();
             }
+            if (blank($model->nomor_surat)) {
+                $model->nomor_surat = self::generateNomorSurat();
+            }
         });
 
         static::saving(function (self $model): void {
@@ -164,16 +167,7 @@ class SuratTugas extends Model
 
     public function kirimNotifikasiPengajuan(): void
     {
-        $this->loadMissing(['creator', 'penandatangan']);
-
-        if ($this->creator && filled($this->creator->jabatan_tim_kreatif)) {
-            Notification::make()
-                ->title('Draf Surat Tugas Dibuat')
-                ->body("Menunggu persetujuan TTE: {$this->nama_kegiatan}")
-                ->icon('heroicon-o-document-text')
-                ->info()
-                ->sendToDatabase($this->creator);
-        }
+        $this->loadMissing(['penandatangan']);
 
         if ($this->penandatangan) {
             Notification::make()

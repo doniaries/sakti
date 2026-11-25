@@ -146,7 +146,7 @@
     <div class="judul-surat">
         <h2>SURAT TUGAS</h2>
         <div class="nomor">
-            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: 'DRAFT (Belum Bernomor)') }}
+            Nomor : {{ $srikandiMode ? '${nomor_naskah}' : ($surat->nomor_surat ?: \App\Models\SuratTugas::generateNomorSurat()) }}
         </div>
     </div>
 
