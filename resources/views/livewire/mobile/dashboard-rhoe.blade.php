@@ -165,15 +165,6 @@
                         </a>
                     @endif
                 @endforeach
-                @if (filled(auth()->user()?->jabatan_tim_kreatif))
-                    <button type="button" @click="suratTugasSheet = true"
-                        class="flex flex-col items-center gap-1.5 group cursor-pointer">
-                        <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-file-signature text-lg"></i>
-                        </div>
-                        <span class="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
-                    </button>
-                @endif
             </div>
         </div>
     </section>
@@ -312,7 +303,7 @@
         </x-mobile.scroll-list>
     </section>
 
-    <!-- Rhoe UI Modal: Surat Tugas Tim Kreatif -->
+    <!-- Card: Surat Tugas Tim Kreatif -->
     @if (filled(auth()->user()?->jabatan_tim_kreatif))
         @php
             $uid = auth()->id();
@@ -322,18 +313,30 @@
                 ->where(function ($q) use ($uid): void {
                     $q->whereHas('pegawais', fn ($p) => $p->where('users.id', $uid))
                         ->orWhereJsonContains('penanggung_jawab_ids', $uid)
+                        ->orWhereJsonContains('penanggung_jawab_ids', (string) $uid)
                         ->orWhereJsonContains('koordinator_acara_ids', $uid)
+                        ->orWhereJsonContains('koordinator_acara_ids', (string) $uid)
                         ->orWhere('penanggung_jawab_id', $uid);
                 })
                 ->latest('tanggal_mulai')
                 ->take(10)
                 ->get();
         @endphp
-        <x-mobile.rhoe-modal model="suratTugasSheet" title="Surat Tugas Tim Kreatif" subtitle="Konfirmasi kehadiran & kirim laporan kegiatan">
-            <div class="space-y-3">
+        <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-sm space-y-3">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-extrabold text-zinc-900 dark:text-white">Surat Tugas Tim Kreatif</h3>
+                    <p class="text-[11px] text-zinc-500">Konfirmasi kehadiran & kirim laporan kegiatan</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 text-[11px] font-bold">
+                    {{ $suratTugasSaya->count() }}
+                </span>
+            </div>
+
+            <div class="space-y-2.5">
                 @forelse ($suratTugasSaya as $st)
                     @php
-                        $pivotSt = $st->pegawais()->where('users.id', auth()->id())->first()?->pivot;
+                        $pivotSt = $st->pegawais()->where('users.id', $uid)->first()?->pivot;
                         $statusHadir = $pivotSt?->status_kehadiran ?? 'belum_konfirmasi';
                     @endphp
                     <div class="p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 space-y-2"
@@ -347,12 +350,12 @@
                                     @if (filled($st->lokasi)) • {{ $st->lokasi }} @endif
                                 </div>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $statusHadir === 'hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-600' }}">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 {{ $statusHadir === 'hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-600' }}">
                                 {{ $statusHadir === 'hadir' ? 'Siap Hadir' : 'Belum Konfirmasi' }}
                             </span>
                         </div>
 
-                        <div class="flex items-center gap-2 pt-1">
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
                             @if ($statusHadir !== 'hadir')
                                 <button type="button"
                                     wire:click="konfirmasiSuratTugas({{ $st->id }}, 'hadir', '')"
@@ -402,12 +405,12 @@
                         </div>
                     </div>
                 @empty
-                    <div class="py-8 text-center text-xs text-zinc-400">
+                    <div class="py-6 text-center text-xs text-zinc-400">
                         Belum ada surat tugas aktif.
                     </div>
                 @endforelse
             </div>
-        </x-mobile.rhoe-modal>
+        </div>
     @endif
 
     <!-- Rhoe UI Modal: Konfirmasi Kehadiran Berhasil -->
