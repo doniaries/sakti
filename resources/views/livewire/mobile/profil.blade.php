@@ -218,9 +218,27 @@
                 <h2 class="text-base font-extrabold truncate tracking-tight text-white drop-shadow-xs">
                     {{ trim($namaLengkap) }}
                 </h2>
-                <div class="flex items-center text-xs text-sky-100 font-mono mt-1 font-medium">
-                    <span class="text-amber-300 font-bold mr-1.5">#</span>
-                    <span>NIP: {{ $user->nip ?? '-' }}</span>
+                <div class="flex items-center gap-1.5 text-xs text-sky-100 font-mono mt-1 font-medium" x-data="{ copiedNip: false }">
+                    <span class="text-amber-300 font-bold">#</span>
+                    <span class="truncate">NIP: {{ $user->nip ?? '-' }}</span>
+                    @if ($user->nip)
+                        <button type="button"
+                            @click="navigator.clipboard?.writeText('{{ $user->nip }}'); copiedNip = true; setTimeout(() => copiedNip = false, 1500)"
+                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                            title="Salin NIP">
+                            <i class="fa-regular" :class="copiedNip ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
+                        </button>
+                    @endif
+                </div>
+                <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5" x-data="{ copiedEmail: false }">
+                    <i class="fa-solid fa-envelope text-sky-300 text-[10px]"></i>
+                    <span class="truncate">{{ $user->email }}</span>
+                    <button type="button"
+                        @click="navigator.clipboard?.writeText('{{ $user->email }}'); copiedEmail = true; setTimeout(() => copiedEmail = false, 1500)"
+                        class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                        title="Salin Email">
+                        <i class="fa-regular" :class="copiedEmail ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
+                    </button>
                 </div>
                 <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
                     <span class="px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold uppercase text-emerald-200">
@@ -230,6 +248,22 @@
                         {{ $user->jadwalKerja->nama ?? 'Jadwal Reguler' }}
                     </span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Ringkasan Unit Kerja & Atasan -->
+        <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-3 gap-2 text-[11px] relative z-10">
+            <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
+                <div class="text-sky-200/80 text-[10px]">Status</div>
+                <div class="font-bold text-white truncate">{{ $user->status_kepegawaian?->getLabel() ?? ($user->status_kepegawaian?->value ?? '-') }}</div>
+            </div>
+            <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
+                <div class="text-sky-200/80 text-[10px]">Bidang Dinas</div>
+                <div class="font-bold text-white truncate">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</div>
+            </div>
+            <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
+                <div class="text-sky-200/80 text-[10px]">Atasan</div>
+                <div class="font-bold text-white truncate">{{ $user->atasan->name ?? 'Pimpinan' }}</div>
             </div>
         </div>
 
