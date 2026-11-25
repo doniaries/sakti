@@ -78,6 +78,12 @@ class SuratTugasForm
                                                 ->native(false),
                                         ]),
 
+                                    TextInput::make('lokasi')
+                                        ->label('Lokasi Acara / Kegiatan')
+                                        ->required()
+                                        ->placeholder('Contoh: Geopark Silokek')
+                                        ->maxLength(255),
+
                                     FileUpload::make('bukti_surat_undangan')
                                         ->label('Upload Bukti Surat Undangan')
                                         ->disk('public')
@@ -134,13 +140,6 @@ class SuratTugasForm
                                                 ])
                                                 ->maxLength(20),
                                         ]),
-
-                                    TextInput::make('lokasi')
-                                        ->label('Lokasi Kegiatan')
-                                        ->required()
-                                        ->placeholder('Contoh: Geopark Silokek')
-                                        ->maxLength(255)
-                                        ->columnSpanFull(),
 
                                     Select::make('penanggung_jawab_ids')
                                         ->label('Penanggung Jawab Kegiatan Bidang')
