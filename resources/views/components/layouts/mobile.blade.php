@@ -287,6 +287,20 @@
         html.dark .content-area .text-sky-700,
         html.dark .content-area .text-sky-600,
         html.dark .content-area .text-blue-700,
+        @keyframes rhoePageEnter {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.99);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .content-area > *,
+        .rhoe-enter {
+            animation: rhoePageEnter 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
         html.dark .content-area .text-blue-600 {
             color: #38BDF8 !important;
         }
