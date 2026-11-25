@@ -38,6 +38,12 @@ class SuratTugasForm
                                     TextInput::make('nama_kegiatan')
                                         ->label('Nama Kegiatan')
                                         ->placeholder('Contoh: Peliputan Festival Geopark Ranah Minang')
+                                        ->datalist(fn (): array => SuratTugas::query()
+                                            ->distinct()
+                                            ->orderBy('nama_kegiatan')
+                                            ->pluck('nama_kegiatan')
+                                            ->all()
+                                        )
                                         ->required()
                                         ->maxLength(255)
                                         ->columnSpanFull(),
