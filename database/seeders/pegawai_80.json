@@ -8,7 +8,8 @@
         "eselon": "II.b",
         "tempat_lahir": "Padang",
         "tanggal_lahir": "7 April 1972",
-        "nomor_absensi": "19720407"
+        "nomor_absensi": "19720407",
+        "pangkat_golongan": "IV/c"
     },
     {
         "nama": "DESMAWATI, SE. M.Si",
@@ -19,7 +20,8 @@
         "eselon": "III.a",
         "tempat_lahir": "Sijunjung",
         "tanggal_lahir": "24 Desember 1969",
-        "nomor_absensi": "19691224"
+        "nomor_absensi": "19691224",
+        "pangkat_golongan": "IV/b"
     },
     {
         "nama": "WILDA ARDES N, MT",
@@ -30,7 +32,8 @@
         "eselon": "III.b",
         "tempat_lahir": "Sisawah",
         "tanggal_lahir": "08 Januari 1973",
-        "nomor_absensi": "19730108"
+        "nomor_absensi": "19730108",
+        "pangkat_golongan": "IV/a"
     },
     {
         "nama": "INDRAWADI. R, SP",
@@ -41,7 +44,8 @@
         "eselon": "III.b",
         "tempat_lahir": "Ampang Kuranji",
         "tanggal_lahir": "10-07-1980",
-        "nomor_absensi": "19800710"
+        "nomor_absensi": "19800710",
+        "pangkat_golongan": "IV/a"
     },
     {
         "nama": "DONI ARIES, S.IP, M.CIO",
@@ -52,7 +56,8 @@
         "eselon": "III.b",
         "tempat_lahir": "Muaro Sijunjung",
         "tanggal_lahir": "14 April 1982",
-        "nomor_absensi": null
+        "nomor_absensi": null,
+        "pangkat_golongan": "IV/a"
     },
     {
         "nama": "DIKI ZULFIKAR,SS",
@@ -63,7 +68,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Tanjung Ampalu",
         "tanggal_lahir": "30-12-1974",
-        "nomor_absensi": "19741230"
+        "nomor_absensi": "19741230",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "ZULFITRI, S. Ag",
@@ -74,7 +80,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Lubuk Tarab",
         "tanggal_lahir": "25 Agustus 1977",
-        "nomor_absensi": "19770825"
+        "nomor_absensi": "19770825",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "NOFRIZALM, SE",
@@ -85,7 +92,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Sijunjung",
         "tanggal_lahir": "29-11-1976",
-        "nomor_absensi": "19761129"
+        "nomor_absensi": "19761129",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "MIRA APRIYANTI, ME",
@@ -96,7 +104,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Jambun",
         "tanggal_lahir": "26 April 1984",
-        "nomor_absensi": "19840426"
+        "nomor_absensi": "19840426",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "WIRA GUSTI MUSTIKA, S, Sn",
@@ -107,7 +116,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Muaro",
         "tanggal_lahir": "08 Agustus 1983",
-        "nomor_absensi": "19830824"
+        "nomor_absensi": "19830824",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "JULHARDIANTO, S. Pt. M. Si",
@@ -118,7 +128,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Batu Manjulur",
         "tanggal_lahir": "23oktober 1984",
-        "nomor_absensi": "19841023"
+        "nomor_absensi": "19841023",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "HENDRA PERMANA, SE",
@@ -129,7 +140,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Pematang Panjang",
         "tanggal_lahir": "27 Mei 1978",
-        "nomor_absensi": "19780527"
+        "nomor_absensi": "19780527",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "LIDEFRIYON, SH",
@@ -140,7 +152,8 @@
         "eselon": "IV.a",
         "tempat_lahir": "Muaro Gambok",
         "tanggal_lahir": "25 Juni 1976",
-        "nomor_absensi": "19760625"
+        "nomor_absensi": "19760625",
+        "pangkat_golongan": "III/d"
     },
     {
         "nama": "IMELDA SANGGETA, A.Md",
@@ -151,7 +164,8 @@
         "eselon": null,
         "tempat_lahir": "Tanjung Ampalu",
         "tanggal_lahir": "09-10-1975",
-        "nomor_absensi": null
+        "nomor_absensi": null,
+        "pangkat_golongan": "III/c"
     },
     {
         "nama": "INDRA JUNAIDI, S.A.P",
@@ -162,7 +176,8 @@
         "eselon": null,
         "tempat_lahir": "Sijunjung",
         "tanggal_lahir": "04-06-1974",
-        "nomor_absensi": "19740604"
+        "nomor_absensi": "19740604",
+        "pangkat_golongan": "III/b"
     },
     {
         "nama": "MEVI FEBRIANTI",
@@ -173,7 +188,8 @@
         "eselon": null,
         "tempat_lahir": "Sijunjung",
         "tanggal_lahir": "10 Februari 1983",
-        "nomor_absensi": "19830210"
+        "nomor_absensi": "19830210",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "RONI RIVANDRA",
@@ -184,7 +200,8 @@
         "eselon": null,
         "tempat_lahir": "Batu Gandang",
         "tanggal_lahir": "24 Februari 1978",
-        "nomor_absensi": "19780224"
+        "nomor_absensi": "19780224",
+        "pangkat_golongan": "II/d"
     },
     {
         "nama": "MAIYOLA INDRA, A.Md.A.B",
@@ -195,7 +212,8 @@
         "eselon": null,
         "tempat_lahir": "Padang",
         "tanggal_lahir": "12 Mei 1999",
-        "nomor_absensi": "19990512"
+        "nomor_absensi": "19990512",
+        "pangkat_golongan": "II/c"
     },
     {
         "nama": "WIWIRNA",
@@ -206,7 +224,8 @@
         "eselon": null,
         "tempat_lahir": "Padang Laweh",
         "tanggal_lahir": "23 Juli 1985",
-        "nomor_absensi": "19850723"
+        "nomor_absensi": "19850723",
+        "pangkat_golongan": "II/d"
     },
     {
         "nama": "ROSNI",
@@ -217,7 +236,8 @@
         "eselon": null,
         "tempat_lahir": "Muaro",
         "tanggal_lahir": "22 Juni 1985",
-        "nomor_absensi": "19850622"
+        "nomor_absensi": "19850622",
+        "pangkat_golongan": "II/c"
     },
     {
         "nama": "NASIB",
@@ -228,7 +248,8 @@
         "eselon": null,
         "tempat_lahir": "Muaro",
         "tanggal_lahir": "8 April 1974",
-        "nomor_absensi": "19740408"
+        "nomor_absensi": "19740408",
+        "pangkat_golongan": "II/b"
     },
     {
         "nama": "FITRI AMELIA, S. Pd",
@@ -239,7 +260,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Padang Panjang",
         "tanggal_lahir": "17-02-1991",
-        "nomor_absensi": "19910217"
+        "nomor_absensi": "19910217",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "ROSY WITRIN, SST",
@@ -250,7 +272,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Padang",
         "tanggal_lahir": "06-01-1992",
-        "nomor_absensi": "19920106"
+        "nomor_absensi": "19920106",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "AGUSMEDI ARIF, S.Kom",
@@ -261,7 +284,8 @@
         "eselon": null,
         "tempat_lahir": "Kab.Sijunjung",
         "tanggal_lahir": "25-08-1993",
-        "nomor_absensi": "19930825"
+        "nomor_absensi": "19930825",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "MELGASARI, S.Pd",
@@ -272,7 +296,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Padang",
         "tanggal_lahir": "06-01-1992",
-        "nomor_absensi": "19950108"
+        "nomor_absensi": "19950108",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "AKBAR MALIK, S.AB",
@@ -283,7 +308,8 @@
         "eselon": null,
         "tempat_lahir": "Kab. Tanah Datar",
         "tanggal_lahir": "06-03-1995",
-        "nomor_absensi": "19950306"
+        "nomor_absensi": "19950306",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "RICO ANGGALA, S.Or",
@@ -294,7 +320,8 @@
         "eselon": null,
         "tempat_lahir": "Kab. Solok",
         "tanggal_lahir": "11-11-1995",
-        "nomor_absensi": "19951111"
+        "nomor_absensi": "19951111",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "DIO TRI ANANDA PUTRA, S.T",
@@ -305,7 +332,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Solok",
         "tanggal_lahir": "04-07-1996",
-        "nomor_absensi": "19960704"
+        "nomor_absensi": "19960704",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "MAULANA IBRAHIM, S.T",
@@ -316,7 +344,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Sawah Lunto",
         "tanggal_lahir": "31-03-1999",
-        "nomor_absensi": "19990331"
+        "nomor_absensi": "19990331",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "HADI ALFADJRI, S.T",
@@ -327,7 +356,8 @@
         "eselon": null,
         "tempat_lahir": "Kab. Pesisir Selatan",
         "tanggal_lahir": "09-08-1999",
-        "nomor_absensi": "19990809"
+        "nomor_absensi": "19990809",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "FARHANUL HUDA, S.Par",
@@ -338,7 +368,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Padang Panjang",
         "tanggal_lahir": "27-12-1999",
-        "nomor_absensi": "19991227"
+        "nomor_absensi": "19991227",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "NAZHIRUL RIFQI ALNEV, S.Tr.Par",
@@ -349,7 +380,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Solok",
         "tanggal_lahir": "05-09-2000",
-        "nomor_absensi": "20000905"
+        "nomor_absensi": "20000905",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "AQILLA FADIA HAYA, S.Ak",
@@ -360,7 +392,8 @@
         "eselon": null,
         "tempat_lahir": "Kab. Sijunjung",
         "tanggal_lahir": "28-06-2002",
-        "nomor_absensi": "20020628"
+        "nomor_absensi": "20020628",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "JENI ZULMARLY KAMIL",
@@ -371,7 +404,8 @@
         "eselon": null,
         "tempat_lahir": "Kab. Pesisir Selatan",
         "tanggal_lahir": "26-11-1990",
-        "nomor_absensi": "19901126"
+        "nomor_absensi": "19901126",
+        "pangkat_golongan": "II/a"
     },
     {
         "nama": "RANES MUHAMMAD FIQRI",
@@ -382,7 +416,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Solok",
         "tanggal_lahir": "31-05-1996",
-        "nomor_absensi": "19960531"
+        "nomor_absensi": "19960531",
+        "pangkat_golongan": "II/a"
     },
     {
         "nama": "SYAFRIWAL AM",
@@ -393,7 +428,8 @@
         "eselon": null,
         "tempat_lahir": "Kab. Sijunjung",
         "tanggal_lahir": "03-06-1999",
-        "nomor_absensi": "19990603"
+        "nomor_absensi": "19990603",
+        "pangkat_golongan": "II/a"
     },
     {
         "nama": "SALSABILA MUKHSIS",
@@ -404,7 +440,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Bukittinggi",
         "tanggal_lahir": "21-10-2001",
-        "nomor_absensi": "20011021"
+        "nomor_absensi": "20011021",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "FADILAH SAPUTRA",
@@ -415,7 +452,8 @@
         "eselon": null,
         "tempat_lahir": "Kab. Kampar",
         "tanggal_lahir": "27-11-2001",
-        "nomor_absensi": "20011127"
+        "nomor_absensi": "20011127",
+        "pangkat_golongan": "II/a"
     },
     {
         "nama": "RAGANDHI TANLIN",
@@ -426,7 +464,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Padang",
         "tanggal_lahir": "06-02-2003",
-        "nomor_absensi": "20030206"
+        "nomor_absensi": "20030206",
+        "pangkat_golongan": "II/a"
     },
     {
         "nama": "SYIFA SALSABILA",
@@ -437,7 +476,8 @@
         "eselon": null,
         "tempat_lahir": "Kota Sawahlunto",
         "tanggal_lahir": "22-02-2005",
-        "nomor_absensi": "20050222"
+        "nomor_absensi": "20050222",
+        "pangkat_golongan": "III/a"
     },
     {
         "nama": "ARMAN, SP",
