@@ -73,7 +73,7 @@
     </div>
 
     @if ($selectedSurat)
-        <div x-data="{ open: true }" x-init="$watch('open', v => { if (!v) $wire.closeDetail(); })">
+        <div x-data="{ open: false }" x-init="$nextTick(() => open = true); $watch('open', v => { if (!v) setTimeout(() => $wire.closeDetail(), 160); })">
             <x-mobile.rhoe-modal model="open" :title="$selectedSurat->nama_kegiatan" :subtitle="$selectedSurat->nomor_surat ?? 'Draft'">
                 <div class="space-y-4">
                     @if ($selectedSurat->status === 'koreksi' && filled($selectedSurat->catatan_koreksi))

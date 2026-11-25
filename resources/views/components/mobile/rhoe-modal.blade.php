@@ -26,11 +26,11 @@
     <!-- Modal Surface (Rhoe UI Spring Bounce + Fade) -->
     <div x-show="{{ $model }}"
         x-transition:enter="transition ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-300"
-        x-transition:enter-start="opacity-0 scale-90 translate-y-3"
+        x-transition:enter-start="opacity-0 scale-75 translate-y-4"
         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-        x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+        x-transition:leave-end="opacity-0 scale-90 translate-y-2"
         class="relative z-10 w-full {{ $maxWidth }} max-h-[82vh] flex flex-col rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/90 dark:border-zinc-800 shadow-2xl shadow-black/25 overflow-hidden">
 
         <!-- Header -->
