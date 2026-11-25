@@ -1281,7 +1281,7 @@
                         </div>
                         <x-slot:footer>
                             <div class="flex items-center gap-2">
-                                <button type="button" @click="roleModalOpen = false"
+                                <button type="button" @click="roleModalOpen = false; $wire.set('editingRoleId', null)"
                                     class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
                                     Batal
                                 </button>
@@ -1379,7 +1379,7 @@
                         </div>
                         <x-slot:footer>
                             <div class="flex items-center gap-2">
-                                <button type="button" @click="roleModalOpen = false"
+                                <button type="button" @click="roleModalOpen = false; $wire.set('editingRoleId', null)"
                                     class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
                                     Batal
                                 </button>
