@@ -182,6 +182,17 @@ class SuratTugasTable
                             ->columns(3),
                     ])
                     ->extraModalFooterActions([
+                        Action::make('preview_pdf_dari_detail')
+                            ->label('Preview PDF')
+                            ->icon('heroicon-o-eye')
+                            ->color('info')
+                            ->modalHeading(fn (SuratTugas $record): string => 'Preview Surat Tugas — ' . ($record->nomor_surat ?: ''))
+                            ->modalWidth(Width::FourExtraLarge)
+                            ->modalContent(fn (SuratTugas $record): HtmlString => new HtmlString(
+                                '<iframe src="' . route('surat-tugas.cetak-pdf', ['suratTugas' => $record, 'preview' => 1]) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 75vh;"></iframe>'
+                            ))
+                            ->modalSubmitAction(false)
+                            ->modalCancelActionLabel('Tutup'),
                         Action::make('koreksi_dari_detail')
                             ->label('Koreksi Surat')
                             ->icon('heroicon-o-arrow-uturn-left')
