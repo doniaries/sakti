@@ -41,7 +41,7 @@ class CreateSuratTugas extends CreateRecord
 
                     $surat = new SuratTugas([
                         'nomor_surat' => SuratTugas::generateNomorSurat(),
-                        'nama_kegiatan' => $data['nama_kegiatan'] ?? 'Nama Kegiatan Belum Diisi',
+                        'nama_kegiatan' => $data['perihal_surat_undangan'] ?? ($data['nama_kegiatan'] ?? 'Nama Kegiatan Belum Diisi'),
                         'dasar_surat' => SuratTugas::defaultDasarSurat(),
                         'dasar_surat_undangan' => $data['dasar_surat_undangan'] ?? null,
                         'asal_surat_undangan' => $data['asal_surat_undangan'] ?? null,
@@ -92,6 +92,7 @@ class CreateSuratTugas extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['created_by'] = Auth::id();
+        $data['nama_kegiatan'] = $data['perihal_surat_undangan'] ?? ($data['nama_kegiatan'] ?? 'Kegiatan Tim Kreatif');
 
         return $data;
     }

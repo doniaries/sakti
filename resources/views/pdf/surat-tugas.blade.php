@@ -189,12 +189,18 @@
             <td>Kepada</td>
             <td>:</td>
             <td>
-                @if ($pegawais->isEmpty())
+                @php
+                    $koordinatorKepada = filled($surat->koordinator_acara_ids)
+                        ? \App\Models\User::whereIn('id', $surat->koordinator_acara_ids)->orderBy('name')->get()
+                        : collect();
+                    $kepadaList = $koordinatorKepada->merge($pegawais)->unique('id')->values();
+                @endphp
+                @if ($kepadaList->isEmpty())
                     <em>Belum ada pegawai yang ditugaskan.</em>
                 @elseif ($pakaiLampiran)
-                    Daftar nama pegawai terlampir pada Lampiran Surat Tugas ini ({{ $pegawais->count() }} orang).
+                    Daftar nama pegawai terlampir pada Lampiran Surat Tugas ini ({{ $kepadaList->count() }} orang).
                 @else
-                    @foreach ($pegawais as $index => $pegawai)
+                    @foreach ($kepadaList as $index => $pegawai)
                         <table class="person-item">
                             <tr>
                                 <td style="width: 20px;">{{ $index + 1 }}.</td>
@@ -213,12 +219,6 @@
                                 <td>NIP</td>
                                 <td>:</td>
                                 <td>{{ $pegawai->nip ?: '-' }}</td>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td>Jabatan</td>
-                                <td>:</td>
-                                <td>{{ $pegawai->jabatan_tim_kreatif?->getLabel() ?? '-' }}</td>
                             </tr>
                         </table>
                     @endforeach
@@ -266,7 +266,7 @@
                             <td>
                                 Penanggung Jawab Kegiatan Bidang:
                                 @foreach ($penanggungJawabs as $pj)
-                                    <strong>{{ $pj->name }}</strong>@if ($pj->jabatan?->nama) ({{ $pj->jabatan->nama }})@endif{{ !$loop->last ? '; ' : '' }}
+                                    <strong>{{ $pj->name }}</strong>{{ !$loop->last ? '; ' : '' }}
                                 @endforeach
                             </td>
                         </tr>
@@ -277,7 +277,7 @@
                             <td>
                                 Koordinator Acara:
                                 @foreach ($koordinators as $koord)
-                                    <strong>{{ $koord->name }}</strong>@if ($koord->jabatan?->nama) ({{ $koord->jabatan->nama }})@endif{{ !$loop->last ? '; ' : '' }}
+                                    <strong>{{ $koord->name }}</strong>{{ !$loop->last ? '; ' : '' }}
                                 @endforeach
                             </td>
                         </tr>

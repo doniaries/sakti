@@ -24,27 +24,33 @@ class SuratTugasTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('tanggal_mulai', 'desc')
+            ->defaultSort('id', 'desc')
             ->columns([
-                TextColumn::make('nomor_surat')
-                    ->label('Nomor Surat')
-                    ->placeholder('Menunggu SRIKANDI')
-                    ->searchable()
-                    ->sortable()
-                    ->copyable()
-                    ->weight('bold')
-                    ->color('primary'),
-
                 TextColumn::make('nama_kegiatan')
                     ->label('Kegiatan')
                     ->searchable()
                     ->wrap()
-                    ->limit(55),
+                    ->limit(55)
+                    ->extraHeaderAttributes(['class' => 'sticky left-0 z-10 bg-gray-50 dark:bg-gray-800'])
+                    ->extraCellAttributes(['class' => 'sticky left-0 z-10 bg-white dark:bg-gray-900']),
 
                 TextColumn::make('tanggal_mulai')
                     ->label('Tgl Mulai')
                     ->date('d/m/Y')
                     ->sortable(),
+
+                TextColumn::make('jam_acara')
+                    ->label('Jam')
+                    ->placeholder('-'),
+
+                TextColumn::make('nomor_surat')
+                    ->label('Nomor Surat')
+                    ->placeholder('Menunggu Persetujuan')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->weight('bold')
+                    ->color('primary'),
 
                 TextColumn::make('tanggal_selesai')
                     ->label('Tgl Selesai')

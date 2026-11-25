@@ -60,15 +60,9 @@ class SuratTugasForm
                                     ])
                                         ->schema([
                                             TextInput::make('perihal_surat_undangan')
-                                                ->label('Perihal Surat')
-                                                ->placeholder('Contoh: Undangan Menghadiri Acara...')
-                                                ->helperText('Jika diisi dan Nama Kegiatan masih kosong, otomatis mengisi Nama Kegiatan.')
-                                                ->live(onBlur: true)
-                                                ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
-                                                    if (filled($state) && blank($get('nama_kegiatan'))) {
-                                                        $set('nama_kegiatan', $state);
-                                                    }
-                                                })
+                                                ->label('Perihal Surat / Nama Kegiatan')
+                                                ->placeholder('Contoh: Peringatan Wafatnya Syekh Malin Bayang ke-63')
+                                                ->required()
                                                 ->maxLength(255)
                                                 ->columnSpan(['md' => 2]),
 
@@ -92,7 +86,8 @@ class SuratTugasForm
 
                                             TextInput::make('jam_acara')
                                                 ->label('Jam Acara')
-                                                ->placeholder('Contoh: 08:30')
+                                                ->mask('99:99')
+                                                ->placeholder('08:30')
                                                 ->datalist([
                                                     '07:30', '08:00', '08:30', '09:00', '09:30',
                                                     '10:00', '10:30', '11:00', '13:00', '13:30',
@@ -135,19 +130,6 @@ class SuratTugasForm
 
                             Section::make('Detail Kegiatan & Tim Kreatif Publikasi dan Promosi')
                                 ->schema([
-                                    TextInput::make('nama_kegiatan')
-                                        ->label('Nama Kegiatan')
-                                        ->placeholder('Contoh: Peliputan Festival Geopark Ranah Minang')
-                                        ->datalist(fn (): array => SuratTugas::query()
-                                            ->distinct()
-                                            ->orderBy('nama_kegiatan')
-                                            ->pluck('nama_kegiatan')
-                                            ->all()
-                                        )
-                                        ->required()
-                                        ->maxLength(255)
-                                        ->columnSpanFull(),
-
                                     Select::make('penanggung_jawab_ids')
                                         ->label('Penanggung Jawab Kegiatan Bidang')
                                         ->options(fn (): array => User::query()
