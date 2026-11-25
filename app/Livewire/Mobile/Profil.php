@@ -254,6 +254,7 @@ class Profil extends Component
     public function newJabatan(): void
     {
         $this->fillJabatanForm(null);
+        $this->dispatch('open-jabatan-modal');
     }
 
     public function editJabatan(int $id): void
@@ -261,12 +262,14 @@ class Profil extends Component
         $item = RiwayatJabatan::where('user_id', Auth::id())->find($id);
         if ($item) {
             $this->fillJabatanForm($item);
+            $this->dispatch('open-jabatan-modal');
         }
     }
 
     public function newPendidikan(): void
     {
         $this->fillPendidikanForm(null);
+        $this->dispatch('open-pendidikan-modal');
     }
 
     public function editPendidikan(int $id): void
@@ -274,6 +277,7 @@ class Profil extends Component
         $item = RiwayatPendidikan::where('user_id', Auth::id())->find($id);
         if ($item) {
             $this->fillPendidikanForm($item);
+            $this->dispatch('open-pendidikan-modal');
         }
     }
 
