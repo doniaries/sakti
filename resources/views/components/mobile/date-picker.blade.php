@@ -101,7 +101,8 @@
 
     <template x-teleport="body">
         <div x-show="open" x-cloak @keydown.escape.window="open = false"
-            class="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-3 sm:p-4"
+            style="z-index: 1100;"
+            class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-3 sm:p-4"
             @click.self="open = false">
             <div class="w-full max-w-sm rounded-3xl bg-white p-4 shadow-2xl border border-slate-100 space-y-3">
                 <div class="flex items-center justify-between gap-2">
