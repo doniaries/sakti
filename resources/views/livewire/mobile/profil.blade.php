@@ -1359,28 +1359,24 @@
                         {{ $rolesList->count() }} Peran
                     </span>
                 </div>
-                @foreach ($rolesList as $role)
-                    <div
-                        class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 flex items-center justify-between gap-3">
-                        <div class="min-w-0">
-                            <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">Guard: {{ $role->guard_name }}</div>
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach ($rolesList as $role)
+                        <div class="bg-white rounded-xl p-3 shadow-xs border border-slate-100 flex flex-col justify-between gap-2">
+                            <div class="flex items-start justify-between gap-1.5">
+                                <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
+                                <button type="button" wire:click="editRoleUsers({{ $role->id }})"
+                                    class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 cursor-pointer"
+                                    title="Edit User Peran">
+                                    <i class="fa-solid fa-pen text-[9px]"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
+                                <span class="px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <span
-                                class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }}
-                                User</span>
-                            <span
-                                class="px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }}
-                                Izin</span>
-                            <button type="button" wire:click="editRoleUsers({{ $role->id }})"
-                                class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
-                                title="Edit User Peran">
-                                <i class="fa-solid fa-pen text-[10px]"></i>
-                            </button>
-                        </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
 
                 <x-mobile.rhoe-modal model="roleModalOpen" :title="'Edit User: ' . $editingRoleName"
                     subtitle="Pilih pegawai yang memiliki peran ini">
@@ -1474,28 +1470,24 @@
                         {{ $rolesList->count() }} Peran
                     </span>
                 </div>
-                @foreach ($rolesList as $role)
-                    <div
-                        class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 flex items-center justify-between gap-3">
-                        <div class="min-w-0">
-                            <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">Guard: {{ $role->guard_name }}</div>
+                <div class="grid grid-cols-2 gap-2">
+                    @foreach ($rolesList as $role)
+                        <div class="bg-white rounded-xl p-3 shadow-xs border border-slate-100 flex flex-col justify-between gap-2">
+                            <div class="flex items-start justify-between gap-1.5">
+                                <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
+                                <button type="button" wire:click="editRoleUsers({{ $role->id }})"
+                                    class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 cursor-pointer"
+                                    title="Edit User Peran">
+                                    <i class="fa-solid fa-pen text-[9px]"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <span class="px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
+                                <span class="px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <span
-                                class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }}
-                                User</span>
-                            <span
-                                class="px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }}
-                                Izin</span>
-                            <button type="button" wire:click="editRoleUsers({{ $role->id }})"
-                                class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
-                                title="Edit User Peran">
-                                <i class="fa-solid fa-pen text-[10px]"></i>
-                            </button>
-                        </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
 
                 <x-mobile.rhoe-modal model="roleModalOpen" :title="'Edit User: ' . $editingRoleName"
                     subtitle="Pilih pegawai yang memiliki peran ini">
