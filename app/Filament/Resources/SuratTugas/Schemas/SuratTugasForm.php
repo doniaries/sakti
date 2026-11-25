@@ -9,6 +9,7 @@ use App\Models\Instansi;
 use App\Models\SuratTugas;
 use App\Models\User;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -178,6 +179,24 @@ class SuratTugasForm
                                         ->placeholder('Contoh: Membawa perlengkapan kamera/drone dan melaporkan hasil dokumentasi kepada Pimpinan.')
                                         ->helperText('Akan tampil sebagai poin ke-2 pada bagian "Untuk" di surat (misal: perlengkapan, titik kumpul, atau instruksi khusus). Kosongkan untuk teks standar.')
                                         ->rows(2)
+                                        ->columnSpanFull(),
+
+                                    TextInput::make('dasar_surat_undangan')
+                                        ->label('Dasar Surat Undangan (Opsional)')
+                                        ->placeholder('Contoh: Surat Undangan Nomor 005/123/Kominfo-2026 tanggal 24 November 2026')
+                                        ->helperText('Jika diisi, akan ditambahkan pada bagian "Dasar" di dalam Surat Tugas.')
+                                        ->maxLength(500)
+                                        ->columnSpanFull(),
+
+                                    FileUpload::make('bukti_surat_undangan')
+                                        ->label('Upload Bukti Surat Undangan (Opsional)')
+                                        ->disk('public')
+                                        ->directory('surat-tugas/undangan')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->downloadable()
+                                        ->openable()
+                                        ->helperText('Format: PDF, JPG, PNG, atau WEBP (maks. 5 MB). Dapat dilihat oleh pegawai yang diperintah dan pimpinan.')
                                         ->columnSpanFull(),
                                 ]),
                         ])

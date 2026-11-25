@@ -43,6 +43,7 @@ class CreateSuratTugas extends CreateRecord
                         'nomor_surat' => SuratTugas::generateNomorSurat(),
                         'nama_kegiatan' => $data['nama_kegiatan'] ?? 'Nama Kegiatan Belum Diisi',
                         'dasar_surat' => SuratTugas::defaultDasarSurat(),
+                        'dasar_surat_undangan' => $data['dasar_surat_undangan'] ?? null,
                         'tanggal_mulai' => filled($data['tanggal_mulai'] ?? null)
                             ? Carbon::parse($data['tanggal_mulai'])
                             : now(),

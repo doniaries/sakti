@@ -121,6 +121,13 @@ class SuratTugasTable
                             ->openUrlInNewTab(),
                     ]),
 
+                Action::make('lihat_undangan')
+                    ->label('Lihat Undangan')
+                    ->icon('heroicon-o-paper-clip')
+                    ->color('gray')
+                    ->visible(fn (SuratTugas $record): bool => filled($record->bukti_surat_undangan))
+                    ->url(fn (SuratTugas $record): string => \Illuminate\Support\Facades\Storage::disk('public')->url($record->bukti_surat_undangan), shouldOpenInNewTab: true),
+
                 Action::make('tte_sakti')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-badge')

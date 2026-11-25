@@ -147,7 +147,22 @@
         <tr>
             <td style="width: 14%;">Dasar</td>
             <td style="width: 3%;">:</td>
-            <td>{{ $surat->dasar_surat ?: \App\Models\SuratTugas::defaultDasarSurat() }}</td>
+            <td>
+                @if (filled($surat->dasar_surat_undangan))
+                    <table class="person-item">
+                        <tr>
+                            <td style="width: 20px;">1.</td>
+                            <td>{{ $surat->dasar_surat ?: \App\Models\SuratTugas::defaultDasarSurat() }}</td>
+                        </tr>
+                        <tr>
+                            <td>2.</td>
+                            <td>{{ $surat->dasar_surat_undangan }}</td>
+                        </tr>
+                    </table>
+                @else
+                    {{ $surat->dasar_surat ?: \App\Models\SuratTugas::defaultDasarSurat() }}
+                @endif
+            </td>
         </tr>
         <tr>
             <td colspan="3" style="height: 8px;"></td>
@@ -203,18 +218,12 @@
                     <tr>
                         <td style="width: 20px;">1.</td>
                         <td>
-                            Melaksanakan tugas <strong>{{ $surat->nama_kegiatan }}</strong>
+                            Melaksanakan tugas peliputan, dokumentasi foto/video, dan publikasi pada kegiatan <strong>{{ $surat->nama_kegiatan }}</strong>
                             @if ($surat->lokasi)
                                 bertempat di <strong>{{ $surat->lokasi }}</strong>
                             @endif
                             pada tanggal
-                            <strong>
-                                @if ($surat->tanggal_mulai->equalTo($surat->tanggal_selesai))
-                                    {{ $surat->tanggal_mulai->translatedFormat('d F Y') }}
-                                @else
-                                    {{ $surat->tanggal_mulai->translatedFormat('d F Y') }} s.d. {{ $surat->tanggal_selesai->translatedFormat('d F Y') }}
-                                @endif
-                            </strong>@if (filled($surat->jam_acara)) pukul <strong>{{ \Illuminate\Support\Carbon::parse($surat->jam_acara)->format('H.i') }} WIB</strong>@endif.
+                            <strong>@if ($surat->tanggal_mulai->equalTo($surat->tanggal_selesai)){{ $surat->tanggal_mulai->translatedFormat('d F Y') }}@else{{ $surat->tanggal_mulai->translatedFormat('d F Y') }} s.d. {{ $surat->tanggal_selesai->translatedFormat('d F Y') }}@endif</strong>@if (filled($surat->jam_acara)) pukul <strong>{{ \Illuminate\Support\Carbon::parse($surat->jam_acara)->format('H.i') }} WIB</strong>@endif.
                         </td>
                     </tr>
                     @if (filled($surat->keterangan))

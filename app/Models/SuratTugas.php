@@ -23,6 +23,8 @@ class SuratTugas extends Model
         'nomor_surat',
         'nama_kegiatan',
         'dasar_surat',
+        'dasar_surat_undangan',
+        'bukti_surat_undangan',
         'tanggal_mulai',
         'tanggal_selesai',
         'jam_acara',
