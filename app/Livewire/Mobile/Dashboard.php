@@ -111,21 +111,35 @@ class Dashboard extends Component
         }
 
         $surat = \App\Models\SuratTugas::find($suratTugasId);
-        if (! $surat || ! $surat->pegawais()->where('users.id', $user->id)->exists()) {
+        if (! $surat) {
             return;
         }
 
         $cleanCatatan = $status === 'berhalangan' ? $catatan : null;
 
-        $surat->pegawais()->updateExistingPivot($user->id, [
-            'status_kehadiran' => $status,
-            'catatan_kehadiran' => $cleanCatatan,
-            'dikonfirmasi_at' => now(),
-            'dibaca_at' => now(),
-        ]);
+        if ($surat->pegawais()->where('users.id', $user->id)->exists()) {
+            $surat->pegawais()->updateExistingPivot($user->id, [
+                'status_kehadiran' => $status,
+                'catatan_kehadiran' => $cleanCatatan,
+                'dikonfirmasi_at' => now(),
+                'dibaca_at' => now(),
+            ]);
+        } else {
+            $surat->pegawais()->syncWithoutDetaching([
+                $user->id => [
+                    'status_kehadiran' => $status,
+                    'catatan_kehadiran' => $cleanCatatan,
+                    'dikonfirmasi_at' => now(),
+                    'dibaca_at' => now(),
+                ],
+            ]);
+        }
 
         $surat->kirimNotifikasiKehadiran($user, $status, $cleanCatatan);
-        $this->markNotificationAsRead($notifId);
+        if (filled($notifId)) {
+            $this->markNotificationAsRead($notifId);
+        }
+        $this->dispatch('toast', message: 'Konfirmasi Siap Hadir berhasil disimpan.');
     }
 
     public function simpanLaporanSuratTugas(int $suratTugasId, string $ringkasan, ?string $link = null): void
