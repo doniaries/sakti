@@ -84,7 +84,7 @@ class SuratTugasPrintController extends Controller
             return view('pdf.surat-tugas', $viewData);
         }
 
-        $pdf = Pdf::loadView('pdf.surat-tugas', $viewData)->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView('pdf.surat-tugas', $viewData)->setPaper([0, 0, 609.45, 935.43], 'portrait');
         $tanggal = $suratTugas->tanggal_mulai?->format('Y-m-d') ?? now()->format('Y-m-d');
         $suffix = filled($suratTugas->nomor_surat) ? str($suratTugas->nomor_surat)->slug() : 'draft-' . $suratTugas->id;
         $namaFile = "Surat-Tugas-{$tanggal}-{$suffix}.pdf";
