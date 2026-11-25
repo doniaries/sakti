@@ -40,6 +40,9 @@ class SuratTugas extends Model
         'keterangan',
         'file_tte',
         'status',
+        'catatan_koreksi',
+        'dikoreksi_oleh',
+        'dikoreksi_at',
         'sumber',
         'penandatangan_id',
         'ditandatangani_at',
@@ -54,6 +57,7 @@ class SuratTugas extends Model
             'tanggal_selesai' => 'date',
             'tanggal_surat_undangan' => 'date',
             'ditandatangani_at' => 'datetime',
+            'dikoreksi_at' => 'datetime',
             'penanggung_jawab_ids' => 'array',
             'koordinator_acara_ids' => 'array',
         ];
@@ -129,6 +133,25 @@ class SuratTugas extends Model
                 ->icon($status === 'hadir' ? 'heroicon-o-check-circle' : 'heroicon-o-exclamation-circle')
                 ->color($status === 'hadir' ? 'success' : 'warning')
                 ->sendToDatabase($user);
+        }
+    }
+
+    public function kembalikanUntukKoreksi(User $pimpinan, string $catatan): void
+    {
+        $this->status = 'koreksi';
+        $this->catatan_koreksi = $catatan;
+        $this->dikoreksi_oleh = $pimpinan->id;
+        $this->dikoreksi_at = now();
+        $this->save();
+
+        $this->loadMissing('creator');
+        if ($this->creator) {
+            Notification::make()
+                ->title('Surat Tugas Perlu Koreksi')
+                ->body("Dari {$pimpinan->name} ({$this->nama_kegiatan}): {$catatan}")
+                ->icon('heroicon-o-arrow-uturn-left')
+                ->warning()
+                ->sendToDatabase($this->creator);
         }
     }
 

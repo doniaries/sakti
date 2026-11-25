@@ -281,19 +281,25 @@
                     <tr>
                         <td>{{ filled($surat->keterangan) ? '3.' : '2.' }}</td>
                         <td>
-                            Melaksanakan tugas dengan penuh tanggung jawab dan saling mendukung lintas peran sesuai kebutuhan kegiatan di lapangan.
+                            Mempersiapkan peralatan peliputan dan dokumentasi sebelum kegiatan berlangsung.
                         </td>
                     </tr>
                     <tr>
                         <td>{{ filled($surat->keterangan) ? '4.' : '3.' }}</td>
                         <td>
-                            Mempersiapkan peralatan peliputan dan dokumentasi sebelum kegiatan berlangsung.
+                            Hadir di lokasi setengah jam sebelum acara dimulai.
                         </td>
                     </tr>
                     <tr>
                         <td>{{ filled($surat->keterangan) ? '5.' : '4.' }}</td>
                         <td>
-                            Hadir di lokasi setengah jam sebelum acara dimulai.
+                            Membuat laporan kegiatan di Aplikasi SAKTI.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ filled($surat->keterangan) ? '6.' : '5.' }}</td>
+                        <td>
+                            Melaksanakan tugas dengan penuh tanggung jawab dan saling mendukung lintas peran sesuai kebutuhan kegiatan di lapangan.
                         </td>
                     </tr>
                 </table>

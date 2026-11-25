@@ -73,9 +73,23 @@ class SuratTugasTable
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => $state === 'terbit' ? 'Diterbitkan' : 'Draft')
-                    ->color(fn(string $state): string => $state === 'terbit' ? 'success' : 'warning')
-                    ->sortable(),
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'terbit' => 'Diterbitkan',
+                        'koreksi' => 'Perlu Koreksi',
+                        default => 'Draft',
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'terbit' => 'success',
+                        'koreksi' => 'warning',
+                        default => 'gray',
+                    }),
+
+                TextColumn::make('catatan_koreksi')
+                    ->label('Catatan Koreksi')
+                    ->placeholder('-')
+                    ->wrap()
+                    ->limit(50)
+                    ->toggleable(),
 
                 TextColumn::make('pegawais_count')
                     ->label('Tim Kreatif & Dibaca')
@@ -320,6 +334,37 @@ class SuratTugasTable
                             ->title('Laporan kegiatan berhasil dikirim')
                             ->success()
                             ->send();
+                    }),
+
+                Action::make('koreksi')
+                    ->label('Koreksi')
+                    ->icon('heroicon-o-arrow-uturn-left')
+                    ->color('warning')
+                    ->visible(function (SuratTugas $record): bool {
+                        if ($record->status === 'terbit') {
+                            return false;
+                        }
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+
+                        return $user !== null && ($user->hasAnyRole(['super_admin', 'admin', 'pa', 'kadis']) || $user->isKepalaBidang() || (int) $record->penandatangan_id === (int) $user->id);
+                    })
+                    ->schema([
+                        \Filament\Forms\Components\Textarea::make('catatan_koreksi')
+                            ->label('Pesan / Catatan Koreksi untuk Pengusul')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->action(function (SuratTugas $record, array $data): void {
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        if ($user) {
+                            $record->kembalikanUntukKoreksi($user, $data['catatan_koreksi']);
+                            \Filament\Notifications\Notification::make()
+                                ->title('Surat tugas dikembalikan ke pengusul untuk koreksi')
+                                ->warning()
+                                ->send();
+                        }
                     }),
 
                 Action::make('tte_sakti')
