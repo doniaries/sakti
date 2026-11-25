@@ -308,11 +308,23 @@ class SuratTugasTable
                     }),
 
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+
+                        return $user !== null && ($user->hasAnyRole(['super_admin', 'admin']) || $user->isKepalaBidang());
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->visible(function (): bool {
+                            /** @var \App\Models\User|null $user */
+                            $user = \Illuminate\Support\Facades\Auth::user();
+
+                            return $user !== null && ($user->hasAnyRole(['super_admin', 'admin']) || $user->isKepalaBidang());
+                        }),
                 ]),
             ]);
     }
