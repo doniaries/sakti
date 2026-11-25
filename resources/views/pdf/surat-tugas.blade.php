@@ -287,6 +287,12 @@
                     <tr>
                         <td>{{ filled($surat->keterangan) ? '4.' : '3.' }}</td>
                         <td>
+                            Mempersiapkan peralatan peliputan dan dokumentasi sebelum kegiatan berlangsung.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ filled($surat->keterangan) ? '5.' : '4.' }}</td>
+                        <td>
                             Hadir di lokasi setengah jam sebelum acara dimulai.
                         </td>
                     </tr>
