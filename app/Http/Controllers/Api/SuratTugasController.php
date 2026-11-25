@@ -103,9 +103,13 @@ class SuratTugasController extends Controller
             return response()->json(['message' => 'Anda tidak terdaftar pada surat tugas ini.'], 403);
         }
 
+        $catatan = $validated['status_kehadiran'] === 'berhalangan'
+            ? ($validated['catatan_kehadiran'] ?? null)
+            : null;
+
         $suratTugas->pegawais()->updateExistingPivot($user->id, [
             'status_kehadiran' => $validated['status_kehadiran'],
-            'catatan_kehadiran' => $validated['catatan_kehadiran'] ?? null,
+            'catatan_kehadiran' => $catatan,
             'dikonfirmasi_at' => now(),
             'dibaca_at' => now(),
         ]);
@@ -113,7 +117,7 @@ class SuratTugasController extends Controller
         $suratTugas->kirimNotifikasiKehadiran(
             $user,
             $validated['status_kehadiran'],
-            $validated['catatan_kehadiran'] ?? null
+            $catatan
         );
 
         return response()->json([

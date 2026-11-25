@@ -142,15 +142,22 @@ class SuratTugasTable
                                 'berhalangan' => 'Berhalangan',
                             ])
                             ->required()
+                            ->live()
                             ->inline(),
                         \Filament\Forms\Components\Textarea::make('catatan_kehadiran')
-                            ->label('Catatan / Alasan (Opsional)')
+                            ->label('Alasan Berhalangan')
+                            ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('status_kehadiran') === 'berhalangan')
+                            ->required(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('status_kehadiran') === 'berhalangan')
                             ->rows(2),
                     ])
                     ->action(function (SuratTugas $record, array $data): void {
+                        $catatan = $data['status_kehadiran'] === 'berhalangan'
+                            ? ($data['catatan_kehadiran'] ?? null)
+                            : null;
+
                         $record->pegawais()->updateExistingPivot(\Illuminate\Support\Facades\Auth::id(), [
                             'status_kehadiran' => $data['status_kehadiran'],
-                            'catatan_kehadiran' => $data['catatan_kehadiran'] ?? null,
+                            'catatan_kehadiran' => $catatan,
                             'dikonfirmasi_at' => now(),
                             'dibaca_at' => now(),
                         ]);
@@ -161,7 +168,7 @@ class SuratTugasTable
                             $record->kirimNotifikasiKehadiran(
                                 $user,
                                 $data['status_kehadiran'],
-                                $data['catatan_kehadiran'] ?? null
+                                $catatan
                             );
                         }
 
