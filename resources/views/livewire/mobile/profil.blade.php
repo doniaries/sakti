@@ -331,17 +331,17 @@
                         </div>
                     </button>
                 @endif
-                @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']) && Route::has('mobile.pengaturan-modul'))
-                    <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5">
+                @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                    <button type="button" wire:click="setTab('sistem')"
+                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5 cursor-pointer">
                         <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-base">
                             <i class="fa-solid fa-gears"></i>
                         </div>
                         <div>
                             <div class="text-xs font-extrabold text-slate-800 leading-tight">Pengaturan Sistem</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">Modul &amp; Aplikasi</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">Konfigurasi &amp; Modul</div>
                         </div>
-                    </a>
+                    </button>
                 @endif
             </div>
         @else
@@ -1248,6 +1248,40 @@
                                 <span class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
                                 <span class="px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
                             </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            @if ($activeTab === 'sistem' && auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                @php
+                    $configs = \App\Models\PengaturanAplikasi::query()->orderBy('grup')->orderBy('kunci')->get()->groupBy('grup');
+                @endphp
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-gears"></i> Konfigurasi Sistem
+                        </h3>
+                        @if (Route::has('mobile.pengaturan-modul'))
+                            <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
+                                class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[11px] font-bold border border-sky-200">
+                                Atur Modul <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                            </a>
+                        @endif
+                    </div>
+
+                    @foreach ($configs as $grup => $items)
+                        <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2">
+                            <div class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">{{ $grup ?: 'Umum' }}</div>
+                            @foreach ($items as $cfg)
+                                <div class="flex items-start justify-between gap-3 py-1 border-b border-slate-50 last:border-0 text-xs">
+                                    <div class="min-w-0">
+                                        <div class="font-semibold text-slate-700">{{ $cfg->label ?: $cfg->kunci }}</div>
+                                        <div class="text-[10px] font-mono text-slate-400">{{ $cfg->kunci }}</div>
+                                    </div>
+                                    <span class="font-bold text-slate-900 text-right break-all max-w-[45%]">{{ is_bool($cfg->nilai) ? ($cfg->nilai ? 'Aktif' : 'Nonaktif') : ($cfg->nilai ?? '-') }}</span>
+                                </div>
+                            @endforeach
                         </div>
                     @endforeach
                 </div>
