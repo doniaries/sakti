@@ -350,6 +350,29 @@ class SuratTugasTable
                     }),
 
                 EditAction::make(),
+                Action::make('duplikat')
+                    ->label('Duplikat')
+                    ->icon('heroicon-o-document-duplicate')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalHeading('Duplikat Surat Tugas')
+                    ->modalDescription('Buat salinan surat tugas ini dengan nomor baru agar Anda bisa mengubah jam atau timnya.')
+                    ->action(function (SuratTugas $record) {
+                        $copy = $record->replicate(['nomor_surat', 'file_tte', 'ditandatangani_at', 'hash_dokumen']);
+                        $copy->status = 'draft';
+                        $copy->nomor_surat = SuratTugas::generateNomorSurat();
+                        $copy->created_by = \Illuminate\Support\Facades\Auth::id();
+                        $copy->save();
+
+                        $copy->pegawais()->sync($record->pegawais->pluck('id')->all());
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Surat tugas berhasil diduplikat')
+                            ->success()
+                            ->send();
+
+                        return redirect(\App\Filament\Resources\SuratTugas\SuratTugasResource::getUrl('edit', ['record' => $copy]));
+                    }),
                 DeleteAction::make()
                     ->visible(function (): bool {
                         /** @var \App\Models\User|null $user */
