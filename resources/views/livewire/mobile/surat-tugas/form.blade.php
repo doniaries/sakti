@@ -89,57 +89,71 @@
             </div>
         </div>
 
-        {{-- Langkah 2: Dasar Surat Undangan (Opsional) --}}
-        <div x-data="{ showUndangan: false }" class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-xs">
-            <button type="button" @click="showUndangan = !showUndangan" class="w-full flex items-center justify-between gap-2 text-left">
-                <div class="flex items-center gap-2.5">
-                    <span class="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold flex items-center justify-center shrink-0">2</span>
-                    <div>
-                        <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Dasar Surat Undangan <span class="text-[11px] font-normal text-zinc-400">(Opsional)</span></h2>
-                        <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Ketuk jika ada nomor atau file surat undangan</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform duration-200" :class="showUndangan ? 'rotate-180' : ''"></i>
-            </button>
-
-            <div x-show="showUndangan" x-collapse style="display: none;" class="pt-4 mt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-4">
+        {{-- Langkah 2: Dasar Surat Tugas --}}
+        <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-4 shadow-xs">
+            <div class="flex items-center gap-2.5 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                <span class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Nomor Surat Undangan</label>
-                    <input type="text" wire:model="dasar_surat_undangan" placeholder="Contoh: 005/123/Kominfo-2026"
-                        class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
-                    @error('dasar_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Asal Surat</label>
-                        <input type="text" wire:model="asal_surat_undangan" placeholder="Contoh: Setda"
-                            class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
-                        @error('asal_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Tanggal Surat</label>
-                        <x-mobile.date-picker wire:model="tanggal_surat_undangan" placeholder="Pilih tanggal..." />
-                        @error('tanggal_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Upload Bukti Surat Undangan</label>
-                    <label class="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 bg-zinc-50/70 dark:bg-zinc-950 px-4 py-4 text-center cursor-pointer hover:border-teal-500 transition-colors">
-                        <i class="fa-solid fa-cloud-arrow-up text-xl text-teal-600"></i>
-                        <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                            {{ $bukti_surat_undangan ? $bukti_surat_undangan->getClientOriginalName() : 'Ketuk untuk pilih file undangan' }}
-                        </span>
-                        <span class="text-[10px] text-zinc-500">PDF, JPG, PNG, WEBP (Maks. 5 MB)</span>
-                        <input type="file" wire:model="bukti_surat_undangan" accept=".pdf,.jpg,.jpeg,.png,.webp" class="hidden">
-                    </label>
-                    <div wire:loading wire:target="bukti_surat_undangan" class="text-xs text-teal-600 font-medium mt-1">
-                        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah file...
-                    </div>
-                    @error('bukti_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Dasar Surat Tugas</h2>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Pilih apakah ada surat dasar atau perintah lisan pimpinan</p>
                 </div>
             </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" wire:click="$set('jenis_dasar', 'lisan')"
+                    class="py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all text-center {{ $jenis_dasar === 'lisan' ? 'border-teal-600 bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300' : 'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400' }}">
+                    <i class="fa-solid fa-microphone-lines mr-1"></i> Perintah Lisan
+                </button>
+                <button type="button" wire:click="$set('jenis_dasar', 'ada_surat')"
+                    class="py-2.5 px-3 rounded-xl border text-xs font-semibold transition-all text-center {{ $jenis_dasar === 'ada_surat' ? 'border-teal-600 bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300' : 'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400' }}">
+                    <i class="fa-solid fa-file-lines mr-1"></i> Ada Surat Dasar
+                </button>
+            </div>
+
+            @if ($jenis_dasar === 'lisan')
+                <div class="rounded-xl bg-teal-50/70 dark:bg-teal-500/10 border border-teal-200/70 dark:border-teal-800/50 px-3.5 py-2.5 text-xs text-teal-800 dark:text-teal-200">
+                    <i class="fa-solid fa-circle-info mr-1"></i> Dasar surat akan dicatat sebagai <strong>Perintah Lisan Pimpinan</strong>.
+                </div>
+            @else
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Nomor Surat Dasar</label>
+                        <input type="text" wire:model="dasar_surat_undangan" placeholder="Contoh: 005/123/Kominfo-2026"
+                            class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
+                        @error('dasar_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Asal Surat</label>
+                            <input type="text" wire:model="asal_surat_undangan" placeholder="Contoh: Setda"
+                                class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
+                            @error('asal_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Tanggal Surat</label>
+                            <x-mobile.date-picker wire:model="tanggal_surat_undangan" placeholder="Pilih tanggal..." />
+                            @error('tanggal_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Upload Bukti Surat Dasar</label>
+                        <label class="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 bg-zinc-50/70 dark:bg-zinc-950 px-4 py-4 text-center cursor-pointer hover:border-teal-500 transition-colors">
+                            <i class="fa-solid fa-cloud-arrow-up text-xl text-teal-600"></i>
+                            <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                                {{ $bukti_surat_undangan ? $bukti_surat_undangan->getClientOriginalName() : 'Ketuk untuk pilih file surat dasar' }}
+                            </span>
+                            <span class="text-[10px] text-zinc-500">PDF, JPG, PNG, WEBP (Maks. 5 MB)</span>
+                            <input type="file" wire:model="bukti_surat_undangan" accept=".pdf,.jpg,.jpeg,.png,.webp" class="hidden">
+                        </label>
+                        <div wire:loading wire:target="bukti_surat_undangan" class="text-xs text-teal-600 font-medium mt-1">
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah file...
+                        </div>
+                        @error('bukti_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+            @endif
         </div>
 
         {{-- Langkah 3: Tim yang Bertugas --}}

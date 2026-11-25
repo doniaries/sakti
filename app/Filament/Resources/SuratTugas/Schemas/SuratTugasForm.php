@@ -35,16 +35,43 @@ class SuratTugasForm
                     ->schema([
                         // Kolom Kiri (2/3): Dasar Surat Undangan, Detail Kegiatan, Tim Bertugas & Catatan
                         Group::make([
-                            Section::make('Dasar Surat Undangan (Opsional)')
+                            Section::make('Dasar Surat Tugas')
                                 ->schema([
+                                    \Filament\Forms\Components\Radio::make('jenis_dasar_surat')
+                                        ->label('Jenis Dasar Surat Tugas')
+                                        ->options([
+                                            'lisan' => 'Perintah Lisan Pimpinan',
+                                            'ada_surat' => 'Ada Surat Dasar',
+                                        ])
+                                        ->inline()
+                                        ->default('lisan')
+                                        ->live()
+                                        ->dehydrated(false)
+                                        ->afterStateHydrated(function (\Filament\Forms\Components\Radio $component, ?SuratTugas $record): void {
+                                            $hasSurat = filled($record?->dasar_surat_undangan)
+                                                && $record->dasar_surat_undangan !== 'Perintah Lisan Pimpinan';
+                                            $component->state($hasSurat ? 'ada_surat' : 'lisan');
+                                        })
+                                        ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                                            if ($state === 'lisan') {
+                                                $set('dasar_surat_undangan', 'Perintah Lisan Pimpinan');
+                                                $set('asal_surat_undangan', null);
+                                                $set('tanggal_surat_undangan', null);
+                                            } elseif ($get('dasar_surat_undangan') === 'Perintah Lisan Pimpinan') {
+                                                $set('dasar_surat_undangan', null);
+                                            }
+                                        }),
+
                                     Grid::make([
                                         'default' => 1,
                                         'md' => 3,
                                     ])
+                                        ->visible(fn (Get $get): bool => $get('jenis_dasar_surat') === 'ada_surat')
                                         ->schema([
                                             TextInput::make('dasar_surat_undangan')
-                                                ->label('Nomor Surat Undangan')
+                                                ->label('Nomor Surat Dasar')
                                                 ->placeholder('Contoh: 005/123/Kominfo-2026')
+                                                ->default('Perintah Lisan Pimpinan')
                                                 ->maxLength(500),
 
                                             TextInput::make('asal_surat_undangan')

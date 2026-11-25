@@ -20,6 +20,7 @@ class Form extends Component
 {
     use WithFileUploads;
 
+    public string $jenis_dasar = 'lisan';
     public string $dasar_surat_undangan = '';
     public string $asal_surat_undangan = '';
     public string $perihal_surat_undangan = '';
@@ -69,16 +70,18 @@ class Form extends Component
             'keterangan' => ['nullable', 'string'],
         ]);
 
-        $buktiPath = $this->bukti_surat_undangan
+        $buktiPath = ($this->jenis_dasar === 'ada_surat' && $this->bukti_surat_undangan)
             ? $this->bukti_surat_undangan->store('surat-tugas/undangan', 'public')
             : null;
 
         $suratTugas = SuratTugas::create([
-            'dasar_surat_undangan' => $validated['dasar_surat_undangan'] ?: null,
-            'asal_surat_undangan' => $validated['asal_surat_undangan'] ?: null,
+            'dasar_surat_undangan' => $this->jenis_dasar === 'lisan'
+                ? 'Perintah Lisan Pimpinan'
+                : ($validated['dasar_surat_undangan'] ?: null),
+            'asal_surat_undangan' => $this->jenis_dasar === 'ada_surat' ? ($validated['asal_surat_undangan'] ?: null) : null,
             'perihal_surat_undangan' => $validated['perihal_surat_undangan'],
             'nama_kegiatan' => $validated['perihal_surat_undangan'],
-            'tanggal_surat_undangan' => $validated['tanggal_surat_undangan'] ?: null,
+            'tanggal_surat_undangan' => $this->jenis_dasar === 'ada_surat' ? ($validated['tanggal_surat_undangan'] ?: null) : null,
             'lokasi' => $validated['lokasi'],
             'jam_acara' => $validated['jam_acara'] ?: null,
             'tanggal_mulai' => $validated['tanggal_mulai'],
