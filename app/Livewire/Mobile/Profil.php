@@ -29,7 +29,7 @@ class Profil extends Component
 {
     use WithFileUploads;
 
-    public $activeTab = 'utama'; // 'utama', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
+    public $activeTab = 'menu'; // 'menu', 'utama', 'administrasi', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
     public bool $fullEditMode = false;
     public string $impersonateSearch = '';
     public bool $showImpersonateModal = false;

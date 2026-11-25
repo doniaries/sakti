@@ -296,40 +296,53 @@
         @enderror
     </div>
 
-    <!-- Android Material 3 Icon-Above-Label Tab Bar (6 kolom pas tanpa scroll) -->
-    <div class="-mx-5 mb-4 bg-white border-b border-slate-200/80">
-        @if (!$isEditing)
-            <div class="grid grid-cols-6">
+    <!-- Menu Grid Card Profil (ala MyASN) atau Tombol Kembali -->
+    @if (!$isEditing)
+        @if ($activeTab === 'menu')
+            <div class="grid grid-cols-3 gap-2.5 mb-5">
                 @foreach ([
-                    ['key' => 'utama', 'label' => 'Utama', 'icon' => 'fa-user'],
-                    ['key' => 'administrasi', 'label' => 'Admin', 'icon' => 'fa-id-card'],
-                    ['key' => 'golongan', 'label' => 'Pangkat', 'icon' => 'fa-shield-halved'],
-                    ['key' => 'jabatan', 'label' => 'Jabatan', 'icon' => 'fa-briefcase'],
-                    ['key' => 'pendidikan', 'label' => 'Didik', 'icon' => 'fa-graduation-cap'],
-                    ['key' => 'keluarga', 'label' => 'Keluarga', 'icon' => 'fa-people-roof'],
-                ] as $t)
-                    <button type="button" wire:click="setTab('{{ $t['key'] }}')"
-                        class="py-2.5 px-1 flex flex-col items-center justify-center gap-1 border-b-2 transition-colors cursor-pointer {{ $activeTab === $t['key'] ? 'border-sky-600 text-sky-600' : 'border-transparent text-slate-500 hover:text-slate-700' }}">
-                        <i class="fa-solid {{ $t['icon'] }} text-xs"></i>
-                        <span class="text-[10px] font-bold leading-none truncate">{{ $t['label'] }}</span>
+                    ['key' => 'utama', 'label' => 'Data Utama', 'desc' => 'Biodata & Kontak', 'icon' => 'fa-user', 'color' => 'bg-sky-50 text-sky-600 border-sky-100'],
+                    ['key' => 'administrasi', 'label' => 'Administrasi', 'desc' => 'NPWP, BPJS, NIK', 'icon' => 'fa-id-card', 'color' => 'bg-indigo-50 text-indigo-600 border-indigo-100'],
+                    ['key' => 'golongan', 'label' => 'Pangkat & Gol.', 'desc' => 'Riwayat Kepangkatan', 'icon' => 'fa-shield-halved', 'color' => 'bg-emerald-50 text-emerald-600 border-emerald-100'],
+                    ['key' => 'jabatan', 'label' => 'Riwayat Jabatan', 'desc' => 'Jabatan & Unit Kerja', 'icon' => 'fa-briefcase', 'color' => 'bg-amber-50 text-amber-600 border-amber-100'],
+                    ['key' => 'pendidikan', 'label' => 'Pendidikan', 'desc' => 'Riwayat Ijazah', 'icon' => 'fa-graduation-cap', 'color' => 'bg-violet-50 text-violet-600 border-violet-100'],
+                    ['key' => 'keluarga', 'label' => 'Data Keluarga', 'desc' => 'Orang Tua & Pasangan', 'icon' => 'fa-people-roof', 'color' => 'bg-rose-50 text-rose-600 border-rose-100'],
+                ] as $card)
+                    <button type="button" wire:click="setTab('{{ $card['key'] }}')"
+                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5 cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl {{ $card['color'] }} border flex items-center justify-center text-base">
+                            <i class="fa-solid {{ $card['icon'] }}"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-extrabold text-slate-800 leading-tight">{{ $card['label'] }}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5">{{ $card['desc'] }}</div>
+                        </div>
                     </button>
                 @endforeach
             </div>
         @else
-            <div class="px-4 py-2.5 text-xs font-bold text-sky-600 border-b-2 border-sky-600">
-                <i class="fa-solid fa-pen-to-square mr-1.5"></i>{{ match ($activeTab) {
-                    'administrasi' => 'Mode Edit Administrasi',
-                    'golongan' => 'Mode Edit Pangkat / Golongan',
-                    'jabatan' => 'Mode Edit Jabatan',
-                    'pendidikan' => 'Mode Edit Pendidikan',
-                    'keluarga' => 'Mode Edit Keluarga',
-                    default => 'Mode Edit Data Utama',
-                } }}
+            <div class="flex items-center justify-between mb-3">
+                <button type="button" wire:click="setTab('menu')"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-2xs active:scale-95 transition cursor-pointer">
+                    <i class="fa-solid fa-arrow-left text-[11px]"></i>
+                    <span>Kembali ke Menu Profil</span>
+                </button>
             </div>
         @endif
-    </div>
+    @else
+        <div class="mb-4 px-4 py-2.5 rounded-2xl text-xs font-bold bg-sky-600 text-white shadow-xs">
+            <i class="fa-solid fa-pen-to-square mr-1.5"></i>{{ match ($activeTab) {
+                'administrasi' => 'Mode Edit Administrasi',
+                'golongan' => 'Mode Edit Pangkat / Golongan',
+                'jabatan' => 'Mode Edit Jabatan',
+                'pendidikan' => 'Mode Edit Pendidikan',
+                'keluarga' => 'Mode Edit Keluarga',
+                default => 'Mode Edit Data Utama',
+            } }}
+        </div>
+    @endif
 
-    @if (!$isEditing && !in_array($activeTab, ['golongan', 'jabatan', 'pendidikan']))
+    @if (!$isEditing && $activeTab !== 'menu' && !in_array($activeTab, ['golongan', 'jabatan', 'pendidikan']))
         <div class="flex justify-end mb-3">
             <button type="button" wire:click="toggleEdit(true)"
                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-bold flex items-center gap-1.5 border border-sky-200/70 transition active:scale-95 cursor-pointer">
