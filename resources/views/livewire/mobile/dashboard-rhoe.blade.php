@@ -7,6 +7,7 @@
 <div x-data="{
         notifSheet: false,
         suratTugasSheet: false,
+        konfirmasiSuccessModal: false,
         jam: '--:--',
         detik: '--',
         punching: false,
@@ -34,6 +35,7 @@
         }
     }"
     @open-notif-sheet.window="notifSheet = true"
+    @konfirmasi-hadir-sukses.window="notifSheet = false; konfirmasiSuccessModal = true"
     class="pb-28 px-4 pt-4 space-y-4 text-zinc-900 dark:text-zinc-100">
 
     <!-- Holiday Notice (Hanya tampil saat hari libur) -->
@@ -402,6 +404,25 @@
         </x-mobile.rhoe-modal>
     @endif
 
+    <!-- Rhoe UI Modal: Konfirmasi Kehadiran Berhasil -->
+    <x-mobile.rhoe-modal model="konfirmasiSuccessModal" title="Konfirmasi Berhasil" subtitle="Status kehadiran Anda telah tercatat">
+        <div class="py-4 text-center space-y-3">
+            <div class="w-14 h-14 mx-auto rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                <i class="fa-solid fa-circle-check text-3xl"></i>
+            </div>
+            <div class="text-sm font-bold text-zinc-900 dark:text-white">
+                Siap Hadir Dikonfirmasi!
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                Terima kasih, status kehadiran Anda pada Surat Tugas telah diperbarui dan diberitahukan ke pimpinan.
+            </p>
+            <button type="button" @click="konfirmasiSuccessModal = false"
+                class="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700">
+                Tutup
+            </button>
+        </div>
+    </x-mobile.rhoe-modal>
+
     <!-- Rhoe UI Modal: Notifikasi -->
     <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin, dan kinerja">
         <div class="space-y-2">
@@ -431,14 +452,27 @@
                         <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
                         @php
                             $stId = $notif->data['surat_tugas_id'] ?? ($notif->data['viewData']['surat_tugas_id'] ?? null);
+                            $sudahHadir = $stId
+                                ? \Illuminate\Support\Facades\DB::table('surat_tugas_user')
+                                    ->where('surat_tugas_id', $stId)
+                                    ->where('user_id', auth()->id())
+                                    ->where('status_kehadiran', 'hadir')
+                                    ->exists()
+                                : false;
                         @endphp
                         @if ($stId)
                             <div class="mt-2 flex flex-wrap items-center gap-2" @click.stop>
-                                <button type="button"
-                                    wire:click.stop="konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
-                                    class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700">
-                                    Siap Hadir
-                                </button>
+                                @if (! $sudahHadir)
+                                    <button type="button"
+                                        wire:click.stop="konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
+                                        class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700">
+                                        Siap Hadir
+                                    </button>
+                                @else
+                                    <span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
+                                        ✓ Sudah Konfirmasi Hadir
+                                    </span>
+                                @endif
                                 <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $stId]) }}" target="_blank" rel="noopener"
                                    class="px-2.5 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
                                     Lihat Surat

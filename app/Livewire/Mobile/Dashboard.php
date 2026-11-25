@@ -140,6 +140,7 @@ class Dashboard extends Component
             $this->markNotificationAsRead($notifId);
         }
         $this->dispatch('toast', message: 'Konfirmasi Siap Hadir berhasil disimpan.');
+        $this->dispatch('konfirmasi-hadir-sukses');
     }
 
     public function simpanLaporanSuratTugas(int $suratTugasId, string $ringkasan, ?string $link = null): void
