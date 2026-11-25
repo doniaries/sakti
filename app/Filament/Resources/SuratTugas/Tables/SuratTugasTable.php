@@ -199,7 +199,7 @@ class SuratTugasTable
                                     ->required()
                                     ->rows(3),
                             ])
-                            ->action(function (SuratTugas $record, array $data): void {
+                            ->action(function (SuratTugas $record, array $data) {
                                 /** @var \App\Models\User|null $user */
                                 $user = \Illuminate\Support\Facades\Auth::user();
                                 if ($user) {
@@ -208,6 +208,8 @@ class SuratTugasTable
                                         ->title('Surat tugas dikembalikan ke pengusul untuk koreksi')
                                         ->warning()
                                         ->send();
+
+                                    return redirect(\App\Filament\Resources\SuratTugas\SuratTugasResource::getUrl('index'));
                                 }
                             }),
                     ]),
@@ -247,7 +249,7 @@ class SuratTugasTable
                                     ->required()
                                     ->rows(3),
                             ])
-                            ->action(function (SuratTugas $record, array $data): void {
+                            ->action(function (SuratTugas $record, array $data) {
                                 /** @var \App\Models\User|null $user */
                                 $user = \Illuminate\Support\Facades\Auth::user();
                                 if ($user) {
@@ -256,6 +258,8 @@ class SuratTugasTable
                                         ->title('Surat tugas dikembalikan ke pengusul untuk koreksi')
                                         ->warning()
                                         ->send();
+
+                                    return redirect(\App\Filament\Resources\SuratTugas\SuratTugasResource::getUrl('index'));
                                 }
                             }),
                         Action::make('download_pdf')
@@ -304,7 +308,7 @@ class SuratTugasTable
                                     ->required()
                                     ->rows(3),
                             ])
-                            ->action(function (SuratTugas $record, array $data): void {
+                            ->action(function (SuratTugas $record, array $data) {
                                 /** @var \App\Models\User|null $user */
                                 $user = \Illuminate\Support\Facades\Auth::user();
                                 if ($user) {
@@ -313,6 +317,8 @@ class SuratTugasTable
                                         ->title('Surat tugas dikembalikan ke pengusul untuk koreksi')
                                         ->warning()
                                         ->send();
+
+                                    return redirect(\App\Filament\Resources\SuratTugas\SuratTugasResource::getUrl('index'));
                                 }
                             }),
                         Action::make('print_laporan_pdf')
@@ -361,7 +367,7 @@ class SuratTugasTable
                             ->required(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => $get('status_kehadiran') === 'berhalangan')
                             ->rows(2),
                     ])
-                    ->action(function (SuratTugas $record, array $data): void {
+                    ->action(function (SuratTugas $record, array $data) {
                         $catatan = $data['status_kehadiran'] === 'berhalangan'
                             ? ($data['catatan_kehadiran'] ?? null)
                             : null;
@@ -412,7 +418,7 @@ class SuratTugasTable
                             ->multiple()
                             ->maxFiles(5),
                     ])
-                    ->action(function (SuratTugas $record, array $data): void {
+                    ->action(function (SuratTugas $record, array $data) {
                         \App\Models\LaporanSuratTugas::create([
                             'surat_tugas_id' => $record->id,
                             'user_id' => \Illuminate\Support\Facades\Auth::id(),
@@ -447,7 +453,7 @@ class SuratTugasTable
                             ->required()
                             ->rows(3),
                     ])
-                    ->action(function (SuratTugas $record, array $data): void {
+                    ->action(function (SuratTugas $record, array $data) {
                         /** @var \App\Models\User|null $user */
                         $user = \Illuminate\Support\Facades\Auth::user();
                         if ($user) {
