@@ -1666,15 +1666,7 @@
             @endif
         @endif
 
-        <!-- Tombol Keluar dari Akun (Logout) -->
-        <div class="mt-8 pt-4 border-t border-slate-200/80">
-            <button type="button" @click="confirmLogout = true"
-                class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-rose-50 text-rose-600 font-extrabold text-xs border border-rose-200 shadow-xs flex items-center justify-center space-x-2 transition active:scale-98 cursor-pointer">
-                <i class="fa-solid fa-power-off text-rose-500 text-sm"></i>
-                <span>Keluar dari Akun (Logout)</span>
-            </button>
-            <p class="text-center text-[10px] text-slate-400 mt-2.5">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p>
-        </div>
+        {{-- <p class="text-center text-[10px] text-slate-400 mt-6">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p> --}}
 
         @if ($showImpersonateModal)
             <div
