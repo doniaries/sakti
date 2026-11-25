@@ -357,6 +357,28 @@
                                 class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-[11px] font-semibold">
                                 {{ $st->laporans->isNotEmpty() ? 'Tambah Laporan' : 'Buat Laporan' }}
                             </button>
+                            <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $st->id]) }}" target="_blank" rel="noopener"
+                               class="px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                                Lihat
+                            </a>
+                            <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $st->id]) }}" target="_blank" rel="noopener"
+                               class="px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                                Unduh / Print
+                            </a>
+                            <a href="https://wa.me/?text={{ urlencode("Surat Tugas: {$st->nama_kegiatan}\n" . route('surat-tugas.cetak-pdf', ['suratTugas' => $st->id])) }}" target="_blank" rel="noopener"
+                               class="px-2.5 py-1.5 rounded-lg bg-green-600 text-white text-[11px] font-semibold">
+                                Share WA
+                            </a>
+                            @if ($st->laporans->isNotEmpty())
+                                <a href="{{ route('surat-tugas.laporan-pdf', ['suratTugas' => $st->id]) }}" target="_blank" rel="noopener"
+                                   class="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-[11px] font-semibold">
+                                    Laporan PDF
+                                </a>
+                                <a href="https://wa.me/?text={{ urlencode("Laporan Kegiatan: {$st->nama_kegiatan}\n" . route('surat-tugas.laporan-pdf', ['suratTugas' => $st->id])) }}" target="_blank" rel="noopener"
+                                   class="px-2.5 py-1.5 rounded-lg bg-green-700 text-white text-[11px] font-semibold">
+                                    Share Laporan WA
+                                </a>
+                            @endif
                         </div>
 
                         <div x-show="openLapor" x-cloak class="pt-2 space-y-2 border-t border-zinc-200 dark:border-zinc-800">
@@ -411,12 +433,20 @@
                             $stId = $notif->data['surat_tugas_id'] ?? ($notif->data['viewData']['surat_tugas_id'] ?? null);
                         @endphp
                         @if ($stId)
-                            <div class="mt-2 flex items-center gap-2" @click.stop>
+                            <div class="mt-2 flex flex-wrap items-center gap-2" @click.stop>
                                 <button type="button"
                                     wire:click.stop="konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
                                     class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700">
                                     Siap Hadir
                                 </button>
+                                <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $stId]) }}" target="_blank" rel="noopener"
+                                   class="px-2.5 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                                    Lihat Surat
+                                </a>
+                                <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $stId]) }}" target="_blank" rel="noopener"
+                                   class="px-2.5 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                                    Unduh / Print
+                                </a>
                             </div>
                         @endif
                     </div>

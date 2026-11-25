@@ -89,6 +89,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.laporan.fungsional.cetak');
     Route::get('/admin/surat-tugas/{suratTugas}/cetak-pdf', [\App\Http\Controllers\SuratTugasPrintController::class, 'cetak'])
         ->name('surat-tugas.cetak-pdf');
+    Route::get('/admin/surat-tugas/{suratTugas}/laporan-pdf', [\App\Http\Controllers\SuratTugasPrintController::class, 'cetakLaporan'])
+        ->name('surat-tugas.laporan-pdf');
     Route::get('/admin/surat-tugas/{suratTugas}/download-word', [\App\Http\Controllers\SuratTugasPrintController::class, 'downloadWord'])
         ->name('surat-tugas.download-word');
     Route::get('/admin/buku-inventaris/cetak', [\App\Http\Controllers\BukuInventarisPrintController::class, 'cetak'])

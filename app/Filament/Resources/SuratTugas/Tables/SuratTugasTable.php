@@ -184,6 +184,42 @@ class SuratTugasTable
                             ->openUrlInNewTab(),
                     ]),
 
+                Action::make('laporan_pdf')
+                    ->label('Laporan PDF')
+                    ->icon('heroicon-o-document-text')
+                    ->color('info')
+                    ->visible(fn (SuratTugas $record): bool => $record->laporans()->exists())
+                    ->modalHeading('Pratinjau Laporan Kegiatan')
+                    ->modalWidth('5xl')
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Tutup')
+                    ->modalContent(function (SuratTugas $record): \Illuminate\Contracts\View\View {
+                        $record->load(['pegawais', 'laporans.user', 'penanggungJawab.jabatan']);
+                        $html = view('pdf.laporan-surat-tugas', [
+                            'surat' => $record,
+                            'instansi' => \App\Models\Instansi::query()->first(),
+                        ])->render();
+
+                        return view('filament.surat-tugas.preview-modal', ['html' => $html]);
+                    })
+                    ->extraModalFooterActions([
+                        Action::make('print_laporan_pdf')
+                            ->label('Print / Download PDF')
+                            ->icon('heroicon-o-printer')
+                            ->url(fn (SuratTugas $record): string => route('surat-tugas.laporan-pdf', $record), shouldOpenInNewTab: true),
+                        Action::make('share_wa_laporan')
+                            ->label('Bagikan ke WhatsApp')
+                            ->icon('heroicon-o-share')
+                            ->color('success')
+                            ->url(fn (SuratTugas $record): string => 'https://wa.me/?text=' . urlencode("Laporan Kegiatan: {$record->nama_kegiatan}\n" . route('surat-tugas.laporan-pdf', $record)), shouldOpenInNewTab: true),
+                    ]),
+
+                Action::make('share_wa_surat')
+                    ->label('Share WA')
+                    ->icon('heroicon-o-share')
+                    ->color('success')
+                    ->url(fn (SuratTugas $record): string => 'https://wa.me/?text=' . urlencode("Surat Tugas: {$record->nama_kegiatan}\n" . route('surat-tugas.cetak-pdf', $record)), shouldOpenInNewTab: true),
+
                 Action::make('lihat_undangan')
                     ->label('Lihat Undangan')
                     ->icon('heroicon-o-paper-clip')

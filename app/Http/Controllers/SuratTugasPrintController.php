@@ -88,6 +88,18 @@ class SuratTugasPrintController extends Controller
         return $pdf->stream($namaFile);
     }
 
+    public function cetakLaporan(SuratTugas $suratTugas)
+    {
+        $suratTugas->load(['pegawais', 'laporans.user', 'penanggungJawab.jabatan']);
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.laporan-surat-tugas', [
+            'surat' => $suratTugas,
+            'instansi' => \App\Models\Instansi::query()->first(),
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->stream('laporan-kegiatan-' . ($suratTugas->id) . '.pdf');
+    }
+
     public function downloadWord(SuratTugas $suratTugas)
     {
         $suratTugas->load(['pegawais.jabatan', 'pegawais.bidang', 'penandatangan.jabatan']);

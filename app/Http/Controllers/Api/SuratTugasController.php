@@ -40,6 +40,14 @@ class SuratTugasController extends Controller
                 'bukti_surat_undangan_url' => filled($surat->bukti_surat_undangan)
                     ? Storage::disk('public')->url($surat->bukti_surat_undangan)
                     : null,
+                'surat_tugas_pdf_url' => route('surat-tugas.cetak-pdf', $surat),
+                'laporan_pdf_url' => $surat->laporans->isNotEmpty()
+                    ? route('surat-tugas.laporan-pdf', $surat)
+                    : null,
+                'share_wa_surat_url' => 'https://wa.me/?text=' . urlencode("Surat Tugas: {$surat->nama_kegiatan}\n" . route('surat-tugas.cetak-pdf', $surat)),
+                'share_wa_laporan_url' => $surat->laporans->isNotEmpty()
+                    ? 'https://wa.me/?text=' . urlencode("Laporan Kegiatan: {$surat->nama_kegiatan}\n" . route('surat-tugas.laporan-pdf', $surat))
+                    : null,
                 'status_kehadiran' => $pivot?->status_kehadiran ?? 'belum_konfirmasi',
                 'catatan_kehadiran' => $pivot?->catatan_kehadiran,
                 'dikonfirmasi_at' => $pivot?->dikonfirmasi_at,
