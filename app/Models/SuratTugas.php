@@ -25,8 +25,12 @@ class SuratTugas extends Model
         'dasar_surat',
         'tanggal_mulai',
         'tanggal_selesai',
+        'jam_acara',
         'lokasi',
         'penanggung_jawab_id',
+        'penanggung_jawab_ids',
+        'koordinator_acara',
+        'koordinator_acara_ids',
         'keterangan',
         'file_tte',
         'status',
@@ -43,6 +47,8 @@ class SuratTugas extends Model
             'tanggal_mulai' => 'date',
             'tanggal_selesai' => 'date',
             'ditandatangani_at' => 'datetime',
+            'penanggung_jawab_ids' => 'array',
+            'koordinator_acara_ids' => 'array',
         ];
     }
 

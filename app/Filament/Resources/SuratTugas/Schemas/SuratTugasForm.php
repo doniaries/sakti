@@ -12,6 +12,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -43,7 +44,7 @@ class SuratTugasForm
 
                                     Grid::make([
                                         'default' => 1,
-                                        'md' => 3,
+                                        'md' => 4,
                                     ])
                                         ->schema([
                                             DatePicker::make('tanggal_mulai')
@@ -61,6 +62,12 @@ class SuratTugasForm
                                                 ->afterOrEqual('tanggal_mulai')
                                                 ->required(),
 
+                                            TimePicker::make('jam_acara')
+                                                ->label('Jam Acara')
+                                                ->seconds(false)
+                                                ->native(false)
+                                                ->placeholder('Pilih jam'),
+
                                             TextInput::make('lokasi')
                                                 ->label('Lokasi Kegiatan')
                                                 ->required()
@@ -68,36 +75,69 @@ class SuratTugasForm
                                                 ->maxLength(255),
                                         ]),
 
-                                    Select::make('penanggung_jawab_id')
+                                    Select::make('penanggung_jawab_ids')
                                         ->label('Penanggung Jawab Kegiatan Bidang')
-                                        ->relationship(
-                                            name: 'penanggungJawab',
-                                            titleAttribute: 'name',
-                                            modifyQueryUsing: fn (Builder $query): Builder => $query
-                                                ->bukanSuperAdmin()
-                                                ->where('aktif', true)
-                                                ->whereIn('eselon', [
-                                                    Eselon::II_A->value,
-                                                    Eselon::II_B->value,
-                                                    Eselon::III_A->value,
-                                                    Eselon::III_B->value,
-                                                    Eselon::IV_A->value,
-                                                    Eselon::IV_B->value,
-                                                ])
-                                                ->with('jabatan')
-                                                ->orderBy('name')
+                                        ->options(fn (): array => User::query()
+                                            ->bukanSuperAdmin()
+                                            ->where('aktif', true)
+                                            ->whereIn('eselon', [
+                                                Eselon::II_A->value,
+                                                Eselon::II_B->value,
+                                                Eselon::III_A->value,
+                                                Eselon::III_B->value,
+                                                Eselon::IV_A->value,
+                                                Eselon::IV_B->value,
+                                            ])
+                                            ->with('jabatan')
+                                            ->orderBy('name')
+                                            ->get()
+                                            ->mapWithKeys(fn (User $record): array => [
+                                                $record->id => $record->jabatan?->nama
+                                                    ? "{$record->name} — {$record->jabatan->nama}"
+                                                    : $record->name,
+                                            ])
+                                            ->all()
                                         )
-                                        ->getOptionLabelFromRecordUsing(function (User $record): string {
-                                            $jabatan = $record->jabatan?->nama;
-
-                                            return $jabatan
-                                                ? "{$record->name} — {$jabatan}"
-                                                : $record->name;
-                                        })
+                                        ->multiple()
                                         ->searchable()
                                         ->preload()
                                         ->required()
-                                        ->helperText('Wajib diisi oleh pejabat bereselon sebagai pimpinan penanggung jawab di lokasi kegiatan.')
+                                        ->helperText('Wajib diisi oleh pejabat bereselon sebagai pimpinan penanggung jawab di lokasi kegiatan (bisa lebih dari satu).')
+                                        ->columnSpanFull(),
+
+                                    Select::make('koordinator_acara_ids')
+                                        ->label('Koordinator Acara (JF)')
+                                        ->options(fn (): array => User::query()
+                                            ->bukanSuperAdmin()
+                                            ->where('aktif', true)
+                                            ->whereIn('eselon', [
+                                                Eselon::II_A->value,
+                                                Eselon::II_B->value,
+                                                Eselon::III_A->value,
+                                                Eselon::III_B->value,
+                                                Eselon::IV_A->value,
+                                                Eselon::IV_B->value,
+                                            ])
+                                            ->where(function (Builder $q): void {
+                                                $q->whereHas('roles', fn (Builder $r): Builder => $r->where('name', 'jf'))
+                                                    ->orWhereHas('jabatan', fn (Builder $j): Builder => $j
+                                                        ->where('nama', 'like', '%fungsional%')
+                                                        ->orWhere('nama', 'like', '%ahli %'));
+                                            })
+                                            ->with('jabatan')
+                                            ->orderBy('name')
+                                            ->get()
+                                            ->mapWithKeys(fn (User $record): array => [
+                                                $record->id => $record->jabatan?->nama
+                                                    ? "{$record->name} — {$record->jabatan->nama}"
+                                                    : $record->name,
+                                            ])
+                                            ->all()
+                                        )
+                                        ->multiple()
+                                        ->searchable()
+                                        ->preload()
+                                        ->helperText('Pilih satu atau lebih Jabatan Fungsional (JF) sebagai koordinator acara.')
                                         ->columnSpanFull(),
 
                                     Select::make('pegawais')

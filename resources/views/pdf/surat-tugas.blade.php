@@ -214,7 +214,7 @@
                                 @else
                                     {{ $surat->tanggal_mulai->translatedFormat('d F Y') }} s.d. {{ $surat->tanggal_selesai->translatedFormat('d F Y') }}
                                 @endif
-                            </strong>.
+                            </strong>@if (filled($surat->jam_acara)) pukul <strong>{{ \Illuminate\Support\Carbon::parse($surat->jam_acara)->format('H.i') }} WIB</strong>@endif.
                         </td>
                     </tr>
                     @if (filled($surat->keterangan))
@@ -225,14 +225,40 @@
                             </td>
                         </tr>
                     @endif
-                    @if ($surat->penanggungJawab)
+                    @php
+                        $penanggungJawabs = filled($surat->penanggung_jawab_ids)
+                            ? \App\Models\User::with('jabatan')->whereIn('id', $surat->penanggung_jawab_ids)->orderBy('name')->get()
+                            : ($surat->penanggungJawab ? collect([$surat->penanggungJawab]) : collect());
+                        $koordinators = filled($surat->koordinator_acara_ids)
+                            ? \App\Models\User::with('jabatan')->whereIn('id', $surat->koordinator_acara_ids)->orderBy('name')->get()
+                            : collect();
+                    @endphp
+                    @if ($penanggungJawabs->isNotEmpty())
                         <tr>
                             <td></td>
                             <td>
-                                Penanggung Jawab Kegiatan Bidang: <strong>{{ $surat->penanggungJawab->name }}</strong>
-                                @if ($surat->penanggungJawab->jabatan?->nama)
-                                    ({{ $surat->penanggungJawab->jabatan->nama }})
-                                @endif
+                                Penanggung Jawab Kegiatan Bidang:
+                                @foreach ($penanggungJawabs as $pj)
+                                    <strong>{{ $pj->name }}</strong>@if ($pj->jabatan?->nama) ({{ $pj->jabatan->nama }})@endif{{ !$loop->last ? '; ' : '' }}
+                                @endforeach
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($koordinators->isNotEmpty())
+                        <tr>
+                            <td></td>
+                            <td>
+                                Koordinator Acara:
+                                @foreach ($koordinators as $koord)
+                                    <strong>{{ $koord->name }}</strong>@if ($koord->jabatan?->nama) ({{ $koord->jabatan->nama }})@endif{{ !$loop->last ? '; ' : '' }}
+                                @endforeach
+                            </td>
+                        </tr>
+                    @elseif (filled($surat->koordinator_acara))
+                        <tr>
+                            <td></td>
+                            <td>
+                                Koordinator Acara: <strong>{{ $surat->koordinator_acara }}</strong>
                             </td>
                         </tr>
                     @endif
@@ -240,6 +266,12 @@
                         <td>{{ filled($surat->keterangan) ? '3.' : '2.' }}</td>
                         <td>
                             Melaksanakan tugas dengan penuh tanggung jawab dan saling mendukung lintas peran sesuai kebutuhan kegiatan di lapangan.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{{ filled($surat->keterangan) ? '4.' : '3.' }}</td>
+                        <td>
+                            Hadir di lokasi setengah jam sebelum acara dimulai.
                         </td>
                     </tr>
                 </table>
