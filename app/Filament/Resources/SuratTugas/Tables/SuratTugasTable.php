@@ -78,6 +78,26 @@ class SuratTugasTable
                     ->formatStateUsing(fn(SuratTugas $record): string => "{$record->pegawais_sudah_baca_count}/{$record->pegawais_count} Dibaca")
                     ->sortable(),
 
+                TextColumn::make('kehadiran_tim')
+                    ->label('Konfirmasi Kehadiran')
+                    ->getStateUsing(function (SuratTugas $record): array {
+                        return $record->pegawais->map(function ($p): string {
+                            $status = match ($p->pivot->status_kehadiran ?? 'belum_konfirmasi') {
+                                'hadir' => 'Hadir',
+                                'berhalangan' => 'Berhalangan',
+                                default => 'Belum Konfirmasi',
+                            };
+
+                            return "{$p->name}: {$status}";
+                        })->all();
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match (true) {
+                        str_ends_with($state, ': Hadir') => 'success',
+                        str_ends_with($state, ': Berhalangan') => 'warning',
+                        default => 'gray',
+                    }),
+
                 TextColumn::make('penandatangan.name')
                     ->label('Penandatangan')
                     ->placeholder('-')
@@ -97,6 +117,49 @@ class SuratTugasTable
                     ->icon('heroicon-o-plus'),
             ])
             ->recordActions([
+                \Filament\Actions\ViewAction::make()
+                    ->label('Detail')
+                    ->infolist([
+                        \Filament\Infolists\Components\TextEntry::make('nomor_surat')
+                            ->label('Nomor Surat')
+                            ->placeholder('Draft'),
+                        \Filament\Infolists\Components\TextEntry::make('nama_kegiatan')
+                            ->label('Nama Kegiatan'),
+                        \Filament\Infolists\Components\TextEntry::make('tanggal_mulai')
+                            ->label('Tanggal')
+                            ->date('d/m/Y'),
+                        \Filament\Infolists\Components\TextEntry::make('jam_acara')
+                            ->label('Jam Acara')
+                            ->placeholder('-'),
+                        \Filament\Infolists\Components\TextEntry::make('lokasi')
+                            ->label('Lokasi'),
+                        \Filament\Infolists\Components\TextEntry::make('kehadiran_tim')
+                            ->label('Kehadiran Tim')
+                            ->getStateUsing(fn (SuratTugas $record): array => $record->pegawais->map(function ($p): string {
+                                $status = match ($p->pivot->status_kehadiran ?? 'belum_konfirmasi') {
+                                    'hadir' => 'Hadir',
+                                    'berhalangan' => 'Berhalangan' . (filled($p->pivot->catatan_kehadiran) ? " ({$p->pivot->catatan_kehadiran})" : ''),
+                                    default => 'Belum Konfirmasi',
+                                };
+
+                                return "{$p->name} — {$status}";
+                            })->all())
+                            ->badge(),
+                        \Filament\Infolists\Components\RepeatableEntry::make('laporans')
+                            ->label('Laporan Kegiatan')
+                            ->schema([
+                                \Filament\Infolists\Components\TextEntry::make('user.name')
+                                    ->label('Pelapor'),
+                                \Filament\Infolists\Components\TextEntry::make('ringkasan_kegiatan')
+                                    ->label('Ringkasan'),
+                                \Filament\Infolists\Components\TextEntry::make('link_dokumentasi')
+                                    ->label('Link Dokumentasi')
+                                    ->url(fn (?string $state): ?string => $state, shouldOpenInNewTab: true)
+                                    ->placeholder('-'),
+                            ])
+                            ->columns(3),
+                    ]),
+
                 Action::make('cetak_pdf')
                     ->label(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'Lihat Surat Tugas' : 'Preview Draft')
                     ->icon(fn(SuratTugas $record): string => $record->status === 'terbit' ? 'heroicon-o-document-check' : 'heroicon-o-eye')

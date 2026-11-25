@@ -102,6 +102,32 @@ class Dashboard extends Component
         $this->dispatch('notif-count-updated', count: $user->unreadNotifications()->count());
     }
 
+    public function konfirmasiSuratTugas(int $suratTugasId, string $status, string $notifId, ?string $catatan = null): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user || ! in_array($status, ['hadir', 'berhalangan'], true)) {
+            return;
+        }
+
+        $surat = \App\Models\SuratTugas::find($suratTugasId);
+        if (! $surat || ! $surat->pegawais()->where('users.id', $user->id)->exists()) {
+            return;
+        }
+
+        $cleanCatatan = $status === 'berhalangan' ? $catatan : null;
+
+        $surat->pegawais()->updateExistingPivot($user->id, [
+            'status_kehadiran' => $status,
+            'catatan_kehadiran' => $cleanCatatan,
+            'dikonfirmasi_at' => now(),
+            'dibaca_at' => now(),
+        ]);
+
+        $surat->kirimNotifikasiKehadiran($user, $status, $cleanCatatan);
+        $this->markNotificationAsRead($notifId);
+    }
+
     public function markAllNotificationsAsRead(): void
     {
         /** @var User|null $user */

@@ -220,6 +220,7 @@ class SuratTugas extends Model
         foreach ($penerima as $user) {
             Notification::make()
                 ->title('Surat Tugas Disetujui (TTE SAKTI)')
+                ->viewData(['surat_tugas_id' => $this->id])
                 ->body("Nomor {$this->nomor_surat}: {$this->nama_kegiatan}")
                 ->icon('heroicon-o-document-check')
                 ->success()

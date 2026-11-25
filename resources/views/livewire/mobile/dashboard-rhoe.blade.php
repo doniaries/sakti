@@ -327,6 +327,23 @@
                         <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
                         <p class="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
                         <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
+                        @php
+                            $stId = $notif->data['surat_tugas_id'] ?? ($notif->data['viewData']['surat_tugas_id'] ?? null);
+                        @endphp
+                        @if ($stId)
+                            <div class="mt-2 flex items-center gap-2" @click.stop>
+                                <button type="button"
+                                    wire:click.stop="konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
+                                    class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700">
+                                    Hadir
+                                </button>
+                                <button type="button"
+                                    @click.stop="const alasan = prompt('Alasan berhalangan:'); if (alasan !== null && alasan.trim() !== '') { $wire.konfirmasiSuratTugas({{ $stId }}, 'berhalangan', '{{ $notif->id }}', alasan); }"
+                                    class="px-3 py-1 rounded-lg bg-amber-500 text-white text-[11px] font-semibold hover:bg-amber-600">
+                                    Berhalangan
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 @endif
             @empty
