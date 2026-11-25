@@ -313,10 +313,10 @@
         ['key' => 'golongan', 'label' => 'Pangkat & Gol.', 'desc' => 'Riwayat Kepangkatan', 'icon' => 'fa-shield-halved', 'color' => 'bg-emerald-50 text-emerald-600 border-emerald-100'],
         ['key' => 'jabatan', 'label' => 'Riwayat Jabatan', 'desc' => 'Jabatan & Unit Kerja', 'icon' => 'fa-briefcase', 'color' => 'bg-amber-50 text-amber-600 border-amber-100'],
         ['key' => 'pendidikan', 'label' => 'Pendidikan', 'desc' => 'Riwayat Ijazah', 'icon' => 'fa-graduation-cap', 'color' => 'bg-violet-50 text-violet-600 border-violet-100'],
-        ['key' => 'keluarga', 'label' => 'Data Keluarga', 'desc' => 'Orang Tua & Pasangan', 'icon' => 'fa-people-roof', 'color' => 'bg-rose-50 text-rose-600 border-rose-100'],
+        ['key' => 'keluarga', 'label' => 'Data Kependudukan', 'desc' => 'NIK, KK & Keluarga', 'icon' => 'fa-people-roof', 'color' => 'bg-rose-50 text-rose-600 border-rose-100'],
     ] as $card)
                     <button type="button" wire:click="setTab('{{ $card['key'] }}')"
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5 cursor-pointer">
+                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2.5 cursor-pointer">
                         <div
                             class="w-10 h-10 rounded-xl {{ $card['color'] }} border flex items-center justify-center text-base">
                             <i class="fa-solid {{ $card['icon'] }}"></i>
@@ -330,7 +330,7 @@
                 @endforeach
                 @if (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role'))
                     <button type="button" wire:click="setTab('peran')"
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5 cursor-pointer">
+                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2.5 cursor-pointer">
                         <div
                             class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center text-base">
                             <i class="fa-solid fa-user-shield"></i>
@@ -344,7 +344,7 @@
                 @if (auth()->user()
                         ?->hasAnyRole(['super_admin', 'admin']))
                     <button type="button" wire:click="setTab('sistem')"
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5 cursor-pointer">
+                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2.5 cursor-pointer">
                         <div
                             class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-base">
                             <i class="fa-solid fa-gears"></i>
