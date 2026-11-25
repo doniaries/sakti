@@ -165,14 +165,22 @@
                         </a>
                     @endif
                 @endforeach
-                @if (filled(auth()->user()?->jabatan_tim_kreatif))
+                @if (auth()->user()?->canManageSuratTugas() || filled(auth()->user()?->jabatan_tim_kreatif))
                     <button type="button" @click="document.getElementById('card-surat-tugas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })"
-                        class="flex flex-col items-center gap-1.5 group cursor-pointer">
-                        <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                            <i class="fa-solid fa-file-signature text-lg"></i>
+                        class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform cursor-pointer">
+                        <div class="w-11 h-11 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-file-signature"></i>
                         </div>
-                        <span class="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
+                        <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
                     </button>
+                @endif
+                @if (auth()->user()?->canManageSuratTugas() && Route::has('mobile.surat-tugas.create'))
+                    <a href="{{ route('mobile.surat-tugas.create') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base">
+                            <i class="fa-solid fa-file-circle-plus"></i>
+                        </div>
+                        <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Buat Surat Tugas</span>
+                    </a>
                 @endif
             </div>
         </div>
@@ -369,7 +377,7 @@
                                 <button type="button"
                                     wire:click="konfirmasiSuratTugas({{ $st->id }}, 'hadir', '')"
                                     class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold">
-                                    Siap Hadir
+                                    Konfirmasi Hadir
                                 </button>
                             @endif
                             @if ($statusHadir === 'hadir')
@@ -484,7 +492,7 @@
                                     <button type="button"
                                         @click.stop="$wire.konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
                                         class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700 cursor-pointer">
-                                        Siap Hadir
+                                        Konfirmasi Hadir
                                     </button>
                                 @else
                                     <span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
