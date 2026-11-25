@@ -240,7 +240,16 @@
                         <i class="fa-regular" :class="copiedEmail ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
                     </button>
                 </div>
+                @php
+                    $golHero = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true)
+                        ?? $user->riwayatGolongan->first();
+                @endphp
                 <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    @if ($golHero)
+                        <span class="px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/30 text-[10px] font-bold text-amber-200">
+                            {{ $golHero->golongan?->value ?? $golHero->golongan }}{{ $golHero->nama_pangkat ? ' • ' . $golHero->nama_pangkat : '' }}
+                        </span>
+                    @endif
                     <span class="px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold uppercase text-emerald-200">
                         {{ $user->status_kerja ?? 'WFO' }}
                     </span>
