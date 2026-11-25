@@ -141,10 +141,17 @@ class SuratTugasTable
             ->recordActions([
                 \Filament\Actions\ViewAction::make()
                     ->label('Detail')
+                    ->modalWidth(Width::SevenExtraLarge)
                     ->infolist([
-                        \Filament\Infolists\Components\TextEntry::make('nomor_surat')
-                            ->label('Nomor Surat')
-                            ->placeholder('Draft'),
+                        \Filament\Schemas\Components\Grid::make([
+                            'default' => 1,
+                            'lg' => 3,
+                        ])
+                            ->schema([
+                                \Filament\Schemas\Components\Group::make([
+                                    \Filament\Infolists\Components\TextEntry::make('nomor_surat')
+                                        ->label('Nomor Surat')
+                                        ->placeholder('Draft'),
                         \Filament\Infolists\Components\TextEntry::make('nama_kegiatan')
                             ->label('Nama Kegiatan'),
                         \Filament\Infolists\Components\TextEntry::make('tanggal_mulai')
@@ -180,6 +187,13 @@ class SuratTugasTable
                                     ->placeholder('-'),
                             ])
                             ->columns(3),
+                                ]),
+
+                                \Filament\Infolists\Components\TextEntry::make('pdf_preview')
+                                    ->label('Preview Surat Tugas')
+                                    ->state(fn (SuratTugas $record): HtmlString => new HtmlString('<iframe src="' . route('surat-tugas.cetak-pdf', ['suratTugas' => $record, 'preview' => 1]) . '" class="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white" style="height: 70vh;"></iframe>'))
+                                    ->columnSpan(['lg' => 2]),
+                            ]),
                     ])
                     ->extraModalFooterActions([
                         Action::make('preview_pdf_dari_detail')
