@@ -82,9 +82,14 @@ class Profil extends Component
     public array $roleUserIds = [];
 
     // Tab Pengaturan Sistem
-    public ?int $editingConfigId = null;
-    public string $editingConfigLabel = '';
-    public string $editingConfigNilai = '';
+    public string $cfg_nama_aplikasi = '';
+    public string $cfg_sub_nama = '';
+    public string $cfg_nama_dinas = '';
+    public int $cfg_radius_meter = 50;
+    public bool $cfg_mode_simulasi = false;
+    public string $cfg_tahun_anggaran = '';
+    public string $cfg_kontak_bantuan = '';
+    public string $cfg_alamat_kantor = '';
 
     // Tab Jabatan
     public string $status_kepegawaian = '';
@@ -329,36 +334,45 @@ class Profil extends Component
         }
     }
 
-    public function editConfig(int $id): void
+    public function openAppConfigModal(): void
     {
         /** @var User|null $auth */
         $auth = Auth::user();
         abort_unless($auth && $auth->hasAnyRole(['super_admin', 'admin']), 403);
 
-        $cfg = \App\Models\PengaturanAplikasi::find($id);
+        $cfg = \App\Models\PengaturanAplikasi::first();
         if ($cfg) {
-            $this->editingConfigId = $cfg->id;
-            $this->editingConfigLabel = $cfg->label ?: $cfg->kunci;
-            $this->editingConfigNilai = (string) ($cfg->nilai ?? '');
-            $this->dispatch('open-config-modal');
+            $this->cfg_nama_aplikasi = (string) ($cfg->nama_aplikasi ?? '');
+            $this->cfg_sub_nama = (string) ($cfg->sub_nama ?? '');
+            $this->cfg_nama_dinas = (string) ($cfg->nama_dinas ?? '');
+            $this->cfg_radius_meter = (int) ($cfg->radius_meter ?? 50);
+            $this->cfg_mode_simulasi = (bool) ($cfg->mode_simulasi ?? false);
+            $this->cfg_tahun_anggaran = (string) ($cfg->tahun_anggaran_aktif ?? '');
+            $this->cfg_kontak_bantuan = (string) ($cfg->kontak_bantuan ?? '');
+            $this->cfg_alamat_kantor = (string) ($cfg->alamat_kantor ?? '');
+            $this->dispatch('open-app-config-modal');
         }
     }
 
-    public function saveConfig(): void
+    public function saveAppConfig(): void
     {
         /** @var User|null $auth */
         $auth = Auth::user();
         abort_unless($auth && $auth->hasAnyRole(['super_admin', 'admin']), 403);
 
-        if (! $this->editingConfigId) {
-            return;
-        }
-
-        $cfg = \App\Models\PengaturanAplikasi::find($this->editingConfigId);
+        $cfg = \App\Models\PengaturanAplikasi::first();
         if ($cfg) {
-            $cfg->update(['nilai' => $this->editingConfigNilai]);
-            $this->editingConfigId = null;
-            $this->dispatch('toast', message: 'Konfigurasi sistem berhasil diperbarui.');
+            $cfg->update([
+                'nama_aplikasi' => $this->cfg_nama_aplikasi,
+                'sub_nama' => $this->cfg_sub_nama,
+                'nama_dinas' => $this->cfg_nama_dinas,
+                'radius_meter' => max(10, $this->cfg_radius_meter),
+                'mode_simulasi' => $this->cfg_mode_simulasi,
+                'tahun_anggaran_aktif' => $this->cfg_tahun_anggaran,
+                'kontak_bantuan' => $this->cfg_kontak_bantuan,
+                'alamat_kantor' => $this->cfg_alamat_kantor,
+            ]);
+            $this->dispatch('toast', message: 'Konfigurasi sistem berhasil disimpan.');
         }
     }
 

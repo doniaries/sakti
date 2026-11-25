@@ -1425,17 +1425,23 @@
             @php
                 $appCfg = \App\Models\PengaturanAplikasi::first();
             @endphp
-            <div class="space-y-3">
+            <div class="space-y-3" x-data="{ appCfgModalOpen: false }" x-on:open-app-config-modal.window="appCfgModalOpen = true">
                 <div class="flex items-center justify-between px-1">
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-gears"></i> Konfigurasi Sistem
                     </h3>
-                    @if (Route::has('mobile.pengaturan-modul'))
-                        <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
-                            class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[11px] font-bold border border-sky-200">
-                            Atur Modul <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
-                        </a>
-                    @endif
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" wire:click="openAppConfigModal"
+                            class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-pen text-[9px]"></i> Edit
+                        </button>
+                        @if (Route::has('mobile.pengaturan-modul'))
+                            <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
+                                class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[11px] font-bold border border-sky-200">
+                                Atur Modul <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
 
                 @if ($appCfg)
@@ -1460,6 +1466,57 @@
                         @endforeach
                     </div>
                 @endif
+
+                <x-mobile.rhoe-modal model="appCfgModalOpen" title="Edit Konfigurasi Sistem">
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Aplikasi</label>
+                            <input type="text" wire:model="cfg_nama_aplikasi" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Sub Nama</label>
+                            <input type="text" wire:model="cfg_sub_nama" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Dinas</label>
+                            <input type="text" wire:model="cfg_nama_dinas" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Radius (meter)</label>
+                                <input type="number" wire:model="cfg_radius_meter" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Anggaran</label>
+                                <input type="text" wire:model="cfg_tahun_anggaran" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kontak Bantuan</label>
+                            <input type="text" wire:model="cfg_kontak_bantuan" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Kantor</label>
+                            <textarea wire:model="cfg_alamat_kantor" rows="2" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200"></textarea>
+                        </div>
+                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                            <input type="checkbox" wire:model="cfg_mode_simulasi" class="rounded border-slate-300 text-sky-600">
+                            <span>Aktifkan Mode Simulasi</span>
+                        </label>
+                    </div>
+                    <x-slot:footer>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="appCfgModalOpen = false"
+                                class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="button" @click="appCfgModalOpen = false; $wire.saveAppConfig()"
+                                class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                Simpan
+                            </button>
+                        </div>
+                    </x-slot:footer>
+                </x-mobile.rhoe-modal>
             </div>
         @endif
 
@@ -2022,3 +2079,4 @@
         </div>
     </div>
 </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                
