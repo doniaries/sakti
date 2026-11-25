@@ -193,17 +193,65 @@
                             - {{ $item->tanggal_selesai->format('d/m/Y') }}
                         @endif
                     </p>
-                    <div class="grid grid-cols-2 gap-2">
-                        <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $item, 'preview' => 1]) }}"
-                            target="_blank"
-                            class="py-2 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 text-xs font-bold text-center transition">
-                            <i class="fa-solid fa-file-pdf mr-1"></i> Preview
-                        </a>
-                        <button type="button" wire:click="approveSuratTugas({{ $item->id }})"
-                            wire:confirm="Setujui dan terbitkan Surat Tugas ini?"
-                            class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
-                            <i class="fa-solid fa-check mr-1"></i> Setujui & Terbitkan
-                        </button>
+                    <div x-data="{ previewOpen: false }">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" @click="previewOpen = true"
+                                class="py-2 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 text-xs font-bold text-center transition cursor-pointer">
+                                <i class="fa-solid fa-eye mr-1"></i> Preview
+                            </button>
+                            <button type="button" wire:click="approveSuratTugas({{ $item->id }})"
+                                wire:confirm="Setujui dan terbitkan Surat Tugas ini?"
+                                class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+                                <i class="fa-solid fa-check mr-1"></i> Setujui & Terbitkan
+                            </button>
+                        </div>
+
+                        <x-mobile.rhoe-modal model="previewOpen" :title="$item->nama_kegiatan" :subtitle="$item->nomor_surat ?? 'Draft'">
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-3 text-xs">
+                                    <div>
+                                        <div class="text-zinc-500 dark:text-zinc-400">Tanggal</div>
+                                        <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $item->tanggal_mulai?->format('d/m/Y') }} - {{ $item->tanggal_selesai?->format('d/m/Y') }}</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-zinc-500 dark:text-zinc-400">Jam Acara</div>
+                                        <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $item->jam_acara ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <div class="text-zinc-500 dark:text-zinc-400">Lokasi</div>
+                                        <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $item->lokasi ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <div class="text-zinc-500 dark:text-zinc-400">Dasar Surat</div>
+                                        <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $item->dasar_surat_undangan ?: '-' }}</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Personil Tim Kreatif ({{ $item->pegawais->count() }})</div>
+                                    <div class="flex flex-wrap gap-1.5">
+                                        @forelse ($item->pegawais as $p)
+                                            <span class="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-200">{{ $p->name }}</span>
+                                        @empty
+                                            <span class="text-xs text-zinc-400">Belum ada personil</span>
+                                        @endforelse
+                                    </div>
+                                </div>
+                            </div>
+
+                            <x-slot:footer>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $item, 'preview' => 1]) }}" target="_blank"
+                                        class="flex-1 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-xs font-bold text-center">
+                                        <i class="fa-solid fa-file-pdf text-rose-500 mr-1"></i> Buka PDF
+                                    </a>
+                                    <button type="button" @click="previewOpen = false"
+                                        class="flex-1 py-2 rounded-xl bg-teal-600 text-white text-xs font-bold">
+                                        Tutup
+                                    </button>
+                                </div>
+                            </x-slot:footer>
+                        </x-mobile.rhoe-modal>
                     </div>
                 </div>
             @empty
