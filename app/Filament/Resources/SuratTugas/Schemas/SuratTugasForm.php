@@ -13,7 +13,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -53,7 +52,7 @@ class SuratTugasForm
 
                                     Grid::make([
                                         'default' => 1,
-                                        'md' => 4,
+                                        'md' => 3,
                                     ])
                                         ->schema([
                                             DatePicker::make('tanggal_mulai')
@@ -71,18 +70,23 @@ class SuratTugasForm
                                                 ->afterOrEqual('tanggal_mulai')
                                                 ->required(),
 
-                                            TimePicker::make('jam_acara')
+                                            TextInput::make('jam_acara')
                                                 ->label('Jam Acara')
-                                                ->seconds(false)
-                                                ->native(false)
-                                                ->placeholder('Pilih jam'),
-
-                                            TextInput::make('lokasi')
-                                                ->label('Lokasi Kegiatan')
-                                                ->required()
-                                                ->placeholder('Contoh: Geopark Silokek')
-                                                ->maxLength(255),
+                                                ->placeholder('Contoh: 08:30')
+                                                ->datalist([
+                                                    '07:30', '08:00', '08:30', '09:00', '09:30',
+                                                    '10:00', '10:30', '11:00', '13:00', '13:30',
+                                                    '14:00', '14:30', '15:00', '16:00', '19:00', '20:00',
+                                                ])
+                                                ->maxLength(20),
                                         ]),
+
+                                    TextInput::make('lokasi')
+                                        ->label('Lokasi Kegiatan')
+                                        ->required()
+                                        ->placeholder('Contoh: Geopark Silokek')
+                                        ->maxLength(255)
+                                        ->columnSpanFull(),
 
                                     Select::make('penanggung_jawab_ids')
                                         ->label('Penanggung Jawab Kegiatan Bidang')
