@@ -50,25 +50,33 @@ class SuratTugasForm
                                             TextInput::make('asal_surat_undangan')
                                                 ->label('Asal Surat')
                                                 ->placeholder('Contoh: Sekretariat Daerah Kab. Sijunjung')
-                                                ->maxLength(255),
+                                                ->maxLength(255)
+                                                ->columnSpan(['md' => 2]),
+                                        ]),
+
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 3,
+                                    ])
+                                        ->schema([
+                                            TextInput::make('perihal_surat_undangan')
+                                                ->label('Perihal Surat')
+                                                ->placeholder('Contoh: Undangan Menghadiri Acara...')
+                                                ->helperText('Jika diisi dan Nama Kegiatan masih kosong, otomatis mengisi Nama Kegiatan.')
+                                                ->live(onBlur: true)
+                                                ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                                                    if (filled($state) && blank($get('nama_kegiatan'))) {
+                                                        $set('nama_kegiatan', $state);
+                                                    }
+                                                })
+                                                ->maxLength(255)
+                                                ->columnSpan(['md' => 2]),
 
                                             DatePicker::make('tanggal_surat_undangan')
                                                 ->label('Tanggal Surat')
                                                 ->displayFormat('d/m/Y')
                                                 ->native(false),
                                         ]),
-
-                                    TextInput::make('perihal_surat_undangan')
-                                        ->label('Perihal Surat')
-                                        ->placeholder('Contoh: Undangan Menghadiri Acara...')
-                                        ->helperText('Jika diisi dan Nama Kegiatan masih kosong, otomatis mengisi Nama Kegiatan.')
-                                        ->live(onBlur: true)
-                                        ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
-                                            if (filled($state) && blank($get('nama_kegiatan'))) {
-                                                $set('nama_kegiatan', $state);
-                                            }
-                                        })
-                                        ->maxLength(255),
 
                                     FileUpload::make('bukti_surat_undangan')
                                         ->label('Upload Bukti Surat Undangan')
