@@ -395,9 +395,11 @@
                     $golTerakhir = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true)
                         ?? $user->riwayatGolongan->first();
                     $tmtCpns = $user->tmt_cpns ?? $user->riwayatGolongan->sortBy('tmt_golongan')->first()?->tmt_golongan;
-                    $masaKerja = $tmtCpns
-                        ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
-                        : '-';
+                    $masaKerja = $golTerakhir?->masa_kerja_tahun !== null
+                        ? "{$golTerakhir->masa_kerja_tahun} Tahun " . ($golTerakhir->masa_kerja_bulan ?? 0) . ' Bulan'
+                        : ($tmtCpns
+                            ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
+                            : '-');
                 @endphp
                 <div class="space-y-3" x-data="{ golModalOpen: false }">
                     {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}
@@ -1229,9 +1231,11 @@
                     $golTerakhir = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true)
                         ?? $user->riwayatGolongan->first();
                     $tmtCpns = $user->tmt_cpns ?? $user->riwayatGolongan->sortBy('tmt_golongan')->first()?->tmt_golongan;
-                    $masaKerja = $tmtCpns
-                        ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
-                        : '-';
+                    $masaKerja = $golTerakhir?->masa_kerja_tahun !== null
+                        ? "{$golTerakhir->masa_kerja_tahun} Tahun " . ($golTerakhir->masa_kerja_bulan ?? 0) . ' Bulan'
+                        : ($tmtCpns
+                            ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
+                            : '-');
                 @endphp
                 <div class="space-y-3" x-data="{ golModalOpen: false }">
                     {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}

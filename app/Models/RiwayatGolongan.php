@@ -29,6 +29,8 @@ class RiwayatGolongan extends Model
         'tanggal_sk',
         'tmt_golongan',
         'file_sk_golongan',
+        'masa_kerja_tahun',
+        'masa_kerja_bulan',
         'is_golongan_terakhir',
     ];
 

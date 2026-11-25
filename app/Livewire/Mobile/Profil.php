@@ -436,7 +436,20 @@ class Profil extends Component
         ];
 
         if ($this->gol_file_sk) {
-            $payload['file_sk_golongan'] = $this->gol_file_sk->store('riwayat-golongan/sk', 'public');
+            $path = $this->gol_file_sk->store('riwayat-golongan/sk', 'public');
+            $payload['file_sk_golongan'] = $path;
+
+            try {
+                $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+                $text = (new \Smalot\PdfParser\Parser())->parseFile($fullPath)->getText();
+                if (preg_match('/Masa\s+Kerja\s+Golongan\s*:?\s*(\d+)\s*Tahun\s*(\d+)\s*Bulan/i', $text, $m)) {
+                    $payload['masa_kerja_tahun'] = (int) $m[1];
+                    $payload['masa_kerja_bulan'] = (int) $m[2];
+                }
+            } catch (\Throwable) {
+                // Abaikan jika PDF hasil scan (tidak memiliki layer teks)
+            }
+
             $this->gol_file_sk = null;
         }
 
