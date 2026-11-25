@@ -78,11 +78,28 @@ class SuratTugasForm
                                                 ->native(false),
                                         ]),
 
-                                    TextInput::make('lokasi')
-                                        ->label('Lokasi Acara / Kegiatan')
-                                        ->required()
-                                        ->placeholder('Contoh: Geopark Silokek')
-                                        ->maxLength(255),
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 3,
+                                    ])
+                                        ->schema([
+                                            TextInput::make('lokasi')
+                                                ->label('Lokasi Acara / Kegiatan')
+                                                ->required()
+                                                ->placeholder('Contoh: Geopark Silokek')
+                                                ->maxLength(255)
+                                                ->columnSpan(['md' => 2]),
+
+                                            TextInput::make('jam_acara')
+                                                ->label('Jam Acara')
+                                                ->placeholder('Contoh: 08:30')
+                                                ->datalist([
+                                                    '07:30', '08:00', '08:30', '09:00', '09:30',
+                                                    '10:00', '10:30', '11:00', '13:00', '13:30',
+                                                    '14:00', '14:30', '15:00', '16:00', '19:00', '20:00',
+                                                ])
+                                                ->maxLength(20),
+                                        ]),
 
                                     FileUpload::make('bukti_surat_undangan')
                                         ->label('Upload Bukti Surat Undangan')
@@ -112,7 +129,7 @@ class SuratTugasForm
 
                                     Grid::make([
                                         'default' => 1,
-                                        'md' => 3,
+                                        'md' => 2,
                                     ])
                                         ->schema([
                                             DatePicker::make('tanggal_mulai')
@@ -129,16 +146,6 @@ class SuratTugasForm
                                                 ->default(now())
                                                 ->afterOrEqual('tanggal_mulai')
                                                 ->required(),
-
-                                            TextInput::make('jam_acara')
-                                                ->label('Jam Acara')
-                                                ->placeholder('Contoh: 08:30')
-                                                ->datalist([
-                                                    '07:30', '08:00', '08:30', '09:00', '09:30',
-                                                    '10:00', '10:30', '11:00', '13:00', '13:30',
-                                                    '14:00', '14:30', '15:00', '16:00', '19:00', '20:00',
-                                                ])
-                                                ->maxLength(20),
                                         ]),
 
                                     Select::make('penanggung_jawab_ids')
