@@ -41,9 +41,9 @@ class Form extends Component
         $user = Auth::user();
         abort_unless($user && $user->canManageSuratTugas(), 403);
 
-        $today = now()->toDateString();
-        $this->tanggal_mulai = $today;
-        $this->tanggal_selesai = $today;
+        $tomorrow = now()->addDay()->toDateString();
+        $this->tanggal_mulai = $tomorrow;
+        $this->tanggal_selesai = $tomorrow;
     }
 
     public function save(): void
