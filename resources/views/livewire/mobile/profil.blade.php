@@ -252,11 +252,7 @@
         </div>
 
         <!-- Ringkasan Unit Kerja & Atasan -->
-        <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-3 gap-2 text-[11px] relative z-10">
-            <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
-                <div class="text-sky-200/80 text-[10px]">Status</div>
-                <div class="font-bold text-white truncate">{{ $user->status_kepegawaian?->getLabel() ?? ($user->status_kepegawaian?->value ?? '-') }}</div>
-            </div>
+        <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-2 gap-2 text-[11px] relative z-10">
             <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
                 <div class="text-sky-200/80 text-[10px]">Bidang Dinas</div>
                 <div class="font-bold text-white truncate">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</div>
@@ -1090,28 +1086,6 @@
                     <div class="py-1.5 text-xs">
                         <span class="text-slate-400 font-medium block mb-1">Alamat Domisili</span>
                         <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 space-y-2">
-                        <h4 class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Nomor Administrasi
-                            &
-                            Jaminan</h4>
-                        <div class="flex justify-between py-1 text-xs">
-                            <span class="text-slate-400 font-medium">NPWP</span>
-                            <span class="font-bold font-mono text-slate-800">{{ $user->npwp ?? '-' }}</span>
-                        </div>
-                        <div class="flex justify-between py-1 text-xs">
-                            <span class="text-slate-400 font-medium">Tanggal NPWP</span>
-                            <span class="font-bold text-slate-800">{{ $user->tanggal_npwp ? $user->tanggal_npwp->format('d/m/Y') : '-' }}</span>
-                        </div>
-                        <div class="flex justify-between py-1 text-xs">
-                            <span class="text-slate-400 font-medium">BPJS Kesehatan</span>
-                            <span class="font-bold font-mono text-slate-800">{{ $user->no_bpjs ?? '-' }}</span>
-                        </div>
-                        <div class="flex justify-between py-1 text-xs">
-                            <span class="text-slate-400 font-medium">Nomor Taspen</span>
-                            <span class="font-bold font-mono text-slate-800">{{ $user->no_taspen ?? '-' }}</span>
-                        </div>
                     </div>
 
                     <div class="pt-3 border-t border-slate-100 space-y-2">
