@@ -235,7 +235,7 @@
             <td>Untuk</td>
             <td>:</td>
             <td>
-                <table class="person-item">
+                <table class="person-item" style="text-align: justify;">
                     <tr>
                         <td style="width: 20px;">1.</td>
                         <td>
