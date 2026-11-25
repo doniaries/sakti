@@ -693,35 +693,42 @@ class Profil extends Component
         /** @var User $user */
         $user = User::with(['jabatan', 'bidang', 'atasan', 'jadwalKerja', 'riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])->find(Auth::id()) ?? Auth::user();
 
-        // Statistik Bulan dan Tahun Terpilih
+        // Statistik Bulan dan Tahun Terpilih (hanya query saat tab statistik aktif)
         $selectedDate = Carbon::createFromDate($this->tahun, $this->bulan, 1);
-        $startOfMonth = $selectedDate->copy()->startOfMonth();
-        $endOfMonth = $selectedDate->copy()->endOfMonth();
-
-        $absensiBulanIni = AbsensiHarian::where('user_id', $user->id)
-            ->whereBetween('tanggal', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
-            ->get();
-
-        $jadwalDefault = $user->getJadwalKerja();
-
         $statistik = [
-            'hadir' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['hadir', 'terlambat']))->count(),
-            'terlambat' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
-            'dinas_luar' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'dinas_luar' || ($a->jenis_kehadiran?->value ?? $a->jenis_kehadiran) === 'dinas_luar')->count(),
-            'pulang_cepat' => $absensiBulanIni->filter(function($a) use ($jadwalDefault) {
-                if (empty($a->jam_pulang)) return false;
-                $jamPulangResmi = $jadwalDefault ? $jadwalDefault->getJamPulangHari($a->tanggal) : '16:00';
-                return $a->jam_pulang < $jamPulangResmi;
-            })->count(),
-            'tanpa_keterangan' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa']) || (empty($a->jam_masuk) && empty($a->jam_pulang) && !in_array($a->status?->value ?? $a->status, ['izin', 'sakit', 'cuti', 'libur', 'dinas_luar'])))->count(),
-            'izin' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'izin')->count(),
-            'sakit' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'sakit')->count(),
-            'lhk_dibuat' => Lhk::where('user_id', $user->id)
-                ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
-                ->count(),
+            'hadir' => 0, 'terlambat' => 0, 'dinas_luar' => 0, 'pulang_cepat' => 0,
+            'tanpa_keterangan' => 0, 'izin' => 0, 'sakit' => 0, 'lhk_dibuat' => 0,
         ];
 
-        $impersonateCandidates = $user->hasRole('super_admin')
+        if ($this->activeTab === 'statistik') {
+            $startOfMonth = $selectedDate->copy()->startOfMonth();
+            $endOfMonth = $selectedDate->copy()->endOfMonth();
+
+            $absensiBulanIni = AbsensiHarian::where('user_id', $user->id)
+                ->whereBetween('tanggal', [$startOfMonth->format('Y-m-d'), $endOfMonth->format('Y-m-d')])
+                ->get();
+
+            $jadwalDefault = $user->getJadwalKerja();
+
+            $statistik = [
+                'hadir' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['hadir', 'terlambat']))->count(),
+                'terlambat' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
+                'dinas_luar' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'dinas_luar' || ($a->jenis_kehadiran?->value ?? $a->jenis_kehadiran) === 'dinas_luar')->count(),
+                'pulang_cepat' => $absensiBulanIni->filter(function($a) use ($jadwalDefault) {
+                    if (empty($a->jam_pulang)) return false;
+                    $jamPulangResmi = $jadwalDefault ? $jadwalDefault->getJamPulangHari($a->tanggal) : '16:00';
+                    return $a->jam_pulang < $jamPulangResmi;
+                })->count(),
+                'tanpa_keterangan' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa']) || (empty($a->jam_masuk) && empty($a->jam_pulang) && !in_array($a->status?->value ?? $a->status, ['izin', 'sakit', 'cuti', 'libur', 'dinas_luar'])))->count(),
+                'izin' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'izin')->count(),
+                'sakit' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'sakit')->count(),
+                'lhk_dibuat' => Lhk::where('user_id', $user->id)
+                    ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+                    ->count(),
+            ];
+        }
+
+        $impersonateCandidates = ($this->showImpersonateModal && $user->hasRole('super_admin'))
             ? User::query()
                 ->where('id', '!=', $user->id)
                 ->when($this->impersonateSearch, fn ($q) => $q->where(fn ($sub) => $sub
@@ -743,9 +750,9 @@ class Profil extends Component
             'golonganOptions' => GolonganRuang::cases(),
             'jenjangOptions' => JenjangPendidikan::cases(),
             'statusKepegawaianOptions' => StatusKepegawaian::cases(),
-            'jabatanOptions' => Jabatan::orderBy('nama')->get(['id', 'nama']),
-            'bidangOptions' => Bidang::orderBy('nama')->get(['id', 'nama']),
-            'atasanOptions' => User::where('id', '!=', $user->id)->orderBy('name')->get(['id', 'name']),
+            'jabatanOptions' => $this->isEditing ? Jabatan::orderBy('nama')->get(['id', 'nama']) : collect(),
+            'bidangOptions' => $this->isEditing ? Bidang::orderBy('nama')->get(['id', 'nama']) : collect(),
+            'atasanOptions' => $this->isEditing ? User::where('id', '!=', $user->id)->orderBy('name')->get(['id', 'name']) : collect(),
         ]);
     }
 }
