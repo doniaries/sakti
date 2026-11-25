@@ -6,6 +6,7 @@
 
 <div x-data="{
         notifSheet: false,
+        suratTugasSheet: false,
         jam: '--:--',
         detik: '--',
         punching: false,
@@ -147,7 +148,6 @@
                 ['route' => 'mobile.lhk.bank-aktivitas', 'module' => 'lhk', 'icon' => 'fa-box-archive', 'label' => 'Bank Aktivitas', 'color' => 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'],
                 ['route' => 'mobile.reputasi', 'module' => 'reputasi', 'icon' => 'fa-medal', 'label' => 'Reputasi', 'color' => 'bg-yellow-50 dark:bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'],
                 ['route' => 'mobile.agenda', 'module' => 'agenda', 'icon' => 'fa-calendar-check', 'label' => 'Agenda', 'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400'],
-                ['route' => 'filament.admin.resources.surat-tugas.index', 'icon' => 'fa-file-signature', 'label' => 'Surat Tugas', 'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400'],
                 ['route' => 'mobile.persetujuan', 'roles' => ['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'kabid', 'pptk', 'ppk', 'pa'], 'icon' => 'fa-file-signature', 'label' => 'Persetujuan', 'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400'],
             ];
         @endphp
@@ -163,6 +163,15 @@
                         </a>
                     @endif
                 @endforeach
+                @if (filled(auth()->user()?->jabatan_tim_kreatif))
+                    <button type="button" @click="suratTugasSheet = true"
+                        class="flex flex-col items-center gap-1.5 group cursor-pointer">
+                        <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-file-signature text-lg"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
+                    </button>
+                @endif
             </div>
         </div>
     </section>
@@ -300,6 +309,76 @@
             </ul>
         </x-mobile.scroll-list>
     </section>
+
+    <!-- Rhoe UI Modal: Surat Tugas Tim Kreatif -->
+    @if (filled(auth()->user()?->jabatan_tim_kreatif))
+        @php
+            $suratTugasSaya = \App\Models\SuratTugas::query()
+                ->with(['laporans' => fn ($q) => $q->where('user_id', auth()->id())])
+                ->where('status', 'terbit')
+                ->whereHas('pegawais', fn ($q) => $q->where('users.id', auth()->id()))
+                ->latest('tanggal_mulai')
+                ->take(10)
+                ->get();
+        @endphp
+        <x-mobile.rhoe-modal model="suratTugasSheet" title="Surat Tugas Tim Kreatif" subtitle="Konfirmasi kehadiran & kirim laporan kegiatan">
+            <div class="space-y-3">
+                @forelse ($suratTugasSaya as $st)
+                    @php
+                        $pivotSt = $st->pegawais()->where('users.id', auth()->id())->first()?->pivot;
+                        $statusHadir = $pivotSt?->status_kehadiran ?? 'belum_konfirmasi';
+                    @endphp
+                    <div class="p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 space-y-2"
+                         x-data="{ openLapor: false, ringkasan: '', link: '' }">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $st->nama_kegiatan }}</div>
+                                <div class="text-[10px] text-zinc-500 mt-0.5">
+                                    {{ $st->tanggal_mulai?->translatedFormat('d M Y') }}
+                                    @if (filled($st->jam_acara)) • {{ \Illuminate\Support\Carbon::parse($st->jam_acara)->format('H.i') }} WIB @endif
+                                    @if (filled($st->lokasi)) • {{ $st->lokasi }} @endif
+                                </div>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $statusHadir === 'hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-600' }}">
+                                {{ $statusHadir === 'hadir' ? 'Siap Hadir' : 'Belum Konfirmasi' }}
+                            </span>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-1">
+                            @if ($statusHadir !== 'hadir')
+                                <button type="button"
+                                    wire:click="konfirmasiSuratTugas({{ $st->id }}, 'hadir', '')"
+                                    class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold">
+                                    Siap Hadir
+                                </button>
+                            @endif
+                            <button type="button"
+                                @click="openLapor = !openLapor"
+                                class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-[11px] font-semibold">
+                                {{ $st->laporans->isNotEmpty() ? 'Tambah Laporan' : 'Buat Laporan' }}
+                            </button>
+                        </div>
+
+                        <div x-show="openLapor" x-cloak class="pt-2 space-y-2 border-t border-zinc-200 dark:border-zinc-800">
+                            <textarea x-model="ringkasan" rows="2" placeholder="Ringkasan hasil kegiatan..."
+                                class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-xs"></textarea>
+                            <input x-model="link" type="url" placeholder="Link dokumentasi (Google Drive / YouTube, opsional)"
+                                class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-xs">
+                            <button type="button"
+                                @click="if (ringkasan.trim() !== '') { $wire.simpanLaporanSuratTugas({{ $st->id }}, ringkasan, link); ringkasan = ''; link = ''; openLapor = false; }"
+                                class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold">
+                                Kirim Laporan
+                            </button>
+                        </div>
+                    </div>
+                @empty
+                    <div class="py-8 text-center text-xs text-zinc-400">
+                        Belum ada surat tugas aktif.
+                    </div>
+                @endforelse
+            </div>
+        </x-mobile.rhoe-modal>
+    @endif
 
     <!-- Rhoe UI Modal: Notifikasi -->
     <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin, dan kinerja">

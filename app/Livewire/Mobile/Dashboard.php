@@ -128,6 +128,30 @@ class Dashboard extends Component
         $this->markNotificationAsRead($notifId);
     }
 
+    public function simpanLaporanSuratTugas(int $suratTugasId, string $ringkasan, ?string $link = null): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user || blank(trim($ringkasan))) {
+            return;
+        }
+
+        $surat = \App\Models\SuratTugas::find($suratTugasId);
+        if (! $surat || ! $surat->pegawais()->where('users.id', $user->id)->exists()) {
+            return;
+        }
+
+        \App\Models\LaporanSuratTugas::create([
+            'surat_tugas_id' => $surat->id,
+            'user_id' => $user->id,
+            'ringkasan_kegiatan' => trim($ringkasan),
+            'link_dokumentasi' => filled($link) ? trim($link) : null,
+            'dilaporkan_at' => now(),
+        ]);
+
+        $this->dispatch('toast', message: 'Laporan kegiatan berhasil dikirim.');
+    }
+
     public function markAllNotificationsAsRead(): void
     {
         /** @var User|null $user */
