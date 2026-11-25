@@ -239,12 +239,35 @@
                     <tr>
                         <td style="width: 20px;">1.</td>
                         <td>
-                            Melaksanakan tugas peliputan, dokumentasi foto/video, dan publikasi pada kegiatan <strong>{{ $surat->nama_kegiatan }}</strong>
-                            @if ($surat->lokasi)
-                                bertempat di <strong>{{ $surat->lokasi }}</strong>
-                            @endif
-                            pada tanggal
-                            <strong>@if ($surat->tanggal_mulai->equalTo($surat->tanggal_selesai)){{ $surat->tanggal_mulai->translatedFormat('d F Y') }}@else{{ $surat->tanggal_mulai->translatedFormat('d F Y') }} s.d. {{ $surat->tanggal_selesai->translatedFormat('d F Y') }}@endif</strong>@if (filled($surat->jam_acara)) pukul <strong>{{ \Illuminate\Support\Carbon::parse($surat->jam_acara)->format('H.i') }} WIB</strong>@endif.
+                            Melaksanakan tugas peliputan, dokumentasi foto/video, dan publikasi pada:
+                            <table class="person-item" style="margin-top: 4px; margin-bottom: 4px;">
+                                <tr>
+                                    <td style="width: 75px;">Acara</td>
+                                    <td style="width: 10px;">:</td>
+                                    <td><strong>{{ $surat->nama_kegiatan }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td>Tanggal</td>
+                                    <td>:</td>
+                                    <td>
+                                        <strong>@if ($surat->tanggal_mulai->equalTo($surat->tanggal_selesai)){{ $surat->tanggal_mulai->translatedFormat('d F Y') }}@else{{ $surat->tanggal_mulai->translatedFormat('d F Y') }} s.d. {{ $surat->tanggal_selesai->translatedFormat('d F Y') }}@endif</strong>
+                                    </td>
+                                </tr>
+                                @if (filled($surat->jam_acara))
+                                    <tr>
+                                        <td>Jam</td>
+                                        <td>:</td>
+                                        <td><strong>{{ \Illuminate\Support\Carbon::parse($surat->jam_acara)->format('H.i') }} WIB</strong></td>
+                                    </tr>
+                                @endif
+                                @if ($surat->lokasi)
+                                    <tr>
+                                        <td>Tempat</td>
+                                        <td>:</td>
+                                        <td><strong>{{ $surat->lokasi }}</strong></td>
+                                    </tr>
+                                @endif
+                            </table>
                         </td>
                     </tr>
                     @if (filled($surat->keterangan))
