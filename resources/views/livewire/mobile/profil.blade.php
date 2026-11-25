@@ -583,41 +583,7 @@
                         </div>
                     @endif
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Kelamin</label>
-                            <select wire:model="jenis_kelamin" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
-                                <option value="">- Pilih -</option>
-                                <option value="L">Laki-laki (L)</option>
-                                <option value="P">Perempuan (P)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Agama</label>
-                            <select wire:model="agama" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
-                                <option value="">- Pilih -</option>
-                                <option value="Islam">Islam</option>
-                                <option value="Kristen">Kristen</option>
-                                <option value="Katolik">Katolik</option>
-                                <option value="Hindu">Hindu</option>
-                                <option value="Buddha">Buddha</option>
-                                <option value="Konghucu">Konghucu</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Tempat Lahir</label>
-                            <input type="text" wire:model="tempat_lahir" placeholder="Contoh: Padang" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Lahir</label>
-                            <x-mobile.date-picker wire:model="tanggal_lahir" clearable />
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
                             <input type="text" wire:model="name"
@@ -626,27 +592,60 @@
                                 <span class="text-[11px] text-rose-500">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Gelar Depan</label>
+                                <input type="text" wire:model="gelar_depan" placeholder="Dr., Ir."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Gelar Belakang</label>
+                                <input type="text" wire:model="gelar_belakang" placeholder="S.Sos, S.Kom"
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">NIP</label>
                             <input type="text" wire:model="nip" placeholder="19xxxxxxxx..."
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         </div>
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Gelar Depan</label>
-                            <input type="text" wire:model="gelar_depan" placeholder="Dr., Ir."
-                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Kelamin</label>
+                                <select wire:model="jenis_kelamin" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                    <option value="">- Pilih -</option>
+                                    <option value="L">Laki-laki (L)</option>
+                                    <option value="P">Perempuan (P)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Agama</label>
+                                <select wire:model="agama" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                    <option value="">- Pilih -</option>
+                                    <option value="Islam">Islam</option>
+                                    <option value="Kristen">Kristen</option>
+                                    <option value="Katolik">Katolik</option>
+                                    <option value="Hindu">Hindu</option>
+                                    <option value="Buddha">Buddha</option>
+                                    <option value="Konghucu">Konghucu</option>
+                                </select>
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Gelar Belakang</label>
-                            <input type="text" wire:model="gelar_belakang" placeholder="S.Sos, S.Kom"
-                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tempat Lahir</label>
+                                <input type="text" wire:model="tempat_lahir" placeholder="Contoh: Padang" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Lahir</label>
+                                <x-mobile.date-picker wire:model="tanggal_lahir" clearable />
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center">
                                 <i class="fa-brands fa-whatsapp text-emerald-600 mr-1 text-sm"></i>
@@ -659,10 +658,11 @@
                                 <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
                             @enderror
                         </div>
+
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">No. Telepon</label>
-                            <input type="text" wire:model="no_telp"
-                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <input type="tel" wire:model="no_telp" placeholder="Nomor telepon..."
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
                         </div>
                     </div>
 
