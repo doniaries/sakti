@@ -351,7 +351,7 @@
 
     <!-- FORM EDIT / VIEW -->
         @if ($isEditing)
-            <form wire:submit="save" class="space-y-4">
+            <form wire:submit="save" class="space-y-4" x-data="{ dirty: false, confirmClose: false }" @input="dirty = true" @change="dirty = true">
                 <div class="bg-white p-5 rounded-3xl shadow-xs border border-slate-100 space-y-4">
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">
@@ -364,8 +364,26 @@
                             @else Edit Biodata &amp; Kontak Utama
                             @endif
                         </h3>
-                        <button type="button" wire:click="toggleEdit" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Tutup</button>
+                        <button type="button" @click="if (dirty) { confirmClose = true } else { $wire.toggleEdit() }" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Tutup</button>
                     </div>
+
+                    <x-mobile.rhoe-modal model="confirmClose" title="Perubahan Belum Disimpan" subtitle="Simpan perubahan sebelum menutup?">
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Anda telah mengubah data pada form ini. Jika ditutup tanpa menyimpan, perubahan akan hilang.
+                        </p>
+                        <x-slot:footer>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="confirmClose = false; dirty = false; $wire.toggleEdit()"
+                                    class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                    Tutup Saja
+                                </button>
+                                <button type="button" @click="confirmClose = false; dirty = false; $wire.save()"
+                                    class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                    Simpan Data
+                                </button>
+                            </div>
+                        </x-slot:footer>
+                    </x-mobile.rhoe-modal>
 
             @if ($activeTab === 'golongan')
                         <div class="space-y-3">
