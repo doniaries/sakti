@@ -26,6 +26,7 @@ class SuratTugas extends Model
         'dasar_surat_undangan',
         'asal_surat_undangan',
         'tanggal_surat_undangan',
+        'perihal_surat_undangan',
         'ringkasan_isi_undangan',
         'bukti_surat_undangan',
         'tanggal_mulai',

@@ -33,8 +33,54 @@ class SuratTugasForm
                     'lg' => 3,
                 ])
                     ->schema([
-                        // Kolom Kiri (2/3): Detail Kegiatan, Tim Bertugas & Catatan
+                        // Kolom Kiri (2/3): Dasar Surat Undangan, Detail Kegiatan, Tim Bertugas & Catatan
                         Group::make([
+                            Section::make('Dasar Surat Undangan (Opsional)')
+                                ->schema([
+                                    Grid::make([
+                                        'default' => 1,
+                                        'md' => 3,
+                                    ])
+                                        ->schema([
+                                            TextInput::make('dasar_surat_undangan')
+                                                ->label('Nomor Surat Undangan')
+                                                ->placeholder('Contoh: 005/123/Kominfo-2026')
+                                                ->maxLength(500),
+
+                                            TextInput::make('asal_surat_undangan')
+                                                ->label('Asal Surat')
+                                                ->placeholder('Contoh: Sekretariat Daerah Kab. Sijunjung')
+                                                ->maxLength(255),
+
+                                            DatePicker::make('tanggal_surat_undangan')
+                                                ->label('Tanggal Surat')
+                                                ->displayFormat('d/m/Y')
+                                                ->native(false),
+                                        ]),
+
+                                    TextInput::make('perihal_surat_undangan')
+                                        ->label('Perihal Surat')
+                                        ->placeholder('Contoh: Undangan Menghadiri Acara...')
+                                        ->helperText('Jika diisi dan Nama Kegiatan masih kosong, otomatis mengisi Nama Kegiatan.')
+                                        ->live(onBlur: true)
+                                        ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                                            if (filled($state) && blank($get('nama_kegiatan'))) {
+                                                $set('nama_kegiatan', $state);
+                                            }
+                                        })
+                                        ->maxLength(255),
+
+                                    FileUpload::make('bukti_surat_undangan')
+                                        ->label('Upload Bukti Surat Undangan')
+                                        ->disk('public')
+                                        ->directory('surat-tugas/undangan')
+                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
+                                        ->maxSize(5120)
+                                        ->downloadable()
+                                        ->openable()
+                                        ->helperText('Format: PDF, JPG, PNG, atau WEBP (maks. 5 MB).'),
+                                ]),
+
                             Section::make('Detail Kegiatan & Tim Kreatif Publikasi dan Promosi')
                                 ->schema([
                                     TextInput::make('nama_kegiatan')
@@ -223,46 +269,6 @@ class SuratTugasForm
                                         ->preload()
                                         ->helperText('Hanya Eselon III ke atas. Selain Kadis otomatis a.n. Kepala Dinas.')
                                         ->required(),
-                                ]),
-
-                            Section::make('Dasar Surat Undangan (Opsional)')
-                                ->schema([
-                                    TextInput::make('dasar_surat_undangan')
-                                        ->label('Nomor Surat Undangan')
-                                        ->placeholder('Contoh: 005/123/Kominfo-2026')
-                                        ->maxLength(500),
-
-                                    TextInput::make('asal_surat_undangan')
-                                        ->label('Asal Surat')
-                                        ->placeholder('Contoh: Sekretariat Daerah Kab. Sijunjung')
-                                        ->maxLength(255),
-
-                                    DatePicker::make('tanggal_surat_undangan')
-                                        ->label('Tanggal Surat')
-                                        ->displayFormat('d/m/Y')
-                                        ->native(false),
-
-                                    Textarea::make('ringkasan_isi_undangan')
-                                        ->label('Ringkasan Isi Surat Undangan')
-                                        ->placeholder('Contoh: Undangan Rapat Koordinasi Evaluasi Kinerja Tahun 2026')
-                                        ->helperText('Jika diisi dan Nama Kegiatan masih kosong, otomatis mengisi Nama Kegiatan.')
-                                        ->rows(2)
-                                        ->live(onBlur: true)
-                                        ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
-                                            if (filled($state) && blank($get('nama_kegiatan'))) {
-                                                $set('nama_kegiatan', $state);
-                                            }
-                                        }),
-
-                                    FileUpload::make('bukti_surat_undangan')
-                                        ->label('Upload Bukti Surat Undangan')
-                                        ->disk('public')
-                                        ->directory('surat-tugas/undangan')
-                                        ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'image/webp'])
-                                        ->maxSize(5120)
-                                        ->downloadable()
-                                        ->openable()
-                                        ->helperText('Format: PDF, JPG, PNG, atau WEBP (maks. 5 MB).'),
                                 ]),
                         ])
                             ->columnSpan(['lg' => 1]),

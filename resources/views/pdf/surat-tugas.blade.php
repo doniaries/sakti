@@ -173,7 +173,7 @@
                                 @if (filled($surat->asal_surat_undangan)) dari {{ $surat->asal_surat_undangan }}@endif
                                 @if (filled($surat->dasar_surat_undangan)) Nomor {{ $surat->dasar_surat_undangan }}@endif
                                 @if (filled($surat->tanggal_surat_undangan)) tanggal {{ $surat->tanggal_surat_undangan->translatedFormat('d F Y') }}@endif
-                                @if (filled($surat->ringkasan_isi_undangan)) perihal {{ $surat->ringkasan_isi_undangan }}@endif.
+                                @if (filled($surat->perihal_surat_undangan ?: $surat->ringkasan_isi_undangan)) perihal {{ $surat->perihal_surat_undangan ?: $surat->ringkasan_isi_undangan }}@endif.
                             </td>
                         </tr>
                     </table>
