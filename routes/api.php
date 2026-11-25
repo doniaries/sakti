@@ -76,4 +76,12 @@ Route::middleware(['auth:sanctum', EnsureApiDeviceBound::class, 'throttle:120,1'
         Route::post('/read-all', [NotificationController::class, 'markAllAsRead']);
         Route::delete('/clear', [NotificationController::class, 'clearAll']);
     });
+
+    // Surat Tugas (Konfirmasi Kehadiran & Laporan Kegiatan untuk Android / PWA)
+    Route::prefix('surat-tugas')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\SuratTugasController::class, 'index']);
+        Route::get('/{suratTugas}', [\App\Http\Controllers\Api\SuratTugasController::class, 'show']);
+        Route::post('/{suratTugas}/konfirmasi-kehadiran', [\App\Http\Controllers\Api\SuratTugasController::class, 'konfirmasiKehadiran']);
+        Route::post('/{suratTugas}/laporan', [\App\Http\Controllers\Api\SuratTugasController::class, 'storeLaporan']);
+    });
 });

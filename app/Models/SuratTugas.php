@@ -78,8 +78,19 @@ class SuratTugas extends Model
     public function pegawais(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'surat_tugas_user')
-            ->withPivot(['peran_tugas', 'dibaca_at'])
+            ->withPivot([
+                'peran_tugas',
+                'dibaca_at',
+                'status_kehadiran',
+                'catatan_kehadiran',
+                'dikonfirmasi_at',
+            ])
             ->withTimestamps();
+    }
+
+    public function laporans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(LaporanSuratTugas::class, 'surat_tugas_id')->latest('dilaporkan_at');
     }
 
     public function penanggungJawab(): BelongsTo

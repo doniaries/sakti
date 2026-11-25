@@ -128,6 +128,78 @@ class SuratTugasTable
                     ->visible(fn (SuratTugas $record): bool => filled($record->bukti_surat_undangan))
                     ->url(fn (SuratTugas $record): string => \Illuminate\Support\Facades\Storage::disk('public')->url($record->bukti_surat_undangan), shouldOpenInNewTab: true),
 
+                Action::make('konfirmasi_kehadiran')
+                    ->label('Konfirmasi Hadir')
+                    ->icon('heroicon-o-hand-thumb-up')
+                    ->color('success')
+                    ->visible(fn (SuratTugas $record): bool => $record->status === 'terbit'
+                        && $record->pegawais()->where('users.id', \Illuminate\Support\Facades\Auth::id())->exists())
+                    ->schema([
+                        \Filament\Forms\Components\Radio::make('status_kehadiran')
+                            ->label('Status Kehadiran')
+                            ->options([
+                                'hadir' => 'Hadir',
+                                'berhalangan' => 'Berhalangan',
+                            ])
+                            ->required()
+                            ->inline(),
+                        \Filament\Forms\Components\Textarea::make('catatan_kehadiran')
+                            ->label('Catatan / Alasan (Opsional)')
+                            ->rows(2),
+                    ])
+                    ->action(function (SuratTugas $record, array $data): void {
+                        $record->pegawais()->updateExistingPivot(\Illuminate\Support\Facades\Auth::id(), [
+                            'status_kehadiran' => $data['status_kehadiran'],
+                            'catatan_kehadiran' => $data['catatan_kehadiran'] ?? null,
+                            'dikonfirmasi_at' => now(),
+                            'dibaca_at' => now(),
+                        ]);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Konfirmasi kehadiran tersimpan')
+                            ->success()
+                            ->send();
+                    }),
+
+                Action::make('buat_laporan')
+                    ->label('Buat Laporan')
+                    ->icon('heroicon-o-document-plus')
+                    ->color('warning')
+                    ->visible(fn (SuratTugas $record): bool => $record->status === 'terbit'
+                        && $record->pegawais()->where('users.id', \Illuminate\Support\Facades\Auth::id())->exists())
+                    ->schema([
+                        \Filament\Forms\Components\Textarea::make('ringkasan_kegiatan')
+                            ->label('Ringkasan Hasil Kegiatan')
+                            ->required()
+                            ->rows(4),
+                        \Filament\Forms\Components\TextInput::make('link_dokumentasi')
+                            ->label('Link Dokumentasi (Google Drive / YouTube, Opsional)')
+                            ->url()
+                            ->maxLength(500),
+                        \Filament\Forms\Components\FileUpload::make('foto_dokumentasi')
+                            ->label('Foto Dokumentasi (Opsional)')
+                            ->disk('public')
+                            ->directory('surat-tugas/laporan')
+                            ->image()
+                            ->multiple()
+                            ->maxFiles(5),
+                    ])
+                    ->action(function (SuratTugas $record, array $data): void {
+                        \App\Models\LaporanSuratTugas::create([
+                            'surat_tugas_id' => $record->id,
+                            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+                            'ringkasan_kegiatan' => $data['ringkasan_kegiatan'],
+                            'link_dokumentasi' => $data['link_dokumentasi'] ?? null,
+                            'foto_dokumentasi' => $data['foto_dokumentasi'] ?? [],
+                            'dilaporkan_at' => now(),
+                        ]);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Laporan kegiatan berhasil dikirim')
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('tte_sakti')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-badge')
