@@ -36,8 +36,8 @@ class Profil extends Component
     public $isEditing = false;
 
     // Filter Statistik Bulan & Tahun
-    public $bulan;
-    public $tahun;
+    public int $bulan;
+    public int $tahun;
 
     // Editable Fields
     public $name = '';
@@ -50,6 +50,8 @@ class Profil extends Component
     public string $jenis_kelamin = '';
     public $nik = '';
     public $no_kk = '';
+    public string $nama_pasangan = '';
+    public string $nama_anak = '';
     public $npwp = '';
     public string $tanggal_npwp = '';
     public $no_bpjs = '';
@@ -62,6 +64,7 @@ class Profil extends Component
     public $jenjang_pendidikan = '';
     public $password = '';
     public $password_confirmation = '';
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
     public $new_avatar;
 
     // Tab Pangkat / Golongan
@@ -73,6 +76,7 @@ class Profil extends Component
     public string $gol_tanggal_sk = '';
     public string $gol_tmt_golongan = '';
     public bool $gol_is_terakhir = false;
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
     public $gol_file_sk = null;
 
     // Tab Peran & Hak Akses
@@ -188,8 +192,14 @@ class Profil extends Component
         $this->alamat = $user->alamat ?? '';
         $this->agama = $user->agama ?? '';
         $this->jenis_kelamin = (string) ($user->jenis_kelamin?->value ?? ($user->jenis_kelamin ?? ''));
-        $this->nik = $user->nik ?? '';
-        $this->no_kk = $user->no_kk ?? '';
+        $this->nik = ($user->nik && str_contains(strtoupper((string) $user->nik), 'E'))
+            ? number_format((float) $user->nik, 0, '', '')
+            : ($user->nik ?? '');
+        $this->no_kk = ($user->no_kk && str_contains(strtoupper((string) $user->no_kk), 'E'))
+            ? number_format((float) $user->no_kk, 0, '', '')
+            : ($user->no_kk ?? '');
+        $this->nama_pasangan = $user->nama_pasangan ?? '';
+        $this->nama_anak = $user->nama_anak ?? '';
         $this->npwp = $user->npwp ?? '';
         $this->tanggal_npwp = $user->tanggal_npwp ? $user->tanggal_npwp->format('Y-m-d') : '';
         $this->no_bpjs = $user->no_bpjs ?? '';
@@ -297,7 +307,7 @@ class Profil extends Component
         }
     }
 
-    public function setTab($tab)
+    public function setTab(string $tab): void
     {
         $this->activeTab = $tab;
     }
@@ -673,6 +683,8 @@ class Profil extends Component
             'jenis_kelamin' => $this->jenis_kelamin ?: null,
             'nik' => $this->nik,
             'no_kk' => $this->no_kk,
+            'nama_pasangan' => $this->nama_pasangan ?: null,
+            'nama_anak' => $this->nama_anak ?: null,
             'npwp' => $this->npwp,
             'tanggal_npwp' => $this->tanggal_npwp ?: null,
             'no_bpjs' => $this->no_bpjs,
