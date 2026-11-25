@@ -328,7 +328,7 @@
         @endif
     </div>
 
-    @if (!$isEditing)
+    @if (!$isEditing && !in_array($activeTab, ['golongan', 'jabatan', 'pendidikan']))
         <div class="flex justify-end mb-3">
             <button type="button" wire:click="toggleEdit(true)"
                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-bold flex items-center gap-1.5 border border-sky-200/70 transition active:scale-95 cursor-pointer">
