@@ -165,7 +165,7 @@
                         </a>
                     @endif
                 @endforeach
-                @if ((auth()->user()?->canManageSuratTugas() || filled(auth()->user()?->jabatan_tim_kreatif)) && Route::has('mobile.surat-tugas.index'))
+                @if (Route::has('mobile.surat-tugas.index'))
                     <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                         <div class="w-11 h-11 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base">
                             <i class="fa-solid fa-file-signature"></i>

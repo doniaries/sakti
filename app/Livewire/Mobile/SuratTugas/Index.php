@@ -22,7 +22,7 @@ class Index extends Component
     {
         /** @var User|null $user */
         $user = Auth::user();
-        abort_unless($user && ($user->canManageSuratTugas() || filled($user->jabatan_tim_kreatif)), 403);
+        abort_unless($user !== null, 403);
     }
 
     public function showDetail(int $id): void
