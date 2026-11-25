@@ -48,15 +48,20 @@
                     @endif
                 </div>
 
-                @if ($surat->status === 'terbit')
-                    <div class="pt-1 flex items-center gap-2">
+                <div class="pt-1 flex items-center gap-2">
+                    <button type="button" wire:click="showDetail({{ $surat->id }})"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 text-xs font-semibold">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>Detail</span>
+                    </button>
+                    @if ($surat->status === 'terbit')
                         <a href="{{ route('surat-tugas.cetak-pdf', $surat) }}" target="_blank"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-xs font-semibold">
                             <i class="fa-solid fa-file-pdf text-rose-500"></i>
                             <span>Lihat Surat</span>
                         </a>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
         @empty
             <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-8 text-center">
@@ -66,4 +71,49 @@
             </div>
         @endforelse
     </div>
+
+    @if ($selectedSurat)
+        <div x-data="{ open: true }" x-init="$watch('open', v => { if (!v) $wire.closeDetail(); })">
+            <x-mobile.rhoe-modal model="open" :title="$selectedSurat->nama_kegiatan" :subtitle="$selectedSurat->nomor_surat ?? 'Draft'">
+                <div class="space-y-4">
+                    @if ($selectedSurat->status === 'koreksi' && filled($selectedSurat->catatan_koreksi))
+                        <div class="rounded-xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-800 p-3 text-xs text-amber-800 dark:text-amber-200">
+                            <div class="font-bold mb-0.5"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Catatan Koreksi:</div>
+                            <div>{{ $selectedSurat->catatan_koreksi }}</div>
+                        </div>
+                    @endif
+
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                            <div class="text-zinc-500 dark:text-zinc-400">Tanggal</div>
+                            <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->tanggal_mulai?->format('d/m/Y') }} - {{ $selectedSurat->tanggal_selesai?->format('d/m/Y') }}</div>
+                        </div>
+                        <div>
+                            <div class="text-zinc-500 dark:text-zinc-400">Jam Acara</div>
+                            <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->jam_acara ?: '-' }}</div>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="text-zinc-500 dark:text-zinc-400">Lokasi</div>
+                            <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->lokasi ?: '-' }}</div>
+                        </div>
+                        <div class="col-span-2">
+                            <div class="text-zinc-500 dark:text-zinc-400">Dasar Surat</div>
+                            <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->dasar_surat_undangan ?: '-' }}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Personil Tim Kreatif ({{ $selectedSurat->pegawais->count() }})</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            @forelse ($selectedSurat->pegawais as $p)
+                                <span class="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-700 dark:text-zinc-200">{{ $p->name }}</span>
+                            @empty
+                                <span class="text-xs text-zinc-400">Belum ada personil</span>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </x-mobile.rhoe-modal>
+        </div>
+    @endif
 </div>

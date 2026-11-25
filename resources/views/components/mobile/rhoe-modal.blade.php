@@ -23,10 +23,10 @@
         @click="{{ $model }} = false"
         class="fixed inset-0 bg-black/55 backdrop-blur-xs"></div>
 
-    <!-- Modal Surface (Rhoe UI Spring Scale + Fade) -->
+    <!-- Modal Surface (Rhoe UI Spring Bounce + Fade) -->
     <div x-show="{{ $model }}"
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+        x-transition:enter="transition ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-300"
+        x-transition:enter-start="opacity-0 scale-90 translate-y-3"
         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
         x-transition:leave="transition ease-in duration-150"
         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
