@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\SuratTugas\Pages;
 
 use App\Filament\Resources\SuratTugas\SuratTugasResource;
+use App\Models\Instansi;
 use App\Models\SuratTugas;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -72,7 +73,10 @@ class CreateSuratTugas extends CreateRecord
                             : null
                     );
 
-                    $html = view('pdf.surat-tugas', ['surat' => $surat])->render();
+                    $html = view('pdf.surat-tugas', [
+                        'surat' => $surat,
+                        'instansi' => Instansi::query()->first(),
+                    ])->render();
 
                     return view('filament.surat-tugas.preview-modal', ['html' => $html]);
                 });
