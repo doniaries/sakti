@@ -349,7 +349,7 @@
                         $statusHadir = $pivotSt?->status_kehadiran ?? 'belum_konfirmasi';
                     @endphp
                     <div class="p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 space-y-2"
-                         x-data="{ openLapor: false, ringkasan: '', link: '' }">
+                         x-data="{ openLapor: false, ringkasan: 'Peliputan, dokumentasi foto/video, dan publikasi kegiatan telah dilaksanakan dengan baik dan lancar.' }">
                         <div class="flex items-start justify-between gap-2">
                             <div>
                                 <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $st->nama_kegiatan }}</div>
@@ -372,11 +372,13 @@
                                     Siap Hadir
                                 </button>
                             @endif
-                            <button type="button"
-                                @click="openLapor = !openLapor"
-                                class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-[11px] font-semibold">
-                                {{ $st->laporans->isNotEmpty() ? 'Tambah Laporan' : 'Buat Laporan' }}
-                            </button>
+                            @if ($statusHadir === 'hadir')
+                                <button type="button"
+                                    @click="openLapor = !openLapor"
+                                    class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-[11px] font-semibold">
+                                    {{ $st->laporans->isNotEmpty() ? 'Tambah Laporan' : 'Buat Laporan' }}
+                                </button>
+                            @endif
                             <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $st->id]) }}" target="_blank" rel="noopener"
                                class="px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
                                 Lihat
@@ -402,12 +404,10 @@
                         </div>
 
                         <div x-show="openLapor" x-cloak class="pt-2 space-y-2 border-t border-zinc-200 dark:border-zinc-800">
-                            <textarea x-model="ringkasan" rows="2" placeholder="Ringkasan hasil kegiatan..."
+                            <textarea x-model="ringkasan" rows="3" placeholder="Ringkasan hasil kegiatan..."
                                 class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-xs"></textarea>
-                            <input x-model="link" type="url" placeholder="Link dokumentasi (Google Drive / YouTube, opsional)"
-                                class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-xs">
                             <button type="button"
-                                @click="if (ringkasan.trim() !== '') { $wire.simpanLaporanSuratTugas({{ $st->id }}, ringkasan, link); ringkasan = ''; link = ''; openLapor = false; }"
+                                @click="if (ringkasan.trim() !== '') { $wire.simpanLaporanSuratTugas({{ $st->id }}, ringkasan); openLapor = false; }"
                                 class="w-full py-2 rounded-xl bg-teal-600 text-white text-xs font-semibold">
                                 Kirim Laporan
                             </button>
