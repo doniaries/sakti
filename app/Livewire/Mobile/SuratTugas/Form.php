@@ -29,6 +29,7 @@ class Form extends Component
     public string $jam_acara = '';
     public string $tanggal_mulai = '';
     public string $tanggal_selesai = '';
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
     public $bukti_surat_undangan = null;
     /** @var array<int, int|string> */
     public array $penanggung_jawab_ids = [];

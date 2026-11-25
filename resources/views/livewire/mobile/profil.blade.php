@@ -855,6 +855,16 @@
                         </div>
                     </div>
                     <div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Istri / Suami</label>
+                            <input type="text" wire:model="nama_pasangan" placeholder="Nama pasangan..."
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Anak</label>
+                            <textarea wire:model="nama_anak" rows="2" placeholder="Pisahkan dengan koma atau baris baru..."
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
+                        </div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Keluarga</label>
                         <textarea wire:model="alamat" rows="2"
                             class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none"></textarea>
@@ -2002,15 +2012,47 @@
             <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
                 <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Data Kependudukan
                     Keluarga</h3>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                @php
+                    $kkDisplay = $user->no_kk
+                        ? (str_contains(strtoupper((string) $user->no_kk), 'E') ? number_format((float) $user->no_kk, 0, '', '') : $user->no_kk)
+                        : null;
+                    $nikDisplay = $user->nik
+                        ? (str_contains(strtoupper((string) $user->nik), 'E') ? number_format((float) $user->nik, 0, '', '') : $user->nik)
+                        : null;
+                @endphp
+                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs" x-data="{ copiedKk: false }">
                     <span class="text-slate-400 font-medium">Nomor KK</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->no_kk ?? '-' }}</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold font-mono text-slate-800">{{ $kkDisplay ?: '-' }}</span>
+                        @if ($kkDisplay)
+                            <button type="button" @click="navigator.clipboard?.writeText('{{ $kkDisplay }}'); copiedKk = true; setTimeout(() => copiedKk = false, 1500)"
+                                class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer" title="Salin No. KK">
+                                <i class="fa-regular" :class="copiedKk ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
+                            </button>
+                        @endif
+                    </div>
                 </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs" x-data="{ copiedNik: false }">
                     <span class="text-slate-400 font-medium">NIK</span>
-                    <span class="font-bold font-mono text-slate-800">{{ $user->nik ?? '-' }}</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold font-mono text-slate-800">{{ $nikDisplay ?: '-' }}</span>
+                        @if ($nikDisplay)
+                            <button type="button" @click="navigator.clipboard?.writeText('{{ $nikDisplay }}'); copiedNik = true; setTimeout(() => copiedNik = false, 1500)"
+                                class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer" title="Salin NIK">
+                                <i class="fa-regular" :class="copiedNik ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
+                            </button>
+                        @endif
+                    </div>
                 </div>
                 <div class="py-1.5 text-xs">
+                    <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+                        <span class="text-slate-400 font-medium">Nama Istri / Suami</span>
+                        <span class="font-bold text-slate-800 text-right">{{ $user->nama_pasangan ?: '-' }}</span>
+                    </div>
+                    <div class="py-1 text-xs border-b border-slate-50">
+                        <span class="text-slate-400 font-medium block mb-1">Nama Anak</span>
+                        <span class="font-bold text-slate-800 whitespace-pre-line">{{ $user->nama_anak ?: '-' }}</span>
+                    </div>
                     <span class="text-slate-400 font-medium block mb-1">Alamat Keluarga</span>
                     <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
                 </div>
