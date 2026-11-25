@@ -363,7 +363,9 @@
                     this.target = url.includes('/absensi') ? 'absensi'
                         : (url.includes('/riwayat') ? 'riwayat'
                         : (url.includes('/izin') ? 'izin'
-                        : (url.includes('/profil') ? 'profil' : 'dashboard')));
+                        : (url.includes('/profil') ? 'profil'
+                        : (url.includes('/surat-tugas/buat') ? 'surat_tugas_form'
+                        : (url.includes('/surat-tugas') ? 'surat_tugas' : 'dashboard')))));
                     clearTimeout(this.timer);
                     clearTimeout(this.failSafeTimer);
                     this.timer = setTimeout(() => { this.navigating = true; }, 120);
@@ -469,6 +471,45 @@
                     <div class="mx-4 space-y-3">
                         <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
                         <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 5. Skeleton Surat Tugas List -->
+            <template x-if="target === 'surat_tugas'">
+                <div class="space-y-4 animate-pulse">
+                    <div class="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-zinc-800"></div>
+                            <div class="space-y-1.5">
+                                <div class="h-3.5 w-24 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                                <div class="h-2.5 w-36 rounded-full bg-slate-100 dark:bg-zinc-800"></div>
+                            </div>
+                        </div>
+                        <div class="h-8 w-28 rounded-xl bg-slate-200 dark:bg-zinc-800"></div>
+                    </div>
+                    <div class="px-4 space-y-3">
+                        <div class="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                        <div class="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                        <div class="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 6. Skeleton Form Buat Surat Tugas -->
+            <template x-if="target === 'surat_tugas_form'">
+                <div class="space-y-4 animate-pulse">
+                    <div class="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-zinc-800"></div>
+                        <div class="space-y-1.5">
+                            <div class="h-3.5 w-28 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
+                            <div class="h-2.5 w-40 rounded-full bg-slate-100 dark:bg-zinc-800"></div>
+                        </div>
+                    </div>
+                    <div class="px-4 space-y-4">
+                        <div class="h-56 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                        <div class="h-28 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
+                        <div class="h-44 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
                     </div>
                 </div>
             </template>
