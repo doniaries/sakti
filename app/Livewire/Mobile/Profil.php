@@ -81,6 +81,11 @@ class Profil extends Component
     /** @var array<int, int|string> */
     public array $roleUserIds = [];
 
+    // Tab Pengaturan Sistem
+    public ?int $editingConfigId = null;
+    public string $editingConfigLabel = '';
+    public string $editingConfigNilai = '';
+
     // Tab Jabatan
     public string $status_kepegawaian = '';
     public ?int $jabatan_id = null;
@@ -321,6 +326,39 @@ class Profil extends Component
         if ($role) {
             $role->users()->sync(array_map('intval', $this->roleUserIds));
             $this->dispatch('toast', message: "Daftar user peran {$role->name} berhasil diperbarui.");
+        }
+    }
+
+    public function editConfig(int $id): void
+    {
+        /** @var User|null $auth */
+        $auth = Auth::user();
+        abort_unless($auth && $auth->hasAnyRole(['super_admin', 'admin']), 403);
+
+        $cfg = \App\Models\PengaturanAplikasi::find($id);
+        if ($cfg) {
+            $this->editingConfigId = $cfg->id;
+            $this->editingConfigLabel = $cfg->label ?: $cfg->kunci;
+            $this->editingConfigNilai = (string) ($cfg->nilai ?? '');
+            $this->dispatch('open-config-modal');
+        }
+    }
+
+    public function saveConfig(): void
+    {
+        /** @var User|null $auth */
+        $auth = Auth::user();
+        abort_unless($auth && $auth->hasAnyRole(['super_admin', 'admin']), 403);
+
+        if (! $this->editingConfigId) {
+            return;
+        }
+
+        $cfg = \App\Models\PengaturanAplikasi::find($this->editingConfigId);
+        if ($cfg) {
+            $cfg->update(['nilai' => $this->editingConfigNilai]);
+            $this->editingConfigId = null;
+            $this->dispatch('toast', message: 'Konfigurasi sistem berhasil diperbarui.');
         }
     }
 
