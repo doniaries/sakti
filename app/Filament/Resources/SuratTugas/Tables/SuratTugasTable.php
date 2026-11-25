@@ -30,9 +30,9 @@ class SuratTugasTable
                     ->label('Kegiatan')
                     ->searchable()
                     ->wrap()
-                    ->limit(55)
-                    ->extraHeaderAttributes(['class' => 'sticky left-0 z-10 bg-gray-50 dark:bg-gray-800'])
-                    ->extraCellAttributes(['class' => 'sticky left-0 z-10 bg-white dark:bg-gray-900']),
+                    ->limit(120)
+                    ->extraHeaderAttributes(['class' => 'sticky left-0 z-10 min-w-[260px] bg-gray-50 dark:bg-gray-800'])
+                    ->extraCellAttributes(['class' => 'sticky left-0 z-10 min-w-[260px] bg-white dark:bg-gray-900']),
 
                 TextColumn::make('tanggal_mulai')
                     ->label('Tgl Mulai')
@@ -98,7 +98,7 @@ class SuratTugasTable
                         })->all();
                     })
                     ->badge()
-                    ->color(fn (string $state): string => match (true) {
+                    ->color(fn(string $state): string => match (true) {
                         str_ends_with($state, ': Hadir') => 'success',
                         str_ends_with($state, ': Berhalangan') => 'warning',
                         default => 'gray',
@@ -141,7 +141,7 @@ class SuratTugasTable
                             ->label('Lokasi'),
                         \Filament\Infolists\Components\TextEntry::make('kehadiran_tim')
                             ->label('Kehadiran Tim')
-                            ->getStateUsing(fn (SuratTugas $record): array => $record->pegawais->map(function ($p): string {
+                            ->getStateUsing(fn(SuratTugas $record): array => $record->pegawais->map(function ($p): string {
                                 $status = match ($p->pivot->status_kehadiran ?? 'belum_konfirmasi') {
                                     'hadir' => 'Hadir',
                                     'berhalangan' => 'Berhalangan' . (filled($p->pivot->catatan_kehadiran) ? " ({$p->pivot->catatan_kehadiran})" : ''),
@@ -160,7 +160,7 @@ class SuratTugasTable
                                     ->label('Ringkasan'),
                                 \Filament\Infolists\Components\TextEntry::make('link_dokumentasi')
                                     ->label('Link Dokumentasi')
-                                    ->url(fn (?string $state): ?string => $state, shouldOpenInNewTab: true)
+                                    ->url(fn(?string $state): ?string => $state, shouldOpenInNewTab: true)
                                     ->placeholder('-'),
                             ])
                             ->columns(3),
@@ -194,7 +194,7 @@ class SuratTugasTable
                     ->label('Laporan PDF')
                     ->icon('heroicon-o-document-text')
                     ->color('info')
-                    ->visible(fn (SuratTugas $record): bool => $record->laporans()->exists())
+                    ->visible(fn(SuratTugas $record): bool => $record->laporans()->exists())
                     ->modalHeading('Pratinjau Laporan Kegiatan')
                     ->modalWidth('5xl')
                     ->modalSubmitAction(false)
@@ -212,32 +212,32 @@ class SuratTugasTable
                         Action::make('print_laporan_pdf')
                             ->label('Print / Download PDF')
                             ->icon('heroicon-o-printer')
-                            ->url(fn (SuratTugas $record): string => route('surat-tugas.laporan-pdf', $record), shouldOpenInNewTab: true),
+                            ->url(fn(SuratTugas $record): string => route('surat-tugas.laporan-pdf', $record), shouldOpenInNewTab: true),
                         Action::make('share_wa_laporan')
                             ->label('Bagikan ke WhatsApp')
                             ->icon('heroicon-o-share')
                             ->color('success')
-                            ->url(fn (SuratTugas $record): string => 'https://wa.me/?text=' . urlencode("Laporan Kegiatan: {$record->nama_kegiatan}\n" . route('surat-tugas.laporan-pdf', $record)), shouldOpenInNewTab: true),
+                            ->url(fn(SuratTugas $record): string => 'https://wa.me/?text=' . urlencode("Laporan Kegiatan: {$record->nama_kegiatan}\n" . route('surat-tugas.laporan-pdf', $record)), shouldOpenInNewTab: true),
                     ]),
 
                 Action::make('share_wa_surat')
                     ->label('Share WA')
                     ->icon('heroicon-o-share')
                     ->color('success')
-                    ->url(fn (SuratTugas $record): string => 'https://wa.me/?text=' . urlencode("Surat Tugas: {$record->nama_kegiatan}\n" . route('surat-tugas.cetak-pdf', $record)), shouldOpenInNewTab: true),
+                    ->url(fn(SuratTugas $record): string => 'https://wa.me/?text=' . urlencode("Surat Tugas: {$record->nama_kegiatan}\n" . route('surat-tugas.cetak-pdf', $record)), shouldOpenInNewTab: true),
 
                 Action::make('lihat_undangan')
                     ->label('Lihat Undangan')
                     ->icon('heroicon-o-paper-clip')
                     ->color('gray')
-                    ->visible(fn (SuratTugas $record): bool => filled($record->bukti_surat_undangan))
-                    ->url(fn (SuratTugas $record): string => \Illuminate\Support\Facades\Storage::disk('public')->url($record->bukti_surat_undangan), shouldOpenInNewTab: true),
+                    ->visible(fn(SuratTugas $record): bool => filled($record->bukti_surat_undangan))
+                    ->url(fn(SuratTugas $record): string => \Illuminate\Support\Facades\Storage::disk('public')->url($record->bukti_surat_undangan), shouldOpenInNewTab: true),
 
                 Action::make('konfirmasi_kehadiran')
                     ->label('Konfirmasi Hadir')
                     ->icon('heroicon-o-hand-thumb-up')
                     ->color('success')
-                    ->visible(fn (SuratTugas $record): bool => $record->status === 'terbit'
+                    ->visible(fn(SuratTugas $record): bool => $record->status === 'terbit'
                         && $record->pegawais()->where('users.id', \Illuminate\Support\Facades\Auth::id())->exists())
                     ->schema([
                         \Filament\Forms\Components\Radio::make('status_kehadiran')
@@ -251,8 +251,8 @@ class SuratTugasTable
                             ->inline(),
                         \Filament\Forms\Components\Textarea::make('catatan_kehadiran')
                             ->label('Alasan Berhalangan')
-                            ->visible(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('status_kehadiran') === 'berhalangan')
-                            ->required(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('status_kehadiran') === 'berhalangan')
+                            ->visible(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => $get('status_kehadiran') === 'berhalangan')
+                            ->required(fn(\Filament\Schemas\Components\Utilities\Get $get): bool => $get('status_kehadiran') === 'berhalangan')
                             ->rows(2),
                     ])
                     ->action(function (SuratTugas $record, array $data): void {
@@ -287,7 +287,7 @@ class SuratTugasTable
                     ->label('Buat Laporan')
                     ->icon('heroicon-o-document-plus')
                     ->color('warning')
-                    ->visible(fn (SuratTugas $record): bool => $record->status === 'terbit'
+                    ->visible(fn(SuratTugas $record): bool => $record->status === 'terbit'
                         && $record->pegawais()->where('users.id', \Illuminate\Support\Facades\Auth::id())->exists())
                     ->schema([
                         \Filament\Forms\Components\Textarea::make('ringkasan_kegiatan')
