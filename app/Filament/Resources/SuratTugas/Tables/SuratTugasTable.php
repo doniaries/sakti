@@ -155,6 +155,16 @@ class SuratTugasTable
                             'dibaca_at' => now(),
                         ]);
 
+                        /** @var \App\Models\User|null $user */
+                        $user = \Illuminate\Support\Facades\Auth::user();
+                        if ($user) {
+                            $record->kirimNotifikasiKehadiran(
+                                $user,
+                                $data['status_kehadiran'],
+                                $data['catatan_kehadiran'] ?? null
+                            );
+                        }
+
                         \Filament\Notifications\Notification::make()
                             ->title('Konfirmasi kehadiran tersimpan')
                             ->success()

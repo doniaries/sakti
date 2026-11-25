@@ -93,6 +93,41 @@ class SuratTugas extends Model
         return $this->hasMany(LaporanSuratTugas::class, 'surat_tugas_id')->latest('dilaporkan_at');
     }
 
+    public function kirimNotifikasiKehadiran(User $pelaksana, string $status, ?string $catatan = null): void
+    {
+        $this->loadMissing(['pegawais', 'creator', 'penandatangan', 'penanggungJawab']);
+
+        $penanggungJawabs = filled($this->penanggung_jawab_ids)
+            ? User::whereIn('id', $this->penanggung_jawab_ids)->get()
+            : collect();
+
+        $koordinators = filled($this->koordinator_acara_ids)
+            ? User::whereIn('id', $this->koordinator_acara_ids)->get()
+            : collect();
+
+        $penerima = collect([$this->creator, $this->penandatangan, $this->penanggungJawab])
+            ->merge($penanggungJawabs)
+            ->merge($koordinators)
+            ->merge($this->pegawais)
+            ->filter(fn (?User $user): bool => $user !== null && $user->id !== $pelaksana->id)
+            ->unique('id');
+
+        $labelStatus = $status === 'hadir' ? 'Hadir' : 'Berhalangan';
+        $body = "{$pelaksana->name} mengonfirmasi {$labelStatus} pada kegiatan: {$this->nama_kegiatan}";
+        if (filled($catatan)) {
+            $body .= " ({$catatan})";
+        }
+
+        foreach ($penerima as $user) {
+            Notification::make()
+                ->title("Konfirmasi Kehadiran: {$labelStatus}")
+                ->body($body)
+                ->icon($status === 'hadir' ? 'heroicon-o-check-circle' : 'heroicon-o-exclamation-circle')
+                ->color($status === 'hadir' ? 'success' : 'warning')
+                ->sendToDatabase($user);
+        }
+    }
+
     public function penanggungJawab(): BelongsTo
     {
         return $this->belongsTo(User::class, 'penanggung_jawab_id');

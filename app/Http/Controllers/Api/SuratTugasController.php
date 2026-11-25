@@ -110,6 +110,12 @@ class SuratTugasController extends Controller
             'dibaca_at' => now(),
         ]);
 
+        $suratTugas->kirimNotifikasiKehadiran(
+            $user,
+            $validated['status_kehadiran'],
+            $validated['catatan_kehadiran'] ?? null
+        );
+
         return response()->json([
             'message' => 'Konfirmasi kehadiran berhasil disimpan.',
             'status_kehadiran' => $validated['status_kehadiran'],
