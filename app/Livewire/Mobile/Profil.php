@@ -239,6 +239,7 @@ class Profil extends Component
     public function newGolongan(): void
     {
         $this->fillGolonganForm(null);
+        $this->dispatch('open-gol-modal');
     }
 
     public function editGolongan(int $id): void
@@ -246,6 +247,7 @@ class Profil extends Component
         $item = RiwayatGolongan::where('user_id', Auth::id())->find($id);
         if ($item) {
             $this->fillGolonganForm($item);
+            $this->dispatch('open-gol-modal');
         }
     }
 

@@ -401,7 +401,7 @@
                             ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
                             : '-');
                 @endphp
-                <div class="space-y-3" x-data="{ golModalOpen: false }">
+                <div class="space-y-3" x-data="{ golModalOpen: false }" x-on:open-gol-modal.window="golModalOpen = true">
                     {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}
                     <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 space-y-2 text-xs">
                         <div class="flex items-center justify-between py-1 border-b border-slate-50">
@@ -1237,7 +1237,7 @@
                             ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
                             : '-');
                 @endphp
-                <div class="space-y-3" x-data="{ golModalOpen: false }">
+                <div class="space-y-3" x-data="{ golModalOpen: false }" x-on:open-gol-modal.window="golModalOpen = true">
                     {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}
                     <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 space-y-2 text-xs">
                         <div class="flex items-center justify-between py-1 border-b border-slate-50">
@@ -1266,7 +1266,7 @@
                             <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                                 {{ $user->riwayatGolongan->count() }} Pangkat
                             </span>
-                            <button type="button" wire:click="newGolongan" @click="golModalOpen = true"
+                            <button type="button" wire:click="newGolongan"
                                 class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
                                 <i class="fa-solid fa-plus text-[10px]"></i>
                                 <span>Tambah</span>
@@ -1323,7 +1323,7 @@
                                     @else
                                         <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
                                     @endif
-                                    <button type="button" wire:click="editGolongan({{ $item->id }})" @click="golModalOpen = true"
+                                    <button type="button" wire:click="editGolongan({{ $item->id }})"
                                         class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
                                         title="Edit Pangkat">
                                         <i class="fa-solid fa-pen text-[10px]"></i>
