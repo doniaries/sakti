@@ -1422,14 +1422,22 @@
                     </div>
 
                     <!-- Riwayat Jabatan -->
+                    <div x-data="{ jabModalOpen: false }" x-on:open-jabatan-modal.window="jabModalOpen = true" class="space-y-3">
                     <div class="flex items-center justify-between px-1 pt-2">
                         <h3
                             class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-briefcase"></i> Riwayat Jabatan
                         </h3>
-                        <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                            {{ $user->riwayatJabatan->count() }} Jabatan
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                                {{ $user->riwayatJabatan->count() }} Jabatan
+                            </span>
+                            <button type="button" wire:click="newJabatan"
+                                class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>Tambah</span>
+                            </button>
+                        </div>
                     </div>
 
                     @forelse($user->riwayatJabatan as $item)
@@ -1471,15 +1479,22 @@
                                     SK: <strong class="text-slate-700">{{ $item->nomor_sk ?: '-' }}</strong>
                                 </span>
 
-                                @if ($item->file_sk_jabatan)
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_jabatan) }}"
-                                        target="_blank"
-                                        class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
-                                        <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK Jabatan
-                                    </a>
-                                @else
-                                    <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
-                                @endif
+                                <div class="flex items-center gap-1.5">
+                                    @if ($item->file_sk_jabatan)
+                                        <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_jabatan) }}"
+                                            target="_blank"
+                                            class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                                            <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
+                                        </a>
+                                    @else
+                                        <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                                    @endif
+                                    <button type="button" wire:click="editJabatan({{ $item->id }})"
+                                        class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
+                                        title="Edit Jabatan">
+                                        <i class="fa-solid fa-pen text-[10px]"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -1487,20 +1502,76 @@
                             <p class="text-xs text-slate-400 italic">Belum ada data riwayat jabatan.</p>
                         </div>
                     @endforelse
+
+                    <x-mobile.rhoe-modal model="jabModalOpen" :title="$editingJabatanId ? 'Edit Riwayat Jabatan' : 'Tambah Riwayat Jabatan'">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Jabatan</label>
+                                <select wire:model="jab_jenis" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                    <option value="">- Pilih Jenis -</option>
+                                    <option value="Struktural">Struktural</option>
+                                    <option value="Fungsional">Fungsional</option>
+                                    <option value="Pelaksana">Pelaksana</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan</label>
+                                <input type="text" wire:model="jab_nama" placeholder="Contoh: Analis Kebijakan Ahli Muda" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Unit Kerja</label>
+                                <input type="text" wire:model="jab_unit_kerja" placeholder="Unit kerja..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK</label>
+                                    <input type="text" wire:model="jab_nomor_sk" placeholder="Nomor SK..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">TMT Jabatan</label>
+                                    <x-mobile.date-picker wire:model="jab_tmt_jabatan" clearable />
+                                </div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                <input type="checkbox" wire:model="jab_is_sekarang" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                                <span>Jabatan Saat Ini</span>
+                            </label>
+                        </div>
+                        <x-slot:footer>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="jabModalOpen = false"
+                                    class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                    Batal
+                                </button>
+                                <button type="button" @click="jabModalOpen = false; $wire.save()"
+                                    class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                    Simpan
+                                </button>
+                            </div>
+                        </x-slot:footer>
+                    </x-mobile.rhoe-modal>
+                    </div>
                 </div>
             @endif
 
             <!-- TAB 4: PENDIDIKAN -->
             @if ($activeTab === 'pendidikan')
-                <div class="space-y-3">
+                <div class="space-y-3" x-data="{ pendModalOpen: false }" x-on:open-pendidikan-modal.window="pendModalOpen = true">
                     <div class="flex items-center justify-between px-1">
                         <h3
                             class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan Formal
                         </h3>
-                        <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                            {{ $user->riwayatPendidikan->count() }} Jenjang
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                                {{ $user->riwayatPendidikan->count() }} Jenjang
+                            </span>
+                            <button type="button" wire:click="newPendidikan"
+                                class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>Tambah</span>
+                            </button>
+                        </div>
                     </div>
 
                     @forelse($user->riwayatPendidikan as $item)
