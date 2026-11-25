@@ -59,10 +59,34 @@ class Index extends Component
             ? $suratTugasList->firstWhere('id', $this->selectedId)
             : null;
 
+        $myTotalTerbit = SuratTugas::query()
+            ->where('status', 'terbit')
+            ->where(function ($q) use ($user): void {
+                $q->whereHas('pegawais', fn ($p) => $p->where('users.id', $user->id))
+                    ->orWhereJsonContains('penanggung_jawab_ids', $user->id)
+                    ->orWhereJsonContains('koordinator_acara_ids', $user->id)
+                    ->orWhere('penanggung_jawab_id', $user->id);
+            })
+            ->count();
+
+        $myBulanIni = SuratTugas::query()
+            ->where('status', 'terbit')
+            ->whereMonth('tanggal_mulai', now()->month)
+            ->whereYear('tanggal_mulai', now()->year)
+            ->where(function ($q) use ($user): void {
+                $q->whereHas('pegawais', fn ($p) => $p->where('users.id', $user->id))
+                    ->orWhereJsonContains('penanggung_jawab_ids', $user->id)
+                    ->orWhereJsonContains('koordinator_acara_ids', $user->id)
+                    ->orWhere('penanggung_jawab_id', $user->id);
+            })
+            ->count();
+
         return view('livewire.mobile.surat-tugas.index', [
             'suratTugasList' => $suratTugasList,
             'selectedSurat' => $selectedSurat,
             'canCreate' => $user->canManageSuratTugas(),
+            'myTotalTerbit' => $myTotalTerbit,
+            'myBulanIni' => $myBulanIni,
         ]);
     }
 }

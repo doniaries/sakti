@@ -20,6 +20,28 @@
     </div>
 
     <div class="p-4 space-y-3">
+        {{-- Ringkasan Penugasan Pribadi --}}
+        <div class="grid grid-cols-2 gap-2.5">
+            <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3 flex items-center gap-3 shadow-xs">
+                <div class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-file-circle-check text-sm"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Tugas Saya</div>
+                    <div class="text-base font-extrabold text-zinc-900 dark:text-zinc-100 leading-tight">{{ $myTotalTerbit }} <span class="text-[11px] font-medium text-zinc-500">kali</span></div>
+                </div>
+            </div>
+            <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3 flex items-center gap-3 shadow-xs">
+                <div class="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-calendar-week text-sm"></i>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Bulan Ini</div>
+                    <div class="text-base font-extrabold text-zinc-900 dark:text-zinc-100 leading-tight">{{ $myBulanIni }} <span class="text-[11px] font-medium text-zinc-500">kali</span></div>
+                </div>
+            </div>
+        </div>
+
         @if (session('success'))
             <div class="rounded-xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-800 px-3.5 py-2.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                 {{ session('success') }}
