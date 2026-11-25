@@ -119,18 +119,25 @@
         $jabatanTtd = $surat->penandatangan?->jabatan?->nama ?? 'KEPALA DINAS';
     @endphp
 
-    <div style="width: 100%; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 14px;">
+    @php
+        $logoSijunjungPath = public_path('images/logo-sijunjung.png');
+        $logoSijunjungDataUri = file_exists($logoSijunjungPath)
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoSijunjungPath))
+            : ($logoPath ?? null);
+    @endphp
+    <div style="width: 100%; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 14px;">
         <table style="margin: 0 auto; border-collapse: collapse;">
             <tr>
-                @if (! empty($logoPath))
+                @if (! empty($logoSijunjungDataUri))
                     <td style="padding-right: 16px; vertical-align: middle;">
-                        <img src="{{ $logoPath }}" alt="Logo" style="width: 64px; height: auto;">
+                        <img src="{{ $logoSijunjungDataUri }}" alt="Logo Kabupaten Sijunjung" style="width: 62px; height: auto;">
                     </td>
                 @endif
                 <td style="text-align: center; vertical-align: middle;">
-                    <div style="font-size: 13.5pt; font-weight: bold; line-height: 1.2;">PEMERINTAH KABUPATEN SIJUNJUNG</div>
-                    <div style="font-size: 13.5pt; font-weight: bold; text-transform: uppercase; line-height: 1.2;">{{ $instansi?->nama_dinas ?? 'DINAS PARIWISATA, PEMUDA DAN OLAH RAGA' }}</div>
-                    <div style="font-size: 9.5pt; margin-top: 2px;">{{ $instansi?->alamat ?? 'Jl. Prof. M. Yamin, SH Muaro Sijunjung' }}</div>
+                    <div style="font-size: 13pt; font-weight: bold; line-height: 1.2;">PEMERINTAH KABUPATEN SIJUNJUNG</div>
+                    <div style="font-size: 14pt; font-weight: bold; text-transform: uppercase; line-height: 1.2;">DINAS PARIWISATA PEMUDA DAN OLAHRAGA</div>
+                    <div style="font-size: 9.5pt; margin-top: 2px;">Alamat: Gedung Bersama Lantai III Komplek Pasar Inpres Muaro</div>
+                    <div style="font-size: 9.5pt;">Telp (0754) 20531, 20533 &nbsp; Muaro Sijunjung, 27511</div>
                 </td>
             </tr>
         </table>
