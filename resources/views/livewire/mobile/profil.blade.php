@@ -298,6 +298,10 @@
                 class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'utama' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
                 <i class="fa-solid fa-user text-xs mr-1.5"></i>Data Utama
             </button>
+            <button wire:click="setTab('administrasi')"
+                class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'administrasi' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
+                <i class="fa-solid fa-id-card text-xs mr-1.5"></i>Administrasi
+            </button>
             <button wire:click="setTab('golongan')"
                 class="px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-xs {{ $activeTab === 'golongan' ? 'bg-sky-600 text-white shadow-sky-600/30' : 'bg-white text-slate-600 border border-slate-200/80' }}">
                 <i class="fa-solid fa-shield-halved text-xs mr-1.5"></i>Pangkat / Golongan
@@ -317,6 +321,7 @@
         @else
             <div class="px-4 py-2 rounded-2xl text-xs font-bold bg-sky-600 text-white shadow-xs">
                 <i class="fa-solid fa-pen-to-square mr-1.5"></i>{{ match ($activeTab) {
+                    'administrasi' => 'Mode Edit Administrasi',
                     'golongan' => 'Mode Edit Pangkat / Golongan',
                     'jabatan' => 'Mode Edit Jabatan',
                     'pendidikan' => 'Mode Edit Pendidikan',
@@ -333,6 +338,7 @@
                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-bold flex items-center gap-1.5 border border-sky-200/70 transition active:scale-95 cursor-pointer">
                 <i class="fa-solid fa-pen-to-square text-[11px]"></i>
                 <span>{{ match ($activeTab) {
+                    'administrasi' => 'Ubah Data Administrasi',
                     'golongan' => 'Ubah Pangkat / Golongan',
                     'jabatan' => 'Ubah Jabatan',
                     'pendidikan' => 'Ubah Pendidikan',
@@ -350,16 +356,18 @@
                     <div class="flex items-center justify-between mb-2">
                         <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider">
                             @if ($activeTab === 'pendidikan') Edit Pendidikan Terakhir
-                            @elseif ($activeTab === 'keluarga') Edit Data Keluarga
+                            @elseif ($activeTab === 'administrasi') Edit Administrasi &amp; Nomor
+                    @elseif ($activeTab === 'keluarga') Edit Data Keluarga
                             @elseif ($activeTab === 'golongan') Data Pangkat &amp; Golongan
                             @elseif ($activeTab === 'jabatan') Data Jabatan &amp; Unit Kerja
+                            @elseif ($activeTab === 'administrasi') Edit Administrasi &amp; Nomor
                             @else Edit Biodata &amp; Kontak Utama
                             @endif
                         </h3>
                         <button type="button" wire:click="toggleEdit" class="text-xs font-bold text-slate-400 hover:text-slate-600 cursor-pointer">Tutup</button>
                     </div>
 
-                    @if ($activeTab === 'golongan')
+            @if ($activeTab === 'golongan')
                         <div class="space-y-3">
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pangkat &amp; Golongan</span>
@@ -585,6 +593,38 @@
                             <input type="checkbox" wire:model="pend_is_terakhir" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
                             <span>Jadikan Pendidikan Terakhir</span>
                         </label>
+                    @elseif ($activeTab === 'administrasi')
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
+                                <input type="text" wire:model="npwp" x-mask="99.999.999.9-999.999" placeholder="99.999.999.9-999.999"
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal NPWP</label>
+                                <x-mobile.date-picker wire:model="tanggal_npwp" clearable />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">No. BPJS</label>
+                                <input type="text" wire:model="no_bpjs" inputmode="numeric" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="Nomor BPJS..."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Taspen</label>
+                                <input type="text" wire:model="no_taspen" inputmode="numeric" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="Nomor Taspen..."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">NIK</label>
+                                <input type="text" wire:model="nik" inputmode="numeric" maxlength="16" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="16 digit NIK..."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">No. KK</label>
+                                <input type="text" wire:model="no_kk" inputmode="numeric" maxlength="16" @input="$el.value = $el.value.replace(/[^0-9]/g, '')" placeholder="16 digit No. KK..."
+                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none font-mono">
+                            </div>
+                        </div>
                     @elseif ($activeTab === 'keluarga')
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -1079,6 +1119,36 @@
             @endif
 
             <!-- TAB 2: PANGKAT / GOLONGAN -->
+            @if ($activeTab === 'administrasi')
+                <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 space-y-2.5">
+                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-1">Administrasi &amp; Nomor</h3>
+                    <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+                        <span class="text-slate-400 font-medium">NPWP</span>
+                        <span class="font-bold text-slate-800 font-mono">{{ $user->npwp ?: '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+                        <span class="text-slate-400 font-medium">Tanggal NPWP</span>
+                        <span class="font-bold text-slate-800">{{ $user->tanggal_npwp ? \Carbon\Carbon::parse($user->tanggal_npwp)->format('d/m/Y') : '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+                        <span class="text-slate-400 font-medium">No. BPJS</span>
+                        <span class="font-bold text-slate-800 font-mono">{{ $user->no_bpjs ?: '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+                        <span class="text-slate-400 font-medium">Nomor Taspen</span>
+                        <span class="font-bold text-slate-800 font-mono">{{ $user->no_taspen ?: '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+                        <span class="text-slate-400 font-medium">NIK</span>
+                        <span class="font-bold text-slate-800 font-mono">{{ $user->nik ?: '-' }}</span>
+                    </div>
+                    <div class="flex justify-between py-1 text-xs">
+                        <span class="text-slate-400 font-medium">No. KK</span>
+                        <span class="font-bold text-slate-800 font-mono">{{ $user->no_kk ?: '-' }}</span>
+                    </div>
+                </div>
+            @endif
+
             @if ($activeTab === 'golongan')
                 <div class="space-y-3">
                     <div class="flex items-center justify-between px-1 pt-1">
