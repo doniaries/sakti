@@ -382,31 +382,49 @@
                     </x-mobile.rhoe-modal>
 
             @if ($activeTab === 'golongan')
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pangkat &amp; Golongan</span>
-                                <button type="button" wire:click="newGolongan"
-                                    class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingGolonganId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
-                                    <i class="fa-solid fa-plus text-[10px]"></i>
-                                    <span>Tambah Baru</span>
+                <div class="space-y-3" x-data="{ golModalOpen: false }">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pangkat &amp; Golongan</span>
+                        <button type="button" wire:click="newGolongan" @click="golModalOpen = true"
+                            class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>Tambah Baru</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        @forelse ($user->riwayatGolongan as $rg)
+                            <div class="flex items-center justify-between gap-2 p-3 rounded-2xl border border-slate-200/80 bg-slate-50/70">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs font-extrabold text-slate-800">{{ $rg->golongan?->value ?? (string) $rg->golongan }}</span>
+                                        @if ($rg->nama_pangkat)
+                                            <span class="text-xs font-medium text-slate-600 truncate">— {{ $rg->nama_pangkat }}</span>
+                                        @endif
+                                        @if ($rg->is_golongan_terakhir)
+                                            <span class="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase">Terakhir</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-[10px] text-slate-500 mt-0.5">
+                                        SK: {{ $rg->nomor_sk ?: '-' }} • TMT: {{ $rg->tmt_golongan ? \Carbon\Carbon::parse($rg->tmt_golongan)->format('d/m/Y') : '-' }}
+                                    </div>
+                                </div>
+                                <button type="button" wire:click="editGolongan({{ $rg->id }})" @click="golModalOpen = true"
+                                    class="shrink-0 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-sky-600 text-[11px] font-bold hover:bg-sky-50 cursor-pointer">
+                                    <i class="fa-solid fa-pen text-[10px]"></i>
                                 </button>
                             </div>
-                            <div class="flex gap-1.5 overflow-x-auto pb-1">
-                                @foreach ($user->riwayatGolongan as $rg)
-                                    <button type="button" wire:click="editGolongan({{ $rg->id }})"
-                                        class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingGolonganId === $rg->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
-                                        <i class="fa-solid fa-pen text-[9px]"></i>
-                                        <span>{{ $rg->golongan?->value ?? (string) $rg->golongan }}</span>
-                                    </button>
-                                @endforeach
-                            </div>
-                            <div class="px-3 py-2 rounded-xl text-[11px] font-semibold {{ $editingGolonganId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
-                                {{ $editingGolonganId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
-                            </div>
+                        @empty
+                            <div class="text-center py-4 text-xs text-slate-400">Belum ada riwayat pangkat &amp; golongan.</div>
+                        @endforelse
+                    </div>
+
+                    <x-mobile.rhoe-modal model="golModalOpen" :title="$editingGolonganId ? 'Edit Pangkat & Golongan' : 'Tambah Pangkat & Golongan'">
+                        <div class="space-y-3">
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang</label>
-                                    <select wire:model="gol_golongan" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                    <select wire:model.live="gol_golongan" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
                                         <option value="">- Pilih Golongan -</option>
                                         @foreach ($golonganOptions as $gol)
                                             <option value="{{ $gol->value }}">{{ $gol->getLabel() }}</option>
@@ -415,7 +433,8 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pangkat</label>
-                                    <input type="text" wire:model="gol_nama_pangkat" placeholder="Otomatis jika kosong" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                    <input type="text" wire:model="gol_nama_pangkat" readonly placeholder="Otomatis dari golongan"
+                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed focus:outline-none">
                                 </div>
                             </div>
                             <div>
@@ -436,7 +455,35 @@
                                 <input type="checkbox" wire:model="gol_is_terakhir" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
                                 <span>Jadikan Pangkat Terakhir</span>
                             </label>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Upload File SK (PDF, Maks. 2 MB)</label>
+                                <label class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
+                                    <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
+                                    <span class="text-[11px] font-semibold text-slate-700">
+                                        {{ $gol_file_sk ? $gol_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
+                                    </span>
+                                    <input type="file" wire:model="gol_file_sk" accept="application/pdf,.pdf" class="hidden">
+                                </label>
+                                <div wire:loading wire:target="gol_file_sk" class="text-[11px] text-sky-600 font-medium mt-1">
+                                    <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
+                                </div>
+                                @error('gol_file_sk') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                            </div>
                         </div>
+                        <x-slot:footer>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="golModalOpen = false"
+                                    class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                    Batal
+                                </button>
+                                <button type="button" @click="golModalOpen = false; $wire.save()"
+                                    class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                    Simpan
+                                </button>
+                            </div>
+                        </x-slot:footer>
+                    </x-mobile.rhoe-modal>
+                </div>
                     @elseif ($activeTab === 'jabatan')
                         <div class="grid grid-cols-1 gap-3">
                             <div class="grid grid-cols-2 gap-3">

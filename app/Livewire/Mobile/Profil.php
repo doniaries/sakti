@@ -73,6 +73,7 @@ class Profil extends Component
     public string $gol_tanggal_sk = '';
     public string $gol_tmt_golongan = '';
     public bool $gol_is_terakhir = true;
+    public $gol_file_sk = null;
 
     // Tab Jabatan
     public string $status_kepegawaian = '';
@@ -279,6 +280,20 @@ class Profil extends Component
         $this->activeTab = $tab;
     }
 
+    public function updatedGolGolongan(?string $value): void
+    {
+        if (blank($value)) {
+            $this->gol_nama_pangkat = '';
+
+            return;
+        }
+
+        $label = GolonganRuang::tryFrom($value)?->getLabel();
+        if ($label && str_contains($label, ' - ')) {
+            $this->gol_nama_pangkat = trim((string) str($label)->after(' - '));
+        }
+    }
+
     public function updatedNewAvatar()
     {
         $this->validate([
@@ -419,6 +434,11 @@ class Profil extends Component
             'tmt_golongan' => $this->gol_tmt_golongan ?: null,
             'is_golongan_terakhir' => $this->gol_is_terakhir,
         ];
+
+        if ($this->gol_file_sk) {
+            $payload['file_sk'] = $this->gol_file_sk->store('riwayat-golongan/sk', 'public');
+            $this->gol_file_sk = null;
+        }
 
         $existing = $this->editingGolonganId
             ? RiwayatGolongan::where('user_id', $freshUser->id)->find($this->editingGolonganId)
