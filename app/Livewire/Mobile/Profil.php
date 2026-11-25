@@ -501,6 +501,8 @@ class Profil extends Component
             $freshUser->update([
                 'nik' => $this->nik ?: null,
                 'no_kk' => $this->no_kk ?: null,
+                'nama_pasangan' => $this->nama_pasangan ?: null,
+                'nama_anak' => $this->nama_anak ?: null,
                 'alamat' => $this->alamat ?: null,
             ]);
         } else {
