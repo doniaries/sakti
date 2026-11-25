@@ -1,138 +1,156 @@
-<div class="pb-24">
-    <div
-        class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center gap-3">
+<div class="pb-28">
+    <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800 px-4 py-3 flex items-center gap-3">
         <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate
-            class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200">
+            class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200 active:scale-95 transition-transform">
             <i class="fa-solid fa-arrow-left text-sm"></i>
         </a>
-        <div>
-            <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100">Buat Surat Tugas</h1>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Penugasan Tim Kreatif</p>
+        <div class="min-w-0">
+            <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">Buat Surat Tugas</h1>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Lengkapi 3 langkah singkat di bawah ini</p>
         </div>
     </div>
 
     <form wire:submit="save" class="p-4 space-y-4">
-        <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 space-y-4">
-            <div class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">Dasar Surat
-                Undangan (Opsional)</div>
-
-            <div>
-                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Nomor Surat
-                    Undangan</label>
-                <input type="text" wire:model="dasar_surat_undangan" placeholder="Contoh: 005/123/Kominfo-2026"
-                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-100">
-                @error('dasar_surat_undangan')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Asal Surat</label>
-                <input type="text" wire:model="asal_surat_undangan"
-                    placeholder="Contoh: Sekretariat Daerah Kab. Sijunjung"
-                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-100">
-                @error('asal_surat_undangan')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Perihal Surat / Nama
-                    Kegiatan <span class="text-rose-500">*</span></label>
-                <input type="text" wire:model="perihal_surat_undangan" placeholder="Contoh: Undangan Rapat evaluasi"
-                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-100">
-                @error('perihal_surat_undangan')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
+        {{-- Langkah 1: Informasi Utama Kegiatan --}}
+        <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-4 shadow-xs">
+            <div class="flex items-center gap-2.5 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                <span class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Tanggal
-                        Surat</label>
-                    <x-mobile.date-picker wire:model="tanggal_surat_undangan" placeholder="Pilih tanggal..." />
-                    @error('tanggal_surat_undangan')
-                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div x-data="{ open: false }" @click.outside="open = false" class="relative">
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Jam Acara</label>
-                    <button type="button" @click="open = !open"
-                        class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 text-sm flex items-center justify-between text-left transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20">
-                        <span class="{{ $jam_acara ? 'text-zinc-900 dark:text-zinc-100 font-medium' : 'text-zinc-400' }}">
-                            {{ $jam_acara ? $jam_acara . ' WIB' : 'Pilih jam...' }}
-                        </span>
-                        <i class="fa-regular fa-clock text-sky-500 text-sm"></i>
-                    </button>
-                    <div x-show="open" x-transition.opacity.duration.150ms style="display: none;"
-                        class="absolute right-0 z-30 mt-1.5 w-64 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2.5 shadow-xl">
-                        <div class="grid grid-cols-3 gap-1.5">
-                            @foreach ($jamOptions as $jam)
-                                <button type="button"
-                                    wire:click="$set('jam_acara', '{{ $jam }}')"
-                                    @click="open = false"
-                                    class="py-2 px-1 rounded-lg text-xs font-semibold transition-colors {{ $jam_acara === $jam ? 'bg-teal-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-teal-50 dark:hover:bg-teal-500/20' }}">
-                                    {{ $jam }}
-                                </button>
-                            @endforeach
-                        </div>
-                        @if ($jam_acara)
-                            <button type="button" wire:click="$set('jam_acara', '')" @click="open = false"
-                                class="mt-2 w-full py-1.5 rounded-lg text-[11px] font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">
-                                Hapus Pilihan Jam
-                            </button>
-                        @endif
-                    </div>
-                    @error('jam_acara')
-                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                    @enderror
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Informasi Kegiatan</h2>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Detail acara yang akan diliput / dilaksanakan</p>
                 </div>
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Lokasi Acara / Kegiatan
-                    <span class="text-rose-500">*</span></label>
-                <input type="text" wire:model="lokasi" placeholder="Contoh: Geopark Silokek"
-                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-100">
-                @error('lokasi')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    Nama / Perihal Kegiatan <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" wire:model="perihal_surat_undangan" placeholder="Contoh: Liputan Rapat Paripurna DPRD"
+                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
+                @error('perihal_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    Lokasi Acara <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                    <i class="fa-solid fa-location-dot text-xs text-teal-600 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" wire:model="lokasi" placeholder="Contoh: Geopark Silokek"
+                        class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 pl-9 pr-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
+                </div>
+                @error('lokasi') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Tanggal Mulai
-                        Kegiatan <span class="text-rose-500">*</span></label>
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                        Tanggal Mulai <span class="text-rose-500">*</span>
+                    </label>
                     <x-mobile.date-picker wire:model="tanggal_mulai" placeholder="Pilih tanggal..." />
-                    @error('tanggal_mulai')
-                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                    @enderror
+                    @error('tanggal_mulai') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Tanggal Selesai
-                        Kegiatan <span class="text-rose-500">*</span></label>
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                        Tanggal Selesai <span class="text-rose-500">*</span>
+                    </label>
                     <x-mobile.date-picker wire:model="tanggal_selesai" placeholder="Pilih tanggal..." />
-                    @error('tanggal_selesai')
-                        <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                    @enderror
+                    @error('tanggal_selesai') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Upload Bukti Surat
-                    Undangan</label>
-                <input type="file" wire:model="bukti_surat_undangan" accept=".pdf,.jpg,.jpeg,.png,.webp"
-                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-700 dark:text-zinc-300">
-                <p class="text-[11px] text-zinc-500 mt-1">Format: PDF, JPG, PNG, atau WEBP (maks. 5 MB).</p>
-                @error('bukti_surat_undangan')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
+            <div x-data="{ open: false }" @click.outside="open = false" class="relative">
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Jam Acara</label>
+                <button type="button" @click="open = !open"
+                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 text-sm flex items-center justify-between text-left transition-all focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20">
+                    <span class="{{ $jam_acara ? 'text-zinc-900 dark:text-zinc-100 font-medium' : 'text-zinc-400' }}">
+                        {{ $jam_acara ? $jam_acara . ' WIB' : 'Pilih jam...' }}
+                    </span>
+                    <i class="fa-regular fa-clock text-sky-500 text-sm"></i>
+                </button>
+                <div x-show="open" x-transition.opacity.duration.150ms style="display: none;"
+                    class="absolute left-0 right-0 z-30 mt-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2.5 shadow-xl">
+                    <div class="grid grid-cols-4 gap-1.5">
+                        @foreach ($jamOptions as $jam)
+                            <button type="button" wire:click="$set('jam_acara', '{{ $jam }}')" @click="open = false"
+                                class="py-2 px-1 rounded-lg text-xs font-semibold transition-colors {{ $jam_acara === $jam ? 'bg-teal-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-teal-50 dark:hover:bg-teal-500/20' }}">
+                                {{ $jam }}
+                            </button>
+                        @endforeach
+                    </div>
+                    @if ($jam_acara)
+                        <button type="button" wire:click="$set('jam_acara', '')" @click="open = false"
+                            class="mt-2 w-full py-1.5 rounded-lg text-[11px] font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">
+                            Hapus Pilihan Jam
+                        </button>
+                    @endif
+                </div>
+                @error('jam_acara') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
 
-        <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 space-y-4">
-            <div class="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">Detail Kegiatan &
-                Tim Kreatif</div>
+        {{-- Langkah 2: Dasar Surat Undangan (Opsional) --}}
+        <div x-data="{ showUndangan: false }" class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-xs">
+            <button type="button" @click="showUndangan = !showUndangan" class="w-full flex items-center justify-between gap-2 text-left">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-6 h-6 rounded-full bg-zinc-200 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold flex items-center justify-center shrink-0">2</span>
+                    <div>
+                        <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Dasar Surat Undangan <span class="text-[11px] font-normal text-zinc-400">(Opsional)</span></h2>
+                        <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Ketuk jika ada nomor atau file surat undangan</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-down text-xs text-zinc-400 transition-transform duration-200" :class="showUndangan ? 'rotate-180' : ''"></i>
+            </button>
+
+            <div x-show="showUndangan" x-collapse style="display: none;" class="pt-4 mt-3 border-t border-zinc-100 dark:border-zinc-800 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Nomor Surat Undangan</label>
+                    <input type="text" wire:model="dasar_surat_undangan" placeholder="Contoh: 005/123/Kominfo-2026"
+                        class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
+                    @error('dasar_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Asal Surat</label>
+                        <input type="text" wire:model="asal_surat_undangan" placeholder="Contoh: Setda"
+                            class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
+                        @error('asal_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Tanggal Surat</label>
+                        <x-mobile.date-picker wire:model="tanggal_surat_undangan" placeholder="Pilih tanggal..." />
+                        @error('tanggal_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Upload Bukti Surat Undangan</label>
+                    <label class="flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 bg-zinc-50/70 dark:bg-zinc-950 px-4 py-4 text-center cursor-pointer hover:border-teal-500 transition-colors">
+                        <i class="fa-solid fa-cloud-arrow-up text-xl text-teal-600"></i>
+                        <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                            {{ $bukti_surat_undangan ? $bukti_surat_undangan->getClientOriginalName() : 'Ketuk untuk pilih file undangan' }}
+                        </span>
+                        <span class="text-[10px] text-zinc-500">PDF, JPG, PNG, WEBP (Maks. 5 MB)</span>
+                        <input type="file" wire:model="bukti_surat_undangan" accept=".pdf,.jpg,.jpeg,.png,.webp" class="hidden">
+                    </label>
+                    <div wire:loading wire:target="bukti_surat_undangan" class="text-xs text-teal-600 font-medium mt-1">
+                        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah file...
+                    </div>
+                    @error('bukti_surat_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        </div>
+
+        {{-- Langkah 3: Tim yang Bertugas --}}
+        <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-4 shadow-xs">
+            <div class="flex items-center gap-2.5 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                <span class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
+                <div>
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Tim yang Bertugas</h2>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Pilih penanggung jawab & personil tim kreatif</p>
+                </div>
+            </div>
 
             <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
                 <div class="flex items-center justify-between mb-1.5">
@@ -176,9 +194,7 @@
                         @endforeach
                     </div>
                 </div>
-                @error('penanggung_jawab_ids')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
+                @error('penanggung_jawab_ids') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
@@ -207,13 +223,13 @@
                         class="w-full h-9 mb-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100 outline-none focus:border-teal-500">
                     <div class="max-h-48 overflow-y-auto space-y-1">
                         @forelse ($timKreatif as $anggota)
-                            <label x-show="!q || '{{ strtolower($anggota->name . ' ' . $anggota->jabatan_tim_kreatif) }}'.includes(q.toLowerCase())"
+                            <label x-show="!q || '{{ strtolower($anggota->name . ' ' . ($anggota->jabatan_tim_kreatif?->value ?? '')) }}'.includes(q.toLowerCase())"
                                 class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/70 cursor-pointer">
                                 <input type="checkbox" wire:model.live="pegawai_ids" value="{{ $anggota->id }}"
                                     class="rounded border-zinc-300 text-teal-600 focus:ring-teal-500">
                                 <div class="min-w-0">
                                     <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $anggota->name }}</div>
-                                    <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{{ $anggota->jabatan_tim_kreatif }}</div>
+                                    <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{{ $anggota->jabatan_tim_kreatif?->value }}</div>
                                 </div>
                             </label>
                         @empty
@@ -221,23 +237,19 @@
                         @endforelse
                     </div>
                 </div>
-                @error('pegawai_ids')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
+                @error('pegawai_ids') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Keterangan</label>
-                <textarea wire:model="keterangan" rows="3" placeholder="Catatan tambahan..."
-                    class="w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2.5 text-sm text-zinc-900 dark:text-zinc-100"></textarea>
-                @error('keterangan')
-                    <p class="text-xs text-rose-500 mt-1">{{ $message }}</p>
-                @enderror
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Keterangan Tambahan</label>
+                <textarea wire:model="keterangan" rows="3" placeholder="Catatan tambahan (opsional)..."
+                    class="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"></textarea>
+                @error('keterangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
 
         <button type="submit" wire:loading.attr="disabled"
-            class="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-lg shadow-teal-600/20 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
+            class="w-full h-12 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-lg shadow-teal-600/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2">
             <i class="fa-solid fa-paper-plane"></i>
             <span wire:loading.remove wire:target="save">Simpan Surat Tugas</span>
             <span wire:loading wire:target="save">Menyimpan...</span>
