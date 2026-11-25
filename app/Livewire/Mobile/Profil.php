@@ -210,7 +210,7 @@ class Profil extends Component
         $this->gol_nomor_sk = $item?->nomor_sk ?? '';
         $this->gol_tanggal_sk = $item?->tanggal_sk ? $item->tanggal_sk->format('Y-m-d') : '';
         $this->gol_tmt_golongan = $item?->tmt_golongan ? $item->tmt_golongan->format('Y-m-d') : '';
-        $this->gol_is_terakhir = $item ? (bool) $item->is_golongan_terakhir : true;
+        $this->gol_is_terakhir = $item ? (bool) $item->is_golongan_terakhir : false;
     }
 
     private function fillJabatanForm(?RiwayatJabatan $item): void
@@ -436,7 +436,7 @@ class Profil extends Component
         ];
 
         if ($this->gol_file_sk) {
-            $payload['file_sk'] = $this->gol_file_sk->store('riwayat-golongan/sk', 'public');
+            $payload['file_sk_golongan'] = $this->gol_file_sk->store('riwayat-golongan/sk', 'public');
             $this->gol_file_sk = null;
         }
 

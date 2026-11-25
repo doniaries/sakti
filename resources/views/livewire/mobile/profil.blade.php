@@ -382,7 +382,34 @@
                     </x-mobile.rhoe-modal>
 
             @if ($activeTab === 'golongan')
+                @php
+                    $golTerakhir = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true)
+                        ?? $user->riwayatGolongan->first();
+                    $tmtCpns = $user->tmt_cpns ?? $user->riwayatGolongan->sortBy('tmt_golongan')->first()?->tmt_golongan;
+                    $masaKerja = $tmtCpns
+                        ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
+                        : '-';
+                @endphp
                 <div class="space-y-3" x-data="{ golModalOpen: false }">
+                    {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}
+                    <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 space-y-2 text-xs">
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-sky-600"></i> Golongan</span>
+                            <span class="font-bold text-slate-900">{{ $golTerakhir?->golongan?->value ?? ($golTerakhir?->golongan ?? '-') }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-award text-sky-600"></i> Pangkat</span>
+                            <span class="font-bold text-slate-900">{{ $golTerakhir?->nama_pangkat ?? '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-regular fa-calendar text-sky-600"></i> TMT Golongan</span>
+                            <span class="font-bold text-slate-900">{{ $golTerakhir?->tmt_golongan ? \Carbon\Carbon::parse($golTerakhir->tmt_golongan)->translatedFormat('j F Y') : '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-1">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-regular fa-clock text-sky-600"></i> Masa Kerja</span>
+                            <span class="font-bold text-slate-900">{{ $masaKerja }}</span>
+                        </div>
+                    </div>
                     <div class="flex items-center justify-between gap-2">
                         <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat Pangkat &amp; Golongan</span>
                         <button type="button" wire:click="newGolongan" @click="golModalOpen = true"
@@ -1189,15 +1216,49 @@
             @endif
 
             @if ($activeTab === 'golongan')
-                <div class="space-y-3">
+                @php
+                    $golTerakhir = $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true)
+                        ?? $user->riwayatGolongan->first();
+                    $tmtCpns = $user->tmt_cpns ?? $user->riwayatGolongan->sortBy('tmt_golongan')->first()?->tmt_golongan;
+                    $masaKerja = $tmtCpns
+                        ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
+                        : '-';
+                @endphp
+                <div class="space-y-3" x-data="{ golModalOpen: false }">
+                    {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}
+                    <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 space-y-2 text-xs">
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-sky-600"></i> Golongan</span>
+                            <span class="font-bold text-slate-900">{{ $golTerakhir?->golongan?->value ?? ($golTerakhir?->golongan ?? '-') }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-award text-sky-600"></i> Pangkat</span>
+                            <span class="font-bold text-slate-900">{{ $golTerakhir?->nama_pangkat ?? '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-regular fa-calendar text-sky-600"></i> TMT Golongan</span>
+                            <span class="font-bold text-slate-900">{{ $golTerakhir?->tmt_golongan ? \Carbon\Carbon::parse($golTerakhir->tmt_golongan)->translatedFormat('j F Y') : '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-1">
+                            <span class="text-slate-500 flex items-center gap-1.5"><i class="fa-regular fa-clock text-sky-600"></i> Masa Kerja</span>
+                            <span class="font-bold text-slate-900">{{ $masaKerja }}</span>
+                        </div>
+                    </div>
                     <div class="flex items-center justify-between px-1 pt-1">
                         <h3
                             class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-shield-halved"></i> Riwayat Pangkat & Golongan Ruang
                         </h3>
-                        <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                            {{ $user->riwayatGolongan->count() }} Pangkat
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                                {{ $user->riwayatGolongan->count() }} Pangkat
+                            </span>
+                            <button type="button" wire:click="newGolongan" @click="golModalOpen = true"
+                                class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span>Tambah</span>
+                            </button>
+                        </div>
                     </div>
 
                     @forelse($user->riwayatGolongan as $item)
@@ -1239,15 +1300,22 @@
                                         class="text-slate-700">{{ $item->tmt_golongan ? \Carbon\Carbon::parse($item->tmt_golongan)->format('d/m/Y') : '-' }}</strong>
                                 </span>
 
-                                @if ($item->file_sk_golongan)
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_golongan) }}"
-                                        target="_blank"
-                                        class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
-                                        <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK Pangkat
-                                    </a>
-                                @else
-                                    <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
-                                @endif
+                                <div class="flex items-center gap-1.5">
+                                    @if ($item->file_sk_golongan)
+                                        <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_golongan) }}"
+                                            target="_blank"
+                                            class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                                            <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
+                                        </a>
+                                    @else
+                                        <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                                    @endif
+                                    <button type="button" wire:click="editGolongan({{ $item->id }})" @click="golModalOpen = true"
+                                        class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
+                                        title="Edit Pangkat">
+                                        <i class="fa-solid fa-pen text-[10px]"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     @empty
@@ -1255,6 +1323,71 @@
                             <p class="text-xs text-slate-400 italic">Belum ada data riwayat pangkat/golongan.</p>
                         </div>
                     @endforelse
+
+                    <x-mobile.rhoe-modal model="golModalOpen" :title="$editingGolonganId ? 'Edit Pangkat & Golongan' : 'Tambah Pangkat & Golongan'">
+                        <div class="space-y-3">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang</label>
+                                    <select wire:model.live="gol_golongan" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                                        <option value="">- Pilih Golongan -</option>
+                                        @foreach ($golonganOptions as $gol)
+                                            <option value="{{ $gol->value }}">{{ $gol->getLabel() }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pangkat</label>
+                                    <input type="text" wire:model="gol_nama_pangkat" readonly placeholder="Otomatis dari golongan"
+                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed focus:outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK Pangkat</label>
+                                <input type="text" wire:model="gol_nomor_sk" placeholder="Nomor SK..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal SK</label>
+                                    <x-mobile.date-picker wire:model="gol_tanggal_sk" clearable />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">TMT Golongan</label>
+                                    <x-mobile.date-picker wire:model="gol_tmt_golongan" clearable />
+                                </div>
+                            </div>
+                            <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                <input type="checkbox" wire:model="gol_is_terakhir" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                                <span>Jadikan Pangkat Terakhir</span>
+                            </label>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Upload File SK (PDF, Maks. 2 MB)</label>
+                                <label class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
+                                    <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
+                                    <span class="text-[11px] font-semibold text-slate-700">
+                                        {{ $gol_file_sk ? $gol_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
+                                    </span>
+                                    <input type="file" wire:model="gol_file_sk" accept="application/pdf,.pdf" class="hidden">
+                                </label>
+                                <div wire:loading wire:target="gol_file_sk" class="text-[11px] text-sky-600 font-medium mt-1">
+                                    <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
+                                </div>
+                                @error('gol_file_sk') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+                        <x-slot:footer>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="golModalOpen = false"
+                                    class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                    Batal
+                                </button>
+                                <button type="button" @click="golModalOpen = false; $wire.save()"
+                                    class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                    Simpan
+                                </button>
+                            </div>
+                        </x-slot:footer>
+                    </x-mobile.rhoe-modal>
                 </div>
             @endif
 
