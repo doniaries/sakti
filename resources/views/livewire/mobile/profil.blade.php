@@ -245,6 +245,34 @@
                     </button>
                 </div>
                 @php
+                    $heroNik = $user->nik ? (str_contains(strtoupper((string) $user->nik), 'E') ? number_format((float) $user->nik, 0, '', '') : $user->nik) : null;
+                    $heroKk = $user->no_kk ? (str_contains(strtoupper((string) $user->no_kk), 'E') ? number_format((float) $user->no_kk, 0, '', '') : $user->no_kk) : null;
+                @endphp
+                @if ($heroNik)
+                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5" x-data="{ copiedHeroNik: false }">
+                        <i class="fa-solid fa-id-card text-sky-300 text-[10px]"></i>
+                        <span class="truncate">NIK: {{ $heroNik }}</span>
+                        <button type="button"
+                            @click="navigator.clipboard?.writeText('{{ $heroNik }}'); copiedHeroNik = true; setTimeout(() => copiedHeroNik = false, 1500)"
+                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                            title="Salin NIK">
+                            <i class="fa-regular" :class="copiedHeroNik ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
+                        </button>
+                    </div>
+                @endif
+                @if ($heroKk)
+                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5" x-data="{ copiedHeroKk: false }">
+                        <i class="fa-solid fa-house-user text-sky-300 text-[10px]"></i>
+                        <span class="truncate">KK: {{ $heroKk }}</span>
+                        <button type="button"
+                            @click="navigator.clipboard?.writeText('{{ $heroKk }}'); copiedHeroKk = true; setTimeout(() => copiedHeroKk = false, 1500)"
+                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                            title="Salin No. KK">
+                            <i class="fa-regular" :class="copiedHeroKk ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
+                        </button>
+                    </div>
+                @endif
+                @php
                     $golHero =
                         $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true) ??
                         $user->riwayatGolongan->first();
@@ -316,7 +344,7 @@
         ['key' => 'keluarga', 'label' => 'Data Kependudukan', 'desc' => 'NIK, KK & Keluarga', 'icon' => 'fa-people-roof', 'color' => 'bg-rose-50 text-rose-600 border-rose-100'],
     ] as $card)
                     <button type="button" wire:click="setTab('{{ $card['key'] }}')"
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2.5 cursor-pointer">
+                        class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
                         <div
                             class="w-10 h-10 rounded-xl {{ $card['color'] }} border flex items-center justify-center text-base">
                             <i class="fa-solid {{ $card['icon'] }}"></i>
@@ -330,7 +358,7 @@
                 @endforeach
                 @if (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role'))
                     <button type="button" wire:click="setTab('peran')"
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2.5 cursor-pointer">
+                        class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
                         <div
                             class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center text-base">
                             <i class="fa-solid fa-user-shield"></i>
@@ -344,7 +372,7 @@
                 @if (auth()->user()
                         ?->hasAnyRole(['super_admin', 'admin']))
                     <button type="button" wire:click="setTab('sistem')"
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2.5 cursor-pointer">
+                        class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
                         <div
                             class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-base">
                             <i class="fa-solid fa-gears"></i>
