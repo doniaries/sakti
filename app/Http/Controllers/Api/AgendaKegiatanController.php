@@ -165,7 +165,12 @@ class AgendaKegiatanController extends Controller
             'instruksi' => $disposisi?->instruksi,
             'peserta' => $peserta,
             'lampiran_url' => $item->lampiran_file
-                ? Storage::disk('public')->url($item->lampiran_file)
+                ? (function () use ($item): string {
+                    /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+                    $disk = Storage::disk('public');
+
+                    return $disk->url($item->lampiran_file);
+                })()
                 : null,
         ];
     }

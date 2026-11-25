@@ -21,7 +21,7 @@ Route::get('/panduan', fn () => view('panduan'))->name('panduan');
 Route::get('/mobile', fn () => redirect()->route('mobile.dashboard'));
 
 Route::post('/portal/logout', function () {
-    auth()->logout();
+    \Illuminate\Support\Facades\Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
     return redirect()->route('portal');
@@ -61,6 +61,7 @@ Route::prefix('mobile')->group(function () {
         });
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
         Route::get('/agenda', \App\Livewire\Mobile\Agenda::class)->name('mobile.agenda');
+        Route::get('/surat-tugas/buat', \App\Livewire\Mobile\SuratTugas\Form::class)->name('mobile.surat-tugas.create');
         Route::middleware('module:izin')->group(function () {
             Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
             Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
