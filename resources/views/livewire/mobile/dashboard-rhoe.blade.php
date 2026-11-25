@@ -147,6 +147,7 @@
                 ['route' => 'mobile.lhk.bank-aktivitas', 'module' => 'lhk', 'icon' => 'fa-box-archive', 'label' => 'Bank Aktivitas', 'color' => 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400'],
                 ['route' => 'mobile.reputasi', 'module' => 'reputasi', 'icon' => 'fa-medal', 'label' => 'Reputasi', 'color' => 'bg-yellow-50 dark:bg-yellow-500/15 text-yellow-600 dark:text-yellow-400'],
                 ['route' => 'mobile.agenda', 'module' => 'agenda', 'icon' => 'fa-calendar-check', 'label' => 'Agenda', 'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400'],
+                ['route' => 'filament.admin.resources.surat-tugas.index', 'icon' => 'fa-file-signature', 'label' => 'Surat Tugas', 'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400'],
                 ['route' => 'mobile.persetujuan', 'roles' => ['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'kabid', 'pptk', 'ppk', 'pa'], 'icon' => 'fa-file-signature', 'label' => 'Persetujuan', 'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400'],
             ];
         @endphp
@@ -335,12 +336,7 @@
                                 <button type="button"
                                     wire:click.stop="konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
                                     class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700">
-                                    Hadir
-                                </button>
-                                <button type="button"
-                                    @click.stop="const alasan = prompt('Alasan berhalangan:'); if (alasan !== null && alasan.trim() !== '') { $wire.konfirmasiSuratTugas({{ $stId }}, 'berhalangan', '{{ $notif->id }}', alasan); }"
-                                    class="px-3 py-1 rounded-lg bg-amber-500 text-white text-[11px] font-semibold hover:bg-amber-600">
-                                    Berhalangan
+                                    Siap Hadir
                                 </button>
                             </div>
                         @endif
