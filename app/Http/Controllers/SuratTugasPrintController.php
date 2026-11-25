@@ -47,7 +47,9 @@ class SuratTugasPrintController extends Controller
         // Jika PDF resmi ber-TTE SRIKANDI sudah di-upload dan bukan permintaan draf, tampilkan langsung file TTE tersebut
         if (! $request->boolean('draft') && filled($suratTugas->file_tte) && Storage::disk('public')->exists($suratTugas->file_tte)) {
             $path = Storage::disk('public')->path($suratTugas->file_tte);
-            $filename = 'Surat-Tugas-TTE-' . str($suratTugas->nomor_surat)->slug() . '.pdf';
+            $tanggal = $suratTugas->tanggal_mulai?->format('Y-m-d') ?? now()->format('Y-m-d');
+            $suffix = filled($suratTugas->nomor_surat) ? str($suratTugas->nomor_surat)->slug() : 'id-' . $suratTugas->id;
+            $filename = "Surat-Tugas-TTE-{$tanggal}-{$suffix}.pdf";
 
             return response()->file($path, [
                 'Content-Type' => 'application/pdf',
@@ -83,7 +85,9 @@ class SuratTugasPrintController extends Controller
         }
 
         $pdf = Pdf::loadView('pdf.surat-tugas', $viewData)->setPaper('a4', 'portrait');
-        $namaFile = 'Surat-Tugas-' . str($suratTugas->nomor_surat)->slug() . '.pdf';
+        $tanggal = $suratTugas->tanggal_mulai?->format('Y-m-d') ?? now()->format('Y-m-d');
+        $suffix = filled($suratTugas->nomor_surat) ? str($suratTugas->nomor_surat)->slug() : 'draft-' . $suratTugas->id;
+        $namaFile = "Surat-Tugas-{$tanggal}-{$suffix}.pdf";
 
         return $pdf->stream($namaFile);
     }
