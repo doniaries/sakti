@@ -464,8 +464,8 @@
                             <div class="mt-2 flex flex-wrap items-center gap-2" @click.stop>
                                 @if (! $sudahHadir)
                                     <button type="button"
-                                        wire:click.stop="konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
-                                        class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700">
+                                        @click.stop="$wire.konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
+                                        class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700 cursor-pointer">
                                         Siap Hadir
                                     </button>
                                 @else
