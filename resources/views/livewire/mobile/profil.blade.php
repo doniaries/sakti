@@ -366,7 +366,7 @@
         </div>
     @endif
 
-    @if (!$isEditing && $activeTab !== 'menu' && !in_array($activeTab, ['golongan', 'jabatan', 'pendidikan']))
+    @if (!$isEditing && $activeTab !== 'menu' && !in_array($activeTab, ['golongan', 'jabatan', 'pendidikan', 'peran', 'sistem']))
         <div class="flex justify-end mb-3">
             <button type="button" wire:click="toggleEdit(true)"
                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-bold flex items-center gap-1.5 border border-sky-200/70 transition active:scale-95 cursor-pointer">
@@ -1228,8 +1228,11 @@
             @if ($activeTab === 'peran' && (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role')))
                 @php
                     $rolesList = \Spatie\Permission\Models\Role::withCount(['users', 'permissions'])->orderBy('name')->get();
+                    $allActiveUsers = $editingRoleId
+                        ? \App\Models\User::query()->where('aktif', true)->orderBy('name')->get(['id', 'name', 'nip'])
+                        : collect();
                 @endphp
-                <div class="space-y-2.5">
+                <div class="space-y-2.5" x-data="{ roleModalOpen: false, qRoleUser: '' }" x-on:open-role-modal.window="roleModalOpen = true; qRoleUser = ''">
                     <div class="flex items-center justify-between px-1">
                         <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-user-shield"></i> Daftar Peran &amp; Hak Akses
@@ -1247,15 +1250,54 @@
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <span class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
                                 <span class="px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
+                                <button type="button" wire:click="editRoleUsers({{ $role->id }})"
+                                    class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
+                                    title="Edit User Peran">
+                                    <i class="fa-solid fa-pen text-[10px]"></i>
+                                </button>
                             </div>
                         </div>
                     @endforeach
+
+                    <x-mobile.rhoe-modal model="roleModalOpen" :title="'Edit User: ' . $editingRoleName" subtitle="Pilih pegawai yang memiliki peran ini">
+                        <div class="space-y-2.5">
+                            <input type="search" x-model="qRoleUser" placeholder="Cari nama atau NIP pegawai..."
+                                class="w-full h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800 outline-none focus:border-sky-500">
+                            <div class="max-h-64 overflow-y-auto space-y-1">
+                                @foreach ($allActiveUsers as $u)
+                                    <label x-show="!qRoleUser || '{{ strtolower($u->name . ' ' . ($u->nip ?? '')) }}'.includes(qRoleUser.toLowerCase())"
+                                        class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 cursor-pointer">
+                                        <input type="checkbox" wire:model="roleUserIds" value="{{ $u->id }}"
+                                            class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                                        <div class="min-w-0">
+                                            <div class="text-xs font-semibold text-slate-800 truncate">{{ $u->name }}</div>
+                                            @if ($u->nip)
+                                                <div class="text-[10px] font-mono text-slate-400 truncate">{{ $u->nip }}</div>
+                                            @endif
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        <x-slot:footer>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="roleModalOpen = false"
+                                    class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                    Batal
+                                </button>
+                                <button type="button" @click="roleModalOpen = false; $wire.saveRoleUsers()"
+                                    class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                    Simpan
+                                </button>
+                            </div>
+                        </x-slot:footer>
+                    </x-mobile.rhoe-modal>
                 </div>
             @endif
 
             @if ($activeTab === 'sistem' && auth()->user()?->hasAnyRole(['super_admin', 'admin']))
                 @php
-                    $configs = \App\Models\PengaturanAplikasi::query()->orderBy('grup')->orderBy('kunci')->get()->groupBy('grup');
+                    $configs = \App\Models\PengaturanAplikasi::query()->orderBy('kunci')->get();
                 @endphp
                 <div class="space-y-3">
                     <div class="flex items-center justify-between px-1">
@@ -1270,20 +1312,115 @@
                         @endif
                     </div>
 
-                    @foreach ($configs as $grup => $items)
-                        <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2">
-                            <div class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">{{ $grup ?: 'Umum' }}</div>
-                            @foreach ($items as $cfg)
-                                <div class="flex items-start justify-between gap-3 py-1 border-b border-slate-50 last:border-0 text-xs">
-                                    <div class="min-w-0">
-                                        <div class="font-semibold text-slate-700">{{ $cfg->label ?: $cfg->kunci }}</div>
-                                        <div class="text-[10px] font-mono text-slate-400">{{ $cfg->kunci }}</div>
-                                    </div>
-                                    <span class="font-bold text-slate-900 text-right break-all max-w-[45%]">{{ is_bool($cfg->nilai) ? ($cfg->nilai ? 'Aktif' : 'Nonaktif') : ($cfg->nilai ?? '-') }}</span>
+                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2">
+                        @foreach ($configs as $cfg)
+                            <div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0 text-xs">
+                                <div class="min-w-0">
+                                    <div class="font-semibold text-slate-700">{{ $cfg->label ?: $cfg->kunci }}</div>
+                                    <div class="text-[10px] font-mono text-slate-400">{{ $cfg->kunci }}</div>
                                 </div>
-                            @endforeach
+                                <span class="font-bold text-slate-900 text-right break-all max-w-[45%]">{{ is_bool($cfg->nilai) ? ($cfg->nilai ? 'Aktif' : 'Nonaktif') : ($cfg->nilai ?? '-') }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if ($activeTab === 'peran' && (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role')))
+                @php
+                    $rolesList = \Spatie\Permission\Models\Role::withCount(['users', 'permissions'])->orderBy('name')->get();
+                @endphp
+                <div class="space-y-2.5" x-data="{ roleModalOpen: false, qRoleUser: '' }" x-on:open-role-modal.window="roleModalOpen = true; qRoleUser = ''">
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-shield"></i> Daftar Peran &amp; Hak Akses
+                        </h3>
+                        <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                            {{ $rolesList->count() }} Peran
+                        </span>
+                    </div>
+                    @foreach ($rolesList as $role)
+                        <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Guard: {{ $role->guard_name }}</div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
+                                <span class="px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
+                                <button type="button" wire:click="editRoleUsers({{ $role->id }})"
+                                    class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
+                                    title="Edit User Peran">
+                                    <i class="fa-solid fa-pen text-[10px]"></i>
+                                </button>
+                            </div>
                         </div>
                     @endforeach
+
+                    <x-mobile.rhoe-modal model="roleModalOpen" :title="'Edit User: ' . $editingRoleName" subtitle="Pilih pegawai yang memiliki peran ini">
+                        <div class="space-y-2.5">
+                            <input type="search" x-model="qRoleUser" placeholder="Cari nama atau NIP pegawai..."
+                                class="w-full h-9 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs text-slate-800 outline-none focus:border-sky-500">
+                            <div class="max-h-64 overflow-y-auto space-y-1">
+                                @foreach ($allActiveUsers as $u)
+                                    <label x-show="!qRoleUser || '{{ strtolower($u->name . ' ' . ($u->nip ?? '')) }}'.includes(qRoleUser.toLowerCase())"
+                                        class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 cursor-pointer">
+                                        <input type="checkbox" wire:model="roleUserIds" value="{{ $u->id }}"
+                                            class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                                        <div class="min-w-0">
+                                            <div class="text-xs font-semibold text-slate-800 truncate">{{ $u->name }}</div>
+                                            @if ($u->nip)
+                                                <div class="text-[10px] font-mono text-slate-400 truncate">{{ $u->nip }}</div>
+                                            @endif
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        <x-slot:footer>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="roleModalOpen = false"
+                                    class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                                    Batal
+                                </button>
+                                <button type="button" @click="roleModalOpen = false; $wire.saveRoleUsers()"
+                                    class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                    Simpan
+                                </button>
+                            </div>
+                        </x-slot:footer>
+                    </x-mobile.rhoe-modal>
+                </div>
+            @endif
+
+            @if ($activeTab === 'sistem' && auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                @php
+                    $configs = \App\Models\PengaturanAplikasi::query()->orderBy('kunci')->get();
+                @endphp
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-gears"></i> Konfigurasi Sistem
+                        </h3>
+                        @if (Route::has('mobile.pengaturan-modul'))
+                            <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
+                                class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[11px] font-bold border border-sky-200">
+                                Atur Modul <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2">
+                        @foreach ($configs as $cfg)
+                            <div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0 text-xs">
+                                <div class="min-w-0">
+                                    <div class="font-semibold text-slate-700">{{ $cfg->label ?: $cfg->kunci }}</div>
+                                    <div class="text-[10px] font-mono text-slate-400">{{ $cfg->kunci }}</div>
+                                </div>
+                                <span class="font-bold text-slate-900 text-right break-all max-w-[45%]">{{ is_bool($cfg->nilai) ? ($cfg->nilai ? 'Aktif' : 'Nonaktif') : ($cfg->nilai ?? '-') }}</span>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
 
