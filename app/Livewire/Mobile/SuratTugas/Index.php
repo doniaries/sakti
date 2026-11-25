@@ -16,11 +16,23 @@ use Livewire\Component;
 #[Title('Surat Tugas - SAKTI Mobile')]
 class Index extends Component
 {
+    public ?int $selectedId = null;
+
     public function mount(): void
     {
         /** @var User|null $user */
         $user = Auth::user();
         abort_unless($user && ($user->canManageSuratTugas() || filled($user->jabatan_tim_kreatif)), 403);
+    }
+
+    public function showDetail(int $id): void
+    {
+        $this->selectedId = $id;
+    }
+
+    public function closeDetail(): void
+    {
+        $this->selectedId = null;
     }
 
     public function render(): View
@@ -42,8 +54,14 @@ class Index extends Component
                 });
         }
 
+        $suratTugasList = $query->limit(30)->get();
+        $selectedSurat = $this->selectedId
+            ? $suratTugasList->firstWhere('id', $this->selectedId)
+            : null;
+
         return view('livewire.mobile.surat-tugas.index', [
-            'suratTugasList' => $query->limit(30)->get(),
+            'suratTugasList' => $suratTugasList,
+            'selectedSurat' => $selectedSurat,
             'canCreate' => $user->canManageSuratTugas(),
         ]);
     }
