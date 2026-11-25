@@ -165,21 +165,12 @@
                         </a>
                     @endif
                 @endforeach
-                @if (auth()->user()?->canManageSuratTugas() || filled(auth()->user()?->jabatan_tim_kreatif))
-                    <button type="button" @click="document.getElementById('card-surat-tugas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })"
-                        class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform cursor-pointer">
+                @if ((auth()->user()?->canManageSuratTugas() || filled(auth()->user()?->jabatan_tim_kreatif)) && Route::has('mobile.surat-tugas.index'))
+                    <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                         <div class="w-11 h-11 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base">
                             <i class="fa-solid fa-file-signature"></i>
                         </div>
                         <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
-                    </button>
-                @endif
-                @if (auth()->user()?->canManageSuratTugas() && Route::has('mobile.surat-tugas.create'))
-                    <a href="{{ route('mobile.surat-tugas.create') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-                        <div class="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base">
-                            <i class="fa-solid fa-file-circle-plus"></i>
-                        </div>
-                        <span class="text-[10px] font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Buat Surat Tugas</span>
                     </a>
                 @endif
             </div>

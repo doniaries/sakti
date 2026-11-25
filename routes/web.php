@@ -61,6 +61,7 @@ Route::prefix('mobile')->group(function () {
         });
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
         Route::get('/agenda', \App\Livewire\Mobile\Agenda::class)->name('mobile.agenda');
+        Route::get('/surat-tugas', \App\Livewire\Mobile\SuratTugas\Index::class)->name('mobile.surat-tugas.index');
         Route::get('/surat-tugas/buat', \App\Livewire\Mobile\SuratTugas\Form::class)->name('mobile.surat-tugas.create');
         Route::middleware('module:izin')->group(function () {
             Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
