@@ -320,8 +320,8 @@
                     </button>
                 @endforeach
                 @if (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role'))
-                    <a href="/admin/shield/roles"
-                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5">
+                    <button type="button" wire:click="setTab('peran')"
+                        class="bg-white rounded-2xl p-4 border border-slate-100 shadow-xs hover:border-sky-200 active:scale-[0.98] transition-all text-left flex flex-col items-start gap-2.5 cursor-pointer">
                         <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center text-base">
                             <i class="fa-solid fa-user-shield"></i>
                         </div>
@@ -329,7 +329,7 @@
                             <div class="text-xs font-extrabold text-slate-800 leading-tight">Peran &amp; Akses</div>
                             <div class="text-[10px] text-slate-400 mt-0.5">Role &amp; Permission</div>
                         </div>
-                    </a>
+                    </button>
                 @endif
                 @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']) && Route::has('mobile.pengaturan-modul'))
                     <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
@@ -1225,6 +1225,34 @@
             @endif
 
             <!-- TAB 2: PANGKAT / GOLONGAN -->
+            @if ($activeTab === 'peran' && (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role')))
+                @php
+                    $rolesList = \Spatie\Permission\Models\Role::withCount(['users', 'permissions'])->orderBy('name')->get();
+                @endphp
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-shield"></i> Daftar Peran &amp; Hak Akses
+                        </h3>
+                        <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                            {{ $rolesList->count() }} Peran
+                        </span>
+                    </div>
+                    @foreach ($rolesList as $role)
+                        <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 flex items-center justify-between gap-3">
+                            <div class="min-w-0">
+                                <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Guard: {{ $role->guard_name }}</div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
+                                <span class="px-2 py-0.5 rounded-lg bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
             @if ($activeTab === 'administrasi')
                 <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 space-y-2.5">
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-1">Administrasi &amp; Nomor</h3>
