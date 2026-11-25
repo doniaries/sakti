@@ -866,7 +866,7 @@
                                 return arr.length ? arr : [''];
                             })(),
                             syncAnak() {
-                                $wire.set('nama_anak', this.anakList.map(s => s.trim()).filter(Boolean).join('\n'), false);
+                                $wire.nama_anak = this.anakList.map(s => s.trim()).filter(Boolean).join('\n');
                             }
                         }">
                             <div class="flex items-center justify-between mb-1.5">
