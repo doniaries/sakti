@@ -355,34 +355,85 @@
                             return;
                         }
 
-                        navigator.geolocation.getCurrentPosition(
-                            (pos) => {
-                                this.gpsWarning = false;
-                                this.gpsStatus = 'ok';
-                                this.gpsAccuracy = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
-                                const uLat = pos.coords.latitude;
-                                const uLng = pos.coords.longitude;
-                                this.userCoordsText = `${uLat.toFixed(5)}, ${uLng.toFixed(5)}`;
-                                const d = this.calcDistance(this.officeLat, this.officeLng, uLat, uLng);
-                                this.currentDistance = Math.round(d);
-                                this.currentDistanceText = this.modeSimulasi
-                                    ? `${this.currentDistance} meter (Simulasi)`
-                                    : `${this.currentDistance} meter`;
-                                this.isWithinRadius = this.isWfh || (this.currentDistance <= this.maxRadius);
-                                this.updateUserMarker(uLat, uLng);
+                        let bestPos = null;
+                        let watchId = null;
+                        let settled = false;
 
+                        const applyPos = (pos, isFinal) => {
+                            this.gpsWarning = false;
+                            this.gpsStatus = 'ok';
+                            this.gpsAccuracy = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
+                            const uLat = pos.coords.latitude;
+                            const uLng = pos.coords.longitude;
+                            this.userCoordsText = `${uLat.toFixed(5)}, ${uLng.toFixed(5)}`;
+                            const d = this.calcDistance(this.officeLat, this.officeLng, uLat, uLng);
+                            this.currentDistance = Math.round(d);
+                            this.currentDistanceText = this.modeSimulasi
+                                ? `${this.currentDistance} meter (Simulasi)`
+                                : `${this.currentDistance} meter`;
+                            this.isWithinRadius = this.modeSimulasi || this.isWfh || (this.currentDistance <= this.maxRadius);
+                            this.updateUserMarker(uLat, uLng);
+
+                            if (isFinal && manual) {
+                                const outOfRadius = !this.modeSimulasi && !this.isWfh && this.isWithinRadius === false;
+                                window.dispatchEvent(new CustomEvent('notify', {
+                                    detail: outOfRadius
+                                        ? {
+                                            type: 'warning',
+                                            title: 'Di Luar Radius Kantor',
+                                            message: `Jarak Anda ${this.currentDistanceText} (maksimal radius ${this.maxRadius} meter). Silakan mendekat ke area kantor sesuai aturan.`
+                                        }
+                                        : {
+                                            type: 'success',
+                                            title: 'GPS OK',
+                                            message: `Akurasi GPS ±${this.gpsAccuracy ?? '-'}m, jarak ${this.currentDistanceText}.`
+                                        }
+                                }));
+                            }
+                        };
+
+                        const finishWatch = () => {
+                            if (settled) return;
+                            settled = true;
+                            if (watchId !== null) {
+                                navigator.geolocation.clearWatch(watchId);
+                                watchId = null;
+                            }
+                            if (bestPos) {
+                                applyPos(bestPos, true);
+                            }
+                        };
+
+                        const timer = setTimeout(finishWatch, 6000);
+
+                        watchId = navigator.geolocation.watchPosition(
+                            (pos) => {
+                                if (!bestPos || (pos.coords.accuracy && pos.coords.accuracy < (bestPos.coords.accuracy || 9999))) {
+                                    bestPos = pos;
+                                    applyPos(bestPos, false);
+                                }
+                                if (pos.coords.accuracy && pos.coords.accuracy <= 15) {
+                                    clearTimeout(timer);
+                                    finishWatch();
+                                }
+                            },
+                            (err) => {
+                                clearTimeout(timer);
+                                if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+                                if (bestPos) {
+                                    applyPos(bestPos, true);
+                                    return;
+                                }
+                                this.gpsStatus = 'error';
+                                this.gpsWarning = true;
                                 if (manual) {
-                                    const outOfRadius = !this.isWfh && this.isWithinRadius === false;
                                     window.dispatchEvent(new CustomEvent('notify', {
-                                        detail: outOfRadius
-                                            ? {
-                                                type: 'warning',
-                                                title: 'Di Luar Radius Kantor',
-                                                message: `Jarak Anda ${this.currentDistanceText} (maksimal radius ${this.maxRadius} meter). Silakan mendekat ke area kantor sesuai aturan.`
-                                            }
-                                            : {
-                                                type: 'success',
-                                                title: 'GPS OK',
+                                        detail: { type: 'warning', title: 'GPS Tidak Aktif', message: 'Pastikan GPS/Lokasi perangkat aktif dan izinkan akses lokasi.' }
+                                    }));
+                                }
+                            },
+                            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                        );
                                                 message: `Lokasi GPS aktif (${this.currentDistanceText}).`
                                             }
                                     }));
