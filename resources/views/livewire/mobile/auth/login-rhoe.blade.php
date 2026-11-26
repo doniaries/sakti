@@ -68,14 +68,10 @@
     <!-- Bottom Content: Hari Besar Card + Login Button -->
     <div class="flex-1 px-5 py-5 flex flex-col justify-between max-w-md mx-auto w-full">
         <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 shadow-sm text-center">
-            @php
-                $holidayItem = ($hariLiburHariIni ?? null) ?: ($hariLiburTerdekat ?? null);
-                $holidayImg = (! empty($holidayItem?->gambar) && file_exists(public_path('storage/' . $holidayItem->gambar)))
-                    ? asset('storage/' . $holidayItem->gambar)
-                    : asset('images/geopark-silokek.png');
-            @endphp
             <div class="rounded-2xl bg-sky-50/80 dark:bg-sky-500/10 border border-sky-100 dark:border-sky-500/20 py-5 px-4 mb-4">
-                <img src="{{ $holidayImg }}" alt="Ilustrasi Peringatan" class="mx-auto w-20 h-20 object-contain rounded-2xl mb-2.5 drop-shadow-sm">
+                <div class="mx-auto w-14 h-14 rounded-full bg-sky-600 text-white flex items-center justify-center text-xl shadow-md mb-2.5">
+                    <i class="fa-solid fa-calendar-day"></i>
+                </div>
                 <div class="text-xs font-semibold text-slate-600 dark:text-zinc-300" x-text="tanggal"></div>
             </div>
 
