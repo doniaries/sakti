@@ -103,7 +103,9 @@ Route::prefix('mobile')->group(function () {
             );
             return response()->json(['ok' => true]);
         })->name('mobile.push-subscribe');
-        Route::post('/fcm-token', [\App\Http\Controllers\Api\NotificationController::class, 'saveFcmToken'])->name('mobile.fcm-token');
+        Route::post('/fcm-token', [\App\Http\Controllers\Api\NotificationController::class, 'saveFcmToken'])
+            ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+            ->name('mobile.fcm-token');
         Route::middleware('module:izin')->group(function () {
             Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
             Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
