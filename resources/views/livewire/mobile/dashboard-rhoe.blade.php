@@ -117,9 +117,9 @@
 
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
             <div class="mt-5 flex items-center justify-between gap-3 relative z-10">
-                <div class="min-w-0">
+                <div class="min-w-0 md:flex-1 md:text-center">
                     <div class="text-[11px] text-sky-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
-                    <div class="flex items-baseline gap-1 font-mono mt-0.5">
+                    <div class="flex items-baseline gap-1 font-mono mt-0.5 md:justify-center">
                         <span x-text="jam" class="text-3xl font-black tracking-tight">--:--</span>
                         <span x-text="':' + detik" class="text-sm font-bold text-sky-200"></span>
                         <span class="text-[10px] font-bold text-sky-200 ml-0.5">WIB</span>
