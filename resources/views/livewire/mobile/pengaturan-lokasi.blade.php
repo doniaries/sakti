@@ -8,6 +8,41 @@
     currentCoordsText: '{{ $latitude_kantor }}, {{ $longitude_kantor }}',
     detectingGps: false,
     saving: false,
+    presetName: '',
+    savedPresets: JSON.parse(localStorage.getItem('sakti_saved_office_locations') || '[]'),
+
+    savePreset() {
+        const name = (this.presetName || '').trim() || ('Lokasi ' + (this.savedPresets.length + 1));
+        this.savedPresets.unshift({
+            name: name,
+            lat: Number(this.lat),
+            lng: Number(this.lng),
+            radius: Number(this.radiusValue)
+        });
+        localStorage.setItem('sakti_saved_office_locations', JSON.stringify(this.savedPresets));
+        this.presetName = '';
+    },
+
+    applyPreset(p) {
+        this.lat = Number(p.lat);
+        this.lng = Number(p.lng);
+        this.radiusValue = Number(p.radius || 50);
+        this.currentCoordsText = `${this.lat.toFixed(6)}, ${this.lng.toFixed(6)}`;
+        $wire.set('latitude_kantor', this.lat);
+        $wire.set('longitude_kantor', this.lng);
+        $wire.set('radius_meter', this.radiusValue);
+        if (this.marker) this.marker.setLatLng([this.lat, this.lng]);
+        if (this.circle) {
+            this.circle.setLatLng([this.lat, this.lng]);
+            this.circle.setRadius(this.radiusValue);
+        }
+        if (this.map) this.map.setView([this.lat, this.lng], 17);
+    },
+
+    deletePreset(idx) {
+        this.savedPresets.splice(idx, 1);
+        localStorage.setItem('sakti_saved_office_locations', JSON.stringify(this.savedPresets));
+    },
 
     init() {
         this.waitForLeaflet();
@@ -270,6 +305,47 @@
             @error('alamat_kantor')
                 <span class="text-rose-500 text-[10px] mt-1 block font-semibold">{{ $message }}</span>
             @enderror
+        </div>
+
+        <!-- Lokasi Tersimpan (Preset Simulasi) -->
+        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2.5">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
+                    <i class="fa-solid fa-bookmark text-sky-600"></i>
+                    <span>Lokasi Tersimpan (Preset)</span>
+                </span>
+                <span class="text-[10px] font-bold text-slate-400" x-text="savedPresets.length + ' lokasi'"></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="text" x-model="presetName" placeholder="Nama lokasi (mis. Kantor / Rumah)..."
+                    class="flex-1 px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-sky-500">
+                <button type="button" @click="savePreset()"
+                    class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shrink-0 active:scale-95 transition cursor-pointer">
+                    Simpan
+                </button>
+            </div>
+            <template x-if="savedPresets.length > 0">
+                <div class="space-y-1.5 max-h-40 overflow-y-auto pt-1">
+                    <template x-for="(p, idx) in savedPresets" :key="idx">
+                        <div class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl bg-white border border-slate-200/80 text-xs">
+                            <div class="min-w-0">
+                                <div class="font-bold text-slate-800 truncate" x-text="p.name"></div>
+                                <div class="text-[10px] text-slate-400 font-mono truncate" x-text="`${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)} (${p.radius}m)`"></div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button type="button" @click="applyPreset(p)"
+                                    class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-[11px] hover:bg-emerald-100 cursor-pointer">
+                                    Pakai
+                                </button>
+                                <button type="button" @click="deletePreset(idx)" title="Hapus"
+                                    class="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-[10px] hover:bg-rose-100 cursor-pointer">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
         </div>
 
         <!-- Mode Simulasi Bypass Geofence Toggle -->
