@@ -81,6 +81,14 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
+                    @if ($user->hasAnyRole(['super_admin', 'superadmin']))
+                        <button type="button" wire:click="toggleSimulasi"
+                            class="h-9 px-3 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            title="Toggle Mode Simulasi Data (Khusus Superadmin)">
+                            <i class="fa-solid fa-flask text-xs"></i>
+                            <span class="hidden sm:inline">{{ $modeSimulasi ? 'Simulasi ON' : 'Simulasi' }}</span>
+                        </button>
+                    @endif
                     @if ($user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'pptk', 'ppk', 'pa']))
                         <a href="/admin" target="_blank" rel="noopener"
                             class="h-9 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"

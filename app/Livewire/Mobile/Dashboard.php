@@ -202,6 +202,27 @@ class Dashboard extends Component
         $this->dispatch('notif-count-updated', count: 0);
     }
 
+    public function toggleSimulasi(): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'superadmin'])) {
+            return;
+        }
+
+        $pengaturan = PengaturanAplikasi::getPengaturan();
+        $next = ! (bool) ($pengaturan->mode_simulasi ?? false);
+        PengaturanAplikasi::first()?->update(['mode_simulasi' => $next]);
+
+        $this->dispatch('notify', [
+            'type' => $next ? 'success' : 'info',
+            'title' => 'Mode Simulasi ' . ($next ? 'Aktif' : 'Nonaktif'),
+            'message' => $next
+                ? 'Mode simulasi aktif khusus Superadmin. Data simulasi tidak akan masuk laporan cetak.'
+                : 'Mode simulasi dinonaktifkan.',
+        ]);
+    }
+
     public function render()
     {
         /** @var User $user */
@@ -285,6 +306,7 @@ class Dashboard extends Component
 
         return view('livewire.mobile.dashboard-rhoe', [
             'user' => $user,
+            'modeSimulasi' => (bool) ($pengaturan->mode_simulasi ?? false),
             'hariLiburHariIni' => $hariLiburHariIni,
             'unreadNotifCount' => $unreadNotifCount,
             'recentNotifications' => $recentNotifications,
