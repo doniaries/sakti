@@ -138,13 +138,45 @@
                 await $wire.saveCroppedAvatar(dataUrl);
                 this.saving = false;
                 this.cropOpen = false;
-            }
+            },
+            previewOpen: false
         }">
-            <label class="relative block cursor-pointer group shrink-0" title="Klik foto untuk ubah & crop (Maks. 2MB)">
+            <button type="button" @click="previewOpen = true" class="relative block cursor-pointer group shrink-0" title="Lihat atau ubah foto profil (Maks. 2MB)">
                 <img src="{{ $user->avatar_image_url }}" alt="Avatar Pegawai"
                     class="w-16 h-16 rounded-full object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20 group-hover:brightness-90 group-active:scale-95 transition">
-                <input type="file" @change="openCropper($event)" class="hidden" accept="image/*">
-            </label>
+                <span class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-sky-500 text-white border-2 border-white flex items-center justify-center text-[10px] shadow">
+                    <i class="fa-solid fa-camera"></i>
+                </span>
+            </button>
+            <input type="file" x-ref="avatarInput" @change="openCropper($event)" class="hidden" accept="image/*">
+
+            <template x-teleport="body">
+                <div x-show="previewOpen" x-cloak @keydown.escape.window="previewOpen = false"
+                    class="fixed inset-0 z-[100] bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4"
+                    @click.self="previewOpen = false">
+                    <div class="w-full max-w-xs rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-2xl space-y-4 text-center">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-extrabold text-slate-800 dark:text-slate-100">Foto Profil</h3>
+                            <button type="button" @click="previewOpen = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                        </div>
+                        <img src="{{ $user->avatar_image_url }}" alt="Preview Foto Profil"
+                            class="w-52 h-52 mx-auto rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-md">
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button type="button" @click="previewOpen = false"
+                                class="h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold">
+                                Tutup
+                            </button>
+                            <button type="button" @click="previewOpen = false; $refs.avatarInput.click()"
+                                class="h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-camera text-[11px]"></i>
+                                <span>Ganti Foto</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
 
             <template x-teleport="body">
                 <div x-show="cropOpen" x-cloak @keydown.escape.window="cropOpen = false"
