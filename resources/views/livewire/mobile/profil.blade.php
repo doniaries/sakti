@@ -721,7 +721,7 @@
                             {{ $editingJabatanId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan <span class="text-rose-500">*</span></label>
                             <input type="text" wire:model="jab_nama_jabatan"
                                 placeholder="Contoh: Kepala Bidang..."
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -1737,7 +1737,7 @@
                     <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang <span class="text-rose-500">*</span></label>
                                 <select wire:model.live="gol_golongan"
                                     class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
                                     <option value="">- Pilih Golongan -</option>
@@ -1902,6 +1902,12 @@
                                         title="Edit Jabatan">
                                         <i class="fa-solid fa-pen text-[10px]"></i>
                                     </button>
+                                    <button type="button" wire:click="deleteJabatan({{ $item->id }})"
+                                        wire:confirm="Yakin ingin menghapus riwayat jabatan ini?"
+                                        class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
+                                        title="Hapus Jabatan">
+                                        <i class="fa-solid fa-trash text-[10px]"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1924,7 +1930,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan <span class="text-rose-500">*</span></label>
                                 <input type="text" wire:model="jab_nama_jabatan"
                                     placeholder="Contoh: Analis Kebijakan Ahli Muda"
                                     class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -2077,7 +2083,7 @@
                     <div class="space-y-3">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang</label>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang <span class="text-rose-500">*</span></label>
                                 <select wire:model="pend_jenjang" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
                                     <option value="">- Pilih Jenjang -</option>
                                     @foreach ($jenjangOptions as $jj)
@@ -2091,7 +2097,7 @@
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Kampus</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Kampus <span class="text-rose-500">*</span></label>
                             <input type="text" wire:model="pend_nama_institusi" placeholder="Contoh: Universitas Andalas" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
