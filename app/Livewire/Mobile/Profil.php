@@ -781,17 +781,25 @@ class Profil extends Component
         }
 
         $subCount = $user->pushSubscriptions()->count();
+        $pushError = null;
         if (config('webpush.vapid.public_key') && $subCount > 0) {
-            $user->notify(new \App\Notifications\WebPushNotification(
-                'Tes Notifikasi SAKTI',
-                'Notifikasi Web Push berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
-                route('mobile.dashboard')
-            ));
+            try {
+                $user->notify(new \App\Notifications\WebPushNotification(
+                    'Tes Notifikasi SAKTI',
+                    'Notifikasi Web Push berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
+                    route('mobile.dashboard')
+                ));
+            } catch (\Throwable $e) {
+                $pushError = $e->getMessage();
+                \Illuminate\Support\Facades\Log::warning('WebPush test error: ' . $pushError);
+            }
         }
 
-        $statusPush = $subCount > 0
-            ? "Web Push aktif ({$subCount} perangkat)."
-            : 'Perangkat belum terdaftar Web Push (0 perangkat) — pastikan izin notifikasi browser aktif lalu muat ulang halaman.';
+        $statusPush = $pushError
+            ? "Gagal kirim Web Push: {$pushError}"
+            : ($subCount > 0
+                ? "Web Push aktif ({$subCount} perangkat)."
+                : 'Perangkat belum terdaftar Web Push (0 perangkat) — pastikan izin notifikasi browser aktif lalu muat ulang halaman.');
 
         $this->dispatch(
             'notify',
