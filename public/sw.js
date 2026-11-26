@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sakti-pwa-v3';
+const CACHE_NAME = 'sakti-pwa-v4';
 const urlsToCache = [
   '/manifest.json',
   '/manifest-admin.json',

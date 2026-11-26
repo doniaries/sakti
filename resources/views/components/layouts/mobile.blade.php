@@ -722,6 +722,82 @@
         </div>
     </div>
 
+    <!-- PWA Install Banner (muncul saat di browser non-standalone) -->
+    <div id="pwa-install-banner"
+         class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-2rem)] max-w-md bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-sky-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-3.5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+            <img src="{{ asset('icons/icon-192x192.png') }}?v=2" alt="SAKTI" class="w-10 h-10 rounded-xl shrink-0 shadow-sm">
+            <div class="min-w-0">
+                <p class="text-xs font-extrabold text-slate-800 dark:text-white truncate">Pasang SAKTI Mobile</p>
+                <p id="pwa-install-desc" class="text-[11px] text-slate-500 dark:text-zinc-400 truncate">Akses cepat langsung dari layar utama</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" id="pwa-install-btn"
+                    class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm active:scale-95 transition">
+                Pasang
+            </button>
+            <button type="button" id="pwa-install-close" title="Tutup"
+                    class="w-7 h-7 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 flex items-center justify-center text-xs hover:bg-slate-200">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            if (isStandalone) return;
+
+            const banner = document.getElementById('pwa-install-banner');
+            const installBtn = document.getElementById('pwa-install-btn');
+            const closeBtn = document.getElementById('pwa-install-close');
+            const descEl = document.getElementById('pwa-install-desc');
+            if (!banner || !installBtn || !closeBtn) return;
+
+            const showBanner = () => {
+                if (sessionStorage.getItem('sakti_pwa_dismissed') === '1') return;
+                banner.classList.remove('hidden');
+            };
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                window.__saktiInstallPrompt = e;
+                sessionStorage.removeItem('sakti_pwa_dismissed');
+                showBanner();
+            });
+
+            if (window.__saktiInstallPrompt) {
+                showBanner();
+            }
+
+            installBtn.addEventListener('click', async () => {
+                const promptEvent = window.__saktiInstallPrompt;
+                if (promptEvent) {
+                    promptEvent.prompt();
+                    const { outcome } = await promptEvent.userChoice;
+                    window.__saktiInstallPrompt = null;
+                    if (outcome === 'accepted') {
+                        banner.classList.add('hidden');
+                    }
+                } else if (descEl) {
+                    descEl.textContent = 'Buka menu browser (⋮ / Bagikan) lalu pilih "Instal aplikasi" atau "Tambah ke layar utama".';
+                    descEl.classList.remove('truncate');
+                }
+            });
+
+            closeBtn.addEventListener('click', () => {
+                banner.classList.add('hidden');
+                sessionStorage.setItem('sakti_pwa_dismissed', '1');
+            });
+
+            window.addEventListener('appinstalled', () => {
+                window.__saktiInstallPrompt = null;
+                banner.classList.add('hidden');
+            });
+        })();
+    </script>
+
     @livewireScripts
 </body>
 </html>
