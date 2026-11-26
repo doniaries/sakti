@@ -193,17 +193,40 @@
                             - {{ $item->tanggal_selesai->format('d/m/Y') }}
                         @endif
                     </p>
-                    <div x-data="{ previewOpen: false }">
+                    <div x-data="{ previewOpen: false, confirmApproveOpen: false }">
                         <div class="grid grid-cols-2 gap-2">
                             <button type="button" @click="previewOpen = true"
                                 class="py-2 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-500/30 text-xs font-bold text-center transition cursor-pointer">
                                 <i class="fa-solid fa-eye mr-1"></i> Preview
                             </button>
-                            <button type="button" wire:click="approveSuratTugas({{ $item->id }})"
-                                wire:confirm="Setujui dan terbitkan Surat Tugas ini?"
-                                class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition">
+                            <button type="button" @click="confirmApproveOpen = true"
+                                class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer">
                                 <i class="fa-solid fa-check mr-1"></i> Setujui & Terbitkan
                             </button>
+                        </div>
+
+                        <div x-show="confirmApproveOpen" x-cloak
+                            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
+                            <div @click.outside="confirmApproveOpen = false"
+                                class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 shadow-2xl text-center">
+                                <div class="mx-auto w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl mb-3">
+                                    <i class="fa-solid fa-file-signature"></i>
+                                </div>
+                                <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">Setujui &amp; Terbitkan Surat Tugas?</h3>
+                                <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+                                    Surat tugas <strong>{{ $item->nama_kegiatan }}</strong> akan ditandatangani dan diterbitkan.
+                                </p>
+                                <div class="mt-4 grid grid-cols-2 gap-2">
+                                    <button type="button" @click="confirmApproveOpen = false"
+                                        class="py-2.5 rounded-xl bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 text-xs font-bold cursor-pointer">
+                                        Batal
+                                    </button>
+                                    <button type="button" wire:click="approveSuratTugas({{ $item->id }})" @click="confirmApproveOpen = false"
+                                        class="py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md shadow-emerald-600/25 cursor-pointer">
+                                        Ya, Terbitkan
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <x-mobile.rhoe-modal model="previewOpen" :title="$item->nama_kegiatan" :subtitle="$item->nomor_surat ?? 'Draft'">
