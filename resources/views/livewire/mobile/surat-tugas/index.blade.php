@@ -117,6 +117,17 @@
                         </div>
                     @endif
 
+                    <div class="flex flex-wrap items-center gap-2 text-[11px]">
+                        <span class="px-2.5 py-0.5 rounded-full font-bold uppercase {{ $selectedSurat->status === 'terbit' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' }}">
+                            {{ $selectedSurat->status ?? 'draft' }}
+                        </span>
+                        @if ($selectedSurat->creator)
+                            <span class="text-zinc-500 dark:text-zinc-400">
+                                Pengusul: <strong class="text-zinc-700 dark:text-zinc-200">{{ $selectedSurat->creator->name }}</strong>
+                            </span>
+                        @endif
+                    </div>
+
                     <div class="grid grid-cols-2 gap-3 text-xs">
                         <div>
                             <div class="text-zinc-500 dark:text-zinc-400">Tanggal</div>
@@ -134,7 +145,49 @@
                             <div class="text-zinc-500 dark:text-zinc-400">Dasar Surat</div>
                             <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->dasar_surat_undangan ?: '-' }}</div>
                         </div>
+                        @if (filled($selectedSurat->asal_surat_undangan) || $selectedSurat->tanggal_surat_undangan)
+                            <div>
+                                <div class="text-zinc-500 dark:text-zinc-400">Asal Surat</div>
+                                <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->asal_surat_undangan ?: '-' }}</div>
+                            </div>
+                            <div>
+                                <div class="text-zinc-500 dark:text-zinc-400">Tgl. Surat</div>
+                                <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->tanggal_surat_undangan?->format('d/m/Y') ?: '-' }}</div>
+                            </div>
+                        @endif
+                        @if (filled($selectedSurat->keterangan))
+                            <div class="col-span-2">
+                                <div class="text-zinc-500 dark:text-zinc-400">Keterangan</div>
+                                <div class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $selectedSurat->keterangan }}</div>
+                            </div>
+                        @endif
                     </div>
+
+                    @php
+                        $pjNames = !empty($selectedSurat->penanggung_jawab_ids)
+                            ? \App\Models\User::whereIn('id', $selectedSurat->penanggung_jawab_ids)->pluck('name')
+                            : collect();
+                    @endphp
+                    @if ($pjNames->isNotEmpty())
+                        <div>
+                            <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Penanggung Jawab ({{ $pjNames->count() }})</div>
+                            <div class="flex flex-wrap gap-1.5">
+                                @foreach ($pjNames as $pjName)
+                                    <span class="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-500/15 text-xs font-medium text-sky-700 dark:text-sky-300">{{ $pjName }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (filled($selectedSurat->bukti_surat_undangan))
+                        <div>
+                            <a href="{{ asset('storage/' . $selectedSurat->bukti_surat_undangan) }}" target="_blank"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
+                                <i class="fa-solid fa-paperclip text-sky-500"></i>
+                                <span>Lihat Lampiran Undangan</span>
+                            </a>
+                        </div>
+                    @endif
 
                     <div>
                         <div class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5">Personil Tim Kreatif ({{ $selectedSurat->pegawais->count() }})</div>
