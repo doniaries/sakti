@@ -797,7 +797,18 @@ class Profil extends Component
             return;
         }
 
-        $subscribers = User::whereHas('pushSubscriptions')->get();
+        $isSimulasi = (bool) (\App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi ?? false);
+
+        $subscribersQuery = User::whereHas('pushSubscriptions');
+        $fcmUsersQuery = User::whereNotNull('fcm_token')->where('fcm_token', '!=', '');
+
+        if ($isSimulasi) {
+            $subscribersQuery->role(['super_admin', 'superadmin']);
+            $fcmUsersQuery->role(['super_admin', 'superadmin']);
+        }
+
+        $subscribers = $subscribersQuery->get();
+        $fcmUsers = $fcmUsersQuery->get();
         $totalDevices = 0;
 
         foreach ($subscribers as $subscriber) {
@@ -809,9 +820,20 @@ class Profil extends Component
             );
         }
 
-        $statusPush = $subscribers->isNotEmpty()
-            ? "Terkirim ke {$subscribers->count()} user ({$totalDevices} perangkat)."
-            : 'Belum ada perangkat terdaftar Web Push (0 perangkat).';
+        if ($fcmUsers->isNotEmpty()) {
+            \App\Services\PushNotificationService::sendToUsers(
+                $fcmUsers,
+                'Tes Notifikasi SAKTI',
+                'Notifikasi Push Android berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
+                ['url' => route('mobile.dashboard')],
+                'info'
+            );
+        }
+
+        $totalFcm = $fcmUsers->count();
+        $statusPush = ($subscribers->isNotEmpty() || $totalFcm > 0)
+            ? "Terkirim ke {$totalDevices} perangkat Web Push & {$totalFcm} perangkat Android FCM."
+            : 'Belum ada perangkat terdaftar Web Push / FCM (0 perangkat).';
 
         $this->dispatch(
             'notify',
