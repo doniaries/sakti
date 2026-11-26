@@ -41,9 +41,9 @@ class AttendancePunchService
         $officeLng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
         $maxRadius = (int) ($pengaturan->radius_meter ?? 150);
 
-        $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
-        $isSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
-        $bypass = $force || $isSimulasi;
+        $isSuperAdmin = $user->hasAnyRole(['super_admin', 'superadmin']);
+        $isSimulasi = $isSuperAdmin && (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
+        $bypass = ($isSuperAdmin && $force) || $isSimulasi;
 
         $today = Carbon::today()->format('Y-m-d');
         $now = ($isSimulasi && ! empty($pengaturan->simulasi_jam_aktif))

@@ -30,6 +30,7 @@ class CetakLaporanController extends Controller
         $status = $request->query('status', 'semua');
 
         $query = AbsensiHarian::where('user_id', $user->id)
+            ->where('is_simulasi', false)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun);
 
@@ -48,6 +49,7 @@ class CetakLaporanController extends Controller
         $riwayat = $query->orderBy('tanggal', 'asc')->get();
 
         $allBulanIni = AbsensiHarian::where('user_id', $user->id)
+            ->where('is_simulasi', false)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->get();

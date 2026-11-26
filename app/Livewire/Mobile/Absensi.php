@@ -31,7 +31,7 @@ class Absensi extends Component
     {
         /** @var User|null $user */
         $user = Auth::user();
-        if (! $this->modeSimulasi || ! $user || ! $user->hasAnyRole(['super_admin', 'admin'])) {
+        if (! $this->modeSimulasi || ! $user || ! $user->hasAnyRole(['super_admin', 'superadmin'])) {
             return;
         }
 
@@ -43,9 +43,12 @@ class Absensi extends Component
 
     public function mount()
     {
+        /** @var User|null $user */
+        $user = Auth::user();
+        $isSuperAdmin = $user && $user->hasAnyRole(['super_admin', 'superadmin']);
         $pengaturan = PengaturanAplikasi::getPengaturan();
-        $this->modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
-        $this->simulasiJamAktif = $pengaturan->simulasi_jam_aktif ?: null;
+        $this->modeSimulasi = $isSuperAdmin && (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
+        $this->simulasiJamAktif = $isSuperAdmin ? ($pengaturan->simulasi_jam_aktif ?: null) : null;
     }
 
     /**
@@ -132,7 +135,7 @@ class Absensi extends Component
     {
         /** @var User $user */
         $user = Auth::user();
-        if (!$user->hasAnyRole(['super_admin', 'admin'])) {
+        if (!$user->hasAnyRole(['super_admin', 'superadmin'])) {
             return;
         }
 
@@ -153,7 +156,7 @@ class Absensi extends Component
     {
         /** @var User $user */
         $user = Auth::user();
-        if (!$user->hasAnyRole(['super_admin', 'admin'])) {
+        if (!$user->hasAnyRole(['super_admin', 'superadmin'])) {
             return;
         }
 
@@ -183,7 +186,7 @@ class Absensi extends Component
     {
         /** @var User $user */
         $user = Auth::user();
-        if (!$user->hasAnyRole(['super_admin', 'admin'])) {
+        if (!$user->hasAnyRole(['super_admin', 'superadmin'])) {
             return;
         }
 
@@ -251,7 +254,7 @@ class Absensi extends Component
     {
         /** @var User $user */
         $user = Auth::user();
-        if (!$user->hasAnyRole(['super_admin', 'admin'])) {
+        if (!$user->hasAnyRole(['super_admin', 'superadmin'])) {
             return;
         }
 
