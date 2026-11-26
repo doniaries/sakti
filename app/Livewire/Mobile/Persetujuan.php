@@ -19,17 +19,20 @@ use Livewire\Component;
 class Persetujuan extends Component
 {
     public string $tab = 'izin';
+    public bool $hasExplicitTab = false;
 
     public function mount(): void
     {
         $requestedTab = (string) request()->query('tab', '');
         if (in_array($requestedTab, ['izin', 'lhk', 'spj', 'surat_tugas'], true)) {
             $this->tab = $requestedTab;
+            $this->hasExplicitTab = true;
         }
     }
 
     public function setTab(string $tab): void
     {
+        $this->hasExplicitTab = true;
         $this->tab = in_array($tab, ['izin', 'lhk', 'spj', 'surat_tugas'], true) ? $tab : 'izin';
     }
 
@@ -242,6 +245,16 @@ class Persetujuan extends Component
                 ->get()
             : collect();
 
+        if (! $this->hasExplicitTab && $this->tab === 'izin' && $izinList->isEmpty()) {
+            if ($lhkList->isNotEmpty()) {
+                $this->tab = 'lhk';
+            } elseif ($spjList->isNotEmpty()) {
+                $this->tab = 'spj';
+            } elseif ($suratTugasList->isNotEmpty()) {
+                $this->tab = 'surat_tugas';
+            }
+        }
+
         $hasStatusVerifikasi = $lhkEnabled && Schema::hasColumn('lhk_pekerjaans', 'status_verifikasi');
         $lhkList = $hasStatusVerifikasi
             ? LhkPekerjaan::with(['lhk.user', 'aktivitas'])
@@ -251,6 +264,16 @@ class Persetujuan extends Component
                 ->limit(25)
                 ->get()
             : collect();
+
+        if (! $this->hasExplicitTab && $this->tab === 'izin' && $izinList->isEmpty()) {
+            if ($lhkList->isNotEmpty()) {
+                $this->tab = 'lhk';
+            } elseif ($spjList->isNotEmpty()) {
+                $this->tab = 'spj';
+            } elseif ($suratTugasList->isNotEmpty()) {
+                $this->tab = 'surat_tugas';
+            }
+        }
 
         $spjStatuses = [];
         if ($user?->hasRole('super_admin')) {
@@ -295,6 +318,16 @@ class Persetujuan extends Component
                 ->limit(25)
                 ->get()
             : collect();
+
+        if (! $this->hasExplicitTab && $this->tab === 'izin' && $izinList->isEmpty()) {
+            if ($lhkList->isNotEmpty()) {
+                $this->tab = 'lhk';
+            } elseif ($spjList->isNotEmpty()) {
+                $this->tab = 'spj';
+            } elseif ($suratTugasList->isNotEmpty()) {
+                $this->tab = 'surat_tugas';
+            }
+        }
 
         if (! request()->query('tab')) {
             if ($this->tab === 'izin' && $izinList->isEmpty()) {
