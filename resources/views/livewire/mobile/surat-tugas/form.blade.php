@@ -213,22 +213,6 @@
                 @error('penanggung_jawab_ids') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
-            <div>
-                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Pejabat Penandatangan (Sekretaris / Kabid)
-                </label>
-                <select wire:model="penandatangan_id"
-                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
-                    <option value="">-- Otomatis Kepala Dinas (Default) --</option>
-                    @foreach ($penandatangans as $ttd)
-                        <option value="{{ $ttd->id }}">
-                            {{ $ttd->name }}{{ $ttd->jabatan?->nama ? ' (' . $ttd->jabatan->nama . ')' : '' }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('penandatangan_id') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
-            </div>
-
             <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
                 <div class="flex items-center justify-between mb-1.5">
                     <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Personil Tim Kreatif</label>
@@ -277,6 +261,61 @@
                 <textarea wire:model="keterangan" rows="3" placeholder="Catatan tambahan (opsional)..."
                     class="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all"></textarea>
                 @error('keterangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    Pejabat Penandatangan (Sekretaris / Kabid)
+                </label>
+                @php
+                    $selectedTtd = $penandatangans->firstWhere('id', $penandatangan_id);
+                @endphp
+                <button type="button" @click="open = !open"
+                    class="w-full min-h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-left flex items-center justify-between gap-2">
+                    <div class="min-w-0">
+                        @if ($selectedTtd)
+                            <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $selectedTtd->name }}</div>
+                            @if ($selectedTtd->jabatan?->nama)
+                                <div class="text-[10px] text-zinc-400 truncate">{{ $selectedTtd->jabatan->nama }}</div>
+                            @endif
+                        @else
+                            <span class="text-sm text-zinc-400">Otomatis Kepala Dinas (Default)</span>
+                        @endif
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-xs text-zinc-400 shrink-0"></i>
+                </button>
+                <div x-show="open"
+                    x-effect="if (open) $nextTick(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }))"
+                    x-transition.opacity.duration.150ms style="display: none;"
+                    class="mt-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2.5 shadow-xl">
+                    <input type="search" x-model="q" placeholder="Cari nama atau jabatan..."
+                        class="w-full h-9 mb-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100 outline-none focus:border-teal-500">
+                    <div class="max-h-60 overflow-y-auto space-y-1">
+                        <label @click="$wire.set('penandatangan_id', null); open = false"
+                            class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/70 cursor-pointer">
+                            <input type="radio" name="penandatangan_id_radio" @checked(! $penandatangan_id)
+                                class="border-zinc-300 text-teal-600 focus:ring-teal-500">
+                            <div class="min-w-0">
+                                <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Otomatis Kepala Dinas (Default)</div>
+                            </div>
+                        </label>
+                        @foreach ($penandatangans as $ttd)
+                            <label x-show="!q || '{{ strtolower($ttd->name . ' ' . ($ttd->jabatan?->nama ?? '')) }}'.includes(q.toLowerCase())"
+                                @click="$wire.set('penandatangan_id', {{ $ttd->id }}); open = false"
+                                class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/70 cursor-pointer">
+                                <input type="radio" name="penandatangan_id_radio" @checked((int) $penandatangan_id === (int) $ttd->id)
+                                    class="border-zinc-300 text-teal-600 focus:ring-teal-500">
+                                <div class="min-w-0">
+                                    <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $ttd->name }}</div>
+                                    @if ($ttd->jabatan?->nama)
+                                        <div class="text-[10px] text-zinc-400 truncate">{{ $ttd->jabatan->nama }}</div>
+                                    @endif
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+                @error('penandatangan_id') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
 
