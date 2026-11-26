@@ -35,14 +35,14 @@
         <div class="flex flex-col items-center text-center">
             <!-- Dual Emblem Pill -->
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/20 backdrop-blur-md mb-3">
-                <img src="{{ asset('images/logo-kabupaten.png') }}" alt="Kab. Sijunjung" class="w-5 h-5 object-contain">
+                <img src="{{ asset('images/logo-kabupaten.png') }}" alt="Kab. Sijunjung" width="20" height="20" style="width:20px;height:20px" class="w-5 h-5 object-contain">
                 <span class="w-px h-3.5 bg-white/30"></span>
-                <img src="{{ asset('images/geopark-silokek.png') }}" alt="Geopark Silokek" class="w-5 h-5 object-contain rounded-full">
+                <img src="{{ asset('images/geopark-silokek.png') }}" alt="Geopark Silokek" width="20" height="20" style="width:20px;height:20px" class="w-5 h-5 object-contain rounded-full">
             </div>
 
             <!-- SAKTI Circle Logo -->
-            <div class="w-16 h-16 rounded-full bg-[#0A192F] border-2 border-white/30 shadow-xl overflow-hidden flex items-center justify-center mb-2.5">
-                <img src="{{ asset('icons/icon-192x192.png') }}?v=2" alt="SAKTI" class="w-full h-full object-cover">
+            <div class="w-16 h-16 rounded-full bg-[#0A192F] border-2 border-white/30 shadow-xl overflow-hidden flex items-center justify-center mb-2.5" style="width:64px;height:64px">
+                <img src="{{ asset('icons/icon-192x192.png') }}?v=2" alt="SAKTI" width="64" height="64" style="width:64px;height:64px" class="w-full h-full object-cover">
             </div>
 
             <span class="inline-block px-3 py-0.5 rounded-full bg-white/15 border border-white/25 text-sky-100 text-[10px] font-extrabold uppercase tracking-wider mb-1">
@@ -120,7 +120,7 @@
             <div class="w-10 h-1 bg-slate-200 dark:bg-zinc-700 rounded-full mx-auto mb-4 sm:hidden"></div>
 
             <div class="flex items-center gap-3 mb-4">
-                <img src="{{ asset('images/logo-kabupaten.png') }}" alt="Logo" class="w-9 h-9 rounded-xl object-contain bg-slate-100 dark:bg-zinc-800 p-1">
+                <img src="{{ asset('images/logo-kabupaten.png') }}" alt="Logo" width="36" height="36" style="width:36px;height:36px" class="w-9 h-9 rounded-xl object-contain bg-slate-100 dark:bg-zinc-800 p-1">
                 <div>
                     <h3 class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">Masuk ke Akun Pegawai</h3>
                     <p class="text-xs text-slate-500 dark:text-zinc-400">Gunakan email kedinasan atau akun Google</p>
