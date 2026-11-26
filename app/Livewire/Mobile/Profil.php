@@ -776,30 +776,25 @@ class Profil extends Component
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if (! $user) {
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'superadmin'])) {
             return;
         }
 
-        $subCount = $user->pushSubscriptions()->count();
-        $pushError = null;
-        if (config('webpush.vapid.public_key') && $subCount > 0) {
-            try {
-                $user->notify(new \App\Notifications\WebPushNotification(
-                    'Tes Notifikasi SAKTI',
-                    'Notifikasi Web Push berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
-                    route('mobile.dashboard')
-                ));
-            } catch (\Throwable $e) {
-                $pushError = $e->getMessage();
-                \Illuminate\Support\Facades\Log::warning('WebPush test error: ' . $pushError);
-            }
+        $subscribers = User::whereHas('pushSubscriptions')->get();
+        $totalDevices = 0;
+
+        foreach ($subscribers as $subscriber) {
+            $totalDevices += $subscriber->pushSubscriptions()->count();
+            $subscriber->sendWebPush(
+                'Tes Notifikasi SAKTI',
+                'Notifikasi Web Push berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
+                route('mobile.dashboard')
+            );
         }
 
-        $statusPush = $pushError
-            ? "Gagal kirim Web Push: {$pushError}"
-            : ($subCount > 0
-                ? "Web Push aktif ({$subCount} perangkat)."
-                : 'Perangkat belum terdaftar Web Push (0 perangkat) — pastikan izin notifikasi browser aktif lalu muat ulang halaman.');
+        $statusPush = $subscribers->isNotEmpty()
+            ? "Terkirim ke {$subscribers->count()} user ({$totalDevices} perangkat)."
+            : 'Belum ada perangkat terdaftar Web Push (0 perangkat).';
 
         $this->dispatch(
             'notify',
