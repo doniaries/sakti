@@ -48,7 +48,7 @@ class Form extends Component
         if ($suratTugas && $suratTugas->exists) {
             if ($suratTugas->status === 'terbit') {
                 session()->flash('error', 'Surat Tugas yang sudah terbit tidak dapat diedit.');
-                $this->redirect(route('mobile.surat-tugas.index'), navigate: true);
+                $this->redirectRoute('mobile.surat-tugas.index');
                 return;
             }
 
@@ -139,7 +139,7 @@ class Form extends Component
             session()->flash('success', 'Surat Tugas berhasil dibuat.');
         }
 
-        $this->redirect(route('mobile.surat-tugas.index'), navigate: true);
+        $this->redirectRoute('mobile.surat-tugas.index');
     }
 
     public function render(): View
