@@ -877,7 +877,6 @@ class Profil extends Component
                     ->where('name', 'like', '%' . $this->impersonateSearch . '%')
                     ->orWhere('nip', 'like', '%' . $this->impersonateSearch . '%')))
                 ->orderBy('name')
-                ->limit(15)
                 ->get(['id', 'name', 'nip'])
             : collect();
 
