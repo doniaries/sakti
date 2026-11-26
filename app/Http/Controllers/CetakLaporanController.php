@@ -150,4 +150,32 @@ class CetakLaporanController extends Controller
             ? $pdf->download($namaFile)
             : $pdf->stream($namaFile);
     }
+
+    public function cetakPegawaiBelumLengkap()
+    {
+        /** @var \App\Models\User|null $authUser */
+        $authUser = Auth::user();
+        abort_unless($authUser && $authUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']), 403);
+
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $pegawais = \App\Models\User::query()
+            ->with(['bidang:id,nama', 'jabatan:id,nama'])
+            ->where('aktif', true)
+            ->where(function ($q) {
+                $q->whereNull('nip')->orWhere('nip', '')
+                    ->orWhereNull('nik')->orWhere('nik', '')
+                    ->orWhereNull('no_hp')->orWhere('no_hp', '')
+                    ->orWhereNull('bidang_id')
+                    ->orWhereNull('jabatan_id')
+                    ->orWhereNull('status_kepegawaian');
+            })
+            ->orderBy('name')
+            ->get();
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pegawai-belum-lengkap', [
+            'pegawais' => $pegawais,
+            'pengaturan' => $pengaturan,
+            'dicetakOleh' => $authUser,
+        ])->setPaper('a4', 'portrait')->stream('laporan-pegawai-belum-lengkap.pdf');
+    }
 }

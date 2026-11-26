@@ -50,6 +50,32 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             \Illuminate\Support\Facades\Log::warning('WebPush error: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Daftar field kepegawaian pokok yang belum diisi oleh pegawai.
+     *
+     * @return array<int, string>
+     */
+    public function missingKepegawaianFields(): array
+    {
+        $fields = [
+            'nip' => 'NIP',
+            'nik' => 'NIK',
+            'no_hp' => 'No. HP',
+            'bidang_id' => 'Bidang',
+            'jabatan_id' => 'Jabatan',
+            'status_kepegawaian' => 'Status Kepegawaian',
+        ];
+
+        $missing = [];
+        foreach ($fields as $column => $label) {
+            if (blank($this->{$column})) {
+                $missing[] = $label;
+            }
+        }
+
+        return $missing;
+    }
     use SoftDeletes;
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use DeletesOldFiles, HasApiTokens, HasFactory, Notifiable, HasRoles;

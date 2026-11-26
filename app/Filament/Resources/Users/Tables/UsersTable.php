@@ -362,10 +362,44 @@ class UsersTable
                                     ->send();
                             })
                     ),
+                \Filament\Tables\Columns\TextColumn::make('kelengkapan_data')
+                    ->label('Kelengkapan')
+                    ->badge()
+                    ->state(function (\App\Models\User $record): string {
+                        $missing = $record->missingKepegawaianFields();
+                        return $missing === [] ? 'Lengkap' : 'Kurang ' . count($missing) . ' data';
+                    })
+                    ->color(fn (string $state): string => $state === 'Lengkap' ? 'success' : 'danger')
+                    ->description(function (\App\Models\User $record): ?string {
+                        $missing = $record->missingKepegawaianFields();
+                        return $missing === [] ? null : implode(', ', $missing);
+                    })
+                    ->wrap(),
                 \Filament\Tables\Columns\ToggleColumn::make('aktif')
                     ->disabled(fn(): bool => ! (Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)),
             ])
             ->filters([
+                \Filament\Tables\Filters\TernaryFilter::make('kelengkapan_data')
+                    ->label('Kelengkapan Data Kepegawaian')
+                    ->placeholder('Semua Pegawai')
+                    ->trueLabel('Sudah Lengkap')
+                    ->falseLabel('Belum Lengkap')
+                    ->queries(
+                        true: fn ($query) => $query->whereNotNull('nip')->where('nip', '!=', '')
+                            ->whereNotNull('nik')->where('nik', '!=', '')
+                            ->whereNotNull('no_hp')->where('no_hp', '!=', '')
+                            ->whereNotNull('bidang_id')
+                            ->whereNotNull('jabatan_id')
+                            ->whereNotNull('status_kepegawaian'),
+                        false: fn ($query) => $query->where(function ($q) {
+                            $q->whereNull('nip')->orWhere('nip', '')
+                                ->orWhereNull('nik')->orWhere('nik', '')
+                                ->orWhereNull('no_hp')->orWhere('no_hp', '')
+                                ->orWhereNull('bidang_id')
+                                ->orWhereNull('jabatan_id')
+                                ->orWhereNull('status_kepegawaian');
+                        }),
+                    ),
                 SelectFilter::make('status_kepegawaian')
                     ->label('Status Kepegawaian')
                     ->options(\App\Enums\StatusKepegawaian::class),
@@ -1053,6 +1087,51 @@ class UsersTable
                 ]),
             ])
             ->headerActions([
+                Action::make('cetak_belum_lengkap')
+                    ->label('Laporan Belum Lengkap')
+                    ->icon('heroicon-o-printer')
+                    ->color('warning')
+                    ->url(route('pegawai.cetak-belum-lengkap'), shouldOpenInNewTab: true)
+                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']) ?? false),
+                Action::make('ingatkan_belum_lengkap')
+                    ->label('Ingatkan Pegawai')
+                    ->icon('heroicon-o-bell-alert')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Kirim Pengingat Data Kepegawaian')
+                    ->modalDescription('Kirim notifikasi ke semua pegawai aktif yang data kepegawaiannya belum lengkap?')
+                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian']) ?? false)
+                    ->action(function (): void {
+                        $targets = \App\Models\User::query()
+                            ->where('aktif', true)
+                            ->where(function ($q) {
+                                $q->whereNull('nip')->orWhere('nip', '')
+                                    ->orWhereNull('nik')->orWhere('nik', '')
+                                    ->orWhereNull('no_hp')->orWhere('no_hp', '')
+                                    ->orWhereNull('bidang_id')
+                                    ->orWhereNull('jabatan_id')
+                                    ->orWhereNull('status_kepegawaian');
+                            })
+                            ->get();
+
+                        if ($targets->isEmpty()) {
+                            Notification::make()->title('Semua pegawai sudah melengkapi data.')->success()->send();
+                            return;
+                        }
+
+                        \App\Services\PushNotificationService::sendToUsers(
+                            $targets,
+                            'Lengkapi Data Kepegawaian',
+                            'Mohon segera melengkapi profil kepegawaian Anda (NIP, NIK, No. HP, Bidang, Jabatan) di menu Profil.',
+                            ['url' => route('mobile.profil')],
+                            'warning'
+                        );
+
+                        Notification::make()
+                            ->title("Pengingat dikirim ke {$targets->count()} pegawai.")
+                            ->success()
+                            ->send();
+                    }),
                 CreateAction::make()
                     ->label('Tambah Pegawai')
                     ->icon('heroicon-o-user-plus')
