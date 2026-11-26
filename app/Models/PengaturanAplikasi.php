@@ -12,6 +12,8 @@ class PengaturanAplikasi extends Model
     protected $table = 'pengaturan_aplikasis';
 
     protected $fillable = [
+        'app_version',
+        'update_notes',
         'nama_aplikasi',
         'sub_nama',
         'nama_dinas',
