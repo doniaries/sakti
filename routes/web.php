@@ -37,6 +37,25 @@ Route::get('/verifikasi-surat-tugas/{kode?}', [\App\Http\Controllers\SuratTugasP
 Route::get('/verifikasi-izin/{kode?}', [\App\Http\Controllers\CetakLaporanController::class, 'verifikasiIzin'])
     ->name('pengajuan-izin.verifikasi');
 
+Route::get('/mobile/google-native', function (\Illuminate\Http\Request $request) {
+    $idToken = (string) $request->query('id_token', '');
+    if ($idToken === '') {
+        return redirect()->route('mobile.login');
+    }
+    $res = \Illuminate\Support\Facades\Http::get('https://oauth2.googleapis.com/tokeninfo', ['id_token' => $idToken]);
+    if (! $res->ok()) {
+        return redirect()->route('mobile.login')->with('notify', ['type' => 'error', 'title' => 'Gagal Masuk', 'message' => 'Token Google tidak valid.']);
+    }
+    $email = strtolower((string) ($res->json('email') ?? ''));
+    $user = \App\Models\User::findByLoginEmail($email);
+    if (! $user || ! $user->aktif) {
+        return redirect()->route('mobile.login')->with('notify', ['type' => 'error', 'title' => 'Gagal Masuk', 'message' => 'Akun Google belum terdaftar atau nonaktif.']);
+    }
+    \Illuminate\Support\Facades\Auth::login($user, true);
+    $request->session()->regenerate();
+    return redirect()->route('mobile.dashboard');
+})->name('mobile.google-native');
+
 Route::prefix('mobile')->group(function () {
     Route::get('/login', Login::class)->name('mobile.login');
     Route::get('/masuk', Login::class)->name('login');

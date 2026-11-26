@@ -248,6 +248,7 @@
                     <span class="flex-1 h-px bg-slate-200 dark:bg-zinc-800"></span>
                 </div>
                 <a href="{{ route('auth.google') }}"
+                    @click="if (window.SaktiNative) { $event.preventDefault(); window.SaktiNative.postMessage('google_login'); }"
                     class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-sky-600 dark:text-sky-400 text-xs font-bold flex items-center justify-center gap-2">
                     <i class="fa-brands fa-google text-rose-500"></i>
                     <span>Masuk dengan Akun Google</span>
