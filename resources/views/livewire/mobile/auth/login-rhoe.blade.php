@@ -161,16 +161,10 @@
             </div>
         @endif
 
-        <div class="mt-3 flex items-center gap-2.5 shrink-0">
-            <button type="button" @click="loginSheet = true"
-                class="flex-1 py-3.5 px-5 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm shadow-lg shadow-sky-600/25 active:scale-[0.98] transition cursor-pointer">
-                Login
-            </button>
-            <button type="button" x-show="bioEnabled" @click="biometricLogin()" title="Masuk Cepat dengan Sidik Jari"
-                class="w-14 h-[48px] rounded-2xl bg-white dark:bg-zinc-900 border border-sky-200 dark:border-zinc-700 text-[#0284C7] dark:text-sky-400 shadow-md flex items-center justify-center text-xl active:scale-95 transition cursor-pointer shrink-0">
-                <i class="fa-solid fa-fingerprint"></i>
-            </button>
-        </div>
+        <button type="button" @click="loginSheet = true"
+            class="mt-3 w-full py-3.5 px-5 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm shadow-lg shadow-sky-600/25 active:scale-[0.98] transition cursor-pointer shrink-0">
+            Login
+        </button>
     </div>
 
     <!-- Bottom Sheet Login Modal -->
