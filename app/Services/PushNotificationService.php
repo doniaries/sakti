@@ -75,7 +75,7 @@ class PushNotificationService
             return;
         }
 
-        $tokens = array_values(array_filter(array_map(fn (User $u) => $u->fcm_token, $recipients)));
+        $tokens = array_values(array_unique(array_filter(array_map(fn (User $u) => $u->fcm_token, $recipients))));
         if ($tokens === []) {
             return;
         }
