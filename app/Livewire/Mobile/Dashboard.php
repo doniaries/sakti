@@ -283,7 +283,7 @@ class Dashboard extends Component
 
         $tema = request()->query('tema', $pengaturan->portal_theme ?? 'default');
 
-        return view($tema === 'rhoe' ? 'livewire.mobile.dashboard-rhoe' : 'livewire.mobile.dashboard', [
+        return view('livewire.mobile.dashboard-rhoe', [
             'user' => $user,
             'hariLiburHariIni' => $hariLiburHariIni,
             'unreadNotifCount' => $unreadNotifCount,
