@@ -65,30 +65,33 @@
         </div>
     </div>
 
-    <!-- Bottom Content: Hari Besar Card + Login Button -->
+    <!-- Bottom Content: Hari Besar Card / Random Illustration + Login Button -->
     <div class="flex-1 px-5 py-5 flex flex-col justify-between max-w-md mx-auto w-full">
-        <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 shadow-sm text-center">
-            <div class="rounded-2xl bg-sky-50/80 dark:bg-sky-500/10 border border-sky-100 dark:border-sky-500/20 py-5 px-4 mb-4">
-                <div class="mx-auto w-14 h-14 rounded-full bg-sky-600 text-white flex items-center justify-center text-xl shadow-md mb-2.5">
-                    <i class="fa-solid fa-calendar-day"></i>
+        @if (($hariLiburHariIni ?? null) || ($hariLiburTerdekat ?? null))
+            @php
+                $holidayItem = ($hariLiburHariIni ?? null) ?: ($hariLiburTerdekat ?? null);
+            @endphp
+            <div class="rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 shadow-sm text-center">
+                <div class="rounded-2xl bg-sky-50/80 dark:bg-sky-500/10 border border-sky-100 dark:border-sky-500/20 py-5 px-4 mb-4">
+                    <div class="mx-auto w-14 h-14 rounded-full bg-sky-600 text-white flex items-center justify-center text-xl shadow-md mb-2.5">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div class="text-xs font-semibold text-slate-600 dark:text-zinc-300" x-text="tanggal"></div>
                 </div>
-                <div class="text-xs font-semibold text-slate-600 dark:text-zinc-300" x-text="tanggal"></div>
-            </div>
 
-            @if ($hariLiburHariIni ?? null)
                 <span class="inline-block px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider">
-                    {{ \Carbon\Carbon::parse($hariLiburHariIni->tanggal)->translatedFormat('l, d F Y') }}
+                    {{ \Carbon\Carbon::parse($holidayItem->tanggal)->translatedFormat('l, d F Y') }}
                 </span>
-                <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">{{ $hariLiburHariIni->nama }}</h2>
-            @elseif ($hariLiburTerdekat ?? null)
-                <span class="inline-block px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider">
-                    {{ \Carbon\Carbon::parse($hariLiburTerdekat->tanggal)->translatedFormat('l, d F Y') }}
-                </span>
-                <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">{{ $hariLiburTerdekat->nama }}</h2>
-            @else
-                <p class="text-xs font-semibold text-slate-500 dark:text-zinc-400">Tidak ada hari peringatan / libur terdekat.</p>
-            @endif
-        </div>
+                <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">{{ $holidayItem->nama }}</h2>
+            </div>
+        @else
+            @php
+                $randomImg = asset('images/login-bg/' . rand(1, 3) . '.jpg');
+            @endphp
+            <div class="flex-1 flex items-center justify-center py-2">
+                <img src="{{ $randomImg }}" alt="Ilustrasi Sijunjung" class="w-full max-h-60 object-contain rounded-2xl">
+            </div>
+        @endif
 
         <button type="button" @click="loginSheet = true"
             class="mt-5 w-full py-3.5 px-5 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm shadow-lg shadow-sky-600/25 active:scale-[0.98] transition cursor-pointer">
