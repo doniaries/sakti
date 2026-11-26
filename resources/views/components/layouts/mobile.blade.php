@@ -181,17 +181,20 @@
             transition: background-color 0.2s ease, color 0.2s ease, max-width 0.2s ease;
         }
         @media (min-width: 640px) {
-            .mobile-container {
+            .mobile-container,
+            .bottom-nav {
                 max-width: 640px;
             }
         }
         @media (min-width: 768px) {
-            .mobile-container {
+            .mobile-container,
+            .bottom-nav {
                 max-width: 768px;
             }
         }
         @media (min-width: 1024px) {
-            .mobile-container {
+            .mobile-container,
+            .bottom-nav {
                 max-width: 960px;
             }
         }
