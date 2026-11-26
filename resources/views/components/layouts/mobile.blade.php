@@ -54,6 +54,45 @@
                 navigator.serviceWorker.register('/sw.js').catch(function () {});
             });
         }
+
+        // Native Android/PWA Status Bar Notification Bridge
+        (function () {
+            if (!('Notification' in window)) return;
+
+            const requestNotifPermission = () => {
+                if (Notification.permission === 'default') {
+                    Notification.requestPermission().catch(() => {});
+                }
+            };
+            window.addEventListener('click', requestNotifPermission, { once: true, passive: true });
+            window.addEventListener('touchstart', requestNotifPermission, { once: true, passive: true });
+
+            window.addEventListener('notify', (event) => {
+                const detail = event.detail || {};
+                const title = detail.title || 'SAKTI Mobile';
+                const body = detail.message || '';
+                if (!body || Notification.permission !== 'granted') return;
+
+                const options = {
+                    body: body,
+                    icon: '/icons/icon-192x192.png?v=2',
+                    badge: '/icons/icon-192x192.png?v=2',
+                    vibrate: [150, 80, 150],
+                    tag: 'sakti-notif-' + Date.now(),
+                    renotify: true
+                };
+
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.ready
+                        .then((reg) => reg.showNotification(title, options))
+                        .catch(() => {
+                            try { new Notification(title, options); } catch (e) {}
+                        });
+                } else {
+                    try { new Notification(title, options); } catch (e) {}
+                }
+            });
+        })();
     </script>
     
     <style>
