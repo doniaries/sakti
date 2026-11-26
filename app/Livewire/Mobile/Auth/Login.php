@@ -62,7 +62,17 @@ class Login extends Component
     {
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $tema = request()->query('tema', $pengaturan->portal_theme ?? 'default');
+        $hariLiburHariIni = \App\Models\HariLibur::whereDate('tanggal', today())->first();
+        $hariLiburTerdekat = $hariLiburHariIni
+            ? null
+            : \App\Models\HariLibur::whereDate('tanggal', '>', today())
+                ->whereDate('tanggal', '<=', today()->addDays(7))
+                ->orderBy('tanggal')
+                ->first();
 
-        return view($tema === 'rhoe' ? 'livewire.mobile.auth.login-rhoe' : 'livewire.mobile.auth.login');
+        return view($tema === 'rhoe' ? 'livewire.mobile.auth.login-rhoe' : 'livewire.mobile.auth.login', [
+            'hariLiburHariIni' => $hariLiburHariIni,
+            'hariLiburTerdekat' => $hariLiburTerdekat,
+        ]);
     }
 }

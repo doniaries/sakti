@@ -84,6 +84,26 @@
         </div>
 
         <!-- Feedback Alert Banner -->
+        @if ($hariLiburHariIni ?? null)
+            <div class="mb-4 p-3.5 rounded-2xl border bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30 text-center">
+                <span class="inline-block px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider mb-1">
+                    Hari Ini &bull; {{ \Carbon\Carbon::parse($hariLiburHariIni->tanggal)->translatedFormat('d F Y') }}
+                </span>
+                <div class="text-sm font-extrabold text-zinc-900 dark:text-white">{{ $hariLiburHariIni->nama }}</div>
+            </div>
+        @elseif ($hariLiburTerdekat ?? null)
+            @php
+                $sisaHari = (int) today()->diffInDays(\Carbon\Carbon::parse($hariLiburTerdekat->tanggal));
+            @endphp
+            <div class="mb-4 p-3.5 rounded-2xl border bg-sky-50/70 dark:bg-sky-500/10 border-sky-200/80 dark:border-sky-500/30 text-center">
+                <span class="inline-block px-2.5 py-0.5 rounded-full bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider mb-1">
+                    Menuju Hari Besar ({{ $sisaHari }} Hari Lagi)
+                </span>
+                <div class="text-sm font-extrabold text-zinc-900 dark:text-white">{{ $hariLiburTerdekat->nama }}</div>
+                <div class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">{{ \Carbon\Carbon::parse($hariLiburTerdekat->tanggal)->translatedFormat('l, d F Y') }}</div>
+            </div>
+        @endif
+
         @if (session('notify'))
             @php
                 $notify = session('notify');
