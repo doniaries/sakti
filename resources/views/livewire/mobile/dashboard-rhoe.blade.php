@@ -446,6 +446,19 @@
             @forelse ($recentNotifications as $notif)
                 @php
                     $notifUrl = $notif->data['url'] ?? ($notif->data['actions'][0]['url'] ?? null);
+                    $notifTitleLower = strtolower($notif->data['title'] ?? '');
+                    $stIdFallback = $notif->data['surat_tugas_id'] ?? ($notif->data['viewData']['surat_tugas_id'] ?? null);
+                    if (! $notifUrl) {
+                        if ($stIdFallback || str_contains($notifTitleLower, 'surat tugas')) {
+                            $notifUrl = route('mobile.surat-tugas.index');
+                        } elseif (str_contains($notifTitleLower, 'lhk')) {
+                            $notifUrl = route('mobile.lhk.index');
+                        } elseif (str_contains($notifTitleLower, 'izin') || str_contains($notifTitleLower, 'cuti') || str_contains($notifTitleLower, 'persetujuan')) {
+                            $notifUrl = route('mobile.persetujuan');
+                        } elseif (str_contains($notifTitleLower, 'absen') || str_contains($notifTitleLower, 'presensi')) {
+                            $notifUrl = route('mobile.riwayat');
+                        }
+                    }
                     $isFilamentUrl = $notifUrl && str_contains($notifUrl, '/admin');
                 @endphp
                 @if ($notifUrl)
