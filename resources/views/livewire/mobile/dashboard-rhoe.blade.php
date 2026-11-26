@@ -71,9 +71,9 @@
                         @php
                             $jabatanNama = $user->jabatan?->nama;
                             $bidangNama = $user->bidang?->nama;
-                            $jabatanBidang = ($jabatanNama === 'Sekretaris' && $bidangNama === 'Sekretariat')
+                            $jabatanBidang = (strcasecmp((string) $jabatanNama, 'Sekretaris') === 0 && strcasecmp((string) $bidangNama, 'Sekretariat') === 0)
                                 ? 'Sekretaris'
-                                : collect([$jabatanNama, $bidangNama])->filter()->implode(' • ');
+                                : collect([$jabatanNama, $bidangNama])->filter()->implode(' di ');
                         @endphp
                         @if ($jabatanBidang)
                             <div class="text-[10px] text-sky-100/90 font-medium leading-tight mt-0.5">{{ $jabatanBidang }}</div>
