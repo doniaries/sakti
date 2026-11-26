@@ -722,9 +722,9 @@
         </div>
     </div>
 
-    <!-- PWA Install Banner (muncul saat di browser non-standalone) -->
+    <!-- PWA Install Banner (muncul di atas agar tidak menghalangi navbar) -->
     <div id="pwa-install-banner"
-         class="hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-2rem)] max-w-md bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-sky-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-3.5 flex items-center justify-between gap-3">
+         class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-2rem)] max-w-md bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-sky-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-3.5 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
             <img src="{{ asset('icons/icon-192x192.png') }}?v=2" alt="SAKTI" class="w-10 h-10 rounded-xl shrink-0 shadow-sm">
             <div class="min-w-0">
@@ -756,6 +756,7 @@
             if (!banner || !installBtn || !closeBtn) return;
 
             const showBanner = () => {
+                if (localStorage.getItem('sakti_pwa_installed') === '1') return;
                 if (sessionStorage.getItem('sakti_pwa_dismissed') === '1') return;
                 banner.classList.remove('hidden');
             };
@@ -763,6 +764,7 @@
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 window.__saktiInstallPrompt = e;
+                localStorage.removeItem('sakti_pwa_installed');
                 sessionStorage.removeItem('sakti_pwa_dismissed');
                 showBanner();
             });
@@ -793,6 +795,7 @@
 
             window.addEventListener('appinstalled', () => {
                 window.__saktiInstallPrompt = null;
+                localStorage.setItem('sakti_pwa_installed', '1');
                 banner.classList.add('hidden');
             });
         })();
