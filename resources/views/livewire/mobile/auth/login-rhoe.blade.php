@@ -72,15 +72,12 @@
 
             @if ($hariLiburHariIni ?? null)
                 <span class="inline-block px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider">
-                    HARI INI
+                    {{ \Carbon\Carbon::parse($hariLiburHariIni->tanggal)->translatedFormat('l, d F Y') }}
                 </span>
                 <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">{{ $hariLiburHariIni->nama }}</h2>
             @elseif ($hariLiburTerdekat ?? null)
-                @php
-                    $sisaHari = (int) today()->diffInDays(\Carbon\Carbon::parse($hariLiburTerdekat->tanggal));
-                @endphp
                 <span class="inline-block px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider">
-                    MENUJU HARI BESAR ({{ $sisaHari }} HARI LAGI)
+                    {{ \Carbon\Carbon::parse($hariLiburTerdekat->tanggal)->translatedFormat('l, d F Y') }}
                 </span>
                 <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">{{ $hariLiburTerdekat->nama }}</h2>
             @else
@@ -89,7 +86,6 @@
                 </span>
                 <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">Sistem Administrasi Kinerja Terintegrasi</h2>
             @endif
-            <p class="text-xs font-semibold text-sky-600 dark:text-sky-400 mt-1">Pariwisata</p>
         </div>
 
         <button type="button" @click="loginSheet = true"
