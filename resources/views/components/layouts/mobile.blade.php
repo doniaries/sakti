@@ -107,7 +107,15 @@
                 const detail = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
                 const title = detail.title || 'SAKTI Mobile';
                 const body = detail.message || '';
-                if (!body || Notification.permission !== 'granted') return;
+                if (!body) return;
+
+                if (window.SaktiNative && typeof window.SaktiNative.postMessage === 'function') {
+                    try {
+                        window.SaktiNative.postMessage(JSON.stringify({ action: 'notify', title, body }));
+                    } catch (e) {}
+                }
+
+                if (Notification.permission !== 'granted') return;
 
                 const options = {
                     body: body,
