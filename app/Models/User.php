@@ -31,6 +31,19 @@ use Illuminate\Support\Facades\Storage;
 class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 {
     use HasPushSubscriptions;
+
+    public function sendWebPush(string $title, string $body, string $url = '/mobile/dashboard'): void
+    {
+        if (! config('webpush.vapid.public_key') || ! $this->pushSubscriptions()->exists()) {
+            return;
+        }
+
+        try {
+            $this->notify(new \App\Notifications\WebPushNotification($title, $body, $url));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('WebPush error: ' . $e->getMessage());
+        }
+    }
     use SoftDeletes;
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use DeletesOldFiles, HasApiTokens, HasFactory, Notifiable, HasRoles;

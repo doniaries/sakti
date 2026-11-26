@@ -133,6 +133,8 @@ class SuratTugas extends Model
                 ->icon($status === 'hadir' ? 'heroicon-o-check-circle' : 'heroicon-o-exclamation-circle')
                 ->color($status === 'hadir' ? 'success' : 'warning')
                 ->sendToDatabase($user);
+            $user->sendWebPush("Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
+            $user->sendWebPush("Konfirmasi Kehadiran: {$labelStatus}", $body, route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
         }
     }
 
@@ -152,6 +154,7 @@ class SuratTugas extends Model
                 ->icon('heroicon-o-arrow-uturn-left')
                 ->warning()
                 ->sendToDatabase($this->creator);
+            $this->creator->sendWebPush('Surat Tugas Perlu Koreksi', "Dari {$pimpinan->name} ({$this->nama_kegiatan}): {$catatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
         }
     }
 
@@ -226,6 +229,7 @@ class SuratTugas extends Model
                             ->url(route('mobile.persetujuan', ['tab' => 'surat_tugas'])),
                     ])
                     ->sendToDatabase($approver);
+                $approver->sendWebPush('Permohonan Persetujuan Surat Tugas', "Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}", route('mobile.persetujuan', ['tab' => 'surat_tugas']));
             }
         }
     }
@@ -251,6 +255,8 @@ class SuratTugas extends Model
                 ->icon('heroicon-o-document-check')
                 ->success()
                 ->sendToDatabase($user);
+            $user->sendWebPush("Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
+            $user->sendWebPush("Konfirmasi Kehadiran: {$labelStatus}", $body, route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
         }
     }
 
