@@ -126,16 +126,36 @@
                             <span class="hidden sm:inline">Panel Admin</span>
                         </a>
                     @endif
-                    <button type="button" @click="notifSheet = true"
-                        class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0">
-                        <i class="fa-solid fa-bell text-sm {{ $unreadNotifCount > 0 ? 'text-amber-300 notif-bell-ring' : '' }}"></i>
-                        @if ($unreadNotifCount > 0)
-                            <span class="absolute top-0.5 right-0.5 flex h-2.5 w-2.5 notif-dot-move">
-                                <span class="notif-dot-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 ring-2 ring-sky-800"></span>
-                            </span>
-                        @endif
-                    </button>
+                    <div x-data="{
+                            isNative: !!window.SaktiNative,
+                            perms: window.__saktiPerms || { location: true, notification: true, battery: true }
+                        }"
+                        @sakti-device-permissions.window="perms = $event.detail || perms"
+                        class="flex items-center gap-2 shrink-0">
+                        <button type="button"
+                            x-show="isNative && !perms.location"
+                            x-cloak
+                            @click="window.SaktiNative?.postMessage('open_app_settings')"
+                            class="w-9 h-9 rounded-full bg-rose-500/85 hover:bg-rose-500 text-white flex items-center justify-center transition cursor-pointer shrink-0 shadow-sm"
+                            title="Izin GPS belum aktif — ketuk untuk mengaktifkan">
+                            <i class="fa-solid fa-location-crosshairs text-sm"></i>
+                        </button>
+                        <button type="button"
+                            @click="(isNative && !perms.notification) ? window.SaktiNative?.postMessage('open_app_settings') : (notifSheet = true)"
+                            class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0"
+                            :title="(isNative && !perms.notification) ? 'Izin Notifikasi belum aktif — ketuk untuk mengaktifkan' : 'Notifikasi'">
+                            <i class="fa-solid text-sm"
+                                :class="(isNative && !perms.notification) ? 'fa-bell-slash text-rose-300' : 'fa-bell {{ $unreadNotifCount > 0 ? 'text-amber-300 notif-bell-ring' : '' }}'"></i>
+                            @if ($unreadNotifCount > 0)
+                                <span x-show="!isNative || perms.notification" class="absolute top-0.5 right-0.5 flex h-2.5 w-2.5 notif-dot-move">
+                                    <span class="notif-dot-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 ring-2 ring-sky-800"></span>
+                                </span>
+                            @endif
+                            <span x-show="isNative && !perms.notification" x-cloak
+                                class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-sky-800"></span>
+                        </button>
+                    </div>
                     @if ($unreadNotifCount > 0)
                         <style>
                             @keyframes notifBellRing {

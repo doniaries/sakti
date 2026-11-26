@@ -951,6 +951,11 @@
             if (!modal || !btn) return;
 
             const checkPermissions = async () => {
+                if (window.SaktiNative) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                    return;
+                }
                 const notifOk = !('Notification' in window) || Notification.permission === 'granted';
                 let gpsOk = !('geolocation' in navigator);
                 if (!gpsOk && navigator.permissions && navigator.permissions.query) {
