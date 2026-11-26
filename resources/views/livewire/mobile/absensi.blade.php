@@ -434,44 +434,6 @@
                             },
                             { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
                         );
-                                                message: `Lokasi GPS aktif (${this.currentDistanceText}).`
-                                            }
-                                    }));
-                                }
-                            },
-                            (err) => {
-                                console.warn('[ABSEN] GPS warning:', err);
-                                this.gpsWarning = true;
-                                this.gpsStatus = 'blocked';
-                                this.gpsAccuracy = null;
-
-                                if (this.modeSimulasi) {
-                                    this.currentDistance = 0;
-                                    this.currentDistanceText = '0 meter (Simulasi)';
-                                    this.userCoordsText = `${this.officeLat.toFixed(5)}, ${this.officeLng.toFixed(5)}`;
-                                    this.isWithinRadius = true;
-                                    this.updateUserMarker(this.officeLat, this.officeLng);
-                                } else {
-                                    this.currentDistanceText = err.code === 1 ? 'Izin GPS Nonaktif' : 'Sinyal GPS Mati';
-                                    this.isWithinRadius = this.isWfh ? true : false;
-                                }
-
-                                if (manual || err.code === 1) {
-                                    window.dispatchEvent(new CustomEvent('notify', {
-                                        detail: {
-                                            type: 'warning',
-                                            title: 'GPS Browser Belum Aktif',
-                                            message: 'Mohon izinkan akses Lokasi pada browser Anda agar titik presensi dapat terbaca.'
-                                        }
-                                    }));
-                                }
-                            },
-                            {
-                                enableHighAccuracy: true,
-                                timeout: 15000,
-                                maximumAge: 0
-                            }
-                        );
                     },
 
                     setOfficeLocation() {
