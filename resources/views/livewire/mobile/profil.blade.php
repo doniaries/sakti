@@ -356,43 +356,52 @@
                         </div>
                     </button>
                 @endforeach
-                @if (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role'))
-                    <button type="button" wire:click="setTab('peran')"
-                        class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center text-base">
-                            <i class="fa-solid fa-user-shield"></i>
+                @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']) || auth()->user()?->can('ViewAny:Role'))
+                    <div x-data="{ pengaturanOpen: false }" class="contents">
+                        <button type="button" @click="pengaturanOpen = true"
+                            class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-base">
+                                <i class="fa-solid fa-sliders"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs font-extrabold text-slate-800 leading-tight">Pengaturan</div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Role, Modul &amp; Notif</div>
+                            </div>
+                        </button>
+
+                        <div x-show="pengaturanOpen" x-cloak
+                            class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
+                            <div @click.outside="pengaturanOpen = false"
+                                class="w-full max-w-md bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl space-y-2">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-sm font-extrabold text-slate-900">Menu Pengaturan</h3>
+                                    <button type="button" @click="pengaturanOpen = false" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                                @if (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role'))
+                                    <button type="button" wire:click="setTab('peran')" @click="pengaturanOpen = false"
+                                        class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
+                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-user-shield text-teal-600 mr-2"></i>Peran &amp; Akses</span>
+                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                    </button>
+                                @endif
+                                @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']))
+                                    <button type="button" wire:click="setTab('sistem')" @click="pengaturanOpen = false"
+                                        class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
+                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-gears text-slate-600 mr-2"></i>Pengaturan Modul &amp; Sistem</span>
+                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                    </button>
+                                    <button type="button" wire:click="tesKirimNotif" @click="pengaturanOpen = false"
+                                        class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
+                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-bell text-sky-600 mr-2"></i>Tes Kirim Notif</span>
+                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                    </button>
+                                @endif
+                            </div>
                         </div>
-                        <div>
-                            <div class="text-xs font-extrabold text-slate-800 leading-tight">Peran &amp; Akses</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">Role &amp; Permission</div>
-                        </div>
-                    </button>
-                @endif
-                @if (auth()->user()
-                        ?->hasAnyRole(['super_admin', 'admin']))
-                    <button type="button" wire:click="setTab('sistem')"
-                        class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-base">
-                            <i class="fa-solid fa-gears"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs font-extrabold text-slate-800 leading-tight">Pengaturan Sistem</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">Konfigurasi &amp; Modul</div>
-                        </div>
-                    </button>
-                    <button type="button" wire:click="tesKirimNotif"
-                        class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-base">
-                            <i class="fa-solid fa-bell"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs font-extrabold text-slate-800 leading-tight">Tes Kirim Notif</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">Uji Notif PWA / Android</div>
-                        </div>
-                    </button>
+                    </div>
                 @endif
             </div>
         @else
