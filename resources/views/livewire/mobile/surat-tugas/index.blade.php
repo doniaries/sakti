@@ -82,6 +82,18 @@
                             <i class="fa-solid fa-file-pdf text-rose-500"></i>
                             <span>Lihat Surat</span>
                         </a>
+                    @elseif (auth()->user()?->canManageSuratTugas())
+                        <a href="{{ route('mobile.surat-tugas.edit', $surat) }}" wire:navigate
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs font-semibold">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Edit</span>
+                        </a>
+                        <button type="button" wire:click="hapus({{ $surat->id }})"
+                            wire:confirm="Yakin ingin menghapus surat tugas ini?"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-semibold cursor-pointer">
+                            <i class="fa-solid fa-trash"></i>
+                            <span>Hapus</span>
+                        </button>
                     @endif
                 </div>
             </div>

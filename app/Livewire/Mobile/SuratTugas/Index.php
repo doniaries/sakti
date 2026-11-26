@@ -35,6 +35,28 @@ class Index extends Component
         $this->selectedId = null;
     }
 
+    public function hapus(int $id): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        abort_unless($user && $user->canManageSuratTugas(), 403);
+
+        $surat = SuratTugas::find($id);
+        if (! $surat || $surat->status === 'terbit') {
+            $this->dispatch('notify', type: 'warning', title: 'Tidak Dapat Dihapus', message: 'Surat tugas yang sudah terbit tidak dapat dihapus.');
+            return;
+        }
+
+        $surat->pegawais()->detach();
+        $surat->delete();
+
+        if ($this->selectedId === $id) {
+            $this->selectedId = null;
+        }
+
+        $this->dispatch('notify', type: 'success', title: 'Berhasil', message: 'Surat tugas berhasil dihapus.');
+    }
+
     public function render(): View
     {
         /** @var User $user */

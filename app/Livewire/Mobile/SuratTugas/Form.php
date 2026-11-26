@@ -20,6 +20,8 @@ class Form extends Component
 {
     use WithFileUploads;
 
+    public ?int $suratTugasId = null;
+    public ?string $existingBuktiPath = null;
     public string $jenis_dasar = 'lisan';
     public string $dasar_surat_undangan = '';
     public string $asal_surat_undangan = '';
@@ -37,11 +39,37 @@ class Form extends Component
     public array $pegawai_ids = [];
     public string $keterangan = '';
 
-    public function mount(): void
+    public function mount(?SuratTugas $suratTugas = null): void
     {
         /** @var User|null $user */
         $user = Auth::user();
         abort_unless($user && $user->canManageSuratTugas(), 403);
+
+        if ($suratTugas && $suratTugas->exists) {
+            if ($suratTugas->status === 'terbit') {
+                session()->flash('error', 'Surat Tugas yang sudah terbit tidak dapat diedit.');
+                $this->redirect(route('mobile.surat-tugas.index'), navigate: true);
+                return;
+            }
+
+            $this->suratTugasId = $suratTugas->id;
+            $this->existingBuktiPath = $suratTugas->bukti_surat_undangan;
+            $this->jenis_dasar = ($suratTugas->dasar_surat_undangan === 'Perintah Lisan Pimpinan' && blank($suratTugas->asal_surat_undangan))
+                ? 'lisan'
+                : 'ada_surat';
+            $this->dasar_surat_undangan = (string) ($suratTugas->dasar_surat_undangan ?? '');
+            $this->asal_surat_undangan = (string) ($suratTugas->asal_surat_undangan ?? '');
+            $this->perihal_surat_undangan = (string) ($suratTugas->perihal_surat_undangan ?? $suratTugas->nama_kegiatan ?? '');
+            $this->tanggal_surat_undangan = $suratTugas->tanggal_surat_undangan ? $suratTugas->tanggal_surat_undangan->toDateString() : '';
+            $this->lokasi = (string) ($suratTugas->lokasi ?? '');
+            $this->jam_acara = (string) ($suratTugas->jam_acara ?? '');
+            $this->tanggal_mulai = $suratTugas->tanggal_mulai ? $suratTugas->tanggal_mulai->toDateString() : now()->addDay()->toDateString();
+            $this->tanggal_selesai = $suratTugas->tanggal_selesai ? $suratTugas->tanggal_selesai->toDateString() : $this->tanggal_mulai;
+            $this->penanggung_jawab_ids = array_map('intval', $suratTugas->penanggung_jawab_ids ?? []);
+            $this->pegawai_ids = $suratTugas->pegawais()->pluck('users.id')->map(fn ($id) => (int) $id)->all();
+            $this->keterangan = (string) ($suratTugas->keterangan ?? '');
+            return;
+        }
 
         $tomorrow = now()->addDay()->toDateString();
         $this->tanggal_mulai = $tomorrow;
@@ -73,9 +101,9 @@ class Form extends Component
 
         $buktiPath = ($this->jenis_dasar === 'ada_surat' && $this->bukti_surat_undangan)
             ? $this->bukti_surat_undangan->store('surat-tugas/undangan', 'public')
-            : null;
+            : ($this->jenis_dasar === 'ada_surat' ? $this->existingBuktiPath : null);
 
-        $suratTugas = SuratTugas::create([
+        $payload = [
             'dasar_surat_undangan' => $this->jenis_dasar === 'lisan'
                 ? 'Perintah Lisan Pimpinan'
                 : ($validated['dasar_surat_undangan'] ?: null),
@@ -90,16 +118,27 @@ class Form extends Component
             'bukti_surat_undangan' => $buktiPath,
             'penanggung_jawab_ids' => array_map('intval', $validated['penanggung_jawab_ids']),
             'keterangan' => $validated['keterangan'] ?: null,
-            'status' => 'draft',
-            'sumber' => 'mobile_pwa',
-            'created_by' => $user->id,
-        ]);
+        ];
 
-        if (! empty($validated['pegawai_ids'])) {
-            $suratTugas->pegawais()->sync($validated['pegawai_ids']);
+        if ($this->suratTugasId) {
+            $suratTugas = SuratTugas::findOrFail($this->suratTugasId);
+            abort_if($suratTugas->status === 'terbit', 403);
+            $suratTugas->update($payload);
+            $suratTugas->pegawais()->sync($validated['pegawai_ids'] ?? []);
+            session()->flash('success', 'Surat Tugas berhasil diperbarui.');
+        } else {
+            $suratTugas = SuratTugas::create($payload + [
+                'status' => 'draft',
+                'sumber' => 'mobile_pwa',
+                'created_by' => $user->id,
+            ]);
+
+            if (! empty($validated['pegawai_ids'])) {
+                $suratTugas->pegawais()->sync($validated['pegawai_ids']);
+            }
+            session()->flash('success', 'Surat Tugas berhasil dibuat.');
         }
 
-        session()->flash('success', 'Surat Tugas berhasil dibuat.');
         $this->redirect(route('mobile.surat-tugas.index'), navigate: true);
     }
 
