@@ -41,9 +41,14 @@
             </div>
 
             <!-- SAKTI Circle Logo -->
-            <div class="w-16 h-16 rounded-full bg-[#0A192F] border-2 border-white/30 shadow-xl overflow-hidden flex items-center justify-center mb-3">
+            <div class="w-16 h-16 rounded-full bg-[#0A192F] border-2 border-white/30 shadow-xl overflow-hidden flex items-center justify-center mb-2.5">
                 <img src="{{ asset('icons/icon-192x192.png') }}?v=2" alt="SAKTI" class="w-full h-full object-cover">
             </div>
+
+            <span class="inline-block px-3 py-0.5 rounded-full bg-white/15 border border-white/25 text-sky-100 text-[10px] font-extrabold uppercase tracking-wider mb-1">
+                SAKTI MOBILE
+            </span>
+            <p class="text-[11px] text-sky-100/90 font-semibold mb-2">Sistem Administrasi Kinerja Terintegrasi</p>
 
             <h1 class="text-xl font-black tracking-tight">Hai, Selamat Datang!</h1>
             <p class="text-xs text-sky-100/90 mt-0.5">Disparpora Kabupaten Sijunjung</p>
@@ -81,10 +86,7 @@
                 </span>
                 <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">{{ $hariLiburTerdekat->nama }}</h2>
             @else
-                <span class="inline-block px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider">
-                    SAKTI MOBILE
-                </span>
-                <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">Sistem Administrasi Kinerja Terintegrasi</h2>
+                <p class="text-xs font-semibold text-slate-500 dark:text-zinc-400">Tidak ada hari peringatan / libur terdekat.</p>
             @endif
         </div>
 
