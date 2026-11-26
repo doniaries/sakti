@@ -52,11 +52,11 @@
     <script type="application/ld+json">{!! json_encode($jsonLd, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <!-- PWA Setup -->
-    <link rel="icon" type="image/png" href="{{ asset('images/geopark-silokek.png') }}">
-    <link rel="manifest" href="{{ asset('manifest-portal.json') }}?v=2">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="manifest" href="{{ asset('manifest-portal.json') }}?v=1">
     <meta name="theme-color" content="#070B1A">
     <meta name="apple-mobile-web-app-title" content="Portal Digital Parpora">
-    <link rel="apple-touch-icon" href="{{ asset('images/geopark-silokek.png') }}">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 
     <!-- Fonts & Icons -->
     @if (app()->environment('local') && file_exists(public_path('hot')))

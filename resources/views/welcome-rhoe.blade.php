@@ -8,11 +8,11 @@
     <title>Portal Digital Parpora – Disparpora Sijunjung</title>
     <meta name="description" content="Portal Digital Parpora Sijunjung – Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.">
 
-    <link rel="icon" type="image/png" href="{{ asset('images/geopark-silokek.png') }}">
-    <link rel="manifest" href="{{ asset('manifest-portal.json') }}?v=2">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="manifest" href="{{ asset('manifest-portal.json') }}?v=1">
     <meta name="theme-color" content="#09090b">
     <meta name="apple-mobile-web-app-title" content="Portal Digital Parpora">
-    <link rel="apple-touch-icon" href="{{ asset('images/geopark-silokek.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
     @if (app()->environment('local') && file_exists(public_path('hot')))
         @vite(['resources/js/app.js'])
