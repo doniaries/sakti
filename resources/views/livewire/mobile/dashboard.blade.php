@@ -45,7 +45,8 @@
         </div>
         <div class="flex items-center space-x-1.5">
             <!-- Notifikasi Terintegrasi Filament & Mobile -->
-            <div class="relative" x-data="{ openNotif: false }" @keydown.escape.window="openNotif = false" wire:poll.visible.30s>
+            <div class="relative" x-data="{ openNotif: false }" @keydown.escape.window="openNotif = false"
+                wire:poll.visible.30s>
                 <button type="button" @click="openNotif = !openNotif"
                     class="relative w-9 h-9 rounded-xl bg-white dark:bg-white/10 text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/20 border border-slate-200 dark:border-white/15 shadow-xs flex items-center justify-center transition cursor-pointer"
                     title="Notifikasi">
@@ -436,56 +437,56 @@
         <div class="flex items-center justify-between mb-2.5 px-0.5">
             <h3 class="text-sm font-extrabold text-slate-900 dark:text-white tracking-tight">Layanan Kepegawaian</h3>
             @if (\App\Models\PengaturanAplikasi::isModuleEnabled('izin'))
-            <a href="{{ route('mobile.izin.index') }}" wire:navigate
-                class="text-xs font-bold text-sky-600 dark:text-cyan-400 hover:opacity-80 flex items-center">
-                <span>Riwayat Izin</span>
-                <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
-            </a>
+                <a href="{{ route('mobile.izin.index') }}" wire:navigate
+                    class="text-xs font-bold text-sky-600 dark:text-cyan-400 hover:opacity-80 flex items-center">
+                    <span>Riwayat Izin</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] ml-1"></i>
+                </a>
             @endif
         </div>
         <div class="grid grid-cols-4 gap-2">
             @if (\App\Models\PengaturanAplikasi::isModuleEnabled('izin'))
-            <!-- Izin -->
-            <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate
-                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 flex items-center justify-center text-sm mb-1.5">
-                    <i class="fa-solid fa-envelope-open-text"></i>
-                </div>
-                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Izin</span>
-            </a>
+                <!-- Izin -->
+                <a href="{{ route('mobile.izin.create', ['kategori' => 'izin']) }}" wire:navigate
+                    class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-sky-50 text-sky-600 dark:bg-cyan-500/15 dark:text-cyan-400 flex items-center justify-center text-sm mb-1.5">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Izin</span>
+                </a>
 
-            <!-- Sakit -->
-            <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate
-                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400 flex items-center justify-center text-sm mb-1.5">
-                    <i class="fa-solid fa-notes-medical"></i>
-                </div>
-                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Sakit</span>
-            </a>
+                <!-- Sakit -->
+                <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate
+                    class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-500/15 dark:text-rose-400 flex items-center justify-center text-sm mb-1.5">
+                        <i class="fa-solid fa-notes-medical"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Sakit</span>
+                </a>
 
-            <!-- Cuti -->
-            <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate
-                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400 flex items-center justify-center text-sm mb-1.5">
-                    <i class="fa-solid fa-umbrella-beach"></i>
-                </div>
-                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Cuti</span>
-            </a>
+                <!-- Cuti -->
+                <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate
+                    class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-400 flex items-center justify-center text-sm mb-1.5">
+                        <i class="fa-solid fa-umbrella-beach"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Cuti</span>
+                </a>
             @endif
 
             <!-- WFH -->
             @if (\App\Models\PengaturanAplikasi::isModuleEnabled('wfh'))
-            <a href="{{ route('mobile.wfh.index') }}" wire:navigate
-                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400 flex items-center justify-center text-sm mb-1.5">
-                    <i class="fa-solid fa-house-laptop"></i>
-                </div>
-                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">WFH</span>
-            </a>
+                <a href="{{ route('mobile.wfh.index') }}" wire:navigate
+                    class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-500/15 dark:text-teal-400 flex items-center justify-center text-sm mb-1.5">
+                        <i class="fa-solid fa-house-laptop"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">WFH</span>
+                </a>
             @endif
 
             <!-- Kalender Libur -->
@@ -500,24 +501,26 @@
 
             <!-- Reputasi Rekan Kerja (masuk modul LHK) -->
             @if (\App\Models\PengaturanAplikasi::isModuleEnabled('lhk'))
-            <a href="{{ route('mobile.reputasi') }}" wire:navigate
-                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 dark:bg-amber-500/15 dark:text-amber-400 flex items-center justify-center text-sm mb-1.5">
-                    <i class="fa-solid fa-star"></i>
-                </div>
-                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Reputasi</span>
-            </a>
+                <a href="{{ route('mobile.reputasi') }}" wire:navigate
+                    class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 dark:bg-amber-500/15 dark:text-amber-400 flex items-center justify-center text-sm mb-1.5">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <span
+                        class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Reputasi</span>
+                </a>
 
-            <!-- LHK Baru -->
-            <a href="{{ route('mobile.lhk.create') }}" wire:navigate
-                class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
-                <div
-                    class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 flex items-center justify-center text-sm mb-1.5">
-                    <i class="fa-solid fa-file-circle-plus"></i>
-                </div>
-                <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Buat LHK</span>
-            </a>
+                <!-- LHK Baru -->
+                <a href="{{ route('mobile.lhk.create') }}" wire:navigate
+                    class="bg-white dark:bg-[#132338]/90 py-3 px-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-2xs flex flex-col items-center hover:bg-slate-50 dark:hover:bg-[#192d47] active:scale-95 transition-all text-center">
+                    <div
+                        class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400 flex items-center justify-center text-sm mb-1.5">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                    </div>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-tight">Buat
+                        LHK</span>
+                </a>
             @endif
 
             <!-- Statistik & Rekap Profil -->
