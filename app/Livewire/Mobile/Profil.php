@@ -776,7 +776,7 @@ class Profil extends Component
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        if (! $user || ! $user->hasRole('superadmin')) {
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'superadmin'])) {
             return;
         }
 
