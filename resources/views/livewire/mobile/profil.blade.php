@@ -1915,7 +1915,7 @@
                         <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Jabatan</label>
-                                <select wire:model="jab_jenis"
+                                <select wire:model="jab_jenis_jabatan"
                                     class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
                                     <option value="">- Pilih Jenis -</option>
                                     <option value="Struktural">Struktural</option>
@@ -1925,7 +1925,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan</label>
-                                <input type="text" wire:model="jab_nama"
+                                <input type="text" wire:model="jab_nama_jabatan"
                                     placeholder="Contoh: Analis Kebijakan Ahli Muda"
                                     class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                             </div>
@@ -2092,7 +2092,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Kampus</label>
-                            <input type="text" wire:model="pend_nama_sekolah" placeholder="Contoh: Universitas Andalas" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <input type="text" wire:model="pend_nama_institusi" placeholder="Contoh: Universitas Andalas" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -2101,7 +2101,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Ijazah</label>
-                                <input type="text" wire:model="pend_no_ijazah" placeholder="No. Ijazah..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <input type="text" wire:model="pend_nomor_ijazah" placeholder="No. Ijazah..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                             </div>
                         </div>
                         <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
