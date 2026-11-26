@@ -362,6 +362,21 @@
                         appSettingsOpen: false,
                         isDark: document.documentElement.classList.contains('dark'),
                         notifOk: !('Notification' in window) || Notification.permission === 'granted',
+                        gpsOk: false,
+                        async checkGps() {
+                            if (!('geolocation' in navigator)) { this.gpsOk = true; return; }
+                            if (navigator.permissions && navigator.permissions.query) {
+                                try {
+                                    const g = await navigator.permissions.query({ name: 'geolocation' });
+                                    this.gpsOk = g.state === 'granted';
+                                } catch (e) {}
+                            }
+                        },
+                        requestGps() {
+                            if ('geolocation' in navigator) {
+                                navigator.geolocation.getCurrentPosition(() => this.checkGps(), () => this.checkGps(), { enableHighAccuracy: true, timeout: 10000 });
+                            }
+                        },
                         toggleTheme() {
                             if (window.toggleMobileTheme) {
                                 window.toggleMobileTheme();
@@ -425,7 +440,7 @@
                                         <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-gears text-slate-600 mr-2"></i>Pengaturan Modul</span>
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                     </button>
-                                    <button type="button" @click="pengaturanOpen = false; appSettingsOpen = true"
+                                    <button type="button" @click="pengaturanOpen = false; appSettingsOpen = true; checkGps()"
                                         class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
                                         <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-mobile-screen text-indigo-600 mr-2"></i>Pengaturan Aplikasi</span>
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
@@ -490,24 +505,37 @@
                                     </button>
                                 </div>
 
-                                <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
+                                <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-between">
                                     <div>
-                                        <div class="text-xs font-bold text-slate-800">Pembatasan Device (Binding)</div>
-                                        <div class="text-[10px] text-slate-400">Pengaturan dari Admin Filament</div>
+                                        <div class="text-xs font-bold text-slate-800 dark:text-white">Izin GPS / Lokasi Perangkat</div>
+                                        <div class="text-[10px]" :class="gpsOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
+                                            x-text="gpsOk ? 'Sudah Diizinkan' : 'Belum Diizinkan'"></div>
                                     </div>
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold {{ ($appCfg->device_binding_enabled ?? false) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">
-                                        {{ ($appCfg->device_binding_enabled ?? false) ? 'Aktif' : 'Nonaktif' }}
-                                    </span>
+                                    <button type="button" x-show="!gpsOk" @click="requestGps()"
+                                        class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold cursor-pointer">
+                                        Izinkan
+                                    </button>
                                 </div>
 
-                                <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-100 space-y-1 text-xs">
-                                    <div class="font-extrabold text-slate-900">{{ $appCfg->nama_aplikasi ?? 'SAKTI' }}</div>
-                                    <div class="text-[11px] text-slate-600">{{ $appCfg->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}</div>
-                                    <div class="text-[11px] text-sky-700 font-bold pt-1">
+                                <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-800 dark:text-white">Pembatasan Device (Binding)</div>
+                                        <div class="text-[10px] text-slate-400">Sinkron dengan Admin Filament</div>
+                                    </div>
+                                    <button type="button" wire:click="toggleDeviceBinding"
+                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer {{ ($appCfg->device_binding_enabled ?? false) ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-zinc-600' }}">
+                                        <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ ($appCfg->device_binding_enabled ?? false) ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                                    </button>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-sky-50/70 dark:bg-zinc-800/90 border border-sky-100 dark:border-zinc-700 space-y-1 text-xs">
+                                    <div class="font-extrabold text-slate-900 dark:text-white">{{ $appCfg->nama_aplikasi ?? 'SAKTI' }}</div>
+                                    <div class="text-[11px] text-slate-600 dark:text-zinc-300">{{ $appCfg->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}</div>
+                                    <div class="text-[11px] text-sky-700 dark:text-sky-400 font-bold pt-1">
                                         Versi: {{ $appCfg->app_version ?? $appCfg->versi_aplikasi ?? '1.0.0' }}
                                     </div>
                                     @if (!empty($appCfg->update_notes ?? $appCfg->catatan_rilis))
-                                        <div class="text-[11px] text-slate-500 pt-0.5">
+                                        <div class="text-[11px] text-slate-500 dark:text-zinc-400 pt-0.5">
                                             {{ $appCfg->update_notes ?? $appCfg->catatan_rilis }}
                                         </div>
                                     @endif

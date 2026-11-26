@@ -773,6 +773,22 @@ class Profil extends Component
     /**
      * Logout Akun dari Mobile
      */
+    public function toggleDeviceBinding(): void
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) {
+            return;
+        }
+
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $pengaturan->update([
+            'device_binding_enabled' => ! (bool) $pengaturan->device_binding_enabled,
+        ]);
+
+        $this->dispatch('notify', type: 'success', title: 'Pengaturan Disimpan', message: 'Pembatasan device ' . ($pengaturan->device_binding_enabled ? 'diaktifkan' : 'dinonaktifkan') . '.');
+    }
+
     public function tesKirimNotif(): void
     {
         /** @var \App\Models\User|null $user */
