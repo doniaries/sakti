@@ -444,6 +444,13 @@
     <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})" subtitle="Pemberitahuan terbaru terkait presensi, izin, dan kinerja">
         <div class="space-y-2">
             @forelse ($recentNotifications as $notif)
+                <div wire:key="notif-{{ $notif->id }}"
+                     x-data="{ startX: 0, dx: 0, swiping: false, canSwipe: {{ is_null($notif->read_at) ? 'false' : 'true' }} }"
+                     @touchstart="if (canSwipe) { startX = $event.touches[0].clientX; swiping = true; }"
+                     @touchmove="if (swiping && canSwipe) { dx = $event.touches[0].clientX - startX; }"
+                     @touchend="if (swiping && canSwipe && Math.abs(dx) > 90) { $wire.deleteNotification('{{ $notif->id }}'); } dx = 0; swiping = false;"
+                     :style="dx ? 'transform: translateX(' + dx + 'px); opacity: ' + Math.max(0.25, 1 - Math.abs(dx)/160) : ''"
+                     class="transition-all duration-150">
                 @php
                     $notifUrl = $notif->data['url'] ?? ($notif->data['actions'][0]['url'] ?? null);
                     $notifTitleLower = strtolower($notif->data['title'] ?? '');
@@ -515,6 +522,7 @@
                         @endif
                     </div>
                 @endif
+                </div>
             @empty
                 <div class="py-8 text-center text-xs text-zinc-400">
                     <i class="fa-regular fa-bell-slash text-2xl mb-2 block opacity-50"></i>

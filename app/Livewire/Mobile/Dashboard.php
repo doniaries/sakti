@@ -102,6 +102,17 @@ class Dashboard extends Component
         $this->dispatch('notif-count-updated', count: $user->unreadNotifications()->count());
     }
 
+    public function deleteNotification(string $id): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user) {
+            return;
+        }
+
+        $user->notifications()->where('id', $id)->whereNotNull('read_at')->delete();
+    }
+
     public function konfirmasiSuratTugas(int $suratTugasId, string $status, string $notifId, ?string $catatan = null): void
     {
         /** @var User|null $user */
