@@ -28,3 +28,43 @@ Artisan::command('inspire', function () {
         ->delete();
     $this->info("Cleanup selesai: {$deletedAbsensi} absensi_harian & {$deletedIzin} pengajuan_izin dihapus.");
 })->purpose('Hapus seluruh data simulasi 6 bulan dengan aman');
+
+\Illuminate\Support\Facades\Artisan::command('presensi:pengingat {jenis=masuk}', function (string $jenis) {
+    $today = now('Asia/Jakarta')->toDateString();
+    $isLibur = \App\Models\HariLibur::whereDate('tanggal', $today)->exists();
+    if ($isLibur) {
+        $this->info('Hari libur, pengingat dilewati.');
+        return;
+    }
+
+    $sudahAbsenIds = \App\Models\AbsensiHarian::whereDate('tanggal', $today)
+        ->when($jenis === 'masuk', fn ($q) => $q->whereNotNull('jam_masuk'))
+        ->when($jenis === 'pulang', fn ($q) => $q->whereNotNull('jam_pulang'))
+        ->pluck('user_id');
+
+    $sedangIzinIds = \App\Models\PengajuanIzin::where('status', 'disetujui')
+        ->whereDate('tanggal_mulai', '<=', $today)
+        ->whereDate('tanggal_selesai', '>=', $today)
+        ->pluck('user_id');
+
+    $targets = \App\Models\User::query()
+        ->where('aktif', true)
+        ->whereNotIn('id', $sudahAbsenIds->merge($sedangIzinIds)->unique())
+        ->get();
+
+    if ($targets->isEmpty()) {
+        $this->info('Semua pegawai sudah presensi.');
+        return;
+    }
+
+    $title = $jenis === 'pulang' ? 'Pengingat Absen Pulang' : 'Pengingat Absen Masuk';
+    $body = $jenis === 'pulang'
+        ? 'Jangan lupa melakukan presensi pulang sebelum meninggalkan kantor.'
+        : 'Selamat pagi! Silakan lakukan presensi masuk hari ini.';
+
+    \App\Services\PushNotificationService::sendToUsers($targets, $title, $body, ['url' => route('mobile.absensi')], 'info');
+    $this->info("Pengingat {$jenis} dikirim ke {$targets->count()} pegawai.");
+})->purpose('Kirim pengingat presensi masuk/pulang ke pegawai yang belum absen');
+
+\Illuminate\Support\Facades\Schedule::command('presensi:pengingat masuk')->weekdays()->at('07:15')->timezone('Asia/Jakarta');
+\Illuminate\Support\Facades\Schedule::command('presensi:pengingat pulang')->weekdays()->at('16:25')->timezone('Asia/Jakarta');

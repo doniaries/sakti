@@ -351,6 +351,41 @@
             </div>
         </div>
 
+        <!-- Status Izin Perangkat (Khusus Aplikasi Android) -->
+        <div x-data="{
+                isNative: !!window.SaktiNative,
+                perms: window.__saktiPerms || { location: false, notification: false, battery: false }
+            }"
+            x-show="isNative"
+            x-cloak
+            @sakti-device-permissions.window="perms = $event.detail || perms"
+            class="mt-3 pt-3 border-t border-white/15 relative z-10">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-sky-100">Status Izin Perangkat</span>
+                <button type="button" @click="window.SaktiNative?.postMessage('open_app_settings')"
+                    class="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white text-[10px] font-bold cursor-pointer">
+                    <i class="fa-solid fa-gear mr-1"></i>Pengaturan
+                </button>
+            </div>
+            <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+                <div class="rounded-xl px-2 py-1.5 text-center font-bold"
+                    :class="perms.location ? 'bg-emerald-500/25 text-emerald-100' : 'bg-rose-500/30 text-rose-100'">
+                    <i class="fa-solid fa-location-dot block mb-0.5"></i>
+                    <span x-text="perms.location ? 'GPS Aktif' : 'GPS Mati'"></span>
+                </div>
+                <div class="rounded-xl px-2 py-1.5 text-center font-bold"
+                    :class="perms.notification ? 'bg-emerald-500/25 text-emerald-100' : 'bg-rose-500/30 text-rose-100'">
+                    <i class="fa-solid fa-bell block mb-0.5"></i>
+                    <span x-text="perms.notification ? 'Notif Aktif' : 'Notif Mati'"></span>
+                </div>
+                <div class="rounded-xl px-2 py-1.5 text-center font-bold"
+                    :class="perms.battery ? 'bg-emerald-500/25 text-emerald-100' : 'bg-amber-500/30 text-amber-100'">
+                    <i class="fa-solid fa-battery-full block mb-0.5"></i>
+                    <span x-text="perms.battery ? 'Bg Bebas' : 'Bg Terbatas'"></span>
+                </div>
+            </div>
+        </div>
+
         <!-- Upload Progress & Status Alert -->
         <div wire:loading wire:target="new_avatar" class="mt-3 relative z-10">
             <div
