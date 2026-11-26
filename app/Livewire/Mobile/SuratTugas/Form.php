@@ -35,6 +35,7 @@ class Form extends Component
     public $bukti_surat_undangan = null;
     /** @var array<int, int|string> */
     public array $penanggung_jawab_ids = [];
+    public ?int $penandatangan_id = null;
     /** @var array<int, int|string> */
     public array $pegawai_ids = [];
     public string $keterangan = '';
@@ -66,6 +67,7 @@ class Form extends Component
             $this->tanggal_mulai = $suratTugas->tanggal_mulai ? $suratTugas->tanggal_mulai->toDateString() : now()->addDay()->toDateString();
             $this->tanggal_selesai = $suratTugas->tanggal_selesai ? $suratTugas->tanggal_selesai->toDateString() : $this->tanggal_mulai;
             $this->penanggung_jawab_ids = array_map('intval', $suratTugas->penanggung_jawab_ids ?? []);
+            $this->penandatangan_id = $suratTugas->penandatangan_id ? (int) $suratTugas->penandatangan_id : null;
             $this->pegawai_ids = $suratTugas->pegawais()->pluck('users.id')->map(fn ($id) => (int) $id)->all();
             $this->keterangan = (string) ($suratTugas->keterangan ?? '');
             return;
@@ -94,6 +96,7 @@ class Form extends Component
             'bukti_surat_undangan' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
             'penanggung_jawab_ids' => ['required', 'array', 'min:1'],
             'penanggung_jawab_ids.*' => ['integer', 'exists:users,id'],
+            'penandatangan_id' => ['nullable', 'integer', 'exists:users,id'],
             'pegawai_ids' => ['nullable', 'array'],
             'pegawai_ids.*' => ['integer', 'exists:users,id'],
             'keterangan' => ['nullable', 'string'],
@@ -117,6 +120,7 @@ class Form extends Component
             'tanggal_selesai' => $validated['tanggal_selesai'],
             'bukti_surat_undangan' => $buktiPath,
             'penanggung_jawab_ids' => array_map('intval', $validated['penanggung_jawab_ids']),
+            'penandatangan_id' => $validated['penandatangan_id'] ?: null,
             'keterangan' => $validated['keterangan'] ?: null,
         ];
 
@@ -157,7 +161,13 @@ class Form extends Component
             ])
             ->with('jabatan')
             ->orderBy('name')
-            ->get(['id', 'name', 'jabatan_id']);
+            ->get(['id', 'name', 'jabatan_id', 'eselon']);
+
+        $penandatangans = $penanggungJawabs->filter(fn (User $u) => in_array(
+            $u->eselon instanceof Eselon ? $u->eselon->value : $u->eselon,
+            [Eselon::II_A->value, Eselon::II_B->value, Eselon::III_A->value, Eselon::III_B->value],
+            true
+        ));
 
         $timKreatif = User::query()
             ->whereNotNull('jabatan_tim_kreatif')
@@ -174,6 +184,7 @@ class Form extends Component
 
         return view('livewire.mobile.surat-tugas.form', [
             'penanggungJawabs' => $penanggungJawabs,
+            'penandatangans' => $penandatangans,
             'timKreatif' => $timKreatif,
             'jamOptions' => $jamOptions,
         ]);

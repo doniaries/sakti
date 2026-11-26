@@ -211,6 +211,22 @@
                 @error('penanggung_jawab_ids') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    Pejabat Penandatangan (Kadis / Sekretaris / Kabid)
+                </label>
+                <select wire:model="penandatangan_id"
+                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 outline-none transition-all">
+                    <option value="">-- Otomatis / Pilih Pejabat Penandatangan --</option>
+                    @foreach ($penandatangans as $ttd)
+                        <option value="{{ $ttd->id }}">
+                            {{ $ttd->name }}{{ $ttd->jabatan?->nama ? ' (' . $ttd->jabatan->nama . ')' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('penandatangan_id') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
             <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
                 <div class="flex items-center justify-between mb-1.5">
                     <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Personil Tim Kreatif</label>
