@@ -123,7 +123,7 @@
 
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
             <div class="mt-5 flex items-center justify-between gap-3 relative z-10">
-                <div class="min-w-0 md:flex-1 md:text-center">
+                <div class="min-w-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:text-center">
                     <div class="text-[11px] text-sky-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
                     <div class="flex items-baseline gap-1 font-mono mt-0.5 md:justify-center">
                         <span x-text="jam" class="text-3xl font-black tracking-tight">--:--</span>
