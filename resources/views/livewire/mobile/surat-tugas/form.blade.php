@@ -188,11 +188,13 @@
                     </div>
                     <i class="fa-solid fa-chevron-down text-xs text-zinc-400 shrink-0"></i>
                 </button>
-                <div x-show="open" x-transition.opacity.duration.150ms style="display: none;"
+                <div x-show="open"
+                    x-effect="if (open) $nextTick(() => $el.scrollIntoView({ behavior: 'smooth', block: 'center' }))"
+                    x-transition.opacity.duration.150ms style="display: none;"
                     class="mt-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2.5 shadow-xl">
                     <input type="search" x-model="q" placeholder="Cari nama atau jabatan..."
                         class="w-full h-9 mb-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100 outline-none focus:border-teal-500">
-                    <div class="max-h-44 overflow-y-auto space-y-1">
+                    <div class="max-h-60 overflow-y-auto space-y-1">
                         @foreach ($penanggungJawabs as $pj)
                             <label x-show="!q || '{{ strtolower($pj->name . ' ' . ($pj->jabatan?->nama ?? '')) }}'.includes(q.toLowerCase())"
                                 class="flex items-center gap-2.5 p-2 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/70 cursor-pointer">
