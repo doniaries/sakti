@@ -558,7 +558,7 @@
                     </span>
                 </div>
                 @if (!empty($appInfo->update_notes ?? $appInfo->catatan_rilis))
-                    <p class="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
+                    <p class="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed whitespace-pre-line">
                         {{ $appInfo->update_notes ?? $appInfo->catatan_rilis }}
                     </p>
                 @endif
