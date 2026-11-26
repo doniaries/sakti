@@ -45,6 +45,8 @@ class Persetujuan extends Component
             'disetujui_oleh' => Auth::id(),
         ]);
 
+        $izin->user?->sendWebPush('Izin Disetujui', 'Pengajuan izin Anda telah disetujui dan tersinkron ke absensi.', route('mobile.dashboard'));
+
         $this->dispatch('notify', [
             'type' => 'success',
             'title' => 'Izin Disetujui',
@@ -64,6 +66,8 @@ class Persetujuan extends Component
             'disetujui_oleh' => Auth::id(),
             'catatan_atasan' => 'Ditolak melalui persetujuan cepat mobile.',
         ]);
+
+        $izin->user?->sendWebPush('Izin Ditolak', 'Pengajuan izin Anda ditolak melalui persetujuan cepat.', route('mobile.dashboard'));
 
         $this->dispatch('notify', [
             'type' => 'warning',
@@ -180,6 +184,8 @@ class Persetujuan extends Component
             'title' => 'SPJ Dikembalikan',
             'message' => "SPJ {$spj->nomor_pengajuan} dikembalikan untuk revisi.",
         ]);
+
+        $spj->user?->sendWebPush('SPJ Dikembalikan', "Pengajuan SPJ {$spj->nomor_pengajuan} dikembalikan untuk revisi.", route('mobile.dashboard'));
     }
 
     public function approveSuratTugas(int $id): void
