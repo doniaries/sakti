@@ -67,7 +67,13 @@
                         class="w-10 h-10 rounded-full object-cover ring-2 ring-white/50 shrink-0">
                     <div class="min-w-0">
                         <div class="text-[11px] text-sky-100 font-medium">{{ $sapaan }},</div>
-                        <h1 class="text-sm font-extrabold tracking-tight truncate">{{ $user->name }}</h1>
+                        <h1 class="text-sm font-extrabold tracking-tight leading-snug">{{ $user->name }}</h1>
+                        @php
+                            $jabatanBidang = collect([$user->jabatan?->nama, $user->bidang?->nama])->filter()->implode(' • ');
+                        @endphp
+                        @if ($jabatanBidang)
+                            <div class="text-[10px] text-sky-100/90 font-medium leading-tight mt-0.5">{{ $jabatanBidang }}</div>
+                        @endif
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
@@ -76,7 +82,7 @@
                             class="h-9 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                             title="Buka Panel Admin SAKTI di tab baru">
                             <i class="fa-solid fa-shield-halved text-xs"></i>
-                            <span>Panel Admin</span>
+                            <span class="hidden sm:inline">Panel Admin</span>
                         </a>
                     @endif
                     <button type="button" @click="notifSheet = true"
