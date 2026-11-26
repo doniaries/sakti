@@ -169,7 +169,7 @@ class Form extends Component
 
         $penandatangans = $penanggungJawabs->filter(fn (User $u) => in_array(
             $u->eselon instanceof Eselon ? $u->eselon->value : $u->eselon,
-            [Eselon::II_A->value, Eselon::II_B->value, Eselon::III_A->value, Eselon::III_B->value],
+            [Eselon::III_A->value, Eselon::III_B->value],
             true
         ));
 
