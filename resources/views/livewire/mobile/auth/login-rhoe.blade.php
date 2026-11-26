@@ -6,7 +6,7 @@
     detik: '--',
     tanggal: '',
     hasBioCreds: !!localStorage.getItem('sakti_bio_creds'),
-    biometricLogin() {
+    async biometricLogin() {
         const raw = localStorage.getItem('sakti_bio_creds');
         if (!raw) {
             this.loginSheet = true;
@@ -14,21 +14,62 @@
         }
         try {
             const creds = JSON.parse(atob(raw));
+            if (window.PublicKeyCredential && creds.cid) {
+                const cidBytes = Uint8Array.from(atob(creds.cid), c => c.charCodeAt(0));
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+                await navigator.credentials.get({
+                    publicKey: {
+                        challenge,
+                        allowCredentials: [{ id: cidBytes, type: 'public-key' }],
+                        userVerification: 'required',
+                        timeout: 60000,
+                    }
+                });
+            }
             $wire.set('email', creds.e);
             $wire.set('password', creds.p);
             $wire.set('remember', true);
             $wire.login();
         } catch (e) {
-            this.loginSheet = true;
+            if (e && e.name !== 'NotAllowedError') {
+                this.loginSheet = true;
+            }
         }
     },
-    saveBioCreds() {
+    async saveBioCreds() {
         const e = $wire.get('email');
         const p = $wire.get('password');
-        if (e && p) {
-            localStorage.setItem('sakti_bio_creds', btoa(JSON.stringify({ e, p })));
-            this.hasBioCreds = true;
+        if (!e || !p) return;
+        let cid = null;
+        if (window.PublicKeyCredential) {
+            try {
+                const challenge = new Uint8Array(32);
+                crypto.getRandomValues(challenge);
+                const cred = await navigator.credentials.create({
+                    publicKey: {
+                        challenge,
+                        rp: { name: 'SAKTI Mobile' },
+                        user: {
+                            id: new TextEncoder().encode(e),
+                            name: e,
+                            displayName: e,
+                        },
+                        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+                        authenticatorSelection: {
+                            authenticatorAttachment: 'platform',
+                            userVerification: 'required',
+                        },
+                        timeout: 60000,
+                    }
+                });
+                if (cred && cred.rawId) {
+                    cid = btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+                }
+            } catch (err) {}
         }
+        localStorage.setItem('sakti_bio_creds', btoa(JSON.stringify({ e, p, cid })));
+        this.hasBioCreds = true;
     },
     init() {
         const updateClock = () => {
