@@ -80,7 +80,7 @@ class AttendancePunchService
         $jamMasukResmi = $jadwal ? $jadwal->getJamMasukHari($today) : '07:30';
         $jamPulangResmi = $jadwal ? $jadwal->getJamPulangHari($today) : '16:00';
         $tutupPulang = $jadwal ? substr($jadwal->tutup_absen_pulang, 0, 5) : '23:59';
-        $toleransi = $jadwal ? (int) $jadwal->toleransi_terlambat_menit : 15;
+        $toleransi = $jadwal ? (int) $jadwal->toleransi_terlambat_menit : 0;
 
         $absenHarian = AbsensiHarian::where('user_id', $user->id)
             ->where('tanggal', $today)
@@ -182,7 +182,10 @@ class AttendancePunchService
                 'jadwal_kerja_id' => $jadwal?->id,
             ]);
 
-            $labelStatus = ($status === 'hadir') ? 'Tepat Waktu' : 'Terlambat';
+            $menitTerlambat = ($status === 'terlambat')
+                ? max(1, (int) Carbon::parse("$today $jamMasukResmi:00")->diffInMinutes(Carbon::parse("$today $now")))
+                : 0;
+            $labelStatus = ($status === 'hadir') ? 'Tepat Waktu' : "Terlambat {$menitTerlambat} menit";
             $extraMsg = $bypass ? ' (Mode Simulasi)' : '';
 
             return [
