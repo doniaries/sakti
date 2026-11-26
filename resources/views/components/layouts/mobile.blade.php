@@ -655,7 +655,8 @@
             message: '', 
             buttonText: 'Mengerti',
             showUser: false,
-            show(detail) {
+            show(raw) {
+                const detail = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
                 this.type = detail.type || 'info';
                 this.title = detail.title || (this.type === 'error' ? 'Peringatan!' : (this.type === 'success' ? 'Berhasil!' : 'Informasi'));
                 this.message = detail.message || '';
