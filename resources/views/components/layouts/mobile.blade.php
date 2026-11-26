@@ -828,7 +828,11 @@
 
     <script>
         (function () {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+                || window.matchMedia('(display-mode: minimal-ui)').matches
+                || window.matchMedia('(display-mode: fullscreen)').matches
+                || window.matchMedia('(display-mode: window-controls-overlay)').matches
+                || window.navigator.standalone === true;
             if (isStandalone) return;
 
             const banner = document.getElementById('pwa-install-banner');
@@ -873,6 +877,7 @@
             closeBtn.addEventListener('click', () => {
                 banner.classList.add('hidden');
                 sessionStorage.setItem('sakti_pwa_dismissed', '1');
+                localStorage.setItem('sakti_pwa_installed', '1');
             });
 
             window.addEventListener('appinstalled', () => {
