@@ -899,6 +899,16 @@
             <p id="sakti-perm-desc" class="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
                 SAKTI Mobile memerlukan izin <strong>Notifikasi</strong> dan <strong>Lokasi (GPS)</strong> agar presensi dan pemberitahuan surat tugas berjalan normal.
             </p>
+            <div class="mt-3.5 grid grid-cols-2 gap-2 text-[11px] font-bold">
+                <div class="px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 flex items-center justify-between">
+                    <span class="text-slate-600 dark:text-zinc-300"><i class="fa-solid fa-bell mr-1"></i>Notif</span>
+                    <span id="sakti-perm-notif-status" class="px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700">Belum</span>
+                </div>
+                <div class="px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 flex items-center justify-between">
+                    <span class="text-slate-600 dark:text-zinc-300"><i class="fa-solid fa-location-dot mr-1"></i>GPS</span>
+                    <span id="sakti-perm-gps-status" class="px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700">Belum</span>
+                </div>
+            </div>
             <button type="button" id="sakti-perm-btn"
                 class="mt-5 w-full py-3 px-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-lg shadow-sky-600/25 active:scale-95 transition cursor-pointer">
                 Aktifkan Sekarang
@@ -922,6 +932,20 @@
                     } catch (e) {
                         gpsOk = true;
                     }
+                }
+                const notifBadge = document.getElementById('sakti-perm-notif-status');
+                const gpsBadge = document.getElementById('sakti-perm-gps-status');
+                if (notifBadge) {
+                    notifBadge.textContent = notifOk ? 'Aktif' : 'Belum';
+                    notifBadge.className = notifOk
+                        ? 'px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700'
+                        : 'px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700';
+                }
+                if (gpsBadge) {
+                    gpsBadge.textContent = gpsOk ? 'Aktif' : 'Belum';
+                    gpsBadge.className = gpsOk
+                        ? 'px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700'
+                        : 'px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700';
                 }
                 if (!notifOk || !gpsOk) {
                     modal.classList.remove('hidden');
