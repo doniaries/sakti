@@ -229,7 +229,7 @@
                 @if ($activeTab === 'saya' && $item->status === 'menunggu')
                     <div class="mt-3 pt-2 border-t border-slate-100 flex justify-end">
                         <button type="button"
-                            @click.stop.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin membatalkan dan menghapus pengajuan izin ini?', onConfirm: () => $wire.batalkanPengajuan({{ $item->id }}) })"
+                            @click.stop.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin membatalkan dan menghapus pengajuan izin ini?', wireId: '{{ $this->getId() }}', method: 'batalkanPengajuan', params: [{{ $item->id }}] })"
                             class="text-[11px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1 transition">
                             <i class="fa-solid fa-trash-can text-[10px]"></i> Batalkan Pengajuan
                         </button>

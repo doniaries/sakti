@@ -67,7 +67,7 @@
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <button type="button"
-                                @click.prevent="$dispatch('sakti-confirm', { message: 'Hapus aktivitas ini dari Bank Aktivitas Anda?', onConfirm: () => $wire.deleteItem({{ $item->id }}) })"
+                                @click.prevent="$dispatch('sakti-confirm', { message: 'Hapus aktivitas ini dari Bank Aktivitas Anda?', wireId: '{{ $this->getId() }}', method: 'deleteItem', params: [{{ $item->id }}] })"
                                 class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-500 hover:text-rose-700 flex items-center justify-center text-xs transition" title="Hapus">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>

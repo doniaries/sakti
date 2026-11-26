@@ -2155,7 +2155,7 @@
                             </button>
                             <button type="button" wire:click="deleteJabatan({{ $item->id }})"
                                 wire:confirm="Yakin ingin menghapus riwayat jabatan ini?" <button type="button"
-                                @click.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin menghapus riwayat jabatan ini?', onConfirm: () => $wire.deleteJabatan({{ $item->id }}) })"
+                                @click.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin menghapus riwayat jabatan ini?', wireId: '{{ $this->getId() }}', method: 'deleteJabatan', params: [{{ $item->id }}] })"
                                 class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
                                 title="Hapus Jabatan">
                                 <i class="fa-solid fa-trash text-[10px]"></i>

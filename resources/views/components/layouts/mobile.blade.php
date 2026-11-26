@@ -999,12 +999,16 @@
             open: false,
             title: 'Konfirmasi Hapus',
             message: 'Yakin ingin menghapus data ini?',
-            onConfirm: null
+            wireId: null,
+            method: null,
+            params: []
         }"
         @sakti-confirm.window="
             title = $event.detail?.title || 'Konfirmasi Hapus';
             message = $event.detail?.message || 'Yakin ingin menghapus data ini?';
-            onConfirm = $event.detail?.onConfirm || null;
+            wireId = $event.detail?.wireId || null;
+            method = $event.detail?.method || null;
+            params = $event.detail?.params || [];
             open = true;
         "
         x-show="open"
@@ -1030,7 +1034,7 @@
                     class="py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
                     Batal
                 </button>
-                <button type="button" @click="open = false; if (typeof onConfirm === 'function') onConfirm();"
+                <button type="button" @click="open = false; if (wireId && method && window.Livewire) { window.Livewire.find(wireId)?.call(method, ...params); }"
                     class="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm shadow-rose-500/30 transition cursor-pointer">
                     Ya, Hapus
                 </button>
