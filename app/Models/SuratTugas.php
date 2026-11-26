@@ -238,6 +238,9 @@ class SuratTugas extends Model
             ? User::whereIn('id', $this->penanggung_jawab_ids)->get()
             : collect();
 
+        // Notifikasi usulan ke tim dinonaktifkan agar user hanya menerima notif saat surat sudah disetujui/terbit.
+        return;
+
         $ditunjuk = $penanggungJawabs
             ->merge($this->pegawais)
             ->filter(fn (?User $u): bool => $u !== null && $u->id !== $this->penandatangan_id)
