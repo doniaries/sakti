@@ -245,16 +245,6 @@ class Persetujuan extends Component
                 ->get()
             : collect();
 
-        if (! $this->hasExplicitTab && $this->tab === 'izin' && $izinList->isEmpty()) {
-            if ($lhkList->isNotEmpty()) {
-                $this->tab = 'lhk';
-            } elseif ($spjList->isNotEmpty()) {
-                $this->tab = 'spj';
-            } elseif ($suratTugasList->isNotEmpty()) {
-                $this->tab = 'surat_tugas';
-            }
-        }
-
         $hasStatusVerifikasi = $lhkEnabled && Schema::hasColumn('lhk_pekerjaans', 'status_verifikasi');
         $lhkList = $hasStatusVerifikasi
             ? LhkPekerjaan::with(['lhk.user', 'aktivitas'])
@@ -264,16 +254,6 @@ class Persetujuan extends Component
                 ->limit(25)
                 ->get()
             : collect();
-
-        if (! $this->hasExplicitTab && $this->tab === 'izin' && $izinList->isEmpty()) {
-            if ($lhkList->isNotEmpty()) {
-                $this->tab = 'lhk';
-            } elseif ($spjList->isNotEmpty()) {
-                $this->tab = 'spj';
-            } elseif ($suratTugasList->isNotEmpty()) {
-                $this->tab = 'surat_tugas';
-            }
-        }
 
         $spjStatuses = [];
         if ($user?->hasRole('super_admin')) {
