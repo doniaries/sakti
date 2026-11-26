@@ -51,6 +51,11 @@ class Index extends Component
             return;
         }
 
+        if ($surat->status === 'terbit' && ! $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) {
+            $this->dispatch('notify', type: 'warning', title: 'Tidak Dapat Dihapus', message: 'Surat tugas yang sudah terbit hanya dapat dihapus oleh Admin/Superadmin.');
+            return;
+        }
+
         $surat->pegawais()->detach();
         $surat->delete();
 
