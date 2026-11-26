@@ -210,9 +210,9 @@ class Dashboard extends Component
             return;
         }
 
-        $pengaturan = PengaturanAplikasi::getPengaturan();
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $next = ! (bool) ($pengaturan->mode_simulasi ?? false);
-        PengaturanAplikasi::first()?->update(['mode_simulasi' => $next]);
+        \App\Models\PengaturanAplikasi::first()?->update(['mode_simulasi' => $next]);
 
         $this->dispatch('notify', [
             'type' => $next ? 'success' : 'info',
