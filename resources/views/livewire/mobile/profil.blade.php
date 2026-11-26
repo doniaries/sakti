@@ -388,14 +388,14 @@
                 class="mt-2 rounded-xl bg-white/10 px-3 py-2 flex items-center justify-between gap-2 text-[11px]">
                 <div class="flex items-center gap-2 text-white font-semibold">
                     <i class="fa-solid fa-fingerprint text-sky-200"></i>
-                    <span>Masuk Sidik Jari</span>
+                    <span x-text="perms.biometricEnrolled ? 'Masuk Sidik Jari' : 'Daftarkan Sidik Jari'"></span>
                 </div>
                 <button type="button"
-                    @click="perms.biometricEnabled = !perms.biometricEnabled; window.SaktiNative?.postMessage(JSON.stringify({ action: 'set_biometric', enabled: perms.biometricEnabled }))"
+                    @click="const next = !(perms.biometricEnrolled && perms.biometricEnabled); window.SaktiNative?.postMessage(JSON.stringify({ action: 'set_biometric', enabled: next }))"
                     class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200"
-                    :class="perms.biometricEnabled ? 'bg-emerald-400' : 'bg-white/25'">
+                    :class="(perms.biometricEnrolled && perms.biometricEnabled) ? 'bg-emerald-400' : 'bg-white/25'">
                     <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 mt-0.5"
-                        :class="perms.biometricEnabled ? 'translate-x-4 ml-0.5' : 'translate-x-0.5'"></span>
+                        :class="(perms.biometricEnrolled && perms.biometricEnabled) ? 'translate-x-4 ml-0.5' : 'translate-x-0.5'"></span>
                 </button>
             </div>
         </div>

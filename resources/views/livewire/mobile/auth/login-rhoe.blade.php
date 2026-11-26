@@ -264,9 +264,9 @@
                 </a>
             @endif
             <div x-data="{
-                    showBio: !!window.SaktiNative && (window.__saktiPerms?.biometricEnabled !== false) && (window.__saktiPerms?.biometricSupported !== false)
+                    showBio: !!window.SaktiNative && (window.__saktiPerms?.biometricEnrolled === true) && (window.__saktiPerms?.biometricEnabled !== false) && (window.__saktiPerms?.biometricSupported !== false)
                 }"
-                @sakti-device-permissions.window="showBio = !!window.SaktiNative && ($event.detail?.biometricEnabled !== false) && ($event.detail?.biometricSupported !== false)"
+                @sakti-device-permissions.window="showBio = !!window.SaktiNative && ($event.detail?.biometricEnrolled === true) && ($event.detail?.biometricEnabled !== false) && ($event.detail?.biometricSupported !== false)"
                 x-show="showBio"
                 x-cloak
                 class="mt-2.5">
