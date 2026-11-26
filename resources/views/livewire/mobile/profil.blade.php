@@ -357,7 +357,26 @@
                     </button>
                 @endforeach
                 @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']) || auth()->user()?->can('ViewAny:Role'))
-                    <div x-data="{ pengaturanOpen: false }" class="contents">
+                    <div x-data="{
+                        pengaturanOpen: false,
+                        appSettingsOpen: false,
+                        isDark: document.documentElement.classList.contains('dark'),
+                        notifOk: !('Notification' in window) || Notification.permission === 'granted',
+                        toggleTheme() {
+                            if (window.toggleMobileTheme) {
+                                window.toggleMobileTheme();
+                                this.isDark = document.documentElement.classList.contains('dark');
+                            }
+                        },
+                        async requestNotif() {
+                            if ('Notification' in window) {
+                                try {
+                                    const p = await Notification.requestPermission();
+                                    this.notifOk = p === 'granted';
+                                } catch (e) {}
+                            }
+                        }
+                    }" class="contents">
                         <button type="button" @click="pengaturanOpen = true"
                             class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
                             <div
@@ -403,7 +422,12 @@
                                 @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']))
                                     <button type="button" wire:click="setTab('sistem')" @click="pengaturanOpen = false"
                                         class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
-                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-gears text-slate-600 mr-2"></i>Pengaturan Modul &amp; Sistem</span>
+                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-gears text-slate-600 mr-2"></i>Pengaturan Modul</span>
+                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                    </button>
+                                    <button type="button" @click="pengaturanOpen = false; appSettingsOpen = true"
+                                        class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
+                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-mobile-screen text-indigo-600 mr-2"></i>Pengaturan Aplikasi</span>
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                     </button>
                                     <button type="button" wire:click="tesKirimNotif" @click="pengaturanOpen = false"
@@ -412,6 +436,82 @@
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                     </button>
                                 @endif
+                            </div>
+                        </div>
+
+                        <!-- Modal Pengaturan Aplikasi -->
+                        @php
+                            $appCfg = \App\Models\PengaturanAplikasi::getPengaturan();
+                        @endphp
+                        <div x-show="appSettingsOpen" x-cloak
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
+                            class="fixed inset-0 z-[105] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
+                            <div @click.outside="appSettingsOpen = false"
+                                x-show="appSettingsOpen"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="translate-y-full sm:translate-y-4 sm:scale-95 opacity-0"
+                                x-transition:enter-end="translate-y-0 sm:scale-100 opacity-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="translate-y-0 sm:scale-100 opacity-100"
+                                x-transition:leave-end="translate-y-full sm:translate-y-4 sm:scale-95 opacity-0"
+                                class="w-full max-w-md max-h-[85dvh] overflow-y-auto bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <h3 class="text-sm font-extrabold text-slate-900">Pengaturan Aplikasi</h3>
+                                    <button type="button" @click="appSettingsOpen = false" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-800">Mode Tema</div>
+                                        <div class="text-[10px] text-slate-400" x-text="isDark ? 'Mode Gelap aktif' : 'Mode Terang aktif'"></div>
+                                    </div>
+                                    <button type="button" @click="toggleTheme()"
+                                        class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-bold cursor-pointer">
+                                        <span x-text="isDark ? 'Ubah ke Terang' : 'Ubah ke Gelap'"></span>
+                                    </button>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-800">Izin Notifikasi Perangkat</div>
+                                        <div class="text-[10px]" :class="notifOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
+                                            x-text="notifOk ? 'Sudah Diizinkan' : 'Belum Diizinkan'"></div>
+                                    </div>
+                                    <button type="button" x-show="!notifOk" @click="requestNotif()"
+                                        class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold cursor-pointer">
+                                        Izinkan
+                                    </button>
+                                </div>
+
+                                <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-xs font-bold text-slate-800">Pembatasan Device (Binding)</div>
+                                        <div class="text-[10px] text-slate-400">Pengaturan dari Admin Filament</div>
+                                    </div>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold {{ ($appCfg->device_binding_enabled ?? false) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600' }}">
+                                        {{ ($appCfg->device_binding_enabled ?? false) ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
+                                </div>
+
+                                <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-100 space-y-1 text-xs">
+                                    <div class="font-extrabold text-slate-900">{{ $appCfg->nama_aplikasi ?? 'SAKTI' }}</div>
+                                    <div class="text-[11px] text-slate-600">{{ $appCfg->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}</div>
+                                    <div class="text-[11px] text-sky-700 font-bold pt-1">
+                                        Versi: {{ $appCfg->app_version ?? $appCfg->versi_aplikasi ?? '1.0.0' }}
+                                    </div>
+                                    @if (!empty($appCfg->update_notes ?? $appCfg->catatan_rilis))
+                                        <div class="text-[11px] text-slate-500 pt-0.5">
+                                            {{ $appCfg->update_notes ?? $appCfg->catatan_rilis }}
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1439,7 +1539,7 @@
                 <div class="w-full max-w-lg max-h-[88dvh] overflow-y-auto bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl">
                     <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                         <h3 class="text-sm font-extrabold text-slate-900">
-                            {{ $activeTab === 'peran' ? 'Peran & Akses' : 'Pengaturan Modul & Sistem' }}
+                            {{ $activeTab === 'peran' ? 'Peran & Akses' : 'Pengaturan Modul' }}
                         </h3>
                         <button type="button" wire:click="setTab('menu')"
                             class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
