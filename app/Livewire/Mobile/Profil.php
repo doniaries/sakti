@@ -107,7 +107,9 @@ class Profil extends Component
     public string $jab_nomor_sk = '';
     public string $jab_tanggal_sk = '';
     public string $jab_tmt_jabatan = '';
-    public bool $jab_is_sekarang = true;
+    public bool $jab_is_sekarang = false;
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
+    public $jab_file_sk = null;
 
     // Tab Pendidikan
     public ?int $editingPendidikanId = null;
@@ -248,7 +250,7 @@ class Profil extends Component
         $this->jab_nomor_sk = $item?->nomor_sk ?? '';
         $this->jab_tanggal_sk = $item?->tanggal_sk ? $item->tanggal_sk->format('Y-m-d') : '';
         $this->jab_tmt_jabatan = $item?->tmt_jabatan ? $item->tmt_jabatan->format('Y-m-d') : '';
-        $this->jab_is_sekarang = $item ? (bool) $item->is_jabatan_sekarang : true;
+        $this->jab_is_sekarang = $item ? (bool) $item->is_jabatan_sekarang : false;
     }
 
     private function fillPendidikanForm(?RiwayatPendidikan $item): void
@@ -601,6 +603,11 @@ class Profil extends Component
             'tmt_jabatan' => $this->jab_tmt_jabatan ?: null,
             'is_jabatan_sekarang' => $this->jab_is_sekarang,
         ];
+
+        if ($this->jab_file_sk) {
+            $payload['file_sk_jabatan'] = $this->jab_file_sk->store('riwayat-jabatan/sk', 'public');
+            $this->jab_file_sk = null;
+        }
 
         $existing = $this->editingJabatanId
             ? RiwayatJabatan::where('user_id', $freshUser->id)->find($this->editingJabatanId)
