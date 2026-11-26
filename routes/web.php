@@ -61,6 +61,7 @@ Route::prefix('mobile')->group(function () {
         });
         Route::get('/profil', \App\Livewire\Mobile\Profil::class)->name('mobile.profil');
         Route::get('/kepegawaian', \App\Livewire\Mobile\Kepegawaian::class)->name('mobile.kepegawaian');
+        Route::get('/kelengkapan-pegawai', \App\Livewire\Mobile\KelengkapanPegawai::class)->name('mobile.kelengkapan-pegawai');
         Route::get('/agenda', \App\Livewire\Mobile\Agenda::class)->name('mobile.agenda');
         Route::get('/surat-tugas', \App\Livewire\Mobile\SuratTugas\Index::class)->name('mobile.surat-tugas.index');
         Route::get('/surat-tugas/buat', \App\Livewire\Mobile\SuratTugas\Form::class)->name('mobile.surat-tugas.create');
