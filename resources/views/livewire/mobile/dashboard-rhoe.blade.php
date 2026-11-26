@@ -374,35 +374,6 @@
                             <div class="text-[10px] text-zinc-400">{{ $item['tanggal'] }}</div>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                    <div x-data="{
-                            mode: localStorage.getItem('sakti_notif_mode') || 'sound',
-                            toast: '',
-                            syncNative() {
-                                if (window.SaktiNative && typeof window.SaktiNative.postMessage === 'function') {
-                                    window.SaktiNative.postMessage(JSON.stringify({ action: 'notif_mode', mode: this.mode }));
-                                }
-                            },
-                            cycle() {
-                                this.mode = this.mode === 'sound' ? 'vibrate' : (this.mode === 'vibrate' ? 'off' : 'sound');
-                                localStorage.setItem('sakti_notif_mode', this.mode);
-                                this.syncNative();
-                                this.toast = this.mode === 'sound' ? 'Notif: Suara & Getar' : (this.mode === 'vibrate' ? 'Notif: Getar Saja' : 'Notif: Nonaktif');
-                                setTimeout(() => this.toast = '', 1800);
-                            }
-                        }"
-                        x-init="syncNative()"
-                        class="relative shrink-0">
-                        <button type="button" @click="cycle()"
-                            class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer"
-                            :title="mode === 'sound' ? 'Notifikasi: Suara & Getar' : (mode === 'vibrate' ? 'Notifikasi: Getar Saja' : 'Notifikasi: Nonaktif')">
-                            <i x-show="mode === 'sound'" class="fa-solid fa-volume-high text-sm text-white"></i>
-                            <i x-show="mode === 'vibrate'" x-cloak class="fa-solid fa-mobile-screen-button text-sm text-amber-300"></i>
-                            <i x-show="mode === 'off'" x-cloak class="fa-solid fa-bell-slash text-sm text-rose-300"></i>
-                        </button>
-                        <div x-show="toast" x-cloak x-transition
-                            class="absolute right-0 top-11 z-50 whitespace-nowrap rounded-full bg-slate-900/90 text-white px-3 py-1 text-[10px] font-bold shadow-lg"
-                            x-text="toast"></div>
-                    </div>
                             <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300">
                                 {{ $item['jam_masuk'] ? substr($item['jam_masuk'], 0, 5) : '--:--' }}
                                 <span class="text-zinc-300 dark:text-zinc-600">–</span>
