@@ -53,8 +53,9 @@
 
     <!-- PWA Setup -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="{{ asset('manifest-portal.json') }}?v=1">
     <meta name="theme-color" content="#070B1A">
+    <meta name="apple-mobile-web-app-title" content="Portal Digital Parpora">
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 
     <!-- Fonts & Icons -->
@@ -552,7 +553,7 @@
             <h1
                 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-none mb-2
                        text-transparent bg-clip-text bg-gradient-to-r from-white via-sky-100 to-sky-300 drop-shadow-sm">
-                PORTAL PARPORA
+                PORTAL DIGITAL PARPORA
             </h1>
             <p class="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-relaxed mb-4">
                 Portal Layanan Digital Disparpora Sijunjung

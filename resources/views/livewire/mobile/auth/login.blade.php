@@ -37,10 +37,10 @@
         <!-- Logo Instansi dengan Biometric Badge Sesuai Permintaan -->
         <div class="relative mb-2.5">
             <div
-                class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md p-2.5 border border-white/25 shadow-xl shadow-sky-950/30 flex items-center justify-center">
+                class="w-16 h-16 rounded-2xl bg-white/15 backdrop-blur-md overflow-hidden border border-white/25 shadow-xl shadow-sky-950/30 flex items-center justify-center">
                 @if ($logoUrl)
                     <img src="{{ $logoUrl }}" alt="Logo Pemerintah Kabupaten Sijunjung"
-                        class="w-full h-full object-contain filter drop-shadow-sm">
+                        class="w-full h-full object-cover filter drop-shadow-sm">
                 @else
                     <i class="fa-solid fa-building-columns text-white text-2xl"></i>
                 @endif

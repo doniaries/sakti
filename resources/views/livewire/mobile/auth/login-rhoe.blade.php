@@ -59,8 +59,8 @@
         <div class="flex flex-col items-center text-center mb-6">
             <div class="relative mb-3">
                 <div
-                    class="w-16 h-16 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-2.5 shadow-lg flex items-center justify-center">
-                    <img src="{{ $logoUrl }}" alt="Logo Instansi" class="w-full h-full object-contain">
+                    class="w-16 h-16 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-lg flex items-center justify-center">
+                    <img src="{{ $logoUrl }}" alt="Logo Instansi" class="w-full h-full object-cover">
                 </div>
                 <span
                     class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-sky-500 text-white border-2 border-[#fafafa] dark:border-[#09090b] flex items-center justify-center text-[10px] shadow">

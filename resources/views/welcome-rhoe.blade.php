@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ url('/') }}">
-    <title>Portal Parpora Sijunjung – SAKTI Parpora | Dinas Pariwisata, Pemuda dan Olahraga</title>
-    <meta name="description" content="Portal Parpora Sijunjung (SAKTI Parpora) – Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.">
+    <title>Portal Digital Parpora – Disparpora Sijunjung</title>
+    <meta name="description" content="Portal Digital Parpora Sijunjung – Portal Layanan Digital Dinas Pariwisata, Pemuda dan Olahraga Kabupaten Sijunjung.">
 
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="manifest" href="{{ asset('manifest-portal.json') }}?v=1">
     <meta name="theme-color" content="#09090b">
+    <meta name="apple-mobile-web-app-title" content="Portal Digital Parpora">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
 
     @if (app()->environment('local') && file_exists(public_path('hot')))
@@ -219,7 +220,7 @@
             </div>
 
             <h1 class="rhoe-heading text-4xl sm:text-6xl font-black tracking-tight leading-[1.08] bg-gradient-to-b from-white via-zinc-100 to-zinc-400 bg-clip-text text-transparent mb-3">
-                PORTAL PARPORA
+                PORTAL DIGITAL PARPORA
             </h1>
             <p class="rhoe-muted text-sm sm:text-base text-zinc-400 max-w-xl mx-auto leading-relaxed mb-6">
                 Portal Layanan Digital Disparpora Sijunjung — Satu Portal untuk Semua Layanan Kepegawaian, Kinerja, SPJ, Aset, dan Informasi Publik.
