@@ -66,7 +66,7 @@
     </div>
 
     <!-- Bottom Content: Hari Besar Card / Random Illustration + Login Button -->
-    <div class="flex-1 px-5 py-5 flex flex-col justify-between max-w-md mx-auto w-full">
+    <div class="flex-1 px-5 pt-2 pb-5 flex flex-col justify-between max-w-md mx-auto w-full">
         @if (($hariLiburHariIni ?? null) || ($hariLiburTerdekat ?? null))
             @php
                 $holidayItem = ($hariLiburHariIni ?? null) ?: ($hariLiburTerdekat ?? null);
@@ -88,7 +88,7 @@
             @php
                 $randomImg = asset('images/login-bg/' . rand(1, 3) . '.png');
             @endphp
-            <div class="flex-1 flex items-center justify-center py-2">
+            <div class="flex-1 flex items-start justify-center pt-1">
                 <img src="{{ $randomImg }}" alt="Ilustrasi Sijunjung" class="w-full max-h-60 object-contain rounded-2xl">
             </div>
         @endif
