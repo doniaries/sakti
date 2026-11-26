@@ -113,7 +113,8 @@
                     body: body,
                     icon: '/icons/icon-192x192.png?v=2',
                     badge: '/icons/icon-192x192.png?v=2',
-                    vibrate: [150, 80, 150],
+                    vibrate: [200, 100, 200],
+                    silent: false,
                     tag: 'sakti-notif-' + Date.now(),
                     renotify: true
                 };

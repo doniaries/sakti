@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sakti-pwa-v5';
+const CACHE_NAME = 'sakti-pwa-v6';
 const urlsToCache = [
   '/manifest.json',
   '/manifest-admin.json',
@@ -66,7 +66,8 @@ self.addEventListener('push', function(event) {
       body: data.body,
       icon: data.icon || '/icons/icon-192x192.png?v=2',
       badge: data.badge || '/icons/icon-192x192.png?v=2',
-      vibrate: [150, 80, 150],
+      vibrate: [200, 100, 200],
+      silent: false,
       data: { url: (data.data && data.data.url) || data.url || '/mobile/dashboard' },
       tag: 'sakti-push-' + Date.now(),
       renotify: true
