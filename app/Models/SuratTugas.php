@@ -232,6 +232,36 @@ class SuratTugas extends Model
                 $approver->sendWebPush('Permohonan Persetujuan Surat Tugas', "Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}", route('mobile.persetujuan', ['tab' => 'surat_tugas']));
             }
         }
+
+        // Kirim juga notifikasi ke Penanggung Jawab Bidang & Personil Tim Kreatif yang ditunjuk
+        $this->loadMissing(['pegawais']);
+        $penanggungJawabs = filled($this->penanggung_jawab_ids)
+            ? User::whereIn('id', $this->penanggung_jawab_ids)->get()
+            : collect();
+
+        $ditunjuk = $penanggungJawabs
+            ->merge($this->pegawais)
+            ->filter(fn (?User $u): bool => $u !== null && $u->id !== $this->penandatangan_id)
+            ->unique('id');
+
+        foreach ($ditunjuk as $user) {
+            Notification::make()
+                ->title('Usulan Surat Tugas Baru')
+                ->body("Anda ditunjuk pada usulan Surat Tugas: {$this->nama_kegiatan}")
+                ->icon('heroicon-o-document-text')
+                ->info()
+                ->actions([
+                    \Filament\Actions\Action::make('lihat_surat')
+                        ->label('Lihat Surat Tugas')
+                        ->url(route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id])),
+                ])
+                ->sendToDatabase($user);
+            $user->sendWebPush(
+                'Usulan Surat Tugas Baru',
+                "Anda ditunjuk pada usulan Surat Tugas: {$this->nama_kegiatan}",
+                route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id])
+            );
+        }
     }
 
     public function kirimNotifikasiKeTim(): void
