@@ -24,6 +24,8 @@ class ListHariLiburs extends ListRecords
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('jenis', 'nasional')),
             'cuti_bersama' => Tab::make('Cuti Bersama')
                 ->modifyQueryUsing(fn (Builder $query): Builder => $query->where('jenis', 'cuti_bersama')),
+            'peringatan' => Tab::make('Peringatan (Non-API)')
+                ->modifyQueryUsing(fn (Builder $query): Builder => $query->whereNotIn('jenis', ['nasional', 'cuti_bersama'])),
         ];
     }
 
