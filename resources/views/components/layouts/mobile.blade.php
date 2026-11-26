@@ -68,7 +68,8 @@
             window.addEventListener('touchstart', requestNotifPermission, { once: true, passive: true });
 
             window.addEventListener('notify', (event) => {
-                const detail = event.detail || {};
+                const raw = event.detail;
+                const detail = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
                 const title = detail.title || 'SAKTI Mobile';
                 const body = detail.message || '';
                 if (!body || Notification.permission !== 'granted') return;
@@ -83,8 +84,13 @@
                 };
 
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.ready
-                        .then((reg) => reg.showNotification(title, options))
+                    navigator.serviceWorker.getRegistration()
+                        .then((reg) => {
+                            if (reg && reg.showNotification) {
+                                return reg.showNotification(title, options);
+                            }
+                            new Notification(title, options);
+                        })
                         .catch(() => {
                             try { new Notification(title, options); } catch (e) {}
                         });
