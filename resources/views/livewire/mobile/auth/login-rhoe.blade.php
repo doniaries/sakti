@@ -16,10 +16,10 @@
         updateClock();
         setInterval(updateClock, 1000);
     }
-}" class="min-h-screen flex flex-col bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+}" class="min-h-[100dvh] flex flex-col bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
 
     <!-- Top Blue Hero -->
-    <div class="relative bg-gradient-to-br from-[#0A2540] via-[#0E4A7B] to-[#0284C7] text-white px-5 pt-4 pb-8 rounded-b-[32px] shadow-xl overflow-hidden">
+    <div class="relative bg-gradient-to-br from-[#0A2540] via-[#0E4A7B] to-[#0284C7] text-white px-5 pt-3 pb-5 rounded-b-[28px] shadow-xl overflow-hidden shrink-0">
         <div class="flex items-center justify-between mb-4">
             <a href="{{ route('portal') }}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-white text-xs font-semibold backdrop-blur-md">
@@ -88,13 +88,13 @@
             @php
                 $randomImg = asset('images/login-bg/' . rand(1, 3) . '.png');
             @endphp
-            <div class="flex-1 flex items-start justify-center pt-1">
-                <img src="{{ $randomImg }}" alt="Ilustrasi Sijunjung" class="w-full max-h-60 object-contain rounded-2xl">
+            <div class="flex-1 flex items-center justify-center min-h-0 py-1">
+                <img src="{{ $randomImg }}" alt="Ilustrasi Sijunjung" class="w-full max-h-[26dvh] sm:max-h-56 object-contain rounded-2xl">
             </div>
         @endif
 
         <button type="button" @click="loginSheet = true"
-            class="mt-5 w-full py-3.5 px-5 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm shadow-lg shadow-sky-600/25 active:scale-[0.98] transition cursor-pointer">
+            class="mt-3 w-full py-3.5 px-5 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm shadow-lg shadow-sky-600/25 active:scale-[0.98] transition cursor-pointer shrink-0">
             Login
         </button>
     </div>
