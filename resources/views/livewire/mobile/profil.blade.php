@@ -382,18 +382,18 @@
                             <div class="text-[10px] text-slate-400 mt-0.5">Konfigurasi &amp; Modul</div>
                         </div>
                     </button>
-                    <button type="button" wire:click="tesKirimNotif"
-                        class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
-                        <div
-                            class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-base">
-                            <i class="fa-solid fa-bell"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs font-extrabold text-slate-800 leading-tight">Tes Kirim Notif</div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">Uji Notif PWA / Android</div>
-                        </div>
-                    </button>
                 @endif
+                <button type="button" wire:click="tesKirimNotif"
+                    class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
+                    <div
+                        class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-base">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-extrabold text-slate-800 leading-tight">Tes Kirim Notif</div>
+                        <div class="text-[10px] text-slate-400 mt-0.5">Uji Notif PWA / Android</div>
+                    </div>
+                </button>
             </div>
         @else
             <div class="flex items-center justify-between mb-3">

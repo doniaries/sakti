@@ -883,6 +883,72 @@
         })();
     </script>
 
+    @auth
+    <!-- Modal Paksa Aktifkan Izin Notifikasi & GPS -->
+    <div id="sakti-perm-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl text-center">
+            <div class="mx-auto w-14 h-14 rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-2xl mb-4">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Aktifkan Izin Notifikasi &amp; GPS</h3>
+            <p id="sakti-perm-desc" class="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
+                SAKTI Mobile memerlukan izin <strong>Notifikasi</strong> dan <strong>Lokasi (GPS)</strong> agar presensi dan pemberitahuan surat tugas berjalan normal.
+            </p>
+            <button type="button" id="sakti-perm-btn"
+                class="mt-5 w-full py-3 px-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-lg shadow-sky-600/25 active:scale-95 transition cursor-pointer">
+                Aktifkan Sekarang
+            </button>
+        </div>
+    </div>
+    <script>
+        (function () {
+            const modal = document.getElementById('sakti-perm-modal');
+            const btn = document.getElementById('sakti-perm-btn');
+            const desc = document.getElementById('sakti-perm-desc');
+            if (!modal || !btn) return;
+
+            const checkPermissions = async () => {
+                const notifOk = !('Notification' in window) || Notification.permission === 'granted';
+                let gpsOk = !('geolocation' in navigator);
+                if (!gpsOk && navigator.permissions && navigator.permissions.query) {
+                    try {
+                        const geo = await navigator.permissions.query({ name: 'geolocation' });
+                        gpsOk = geo.state === 'granted';
+                    } catch (e) {
+                        gpsOk = true;
+                    }
+                }
+                if (!notifOk || !gpsOk) {
+                    modal.classList.remove('hidden');
+                } else {
+                    modal.classList.add('hidden');
+                }
+            };
+
+            btn.addEventListener('click', async () => {
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    try { await Notification.requestPermission(); } catch (e) {}
+                }
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        () => checkPermissions(),
+                        () => {
+                            if (desc) {
+                                desc.innerHTML = 'Izin diblokir oleh browser. Buka <strong>Pengaturan Situs (ikon gembok di address bar)</strong> lalu aktifkan <strong>Notifikasi</strong> dan <strong>Lokasi</strong>, kemudian muat ulang halaman.';
+                            }
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    );
+                }
+                await checkPermissions();
+            });
+
+            window.addEventListener('load', checkPermissions);
+            document.addEventListener('livewire:navigated', checkPermissions);
+        })();
+    </script>
+    @endauth
+
     @livewireScripts
 </body>
 </html>
