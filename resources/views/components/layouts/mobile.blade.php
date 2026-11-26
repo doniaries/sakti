@@ -986,6 +986,50 @@
     </script>
     @endauth
 
+    <!-- Global Tailwind/Flutter-style Delete Confirmation Modal -->
+    <div x-data="{
+            open: false,
+            title: 'Konfirmasi Hapus',
+            message: 'Yakin ingin menghapus data ini?',
+            onConfirm: null
+        }"
+        @sakti-confirm.window="
+            title = $event.detail?.title || 'Konfirmasi Hapus';
+            message = $event.detail?.message || 'Yakin ingin menghapus data ini?';
+            onConfirm = $event.detail?.onConfirm || null;
+            open = true;
+        "
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs"
+        style="display: none;">
+        <div x-show="open"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+            @click.outside="open = false"
+            class="w-full max-w-xs bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-800 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/15 text-rose-500 flex items-center justify-center mx-auto mb-3 text-lg">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-slate-100" x-text="title"></h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed" x-text="message"></p>
+            <div class="grid grid-cols-2 gap-2.5 mt-5">
+                <button type="button" @click="open = false"
+                    class="py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" @click="open = false; if (typeof onConfirm === 'function') onConfirm();"
+                    class="py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm shadow-rose-500/30 transition cursor-pointer">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
     @livewireScripts
 </body>
 </html>

@@ -66,8 +66,8 @@
                                 class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-sky-600 flex items-center justify-center text-xs transition" title="Ubah">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button type="button" wire:click="deleteItem({{ $item->id }})"
-                                wire:confirm="Hapus aktivitas ini dari Bank Aktivitas Anda?"
+                            <button type="button"
+                                @click.prevent="$dispatch('sakti-confirm', { message: 'Hapus aktivitas ini dari Bank Aktivitas Anda?', onConfirm: () => $wire.deleteItem({{ $item->id }}) })"
                                 class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-500 hover:text-rose-700 flex items-center justify-center text-xs transition" title="Hapus">
                                 <i class="fa-solid fa-trash-can"></i>
                             </button>

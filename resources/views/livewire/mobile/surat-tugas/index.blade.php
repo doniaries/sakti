@@ -95,8 +95,8 @@
                         </a>
                     @endif
                     @if (auth()->user()?->canManageSuratTugas() && ($surat->status !== 'terbit' || auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin'])))
-                        <button type="button" wire:click="hapus({{ $surat->id }})"
-                            wire:confirm="Yakin ingin menghapus surat tugas ini?"
+                        <button type="button"
+                            @click.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin menghapus surat tugas ini?', onConfirm: () => $wire.hapus({{ $surat->id }}) })"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 text-xs font-semibold cursor-pointer">
                             <i class="fa-solid fa-trash"></i>
                             <span>Hapus</span>
