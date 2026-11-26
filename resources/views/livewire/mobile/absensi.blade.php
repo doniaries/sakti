@@ -225,6 +225,14 @@
                 <span x-text="loadingMasuk ? 'Memproses Absen Datang...' : ((!isWfh && isWithinRadius !== true) ? 'Absen Datang (Di Luar Radius)' : 'Tap Absen Datang Sekarang')"></span>
             </button>
         </div>
+    @elseif (!$hariLiburHariIni && !$sudahMasuk && ($lewatBatasMasuk || $belumBukaMasuk))
+        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <button type="button" disabled
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-slate-500 text-white font-extrabold text-xs shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-50 grayscale cursor-not-allowed">
+                <i class="fa-solid fa-clock text-sm"></i>
+                <span>{{ $belumBukaMasuk ? 'Absen Datang (Belum Buka)' : 'Absen Datang (Di Luar Jam)' }}</span>
+            </button>
+        </div>
     @elseif ($sudahMasuk && !$sudahPulang && !$belumJamPulang && !$lewatBatasPulang)
         <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <button type="button" @click="doPunch('pulang')"
