@@ -76,7 +76,7 @@ class PushNotificationService
 
         foreach ($tokens as $token) {
             try {
-                Http::withToken($accessToken)
+                $response = Http::withToken($accessToken)
                     ->timeout(5)
                     ->post($endpoint, [
                         'message' => [
@@ -88,9 +88,20 @@ class PushNotificationService
                             'data' => array_map('strval', $data),
                             'android' => [
                                 'priority' => 'high',
+                                'notification' => [
+                                    'channel_id' => 'sakti_high_priority',
+                                    'sound' => 'default',
+                                    'default_vibrate_timings' => true,
+                                    'notification_priority' => 'PRIORITY_MAX',
+                                    'visibility' => 'PUBLIC',
+                                ],
                             ],
                         ],
                     ]);
+
+                if (! $response->successful()) {
+                    Log::warning('FCM send rejected', ['status' => $response->status(), 'body' => $response->body()]);
+                }
             } catch (\Throwable $e) {
                 Log::warning('FCM send failed: ' . $e->getMessage());
             }
