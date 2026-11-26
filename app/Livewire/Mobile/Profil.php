@@ -27,6 +27,7 @@ use Livewire\WithFileUploads;
 #[Title('Profil Pegawai - Absensi LHK Mobile')]
 class Profil extends Component
 {
+    public bool $isKepegawaianPage = false;
     use WithFileUploads;
 
     public $activeTab = 'menu'; // 'menu', 'utama', 'administrasi', 'golongan', 'jabatan', 'pendidikan', 'keluarga'
