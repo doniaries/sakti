@@ -450,7 +450,7 @@
                     $stIdFallback = $notif->data['surat_tugas_id'] ?? ($notif->data['viewData']['surat_tugas_id'] ?? null);
                     if (! $notifUrl) {
                         if ($stIdFallback || str_contains($notifTitleLower, 'surat tugas')) {
-                            $notifUrl = route('mobile.surat-tugas.index');
+                            $notifUrl = route('mobile.surat-tugas.index', $stIdFallback ? ['surat_tugas_id' => $stIdFallback] : []);
                         } elseif (str_contains($notifTitleLower, 'lhk')) {
                             $notifUrl = route('mobile.lhk.index');
                         } elseif (str_contains($notifTitleLower, 'izin') || str_contains($notifTitleLower, 'cuti') || str_contains($notifTitleLower, 'persetujuan')) {

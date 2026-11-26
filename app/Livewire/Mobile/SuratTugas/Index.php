@@ -23,6 +23,11 @@ class Index extends Component
         /** @var User|null $user */
         $user = Auth::user();
         abort_unless($user !== null, 403);
+
+        $stId = request()->query('surat_tugas_id');
+        if ($stId && ! SuratTugas::whereKey($stId)->exists()) {
+            $this->dispatch('notify', type: 'warning', title: 'Surat Tugas Tidak Ditemukan', message: 'Surat tugas yang dimaksud sudah tidak ada atau telah dihapus.');
+        }
     }
 
     public function showDetail(int $id): void
