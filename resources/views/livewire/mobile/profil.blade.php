@@ -411,7 +411,7 @@
                             x-transition:leave="transition ease-in duration-150"
                             x-transition:leave-start="opacity-100"
                             x-transition:leave-end="opacity-0"
-                            class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
+                            class="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
                             <div @click.outside="pengaturanOpen = false"
                                 x-show="pengaturanOpen"
                                 x-transition:enter="transition ease-out duration-200"
@@ -465,7 +465,7 @@
                             x-transition:leave="transition ease-in duration-150"
                             x-transition:leave-start="opacity-100"
                             x-transition:leave-end="opacity-0"
-                            class="fixed inset-0 z-[105] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
+                            class="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
                             <div @click.outside="appSettingsOpen = false"
                                 x-show="appSettingsOpen"
                                 x-transition:enter="transition ease-out duration-200"
