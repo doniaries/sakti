@@ -263,6 +263,19 @@
                     <span>Masuk dengan Akun Google</span>
                 </a>
             @endif
+            <div x-data="{
+                    showBio: !!window.SaktiNative && (window.__saktiPerms?.biometricEnabled !== false) && (window.__saktiPerms?.biometricSupported !== false)
+                }"
+                @sakti-device-permissions.window="showBio = !!window.SaktiNative && ($event.detail?.biometricEnabled !== false) && ($event.detail?.biometricSupported !== false)"
+                x-show="showBio"
+                x-cloak
+                class="mt-2.5">
+                <button type="button" @click="window.SaktiNative?.postMessage('biometric_login')"
+                    class="w-full py-2.5 px-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99] transition">
+                    <i class="fa-solid fa-fingerprint text-sm"></i>
+                    <span>Masuk dengan Sidik Jari</span>
+                </button>
+            </div>
         </div>
     </div>
 </div>
