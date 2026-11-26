@@ -245,30 +245,42 @@
                     </button>
                 </div>
                 @php
-                    $heroNik = $user->nik ? (str_contains(strtoupper((string) $user->nik), 'E') ? number_format((float) $user->nik, 0, '', '') : $user->nik) : null;
-                    $heroKk = $user->no_kk ? (str_contains(strtoupper((string) $user->no_kk), 'E') ? number_format((float) $user->no_kk, 0, '', '') : $user->no_kk) : null;
+                    $heroNik = $user->nik
+                        ? (str_contains(strtoupper((string) $user->nik), 'E')
+                            ? number_format((float) $user->nik, 0, '', '')
+                            : $user->nik)
+                        : null;
+                    $heroKk = $user->no_kk
+                        ? (str_contains(strtoupper((string) $user->no_kk), 'E')
+                            ? number_format((float) $user->no_kk, 0, '', '')
+                            : $user->no_kk)
+                        : null;
                 @endphp
                 @if ($heroNik)
-                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5" x-data="{ copiedHeroNik: false }">
+                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5"
+                        x-data="{ copiedHeroNik: false }">
                         <i class="fa-solid fa-id-card text-sky-300 text-[10px]"></i>
                         <span class="truncate">NIK: {{ $heroNik }}</span>
                         <button type="button"
                             @click="navigator.clipboard?.writeText('{{ $heroNik }}'); copiedHeroNik = true; setTimeout(() => copiedHeroNik = false, 1500)"
                             class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
                             title="Salin NIK">
-                            <i class="fa-regular" :class="copiedHeroNik ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
+                            <i class="fa-regular"
+                                :class="copiedHeroNik ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
                         </button>
                     </div>
                 @endif
                 @if ($heroKk)
-                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5" x-data="{ copiedHeroKk: false }">
+                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5"
+                        x-data="{ copiedHeroKk: false }">
                         <i class="fa-solid fa-house-user text-sky-300 text-[10px]"></i>
                         <span class="truncate">KK: {{ $heroKk }}</span>
                         <button type="button"
                             @click="navigator.clipboard?.writeText('{{ $heroKk }}'); copiedHeroKk = true; setTimeout(() => copiedHeroKk = false, 1500)"
                             class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
                             title="Salin No. KK">
-                            <i class="fa-regular" :class="copiedHeroKk ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
+                            <i class="fa-regular"
+                                :class="copiedHeroKk ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
                         </button>
                     </div>
                 @endif
@@ -356,7 +368,8 @@
                         </div>
                     </button>
                 @endforeach
-                @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']) || auth()->user()?->can('ViewAny:Role'))
+                @if (auth()->user()
+                        ?->hasAnyRole(['super_admin', 'admin']) || auth()->user()?->can('ViewAny:Role'))
                     <div x-data="{
                         pengaturanOpen: false,
                         appSettingsOpen: false,
@@ -404,16 +417,12 @@
                             </div>
                         </button>
 
-                        <div x-show="pengaturanOpen" x-cloak
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0"
-                            x-transition:enter-end="opacity-100"
+                        <div x-show="pengaturanOpen" x-cloak x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                             x-transition:leave="transition ease-in duration-150"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             class="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
-                            <div @click.outside="pengaturanOpen = false"
-                                x-show="pengaturanOpen"
+                            <div @click.outside="pengaturanOpen = false" x-show="pengaturanOpen"
                                 x-transition:enter="transition ease-out duration-200"
                                 x-transition:enter-start="translate-y-full sm:translate-y-4 sm:scale-95 opacity-0"
                                 x-transition:enter-end="translate-y-0 sm:scale-100 opacity-100"
@@ -423,31 +432,43 @@
                                 class="w-full max-w-md bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl space-y-2">
                                 <div class="flex items-center justify-between mb-2">
                                     <h3 class="text-sm font-extrabold text-slate-900">Menu Pengaturan</h3>
-                                    <button type="button" @click="pengaturanOpen = false" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
+                                    <button type="button" @click="pengaturanOpen = false"
+                                        class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
                                 </div>
                                 @if (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role'))
-                                    <button type="button" wire:click="setTab('peran')" @click="pengaturanOpen = false"
+                                    <button type="button" wire:click="setTab('peran')"
+                                        @click="pengaturanOpen = false"
                                         class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
-                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-user-shield text-teal-600 mr-2"></i>Peran &amp; Akses</span>
+                                        <span class="text-xs font-bold text-slate-800"><i
+                                                class="fa-solid fa-user-shield text-teal-600 mr-2"></i>Peran &amp;
+                                            Akses</span>
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                     </button>
                                 @endif
-                                @if (auth()->user()?->hasAnyRole(['super_admin', 'admin']))
-                                    <button type="button" wire:click="setTab('sistem')" @click="pengaturanOpen = false"
+                                @if (auth()->user()
+                                        ?->hasAnyRole(['super_admin', 'admin']))
+                                    <button type="button" wire:click="setTab('sistem')"
+                                        @click="pengaturanOpen = false"
                                         class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
-                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-gears text-slate-600 mr-2"></i>Pengaturan Modul</span>
+                                        <span class="text-xs font-bold text-slate-800"><i
+                                                class="fa-solid fa-gears text-slate-600 mr-2"></i>Pengaturan
+                                            Modul</span>
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                     </button>
-                                    <button type="button" @click="pengaturanOpen = false; appSettingsOpen = true; checkGps()"
+                                    <button type="button"
+                                        @click="pengaturanOpen = false; appSettingsOpen = true; checkGps()"
                                         class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
-                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-mobile-screen text-indigo-600 mr-2"></i>Pengaturan Aplikasi</span>
+                                        <span class="text-xs font-bold text-slate-800"><i
+                                                class="fa-solid fa-mobile-screen text-indigo-600 mr-2"></i>Pengaturan
+                                            Aplikasi</span>
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                     </button>
                                     <button type="button" wire:click="tesKirimNotif" @click="pengaturanOpen = false"
                                         class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
-                                        <span class="text-xs font-bold text-slate-800"><i class="fa-solid fa-bell text-sky-600 mr-2"></i>Tes Kirim Notif</span>
+                                        <span class="text-xs font-bold text-slate-800"><i
+                                                class="fa-solid fa-bell text-sky-600 mr-2"></i>Tes Kirim Notif</span>
                                         <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                                     </button>
                                 @endif
@@ -458,16 +479,12 @@
                         @php
                             $appCfg = \App\Models\PengaturanAplikasi::getPengaturan();
                         @endphp
-                        <div x-show="appSettingsOpen" x-cloak
-                            x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0"
-                            x-transition:enter-end="opacity-100"
+                        <div x-show="appSettingsOpen" x-cloak x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                             x-transition:leave="transition ease-in duration-150"
-                            x-transition:leave-start="opacity-100"
-                            x-transition:leave-end="opacity-0"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
                             class="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
-                            <div @click.outside="appSettingsOpen = false"
-                                x-show="appSettingsOpen"
+                            <div @click.outside="appSettingsOpen = false" x-show="appSettingsOpen"
                                 x-transition:enter="transition ease-out duration-200"
                                 x-transition:enter-start="translate-y-full sm:translate-y-4 sm:scale-95 opacity-0"
                                 x-transition:enter-end="translate-y-0 sm:scale-100 opacity-100"
@@ -477,7 +494,8 @@
                                 class="w-full max-w-md max-h-[85dvh] overflow-y-auto bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl space-y-3">
                                 <div class="flex items-center justify-between pb-2 border-b border-slate-100">
                                     <h3 class="text-sm font-extrabold text-slate-900">Pengaturan Aplikasi</h3>
-                                    <button type="button" @click="appSettingsOpen = false" class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
+                                    <button type="button" @click="appSettingsOpen = false"
+                                        class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
                                 </div>
@@ -485,7 +503,8 @@
                                 <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
                                     <div>
                                         <div class="text-xs font-bold text-slate-800">Mode Tema</div>
-                                        <div class="text-[10px] text-slate-400" x-text="isDark ? 'Mode Gelap aktif' : 'Mode Terang aktif'"></div>
+                                        <div class="text-[10px] text-slate-400"
+                                            x-text="isDark ? 'Mode Gelap aktif' : 'Mode Terang aktif'"></div>
                                     </div>
                                     <button type="button" @click="toggleTheme()"
                                         class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-bold cursor-pointer">
@@ -496,7 +515,8 @@
                                 <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
                                     <div>
                                         <div class="text-xs font-bold text-slate-800">Izin Notifikasi Perangkat</div>
-                                        <div class="text-[10px]" :class="notifOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
+                                        <div class="text-[10px]"
+                                            :class="notifOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
                                             x-text="notifOk ? 'Sudah Diizinkan' : 'Belum Diizinkan'"></div>
                                     </div>
                                     <button type="button" x-show="!notifOk" @click="requestNotif()"
@@ -505,10 +525,13 @@
                                     </button>
                                 </div>
 
-                                <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-between">
+                                <div
+                                    class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-between">
                                     <div>
-                                        <div class="text-xs font-bold text-slate-800 dark:text-white">Izin GPS / Lokasi Perangkat</div>
-                                        <div class="text-[10px]" :class="gpsOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
+                                        <div class="text-xs font-bold text-slate-800 dark:text-white">Izin GPS / Lokasi
+                                            Perangkat</div>
+                                        <div class="text-[10px]"
+                                            :class="gpsOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
                                             x-text="gpsOk ? 'Sudah Diizinkan' : 'Belum Diizinkan'"></div>
                                     </div>
                                     <button type="button" x-show="!gpsOk" @click="requestGps()"
@@ -517,24 +540,31 @@
                                     </button>
                                 </div>
 
-                                @if (auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']))
-                                <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-between">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-800 dark:text-white">Pembatasan Device (Binding)</div>
-                                        <div class="text-[10px] text-slate-400">Sinkron dengan Admin Filament</div>
+                                @if (auth()->user()
+                                        ?->hasAnyRole(['super_admin', 'superadmin', 'admin']))
+                                    <div
+                                        class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-between">
+                                        <div>
+                                            <div class="text-xs font-bold text-slate-800 dark:text-white">Pembatasan
+                                                Device (Binding)</div>
+                                            <div class="text-[10px] text-slate-400">Sinkron dengan Admin Filament</div>
+                                        </div>
+                                        <button type="button" wire:click="toggleDeviceBinding"
+                                            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer {{ $appCfg->device_binding_enabled ?? false ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-zinc-600' }}">
+                                            <span
+                                                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ $appCfg->device_binding_enabled ?? false ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                                        </button>
                                     </div>
-                                    <button type="button" wire:click="toggleDeviceBinding"
-                                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer {{ ($appCfg->device_binding_enabled ?? false) ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-zinc-600' }}">
-                                        <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ ($appCfg->device_binding_enabled ?? false) ? 'translate-x-6' : 'translate-x-1' }}"></span>
-                                    </button>
-                                </div>
                                 @endif
 
-                                <div class="p-3.5 rounded-xl bg-sky-50/70 dark:bg-zinc-800/90 border border-sky-100 dark:border-zinc-700 space-y-1 text-xs">
-                                    <div class="font-extrabold text-slate-900 dark:text-white">{{ $appCfg->nama_aplikasi ?? 'SAKTI' }}</div>
-                                    <div class="text-[11px] text-slate-600 dark:text-zinc-300">{{ $appCfg->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}</div>
+                                <div
+                                    class="p-3.5 rounded-xl bg-sky-50/70 dark:bg-zinc-800/90 border border-sky-100 dark:border-zinc-700 space-y-1 text-xs">
+                                    <div class="font-extrabold text-slate-900 dark:text-white">
+                                        {{ $appCfg->nama_aplikasi ?? 'SAKTI' }}</div>
+                                    <div class="text-[11px] text-slate-600 dark:text-zinc-300">
+                                        {{ $appCfg->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}</div>
                                     <div class="text-[11px] text-sky-700 dark:text-sky-400 font-bold pt-1">
-                                        Versi: {{ $appCfg->app_version ?? $appCfg->versi_aplikasi ?? '1.0.0' }}
+                                        Versi: {{ $appCfg->app_version ?? ($appCfg->versi_aplikasi ?? '1.0.0') }}
                                     </div>
                                     @if (!empty($appCfg->update_notes ?? $appCfg->catatan_rilis))
                                         <div class="text-[11px] text-slate-500 dark:text-zinc-400 pt-0.5">
@@ -550,11 +580,14 @@
             @php
                 $appInfo = \App\Models\PengaturanAplikasi::getPengaturan();
             @endphp
-            <div class="mt-3 p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 shadow-xs space-y-1 text-xs">
+            <div
+                class="mt-3 p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 shadow-xs space-y-1 text-xs">
                 <div class="flex items-center justify-between">
-                    <span class="font-extrabold text-slate-800 dark:text-white">{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</span>
-                    <span class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold">
-                        {{ $appInfo->app_version ?? $appInfo->versi_aplikasi ?? 'v1.0.0' }}
+                    <span
+                        class="font-extrabold text-slate-800 dark:text-white">{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</span>
+                    <span
+                        class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold">
+                        {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
                     </span>
                 </div>
                 @if (!empty($appInfo->update_notes ?? $appInfo->catatan_rilis))
@@ -739,7 +772,8 @@
                         </div>
 
                         <x-mobile.rhoe-modal model="golModalOpen" :title="$editingGolonganId ? 'Edit Pangkat & Golongan' : 'Tambah Pangkat & Golongan'">
-                            <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
+                            <div class="space-y-3" x-data="{ configModalOpen: false }"
+                                x-on:open-config-modal.window="configModalOpen = true">
                                 <div class="grid grid-cols-2 gap-3">
                                     <div>
                                         <label class="block text-xs font-bold text-slate-700 mb-1">Golongan
@@ -900,7 +934,8 @@
                             {{ $editingJabatanId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan <span class="text-rose-500">*</span></label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan <span
+                                    class="text-rose-500">*</span></label>
                             <input type="text" wire:model="jab_nama_jabatan"
                                 placeholder="Contoh: Kepala Bidang..."
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
@@ -1012,7 +1047,8 @@
                         <span>Jadikan Pendidikan Terakhir</span>
                     </label>
                 @elseif ($activeTab === 'administrasi')
-                    <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
+                    <div class="space-y-3" x-data="{ configModalOpen: false }"
+                        x-on:open-config-modal.window="configModalOpen = true">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
                             <input type="text" wire:model="npwp" x-mask="99.999.999.9-999.999"
@@ -1086,11 +1122,13 @@
                             <div class="space-y-2">
                                 <template x-for="(anak, idx) in anakList" :key="idx">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-[11px] font-bold text-slate-400 w-5 shrink-0" x-text="(idx + 1) + '.'"></span>
+                                        <span class="text-[11px] font-bold text-slate-400 w-5 shrink-0"
+                                            x-text="(idx + 1) + '.'"></span>
                                         <input type="text" x-model="anakList[idx]" @input="syncAnak()"
                                             :placeholder="'Nama anak ke-' + (idx + 1) + '...'"
                                             class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                        <button type="button" x-show="anakList.length > 1" @click="anakList.splice(idx, 1); syncAnak()"
+                                        <button type="button" x-show="anakList.length > 1"
+                                            @click="anakList.splice(idx, 1); syncAnak()"
                                             class="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 cursor-pointer">
                                             <i class="fa-solid fa-trash text-[10px]"></i>
                                         </button>
@@ -1118,7 +1156,8 @@
                         </div>
                     @endif
 
-                    <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
+                    <div class="space-y-3" x-data="{ configModalOpen: false }"
+                        x-on:open-config-modal.window="configModalOpen = true">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap</label>
                             <input type="text" wire:model="name"
@@ -1268,7 +1307,8 @@
                     </div>
 
                     @if ($fullEditMode)
-                        <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
+                        <div class="space-y-3" x-data="{ configModalOpen: false }"
+                            x-on:open-config-modal.window="configModalOpen = true">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">NIK</label>
                                 <input type="text" wire:model="nik" inputmode="numeric" maxlength="16"
@@ -1581,8 +1621,10 @@
 
         <!-- TAB 2: PANGKAT / GOLONGAN -->
         @if ($activeTab === 'peran' || $activeTab === 'sistem')
-            <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs p-0 sm:p-4">
-                <div class="w-full max-w-lg max-h-[88dvh] overflow-y-auto bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl">
+            <div
+                class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs p-0 sm:p-4">
+                <div
+                    class="w-full max-w-lg max-h-[88dvh] overflow-y-auto bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl">
                     <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                         <h3 class="text-sm font-extrabold text-slate-900">
                             {{ $activeTab === 'peran' ? 'Peran & Akses' : 'Pengaturan Modul' }}
@@ -1617,7 +1659,8 @@
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     @foreach ($rolesList as $role)
-                        <div class="bg-white rounded-xl p-3 shadow-xs border border-slate-100 flex flex-col justify-between gap-2">
+                        <div
+                            class="bg-white rounded-xl p-3 shadow-xs border border-slate-100 flex flex-col justify-between gap-2">
                             <div class="flex items-start justify-between gap-1.5">
                                 <div class="text-xs font-extrabold text-slate-800 truncate">{{ $role->name }}</div>
                                 <button type="button" wire:click="editRoleUsers({{ $role->id }})"
@@ -1627,8 +1670,12 @@
                                 </button>
                             </div>
                             <div class="flex items-center gap-1">
-                                <span class="px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }} User</span>
-                                <span class="px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }} Izin</span>
+                                <span
+                                    class="px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }}
+                                    User</span>
+                                <span
+                                    class="px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }}
+                                    Izin</span>
                             </div>
                         </div>
                     @endforeach
@@ -1681,7 +1728,8 @@
             @php
                 $appCfg = \App\Models\PengaturanAplikasi::first();
             @endphp
-            <div class="space-y-3" x-data="{ appCfgModalOpen: false }" x-on:open-app-config-modal.window="appCfgModalOpen = true">
+            <div class="space-y-3" x-data="{ appCfgModalOpen: false }"
+                x-on:open-app-config-modal.window="appCfgModalOpen = true">
                 <div class="flex items-center justify-between px-1">
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-gears"></i> Konfigurasi Sistem
@@ -1703,19 +1751,20 @@
                 @if ($appCfg)
                     <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 text-xs">
                         @foreach ([
-                            'Nama Aplikasi' => $appCfg->nama_aplikasi,
-                            'Sub Nama' => $appCfg->sub_nama,
-                            'Nama Dinas' => $appCfg->nama_dinas,
-                            'Kode Instansi' => $appCfg->kode_instansi,
-                            'Kepala Dinas' => $appCfg->nama_kepala_dinas,
-                            'Alamat Kantor' => $appCfg->alamat_kantor,
-                            'Radius Presensi' => ($appCfg->radius_meter ?? 0) . ' meter',
-                            'Mode Simulasi' => $appCfg->mode_simulasi ? 'Aktif' : 'Nonaktif',
-                            'Tahun Anggaran' => $appCfg->tahun_anggaran_aktif,
-                            'Versi Aplikasi' => $appCfg->versi_aplikasi,
-                            'Kontak Bantuan' => $appCfg->kontak_bantuan,
-                        ] as $label => $val)
-                            <div class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0">
+        'Nama Aplikasi' => $appCfg->nama_aplikasi,
+        'Sub Nama' => $appCfg->sub_nama,
+        'Nama Dinas' => $appCfg->nama_dinas,
+        'Kode Instansi' => $appCfg->kode_instansi,
+        'Kepala Dinas' => $appCfg->nama_kepala_dinas,
+        'Alamat Kantor' => $appCfg->alamat_kantor,
+        'Radius Presensi' => ($appCfg->radius_meter ?? 0) . ' meter',
+        'Mode Simulasi' => $appCfg->mode_simulasi ? 'Aktif' : 'Nonaktif',
+        'Tahun Anggaran' => $appCfg->tahun_anggaran_aktif,
+        'Versi Aplikasi' => $appCfg->versi_aplikasi,
+        'Kontak Bantuan' => $appCfg->kontak_bantuan,
+    ] as $label => $val)
+                            <div
+                                class="flex items-start justify-between gap-3 py-1.5 border-b border-slate-50 last:border-0">
                                 <span class="text-slate-500 font-medium shrink-0">{{ $label }}</span>
                                 <span class="font-bold text-slate-900 text-right">{{ $val ?: '-' }}</span>
                             </div>
@@ -1727,36 +1776,45 @@
                     <div class="space-y-3">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nama Aplikasi</label>
-                            <input type="text" wire:model="cfg_nama_aplikasi" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                            <input type="text" wire:model="cfg_nama_aplikasi"
+                                class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Sub Nama</label>
-                            <input type="text" wire:model="cfg_sub_nama" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                            <input type="text" wire:model="cfg_sub_nama"
+                                class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nama Dinas</label>
-                            <input type="text" wire:model="cfg_nama_dinas" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                            <input type="text" wire:model="cfg_nama_dinas"
+                                class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Radius (meter)</label>
-                                <input type="number" wire:model="cfg_radius_meter" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                                <input type="number" wire:model="cfg_radius_meter"
+                                    class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Anggaran</label>
-                                <input type="text" wire:model="cfg_tahun_anggaran" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                                <input type="text" wire:model="cfg_tahun_anggaran"
+                                    class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
                             </div>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Kontak Bantuan</label>
-                            <input type="text" wire:model="cfg_kontak_bantuan" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
+                            <input type="text" wire:model="cfg_kontak_bantuan"
+                                class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Alamat Kantor</label>
-                            <textarea wire:model="cfg_alamat_kantor" rows="2" class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200"></textarea>
+                            <textarea wire:model="cfg_alamat_kantor" rows="2"
+                                class="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200"></textarea>
                         </div>
-                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                            <input type="checkbox" wire:model="cfg_mode_simulasi" class="rounded border-slate-300 text-sky-600">
+                        <label
+                            class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                            <input type="checkbox" wire:model="cfg_mode_simulasi"
+                                class="rounded border-slate-300 text-sky-600">
                             <span>Aktifkan Mode Simulasi</span>
                         </label>
                     </div>
@@ -1777,680 +1835,705 @@
         @endif
 
         @if ($activeTab === 'peran' || $activeTab === 'sistem')
-                </div>
+</div>
+</div>
+@endif
+
+@if ($activeTab === 'administrasi')
+    <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 space-y-2.5">
+        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-1">Administrasi &amp; Nomor
+        </h3>
+        <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+            <span class="text-slate-400 font-medium">NPWP</span>
+            <span class="font-bold text-slate-800 font-mono">{{ $user->npwp ?: '-' }}</span>
+        </div>
+        <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+            <span class="text-slate-400 font-medium">Tanggal NPWP</span>
+            <span
+                class="font-bold text-slate-800">{{ $user->tanggal_npwp ? \Carbon\Carbon::parse($user->tanggal_npwp)->format('d/m/Y') : '-' }}</span>
+        </div>
+        <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+            <span class="text-slate-400 font-medium">No. BPJS</span>
+            <span class="font-bold text-slate-800 font-mono">{{ $user->no_bpjs ?: '-' }}</span>
+        </div>
+        <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+            <span class="text-slate-400 font-medium">Nomor Taspen</span>
+            <span class="font-bold text-slate-800 font-mono">{{ $user->no_taspen ?: '-' }}</span>
+        </div>
+        <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+            <span class="text-slate-400 font-medium">NIK</span>
+            <span class="font-bold text-slate-800 font-mono">{{ $user->nik ?: '-' }}</span>
+        </div>
+        <div class="flex justify-between py-1 text-xs">
+            <span class="text-slate-400 font-medium">No. KK</span>
+            <span class="font-bold text-slate-800 font-mono">{{ $user->no_kk ?: '-' }}</span>
+        </div>
+    </div>
+@endif
+
+@if ($activeTab === 'golongan')
+    @php
+        $golTerakhir =
+            $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true) ?? $user->riwayatGolongan->first();
+        $tmtCpns = $user->tmt_cpns ?? $user->riwayatGolongan->sortBy('tmt_golongan')->first()?->tmt_golongan;
+        $masaKerja =
+            $golTerakhir?->masa_kerja_tahun !== null
+                ? "{$golTerakhir->masa_kerja_tahun} Tahun " . ($golTerakhir->masa_kerja_bulan ?? 0) . ' Bulan'
+                : ($tmtCpns
+                    ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
+                    : '-');
+    @endphp
+    <div class="space-y-3" x-data="{ golModalOpen: false }" x-on:open-gol-modal.window="golModalOpen = true">
+        {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}
+        <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 space-y-2 text-xs">
+            <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                <span class="text-slate-500 flex items-center gap-1.5"><i
+                        class="fa-solid fa-shield-halved text-sky-600"></i> Golongan</span>
+                <span
+                    class="font-bold text-slate-900">{{ $golTerakhir?->golongan?->value ?? ($golTerakhir?->golongan ?? '-') }}</span>
             </div>
-        @endif
-
-        @if ($activeTab === 'administrasi')
-            <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 space-y-2.5">
-                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-1">Administrasi &amp; Nomor
-                </h3>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-50">
-                    <span class="text-slate-400 font-medium">NPWP</span>
-                    <span class="font-bold text-slate-800 font-mono">{{ $user->npwp ?: '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-50">
-                    <span class="text-slate-400 font-medium">Tanggal NPWP</span>
-                    <span
-                        class="font-bold text-slate-800">{{ $user->tanggal_npwp ? \Carbon\Carbon::parse($user->tanggal_npwp)->format('d/m/Y') : '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-50">
-                    <span class="text-slate-400 font-medium">No. BPJS</span>
-                    <span class="font-bold text-slate-800 font-mono">{{ $user->no_bpjs ?: '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-50">
-                    <span class="text-slate-400 font-medium">Nomor Taspen</span>
-                    <span class="font-bold text-slate-800 font-mono">{{ $user->no_taspen ?: '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1 text-xs border-b border-slate-50">
-                    <span class="text-slate-400 font-medium">NIK</span>
-                    <span class="font-bold text-slate-800 font-mono">{{ $user->nik ?: '-' }}</span>
-                </div>
-                <div class="flex justify-between py-1 text-xs">
-                    <span class="text-slate-400 font-medium">No. KK</span>
-                    <span class="font-bold text-slate-800 font-mono">{{ $user->no_kk ?: '-' }}</span>
-                </div>
+            <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                <span class="text-slate-500 flex items-center gap-1.5"><i
+                        class="fa-solid fa-award text-sky-600"></i> Pangkat</span>
+                <span class="font-bold text-slate-900">{{ $golTerakhir?->nama_pangkat ?? '-' }}</span>
             </div>
-        @endif
-
-        @if ($activeTab === 'golongan')
-            @php
-                $golTerakhir =
-                    $user->riwayatGolongan->firstWhere('is_golongan_terakhir', true) ?? $user->riwayatGolongan->first();
-                $tmtCpns = $user->tmt_cpns ?? $user->riwayatGolongan->sortBy('tmt_golongan')->first()?->tmt_golongan;
-                $masaKerja =
-                    $golTerakhir?->masa_kerja_tahun !== null
-                        ? "{$golTerakhir->masa_kerja_tahun} Tahun " . ($golTerakhir->masa_kerja_bulan ?? 0) . ' Bulan'
-                        : ($tmtCpns
-                            ? \Carbon\Carbon::parse($tmtCpns)->diff(now())->format('%y Tahun %m Bulan')
-                            : '-');
-            @endphp
-            <div class="space-y-3" x-data="{ golModalOpen: false }" x-on:open-gol-modal.window="golModalOpen = true">
-                {{-- Ringkasan Golongan Terakhir & Masa Kerja --}}
-                <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-slate-100 space-y-2 text-xs">
-                    <div class="flex items-center justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500 flex items-center gap-1.5"><i
-                                class="fa-solid fa-shield-halved text-sky-600"></i> Golongan</span>
-                        <span
-                            class="font-bold text-slate-900">{{ $golTerakhir?->golongan?->value ?? ($golTerakhir?->golongan ?? '-') }}</span>
-                    </div>
-                    <div class="flex items-center justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500 flex items-center gap-1.5"><i
-                                class="fa-solid fa-award text-sky-600"></i> Pangkat</span>
-                        <span class="font-bold text-slate-900">{{ $golTerakhir?->nama_pangkat ?? '-' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between py-1 border-b border-slate-50">
-                        <span class="text-slate-500 flex items-center gap-1.5"><i
-                                class="fa-regular fa-calendar text-sky-600"></i> TMT Golongan</span>
-                        <span
-                            class="font-bold text-slate-900">{{ $golTerakhir?->tmt_golongan ? \Carbon\Carbon::parse($golTerakhir->tmt_golongan)->translatedFormat('j F Y') : '-' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between py-1">
-                        <span class="text-slate-500 flex items-center gap-1.5"><i
-                                class="fa-regular fa-clock text-sky-600"></i> Masa Kerja</span>
-                        <span class="font-bold text-slate-900">{{ $masaKerja }}</span>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between px-1 pt-1">
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-shield-halved"></i> Riwayat Pangkat & Golongan Ruang
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                            {{ $user->riwayatGolongan->count() }} Pangkat
-                        </span>
-                        <button type="button" wire:click="newGolongan"
-                            class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                            <span>Tambah</span>
-                        </button>
-                    </div>
-                </div>
-
-                @forelse($user->riwayatGolongan as $item)
-                    <div
-                        class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <div class="flex items-center gap-1.5 mb-1">
-                                    <span
-                                        class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-sky-50 text-sky-700 border border-sky-200">
-                                        {{ $item->golongan?->value ?? (string) $item->golongan }}
-                                    </span>
-                                    @if ($item->is_golongan_terakhir)
-                                        <span
-                                            class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                            Pangkat Terakhir
-                                        </span>
-                                    @endif
-                                </div>
-                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
-                                    {{ $item->golongan?->value ?? (string) $item->golongan }} -
-                                    {{ $item->nama_pangkat }}
-                                </h4>
-                                <p class="text-[11px] font-mono text-slate-500 mt-0.5">
-                                    {{ $item->nomor_sk ?: '-' }}
-                                </p>
-                            </div>
-                            @if ($item->tmt_golongan)
-                                <span
-                                    class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
-                                    {{ \Carbon\Carbon::parse($item->tmt_golongan)->translatedFormat('d F Y') }}
-                                </span>
-                            @endif
-                        </div>
-
-                        <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
-                            <span class="text-slate-400">
-                                TMT: <strong
-                                    class="text-slate-700">{{ $item->tmt_golongan ? \Carbon\Carbon::parse($item->tmt_golongan)->format('d/m/Y') : '-' }}</strong>
-                            </span>
-
-                            <div class="flex items-center gap-1.5">
-                                @if ($item->file_sk_golongan)
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_golongan) }}"
-                                        target="_blank"
-                                        class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
-                                        <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
-                                    </a>
-                                @else
-                                    <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
-                                @endif
-                                <button type="button" wire:click="editGolongan({{ $item->id }})"
-                                    class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
-                                    title="Edit Pangkat">
-                                    <i class="fa-solid fa-pen text-[10px]"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 text-center py-6">
-                        <p class="text-xs text-slate-400 italic">Belum ada data riwayat pangkat/golongan.</p>
-                    </div>
-                @endforelse
-
-                <x-mobile.rhoe-modal model="golModalOpen" :title="$editingGolonganId ? 'Edit Pangkat & Golongan' : 'Tambah Pangkat & Golongan'">
-                    <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang <span class="text-rose-500">*</span></label>
-                                <select wire:model.live="gol_golongan"
-                                    class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
-                                    <option value="">- Pilih Golongan -</option>
-                                    @foreach ($golonganOptions as $gol)
-                                        <option value="{{ $gol->value }}">{{ $gol->getLabel() }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pangkat</label>
-                                <input type="text" wire:model="gol_nama_pangkat" readonly
-                                    placeholder="Otomatis dari golongan"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed focus:outline-none">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK Pangkat</label>
-                            <input type="text" wire:model="gol_nomor_sk" placeholder="Nomor SK..."
-                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal SK</label>
-                                <x-mobile.date-picker wire:model="gol_tanggal_sk" clearable />
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">TMT Golongan</label>
-                                <x-mobile.date-picker wire:model="gol_tmt_golongan" clearable />
-                            </div>
-                        </div>
-                        <label
-                            class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                            <input type="checkbox" wire:model="gol_is_terakhir"
-                                class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
-                            <span>Jadikan Pangkat Terakhir</span>
-                        </label>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Upload File SK (PDF, Maks. 2
-                                MB)</label>
-                            <label
-                                class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
-                                <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
-                                <span class="text-[11px] font-semibold text-slate-700">
-                                    {{ $gol_file_sk ? $gol_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
-                                </span>
-                                <input type="file" wire:model="gol_file_sk" accept="application/pdf,.pdf"
-                                    class="hidden">
-                            </label>
-                            <div wire:loading wire:target="gol_file_sk"
-                                class="text-[11px] text-sky-600 font-medium mt-1">
-                                <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
-                            </div>
-                            @error('gol_file_sk')
-                                <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-                    <x-slot:footer>
-                        <div class="flex items-center gap-2">
-                            <button type="button" @click="golModalOpen = false"
-                                class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="button" @click="golModalOpen = false; $wire.save()"
-                                class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
-                                Simpan
-                            </button>
-                        </div>
-                    </x-slot:footer>
-                </x-mobile.rhoe-modal>
+            <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                <span class="text-slate-500 flex items-center gap-1.5"><i
+                        class="fa-regular fa-calendar text-sky-600"></i> TMT Golongan</span>
+                <span
+                    class="font-bold text-slate-900">{{ $golTerakhir?->tmt_golongan ? \Carbon\Carbon::parse($golTerakhir->tmt_golongan)->translatedFormat('j F Y') : '-' }}</span>
             </div>
-        @endif
-
-        <!-- TAB 3: JABATAN -->
-        @if ($activeTab === 'jabatan')
-            <div class="space-y-3">
-                <!-- Info Eselon -->
-                <div
-                    class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 flex items-center justify-between">
-                    <div>
-                        <span class="text-slate-400 text-xs font-medium block">Tingkat Eselon Jabatan</span>
-                        <span
-                            class="font-extrabold text-slate-900 text-sm">{{ $user->eselon?->value ?? ($user->eselon ?? 'Non Eselon') }}</span>
-                    </div>
-                    <span
-                        class="px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        {{ $user->eselon?->value ?? 'Non Eselon' }}
-                    </span>
-                </div>
-
-                <!-- Riwayat Jabatan -->
-                <div x-data="{ jabModalOpen: false }" x-on:open-jabatan-modal.window="jabModalOpen = true" class="space-y-3">
-                    <div class="flex items-center justify-between px-1 pt-2">
-                        <h3
-                            class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                            <i class="fa-solid fa-briefcase"></i> Riwayat Jabatan
-                        </h3>
-                        <div class="flex items-center gap-2">
-                            <span
-                                class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                                {{ $user->riwayatJabatan->count() }} Jabatan
-                            </span>
-                            <button type="button" wire:click="newJabatan"
-                                class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
-                                <i class="fa-solid fa-plus text-[10px]"></i>
-                                <span>Tambah</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    @forelse($user->riwayatJabatan as $item)
-                        <div
-                            class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
-                            <div class="flex items-start justify-between gap-2">
-                                <div>
-                                    <div class="flex items-center gap-1.5 mb-1">
-                                        <span
-                                            class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            {{ $item->jenis_jabatan }}
-                                        </span>
-                                        @if ($item->is_jabatan_sekarang)
-                                            <span
-                                                class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
-                                                Sekarang
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
-                                        {{ $item->nama_jabatan }}
-                                    </h4>
-                                    @if ($item->unit_kerja)
-                                        <p class="text-[11px] font-medium text-slate-500 mt-0.5">
-                                            {{ $item->unit_kerja }}
-                                        </p>
-                                    @endif
-                                </div>
-                                @if ($item->tmt_jabatan)
-                                    <span
-                                        class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
-                                        {{ \Carbon\Carbon::parse($item->tmt_jabatan)->translatedFormat('d F Y') }}
-                                    </span>
-                                @endif
-                            </div>
-
-                            <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
-                                <span class="text-slate-400">
-                                    SK: <strong class="text-slate-700">{{ $item->nomor_sk ?: '-' }}</strong>
-                                </span>
-
-                                <div class="flex items-center gap-1.5">
-                                    @if ($item->file_sk_jabatan)
-                                        <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_jabatan) }}"
-                                            target="_blank"
-                                            class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
-                                            <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
-                                        </a>
-                                    @else
-                                        <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
-                                    @endif
-                                    <button type="button" wire:click="editJabatan({{ $item->id }})"
-                                        class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
-                                        title="Edit Jabatan">
-                                        <i class="fa-solid fa-pen text-[10px]"></i>
-                                    </button>
-                                    <button type="button"
-                                        @click.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin menghapus riwayat jabatan ini?', onConfirm: () => $wire.deleteJabatan({{ $item->id }}) })"
-                                        class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
-                                        title="Hapus Jabatan">
-                                        <i class="fa-solid fa-trash text-[10px]"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 text-center py-6">
-                            <p class="text-xs text-slate-400 italic">Belum ada data riwayat jabatan.</p>
-                        </div>
-                    @endforelse
-
-                    <x-mobile.rhoe-modal model="jabModalOpen" :title="$editingJabatanId ? 'Edit Riwayat Jabatan' : 'Tambah Riwayat Jabatan'">
-                        <div class="space-y-3" x-data="{ configModalOpen: false }" x-on:open-config-modal.window="configModalOpen = true">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Jabatan</label>
-                                <select wire:model="jab_jenis_jabatan"
-                                    class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
-                                    <option value="">- Pilih Jenis -</option>
-                                    <option value="Struktural">Struktural</option>
-                                    <option value="Fungsional">Fungsional</option>
-                                    <option value="Pelaksana">Pelaksana</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan <span class="text-rose-500">*</span></label>
-                                <input type="text" wire:model="jab_nama_jabatan"
-                                    placeholder="Contoh: Analis Kebijakan Ahli Muda"
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Unit Kerja</label>
-                                <input type="text" wire:model="jab_unit_kerja" placeholder="Unit kerja..."
-                                    class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK</label>
-                                    <input type="text" wire:model="jab_nomor_sk" placeholder="Nomor SK..."
-                                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">TMT Jabatan</label>
-                                    <x-mobile.date-picker wire:model="jab_tmt_jabatan" clearable />
-                                </div>
-                            </div>
-                            <label
-                                class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                                <input type="checkbox" wire:model="jab_is_sekarang"
-                                    class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
-                                <span>Jabatan Saat Ini</span>
-                            </label>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Upload File SK (PDF, Maks. 2 MB)</label>
-                                <label class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
-                                    <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
-                                    <span class="text-[11px] font-semibold text-slate-700">
-                                        {{ $jab_file_sk ? $jab_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
-                                    </span>
-                                    <input type="file" wire:model="jab_file_sk" accept="application/pdf,.pdf" class="hidden">
-                                </label>
-                                <div wire:loading wire:target="jab_file_sk" class="text-[11px] text-sky-600 font-medium mt-1">
-                                    <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
-                                </div>
-                                @error('jab_file_sk') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
-                            </div>
-                        </div>
-                        <x-slot:footer>
-                            <div class="flex items-center gap-2">
-                                <button type="button" @click="jabModalOpen = false"
-                                    class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
-                                    Batal
-                                </button>
-                                <button type="button" @click="jabModalOpen = false; $wire.save()"
-                                    class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
-                                    Simpan
-                                </button>
-                            </div>
-                        </x-slot:footer>
-                    </x-mobile.rhoe-modal>
-                </div>
-            </div>
-        @endif
-
-        <!-- TAB 4: PENDIDIKAN -->
-        @if ($activeTab === 'pendidikan')
-            <div class="space-y-3" x-data="{ pendModalOpen: false }"
-                x-on:open-pendidikan-modal.window="pendModalOpen = true">
-                <div class="flex items-center justify-between px-1">
-                    <h3
-                        class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan Formal
-                    </h3>
-                    <div class="flex items-center gap-2">
-                        <span
-                            class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                            {{ $user->riwayatPendidikan->count() }} Jenjang
-                        </span>
-                        <button type="button" wire:click="newPendidikan"
-                            class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
-                            <span>Tambah</span>
-                        </button>
-                    </div>
-                </div>
-
-                @forelse($user->riwayatPendidikan as $item)
-                    <div
-                        class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <div class="flex items-center gap-1.5 mb-1">
-                                    <span
-                                        class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase {{ match ($item->jenjang?->value ?? (string) $item->jenjang) {
-                                            'S3', 'S2' => 'bg-amber-50 text-amber-700 border border-amber-200',
-                                            'S1', 'D4' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-                                            'D3', 'D2', 'D1' => 'bg-sky-50 text-sky-700 border border-sky-200',
-                                            'SLTA' => 'bg-indigo-50 text-indigo-700 border border-indigo-200',
-                                            default => 'bg-slate-100 text-slate-700 border border-slate-200',
-                                        } }}">
-                                        {{ $item->jenjang?->value ?? (string) $item->jenjang }}
-                                    </span>
-                                    @if ($item->is_pendidikan_terakhir)
-                                        <span
-                                            class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
-                                            Terakhir
-                                        </span>
-                                    @endif
-                                </div>
-                                <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
-                                    {{ $item->jurusan ?: $item->nama_institusi }}
-                                </h4>
-                                <p class="text-[11px] font-medium text-slate-500 mt-0.5">
-                                    {{ $item->nama_institusi }}
-                                </p>
-                            </div>
-                            @if ($item->tahun_lulus)
-                                <span
-                                    class="text-xs font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 shrink-0">
-                                    {{ $item->tahun_lulus }}
-                                </span>
-                            @endif
-                        </div>
-
-                        <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
-                            <span class="text-slate-400">
-                                No. Ijazah: <strong class="text-slate-700">{{ $item->nomor_ijazah ?: '-' }}</strong>
-                            </span>
-
-                            @if ($item->file_ijazah)
-                                <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_ijazah) }}"
-                                    target="_blank"
-                                    class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
-                                    <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh Ijazah
-                                </a>
-                            @else
-                                <span class="text-slate-300 italic text-[10px]">Ijazah belum diunggah</span>
-                            @endif
-                        </div>
-                    </div>
-                @empty
-                    <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                        <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium">Tingkat Pendidikan</span>
-                            <span
-                                class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">{{ $user->jenjang_pendidikan ?? '-' }}</span>
-                        </div>
-                        <div class="py-1.5 border-b border-slate-50 text-xs">
-                            <span class="text-slate-400 font-medium block mb-1">Jurusan / Prodi</span>
-                            <span class="font-bold text-slate-800">{{ $user->pendidikan ?? '-' }}</span>
-                        </div>
-                    </div>
-                @endforelse
-
-                <x-mobile.rhoe-modal model="pendModalOpen" :title="$editingPendidikanId ? 'Edit Riwayat Pendidikan' : 'Tambah Riwayat Pendidikan'">
-                    <div class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang <span class="text-rose-500">*</span></label>
-                                <select wire:model="pend_jenjang" class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
-                                    <option value="">- Pilih Jenjang -</option>
-                                    @foreach ($jenjangOptions as $jj)
-                                        <option value="{{ $jj->value }}">{{ $jj->value }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Lulus</label>
-                                <input type="number" wire:model="pend_tahun_lulus" placeholder="2020" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Kampus <span class="text-rose-500">*</span></label>
-                            <input type="text" wire:model="pend_nama_institusi" placeholder="Contoh: Universitas Andalas" class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Jurusan</label>
-                                <input type="text" wire:model="pend_jurusan" placeholder="Jurusan..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Ijazah</label>
-                                <input type="text" wire:model="pend_nomor_ijazah" placeholder="No. Ijazah..." class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            </div>
-                        </div>
-                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
-                            <input type="checkbox" wire:model="pend_is_terakhir" class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
-                            <span>Pendidikan Terakhir</span>
-                        </label>
-                        <x-mobile.pdf-upload wire:model="pend_file_ijazah" :file="$pend_file_ijazah" label="Upload File Ijazah (PDF, Maks. 2 MB)" placeholder="Ketuk untuk pilih file Ijazah (PDF)" />
-                    </div>
-                    <x-slot:footer>
-                        <div class="flex items-center gap-2">
-                            <button type="button" @click="pendModalOpen = false"
-                                class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
-                                Batal
-                            </button>
-                            <button type="button" @click="pendModalOpen = false; $wire.save()"
-                                class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
-                                Simpan
-                            </button>
-                        </div>
-                    </x-slot:footer>
-                </x-mobile.rhoe-modal>
-            </div>
-        @endif
-
-        <!-- TAB 5: KELUARGA -->
-        @if ($activeTab === 'keluarga')
-            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
-                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Data Kependudukan
-                    Keluarga</h3>
-                @php
-                    $kkDisplay = $user->no_kk
-                        ? (str_contains(strtoupper((string) $user->no_kk), 'E') ? number_format((float) $user->no_kk, 0, '', '') : $user->no_kk)
-                        : null;
-                    $nikDisplay = $user->nik
-                        ? (str_contains(strtoupper((string) $user->nik), 'E') ? number_format((float) $user->nik, 0, '', '') : $user->nik)
-                        : null;
-                @endphp
-                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs" x-data="{ copiedKk: false }">
-                    <span class="text-slate-400 font-medium">Nomor KK</span>
-                    <div class="flex items-center gap-1.5">
-                        <span class="font-bold font-mono text-slate-800">{{ $kkDisplay ?: '-' }}</span>
-                        @if ($kkDisplay)
-                            <button type="button" @click="navigator.clipboard?.writeText('{{ $kkDisplay }}'); copiedKk = true; setTimeout(() => copiedKk = false, 1500)"
-                                class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer" title="Salin No. KK">
-                                <i class="fa-regular" :class="copiedKk ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
-                            </button>
-                        @endif
-                    </div>
-                </div>
-                <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs" x-data="{ copiedNik: false }">
-                    <span class="text-slate-400 font-medium">NIK</span>
-                    <div class="flex items-center gap-1.5">
-                        <span class="font-bold font-mono text-slate-800">{{ $nikDisplay ?: '-' }}</span>
-                        @if ($nikDisplay)
-                            <button type="button" @click="navigator.clipboard?.writeText('{{ $nikDisplay }}'); copiedNik = true; setTimeout(() => copiedNik = false, 1500)"
-                                class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer" title="Salin NIK">
-                                <i class="fa-regular" :class="copiedNik ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
-                            </button>
-                        @endif
-                    </div>
-                </div>
-                <div class="py-1.5 text-xs">
-                    <div class="flex justify-between py-1 text-xs border-b border-slate-50">
-                        <span class="text-slate-400 font-medium">Nama Istri / Suami</span>
-                        <span class="font-bold text-slate-800 text-right">{{ $user->nama_pasangan ?: '-' }}</span>
-                    </div>
-                    <div class="py-1 text-xs border-b border-slate-50">
-                        <span class="text-slate-400 font-medium block mb-1">Nama Anak</span>
-                        @php
-                            $anakItems = array_values(array_filter(array_map('trim', preg_split('/\r?\n|,/', (string) ($user->nama_anak ?? '')))));
-                        @endphp
-                        @if (count($anakItems))
-                            <div class="space-y-0.5">
-                                @foreach ($anakItems as $idx => $anakNama)
-                                    <div class="font-bold text-slate-800">{{ $idx + 1 }}. {{ $anakNama }}</div>
-                                @endforeach
-                            </div>
-                        @else
-                            <span class="font-bold text-slate-800">-</span>
-                        @endif
-                    </div>
-                    <span class="text-slate-400 font-medium block mb-1">Alamat Keluarga</span>
-                    <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
-                </div>
-            </div>
-        @endif
-    @endif
-
-    {{-- <p class="text-center text-[10px] text-slate-400 mt-6">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p> --}}
-
-    @if ($showImpersonateModal)
-        <div
-            class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-4">
-            <div class="android-modal-anim w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl space-y-3">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-800">Pindah Akun Pegawai</h3>
-                    <button type="button" wire:click="$set('showImpersonateModal', false)"
-                        class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center cursor-pointer">
-                        <i class="fa-solid fa-xmark text-xs"></i>
-                    </button>
-                </div>
-                <input type="text" wire:model.live.debounce.250ms="impersonateSearch"
-                    placeholder="Cari nama atau NIP..."
-                    class="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs focus:border-amber-400 focus:outline-none">
-                <div class="max-h-64 overflow-y-auto divide-y divide-slate-100">
-                    @forelse ($impersonateCandidates as $cand)
-                        <button type="button" wire:click="impersonateUser({{ $cand->id }})"
-                            class="w-full py-2.5 px-2 text-left hover:bg-amber-50 rounded-xl transition flex items-center justify-between cursor-pointer">
-                            <div class="min-w-0">
-                                <div class="text-xs font-bold text-slate-800 truncate">{{ $cand->name }}</div>
-                                <div class="text-[10px] font-mono text-slate-400">{{ $cand->nip ?? '-' }}</div>
-                            </div>
-                            <i class="fa-solid fa-arrow-right text-[10px] text-amber-500"></i>
-                        </button>
-                    @empty
-                        <p class="py-6 text-center text-xs text-slate-400">Pegawai tidak ditemukan.</p>
-                    @endforelse
-                </div>
+            <div class="flex items-center justify-between py-1">
+                <span class="text-slate-500 flex items-center gap-1.5"><i
+                        class="fa-regular fa-clock text-sky-600"></i> Masa Kerja</span>
+                <span class="font-bold text-slate-900">{{ $masaKerja }}</span>
             </div>
         </div>
-    @endif
+        <div class="flex items-center justify-between px-1 pt-1">
+            <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved"></i> Riwayat Pangkat & Golongan Ruang
+            </h3>
+            <div class="flex items-center gap-2">
+                <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                    {{ $user->riwayatGolongan->count() }} Pangkat
+                </span>
+                <button type="button" wire:click="newGolongan"
+                    class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>Tambah</span>
+                </button>
+            </div>
+        </div>
 
-    <!-- Modern Confirm Logout Modal -->
-    <div x-show="confirmLogout" x-cloak x-transition.opacity.duration.150ms
-        class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-5">
-        <div @click.outside="confirmLogout = false" x-transition.scale.95.duration.150ms
-            class="w-full max-w-xs rounded-3xl bg-white p-6 shadow-2xl text-center space-y-4">
+        @forelse($user->riwayatGolongan as $item)
             <div
-                class="mx-auto w-14 h-14 rounded-full bg-rose-50 text-rose-500 ring-8 ring-rose-500/10 flex items-center justify-center text-xl">
-                <i class="fa-solid fa-right-from-bracket"></i>
+                class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span
+                                class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-sky-50 text-sky-700 border border-sky-200">
+                                {{ $item->golongan?->value ?? (string) $item->golongan }}
+                            </span>
+                            @if ($item->is_golongan_terakhir)
+                                <span
+                                    class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                    Pangkat Terakhir
+                                </span>
+                            @endif
+                        </div>
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                            {{ $item->golongan?->value ?? (string) $item->golongan }} -
+                            {{ $item->nama_pangkat }}
+                        </h4>
+                        <p class="text-[11px] font-mono text-slate-500 mt-0.5">
+                            {{ $item->nomor_sk ?: '-' }}
+                        </p>
+                    </div>
+                    @if ($item->tmt_golongan)
+                        <span
+                            class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
+                            {{ \Carbon\Carbon::parse($item->tmt_golongan)->translatedFormat('d F Y') }}
+                        </span>
+                    @endif
+                </div>
+
+                <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400">
+                        TMT: <strong
+                            class="text-slate-700">{{ $item->tmt_golongan ? \Carbon\Carbon::parse($item->tmt_golongan)->format('d/m/Y') : '-' }}</strong>
+                    </span>
+
+                    <div class="flex items-center gap-1.5">
+                        @if ($item->file_sk_golongan)
+                            <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_golongan) }}"
+                                target="_blank"
+                                class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                                <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
+                            </a>
+                        @else
+                            <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                        @endif
+                        <button type="button" wire:click="editGolongan({{ $item->id }})"
+                            class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
+                            title="Edit Pangkat">
+                            <i class="fa-solid fa-pen text-[10px]"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
+        @empty
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 text-center py-6">
+                <p class="text-xs text-slate-400 italic">Belum ada data riwayat pangkat/golongan.</p>
+            </div>
+        @endforelse
+
+        <x-mobile.rhoe-modal model="golModalOpen" :title="$editingGolonganId ? 'Edit Pangkat & Golongan' : 'Tambah Pangkat & Golongan'">
+            <div class="space-y-3" x-data="{ configModalOpen: false }"
+                x-on:open-config-modal.window="configModalOpen = true">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Golongan Ruang <span
+                                class="text-rose-500">*</span></label>
+                        <select wire:model.live="gol_golongan"
+                            class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                            <option value="">- Pilih Golongan -</option>
+                            @foreach ($golonganOptions as $gol)
+                                <option value="{{ $gol->value }}">{{ $gol->getLabel() }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pangkat</label>
+                        <input type="text" wire:model="gol_nama_pangkat" readonly
+                            placeholder="Otomatis dari golongan"
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK Pangkat</label>
+                    <input type="text" wire:model="gol_nomor_sk" placeholder="Nomor SK..."
+                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal SK</label>
+                        <x-mobile.date-picker wire:model="gol_tanggal_sk" clearable />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">TMT Golongan</label>
+                        <x-mobile.date-picker wire:model="gol_tmt_golongan" clearable />
+                    </div>
+                </div>
+                <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                    <input type="checkbox" wire:model="gol_is_terakhir"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                    <span>Jadikan Pangkat Terakhir</span>
+                </label>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Upload File SK (PDF, Maks. 2
+                        MB)</label>
+                    <label
+                        class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
+                        <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
+                        <span class="text-[11px] font-semibold text-slate-700">
+                            {{ $gol_file_sk ? $gol_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
+                        </span>
+                        <input type="file" wire:model="gol_file_sk" accept="application/pdf,.pdf"
+                            class="hidden">
+                    </label>
+                    <div wire:loading wire:target="gol_file_sk" class="text-[11px] text-sky-600 font-medium mt-1">
+                        <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
+                    </div>
+                    @error('gol_file_sk')
+                        <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+            <x-slot:footer>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="golModalOpen = false"
+                        class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" @click="golModalOpen = false; $wire.save()"
+                        class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                        Simpan
+                    </button>
+                </div>
+            </x-slot:footer>
+        </x-mobile.rhoe-modal>
+    </div>
+@endif
+
+<!-- TAB 3: JABATAN -->
+@if ($activeTab === 'jabatan')
+    <div class="space-y-3">
+        <!-- Info Eselon -->
+        <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 flex items-center justify-between">
             <div>
-                <h3 class="text-base font-extrabold text-slate-900">Keluar dari Akun?</h3>
-                <p class="text-xs text-slate-500 mt-1">Sesi Anda akan diakhiri dan harus masuk kembali untuk
-                    mengakses presensi.</p>
+                <span class="text-slate-400 text-xs font-medium block">Tingkat Eselon Jabatan</span>
+                <span
+                    class="font-extrabold text-slate-900 text-sm">{{ $user->eselon?->value ?? ($user->eselon ?? 'Non Eselon') }}</span>
             </div>
-            <div class="grid grid-cols-2 gap-2.5 pt-1">
-                <button type="button" @click="confirmLogout = false"
-                    class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
-                    Batal
+            <span class="px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                {{ $user->eselon?->value ?? 'Non Eselon' }}
+            </span>
+        </div>
+
+        <!-- Riwayat Jabatan -->
+        <div x-data="{ jabModalOpen: false }" x-on:open-jabatan-modal.window="jabModalOpen = true" class="space-y-3">
+            <div class="flex items-center justify-between px-1 pt-2">
+                <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-briefcase"></i> Riwayat Jabatan
+                </h3>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                        {{ $user->riwayatJabatan->count() }} Jabatan
+                    </span>
+                    <button type="button" wire:click="newJabatan"
+                        class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Tambah</span>
+                    </button>
+                </div>
+            </div>
+
+            @forelse($user->riwayatJabatan as $item)
+                <div
+                    class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span
+                                    class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    {{ $item->jenis_jabatan }}
+                                </span>
+                                @if ($item->is_jabatan_sekarang)
+                                    <span
+                                        class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
+                                        Sekarang
+                                    </span>
+                                @endif
+                            </div>
+                            <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                {{ $item->nama_jabatan }}
+                            </h4>
+                            @if ($item->unit_kerja)
+                                <p class="text-[11px] font-medium text-slate-500 mt-0.5">
+                                    {{ $item->unit_kerja }}
+                                </p>
+                            @endif
+                        </div>
+                        @if ($item->tmt_jabatan)
+                            <span
+                                class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
+                                {{ \Carbon\Carbon::parse($item->tmt_jabatan)->translatedFormat('d F Y') }}
+                            </span>
+                        @endif
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                        <span class="text-slate-400">
+                            SK: <strong class="text-slate-700">{{ $item->nomor_sk ?: '-' }}</strong>
+                        </span>
+
+                        <div class="flex items-center gap-1.5">
+                            @if ($item->file_sk_jabatan)
+                                <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_sk_jabatan) }}"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
+                                </a>
+                            @else
+                                <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                            @endif
+                            <button type="button" wire:click="editJabatan({{ $item->id }})"
+                                class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
+                                title="Edit Jabatan">
+                                <i class="fa-solid fa-pen text-[10px]"></i>
+                            </button>
+                            <button type="button" wire:click="deleteJabatan({{ $item->id }})"
+                                wire:confirm="Yakin ingin menghapus riwayat jabatan ini?" <button type="button"
+                                @click.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin menghapus riwayat jabatan ini?', onConfirm: () => $wire.deleteJabatan({{ $item->id }}) })"
+                                class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
+                                title="Hapus Jabatan">
+                                <i class="fa-solid fa-trash text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 text-center py-6">
+                    <p class="text-xs text-slate-400 italic">Belum ada data riwayat jabatan.</p>
+                </div>
+            @endforelse
+
+            <x-mobile.rhoe-modal model="jabModalOpen" :title="$editingJabatanId ? 'Edit Riwayat Jabatan' : 'Tambah Riwayat Jabatan'">
+                <div class="space-y-3" x-data="{ configModalOpen: false }"
+                    x-on:open-config-modal.window="configModalOpen = true">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Jabatan</label>
+                        <select wire:model="jab_jenis_jabatan"
+                            class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                            <option value="">- Pilih Jenis -</option>
+                            <option value="Struktural">Struktural</option>
+                            <option value="Fungsional">Fungsional</option>
+                            <option value="Pelaksana">Pelaksana</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Jabatan <span
+                                class="text-rose-500">*</span></label>
+                        <input type="text" wire:model="jab_nama_jabatan"
+                            placeholder="Contoh: Analis Kebijakan Ahli Muda"
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Unit Kerja</label>
+                        <input type="text" wire:model="jab_unit_kerja" placeholder="Unit kerja..."
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SK</label>
+                            <input type="text" wire:model="jab_nomor_sk" placeholder="Nomor SK..."
+                                class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">TMT Jabatan</label>
+                            <x-mobile.date-picker wire:model="jab_tmt_jabatan" clearable />
+                        </div>
+                    </div>
+                    <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                        <input type="checkbox" wire:model="jab_is_sekarang"
+                            class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                        <span>Jabatan Saat Ini</span>
+                    </label>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Upload File SK (PDF, Maks. 2
+                            MB)</label>
+                        <label
+                            class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
+                            <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
+                            <span class="text-[11px] font-semibold text-slate-700">
+                                {{ $jab_file_sk ? $jab_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
+                            </span>
+                            <input type="file" wire:model="jab_file_sk" accept="application/pdf,.pdf"
+                                class="hidden">
+                        </label>
+                        <div wire:loading wire:target="jab_file_sk"
+                            class="text-[11px] text-sky-600 font-medium mt-1">
+                            <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
+                        </div>
+                        @error('jab_file_sk')
+                            <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+                <x-slot:footer>
+                    <div class="flex items-center gap-2">
+                        <button type="button" @click="jabModalOpen = false"
+                            class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="button" @click="jabModalOpen = false; $wire.save()"
+                            class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                            Simpan
+                        </button>
+                    </div>
+                </x-slot:footer>
+            </x-mobile.rhoe-modal>
+        </div>
+    </div>
+@endif
+
+<!-- TAB 4: PENDIDIKAN -->
+@if ($activeTab === 'pendidikan')
+    <div class="space-y-3" x-data="{ pendModalOpen: false }" x-on:open-pendidikan-modal.window="pendModalOpen = true">
+        <div class="flex items-center justify-between px-1">
+            <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan Formal
+            </h3>
+            <div class="flex items-center gap-2">
+                <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                    {{ $user->riwayatPendidikan->count() }} Jenjang
+                </span>
+                <button type="button" wire:click="newPendidikan"
+                    class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    <span>Tambah</span>
                 </button>
-                <button type="button" wire:click="logout"
-                    class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold shadow-md shadow-rose-600/25 cursor-pointer">
-                    Ya, Keluar
+            </div>
+        </div>
+
+        @forelse($user->riwayatPendidikan as $item)
+            <div
+                class="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-2 hover:border-sky-200 transition-all">
+                <div class="flex items-start justify-between gap-2">
+                    <div>
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span
+                                class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase {{ match ($item->jenjang?->value ?? (string) $item->jenjang) {
+                                    'S3', 'S2' => 'bg-amber-50 text-amber-700 border border-amber-200',
+                                    'S1', 'D4' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                                    'D3', 'D2', 'D1' => 'bg-sky-50 text-sky-700 border border-sky-200',
+                                    'SLTA' => 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+                                    default => 'bg-slate-100 text-slate-700 border border-slate-200',
+                                } }}">
+                                {{ $item->jenjang?->value ?? (string) $item->jenjang }}
+                            </span>
+                            @if ($item->is_pendidikan_terakhir)
+                                <span
+                                    class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
+                                    Terakhir
+                                </span>
+                            @endif
+                        </div>
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                            {{ $item->jurusan ?: $item->nama_institusi }}
+                        </h4>
+                        <p class="text-[11px] font-medium text-slate-500 mt-0.5">
+                            {{ $item->nama_institusi }}
+                        </p>
+                    </div>
+                    @if ($item->tahun_lulus)
+                        <span
+                            class="text-xs font-bold text-slate-600 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 shrink-0">
+                            {{ $item->tahun_lulus }}
+                        </span>
+                    @endif
+                </div>
+
+                <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400">
+                        No. Ijazah: <strong class="text-slate-700">{{ $item->nomor_ijazah ?: '-' }}</strong>
+                    </span>
+
+                    @if ($item->file_ijazah)
+                        <a href="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($item->file_ijazah) }}"
+                            target="_blank"
+                            class="inline-flex items-center gap-1 font-bold text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 px-2.5 py-1 rounded-lg transition-colors">
+                            <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh Ijazah
+                        </a>
+                    @else
+                        <span class="text-slate-300 italic text-[10px]">Ijazah belum diunggah</span>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+                <div class="flex justify-between py-1.5 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium">Tingkat Pendidikan</span>
+                    <span
+                        class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-100">{{ $user->jenjang_pendidikan ?? '-' }}</span>
+                </div>
+                <div class="py-1.5 border-b border-slate-50 text-xs">
+                    <span class="text-slate-400 font-medium block mb-1">Jurusan / Prodi</span>
+                    <span class="font-bold text-slate-800">{{ $user->pendidikan ?? '-' }}</span>
+                </div>
+            </div>
+        @endforelse
+
+        <x-mobile.rhoe-modal model="pendModalOpen" :title="$editingPendidikanId ? 'Edit Riwayat Pendidikan' : 'Tambah Riwayat Pendidikan'">
+            <div class="space-y-3">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jenjang <span
+                                class="text-rose-500">*</span></label>
+                        <select wire:model="pend_jenjang"
+                            class="w-full text-xs font-medium px-3 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none bg-white">
+                            <option value="">- Pilih Jenjang -</option>
+                            @foreach ($jenjangOptions as $jj)
+                                <option value="{{ $jj->value }}">{{ $jj->value }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Lulus</label>
+                        <input type="number" wire:model="pend_tahun_lulus" placeholder="2020"
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sekolah / Kampus <span
+                            class="text-rose-500">*</span></label>
+                    <input type="text" wire:model="pend_nama_institusi"
+                        placeholder="Contoh: Universitas Andalas"
+                        class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Jurusan</label>
+                        <input type="text" wire:model="pend_jurusan" placeholder="Jurusan..."
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Ijazah</label>
+                        <input type="text" wire:model="pend_nomor_ijazah" placeholder="No. Ijazah..."
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                    </div>
+                </div>
+                <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                    <input type="checkbox" wire:model="pend_is_terakhir"
+                        class="rounded border-slate-300 text-sky-600 focus:ring-sky-500">
+                    <span>Pendidikan Terakhir</span>
+                </label>
+                <x-mobile.pdf-upload wire:model="pend_file_ijazah" :file="$pend_file_ijazah"
+                    label="Upload File Ijazah (PDF, Maks. 2 MB)"
+                    placeholder="Ketuk untuk pilih file Ijazah (PDF)" />
+            </div>
+            <x-slot:footer>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="pendModalOpen = false"
+                        class="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" @click="pendModalOpen = false; $wire.save()"
+                        class="flex-1 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                        Simpan
+                    </button>
+                </div>
+            </x-slot:footer>
+        </x-mobile.rhoe-modal>
+    </div>
+@endif
+
+<!-- TAB 5: KELUARGA -->
+@if ($activeTab === 'keluarga')
+    <div class="bg-white rounded-3xl p-5 shadow-xs border border-slate-100 space-y-3.5">
+        <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider mb-2">Data Kependudukan
+            Keluarga</h3>
+        @php
+            $kkDisplay = $user->no_kk
+                ? (str_contains(strtoupper((string) $user->no_kk), 'E')
+                    ? number_format((float) $user->no_kk, 0, '', '')
+                    : $user->no_kk)
+                : null;
+            $nikDisplay = $user->nik
+                ? (str_contains(strtoupper((string) $user->nik), 'E')
+                    ? number_format((float) $user->nik, 0, '', '')
+                    : $user->nik)
+                : null;
+        @endphp
+        <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs"
+            x-data="{ copiedKk: false }">
+            <span class="text-slate-400 font-medium">Nomor KK</span>
+            <div class="flex items-center gap-1.5">
+                <span class="font-bold font-mono text-slate-800">{{ $kkDisplay ?: '-' }}</span>
+                @if ($kkDisplay)
+                    <button type="button"
+                        @click="navigator.clipboard?.writeText('{{ $kkDisplay }}'); copiedKk = true; setTimeout(() => copiedKk = false, 1500)"
+                        class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer"
+                        title="Salin No. KK">
+                        <i class="fa-regular" :class="copiedKk ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
+                    </button>
+                @endif
+            </div>
+        </div>
+        <div class="flex justify-between items-center py-1.5 border-b border-slate-50 text-xs"
+            x-data="{ copiedNik: false }">
+            <span class="text-slate-400 font-medium">NIK</span>
+            <div class="flex items-center gap-1.5">
+                <span class="font-bold font-mono text-slate-800">{{ $nikDisplay ?: '-' }}</span>
+                @if ($nikDisplay)
+                    <button type="button"
+                        @click="navigator.clipboard?.writeText('{{ $nikDisplay }}'); copiedNik = true; setTimeout(() => copiedNik = false, 1500)"
+                        class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer"
+                        title="Salin NIK">
+                        <i class="fa-regular"
+                            :class="copiedNik ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
+                    </button>
+                @endif
+            </div>
+        </div>
+        <div class="py-1.5 text-xs">
+            <div class="flex justify-between py-1 text-xs border-b border-slate-50">
+                <span class="text-slate-400 font-medium">Nama Istri / Suami</span>
+                <span class="font-bold text-slate-800 text-right">{{ $user->nama_pasangan ?: '-' }}</span>
+            </div>
+            <div class="py-1 text-xs border-b border-slate-50">
+                <span class="text-slate-400 font-medium block mb-1">Nama Anak</span>
+                @php
+                    $anakItems = array_values(
+                        array_filter(array_map('trim', preg_split('/\r?\n|,/', (string) ($user->nama_anak ?? '')))),
+                    );
+                @endphp
+                @if (count($anakItems))
+                    <div class="space-y-0.5">
+                        @foreach ($anakItems as $idx => $anakNama)
+                            <div class="font-bold text-slate-800">{{ $idx + 1 }}. {{ $anakNama }}</div>
+                        @endforeach
+                    </div>
+                @else
+                    <span class="font-bold text-slate-800">-</span>
+                @endif
+            </div>
+            <span class="text-slate-400 font-medium block mb-1">Alamat Keluarga</span>
+            <span class="font-medium text-slate-700 leading-relaxed">{{ $user->alamat ?? '-' }}</span>
+        </div>
+    </div>
+@endif
+@endif
+
+{{-- <p class="text-center text-[10px] text-slate-400 mt-6">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p> --}}
+
+@if ($showImpersonateModal)
+    <div
+        class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-4">
+        <div class="android-modal-anim w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-sm font-extrabold text-slate-800">Pindah Akun Pegawai</h3>
+                <button type="button" wire:click="$set('showImpersonateModal', false)"
+                    class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center cursor-pointer">
+                    <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
+            </div>
+            <input type="text" wire:model.live.debounce.250ms="impersonateSearch"
+                placeholder="Cari nama atau NIP..."
+                class="w-full rounded-xl border border-slate-200 px-3.5 py-2 text-xs focus:border-amber-400 focus:outline-none">
+            <div class="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                @forelse ($impersonateCandidates as $cand)
+                    <button type="button" wire:click="impersonateUser({{ $cand->id }})"
+                        class="w-full py-2.5 px-2 text-left hover:bg-amber-50 rounded-xl transition flex items-center justify-between cursor-pointer">
+                        <div class="min-w-0">
+                            <div class="text-xs font-bold text-slate-800 truncate">{{ $cand->name }}</div>
+                            <div class="text-[10px] font-mono text-slate-400">{{ $cand->nip ?? '-' }}</div>
+                        </div>
+                        <i class="fa-solid fa-arrow-right text-[10px] text-amber-500"></i>
+                    </button>
+                @empty
+                    <p class="py-6 text-center text-xs text-slate-400">Pegawai tidak ditemukan.</p>
+                @endforelse
             </div>
         </div>
     </div>
+@endif
+
+<!-- Modern Confirm Logout Modal -->
+<div x-show="confirmLogout" x-cloak x-transition.opacity.duration.150ms
+    class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-5">
+    <div @click.outside="confirmLogout = false" x-transition.scale.95.duration.150ms
+        class="w-full max-w-xs rounded-3xl bg-white p-6 shadow-2xl text-center space-y-4">
+        <div
+            class="mx-auto w-14 h-14 rounded-full bg-rose-50 text-rose-500 ring-8 ring-rose-500/10 flex items-center justify-center text-xl">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </div>
+        <div>
+            <h3 class="text-base font-extrabold text-slate-900">Keluar dari Akun?</h3>
+            <p class="text-xs text-slate-500 mt-1">Sesi Anda akan diakhiri dan harus masuk kembali untuk
+                mengakses presensi.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+            <button type="button" @click="confirmLogout = false"
+                class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer">
+                Batal
+            </button>
+            <button type="button" wire:click="logout"
+                class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-extrabold shadow-md shadow-rose-600/25 cursor-pointer">
+                Ya, Keluar
+            </button>
+        </div>
+    </div>
+</div>
 </div>
