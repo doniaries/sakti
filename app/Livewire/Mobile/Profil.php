@@ -281,6 +281,12 @@ class Profil extends Component
         }
     }
 
+    public function deleteGolongan(int $id, \App\Services\Mobile\ProfilService $service): void
+    {
+        $service->deleteRiwayat(RiwayatGolongan::class, (int) Auth::id(), $id);
+        $this->dispatch('toast', message: 'Riwayat pangkat/golongan berhasil dihapus.');
+    }
+
     public function newJabatan(): void
     {
         $this->fillJabatanForm(null);
@@ -296,6 +302,12 @@ class Profil extends Component
         }
     }
 
+    public function deleteJabatan(int $id, \App\Services\Mobile\ProfilService $service): void
+    {
+        $service->deleteRiwayat(RiwayatJabatan::class, (int) Auth::id(), $id);
+        $this->dispatch('toast', message: 'Riwayat jabatan berhasil dihapus.');
+    }
+
     public function newPendidikan(): void
     {
         $this->fillPendidikanForm(null);
@@ -309,6 +321,12 @@ class Profil extends Component
             $this->fillPendidikanForm($item);
             $this->dispatch('open-pendidikan-modal');
         }
+    }
+
+    public function deletePendidikan(int $id, \App\Services\Mobile\ProfilService $service): void
+    {
+        $service->deleteRiwayat(RiwayatPendidikan::class, (int) Auth::id(), $id);
+        $this->dispatch('toast', message: 'Riwayat pendidikan berhasil dihapus.');
     }
 
     public function setTab(string $tab): void
