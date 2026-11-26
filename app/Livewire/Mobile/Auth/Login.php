@@ -71,6 +71,7 @@ class Login extends Component
                 ->first();
 
         return view($tema === 'rhoe' ? 'livewire.mobile.auth.login-rhoe' : 'livewire.mobile.auth.login', [
+            'pengaturan' => $pengaturan,
             'hariLiburHariIni' => $hariLiburHariIni,
             'hariLiburTerdekat' => $hariLiburTerdekat,
         ]);
