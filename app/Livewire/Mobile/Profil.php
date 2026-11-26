@@ -772,6 +772,22 @@ class Profil extends Component
     /**
      * Logout Akun dari Mobile
      */
+    public function tesKirimNotif(): void
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        if (! $user || ! $user->hasRole('superadmin')) {
+            return;
+        }
+
+        $this->dispatch(
+            'notify',
+            type: 'info',
+            title: 'Tes Notifikasi SAKTI',
+            message: 'Notifikasi berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.'
+        );
+    }
+
     public function logout()
     {
         Auth::logout();
