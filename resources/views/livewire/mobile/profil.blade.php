@@ -517,6 +517,7 @@
                                     </button>
                                 </div>
 
+                                @if (auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']))
                                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-zinc-800/80 flex items-center justify-between">
                                     <div>
                                         <div class="text-xs font-bold text-slate-800 dark:text-white">Pembatasan Device (Binding)</div>
@@ -527,6 +528,7 @@
                                         <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {{ ($appCfg->device_binding_enabled ?? false) ? 'translate-x-6' : 'translate-x-1' }}"></span>
                                     </button>
                                 </div>
+                                @endif
 
                                 <div class="p-3.5 rounded-xl bg-sky-50/70 dark:bg-zinc-800/90 border border-sky-100 dark:border-zinc-700 space-y-1 text-xs">
                                     <div class="font-extrabold text-slate-900 dark:text-white">{{ $appCfg->nama_aplikasi ?? 'SAKTI' }}</div>
