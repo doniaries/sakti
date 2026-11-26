@@ -780,7 +780,8 @@ class Profil extends Component
             return;
         }
 
-        if (config('webpush.vapid.public_key') && $user->pushSubscriptions()->exists()) {
+        $subCount = $user->pushSubscriptions()->count();
+        if (config('webpush.vapid.public_key') && $subCount > 0) {
             $user->notify(new \App\Notifications\WebPushNotification(
                 'Tes Notifikasi SAKTI',
                 'Notifikasi Web Push berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
@@ -788,11 +789,15 @@ class Profil extends Component
             ));
         }
 
+        $statusPush = $subCount > 0
+            ? "Web Push aktif ({$subCount} perangkat)."
+            : 'Perangkat belum terdaftar Web Push (0 perangkat) — pastikan izin notifikasi browser aktif lalu muat ulang halaman.';
+
         $this->dispatch(
             'notify',
             type: 'info',
             title: 'Tes Notifikasi SAKTI',
-            message: 'Notifikasi berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.'
+            message: 'Notifikasi berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB. ' . $statusPush
         );
     }
 
