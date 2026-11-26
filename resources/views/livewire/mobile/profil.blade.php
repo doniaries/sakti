@@ -371,8 +371,21 @@
                         </button>
 
                         <div x-show="pengaturanOpen" x-cloak
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
                             class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs">
                             <div @click.outside="pengaturanOpen = false"
+                                x-show="pengaturanOpen"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="translate-y-full sm:translate-y-4 sm:scale-95 opacity-0"
+                                x-transition:enter-end="translate-y-0 sm:scale-100 opacity-100"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="translate-y-0 sm:scale-100 opacity-100"
+                                x-transition:leave-end="translate-y-full sm:translate-y-4 sm:scale-95 opacity-0"
                                 class="w-full max-w-md bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl space-y-2">
                                 <div class="flex items-center justify-between mb-2">
                                     <h3 class="text-sm font-extrabold text-slate-900">Menu Pengaturan</h3>
