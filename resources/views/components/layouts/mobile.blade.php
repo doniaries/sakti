@@ -451,6 +451,14 @@
     @livewireStyles
 </head>
 <body>
+    @auth
+        @if (auth()->user()?->hasAnyRole(['super_admin', 'superadmin']) && \App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi)
+            <div class="bg-amber-400 text-slate-950 px-3 py-1.5 text-[11px] font-bold flex items-center justify-center gap-1.5 text-center shadow-xs">
+                <i class="fa-solid fa-triangle-exclamation text-xs shrink-0"></i>
+                <span>MODE SIMULASI AKTIF — Data simulasi tidak masuk laporan &amp; notif hanya ke Superadmin</span>
+            </div>
+        @endif
+    @endauth
     <div class="mobile-container">
         @php
             $pengaturanMobile = \App\Models\PengaturanAplikasi::getPengaturan();
