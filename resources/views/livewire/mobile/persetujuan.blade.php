@@ -206,8 +206,21 @@
                         </div>
 
                         <div x-show="confirmApproveOpen" x-cloak
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0"
+                            x-transition:enter-end="opacity-100"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100"
+                            x-transition:leave-end="opacity-0"
                             class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
                             <div @click.outside="confirmApproveOpen = false"
+                                x-show="confirmApproveOpen"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 scale-90 translate-y-2"
+                                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 scale-90 translate-y-2"
                                 class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-5 shadow-2xl text-center">
                                 <div class="mx-auto w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl mb-3">
                                     <i class="fa-solid fa-file-signature"></i>

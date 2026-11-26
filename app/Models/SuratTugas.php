@@ -134,7 +134,6 @@ class SuratTugas extends Model
                 ->color($status === 'hadir' ? 'success' : 'warning')
                 ->sendToDatabase($user);
             $user->sendWebPush("Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
-            $user->sendWebPush("Konfirmasi Kehadiran: {$labelStatus}", $body, route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
         }
     }
 
@@ -286,7 +285,6 @@ class SuratTugas extends Model
                 ->success()
                 ->sendToDatabase($user);
             $user->sendWebPush("Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
-            $user->sendWebPush("Konfirmasi Kehadiran: {$labelStatus}", $body, route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
         }
     }
 
