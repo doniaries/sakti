@@ -6,15 +6,17 @@
     <title>{{ $title ?? 'SAKTI Mobile' }}</title>
     
     <!-- PWA Setup -->
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}?v=2">
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=2">
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2">
-    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v=2">
     <meta name="theme-color" content="#1B6CA8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="SAKTI Mobile">
-    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192x192.png') }}">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}?v=2">
+    <link rel="apple-touch-icon" sizes="512x512" href="{{ asset('icons/icon-512x512.png') }}?v=2">
     
     <!-- Fonts & CSS -->
     @if (app()->environment('local') && file_exists(public_path('hot')))
@@ -70,6 +72,7 @@
             background-color: #060C1A;
         }
         .mobile-container {
+            width: 100%;
             max-width: 440px;
             margin: 0 auto;
             background-color: #F8FAFC;
@@ -86,7 +89,22 @@
             box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
             display: flex;
             flex-direction: column;
-            transition: background-color 0.2s ease, color 0.2s ease;
+            transition: background-color 0.2s ease, color 0.2s ease, max-width 0.2s ease;
+        }
+        @media (min-width: 640px) {
+            .mobile-container {
+                max-width: 640px;
+            }
+        }
+        @media (min-width: 768px) {
+            .mobile-container {
+                max-width: 768px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .mobile-container {
+                max-width: 960px;
+            }
         }
         .mobile-container::before {
             content: '';

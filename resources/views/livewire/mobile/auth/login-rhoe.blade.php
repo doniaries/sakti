@@ -44,7 +44,7 @@
     </div>
 
     <!-- Center Content -->
-    <div class="relative z-10 px-5 py-6 flex-1 flex flex-col justify-center">
+    <div class="relative z-10 px-5 py-6 flex-1 flex flex-col justify-center w-full max-w-md mx-auto">
         @php
             $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
             $logoUrl = asset('favicon.png');

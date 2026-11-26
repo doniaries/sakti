@@ -72,7 +72,7 @@
     </div>
 
     <!-- Form Card: White Elevated Surface with Subtle Structure -->
-    <div class="bg-white rounded-t-[32px] p-6 pt-5 pb-6 shadow-2xl flex-1 flex flex-col justify-between z-10">
+    <div class="bg-white rounded-t-[32px] md:rounded-3xl md:mb-6 md:mx-auto md:w-full md:max-w-md p-6 pt-5 pb-6 shadow-2xl flex-1 md:flex-none flex flex-col justify-between z-10">
         <div>
             <!-- Card Header -->
             <div class="mb-4">
