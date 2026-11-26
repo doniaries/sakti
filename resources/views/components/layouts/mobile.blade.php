@@ -462,7 +462,7 @@
             x-show="navigating"
             x-cloak
             x-transition.opacity.duration.150ms
-            class="fixed inset-0 z-40 max-w-[440px] mx-auto bg-slate-50 dark:bg-[#09090b] pb-24 space-y-4 pointer-events-none">
+            class="fixed inset-0 z-40 w-full max-w-[440px] sm:max-w-[640px] md:max-w-[768px] lg:max-w-[960px] mx-auto bg-slate-50 dark:bg-[#09090b] pb-24 space-y-4 pointer-events-none">
             <!-- 1. Skeleton Beranda -->
             <template x-if="target === 'dashboard'">
                 <div class="space-y-4 animate-pulse">
