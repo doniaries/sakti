@@ -6,6 +6,7 @@
     detik: '--',
     tanggal: '',
     hasBioCreds: !!localStorage.getItem('sakti_bio_creds'),
+    bioEnabled: localStorage.getItem('sakti_bio_enabled') !== '0',
     async biometricLogin() {
         const raw = localStorage.getItem('sakti_bio_creds');
         if (!raw) {
@@ -38,6 +39,7 @@
         }
     },
     async saveBioCreds() {
+        if (!this.bioEnabled) return;
         const e = $wire.get('email');
         const p = $wire.get('password');
         if (!e || !p) return;
@@ -164,7 +166,7 @@
                 class="flex-1 py-3.5 px-5 rounded-2xl bg-[#0284C7] hover:bg-[#0369A1] text-white font-bold text-sm shadow-lg shadow-sky-600/25 active:scale-[0.98] transition cursor-pointer">
                 Login
             </button>
-            <button type="button" @click="biometricLogin()" title="Masuk Cepat dengan Sidik Jari"
+            <button type="button" x-show="bioEnabled" @click="biometricLogin()" title="Masuk Cepat dengan Sidik Jari"
                 class="w-14 h-[48px] rounded-2xl bg-white dark:bg-zinc-900 border border-sky-200 dark:border-zinc-700 text-[#0284C7] dark:text-sky-400 shadow-md flex items-center justify-center text-xl active:scale-95 transition cursor-pointer shrink-0">
                 <i class="fa-solid fa-fingerprint"></i>
             </button>

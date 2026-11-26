@@ -394,6 +394,21 @@
                         </div>
                     </button>
                 @endif
+                <button type="button"
+                    x-data="{ bioEnabled: localStorage.getItem('sakti_bio_enabled') !== '0', toggle() { this.bioEnabled = !this.bioEnabled; localStorage.setItem('sakti_bio_enabled', this.bioEnabled ? '1' : '0'); if (!this.bioEnabled) localStorage.removeItem('sakti_bio_creds'); } }"
+                    @click="toggle()"
+                    class="bg-white rounded-2xl p-3 border border-slate-100 shadow-xs hover:-translate-y-0.5 hover:shadow-md hover:border-sky-300 active:scale-[0.98] transition-all duration-150 text-left flex flex-col items-start gap-2 cursor-pointer min-w-0 overflow-hidden">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-base border"
+                        :class="bioEnabled ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-100 text-slate-400 border-slate-200'">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+                    <div>
+                        <div class="text-xs font-extrabold text-slate-800 leading-tight">Login Sidik Jari</div>
+                        <div class="text-[10px] mt-0.5 font-bold"
+                            :class="bioEnabled ? 'text-emerald-600' : 'text-slate-400'"
+                            x-text="bioEnabled ? 'Aktif (Ketuk Matikan)' : 'Nonaktif (Ketuk Aktifkan)'"></div>
+                    </div>
+                </button>
             </div>
         @else
             <div class="flex items-center justify-between mb-3">
