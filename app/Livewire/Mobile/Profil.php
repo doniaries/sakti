@@ -820,13 +820,13 @@ class Profil extends Component
             );
         }
 
-        if ($fcmUsers->isNotEmpty()) {
-            \App\Services\PushNotificationService::sendToUsers(
-                $fcmUsers,
+        $fcmOnlyUsers = $fcmUsers->whereNotIn('id', $subscribers->pluck('id'));
+        if ($fcmOnlyUsers->isNotEmpty()) {
+            \App\Services\PushNotificationService::sendFcmToUsers(
+                $fcmOnlyUsers,
                 'Tes Notifikasi SAKTI',
                 'Notifikasi Push Android berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
-                ['url' => route('mobile.dashboard')],
-                'info'
+                ['url' => route('mobile.dashboard')]
             );
         }
 
