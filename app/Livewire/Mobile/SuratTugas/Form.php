@@ -129,6 +129,9 @@ class Form extends Component
             abort_if($suratTugas->status === 'terbit', 403);
             $suratTugas->update($payload);
             $suratTugas->pegawais()->sync($validated['pegawai_ids'] ?? []);
+            if ($suratTugas->penandatangan_id) {
+                $suratTugas->kirimNotifikasiPengajuan();
+            }
             session()->flash('success', 'Surat Tugas berhasil diperbarui.');
         } else {
             $suratTugas = SuratTugas::create($payload + [
@@ -140,6 +143,7 @@ class Form extends Component
             if (! empty($validated['pegawai_ids'])) {
                 $suratTugas->pegawais()->sync($validated['pegawai_ids']);
             }
+            $suratTugas->kirimNotifikasiPengajuan();
             session()->flash('success', 'Surat Tugas berhasil dibuat.');
         }
 
