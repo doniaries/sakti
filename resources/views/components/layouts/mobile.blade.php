@@ -55,15 +55,50 @@
             });
         }
 
-        // Native Android/PWA Status Bar Notification Bridge
+        // Native Android/PWA Status Bar Notification + Web Push (VAPID) Bridge
         (function () {
             if (!('Notification' in window)) return;
 
+            const vapidPublicKey = @js(config('webpush.vapid.public_key'));
+            const subscribeWebPush = async () => {
+                if (!vapidPublicKey || Notification.permission !== 'granted' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+                try {
+                    const reg = await navigator.serviceWorker.ready;
+                    let sub = await reg.pushManager.getSubscription();
+                    if (!sub) {
+                        const padding = '='.repeat((4 - vapidPublicKey.length % 4) % 4);
+                        const base64 = (vapidPublicKey + padding).replace(/-/g, '+').replace(/_/g, '/');
+                        const rawData = window.atob(base64);
+                        const outputArray = new Uint8Array(rawData.length);
+                        for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+                        sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: outputArray });
+                    }
+                    @auth
+                    await fetch(@js(route('mobile.push-subscribe')), {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': @js(csrf_token()),
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(sub.toJSON())
+                    });
+                    @endauth
+                } catch (e) {}
+            };
+
             const requestNotifPermission = () => {
                 if (Notification.permission === 'default') {
-                    Notification.requestPermission().catch(() => {});
+                    Notification.requestPermission().then((perm) => {
+                        if (perm === 'granted') subscribeWebPush();
+                    }).catch(() => {});
+                } else if (Notification.permission === 'granted') {
+                    subscribeWebPush();
                 }
             };
+            if (Notification.permission === 'granted') {
+                subscribeWebPush();
+            }
             window.addEventListener('click', requestNotifPermission, { once: true, passive: true });
             window.addEventListener('touchstart', requestNotifPermission, { once: true, passive: true });
 

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 use Spatie\Permission\Traits\HasRoles;
 
 use Filament\Models\Contracts\FilamentUser;
@@ -29,6 +30,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 {
+    use HasPushSubscriptions;
     use SoftDeletes;
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use DeletesOldFiles, HasApiTokens, HasFactory, Notifiable, HasRoles;

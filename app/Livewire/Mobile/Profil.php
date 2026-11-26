@@ -780,6 +780,14 @@ class Profil extends Component
             return;
         }
 
+        if (config('webpush.vapid.public_key') && $user->pushSubscriptions()->exists()) {
+            $user->notify(new \App\Notifications\WebPushNotification(
+                'Tes Notifikasi SAKTI',
+                'Notifikasi Web Push berhasil dikirim pada ' . now()->format('H:i:s') . ' WIB.',
+                route('mobile.dashboard')
+            ));
+        }
+
         $this->dispatch(
             'notify',
             type: 'info',

@@ -51,17 +51,42 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
+self.addEventListener('push', function(event) {
+  let data = { title: 'SAKTI Mobile', body: 'Ada pemberitahuan baru.', url: '/mobile/dashboard' };
+  if (event.data) {
+    try {
+      data = Object.assign(data, event.data.json());
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: data.icon || '/icons/icon-192x192.png?v=2',
+      badge: data.badge || '/icons/icon-192x192.png?v=2',
+      vibrate: [150, 80, 150],
+      data: { url: (data.data && data.data.url) || data.url || '/mobile/dashboard' },
+      tag: 'sakti-push-' + Date.now(),
+      renotify: true
+    })
+  );
+});
+
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/mobile/dashboard';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(clientList) {
       for (const client of clientList) {
         if (client.url.includes('/mobile') && 'focus' in client) {
+          client.navigate(targetUrl);
           return client.focus();
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/mobile/dashboard');
+        return clients.openWindow(targetUrl);
       }
     })
   );

@@ -64,6 +64,24 @@ Route::prefix('mobile')->group(function () {
         Route::get('/surat-tugas', \App\Livewire\Mobile\SuratTugas\Index::class)->name('mobile.surat-tugas.index');
         Route::get('/surat-tugas/buat', \App\Livewire\Mobile\SuratTugas\Form::class)->name('mobile.surat-tugas.create');
         Route::get('/surat-tugas/{suratTugas}/edit', \App\Livewire\Mobile\SuratTugas\Form::class)->name('mobile.surat-tugas.edit');
+        Route::post('/push-subscribe', function (\Illuminate\Http\Request $request) {
+            /** @var \App\Models\User|null $user */
+            $user = \Illuminate\Support\Facades\Auth::user();
+            if (! $user) {
+                return response()->json(['ok' => false], 401);
+            }
+            $data = $request->validate([
+                'endpoint' => ['required', 'url'],
+                'keys.p256dh' => ['required', 'string'],
+                'keys.auth' => ['required', 'string'],
+            ]);
+            $user->updatePushSubscription(
+                $data['endpoint'],
+                $data['keys']['p256dh'],
+                $data['keys']['auth']
+            );
+            return response()->json(['ok' => true]);
+        })->name('mobile.push-subscribe');
         Route::middleware('module:izin')->group(function () {
             Route::get('/izin', \App\Livewire\Mobile\Izin\Index::class)->name('mobile.izin.index');
             Route::get('/izin/buat', \App\Livewire\Mobile\Izin\Form::class)->name('mobile.izin.create');
