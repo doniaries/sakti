@@ -42,8 +42,7 @@ class Index extends Component
         abort_unless($user && $user->canManageSuratTugas(), 403);
 
         $surat = SuratTugas::find($id);
-        if (! $surat || $surat->status === 'terbit') {
-            $this->dispatch('notify', type: 'warning', title: 'Tidak Dapat Dihapus', message: 'Surat tugas yang sudah terbit tidak dapat dihapus.');
+        if (! $surat) {
             return;
         }
 
