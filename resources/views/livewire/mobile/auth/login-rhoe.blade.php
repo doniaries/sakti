@@ -118,8 +118,17 @@
             </span>
             <p class="text-[11px] text-sky-100/90 font-semibold mb-2">Sistem Administrasi Kinerja Terintegrasi</p>
 
-            <h1 class="text-xl font-black tracking-tight">Hai, Selamat Datang!</h1>
-            <p class="text-xs text-sky-100/90 mt-0.5">{{ $pengaturan->nama_dinas ?? $pengaturan->nama_instansi ?? 'Disparpora Kabupaten Sijunjung' }}</p>
+            <p class="text-xs text-sky-100/90 mb-0.5">{{ $pengaturan->nama_dinas ?? $pengaturan->nama_instansi ?? 'Disparpora Kabupaten Sijunjung' }}</p>
+            @php
+                $jam = now('Asia/Jakarta')->hour;
+                $sapaan = match (true) {
+                    $jam >= 4 && $jam < 11 => 'Selamat Pagi!',
+                    $jam >= 11 && $jam < 15 => 'Selamat Siang!',
+                    $jam >= 15 && $jam < 18 => 'Selamat Sore!',
+                    default => 'Selamat Malam!',
+                };
+            @endphp
+            <h1 class="text-xl font-black tracking-tight">{{ $sapaan }}</h1>
 
             <!-- Live Clock Box -->
             <div class="mt-4 px-5 py-2.5 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md">
