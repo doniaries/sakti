@@ -134,6 +134,7 @@ class SuratTugas extends Model
                 ->color($status === 'hadir' ? 'success' : 'warning')
                 ->sendToDatabase($user);
             $user->sendWebPush("Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
+            \App\Services\PushNotificationService::sendToUsers([$user], "Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", ['url' => route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id])], 'success');
         }
     }
 
@@ -154,6 +155,7 @@ class SuratTugas extends Model
                 ->warning()
                 ->sendToDatabase($this->creator);
             $this->creator->sendWebPush('Surat Tugas Perlu Koreksi', "Dari {$pimpinan->name} ({$this->nama_kegiatan}): {$catatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
+            \App\Services\PushNotificationService::sendToUsers([$this->creator], 'Surat Tugas Perlu Koreksi', "Dari {$pimpinan->name} ({$this->nama_kegiatan}): {$catatan}", ['url' => route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id])], 'warning');
         }
     }
 
@@ -229,6 +231,7 @@ class SuratTugas extends Model
                     ])
                     ->sendToDatabase($approver);
                 $approver->sendWebPush('Permohonan Persetujuan Surat Tugas', "Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}", route('mobile.persetujuan', ['tab' => 'surat_tugas']));
+                \App\Services\PushNotificationService::sendToUsers([$approver], 'Permohonan Persetujuan Surat Tugas', "Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}", ['url' => route('mobile.persetujuan', ['tab' => 'surat_tugas'])], 'info');
             }
         }
 
@@ -288,6 +291,7 @@ class SuratTugas extends Model
                 ->success()
                 ->sendToDatabase($user);
             $user->sendWebPush("Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id]));
+            \App\Services\PushNotificationService::sendToUsers([$user], "Surat Tugas Tim Kreatif untuk {$user->name}", "Nomor {$this->nomor_surat}: {$this->nama_kegiatan}", ['url' => route('mobile.surat-tugas.index', ['surat_tugas_id' => $this->id])], 'success');
         }
     }
 
