@@ -69,7 +69,11 @@
                         <div class="text-[11px] text-sky-100 font-medium">{{ $sapaan }},</div>
                         <h1 class="text-sm font-extrabold tracking-tight leading-snug">{{ $user->name }}</h1>
                         @php
-                            $jabatanBidang = collect([$user->jabatan?->nama, $user->bidang?->nama])->filter()->implode(' • ');
+                            $jabatanNama = $user->jabatan?->nama;
+                            $bidangNama = $user->bidang?->nama;
+                            $jabatanBidang = ($jabatanNama === 'Sekretaris' && $bidangNama === 'Sekretariat')
+                                ? 'Sekretaris'
+                                : collect([$jabatanNama, $bidangNama])->filter()->implode(' • ');
                         @endphp
                         @if ($jabatanBidang)
                             <div class="text-[10px] text-sky-100/90 font-medium leading-tight mt-0.5">{{ $jabatanBidang }}</div>
