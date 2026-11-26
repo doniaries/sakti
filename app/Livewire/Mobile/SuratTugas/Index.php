@@ -71,8 +71,7 @@ class Index extends Component
             ->latest('tanggal_mulai');
 
         if (! $user->canManageSuratTugas()) {
-            $query->where('status', 'terbit')
-                ->where(function ($q) use ($user): void {
+            $query->where(function ($q) use ($user): void {
                     $q->whereHas('pegawais', fn ($p) => $p->where('users.id', $user->id))
                         ->orWhereJsonContains('penanggung_jawab_ids', $user->id)
                         ->orWhereJsonContains('koordinator_acara_ids', $user->id)
