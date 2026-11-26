@@ -45,6 +45,24 @@ class PushNotificationService
     }
 
     /**
+     * Kirim Push Notification FCM ke perangkat Android tanpa membuat duplikasi notifikasi database.
+     */
+    public static function sendFcmToUsers(iterable $users, string $title, string $body, array $data = []): void
+    {
+        $recipients = collect($users)->filter(fn ($u) => $u instanceof User)->unique('id')->values();
+        if (\App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi) {
+            $recipients = $recipients->filter(
+                fn (User $u) => $u->hasAnyRole(['super_admin', 'superadmin'])
+            )->values();
+        }
+        if ($recipients->isEmpty()) {
+            return;
+        }
+
+        self::sendFcmBatch($recipients->all(), $title, $body, $data);
+    }
+
+    /**
      * Kirim Push Notification via FCM HTTP v1 API tanpa library eksternal.
      *
      * @param  array<int, User>  $recipients

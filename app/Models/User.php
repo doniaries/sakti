@@ -34,6 +34,12 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
     public function sendWebPush(string $title, string $body, string $url = '/mobile/dashboard'): void
     {
+        if (\App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi && ! $this->hasAnyRole(['super_admin', 'superadmin'])) {
+            return;
+        }
+
+        \App\Services\PushNotificationService::sendFcmToUsers([$this], $title, $body, ['url' => $url]);
+
         if (! config('webpush.vapid.public_key') || ! $this->pushSubscriptions()->exists()) {
             return;
         }
