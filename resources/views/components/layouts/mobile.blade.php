@@ -263,6 +263,15 @@
             box-shadow: 0 -10px 25px -5px rgba(15, 23, 42, 0.08), 0 -1px 3px 0 rgba(0, 0, 0, 0.03);
             pointer-events: auto;
         }
+        @media (min-width: 640px) {
+            .bottom-nav { max-width: 640px; }
+        }
+        @media (min-width: 768px) {
+            .bottom-nav { max-width: 768px; }
+        }
+        @media (min-width: 1024px) {
+            .bottom-nav { max-width: 960px; }
+        }
         html.dark .bottom-nav {
             background: rgba(16, 30, 48, 0.96);
             border-top-color: rgba(51, 65, 85, 0.7);
