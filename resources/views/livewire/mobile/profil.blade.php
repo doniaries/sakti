@@ -388,7 +388,7 @@
                 class="mt-2 rounded-xl bg-white/10 px-3 py-2 flex items-center justify-between gap-2 text-[11px]">
                 <div class="flex items-center gap-2 text-white font-semibold">
                     <i class="fa-solid fa-fingerprint text-sky-200"></i>
-                    <span x-text="perms.biometricEnrolled ? 'Masuk Sidik Jari' : 'Daftarkan Sidik Jari'"></span>
+                    <span>Masuk Sidik Jari</span>
                 </div>
                 <button type="button"
                     @click="const next = !(perms.biometricEnrolled && perms.biometricEnabled); window.SaktiNative?.postMessage(JSON.stringify({ action: 'set_biometric', enabled: next }))"
