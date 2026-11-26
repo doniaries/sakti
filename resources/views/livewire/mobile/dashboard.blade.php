@@ -661,8 +661,8 @@
                                 doSubmit(null, null);
                             }, {
                                 enableHighAccuracy: true,
-                                timeout: 7000,
-                                maximumAge: 10000
+                                timeout: 15000,
+                                maximumAge: 0
                             }
                         );
                     }

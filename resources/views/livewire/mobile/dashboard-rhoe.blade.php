@@ -27,7 +27,7 @@
                 navigator.geolocation.getCurrentPosition(
                     (pos) => $wire.ambilAbsen(jenis, pos.coords.latitude, pos.coords.longitude).finally(() => this.punching = false),
                     () => $wire.ambilAbsen(jenis, null, null).finally(() => this.punching = false),
-                    { enableHighAccuracy: true, timeout: 8000 }
+                    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
                 );
             } else {
                 $wire.ambilAbsen(jenis, null, null).finally(() => this.punching = false);

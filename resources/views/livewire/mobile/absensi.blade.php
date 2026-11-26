@@ -417,8 +417,8 @@
                             },
                             {
                                 enableHighAccuracy: true,
-                                timeout: 8000,
-                                maximumAge: 10000
+                                timeout: 15000,
+                                maximumAge: 0
                             }
                         );
                     },
@@ -453,7 +453,8 @@
                             },
                             {
                                 enableHighAccuracy: true,
-                                timeout: 8000
+                                timeout: 15000,
+                                maximumAge: 0
                             }
                         );
                     },
@@ -492,8 +493,8 @@
                             },
                             {
                                 enableHighAccuracy: true,
-                                timeout: 7000,
-                                maximumAge: 10000
+                                timeout: 15000,
+                                maximumAge: 0
                             }
                         );
                     }
