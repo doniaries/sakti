@@ -70,7 +70,7 @@ class Login extends Component
                 ->orderBy('tanggal')
                 ->first();
 
-        return view($tema === 'rhoe' ? 'livewire.mobile.auth.login-rhoe' : 'livewire.mobile.auth.login', [
+        return view('livewire.mobile.auth.login-rhoe', [
             'pengaturan' => $pengaturan,
             'hariLiburHariIni' => $hariLiburHariIni,
             'hariLiburTerdekat' => $hariLiburTerdekat,
