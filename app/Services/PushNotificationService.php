@@ -19,6 +19,11 @@ class PushNotificationService
     public static function sendToUsers(iterable $users, string $title, string $body, array $data = [], string $status = 'info'): void
     {
         $recipients = collect($users)->filter(fn ($u) => $u instanceof User)->unique('id')->values();
+        if (\App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi) {
+            $recipients = $recipients->filter(
+                fn (User $u) => $u->hasAnyRole(['super_admin', 'superadmin'])
+            )->values();
+        }
         if ($recipients->isEmpty()) {
             return;
         }
