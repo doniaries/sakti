@@ -86,7 +86,7 @@
             </div>
         @else
             @php
-                $randomImg = asset('images/login-bg/' . rand(1, 3) . '.jpg');
+                $randomImg = asset('images/login-bg/' . rand(1, 3) . '.png');
             @endphp
             <div class="flex-1 flex items-center justify-center py-2">
                 <img src="{{ $randomImg }}" alt="Ilustrasi Sijunjung" class="w-full max-h-60 object-contain rounded-2xl">
