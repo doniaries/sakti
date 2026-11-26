@@ -69,6 +69,11 @@
                         <span><i class="fa-solid fa-location-dot mr-1 text-teal-600"></i>{{ $surat->lokasi }}</span>
                     @endif
                 </div>
+                @if ($surat->created_at)
+                    <div class="text-[11px] text-zinc-400 dark:text-zinc-500">
+                        <i class="fa-regular fa-paper-plane mr-1"></i>Dibuat: {{ $surat->created_at->format('d/m/Y H:i') }} WIB
+                    </div>
+                @endif
 
                 <div class="pt-1 flex items-center gap-2">
                     <button type="button" wire:click="showDetail({{ $surat->id }})"
