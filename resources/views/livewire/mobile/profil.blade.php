@@ -547,6 +547,22 @@
                     </div>
                 @endif
             </div>
+            @php
+                $appInfo = \App\Models\PengaturanAplikasi::getPengaturan();
+            @endphp
+            <div class="mt-3 p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 shadow-xs space-y-1 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-extrabold text-slate-800 dark:text-white">{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</span>
+                    <span class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold">
+                        {{ $appInfo->app_version ?? $appInfo->versi_aplikasi ?? 'v1.0.0' }}
+                    </span>
+                </div>
+                @if (!empty($appInfo->update_notes ?? $appInfo->catatan_rilis))
+                    <p class="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed">
+                        {{ $appInfo->update_notes ?? $appInfo->catatan_rilis }}
+                    </p>
+                @endif
+            </div>
         @else
             <div class="flex items-center justify-between mb-3">
                 <button type="button" wire:click="setTab('menu')"
