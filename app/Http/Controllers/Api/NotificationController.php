@@ -89,6 +89,8 @@ class NotificationController extends Controller
         /** @var \App\Models\User $user */
         $user = $request->user();
         $user->update(['fcm_token' => $validated['fcm_token']]);
+        // Hapus langganan Web Push browser agar tidak muncul notif ganda di Chrome Android.
+        $user->pushSubscriptions()->delete();
 
         return response()->json(['success' => true]);
     }
