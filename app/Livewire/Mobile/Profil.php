@@ -118,7 +118,9 @@ class Profil extends Component
     public string $pend_jurusan = '';
     public string $pend_tahun_lulus = '';
     public string $pend_nomor_ijazah = '';
-    public bool $pend_is_terakhir = true;
+    public bool $pend_is_terakhir = false;
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null */
+    public $pend_file_ijazah = null;
 
     /** @var array<string, bool> */
     public array $modulAktif = [];
@@ -261,7 +263,7 @@ class Profil extends Component
         $this->pend_jurusan = $item?->jurusan ?? '';
         $this->pend_tahun_lulus = $item?->tahun_lulus ? (string) $item->tahun_lulus : '';
         $this->pend_nomor_ijazah = $item?->nomor_ijazah ?? '';
-        $this->pend_is_terakhir = $item ? (bool) $item->is_pendidikan_terakhir : true;
+        $this->pend_is_terakhir = $item ? (bool) $item->is_pendidikan_terakhir : false;
     }
 
     public function newGolongan(): void
