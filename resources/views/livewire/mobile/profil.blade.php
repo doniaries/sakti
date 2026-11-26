@@ -1421,6 +1421,19 @@
         @endif
 
         <!-- TAB 2: PANGKAT / GOLONGAN -->
+        @if ($activeTab === 'peran' || $activeTab === 'sistem')
+            <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-slate-950/60 backdrop-blur-xs p-0 sm:p-4">
+                <div class="w-full max-w-lg max-h-[88dvh] overflow-y-auto bg-white rounded-t-[28px] sm:rounded-3xl p-5 shadow-2xl">
+                    <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+                        <h3 class="text-sm font-extrabold text-slate-900">
+                            {{ $activeTab === 'peran' ? 'Peran & Akses' : 'Pengaturan Modul & Sistem' }}
+                        </h3>
+                        <button type="button" wire:click="setTab('menu')"
+                            class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs cursor-pointer">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+        @endif
         @if ($activeTab === 'peran' && (auth()->user()?->hasRole('super_admin') || auth()->user()?->can('ViewAny:Role')))
             @php
                 $rolesList = \Spatie\Permission\Models\Role::withCount(['users', 'permissions'])
@@ -1601,6 +1614,11 @@
                         </div>
                     </x-slot:footer>
                 </x-mobile.rhoe-modal>
+            </div>
+        @endif
+
+        @if ($activeTab === 'peran' || $activeTab === 'sistem')
+                </div>
             </div>
         @endif
 
