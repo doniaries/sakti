@@ -1031,6 +1031,85 @@
     </div>
 
     @livewireScripts
+
+    <!-- Pull-to-Refresh (hanya di paling atas, butuh tarikan dalam >140px, cooldown 10 detik) -->
+    <div id="sakti-ptr-indicator"
+        class="fixed top-3 left-1/2 -translate-x-1/2 z-[9998] hidden items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/85 text-white text-[11px] font-semibold shadow-lg backdrop-blur-xs pointer-events-none transition-all duration-150">
+        <i class="fa-solid fa-arrow-down text-sky-400" id="sakti-ptr-icon"></i>
+        <span id="sakti-ptr-text">Tarik untuk memuat ulang</span>
+    </div>
+    <script>
+        (function () {
+            let startY = 0;
+            let pulling = false;
+            let deltaY = 0;
+            let lastRefreshAt = 0;
+            const THRESHOLD = 140;
+            const COOLDOWN_MS = 10000;
+            const indicator = document.getElementById('sakti-ptr-indicator');
+            const icon = document.getElementById('sakti-ptr-icon');
+            const text = document.getElementById('sakti-ptr-text');
+
+            document.addEventListener('touchstart', (e) => {
+                if (window.scrollY <= 0 && e.touches.length === 1) {
+                    startY = e.touches[0].clientY;
+                    pulling = true;
+                    deltaY = 0;
+                } else {
+                    pulling = false;
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                if (!pulling || window.scrollY > 0) {
+                    pulling = false;
+                    indicator.classList.add('hidden');
+                    indicator.classList.remove('flex');
+                    return;
+                }
+                deltaY = e.touches[0].clientY - startY;
+                if (deltaY > 45) {
+                    indicator.classList.remove('hidden');
+                    indicator.classList.add('flex');
+                    if (deltaY >= THRESHOLD) {
+                        text.textContent = 'Lepaskan untuk memuat ulang';
+                        icon.className = 'fa-solid fa-rotate-right text-emerald-400';
+                    } else {
+                        text.textContent = 'Tarik lebih dalam untuk refresh';
+                        icon.className = 'fa-solid fa-arrow-down text-sky-400';
+                    }
+                } else {
+                    indicator.classList.add('hidden');
+                    indicator.classList.remove('flex');
+                }
+            }, { passive: true });
+
+            document.addEventListener('touchend', () => {
+                if (!pulling) return;
+                pulling = false;
+                indicator.classList.add('hidden');
+                indicator.classList.remove('flex');
+
+                if (deltaY >= THRESHOLD) {
+                    const now = Date.now();
+                    if (now - lastRefreshAt < COOLDOWN_MS) {
+                        text.textContent = 'Tunggu beberapa detik sebelum refresh lagi';
+                        icon.className = 'fa-solid fa-clock text-amber-400';
+                        indicator.classList.remove('hidden');
+                        indicator.classList.add('flex');
+                        setTimeout(() => {
+                            indicator.classList.add('hidden');
+                            indicator.classList.remove('flex');
+                        }, 2000);
+                        return;
+                    }
+                    lastRefreshAt = now;
+                    window.location.reload();
+                }
+                deltaY = 0;
+            }, { passive: true });
+        })();
+    </script>
 </body>
 </html>
 
