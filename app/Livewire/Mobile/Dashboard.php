@@ -150,7 +150,7 @@ class Dashboard extends Component
         if (filled($notifId)) {
             $this->markNotificationAsRead($notifId);
         }
-        $this->dispatch('toast', message: 'Konfirmasi Siap Hadir berhasil disimpan.');
+        $this->dispatch('toast', message: 'Konfirmasi Hadir berhasil disimpan.');
         $this->dispatch('konfirmasi-hadir-sukses');
     }
 
@@ -246,7 +246,7 @@ class Dashboard extends Component
         /** @var User $user */
         $user = User::with(['jabatan', 'bidang', 'atasan', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
         $today = Carbon::today();
-        
+
         $todayStr = $today->format('Y-m-d');
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
@@ -258,8 +258,8 @@ class Dashboard extends Component
         $absensiHariIni = $virtualData
             ? new AbsensiHarian($virtualData)
             : AbsensiHarian::where('user_id', $user->id)
-                ->where('tanggal', $todayStr)
-                ->first();
+            ->where('tanggal', $todayStr)
+            ->first();
         $hariLiburHariIni = \App\Models\HariLibur::where('tanggal', $today->format('Y-m-d'))
             ->where('is_aktif', true)
             ->first();
@@ -299,7 +299,7 @@ class Dashboard extends Component
             ->where('user_id', $user->id)
             ->whereBetween('tanggal', [$oldestWorkday->format('Y-m-d'), $today->format('Y-m-d')])
             ->get()
-            ->keyBy(fn (AbsensiHarian $a) => \Illuminate\Support\Carbon::parse($a->tanggal)->format('Y-m-d'));
+            ->keyBy(fn(AbsensiHarian $a) => \Illuminate\Support\Carbon::parse($a->tanggal)->format('Y-m-d'));
 
         $riwayat7Hari = [];
         foreach ($workdays as $date) {
@@ -323,7 +323,7 @@ class Dashboard extends Component
             ->whereMonth('tanggal', $today->month)
             ->whereYear('tanggal', $today->year)
             ->get();
-        $totalMenitBulanIni = (int) $allBulanIni->sum(fn (AbsensiHarian $a) => $a->hitungMenitKerjaEfektif());
+        $totalMenitBulanIni = (int) $allBulanIni->sum(fn(AbsensiHarian $a) => $a->hitungMenitKerjaEfektif());
         $targetBulananAsn = AbsensiHarian::hitungTargetBulananAsn($today->month, $today->year);
         $persenBulanIni = $targetBulananAsn['target_menit'] > 0
             ? min(100, (int) round(($totalMenitBulanIni / $targetBulananAsn['target_menit']) * 100))
