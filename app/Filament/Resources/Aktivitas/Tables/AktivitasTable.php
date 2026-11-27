@@ -39,7 +39,14 @@ class AktivitasTable
                     ->searchable(),
                 TextColumn::make('menit')
                     ->label('Durasi')
+                    ->badge()
                     ->numeric()
+                    ->color(fn ($state): string => match (true) {
+                        (int) $state >= 240 => 'danger',
+                        (int) $state >= 120 => 'warning',
+                        (int) $state >= 60 => 'info',
+                        default => 'success',
+                    })
                     ->formatStateUsing(function ($state): string {
                         $menit = (int) $state;
                         if ($menit >= 60) {
@@ -82,7 +89,14 @@ class AktivitasTable
                     ->searchable(),
                 TextColumn::make('menit')
                     ->label('Durasi')
+                    ->badge()
                     ->numeric()
+                    ->color(fn ($state): string => match (true) {
+                        (int) $state >= 240 => 'danger',
+                        (int) $state >= 120 => 'warning',
+                        (int) $state >= 60 => 'info',
+                        default => 'success',
+                    })
                     ->formatStateUsing(function ($state): string {
                         $menit = (int) $state;
                         if ($menit >= 60) {

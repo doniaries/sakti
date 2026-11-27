@@ -66,7 +66,15 @@
                     class="bg-white dark:bg-[#132338]/90 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-xs space-y-2">
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-[10px] font-bold">
+                            @php
+                                $durasiBadge = match (true) {
+                                    (int) $item->menit >= 240 => 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
+                                    (int) $item->menit >= 120 => 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+                                    (int) $item->menit >= 60 => 'bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
+                                    default => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+                                };
+                            @endphp
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold {{ $durasiBadge }}">
                                 {{ $item->menit }} Menit
                             </span>
                             @if (is_null($item->user_id) && is_null($item->jabatan_id))
