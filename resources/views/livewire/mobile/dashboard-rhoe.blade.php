@@ -143,6 +143,16 @@
                             <span x-show="isNative && !perms.notification" x-cloak
                                 class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-sky-800"></span>
                         </button>
+                        <form method="POST" action="{{ route('portal.logout') }}" class="inline shrink-0"
+                            onsubmit="return confirm('Keluar dari aplikasi SAKTI?')">
+                            @csrf
+                            <button type="submit"
+                                class="w-9 h-9 rounded-full bg-white/15 hover:bg-rose-500/80 text-white flex items-center justify-center transition cursor-pointer shrink-0"
+                                title="Keluar"
+                                aria-label="Keluar">
+                                <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                            </button>
+                        </form>
                     </div>
                     @if ($unreadNotifCount > 0)
                         <style>
@@ -216,8 +226,8 @@
                 </div>
             </div>
 
-            <!-- Row 1.5: Baris Ikon Aksi Cepat (agar tidak menghimpit nama user di Row 1) -->
-            <div class="mt-2.5 pl-[52px] flex items-center gap-2 relative z-10">
+            <!-- Row 1.5: Baris Ikon Aksi Cepat di bawah tombol Notifikasi & Keluar -->
+            <div class="mt-2 flex items-center justify-end gap-2 relative z-10">
                 <a href="/admin" target="_blank" rel="noopener"
                     class="w-8 h-8 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
                     title="Panel Admin SAKTI (Proses SPJ)"
