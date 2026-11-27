@@ -143,16 +143,49 @@
                             <span x-show="isNative && !perms.notification" x-cloak
                                 class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-sky-800"></span>
                         </button>
-                        <form method="POST" action="{{ route('portal.logout') }}" class="inline shrink-0"
-                            onsubmit="return confirm('Keluar dari aplikasi SAKTI?')">
-                            @csrf
-                            <button type="submit"
-                                class="w-9 h-9 rounded-full bg-white/15 hover:bg-rose-500/80 text-white flex items-center justify-center transition cursor-pointer shrink-0"
-                                title="Keluar"
-                                aria-label="Keluar">
-                                <i class="fa-solid fa-right-from-bracket text-sm"></i>
-                            </button>
-                        </form>
+                        <button type="button"
+                            @click="logoutConfirmModal = true"
+                            class="w-9 h-9 rounded-full bg-white/15 hover:bg-rose-500/80 text-white flex items-center justify-center transition cursor-pointer shrink-0"
+                            title="Keluar"
+                            aria-label="Keluar">
+                            <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                        </button>
+                        <template x-teleport="body">
+                            <div x-show="logoutConfirmModal" x-cloak
+                                @keydown.escape.window="logoutConfirmModal = false"
+                                x-transition.opacity.duration.150ms
+                                class="fixed inset-0 z-[120] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-5"
+                                @click.self="logoutConfirmModal = false">
+                                <div x-show="logoutConfirmModal"
+                                    x-transition:enter="transition ease-out duration-150"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    class="w-full max-w-xs rounded-[28px] bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-slate-200/70 dark:border-zinc-800 space-y-4">
+                                    <div class="w-12 h-12 mx-auto rounded-2xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl">
+                                        <i class="fa-solid fa-right-from-bracket"></i>
+                                    </div>
+                                    <div class="text-center space-y-1.5">
+                                        <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Keluar dari Aplikasi?</h3>
+                                        <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
+                                            Sesi Anda akan diakhiri dan Anda perlu masuk kembali untuk mengakses SAKTI.
+                                        </p>
+                                    </div>
+                                    <div class="flex items-center justify-end gap-2 pt-2">
+                                        <button type="button" @click="logoutConfirmModal = false"
+                                            class="px-4 py-2.5 rounded-full text-xs font-bold text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer">
+                                            Batal
+                                        </button>
+                                        <form method="POST" action="{{ route('portal.logout') }}" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/25 active:scale-95 transition cursor-pointer">
+                                                Ya, Keluar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                     @if ($unreadNotifCount > 0)
                         <style>
