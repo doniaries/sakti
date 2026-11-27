@@ -82,7 +82,21 @@ class BankAktivitas extends Component
 
         /** @var User $user */
         $user = Auth::user();
-        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) ? null : $user->id;
+        $bidangId = $user->bidang_id ?: \App\Models\Bidang::where('kepala_id', $user->id)->value('id');
+        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'superadmin'])) ? null : $user->id;
+
+        if (! is_null($targetUserId) && empty($this->rencana_aksi_id)) {
+            $hasSubKegiatan = RencanaAksi::query()
+                ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                ->whereNotNull('sasaran_sub_kegiatan')
+                ->where('sasaran_sub_kegiatan', '!=', '')
+                ->exists();
+
+            if ($hasSubKegiatan) {
+                $this->addError('rencana_aksi_id', 'Sub Kegiatan / Rencana Aksi di bidang wajib dipilih.');
+                return;
+            }
+        }
 
         if (Aktivitas::sudahAdaDuplikat($this->nama_aktivitas, $targetUserId, $this->editingId)) {
             $this->addError('nama_aktivitas', 'Aktivitas dengan uraian yang sama sudah ada di Bank Aktivitas (Umum/Global atau milik Anda).');
@@ -93,7 +107,7 @@ class BankAktivitas extends Component
         $payload = [
             'user_id' => $targetUserId,
             'jabatan_id' => $isGlobal ? null : $user->jabatan_id,
-            'bidang_id' => $isGlobal ? null : $user->bidang_id,
+            'bidang_id' => $isGlobal ? null : $bidangId,
             'rencana_aksi_id' => $isGlobal ? null : ($this->rencana_aksi_id ?: null),
             'nama_aktivitas' => trim($this->nama_aktivitas),
             'menit' => $this->menit,
@@ -101,7 +115,7 @@ class BankAktivitas extends Component
 
         if ($this->editingId) {
             $itemQuery = Aktivitas::query();
-            if (! $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) {
+            if (! $user->hasAnyRole(['super_admin', 'superadmin'])) {
                 $itemQuery->where('user_id', $user->id);
             }
             $item = $itemQuery->find($this->editingId);
@@ -284,9 +298,19 @@ class BankAktivitas extends Component
             return $bidangLabel . ($a->rencanaAksi?->sasaran_sub_kegiatan ?: 'Umum Bidang');
         });
 
-        $rencanaAksiOptions = RencanaAksi::untukUser($user)
+        $bidangId = $user->bidang_id ?: \App\Models\Bidang::where('kepala_id', $user->id)->value('id');
+        $bidangNama = $user->bidang?->nama
+            ?: ($bidangId ? \App\Models\Bidang::whereKey($bidangId)->value('nama') : null);
+
+        $rencanaAksiOptions = RencanaAksi::query()
+            ->select(['id', 'bidang_id', 'jabatan_id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
+            ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+            ->whereNotNull('sasaran_sub_kegiatan')
+            ->where('sasaran_sub_kegiatan', '!=', '')
+            ->orderBy('sasaran_sub_kegiatan')
+            ->orderBy('rencana_aksi')
             ->get()
-            ->groupBy(fn(RencanaAksi $ra): string => $ra->sasaran_sub_kegiatan ?: 'Umum');
+            ->groupBy(fn (RencanaAksi $ra): string => $ra->sasaran_sub_kegiatan);
 
         return view('livewire.mobile.lhk.bank-aktivitas', [
             'myAktivitas' => $myAktivitas,
@@ -296,7 +320,7 @@ class BankAktivitas extends Component
             'timKreatifCount' => $timKreatifCount,
             'spesifikCount' => $spesifikCount,
             'isTimKreatif' => $isTimKreatif,
-            'userBidangNama' => $user->bidang?->nama ?: 'Bidang',
+            'userBidangNama' => $bidangNama,
             'subKegiatanList' => $subKegiatanList,
             'rencanaAksiOptions' => $rencanaAksiOptions,
         ]);

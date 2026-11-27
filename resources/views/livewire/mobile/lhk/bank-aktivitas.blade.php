@@ -216,10 +216,12 @@
                 </div>
 
                 @php
-                    $canAddUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
-                    $bidangOptionLabel = ($userBidangNama ?? 'Bidang') !== 'Bidang'
-                        ? 'Bidang ' . $userBidangNama
-                        : 'Per Pegawai / Jabatan';
+                    $canAddUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin']) ?? false;
+                    $bidangOptionLabel = filled($userBidangNama)
+                        ? (str_starts_with(mb_strtolower($userBidangNama), 'bidang') || str_starts_with(mb_strtolower($userBidangNama), 'sekretariat')
+                            ? $userBidangNama
+                            : 'Bidang ' . $userBidangNama)
+                        : 'Sesuai Bidang';
                     $tipeOptions = [
                         ['value' => 'khusus', 'label' => $bidangOptionLabel],
                     ];
@@ -236,32 +238,44 @@
                 <div>
                     <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
                         Aktivitas</label>
-                    <x-mobile.select
-                        wire-model="tipe"
-                        :value="$tipe"
-                        search-placeholder="Cari tipe..."
-                        :groups="$tipeGroups" />
+                    @if ($canAddUmum)
+                        <x-mobile.select
+                            wire-model="tipe"
+                            :value="$tipe"
+                            search-placeholder="Cari tipe..."
+                            :groups="$tipeGroups" />
+                    @else
+                        <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center justify-between">
+                            <span>{{ $bidangOptionLabel }}</span>
+                            <i class="fa-solid fa-lock text-slate-400 text-[11px]"></i>
+                        </div>
+                    @endif
                 </div>
 
-                <div>
-                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi /
-                        Sub Kegiatan (Opsional)</label>
-                    @php
-                        $modalRaGroups = $rencanaAksiOptions->map(fn ($items, $subKegGroup) => [
-                            'label' => $subKegGroup,
-                            'options' => $items->map(fn ($ra) => [
-                                'value' => $ra->id,
-                                'label' => $ra->rencana_aksi,
-                            ])->values()->all(),
-                        ])->values()->all();
-                    @endphp
-                    <x-mobile.select
-                        wire-model="rencana_aksi_id"
-                        :value="$rencana_aksi_id ?? ''"
-                        empty-label="Umum"
-                        search-placeholder="Cari rencana aksi..."
-                        :groups="$modalRaGroups" />
-                </div>
+                @if (! ($canAddUmum && $tipe === 'umum'))
+                    <div>
+                        <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi /
+                            Sub Kegiatan Bidang <span class="text-rose-500">*</span></label>
+                        @php
+                            $modalRaGroups = $rencanaAksiOptions->map(fn ($items, $subKegGroup) => [
+                                'label' => $subKegGroup,
+                                'options' => $items->map(fn ($ra) => [
+                                    'value' => $ra->id,
+                                    'label' => $ra->rencana_aksi,
+                                ])->values()->all(),
+                            ])->values()->all();
+                        @endphp
+                        <x-mobile.select
+                            wire-model="rencana_aksi_id"
+                            :value="$rencana_aksi_id ?? ''"
+                            placeholder="— Pilih Sub Kegiatan / Rencana Aksi Bidang —"
+                            search-placeholder="Cari rencana aksi..."
+                            :groups="$modalRaGroups" />
+                        @error('rencana_aksi_id')
+                            <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                @endif
 
                 <div>
                     <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi
