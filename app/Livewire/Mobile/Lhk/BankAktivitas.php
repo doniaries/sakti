@@ -83,7 +83,7 @@ class BankAktivitas extends Component
         /** @var User $user */
         $user = Auth::user();
         $bidangId = $user->bidang_id ?: \App\Models\Bidang::where('kepala_id', $user->id)->value('id');
-        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'superadmin'])) ? null : $user->id;
+        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) ? null : $user->id;
 
         if (! is_null($targetUserId) && empty($this->rencana_aksi_id)) {
             $hasSubKegiatan = RencanaAksi::query()
@@ -115,7 +115,7 @@ class BankAktivitas extends Component
 
         if ($this->editingId) {
             $itemQuery = Aktivitas::query();
-            if (! $user->hasAnyRole(['super_admin', 'superadmin'])) {
+            if (! $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) {
                 $itemQuery->where('user_id', $user->id);
             }
             $item = $itemQuery->find($this->editingId);
@@ -302,15 +302,17 @@ class BankAktivitas extends Component
         $bidangNama = $user->bidang?->nama
             ?: ($bidangId ? \App\Models\Bidang::whereKey($bidangId)->value('nama') : null);
 
-        $rencanaAksiOptions = RencanaAksi::query()
+        $rencanaAksiList = RencanaAksi::query()
             ->select(['id', 'bidang_id', 'jabatan_id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
             ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
             ->whereNotNull('sasaran_sub_kegiatan')
             ->where('sasaran_sub_kegiatan', '!=', '')
-            ->orderBy('sasaran_sub_kegiatan')
             ->orderBy('rencana_aksi')
-            ->get()
-            ->groupBy(fn (RencanaAksi $ra): string => $ra->sasaran_sub_kegiatan);
+            ->get();
+
+        $selectedSubKegiatanNama = $this->rencana_aksi_id
+            ? $rencanaAksiList->firstWhere('id', (int) $this->rencana_aksi_id)?->sasaran_sub_kegiatan
+            : null;
 
         return view('livewire.mobile.lhk.bank-aktivitas', [
             'myAktivitas' => $myAktivitas,
@@ -322,7 +324,8 @@ class BankAktivitas extends Component
             'isTimKreatif' => $isTimKreatif,
             'userBidangNama' => $bidangNama,
             'subKegiatanList' => $subKegiatanList,
-            'rencanaAksiOptions' => $rencanaAksiOptions,
+            'rencanaAksiList' => $rencanaAksiList,
+            'selectedSubKegiatanNama' => $selectedSubKegiatanNama,
         ]);
     }
 }
