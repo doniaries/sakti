@@ -197,11 +197,16 @@ class CetakLaporanController extends Controller
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $pegawais = self::getPegawaiBelumLengkapData();
 
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pegawai-belum-lengkap', [
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pegawai-belum-lengkap', [
             'pegawais' => $pegawais,
             'pengaturan' => $pengaturan,
             'dicetakOleh' => $authUser,
-        ])->setPaper('a4', 'portrait')->stream('laporan-pegawai-belum-lengkap.pdf');
+        ])->setPaper('a4', 'portrait');
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 
     public function cetakBezetingPegawai()
@@ -217,11 +222,16 @@ class CetakLaporanController extends Controller
             ->whereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kepala_dinas']))
             ->first(['id', 'name', 'nip']);
 
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bezeting-pegawai', [
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bezeting-pegawai', [
             'pegawais' => $pegawais,
             'pengaturan' => $pengaturan,
             'kepalaDinas' => $kepalaDinas,
             'dicetakOleh' => $authUser,
-        ])->setPaper('a4', 'landscape')->stream('daftar-bezeting-pegawai.pdf');
+        ])->setPaper('a4', 'landscape');
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline',
+        ]);
     }
 }
