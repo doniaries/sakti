@@ -21,7 +21,7 @@ class ReputasiForm
 
                         Select::make('user_id')
                             ->label('Nama Pegawai (Rekan Kerja)')
-                            ->relationship('user', 'name', fn($query) => $query->where('id', '!=', auth()->id()))
+                            ->relationship('user', 'name', fn($query) => $query->where('id', '!=', auth()->id())->orderBy('id'))
                             ->searchable()
                             ->required(),
 

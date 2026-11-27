@@ -31,7 +31,7 @@ class PengajuanIzinForm
                     ->schema([
                         Select::make('user_id')
                             ->label('Nama Pegawai')
-                            ->relationship('user', 'name')
+                            ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
                             ->default(fn () => Auth::id())
                             ->visible(function (): bool {
                                 /** @var User|null $user */
@@ -204,7 +204,7 @@ class PengajuanIzinForm
 
                         Select::make('disetujui_oleh')
                             ->label('Diverifikasi Oleh')
-                            ->relationship('approver', 'name')
+                            ->relationship('approver', 'name', fn ($query) => $query->orderBy('id'))
                             ->placeholder('Belum diverifikasi')
                             ->disabled()
                             ->dehydrated(),

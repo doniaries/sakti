@@ -14,7 +14,7 @@ class LogAbsensiForm
         return $schema
             ->components([
                 Select::make('user_id')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
                     ->searchable()
                     ->preload(),
                 Select::make('mesin_absensi_id')

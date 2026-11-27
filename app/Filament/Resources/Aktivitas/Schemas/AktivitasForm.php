@@ -61,7 +61,7 @@ class AktivitasForm
 
                         Select::make('user_id')
                             ->label('Pegawai (Pemilik Aktivitas)')
-                            ->relationship('user', 'name')
+                            ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
                             ->default($isAdmin ? null : $currentUser?->id)
                             ->disabled(! $isAdmin)
                             ->dehydrated()

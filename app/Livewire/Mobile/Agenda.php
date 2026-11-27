@@ -146,7 +146,7 @@ class Agenda extends Component
         return view('livewire.mobile.agenda', [
             'todayAgendas' => $todayAgendas,
             'upcomingAgendas' => $upcomingAgendas,
-            'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('name')->get(['id', 'name', 'jabatan_id']),
+            'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('id')->get(['id', 'name', 'jabatan_id']),
         ]);
     }
 }

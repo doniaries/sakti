@@ -1095,25 +1095,44 @@
 
     @livewireScripts
 
-    <!-- Pull-to-Refresh (hanya di paling atas, butuh tarikan dalam >140px, cooldown 10 detik) -->
+    <!-- Pull-to-Refresh (hanya di paling atas, butuh tarikan >105px, cooldown 10 detik) -->
+    <div id="sakti-ptr-backdrop"
+        class="fixed inset-0 z-[9997] hidden bg-slate-900/20 backdrop-blur-[1px] pointer-events-none transition-opacity duration-200">
+        <div class="fixed top-0 left-0 right-0 h-1 bg-sky-100 overflow-hidden">
+            <div class="h-full w-1/2 bg-gradient-to-r from-sky-400 via-blue-600 to-sky-400 animate-[pulse_1s_ease-in-out_infinite]"></div>
+        </div>
+    </div>
     <div id="sakti-ptr-indicator"
-        class="fixed top-3 left-1/2 -translate-x-1/2 z-[9998] hidden items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/85 text-white text-[11px] font-semibold shadow-lg backdrop-blur-xs pointer-events-none transition-all duration-150">
-        <i class="fa-solid fa-arrow-down text-sky-400" id="sakti-ptr-icon"></i>
+        class="fixed top-3 left-1/2 -translate-x-1/2 z-[9998] hidden items-center gap-2.5 px-4 py-2 rounded-full bg-white/95 text-slate-800 border border-sky-200 text-xs font-bold shadow-xl backdrop-blur-md pointer-events-none transition-transform duration-150">
+        <span id="sakti-ptr-spinner" class="w-6 h-6 rounded-full bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-arrow-down text-sky-600 text-[11px] transition-transform duration-150" id="sakti-ptr-icon"></i>
+        </span>
         <span id="sakti-ptr-text">Tarik untuk memuat ulang</span>
     </div>
     <script>
         (function () {
             let startY = 0;
             let pulling = false;
+            let refreshing = false;
             let deltaY = 0;
             let lastRefreshAt = 0;
-            const THRESHOLD = 140;
+            const THRESHOLD = 105;
             const COOLDOWN_MS = 10000;
             const indicator = document.getElementById('sakti-ptr-indicator');
+            const backdrop = document.getElementById('sakti-ptr-backdrop');
+            const spinner = document.getElementById('sakti-ptr-spinner');
             const icon = document.getElementById('sakti-ptr-icon');
             const text = document.getElementById('sakti-ptr-text');
 
+            const hideIndicator = () => {
+                indicator.style.transform = 'translate(-50%, 0px)';
+                indicator.classList.add('hidden');
+                indicator.classList.remove('flex');
+                backdrop.classList.add('hidden');
+            };
+
             document.addEventListener('touchstart', (e) => {
+                if (refreshing) return;
                 if (window.scrollY <= 0 && e.touches.length === 1) {
                     startY = e.touches[0].clientY;
                     pulling = true;
@@ -1124,50 +1143,70 @@
             }, { passive: true });
 
             document.addEventListener('touchmove', (e) => {
-                if (!pulling || window.scrollY > 0) {
+                if (refreshing || !pulling || window.scrollY > 0) {
                     pulling = false;
-                    indicator.classList.add('hidden');
-                    indicator.classList.remove('flex');
+                    if (!refreshing) hideIndicator();
                     return;
                 }
                 deltaY = e.touches[0].clientY - startY;
-                if (deltaY > 45) {
+                if (deltaY > 25) {
+                    const offset = Math.min((deltaY - 25) * 0.55, 64);
+                    const progress = Math.min(deltaY / THRESHOLD, 1);
                     indicator.classList.remove('hidden');
                     indicator.classList.add('flex');
+                    indicator.style.transform = `translate(-50%, ${offset}px)`;
+
                     if (deltaY >= THRESHOLD) {
                         text.textContent = 'Lepaskan untuk memuat ulang';
-                        icon.className = 'fa-solid fa-rotate-right text-emerald-400';
+                        spinner.className = 'w-6 h-6 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0';
+                        icon.className = 'fa-solid fa-rotate-right text-emerald-600 text-[11px] transition-transform duration-150';
+                        icon.style.transform = 'rotate(180deg)';
                     } else {
                         text.textContent = 'Tarik lebih dalam untuk refresh';
-                        icon.className = 'fa-solid fa-arrow-down text-sky-400';
+                        spinner.className = 'w-6 h-6 rounded-full bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0';
+                        icon.className = 'fa-solid fa-arrow-down text-sky-600 text-[11px] transition-transform duration-150';
+                        icon.style.transform = `rotate(${Math.round(progress * 180)}deg)`;
                     }
                 } else {
-                    indicator.classList.add('hidden');
-                    indicator.classList.remove('flex');
+                    hideIndicator();
                 }
             }, { passive: true });
 
             document.addEventListener('touchend', () => {
-                if (!pulling) return;
+                if (refreshing || !pulling) return;
                 pulling = false;
-                indicator.classList.add('hidden');
-                indicator.classList.remove('flex');
 
                 if (deltaY >= THRESHOLD) {
                     const now = Date.now();
                     if (now - lastRefreshAt < COOLDOWN_MS) {
+                        indicator.style.transform = 'translate(-50%, 16px)';
                         text.textContent = 'Tunggu beberapa detik sebelum refresh lagi';
-                        icon.className = 'fa-solid fa-clock text-amber-400';
+                        spinner.className = 'w-6 h-6 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0';
+                        icon.className = 'fa-solid fa-clock text-amber-600 text-[11px]';
+                        icon.style.transform = 'rotate(0deg)';
                         indicator.classList.remove('hidden');
                         indicator.classList.add('flex');
-                        setTimeout(() => {
-                            indicator.classList.add('hidden');
-                            indicator.classList.remove('flex');
-                        }, 2000);
+                        setTimeout(hideIndicator, 1800);
+                        deltaY = 0;
                         return;
                     }
+
+                    refreshing = true;
                     lastRefreshAt = now;
-                    window.location.reload();
+                    indicator.style.transform = 'translate(-50%, 24px)';
+                    text.textContent = 'Memuat ulang halaman...';
+                    spinner.className = 'w-6 h-6 rounded-full bg-sky-600 border border-sky-600 flex items-center justify-center shrink-0';
+                    icon.className = 'fa-solid fa-spinner fa-spin text-white text-[11px]';
+                    icon.style.transform = 'rotate(0deg)';
+                    indicator.classList.remove('hidden');
+                    indicator.classList.add('flex');
+                    backdrop.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 120);
+                } else {
+                    hideIndicator();
                 }
                 deltaY = 0;
             }, { passive: true });

@@ -259,7 +259,7 @@ class AbsensiHariansTable
                         Select::make('user_id')
                             ->label('Nama Pegawai')
                             ->options(
-                                User::orderBy('name', 'asc')->pluck('name', 'id')->toArray()
+                                User::orderBy('id', 'asc')->pluck('name', 'id')->toArray()
                             )
                             ->searchable()
                             ->placeholder('Semua Pegawai')

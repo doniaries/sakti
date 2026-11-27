@@ -117,7 +117,7 @@ class ActivityLogsTable
 
                 SelectFilter::make('user_id')
                     ->label('Pegawai / Pelaku')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
                     ->searchable()
                     ->preload(),
 

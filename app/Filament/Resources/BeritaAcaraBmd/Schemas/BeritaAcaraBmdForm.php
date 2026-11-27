@@ -81,7 +81,7 @@ class BeritaAcaraBmdForm
                                     ->schema([
                                         Select::make('pihak_pertama_id')
                                             ->label('Pilih Pegawai (Opsional)')
-                                            ->relationship('pihakPertama', 'name', fn ($query) => $query->orderBy('name'))
+                                            ->relationship('pihakPertama', 'name', fn ($query) => $query->orderBy('id'))
                                             ->default(fn () => User::query()->where('name', 'like', '%IMELDA%')->value('id'))
                                             ->searchable()
                                             ->preload()
@@ -122,7 +122,7 @@ class BeritaAcaraBmdForm
                                     ->schema([
                                         Select::make('pihak_kedua_id')
                                             ->label('Pilih Pegawai Dinas')
-                                            ->relationship('pihakKedua', 'name', fn ($query) => $query->orderBy('name'))
+                                            ->relationship('pihakKedua', 'name', fn ($query) => $query->orderBy('id'))
                                             ->searchable()
                                             ->preload()
                                             ->live()

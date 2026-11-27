@@ -80,7 +80,7 @@ class ListAbsensiHarians extends ListRecords
                         ->options(fn (): array => User::query()
                             ->whereNotNull('nip')
                             ->where('nip', '!=', '')
-                            ->orderBy('name')
+                            ->orderBy('id')
                             ->get()
                             ->mapWithKeys(fn (User $u): array => [$u->id => "{$u->name} ({$u->nip})"])
                             ->all())

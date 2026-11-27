@@ -66,7 +66,7 @@ class InstansiForm
                     ->schema([
                         Select::make('kepala_id')
                             ->label('Akun Kepala Dinas (Kadis)')
-                            ->relationship('kepala', 'name')
+                            ->relationship('kepala', 'name', fn ($query) => $query->orderBy('id'))
                             ->searchable()
                             ->preload()
                             ->live()
@@ -108,7 +108,7 @@ class InstansiForm
                     ->description('Tentukan Sekretaris Dinas serta Kepala Bidang pada masing-masing bidang')
                     ->columns(2)
                     ->schema(function () {
-                        $userOptions = User::query()->orderBy('name', 'asc')->pluck('name', 'id')->all();
+                        $userOptions = User::query()->orderBy('id', 'asc')->pluck('name', 'id')->all();
 
                         $fields = [
                             Select::make('sekretaris_id')

@@ -68,7 +68,7 @@ class LhkForm
                             ->columnSpan(1),
 
                         Select::make('user_id')
-                            ->relationship('user', 'name')
+                            ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
                             ->required()
                             ->default(request()->query('user_id', Auth::id()))
                             ->searchable()

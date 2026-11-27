@@ -59,7 +59,7 @@ class AgendaKegiatanController extends Controller
         );
 
         $pegawaiList = $canCreate
-            ? User::query()->where('aktif', true)->orderBy('name')->get(['id', 'name'])
+            ? User::query()->where('aktif', true)->orderBy('id')->get(['id', 'name'])
             : collect();
 
         return response()->json([

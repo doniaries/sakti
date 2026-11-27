@@ -23,7 +23,7 @@ class AbsensiHarianForm
                         Select::make('user_id')
                             ->label('Nama Pegawai')
                             ->options(
-                                User::orderBy('name', 'asc')
+                                User::orderBy('id', 'asc')
                                     ->pluck('name', 'id')
                                     ->toArray()
                             )

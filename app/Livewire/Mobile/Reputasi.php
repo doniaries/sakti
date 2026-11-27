@@ -66,7 +66,7 @@ class Reputasi extends Component
         // Rekan kerja (selain diri sendiri)
         $rekanKerjas = User::query()
             ->where('id', '!=', $currentUserId)
-            ->orderBy('name', 'asc')
+            ->orderBy('id', 'asc')
             ->get();
 
         // Penilaian yang diterima oleh user yang login

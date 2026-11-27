@@ -35,7 +35,7 @@ class BidangForm
 
                 Select::make('kepala_id')
                     ->label('Kepala Bidang / Sekretaris')
-                    ->relationship('kepala', 'name', fn($query) => $query->where('aktif', true))
+                    ->relationship('kepala', 'name', fn($query) => $query->where('aktif', true)->orderBy('id'))
                     ->searchable()
                     ->preload(),
             ]);

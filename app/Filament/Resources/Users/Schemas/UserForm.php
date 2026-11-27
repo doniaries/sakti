@@ -351,7 +351,7 @@ class UserForm
 
                                 Select::make('atasan_id')
                                     ->label('Atasan Langsung')
-                                    ->relationship('atasan', 'name', fn ($query) => $query->bukanSuperAdmin())
+                                    ->relationship('atasan', 'name', fn ($query) => $query->bukanSuperAdmin()->orderBy('id'))
                                     ->default(fn () => User::query()
                                         ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
                                         ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))

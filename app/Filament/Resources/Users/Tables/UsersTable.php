@@ -784,7 +784,7 @@ class UsersTable
                                 ->options(fn(): array => \App\Models\User::query()
                                     ->role('jf')
                                     ->where('aktif', '=', true)
-                                    ->orderBy('name')
+                                    ->orderBy('id')
                                     ->pluck('name', 'id')
                                     ->all())
                                 ->searchable()

@@ -134,7 +134,7 @@ class AktivitasTable
                     }),
                 SelectFilter::make('user_id')
                     ->label('Pegawai')
-                    ->relationship('user', 'name')
+                    ->relationship('user', 'name', fn (Builder $query): Builder => $query->orderBy('id'))
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('bidang_id')
@@ -178,7 +178,7 @@ class AktivitasTable
                                     if ($state) {
                                         $ids = User::where('aktif', true)
                                             ->where('bidang_id', (int) $state)
-                                            ->orderBy('name')
+                                            ->orderBy('id')
                                             ->pluck('id')
                                             ->map(fn($id) => (string) $id)
                                             ->all();
@@ -196,7 +196,7 @@ class AktivitasTable
                                     return User::with(['bidang', 'jabatan'])
                                         ->where('aktif', true)
                                         ->when($bidangId, fn($q) => $q->where('bidang_id', (int) $bidangId))
-                                        ->orderBy('name')
+                                        ->orderBy('id')
                                         ->get()
                                         ->mapWithKeys(function (User $u): array {
                                             $info = collect([$u->bidang?->nama, $u->jabatan?->nama])
@@ -296,7 +296,7 @@ class AktivitasTable
                                         ->where('aktif', true)
                                         ->when($kategori === 'tim_kreatif', fn ($q) => $q->whereNotNull('jabatan_tim_kreatif'))
                                         ->when($kategori === 'bidang' && $bidangId, fn ($q) => $q->where('bidang_id', (int) $bidangId))
-                                        ->orderBy('name')
+                                        ->orderBy('id')
                                         ->pluck('name', 'id')
                                         ->all();
                                 })

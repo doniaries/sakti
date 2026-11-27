@@ -164,7 +164,7 @@ class Form extends Component
                 Eselon::IV_B->value,
             ])
             ->with('jabatan')
-            ->orderBy('name')
+            ->orderBy('id')
             ->get(['id', 'name', 'jabatan_id', 'eselon']);
 
         $penandatangans = $penanggungJawabs->filter(fn (User $u) => in_array(
@@ -177,7 +177,7 @@ class Form extends Component
             ->whereNotNull('jabatan_tim_kreatif')
             ->where('jabatan_tim_kreatif', '!=', '')
             ->whereNotIn('jabatan_tim_kreatif', ['pembina', 'pengarah', 'penanggung_jawab'])
-            ->orderBy('name')
+            ->orderBy('id')
             ->get(['id', 'name', 'jabatan_tim_kreatif']);
 
         $jamOptions = [

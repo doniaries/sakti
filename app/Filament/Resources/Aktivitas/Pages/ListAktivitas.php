@@ -75,7 +75,7 @@ class ListAktivitas extends ListRecords
                 ->form([
                     Select::make('user_id')
                         ->label('Pegawai Pemilik Aktivitas')
-                        ->options(fn () => User::orderBy('name')->pluck('name', 'id')->all())
+                        ->options(fn () => User::orderBy('id')->pluck('name', 'id')->all())
                         ->default($isAdmin ? null : $currentUser?->id)
                         ->disabled(! $isAdmin)
                         ->dehydrated()

@@ -76,7 +76,7 @@ class AgendaKegiatanForm
                             ->schema([
                                 Select::make('user_id')
                                     ->label('Pegawai / Pejabat')
-                                    ->relationship('user', 'name')
+                                    ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
                                     ->searchable()
                                     ->preload()
                                     ->required(),

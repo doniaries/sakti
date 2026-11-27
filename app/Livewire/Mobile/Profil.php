@@ -898,7 +898,7 @@ class Profil extends Component
                 ->when($this->impersonateSearch, fn ($q) => $q->where(fn ($sub) => $sub
                     ->where('name', 'like', '%' . $this->impersonateSearch . '%')
                     ->orWhere('nip', 'like', '%' . $this->impersonateSearch . '%')))
-                ->orderBy('name')
+                ->orderBy('id')
                 ->get(['id', 'name', 'nip'])
             : collect();
 
@@ -915,7 +915,7 @@ class Profil extends Component
             'statusKepegawaianOptions' => StatusKepegawaian::cases(),
             'jabatanOptions' => $this->isEditing ? Jabatan::orderBy('nama')->get(['id', 'nama']) : collect(),
             'bidangOptions' => $this->isEditing ? Bidang::orderBy('nama')->get(['id', 'nama']) : collect(),
-            'atasanOptions' => $this->isEditing ? User::where('id', '!=', $user->id)->orderBy('name')->get(['id', 'name']) : collect(),
+            'atasanOptions' => $this->isEditing ? User::where('id', '!=', $user->id)->orderBy('id')->get(['id', 'name']) : collect(),
         ]);
     }
 }

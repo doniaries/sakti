@@ -90,7 +90,7 @@ class MasterSubKegiatanForm
                                 $query->where('bidang_id', $targetBidangId);
                             }
 
-                            return $query->orderBy('name')
+                            return $query->orderBy('id')
                                 ->get()
                                 ->mapWithKeys(function (User $u) {
                                     $eselonVal = $u->eselon instanceof \App\Enums\Eselon ? $u->eselon->value : (string) $u->eselon;

@@ -171,7 +171,7 @@ class SuratTugasForm
                                                 Eselon::IV_B->value,
                                             ])
                                             ->with('jabatan')
-                                            ->orderBy('name')
+                                            ->orderBy('id')
                                             ->get()
                                             ->mapWithKeys(fn (User $record): array => [
                                                 $record->id => $record->jabatan?->nama
@@ -207,7 +207,7 @@ class SuratTugasForm
                                                         ->orWhere('nama', 'like', '%ahli %'));
                                             })
                                             ->with('jabatan')
-                                            ->orderBy('name')
+                                            ->orderBy('id')
                                             ->get()
                                             ->mapWithKeys(fn (User $record): array => [
                                                 $record->id => $record->jabatan?->nama
@@ -234,7 +234,7 @@ class SuratTugasForm
                                                     $q->whereNull('eselon')
                                                         ->orWhere('eselon', Eselon::NON_ESELON->value);
                                                 })
-                                                ->orderBy('name')
+                                                ->orderBy('id')
                                         )
                                         ->getOptionLabelFromRecordUsing(function (User $record): string {
                                             $jabatanTim = $record->jabatan_tim_kreatif?->getLabel();
@@ -292,7 +292,7 @@ class SuratTugasForm
                                                     Eselon::III_B->value,
                                                 ])
                                                 ->orderBy('eselon')
-                                                ->orderBy('name')
+                                                ->orderBy('id')
                                         )
                                         ->default(fn(): ?int => Instansi::query()->value('kepala_id'))
                                         ->searchable()

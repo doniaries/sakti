@@ -1758,7 +1758,7 @@
                 $allActiveUsers = $editingRoleId
                     ? \App\Models\User::query()
                         ->where('aktif', true)
-                        ->orderBy('name')
+                        ->orderBy('id')
                         ->get(['id', 'name', 'nip'])
                     : collect();
             @endphp
