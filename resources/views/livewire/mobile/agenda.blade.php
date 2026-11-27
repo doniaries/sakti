@@ -78,6 +78,9 @@
                             </span>
                         </div>
                         <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">{{ $item->judul }}</h3>
+                        @if ($item->keterangan)
+                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ $item->keterangan }}</p>
+                        @endif
                         <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
                             <div><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> {{ $item->tempat }}</div>
                             @if ($item->asal_undangan)
@@ -103,9 +106,6 @@
                                     @endforeach
                                 </div>
                             </div>
-                        @endif
-                        @if ($item->keterangan)
-                            <p class="text-xs text-slate-500 dark:text-slate-400">{{ $item->keterangan }}</p>
                         @endif
                         @if ($item->lampiran_file)
                             <a href="{{ \Illuminate\Support\Facades\Storage::url($item->lampiran_file) }}" target="_blank" rel="noopener"
