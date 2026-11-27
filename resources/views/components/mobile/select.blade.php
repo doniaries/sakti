@@ -71,21 +71,24 @@
                     class="w-full pl-7 pr-2.5 py-1.5 rounded-lg bg-white dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500">
             </div>
             @if (count($groups) > 1)
+                @php
+                    $totalGroupOptions = collect($groups)->sum(fn ($g) => count($g['options'] ?? []));
+                @endphp
                 <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5">
                     <button type="button"
                         @click="activeGroup = 'all'"
                         :class="activeGroup === 'all' ? 'bg-sky-600 text-white' : 'bg-white dark:bg-[#0F1E33] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'"
                         class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer">
-                        Semua
+                        Semua ({{ $totalGroupOptions }})
                     </button>
                     @foreach ($groups as $g)
                         @if (! empty($g['label']))
                             <button type="button"
                                 @click="activeGroup = @js($g['label'])"
                                 :class="activeGroup === @js($g['label']) ? 'bg-sky-600 text-white' : 'bg-white dark:bg-[#0F1E33] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'"
-                                class="shrink-0 max-w-[160px] truncate px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer"
+                                class="shrink-0 max-w-[180px] truncate px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer"
                                 title="{{ $g['label'] }}">
-                                {{ \Illuminate\Support\Str::limit($g['label'], 22) }}
+                                {{ \Illuminate\Support\Str::limit($g['label'], 20) }} ({{ count($g['options'] ?? []) }})
                             </button>
                         @endif
                     @endforeach
@@ -115,8 +118,9 @@
                 @if (count($groupOptions) > 0)
                     <div x-show="matches(@js($groupLabel . ' ' . $groupText), @js($groupLabel))">
                         @if ($groupLabel !== '')
-                            <div class="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-500/10 border-y border-sky-100/80 dark:border-sky-500/20">
-                                {{ $groupLabel }}
+                            <div class="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-500/10 border-y border-sky-100/80 dark:border-sky-500/20 flex items-center justify-between gap-2">
+                                <span class="truncate">{{ $groupLabel }}</span>
+                                <span class="shrink-0 px-1.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/20 text-[9px]">{{ count($groupOptions) }}</span>
                             </div>
                         @endif
                         @foreach ($groupOptions as $opt)
