@@ -20,12 +20,12 @@
 
         <div class="relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-12 text-white shadow-lg shadow-sky-950/20">
             <div class="flex items-center justify-between">
-                <h1 class="text-lg font-extrabold tracking-tight">Presensi Kehadiran</h1>
+                <h1 class="text-lg md:text-2xl font-extrabold tracking-tight">Presensi Kehadiran</h1>
                 <div class="flex items-center gap-2 pl-3 border-l-2 border-amber-400">
-                    <span class="text-3xl font-black leading-none tracking-tighter tabular-nums">{{ now()->format('d') }}</span>
+                    <span class="text-3xl md:text-4xl font-black leading-none tracking-tighter tabular-nums">{{ now()->format('d') }}</span>
                     <div class="leading-tight">
-                        <div class="text-xs font-extrabold text-amber-300">{{ now()->translatedFormat('l') }}</div>
-                        <div class="text-[10px] font-semibold uppercase tracking-wider text-sky-100">{{ now()->translatedFormat('M Y') }}</div>
+                        <div class="text-xs md:text-sm font-extrabold text-amber-300">{{ now()->translatedFormat('l') }}</div>
+                        <div class="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-sky-100">{{ now()->translatedFormat('M Y') }}</div>
                     </div>
                 </div>
             </div>
@@ -34,11 +34,11 @@
         <div class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 space-y-3.5">
             <!-- Status Hari Libur / Selesai -->
             @if ($hariLiburHariIni)
-                <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold text-center">
+                <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs md:text-sm font-bold text-center">
                     <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
                 </div>
             @elseif ($sudahMasuk && $sudahPulang)
-                <div class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center">
+                <div class="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs md:text-sm font-bold text-center">
                     <i class="fa-solid fa-circle-check mr-1"></i> Presensi Datang &amp; Pulang Hari Ini Selesai
                 </div>
             @endif
@@ -47,18 +47,18 @@
         <div class="flex flex-col items-center text-center gap-2 py-1">
             <div class="flex items-baseline justify-center gap-1.5">
                 @if ($modeSimulasi && !empty($simulasiJamAktif))
-                    <span class="text-4xl font-black font-mono tracking-tight text-amber-600 dark:text-amber-400 leading-none">{{ $simulasiJamAktif }}:00</span>
+                    <span class="text-4xl md:text-5xl font-black font-mono tracking-tight text-amber-600 dark:text-amber-400 leading-none">{{ $simulasiJamAktif }}:00</span>
                 @else
-                    <span class="text-4xl font-black font-mono tracking-tight text-zinc-900 dark:text-white leading-none" x-text="time">--:--:--</span>
+                    <span class="text-4xl md:text-5xl font-black font-mono tracking-tight text-zinc-900 dark:text-white leading-none" x-text="time">--:--:--</span>
                 @endif
-                <span class="text-xs font-extrabold text-zinc-400 font-mono">WIB</span>
+                <span class="text-xs md:text-sm font-extrabold text-zinc-400 font-mono">WIB</span>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-2">
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+                <p class="text-[11px] md:text-sm text-zinc-500 dark:text-zinc-400 font-medium">
                     <i class="fa-regular fa-clock text-sky-500 mr-1"></i>Jadwal {{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
                 </p>
                 <button type="button" @click="detectPosition(true)" title="Ketuk untuk refresh GPS"
-                    class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer active:scale-95 transition"
+                    class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold border cursor-pointer active:scale-95 transition"
                     :class="(isWfh || modeSimulasi)
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300'
                         : (isWithinRadius === false
@@ -73,20 +73,20 @@
         <!-- Row 3: Ringkasan Status Absen Datang & Pulang -->
         <div class="grid grid-cols-2 gap-2.5">
             <div class="rounded-2xl border px-3 py-3 text-center {{ $sudahMasuk ? 'bg-emerald-50/90 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
-                <span class="text-[10px] uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahMasuk ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }}">
+                <span class="text-[10px] md:text-xs uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahMasuk ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }}">
                     <i class="fa-solid {{ $sudahMasuk ? 'fa-circle-check text-emerald-600' : 'fa-clock text-amber-500' }}"></i>
                     <span>Datang</span>
                 </span>
-                <span class="mt-1 text-lg font-black font-mono block leading-tight {{ $sudahMasuk ? 'text-emerald-950 dark:text-emerald-200' : 'text-amber-800 dark:text-amber-200' }}">
+                <span class="mt-1 text-lg md:text-xl font-black font-mono block leading-tight {{ $sudahMasuk ? 'text-emerald-950 dark:text-emerald-200' : 'text-amber-800 dark:text-amber-200' }}">
                     {{ $sudahMasuk ? substr($absenHarian->jam_masuk, 0, 5) . ' WIB' : '--:--' }}
                 </span>
             </div>
             <div class="rounded-2xl border px-3 py-3 text-center {{ $sudahPulang ? 'bg-sky-50/90 dark:bg-sky-500/15 border-sky-200 dark:border-sky-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
-                <span class="text-[10px] uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahPulang ? 'text-sky-700 dark:text-sky-300' : 'text-amber-700 dark:text-amber-300' }}">
+                <span class="text-[10px] md:text-xs uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahPulang ? 'text-sky-700 dark:text-sky-300' : 'text-amber-700 dark:text-amber-300' }}">
                     <i class="fa-solid {{ $sudahPulang ? 'fa-check-double text-sky-600' : 'fa-clock text-amber-500' }}"></i>
                     <span>Pulang</span>
                 </span>
-                <span class="mt-1 text-lg font-black font-mono block leading-tight {{ $sudahPulang ? 'text-sky-950 dark:text-sky-200' : 'text-amber-800 dark:text-amber-200' }}">
+                <span class="mt-1 text-lg md:text-xl font-black font-mono block leading-tight {{ $sudahPulang ? 'text-sky-950 dark:text-sky-200' : 'text-amber-800 dark:text-amber-200' }}">
                     {{ $sudahPulang ? substr($absenHarian->jam_pulang, 0, 5) . ' WIB' : '--:--' }}
                 </span>
             </div>
@@ -134,8 +134,8 @@
                     <i class="fa-solid fa-map-location-dot"></i>
                 </div>
                 <div class="min-w-0">
-                    <span class="text-xs font-extrabold text-slate-800 block leading-tight">Peta & Lokasi (GPS)</span>
-                    <span class="text-[10px] font-mono text-slate-500 block truncate" x-text="userCoordsText ? userCoordsText : 'Mencari koordinat...'"></span>
+                    <span class="text-xs md:text-sm font-extrabold text-slate-800 block leading-tight">Peta & Lokasi (GPS)</span>
+                    <span class="text-[10px] md:text-xs font-mono text-slate-500 block truncate" x-text="userCoordsText ? userCoordsText : 'Mencari koordinat...'"></span>
                 </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
@@ -204,8 +204,8 @@
                     <i class="fa-solid fa-id-badge"></i>
                 </div>
                 <div class="min-w-0">
-                    <span class="text-[9px] uppercase tracking-wider text-slate-400 block font-bold leading-tight">Jabatan Pegawai</span>
-                    <span class="font-extrabold text-slate-800 truncate block text-[11px] mt-0.5">{{ $user->jabatan->nama ?? '-' }}</span>
+                    <span class="text-[9px] md:text-xs uppercase tracking-wider text-slate-400 block font-bold leading-tight">Jabatan Pegawai</span>
+                    <span class="font-extrabold text-slate-800 truncate block text-[11px] md:text-sm mt-0.5">{{ $user->jabatan->nama ?? '-' }}</span>
                 </div>
             </div>
         </div>
@@ -255,12 +255,20 @@
                     :class="(!isWfh && !modeSimulasi && isWithinRadius !== true)
                         ? 'opacity-40 grayscale cursor-not-allowed'
                         : 'opacity-100 cursor-pointer active:scale-95 hover:from-amber-400 hover:to-orange-400'"
-                    class="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-xs shadow-xl shadow-amber-500/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
+                    class="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-xs md:text-sm shadow-xl shadow-amber-500/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
                     <i x-show="!loadingPulang" class="fa-solid fa-fingerprint text-sm"></i>
                     <i x-show="loadingPulang" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
                     <span x-text="loadingPulang ? 'Memproses Absen Pulang...' : ((!isWfh && !modeSimulasi && isWithinRadius !== true) ? 'Di Luar Radius' : 'Tap Absen Pulang')"></span>
                 </button>
             </div>
+        </div>
+    @elseif ($sudahMasuk && !$sudahPulang && ($belumJamPulang || $lewatBatasPulang))
+        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <button type="button" disabled
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-slate-500 text-white font-extrabold text-xs md:text-sm shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-60 grayscale cursor-not-allowed">
+                <i class="fa-solid fa-clock text-sm"></i>
+                <span>{{ $belumJamPulang ? "Absen Pulang (Mulai {$jamPulangResmi} WIB)" : 'Absen Pulang (Waktu Berakhir)' }}</span>
+            </button>
         </div>
     @endif
 

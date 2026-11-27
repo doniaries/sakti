@@ -6,8 +6,8 @@
                 <i class="fa-solid fa-arrow-left text-sm"></i>
             </a>
             <div class="min-w-0">
-                <h1 class="text-lg font-extrabold text-slate-800 dark:text-white tracking-tight truncate">Bank Aktivitas Saya</h1>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">Daftar aktivitas pribadi untuk pengisian LHK</p>
+                <h1 class="text-lg md:text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight truncate">Bank Aktivitas Saya</h1>
+                <p class="text-[11px] md:text-sm text-slate-500 dark:text-slate-400 truncate">Daftar aktivitas pribadi untuk pengisian LHK</p>
             </div>
         </div>
     </div>
@@ -15,15 +15,15 @@
     <!-- Info Global vs Spesifik + Widget Jumlah -->
     <div class="grid grid-cols-2 gap-2.5 mb-3">
         <div class="rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/30 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">Aktivitas Global</div>
-            <div class="text-lg font-black text-indigo-900 dark:text-white mt-0.5">{{ $globalCount ?? 0 }}</div>
+            <div class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">Aktivitas Global</div>
+            <div class="text-lg md:text-2xl font-black text-indigo-900 dark:text-white mt-0.5">{{ $globalCount ?? 0 }}</div>
         </div>
         <div class="rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 p-3">
-            <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Aktivitas Spesifik</div>
-            <div class="text-lg font-black text-amber-900 dark:text-white mt-0.5">{{ $spesifikCount ?? 0 }}</div>
+            <div class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Aktivitas Spesifik</div>
+            <div class="text-lg md:text-2xl font-black text-amber-900 dark:text-white mt-0.5">{{ $spesifikCount ?? 0 }}</div>
         </div>
     </div>
-    <div class="mb-4 rounded-2xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/70 dark:border-sky-500/30 px-3.5 py-2.5 text-[11px] text-sky-800 dark:text-sky-200 leading-relaxed">
+    <div class="mb-4 rounded-2xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/70 dark:border-sky-500/30 px-3.5 py-2.5 text-[11px] md:text-sm text-sky-800 dark:text-sky-200 leading-relaxed">
         <i class="fa-solid fa-circle-info mr-1 text-sky-600 dark:text-sky-400"></i>
         Aktivitas <strong>Global</strong> dapat dipilih oleh seluruh pegawai. Untuk aktivitas <strong>Spesifik</strong>, silakan diisi masing-masing oleh pegawai di bidangnya.
     </div>
@@ -128,11 +128,11 @@
                         </div>
                         @endif
                     </div>
-                    <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
+                    <p class="text-xs md:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
                         {{ $item->nama_aktivitas }}
                     </p>
                     @if ($item->rencanaAksi?->sasaran_sub_kegiatan)
-                        <div class="text-[10px] font-medium text-teal-700 dark:text-teal-300 bg-teal-50/70 dark:bg-teal-500/10 rounded-lg px-2 py-1 inline-block">
+                        <div class="text-[10px] md:text-xs font-medium text-teal-700 dark:text-teal-300 bg-teal-50/70 dark:bg-teal-500/10 rounded-lg px-2 py-1 inline-block">
                             <i class="fa-solid fa-diagram-project mr-1"></i>{{ $item->rencanaAksi->sasaran_sub_kegiatan }}
                         </div>
                     @endif

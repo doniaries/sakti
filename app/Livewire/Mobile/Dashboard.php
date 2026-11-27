@@ -253,10 +253,10 @@ class Dashboard extends Component
             : Carbon::now()->format('H:i');
 
         $isAdmin = $user->hasAnyRole(['super_admin', 'admin']);
-        $belumBukaMasuk = (!$isAdmin && !$modeSimulasi && $nowTime < $bukaMasuk);
-        $lewatBatasMasuk = (!$isAdmin && !$modeSimulasi && !$sudahMasuk && $nowTime > $tutupMasuk);
-        $belumJamPulang = (!$isAdmin && !$modeSimulasi && $nowTime < $jamPulangResmi);
-        $lewatBatasPulang = (!$isAdmin && !$modeSimulasi && $sudahMasuk && !$sudahPulang && $nowTime > $tutupPulang);
+        $belumBukaMasuk = (!$modeSimulasi && $nowTime < $bukaMasuk);
+        $lewatBatasMasuk = (!$modeSimulasi && !$sudahMasuk && $nowTime > $tutupMasuk);
+        $belumJamPulang = (!$modeSimulasi && $nowTime < $jamPulangResmi);
+        $lewatBatasPulang = (!$modeSimulasi && $sudahMasuk && !$sudahPulang && $nowTime > $tutupPulang);
 
         $workdays = [];
         $cursor = $today->copy();
