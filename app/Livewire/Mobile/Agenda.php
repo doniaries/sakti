@@ -2,15 +2,22 @@
 
 namespace App\Livewire\Mobile;
 
+use App\Models\AgendaDisposisi;
 use App\Models\AgendaKegiatan;
+use App\Models\User;
+use App\Services\PushNotificationService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.mobile')]
 class Agenda extends Component
 {
+    use WithFileUploads;
+
     public bool $showForm = false;
     public string $judul = '';
     public string $tanggal = '';
@@ -19,6 +26,10 @@ class Agenda extends Component
     public string $tempat = '';
     public string $asal_undangan = '';
     public string $keterangan = '';
+    /** @var array<int, int|string> */
+    public array $disposisi_user_ids = [];
+    public string $instruksi = '';
+    public $lampiran_file;
 
     public function mount(): void
     {
@@ -27,7 +38,7 @@ class Agenda extends Component
 
     public function openCreate(): void
     {
-        $this->reset(['judul', 'jam_selesai', 'tempat', 'asal_undangan', 'keterangan']);
+        $this->reset(['judul', 'jam_selesai', 'tempat', 'asal_undangan', 'keterangan', 'disposisi_user_ids', 'instruksi', 'lampiran_file']);
         $this->tanggal = Carbon::today()->toDateString();
         $this->jam_mulai = '08:00';
         $this->showForm = true;
@@ -43,16 +54,62 @@ class Agenda extends Component
             'tempat' => ['required', 'string', 'max:255'],
             'asal_undangan' => ['nullable', 'string', 'max:255'],
             'keterangan' => ['nullable', 'string'],
+            'disposisi_user_ids' => ['nullable', 'array'],
+            'disposisi_user_ids.*' => ['integer', 'exists:users,id'],
+            'instruksi' => ['nullable', 'string', 'max:500'],
+            'lampiran_file' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:5120'],
         ]);
 
-        AgendaKegiatan::create([
-            ...$validated,
-            'jam_selesai' => $validated['jam_selesai'] ?: null,
-            'created_by' => Auth::id(),
-        ]);
+        $lampiranPath = $this->lampiran_file
+            ? $this->lampiran_file->store('agenda-lampiran', 'public')
+            : null;
+
+        $agenda = DB::transaction(function () use ($validated, $lampiranPath): AgendaKegiatan {
+            $agenda = AgendaKegiatan::create([
+                'judul' => $validated['judul'],
+                'tanggal' => $validated['tanggal'],
+                'jam_mulai' => $validated['jam_mulai'],
+                'jam_selesai' => $validated['jam_selesai'] ?: null,
+                'tempat' => $validated['tempat'],
+                'asal_undangan' => $validated['asal_undangan'] ?: null,
+                'keterangan' => $validated['keterangan'] ?: null,
+                'lampiran_file' => $lampiranPath,
+                'created_by' => Auth::id(),
+            ]);
+
+            $userIds = collect($validated['disposisi_user_ids'] ?? [])
+                ->map(fn ($id) => (int) $id)
+                ->filter(fn (int $id) => $id > 0)
+                ->unique()
+                ->values();
+
+            foreach ($userIds as $uid) {
+                AgendaDisposisi::create([
+                    'agenda_kegiatan_id' => $agenda->id,
+                    'user_id' => $uid,
+                    'instruksi' => $validated['instruksi'] ?: 'Hadir mewakili / menindaklanjuti',
+                    'notified_at' => now(),
+                ]);
+            }
+
+            return $agenda;
+        });
+
+        $recipientIds = collect($validated['disposisi_user_ids'] ?? [])->map(fn ($id) => (int) $id)->filter()->unique()->all();
+        if ($recipientIds !== []) {
+            $recipients = User::whereIn('id', $recipientIds)->where('aktif', true)->get();
+            PushNotificationService::sendToUsers(
+                $recipients,
+                'Disposisi Agenda Kegiatan',
+                "{$agenda->judul} ({$agenda->tempat})",
+                ['url' => route('mobile.agenda')],
+                'info'
+            );
+        }
 
         $this->showForm = false;
-        $this->dispatch('notify', type: 'success', title: 'Agenda Ditambahkan', message: 'Agenda kegiatan berhasil disimpan.');
+        $this->reset(['lampiran_file']);
+        $this->dispatch('notify', type: 'success', title: 'Agenda Ditambahkan', message: 'Agenda kegiatan & disposisi berhasil disimpan.');
     }
 
     public function render()
@@ -87,6 +144,7 @@ class Agenda extends Component
         return view('livewire.mobile.agenda', [
             'todayAgendas' => $todayAgendas,
             'upcomingAgendas' => $upcomingAgendas,
+            'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('name')->get(['id', 'name', 'jabatan_id']),
         ]);
     }
 }
