@@ -2,9 +2,14 @@
 
 namespace App\Filament\Resources\RencanaAksis\Tables;
 
+use App\Models\RencanaAksi;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Grid;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -66,42 +71,7 @@ class RencanaAksisTable
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('tahun')
                     ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('target_jan')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_feb')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_mar')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_apr')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_mei')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_jun')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_jul')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_agu')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_sep')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_okt')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_nov')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('target_des')
-                    ->numeric()
-                    ->sortable(),
+                ...self::targetColumns(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -138,5 +108,72 @@ class RencanaAksisTable
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * Kolom target bulanan dengan modal edit cepat saat sel target diklik.
+     *
+     * @return array<int, TextColumn>
+     */
+    protected static function targetColumns(): array
+    {
+        $months = [
+            'target_jan' => 'Jan',
+            'target_feb' => 'Feb',
+            'target_mar' => 'Mar',
+            'target_apr' => 'Apr',
+            'target_mei' => 'Mei',
+            'target_jun' => 'Jun',
+            'target_jul' => 'Jul',
+            'target_agu' => 'Agu',
+            'target_sep' => 'Sep',
+            'target_okt' => 'Okt',
+            'target_nov' => 'Nov',
+            'target_des' => 'Des',
+        ];
+
+        $columns = [];
+
+        foreach ($months as $column => $label) {
+            $columns[] = TextColumn::make($column)
+                ->label('Target ' . $label)
+                ->numeric()
+                ->sortable()
+                ->tooltip('Klik untuk edit target')
+                ->action(
+                    Action::make('edit_target_' . $column)
+                        ->modalHeading('Edit Target Bulanan')
+                        ->modalDescription(fn (RencanaAksi $record): string => $record->rencana_aksi ?? '')
+                        ->modalSubmitActionLabel('Simpan Target')
+                        ->modalWidth('2xl')
+                        ->fillForm(fn (RencanaAksi $record): array => $record->only(array_keys($months)))
+                        ->schema([
+                            Grid::make(3)
+                                ->schema(
+                                    collect($months)
+                                        ->map(fn (string $mLabel, string $mKey): TextInput => TextInput::make($mKey)
+                                            ->label('Target ' . $mLabel)
+                                            ->numeric()
+                                            ->minValue(0)
+                                            ->required()
+                                            ->default(0)
+                                            ->suffix(fn (RencanaAksi $record): ?string => $record->satuan ?: null)
+                                            ->autofocus($mKey === $column))
+                                        ->values()
+                                        ->all()
+                                ),
+                        ])
+                        ->action(function (array $data, RencanaAksi $record): void {
+                            $record->update($data);
+
+                            Notification::make()
+                                ->title('Target bulanan berhasil diperbarui')
+                                ->success()
+                                ->send();
+                        })
+                );
+        }
+
+        return $columns;
     }
 }
