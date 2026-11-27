@@ -286,6 +286,60 @@
                     class="w-full px-3.5 py-2.5 bg-slate-50 dark:bg-zinc-800 border border-slate-300 dark:border-zinc-700 rounded-xl text-slate-800 dark:text-zinc-100 text-xs">
             </div>
 
+            <!-- Pengaturan Jam Kerja & Jendela Waktu Presensi (Jadwal Default) -->
+            <div class="p-4 rounded-2xl bg-slate-50 dark:bg-zinc-800/60 border border-slate-200 dark:border-zinc-700 space-y-4">
+                <div>
+                    <h4 class="text-sm font-bold text-slate-800 dark:text-zinc-100">Pengaturan Jam Masuk &amp; Pulang (Jadwal Default)</h4>
+                    <p class="text-[11px] text-slate-500 dark:text-zinc-400">Sinkron langsung dengan Jadwal Kerja default pada Filament.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Buka Absen Masuk</label>
+                        <input type="time" wire:model="buka_absen_masuk"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Jam Masuk (Senin - Kamis)</label>
+                        <input type="time" wire:model="jam_masuk_senin_kamis"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Jam Masuk (Jumat)</label>
+                        <input type="time" wire:model="jam_masuk_jumat"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Tutup Absen Masuk</label>
+                        <input type="time" wire:model="tutup_absen_masuk"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Toleransi Terlambat (Menit)</label>
+                        <input type="number" min="0" max="180" wire:model="toleransi_terlambat_menit"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Jam Pulang (Senin - Kamis)</label>
+                        <input type="time" wire:model="jam_pulang_senin_kamis"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Jam Pulang (Jumat)</label>
+                        <input type="time" wire:model="jam_pulang_jumat"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 dark:text-zinc-300 uppercase mb-1">Tutup Absen Pulang</label>
+                        <input type="time" wire:model="tutup_absen_pulang"
+                            class="w-full px-3 py-2 bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-700 rounded-xl text-xs font-mono font-bold text-slate-800 dark:text-zinc-100">
+                    </div>
+                </div>
+            </div>
+
             <!-- Save Action -->
             <div class="pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
                 <span class="text-xs text-slate-400 font-mono">

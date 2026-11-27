@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Models\JadwalKerja;
 use App\Models\PengaturanAplikasi;
 use BackedEnum;
 use Filament\Notifications\Notification;
@@ -37,6 +38,15 @@ class PengaturanAbsensi extends Page
 
     public string $alamat_kantor = '';
 
+    public string $buka_absen_masuk = '06:00';
+    public string $jam_masuk_senin_kamis = '07:30';
+    public string $jam_masuk_jumat = '07:30';
+    public string $tutup_absen_masuk = '09:00';
+    public int $toleransi_terlambat_menit = 15;
+    public string $jam_pulang_senin_kamis = '16:00';
+    public string $jam_pulang_jumat = '16:30';
+    public string $tutup_absen_pulang = '23:59';
+
     public static function canAccess(): bool
     {
         /** @var \App\Models\User|null $user */
@@ -58,6 +68,18 @@ class PengaturanAbsensi extends Page
         $this->mode_simulasi = (bool) ($pengaturan->mode_simulasi ?? false);
         $this->simulasi_jam_aktif = $pengaturan->simulasi_jam_aktif ?: null;
         $this->alamat_kantor = (string) ($pengaturan->alamat_kantor ?? 'Gedung Bersama Lt. III, Jl. Prof. M. Yamin, SH No. 1, Muaro Sijunjung');
+
+        $jadwal = JadwalKerja::getDefault();
+        if ($jadwal) {
+            $this->buka_absen_masuk = substr((string) $jadwal->buka_absen_masuk, 0, 5) ?: '06:00';
+            $this->jam_masuk_senin_kamis = substr((string) $jadwal->jam_masuk_senin_kamis, 0, 5) ?: '07:30';
+            $this->jam_masuk_jumat = substr((string) $jadwal->jam_masuk_jumat, 0, 5) ?: '07:30';
+            $this->tutup_absen_masuk = substr((string) $jadwal->tutup_absen_masuk, 0, 5) ?: '09:00';
+            $this->toleransi_terlambat_menit = (int) ($jadwal->toleransi_terlambat_menit ?? 15);
+            $this->jam_pulang_senin_kamis = substr((string) $jadwal->jam_pulang_senin_kamis, 0, 5) ?: '16:00';
+            $this->jam_pulang_jumat = substr((string) $jadwal->jam_pulang_jumat, 0, 5) ?: '16:30';
+            $this->tutup_absen_pulang = substr((string) $jadwal->tutup_absen_pulang, 0, 5) ?: '23:59';
+        }
     }
 
     public function simpan(): void
@@ -73,6 +95,14 @@ class PengaturanAbsensi extends Page
             'longitude_kantor' => 'required|numeric|between:-180,180',
             'radius_meter' => 'required|integer|min:10|max:5000',
             'alamat_kantor' => 'nullable|string|max:500',
+            'buka_absen_masuk' => 'required|date_format:H:i',
+            'jam_masuk_senin_kamis' => 'required|date_format:H:i',
+            'jam_masuk_jumat' => 'required|date_format:H:i',
+            'tutup_absen_masuk' => 'required|date_format:H:i',
+            'toleransi_terlambat_menit' => 'required|integer|min:0|max:180',
+            'jam_pulang_senin_kamis' => 'required|date_format:H:i',
+            'jam_pulang_jumat' => 'required|date_format:H:i',
+            'tutup_absen_pulang' => 'required|date_format:H:i',
         ]);
 
         $pengaturan = PengaturanAplikasi::first();
@@ -88,6 +118,20 @@ class PengaturanAbsensi extends Page
             'simulasi_jam_aktif' => $this->mode_simulasi ? ($this->simulasi_jam_aktif ?: null) : null,
             'alamat_kantor' => $this->alamat_kantor,
         ]);
+
+        $jadwal = JadwalKerja::getDefault();
+        if ($jadwal) {
+            $jadwal->update([
+                'buka_absen_masuk' => $this->buka_absen_masuk . ':00',
+                'jam_masuk_senin_kamis' => $this->jam_masuk_senin_kamis . ':00',
+                'jam_masuk_jumat' => $this->jam_masuk_jumat . ':00',
+                'tutup_absen_masuk' => $this->tutup_absen_masuk . ':00',
+                'toleransi_terlambat_menit' => $this->toleransi_terlambat_menit,
+                'jam_pulang_senin_kamis' => $this->jam_pulang_senin_kamis . ':00',
+                'jam_pulang_jumat' => $this->jam_pulang_jumat . ':00',
+                'tutup_absen_pulang' => $this->tutup_absen_pulang . ':00',
+            ]);
+        }
 
         session(['mode_simulasi_absensi' => $this->mode_simulasi]);
 

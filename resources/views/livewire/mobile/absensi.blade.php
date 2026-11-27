@@ -266,26 +266,6 @@
         </div>
     </div>
 
-    <!-- Info Jabatan -->
-    @if (!empty($user->jabatan?->nama))
-        <div
-            class="bg-white rounded-2xl p-3 border border-slate-200/90 shadow-md shadow-slate-900/5 flex items-center text-xs mb-3">
-            <div class="flex items-center space-x-2.5 min-w-0">
-                <div
-                    class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-xs shrink-0">
-                    <i class="fa-solid fa-id-badge"></i>
-                </div>
-                <div class="min-w-0">
-                    <span
-                        class="text-[11px] md:text-xs uppercase tracking-wider text-slate-400 block font-bold leading-tight">Jabatan
-                        Pegawai</span>
-                    <span
-                        class="font-extrabold text-slate-800 truncate block text-[13px] md:text-sm mt-0.5">{{ $user->jabatan->nama ?? '-' }}</span>
-                </div>
-            </div>
-        </div>
-    @endif
-
     <!-- TOMBOL ABSEN MELAYANG (SAMAR & NONAKTIF DI LUAR RADIUS, JELAS & AKTIF DI DALAM RADIUS) -->
     @if ((!$hariLiburHariIni || $modeSimulasi) && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
         <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
