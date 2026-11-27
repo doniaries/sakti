@@ -30,19 +30,19 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Tanggal <span class="text-rose-500">*</span></label>
-                    <input type="date" wire:model="tanggal"
-                        class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                    <x-mobile.date-picker wire:model="tanggal"
+                        buttonClass="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none" />
                 </div>
                 <div class="grid grid-cols-2 sm:col-span-2 gap-3">
                     <div>
                         <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Mulai <span class="text-rose-500">*</span></label>
-                        <input type="time" wire:model="jam_mulai"
-                            class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                        <x-mobile.time-picker wire:model="jam_mulai"
+                            buttonClass="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none" />
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Selesai <span class="text-rose-500">*</span></label>
-                        <input type="time" wire:model="jam_selesai"
-                            class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                        <x-mobile.time-picker wire:model="jam_selesai"
+                            buttonClass="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none" />
                         @error('jam_selesai') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
