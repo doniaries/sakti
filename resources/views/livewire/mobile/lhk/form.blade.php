@@ -115,17 +115,21 @@
                                 <label
                                     class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">1.
                                     Rencana Aksi</label>
-                                <select wire:model.live="pekerjaans.{{ $index }}.rencana_aksi_id"
-                                    class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
-                                    <option value="">Umum</option>
-                                    @foreach ($rencanaAksiOptions as $subKegGroup => $raItems)
-                                        <optgroup label="{{ $subKegGroup }}">
-                                            @foreach ($raItems as $ra)
-                                                <option value="{{ $ra->id }}">{{ $ra->rencana_aksi }}</option>
-                                            @endforeach
-                                        </optgroup>
-                                    @endforeach
-                                </select>
+                                @php
+                                    $raGroups = $rencanaAksiOptions->map(fn ($raItems, $subKegGroup) => [
+                                        'label' => $subKegGroup,
+                                        'options' => $raItems->map(fn ($ra) => [
+                                            'value' => $ra->id,
+                                            'label' => $ra->rencana_aksi,
+                                        ])->values()->all(),
+                                    ])->values()->all();
+                                @endphp
+                                <x-mobile.select
+                                    :wire-model="'pekerjaans.' . $index . '.rencana_aksi_id'"
+                                    :value="$pekerjaan['rencana_aksi_id'] ?? ''"
+                                    empty-label="Umum"
+                                    search-placeholder="Cari rencana aksi..."
+                                    :groups="$raGroups" />
                             </div>
 
                             <div class="mb-3">
@@ -151,7 +155,7 @@
 
                                         return (int) $a->rencana_aksi_id === (int) $selectedRaId;
                                     });
-                                    $groupedAktivitasRow = $filteredAktivitas->groupBy(function ($a) {
+                                    $aktGroups = $filteredAktivitas->groupBy(function ($a) {
                                         if (is_null($a->user_id) && is_null($a->jabatan_id)) {
                                             return 'Umum (Semua Pegawai)';
                                         }
@@ -160,27 +164,28 @@
                                         }
 
                                         return $a->rencanaAksi?->sasaran_sub_kegiatan ?: ($a->bidang?->nama ?: 'Aktivitas Pegawai');
-                                    });
+                                    })->map(fn ($aktItems, $aktGroup) => [
+                                        'label' => $aktGroup,
+                                        'options' => $aktItems->map(function ($a) {
+                                            $jamLabel = $a->menit
+                                                ? str_replace('.', ',', (string) (float) round($a->menit / 60, 2)) . ' jam'
+                                                : null;
+
+                                            return [
+                                                'value' => $a->id,
+                                                'label' => $a->nama_aktivitas ?? $a->nama,
+                                                'badge' => $jamLabel,
+                                            ];
+                                        })->values()->all(),
+                                    ])->values()->all();
                                 @endphp
-                                <select wire:model.live="pekerjaans.{{ $index }}.aktivitas_id"
-                                    class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
-                                    <option value="">- Pilih Aktivitas (Jam Terisi Otomatis) -</option>
-                                    @foreach ($groupedAktivitasRow as $aktGroup => $aktItems)
-                                        <optgroup label="{{ $aktGroup }}">
-                                            @foreach ($aktItems as $a)
-                                                @php
-                                                    $jamLabel = $a->menit
-                                                        ? str_replace('.', ',', (string) (float) round($a->menit / 60, 2)) .
-                                                            ' jam'
-                                                        : null;
-                                                @endphp
-                                                <option value="{{ $a->id }}">
-                                                    {{ $a->nama_aktivitas ?? $a->nama }}{{ $jamLabel ? ' (' . $jamLabel . ')' : '' }}
-                                                </option>
-                                            @endforeach
-                                        </optgroup>
-                                    @endforeach
-                                </select>
+                                <x-mobile.select
+                                    :wire-model="'pekerjaans.' . $index . '.aktivitas_id'"
+                                    :value="$pekerjaan['aktivitas_id'] ?? ''"
+                                    placeholder="- Pilih Aktivitas (Jam Terisi Otomatis) -"
+                                    empty-label="- Pilih Aktivitas (Jam Terisi Otomatis) -"
+                                    search-placeholder="Cari aktivitas..."
+                                    :groups="$aktGroups" />
                             </div>
 
                             <div class="grid grid-cols-3 gap-2 mb-3">
