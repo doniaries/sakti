@@ -23,6 +23,7 @@ use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Auth;
 
 class AktivitasTable
 {
@@ -258,11 +259,20 @@ class AktivitasTable
                         ->form([
                             Radio::make('target_kategori')
                                 ->label('Kategori Tujuan')
-                                ->options([
-                                    'global' => 'Umum / Global (Semua Pegawai)',
-                                    'bidang' => 'Per Bidang / Pegawai',
-                                    'tim_kreatif' => 'Tim Kreatif (Tugas Tambahan)',
-                                ])
+                                ->options(function (): array {
+                                    /** @var \App\Models\User|null $user */
+                                    $user = Auth::user();
+                                    $options = [];
+
+                                    if ($user && $user->hasAnyRole(['super_admin', 'superadmin'])) {
+                                        $options['global'] = 'Umum / Global (Semua Pegawai)';
+                                    }
+
+                                    $options['bidang'] = 'Per Bidang / Pegawai';
+                                    $options['tim_kreatif'] = 'Tim Kreatif (Tugas Tambahan)';
+
+                                    return $options;
+                                })
                                 ->default('bidang')
                                 ->inline()
                                 ->live()
@@ -323,7 +333,21 @@ class AktivitasTable
                                 ->visible(fn (Get $get): bool => in_array($get('target_kategori'), ['bidang', 'tim_kreatif'], true)),
                         ])
                         ->action(function (Collection $records, array $data): void {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            $isSuperAdmin = $user && $user->hasAnyRole(['super_admin', 'superadmin']);
+
                             $kategori = $data['target_kategori'] ?? 'bidang';
+                            if ($kategori === 'global' && ! $isSuperAdmin) {
+                                Notification::make()
+                                    ->title('Akses Ditolak')
+                                    ->body('Kategori Umum / Global hanya dapat diatur oleh Super Admin.')
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
                             $pegawai = ! empty($data['user_id']) ? User::find((int) $data['user_id']) : null;
                             $bidangId = ! empty($data['bidang_id']) ? (int) $data['bidang_id'] : null;
                             $rencanaAksiId = ! empty($data['rencana_aksi_id']) ? (int) $data['rencana_aksi_id'] : null;
@@ -369,6 +393,12 @@ class AktivitasTable
                         ->label('Jadikan Global (Semua Pegawai)')
                         ->icon('heroicon-o-globe-alt')
                         ->color('success')
+                        ->visible(function (): bool {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+
+                            return $user?->hasAnyRole(['super_admin', 'superadmin']) ?? false;
+                        })
                         ->requiresConfirmation()
                         ->modalHeading('Jadikan Aktivitas Global')
                         ->modalDescription('Aktivitas yang dipilih akan dijadikan data Global (seperti Apel Pagi) sehingga dapat dipakai oleh seluruh pegawai.')
