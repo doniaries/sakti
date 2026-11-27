@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -1089,17 +1090,22 @@ class UsersTable
                 ]),
             ])
             ->headerActions([
-                Action::make('cetak_bezeting')
-                    ->label('Cetak Bezeting Pegawai')
+                ActionGroup::make([
+                    Action::make('cetak_bezeting')
+                        ->label('Cetak Bezeting Pegawai')
+                        ->icon('heroicon-o-document-text')
+                        ->color('success')
+                        ->url(route('pegawai.cetak-bezeting'), shouldOpenInNewTab: true),
+                    Action::make('cetak_belum_lengkap')
+                        ->label('Laporan Belum Lengkap')
+                        ->icon('heroicon-o-exclamation-triangle')
+                        ->color('warning')
+                        ->url(route('pegawai.cetak-belum-lengkap'), shouldOpenInNewTab: true),
+                ])
+                    ->label('Cetak & Laporan')
                     ->icon('heroicon-o-printer')
-                    ->color('success')
-                    ->url(route('pegawai.cetak-bezeting'), shouldOpenInNewTab: true)
-                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']) ?? false),
-                Action::make('cetak_belum_lengkap')
-                    ->label('Laporan Belum Lengkap')
-                    ->icon('heroicon-o-printer')
-                    ->color('warning')
-                    ->url(route('pegawai.cetak-belum-lengkap'), shouldOpenInNewTab: true)
+                    ->color('info')
+                    ->button()
                     ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']) ?? false),
                 Action::make('ingatkan_belum_lengkap')
                     ->label('Ingatkan Pegawai')
