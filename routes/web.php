@@ -24,7 +24,7 @@ Route::post('/portal/logout', function () {
     \Illuminate\Support\Facades\Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
-    return redirect()->route('portal');
+    return redirect()->route('mobile.login');
 })->name('portal.logout');
 
 // Route Pelacakan & Verifikasi Keaslian Dokumen Transaksi via QR Code (Akses Publik)
