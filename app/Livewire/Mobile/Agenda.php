@@ -98,10 +98,12 @@ class Agenda extends Component
         $recipientIds = collect($validated['disposisi_user_ids'] ?? [])->map(fn ($id) => (int) $id)->filter()->unique()->all();
         if ($recipientIds !== []) {
             $recipients = User::whereIn('id', $recipientIds)->where('aktif', true)->get();
+            $waktu = Carbon::parse($agenda->tanggal)->translatedFormat('d M Y') . ' ' . substr((string) $agenda->jam_mulai, 0, 5);
+            $instruksiTeks = $validated['instruksi'] ?: 'Hadir mewakili / menindaklanjuti';
             PushNotificationService::sendToUsers(
                 $recipients,
-                'Disposisi Agenda Kegiatan',
-                "{$agenda->judul} ({$agenda->tempat})",
+                'Perintah Menghadiri Agenda',
+                "{$agenda->judul} ({$waktu} di {$agenda->tempat}) — {$instruksiTeks}",
                 ['url' => route('mobile.agenda')],
                 'info'
             );
