@@ -117,7 +117,30 @@
                         @endif
                     </div>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
+                <div class="flex items-center gap-1.5 shrink-0">
+                    @if ($user->hasAnyRole(['super_admin', 'superadmin']))
+                        <button type="button" wire:click="toggleSimulasi"
+                            class="w-9 h-9 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
+                            title="{{ $modeSimulasi ? 'Mode Simulasi ON (klik untuk nonaktifkan)' : 'Aktifkan Mode Simulasi (Khusus Superadmin)' }}"
+                            aria-label="Toggle Mode Simulasi">
+                            <i class="fa-solid fa-flask text-sm"></i>
+                        </button>
+                    @endif
+                    @if ($user->canRemindPegawai())
+                        <button type="button" wire:click="ingatkanPegawai"
+                            wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
+                            class="w-9 h-9 rounded-full bg-rose-500 hover:bg-rose-400 text-white inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
+                            title="Ingatkan Pegawai Lengkapi Data Kepegawaian"
+                            aria-label="Ingatkan Pegawai Lengkapi Data Kepegawaian">
+                            <i class="fa-solid fa-bullhorn text-sm"></i>
+                        </button>
+                    @endif
+                    <a href="/admin" target="_blank" rel="noopener"
+                        class="w-9 h-9 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
+                        title="Panel Admin SAKTI (Proses SPJ)"
+                        aria-label="Panel Admin SAKTI (Proses SPJ)">
+                        <i class="fa-solid fa-shield-halved text-sm"></i>
+                    </a>
                     <div x-data="{
                         isNative: !!window.SaktiNative,
                         perms: window.__saktiPerms || { location: true, notification: true, battery: true }
@@ -220,33 +243,6 @@
                         </style>
                     @endif
                 </div>
-            </div>
-
-            <!-- Row 1.5: Quick Utility Actions (Ikon saja: Panel Admin SPJ, Ingatkan Pegawai, Simulasi) -->
-            <div class="mt-3 flex items-center gap-2 relative z-10">
-                <a href="/admin" target="_blank" rel="noopener"
-                    class="w-9 h-9 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 inline-flex items-center justify-center shadow-sm transition cursor-pointer"
-                    title="Panel Admin SAKTI (Proses SPJ)"
-                    aria-label="Panel Admin SAKTI (Proses SPJ)">
-                    <i class="fa-solid fa-shield-halved text-sm"></i>
-                </a>
-                @if ($user->canRemindPegawai())
-                    <button type="button" wire:click="ingatkanPegawai"
-                        wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
-                        class="w-9 h-9 rounded-full bg-rose-500 hover:bg-rose-400 text-white inline-flex items-center justify-center shadow-sm transition cursor-pointer"
-                        title="Ingatkan Pegawai Lengkapi Data Kepegawaian"
-                        aria-label="Ingatkan Pegawai Lengkapi Data Kepegawaian">
-                        <i class="fa-solid fa-bullhorn text-sm"></i>
-                    </button>
-                @endif
-                @if ($user->hasAnyRole(['super_admin', 'superadmin']))
-                    <button type="button" wire:click="toggleSimulasi"
-                        class="w-9 h-9 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} inline-flex items-center justify-center shadow-sm transition cursor-pointer"
-                        title="{{ $modeSimulasi ? 'Mode Simulasi ON (klik untuk nonaktifkan)' : 'Aktifkan Mode Simulasi (Khusus Superadmin)' }}"
-                        aria-label="Toggle Mode Simulasi">
-                        <i class="fa-solid fa-flask text-sm"></i>
-                    </button>
-                @endif
             </div>
 
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
