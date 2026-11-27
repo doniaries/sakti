@@ -150,9 +150,9 @@
     </script>
     
     <style>
-        @media (max-width: 767px) {
+        @media (max-width: 639px) {
             html {
-                font-size: 16.5px;
+                font-size: 15px;
             }
         }
         * {
