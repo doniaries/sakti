@@ -1,24 +1,28 @@
 <div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)] space-y-3.5 text-zinc-900 dark:text-zinc-100" x-data="absensiApp()">
     <!-- Hero Biru Gradient Melengkung + Kartu Mengambang -->
     <section class="-mx-4 -mt-4"
+        data-sim-jam="{{ $modeSimulasi && !empty($simulasiJamAktif) ? substr($simulasiJamAktif, 0, 5) : '' }}"
         x-data="{
             hh: '--',
             mm: '--',
             ss: '--',
             blink: true,
+            isSimClock: {{ $modeSimulasi && !empty($simulasiJamAktif) ? 'true' : 'false' }},
             clockTimer: null,
-            simJam: @js($modeSimulasi && !empty($simulasiJamAktif) ? substr($simulasiJamAktif, 0, 5) : null),
             initClock() {
                 const pad = (n) => String(n).padStart(2, '0');
                 const update = () => {
                     const d = new Date();
-                    if (this.simJam) {
-                        const parts = this.simJam.split(':');
-                        this.hh = parts[0] ?? '00';
-                        this.mm = parts[1] ?? '00';
+                    const rawSim = (this.$el.dataset.simJam || '').trim();
+                    const match = rawSim.match(/^(\d{1,2})[:.](\d{2})/);
+                    if (match) {
+                        this.hh = pad(match[1]);
+                        this.mm = match[2];
+                        this.isSimClock = true;
                     } else {
                         this.hh = pad(d.getHours());
                         this.mm = pad(d.getMinutes());
+                        this.isSimClock = false;
                     }
                     this.ss = pad(d.getSeconds());
                     this.blink = !this.blink;
@@ -26,14 +30,6 @@
                 update();
                 clearInterval(this.clockTimer);
                 this.clockTimer = setInterval(update, 1000);
-                this.$watch('$wire.simulasiJamAktif', (val) => {
-                    this.simJam = ($wire.modeSimulasi && val) ? String(val).slice(0, 5) : null;
-                    update();
-                });
-                this.$watch('$wire.modeSimulasi', (val) => {
-                    this.simJam = (val && $wire.simulasiJamAktif) ? String($wire.simulasiJamAktif).slice(0, 5) : null;
-                    update();
-                });
                 document.addEventListener('livewire:navigating', () => clearInterval(this.clockTimer), { once: true });
             }
         }"
@@ -66,9 +62,15 @@
 
         <!-- Row 1: Live Clock (Tengah & Besar), Jadwal Kerja & Jarak -->
         <div class="flex flex-col items-center text-center gap-2 py-1">
+            @if ($modeSimulasi)
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300 text-[10px] md:text-xs font-extrabold">
+                    <i class="fa-solid fa-flask"></i>
+                    <span>{{ !empty($simulasiJamAktif) ? 'Jam Simulasi: ' . substr($simulasiJamAktif, 0, 5) . ' WIB' : 'Mode Simulasi (Jam Real-Time)' }}</span>
+                </div>
+            @endif
             <div class="flex items-baseline justify-center gap-1.5">
                 <div class="flex items-center text-4xl md:text-5xl font-black font-mono tracking-tight leading-none tabular-nums"
-                    :class="simJam ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-900 dark:text-white'">
+                    :class="isSimClock ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-900 dark:text-white'">
                     <span x-text="hh">--</span>
                     <span class="transition-opacity duration-300" :class="blink ? 'opacity-100' : 'opacity-20'">:</span>
                     <span x-text="mm">--</span>
