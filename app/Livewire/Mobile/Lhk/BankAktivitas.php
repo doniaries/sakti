@@ -18,6 +18,7 @@ class BankAktivitas extends Component
     public string $filterSubKegiatan = 'semua';
     public string $selectedSubKegiatan = '';
     public ?int $editingId = null;
+    public string $kode = '';
     public ?int $rencana_aksi_id = null;
     public string $nama_aktivitas = '';
     public int $menit = 30;
