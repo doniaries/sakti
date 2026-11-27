@@ -6,6 +6,7 @@
     notifSheet: false,
     suratTugasSheet: false,
     konfirmasiSuccessModal: false,
+    logoutConfirmModal: false,
     jam: '--:--',
     detik: '--',
     punching: false,
