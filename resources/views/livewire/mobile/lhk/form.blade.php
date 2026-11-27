@@ -87,28 +87,13 @@
             @endif
         </div>
 
-        @if ($isHariLibur && !$absenHariIni && !$existingLhk)
-            <div
-                class="rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-800 dark:text-sky-200 p-3.5 text-xs flex items-start gap-2.5 border border-sky-200 dark:border-sky-500/30 font-medium leading-relaxed">
-                <i class="fa-solid fa-calendar-xmark mt-0.5 text-sky-600 dark:text-sky-400 shrink-0"></i>
-                <span>
-                    <strong>LHK tidak perlu diisi.</strong> Tanggal ini bukan hari kerja resmi
-                    ({{ $alasanNonKerja }}).
-                </span>
-            </div>
-        @elseif (!$absenHariIni && !$existingLhk)
-            <div
-                class="rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 p-3 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-500/30 font-semibold">
-                <i class="fa-solid fa-triangle-exclamation shrink-0"></i>
-                <span>Belum ada data absensi masuk (pagi) pada tanggal ini.</span>
-            </div>
-        @elseif (!$bisaIsiLhk)
+        @if (($absenHariIni || $existingLhk) && !$bisaIsiLhk)
             <div
                 class="rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 p-3 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-500/30 font-semibold">
                 <i class="fa-solid fa-triangle-exclamation shrink-0"></i>
                 <span>Anda harus melakukan absen masuk (pagi) terlebih dahulu untuk mengisi LHK.</span>
             </div>
-        @else
+        @elseif ($absenHariIni || $existingLhk)
             <div
                 class="rounded-xl bg-sky-50/80 dark:bg-sky-500/10 text-sky-800 dark:text-cyan-200 px-3.5 py-2.5 text-[13px] flex items-start gap-2.5 border border-sky-200/80 dark:border-sky-500/30 leading-relaxed">
                 <i class="fa-solid fa-circle-info mt-0.5 text-sky-600 dark:text-cyan-400 shrink-0"></i>
@@ -132,10 +117,6 @@
             ])->random();
         @endphp
         <section class="rounded-3xl bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 shadow-sm p-5 sm:p-6 text-center space-y-4">
-            <div class="max-w-[360px] mx-auto">
-                <img src="{{ asset($randomVector) }}" alt="Ilustrasi Sijunjung" class="w-full h-auto object-contain mx-auto">
-            </div>
-
             <div class="max-w-md mx-auto rounded-2xl {{ $isHariLibur ? 'bg-amber-50/80 dark:bg-amber-500/10 border border-amber-200/80 dark:border-amber-500/30' : 'bg-rose-50/80 dark:bg-rose-500/10 border border-rose-200/80 dark:border-rose-500/30' }} px-4 py-3 text-left flex items-start gap-3">
                 <span class="mt-0.5 w-8 h-8 rounded-xl {{ $isHariLibur ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-300' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-300' }} flex items-center justify-center shrink-0 text-sm">
                     <i class="fa-solid fa-triangle-exclamation"></i>
@@ -155,6 +136,10 @@
                         @endif
                     </p>
                 </div>
+            </div>
+
+            <div class="max-w-[360px] mx-auto">
+                <img src="{{ asset($randomVector) }}" alt="Ilustrasi Sijunjung" class="w-full h-auto object-contain mx-auto">
             </div>
 
             @if (!$isHariLibur)
