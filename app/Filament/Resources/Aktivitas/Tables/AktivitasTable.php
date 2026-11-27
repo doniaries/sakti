@@ -191,7 +191,7 @@ class AktivitasTable
                         ])
                         ->action(function (Collection $records, array $data): void {
                             $userIds = $data['user_ids'] ?? [];
-                            $users = User::query()->whereIn('id', $userIds)->get();
+                            $users = User::query()->findMany($userIds);
                             $copiedCount = 0;
 
                             foreach ($users as $pegawai) {
