@@ -312,10 +312,10 @@ class Absensi extends Component
         $toleransi = $jadwal ? (int) $jadwal->toleransi_terlambat_menit : 15;
         $batasToleransi = Carbon::parse("$today $jamMasukResmi:00")->addMinutes($toleransi)->format('H:i');
 
-        $lewatBatasMasuk = (!$sudahMasuk && $nowTime > $tutupMasuk);
-        $belumBukaMasuk = ($nowTime < $bukaMasuk);
-        $belumJamPulang = ($nowTime < $jamPulangResmi);
-        $lewatBatasPulang = ($nowTime > $tutupPulang);
+        $lewatBatasMasuk = (! $this->modeSimulasi && ! $sudahMasuk && $nowTime > $tutupMasuk);
+        $belumBukaMasuk = (! $this->modeSimulasi && $nowTime < $bukaMasuk);
+        $belumJamPulang = (! $this->modeSimulasi && $nowTime < $jamPulangResmi);
+        $lewatBatasPulang = (! $this->modeSimulasi && $nowTime > $tutupPulang);
 
         $menitKerjaHariIni = $absenHarian ? $absenHarian->hitungMenitKerjaEfektif() : 0;
 

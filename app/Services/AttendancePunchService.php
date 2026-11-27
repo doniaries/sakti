@@ -46,7 +46,7 @@ class AttendancePunchService
         $isSimulasi = $isSuperAdmin && (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
         $isPegawai = $user->isPegawaiWajibAbsen();
         $bypassRadius = $isSimulasi || ($isSuperAdmin && $force);
-        $bypassTime = $isSuperAdmin && $force;
+        $bypassTime = $isSimulasi || ($isSuperAdmin && $force);
 
         if (! $isPegawai && ! $isSimulasi) {
             return [
