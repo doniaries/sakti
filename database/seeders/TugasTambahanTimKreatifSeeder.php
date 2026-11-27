@@ -33,7 +33,7 @@ class TugasTambahanTimKreatifSeeder extends Seeder
                     ['nama_aktivitas' => 'Memberikan arahan kebijakan, visi, dan strategi pelaksanaan publikasi dan promosi dinas', 'menit' => 60],
                     ['nama_aktivitas' => 'Menetapkan arah komunikasi publik untuk membangun citra positif kelembagaan dinas', 'menit' => 60],
                     ['nama_aktivitas' => 'Melakukan evaluasi menyeluruh pelaksanaan publikasi dan promosi dinas', 'menit' => 90],
-                    ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk peninjauan dan supervisi publikasi pimpinan', 'menit' => 180],
+                    ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk peninjauan dan supervisi publikasi pimpinan', 'menit' => 240],
                 ],
             ],
             // (b) Pengarah — Sekretaris
@@ -45,7 +45,7 @@ class TugasTambahanTimKreatifSeeder extends Seeder
                     ['nama_aktivitas' => 'Mengoordinasikan dan mengharmonisasikan pelaksanaan tugas publikasi lintas bidang', 'menit' => 90],
                     ['nama_aktivitas' => 'Memfasilitasi dukungan administrasi dan anggaran tim kreatif', 'menit' => 90],
                     ['nama_aktivitas' => 'Menerima dan memeriksa laporan berkala dari Penanggung Jawab Kegiatan Bidang', 'menit' => 60],
-                    ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk peninjauan dan supervisi publikasi lintas bidang', 'menit' => 180],
+                    ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk peninjauan dan supervisi publikasi lintas bidang', 'menit' => 240],
                 ],
             ],
             // (c) Penanggung Jawab Kegiatan Bidang — Kepala Bidang
@@ -57,7 +57,7 @@ class TugasTambahanTimKreatifSeeder extends Seeder
                     ['nama_aktivitas' => 'Menyusun dan merumuskan rencana kegiatan promosi/publikasi sesuai program kerja bidang', 'menit' => 90],
                     ['nama_aktivitas' => 'Memberikan instruksi dan arahan teknis kegiatan kepada Koordinator Teknis sebagai dasar peliputan', 'menit' => 45],
                     ['nama_aktivitas' => 'Memastikan kegiatan bidang terdokumentasi dan terpublikasi optimal serta mengevaluasi laporan hasil publikasi', 'menit' => 60],
-                    ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk peninjauan, supervisi, dan penyelesaian kendala teknis publikasi bidang', 'menit' => 180],
+                    ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk peninjauan, supervisi, dan penyelesaian kendala teknis publikasi bidang', 'menit' => 240],
                 ],
             ],
             // (d) Koordinator Kegiatan — Jabatan Fungsional (Koordinator Teknis)
