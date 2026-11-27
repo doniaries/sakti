@@ -156,7 +156,7 @@ class BezetingPegawaiSeeder extends Seeder
                 RiwayatGolongan::updateOrCreate(
                     ['user_id' => $user->id, 'jenis_sk' => $isPppk ? 'pppk' : 'cpns'],
                     [
-                        'golongan' => GolonganRuang::tryFrom($gol)?->value ?? '-',
+                        'golongan' => $isCpnsLatest ? (GolonganRuang::tryFrom($gol)?->value ?? '-') : '-',
                         'tmt_golongan' => $tmtCpns,
                         'is_golongan_terakhir' => $isCpnsLatest,
                         'masa_kerja_tahun' => $isCpnsLatest ? $mkThn : null,
@@ -169,7 +169,7 @@ class BezetingPegawaiSeeder extends Seeder
                 RiwayatGolongan::updateOrCreate(
                     ['user_id' => $user->id, 'jenis_sk' => 'pns'],
                     [
-                        'golongan' => GolonganRuang::tryFrom($gol)?->value ?? '-',
+                        'golongan' => '-',
                         'tmt_golongan' => $tmtPns,
                         'is_golongan_terakhir' => false,
                     ]
@@ -197,14 +197,9 @@ class BezetingPegawaiSeeder extends Seeder
                 ]
             );
 
-            // Hanya simpan pendidikan terakhir sesuai lampiran bezeting
+            // Hanya simpan 1 pendidikan terakhir sesuai lampiran bezeting (hapus yang lama)
             $jenjangVal = JenjangPendidikan::tryFrom($jenjang)?->value ?? 'SLTA';
-            RiwayatPendidikan::query()
-                ->where('user_id', $user->id)
-                ->where('jenjang', '!=', $jenjangVal)
-                ->delete();
-
-            RiwayatPendidikan::updateOrCreate(
+            $keptPend = RiwayatPendidikan::updateOrCreate(
                 ['user_id' => $user->id, 'jenjang' => $jenjangVal],
                 [
                     'nama_institusi' => '-',
@@ -213,6 +208,10 @@ class BezetingPegawaiSeeder extends Seeder
                     'is_pendidikan_terakhir' => true,
                 ]
             );
+            RiwayatPendidikan::query()
+                ->where('user_id', $user->id)
+                ->whereKeyNot($keptPend->id)
+                ->delete();
 
             if ($pnjjNama) {
                 RiwayatSertifikat::updateOrCreate(
