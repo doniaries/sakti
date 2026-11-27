@@ -41,6 +41,18 @@ class RiwayatJabatan extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (RiwayatJabatan $item): void {
+            if ($item->is_jabatan_sekarang && $item->user_id) {
+                static::query()
+                    ->where('user_id', $item->user_id)
+                    ->when($item->exists, fn ($q) => $q->whereKeyNot($item->getKey()))
+                    ->update(['is_jabatan_sekarang' => false]);
+            }
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

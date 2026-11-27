@@ -67,6 +67,7 @@ class UserResource extends Resource
     {
         return [
             \App\Filament\Resources\Users\RelationManagers\RiwayatPendidikanRelationManager::class,
+            \App\Filament\Resources\Users\RelationManagers\RiwayatSertifikatRelationManager::class,
             \App\Filament\Resources\Users\RelationManagers\RiwayatJabatanRelationManager::class,
             \App\Filament\Resources\Users\RelationManagers\RiwayatGolonganRelationManager::class,
             \App\Filament\Resources\Users\RelationManagers\DevicesRelationManager::class,

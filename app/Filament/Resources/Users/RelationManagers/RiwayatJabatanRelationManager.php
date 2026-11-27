@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Users\RelationManagers;
 
+use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -13,11 +14,13 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +35,7 @@ class RiwayatJabatanRelationManager extends RelationManager
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return $pageClass === ViewUser::class;
+        return in_array($pageClass, [ViewUser::class, EditUser::class], true);
     }
 
     public function isReadOnly(): bool
@@ -68,7 +71,13 @@ class RiwayatJabatanRelationManager extends RelationManager
                     ->label('Tanggal SK')
                     ->displayFormat('d/m/Y'),
 
-                FileUpload::make('file_sk')
+                Toggle::make('is_jabatan_sekarang')
+                    ->label('Tandai sebagai SK Jabatan Terakhir / Sekarang')
+                    ->helperText('Otomatis menjadi Realisasi SK Jabatan Terakhir di Bezeting Pegawai.')
+                    ->default(false)
+                    ->columnSpanFull(),
+
+                FileUpload::make('file_sk_jabatan')
                     ->label('Berkas SK Jabatan (PDF, Maks. 2 MB)')
                     ->acceptedFileTypes(['application/pdf'])
                     ->maxSize(2048)
@@ -107,6 +116,9 @@ class RiwayatJabatanRelationManager extends RelationManager
                     ->label('Tanggal SK')
                     ->date('d/m/Y')
                     ->placeholder('-'),
+
+                ToggleColumn::make('is_jabatan_sekarang')
+                    ->label('SK Terakhir'),
             ])
             ->headerActions([
                 CreateAction::make()

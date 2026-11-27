@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Users\RelationManagers;
 
-use App\Enums\PangkatGolongan;
+use App\Enums\GolonganRuang;
+use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -15,11 +16,13 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +37,7 @@ class RiwayatGolonganRelationManager extends RelationManager
 
     public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
     {
-        return $pageClass === ViewUser::class;
+        return in_array($pageClass, [ViewUser::class, EditUser::class], true);
     }
 
     public function isReadOnly(): bool
@@ -49,14 +52,27 @@ class RiwayatGolonganRelationManager extends RelationManager
     {
         return $schema
             ->components([
+                Select::make('jenis_sk')
+                    ->label('Jenis SK')
+                    ->options([
+                        'cpns' => 'SK CPNS (TMT CPNS)',
+                        'pns' => 'SK PNS (TMT PNS)',
+                        'pppk' => 'SK PPPK (TMT PPPK)',
+                        'kenaikan_pangkat' => 'SK Kenaikan Pangkat',
+                    ])
+                    ->default('kenaikan_pangkat')
+                    ->required(),
+
                 Select::make('golongan')
                     ->label('Pangkat / Golongan')
-                    ->options(PangkatGolongan::class)
+                    ->options(GolonganRuang::class)
+                    ->searchable()
                     ->required(),
 
                 DatePicker::make('tmt_golongan')
-                    ->label('TMT Golongan')
-                    ->displayFormat('d/m/Y'),
+                    ->label('TMT Golongan / TMT SK')
+                    ->displayFormat('d/m/Y')
+                    ->required(),
 
                 TextInput::make('nomor_sk')
                     ->label('Nomor SK')
@@ -66,7 +82,26 @@ class RiwayatGolonganRelationManager extends RelationManager
                     ->label('Tanggal SK')
                     ->displayFormat('d/m/Y'),
 
-                FileUpload::make('file_sk')
+                TextInput::make('masa_kerja_tahun')
+                    ->label('Masa Kerja (Tahun)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->default(0),
+
+                TextInput::make('masa_kerja_bulan')
+                    ->label('Masa Kerja (Bulan)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(11)
+                    ->default(0),
+
+                Toggle::make('is_golongan_terakhir')
+                    ->label('Tandai sebagai Pangkat Terakhir')
+                    ->helperText('Otomatis menjadi Realisasi Pangkat Terakhir & Masa Kerja di Bezeting Pegawai.')
+                    ->default(false)
+                    ->columnSpanFull(),
+
+                FileUpload::make('file_sk_golongan')
                     ->label('Berkas SK Pangkat (PDF, Maks. 2 MB)')
                     ->acceptedFileTypes(['application/pdf'])
                     ->maxSize(2048)
@@ -81,6 +116,23 @@ class RiwayatGolonganRelationManager extends RelationManager
     {
         return $table
             ->columns([
+                TextColumn::make('jenis_sk')
+                    ->label('Jenis SK')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'cpns' => 'CPNS',
+                        'pns' => 'PNS',
+                        'pppk' => 'PPPK',
+                        'kenaikan_pangkat' => 'Kenaikan Pangkat',
+                        default => '-',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'cpns' => 'info',
+                        'pns' => 'success',
+                        'pppk' => 'warning',
+                        default => 'gray',
+                    }),
+
                 TextColumn::make('golongan')
                     ->label('Pangkat / Golongan')
                     ->badge()
@@ -91,6 +143,12 @@ class RiwayatGolonganRelationManager extends RelationManager
                     ->date('d/m/Y')
                     ->placeholder('-'),
 
+                TextColumn::make('masa_kerja_tahun')
+                    ->label('Masa Kerja')
+                    ->formatStateUsing(fn ($record): string => filled($record->masa_kerja_tahun) || filled($record->masa_kerja_bulan)
+                        ? ((int) ($record->masa_kerja_tahun ?? 0)) . ' Thn ' . ((int) ($record->masa_kerja_bulan ?? 0)) . ' Bln'
+                        : '-'),
+
                 TextColumn::make('nomor_sk')
                     ->label('Nomor SK')
                     ->placeholder('-'),
@@ -99,6 +157,9 @@ class RiwayatGolonganRelationManager extends RelationManager
                     ->label('Tanggal SK')
                     ->date('d/m/Y')
                     ->placeholder('-'),
+
+                ToggleColumn::make('is_golongan_terakhir')
+                    ->label('Pangkat Terakhir'),
             ])
             ->headerActions([
                 CreateAction::make()

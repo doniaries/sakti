@@ -190,6 +190,7 @@ class CetakLaporanController extends Controller
                 'riwayatGolongan',
                 'riwayatJabatan',
                 'riwayatPendidikan',
+                'riwayatSertifikat',
             ])
             ->where('aktif', true)
             ->orderByRaw("CASE

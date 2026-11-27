@@ -23,6 +23,7 @@ class RiwayatGolongan extends Model
 
     protected $fillable = [
         'user_id',
+        'jenis_sk',
         'golongan',
         'nama_pangkat',
         'nomor_sk',
@@ -50,6 +51,13 @@ class RiwayatGolongan extends Model
             // Otomatis isi nama pangkat jika belum terisi
             if (blank($item->nama_pangkat) && $item->golongan) {
                 $item->nama_pangkat = static::getPangkatByGolongan($item->golongan);
+            }
+
+            if ($item->is_golongan_terakhir && $item->user_id) {
+                static::query()
+                    ->where('user_id', $item->user_id)
+                    ->when($item->exists, fn ($q) => $q->whereKeyNot($item->getKey()))
+                    ->update(['is_golongan_terakhir' => false]);
             }
         });
 

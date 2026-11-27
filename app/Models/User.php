@@ -58,10 +58,10 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
      */
     public function missingKepegawaianFields(): array
     {
-        $statusVal = $this->status_kepegawaian instanceof StatusKepegawaian
-            ? $this->status_kepegawaian->value
+        $statusVal = $this->status_kepegawaian instanceof \BackedEnum
+            ? (string) $this->status_kepegawaian->value
             : (string) ($this->status_kepegawaian ?? '');
-        $isKontrak = $statusVal === StatusKepegawaian::KONTRAK->value;
+        $isKontrak = $statusVal === \App\Enums\StatusKepegawaian::KONTRAK->value;
         $isKepalaDinas = $this->hasAnyRole(['pa', 'kepala_dinas']);
 
         $fields = [

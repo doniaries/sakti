@@ -30,38 +30,49 @@
     <table>
         <thead>
             <tr>
-                <th rowspan="2" style="width: 20px;">NO</th>
-                <th rowspan="2" style="width: 145px;">NAMA / TEMPAT, TGL LAHIR</th>
-                <th rowspan="2" style="width: 98px;">NIP / STATUS</th>
-                <th colspan="2">PANGKAT TERAKHIR</th>
+                <th rowspan="2" style="width: 18px;">NO</th>
+                <th rowspan="2" style="width: 120px;">NAMA / TEMPAT, TGL LAHIR</th>
+                <th rowspan="2" style="width: 88px;">NIP / STATUS</th>
+                <th rowspan="2" style="width: 48px;">TMT CPNS / PPPK</th>
+                <th rowspan="2" style="width: 48px;">TMT PNS</th>
+                <th colspan="2">REALISASI PANGKAT TERAKHIR</th>
                 <th colspan="2">MASA KERJA</th>
-                <th rowspan="2" style="width: 135px;">JABATAN / BIDANG</th>
-                <th colspan="3">SK JABATAN TERAKHIR</th>
-                <th rowspan="2" style="width: 105px;">PENDIDIKAN</th>
+                <th rowspan="2" style="width: 110px;">JABATAN / BIDANG</th>
+                <th colspan="3">REALISASI SK JABATAN TERAKHIR</th>
+                <th rowspan="2" style="width: 82px;">PENDIDIKAN (NAMA/TAHUN)</th>
+                <th colspan="2">PENDIDIKAN PNJJ</th>
                 <th colspan="2">JK</th>
-                <th rowspan="2" style="width: 44px;">AGAMA</th>
-                <th rowspan="2" style="width: 36px;">ESELON</th>
+                <th rowspan="2" style="width: 38px;">AGAMA</th>
+                <th rowspan="2" style="width: 30px;">ESELON</th>
             </tr>
             <tr>
-                <th style="width: 44px;">GOL/RUANG</th>
-                <th style="width: 52px;">T.M.T</th>
-                <th style="width: 24px;">THN</th>
-                <th style="width: 24px;">BLN</th>
-                <th style="width: 78px;">NOMOR</th>
-                <th style="width: 50px;">TANGGAL</th>
-                <th style="width: 50px;">T.M.T</th>
-                <th style="width: 16px;">L</th>
-                <th style="width: 16px;">P</th>
+                <th style="width: 38px;">GOL/RUANG</th>
+                <th style="width: 46px;">T.M.T</th>
+                <th style="width: 22px;">THN</th>
+                <th style="width: 22px;">BLN</th>
+                <th style="width: 68px;">NOMOR</th>
+                <th style="width: 46px;">TANGGAL</th>
+                <th style="width: 46px;">T.M.T</th>
+                <th style="width: 56px;">NAMA/TAHUN</th>
+                <th style="width: 24px;">JAM</th>
+                <th style="width: 14px;">L</th>
+                <th style="width: 14px;">P</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($pegawais as $idx => $p)
                 @php
+                    $cpnsRow = $p->riwayatGolongan->first(fn ($g) => in_array($g->jenis_sk, ['cpns', 'pppk'], true));
+                    $pnsRow = $p->riwayatGolongan->firstWhere('jenis_sk', 'pns');
+                    $tmtCpns = $cpnsRow?->tmt_golongan ? \Carbon\Carbon::parse($cpnsRow->tmt_golongan)->format('d/m/Y') : '-';
+                    $tmtPns = $pnsRow?->tmt_golongan ? \Carbon\Carbon::parse($pnsRow->tmt_golongan)->format('d/m/Y') : '-';
+
                     $gol = $p->riwayatGolongan->firstWhere('is_golongan_terakhir', true) ?? $p->riwayatGolongan->first();
                     $jab = $p->riwayatJabatan->firstWhere('is_jabatan_sekarang', true) ?? $p->riwayatJabatan->first();
                     $pend = $p->riwayatPendidikan->firstWhere('is_pendidikan_terakhir', true) ?? $p->riwayatPendidikan->first();
+                    $pnjj = $p->riwayatSertifikat->firstWhere('jenis', 'pnjj') ?? $p->riwayatSertifikat->first();
 
-                    $golRuang = $gol?->golongan ?: ($p->pangkat_golongan ?: '-');
+                    $golRuang = $gol?->golongan instanceof \BackedEnum ? $gol->golongan->value : ($gol?->golongan ?: ($p->pangkat_golongan ?: '-'));
                     $tmtGol = $gol?->tmt_golongan ? \Carbon\Carbon::parse($gol->tmt_golongan)->format('d/m/Y') : ($p->tmt_pangkat ? \Carbon\Carbon::parse($p->tmt_pangkat)->format('d/m/Y') : '-');
                     $mkThn = $gol?->masa_kerja_tahun ?? '-';
                     $mkBln = $gol?->masa_kerja_bulan ?? '-';
@@ -78,6 +89,11 @@
                     if ($pendText === '') {
                         $pendText = '-';
                     }
+
+                    $pnjjNama = $pnjj
+                        ? trim(($pnjj->nama_sertifikat ?? '') . ($pnjj->tanggal_terbit ? ' (' . \Carbon\Carbon::parse($pnjj->tanggal_terbit)->format('Y') . ')' : ''))
+                        : '-';
+                    $pnjjJam = $pnjj?->jumlah_jam ?? '-';
 
                     $tglLahir = $p->tanggal_lahir ? \Carbon\Carbon::parse($p->tanggal_lahir)->translatedFormat('d F Y') : '-';
                     $ttl = trim(($p->tempat_lahir ?: '-') . ', ' . $tglLahir, ', ');
@@ -98,6 +114,8 @@
                         {{ $p->nip ?: '-' }}<br>
                         <span class="muted">{{ $statusPeg }}</span>
                     </td>
+                    <td class="center">{{ $tmtCpns }}</td>
+                    <td class="center">{{ $tmtPns }}</td>
                     <td class="center">{{ $golRuang }}</td>
                     <td class="center">{{ $tmtGol }}</td>
                     <td class="center">{{ $mkThn }}</td>
@@ -112,6 +130,8 @@
                     <td class="center">{{ $skTgl }}</td>
                     <td class="center">{{ $skTmt }}</td>
                     <td>{{ $pendText }}</td>
+                    <td class="center">{{ $pnjjNama }}</td>
+                    <td class="center">{{ $pnjjJam }}</td>
                     <td class="center">{{ $isL ? '✓' : '' }}</td>
                     <td class="center">{{ $isP ? '✓' : '' }}</td>
                     <td class="center">{{ $agama }}</td>
