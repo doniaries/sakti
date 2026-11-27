@@ -4,7 +4,8 @@
         : (! $hariIni['sudah_pulang'] ? 'pulang' : 'selesai');
 @endphp
 
-<div x-data="{
+<div wire:poll.10s
+    x-data="{
         notifSheet: false,
         suratTugasSheet: false,
         konfirmasiSuccessModal: false,

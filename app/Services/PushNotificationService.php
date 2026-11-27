@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Notifications\WebPushNotification;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -42,6 +44,7 @@ class PushNotificationService
         $notif->sendToDatabase($recipients);
 
         self::sendFcmBatch($recipients->all(), $title, $body, $data);
+        self::sendWebPushBatch($recipients->all(), $title, $body, (string) ($data['url'] ?? '/mobile/dashboard'));
     }
 
     /**
@@ -122,6 +125,44 @@ class PushNotificationService
                 }
             } catch (\Throwable $e) {
                 Log::warning('FCM send failed: ' . $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * Kirim Web Push (VAPID) ke perangkat PWA yang sudah berlangganan.
+     *
+     * @param  array<int, User>  $recipients
+     */
+    private static function sendWebPushBatch(array $recipients, string $title, string $body, string $url = '/mobile/dashboard'): void
+    {
+        if (! config('webpush.vapid.public_key') || $recipients === []) {
+            return;
+        }
+
+        $recipientIds = array_map(fn (User $u) => $u->id, $recipients);
+        $subscribedIds = DB::table('push_subscriptions')
+            ->where('subscribable_type', User::class)
+            ->whereIn('subscribable_id', $recipientIds)
+            ->distinct()
+            ->pluck('subscribable_id')
+            ->all();
+
+        if ($subscribedIds === []) {
+            return;
+        }
+
+        $subscribedMap = array_flip($subscribedIds);
+
+        foreach ($recipients as $user) {
+            if (! isset($subscribedMap[$user->id])) {
+                continue;
+            }
+
+            try {
+                $user->notify(new WebPushNotification($title, $body, $url));
+            } catch (\Throwable $e) {
+                Log::warning('WebPush batch send failed: ' . $e->getMessage());
             }
         }
     }
