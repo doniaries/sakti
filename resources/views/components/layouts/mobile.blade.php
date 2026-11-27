@@ -6,17 +6,21 @@
     <title>{{ $title ?? 'SAKTI Mobile' }}</title>
     
     <!-- PWA Setup -->
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}?v=2">
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v=2">
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=2">
-    <link rel="manifest" href="{{ asset('manifest.json') }}?v=2">
+    @php
+        $pwaIconVer = @filemtime(public_path('icons/icon-192x192.png')) ?: time();
+        $faviconVer = @filemtime(public_path('favicon.png')) ?: time();
+    @endphp
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}?v={{ $pwaIconVer }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v={{ $faviconVer }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v={{ $faviconVer }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}?v={{ $pwaIconVer }}">
     <meta name="theme-color" content="#1B6CA8">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="SAKTI Mobile">
-    <link rel="apple-touch-icon" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}?v=2">
-    <link rel="apple-touch-icon" sizes="512x512" href="{{ asset('icons/icon-512x512.png') }}?v=2">
+    <link rel="apple-touch-icon" sizes="192x192" href="{{ asset('icons/icon-192x192.png') }}?v={{ $pwaIconVer }}">
+    <link rel="apple-touch-icon" sizes="512x512" href="{{ asset('icons/icon-512x512.png') }}?v={{ $pwaIconVer }}">
     
     <!-- Fonts & CSS -->
     @if (app()->environment('local') && file_exists(public_path('hot')))
