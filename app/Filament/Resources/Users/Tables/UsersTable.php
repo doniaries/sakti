@@ -1117,16 +1117,13 @@ class UsersTable
                     ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian']) ?? false)
                     ->action(function (): void {
                         $targets = \App\Models\User::query()
+                            ->bukanSuperAdmin()
+                            ->with(['roles:id,name'])
+                            ->withCount(['riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])
                             ->where('aktif', true)
-                            ->where(function ($q) {
-                                $q->whereNull('nip')->orWhere('nip', '')
-                                    ->orWhereNull('nik')->orWhere('nik', '')
-                                    ->orWhereNull('no_hp')->orWhere('no_hp', '')
-                                    ->orWhereNull('bidang_id')
-                                    ->orWhereNull('jabatan_id')
-                                    ->orWhereNull('status_kepegawaian');
-                            })
-                            ->get();
+                            ->get()
+                            ->filter(fn (\App\Models\User $u): bool => ! empty($u->missingKepegawaianFields()))
+                            ->values();
 
                         if ($targets->isEmpty()) {
                             Notification::make()->title('Semua pegawai sudah melengkapi data.')->success()->send();

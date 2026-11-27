@@ -58,10 +58,29 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
      */
     public function missingKepegawaianFields(): array
     {
+        $statusVal = $this->status_kepegawaian instanceof StatusKepegawaian
+            ? $this->status_kepegawaian->value
+            : (string) ($this->status_kepegawaian ?? '');
+        $isKontrak = $statusVal === StatusKepegawaian::KONTRAK->value;
+        $isKepalaDinas = $this->hasAnyRole(['pa', 'kepala_dinas']);
+
         $fields = [
             'nip' => 'NIP',
             'nik' => 'NIK',
+            'no_kk' => 'No. KK',
             'no_hp' => 'No. HP',
+            'email_resmi' => 'Email Resmi',
+            'tempat_lahir' => 'Tempat Lahir',
+            'tanggal_lahir' => 'Tanggal Lahir',
+            'jenis_kelamin' => 'Jenis Kelamin',
+            'agama' => 'Agama',
+            'alamat' => 'Alamat',
+            'pangkat_golongan' => 'Pangkat/Golongan',
+            'tmt_pangkat' => 'TMT Pangkat',
+            'jenjang_pendidikan' => 'Jenjang Pendidikan',
+            'pendidikan' => 'Pendidikan',
+            'no_bpjs' => 'No. BPJS',
+            'npwp' => 'NPWP',
             'bidang_id' => 'Bidang',
             'jabatan_id' => 'Jabatan',
             'status_kepegawaian' => 'Status Kepegawaian',
@@ -69,9 +88,25 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
 
         $missing = [];
         foreach ($fields as $column => $label) {
+            if ($isKontrak && in_array($column, ['nip', 'pangkat_golongan', 'tmt_pangkat'], true)) {
+                continue;
+            }
+            if ($isKepalaDinas && $column === 'bidang_id') {
+                continue;
+            }
             if (blank($this->{$column})) {
                 $missing[] = $label;
             }
+        }
+
+        if (! $isKontrak && array_key_exists('riwayat_golongan_count', $this->attributes) && (int) $this->riwayat_golongan_count === 0) {
+            $missing[] = 'Riwayat Pangkat/Golongan';
+        }
+        if (array_key_exists('riwayat_jabatan_count', $this->attributes) && (int) $this->riwayat_jabatan_count === 0) {
+            $missing[] = 'Riwayat Jabatan';
+        }
+        if (array_key_exists('riwayat_pendidikan_count', $this->attributes) && (int) $this->riwayat_pendidikan_count === 0) {
+            $missing[] = 'Riwayat Pendidikan';
         }
 
         return $missing;

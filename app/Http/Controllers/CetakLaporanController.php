@@ -159,18 +159,14 @@ class CetakLaporanController extends Controller
 
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $pegawais = \App\Models\User::query()
-            ->with(['bidang:id,nama', 'jabatan:id,nama'])
+            ->bukanSuperAdmin()
+            ->with(['bidang:id,nama', 'jabatan:id,nama', 'roles:id,name'])
+            ->withCount(['riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])
             ->where('aktif', true)
-            ->where(function ($q) {
-                $q->whereNull('nip')->orWhere('nip', '')
-                    ->orWhereNull('nik')->orWhere('nik', '')
-                    ->orWhereNull('no_hp')->orWhere('no_hp', '')
-                    ->orWhereNull('bidang_id')
-                    ->orWhereNull('jabatan_id')
-                    ->orWhereNull('status_kepegawaian');
-            })
             ->orderBy('name')
-            ->get();
+            ->get()
+            ->filter(fn (\App\Models\User $p): bool => ! empty($p->missingKepegawaianFields()))
+            ->values();
 
         return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pegawai-belum-lengkap', [
             'pegawais' => $pegawais,
