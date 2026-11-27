@@ -1,21 +1,42 @@
 <div class="p-4 pb-28 flex flex-col min-h-[calc(100vh-100px)] space-y-3.5 text-zinc-900 dark:text-zinc-100" x-data="absensiApp()">
     <!-- Hero Biru Gradient Melengkung + Kartu Mengambang -->
     <section class="-mx-4 -mt-4"
-        x-data="{ 
-            time: '--:--:--',
+        x-data="{
+            hh: '--',
+            mm: '--',
+            ss: '--',
+            blink: true,
             clockTimer: null,
+            simJam: @js($modeSimulasi && !empty($simulasiJamAktif) ? substr($simulasiJamAktif, 0, 5) : null),
             initClock() {
                 const pad = (n) => String(n).padStart(2, '0');
                 const update = () => {
                     const d = new Date();
-                    this.time = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+                    if (this.simJam) {
+                        const parts = this.simJam.split(':');
+                        this.hh = parts[0] ?? '00';
+                        this.mm = parts[1] ?? '00';
+                    } else {
+                        this.hh = pad(d.getHours());
+                        this.mm = pad(d.getMinutes());
+                    }
+                    this.ss = pad(d.getSeconds());
+                    this.blink = !this.blink;
                 };
                 update();
                 clearInterval(this.clockTimer);
                 this.clockTimer = setInterval(update, 1000);
+                this.$watch('$wire.simulasiJamAktif', (val) => {
+                    this.simJam = ($wire.modeSimulasi && val) ? String(val).slice(0, 5) : null;
+                    update();
+                });
+                this.$watch('$wire.modeSimulasi', (val) => {
+                    this.simJam = (val && $wire.simulasiJamAktif) ? String($wire.simulasiJamAktif).slice(0, 5) : null;
+                    update();
+                });
                 document.addEventListener('livewire:navigating', () => clearInterval(this.clockTimer), { once: true });
             }
-        }" 
+        }"
         x-init="initClock()">
 
         <div class="relative overflow-hidden rounded-b-[28px] bg-gradient-to-br from-[#0F172A] via-[#0369A1] to-[#0284C7] px-5 pt-5 pb-12 text-white shadow-lg shadow-sky-950/20">
@@ -46,11 +67,14 @@
         <!-- Row 1: Live Clock (Tengah & Besar), Jadwal Kerja & Jarak -->
         <div class="flex flex-col items-center text-center gap-2 py-1">
             <div class="flex items-baseline justify-center gap-1.5">
-                @if ($modeSimulasi && !empty($simulasiJamAktif))
-                    <span class="text-4xl md:text-5xl font-black font-mono tracking-tight text-amber-600 dark:text-amber-400 leading-none">{{ $simulasiJamAktif }}:00</span>
-                @else
-                    <span class="text-4xl md:text-5xl font-black font-mono tracking-tight text-zinc-900 dark:text-white leading-none" x-text="time">--:--:--</span>
-                @endif
+                <div class="flex items-center text-4xl md:text-5xl font-black font-mono tracking-tight leading-none tabular-nums"
+                    :class="simJam ? 'text-amber-600 dark:text-amber-400' : 'text-zinc-900 dark:text-white'">
+                    <span x-text="hh">--</span>
+                    <span class="transition-opacity duration-300" :class="blink ? 'opacity-100' : 'opacity-20'">:</span>
+                    <span x-text="mm">--</span>
+                    <span class="transition-opacity duration-300" :class="blink ? 'opacity-100' : 'opacity-20'">:</span>
+                    <span x-text="ss">--</span>
+                </div>
                 <span class="text-xs md:text-sm font-extrabold text-zinc-400 font-mono">WIB</span>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-2">
