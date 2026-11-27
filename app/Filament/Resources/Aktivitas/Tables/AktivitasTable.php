@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Aktivitas\Tables;
 
 use App\Models\Aktivitas;
 use App\Models\Bidang;
+use App\Models\RencanaAksi;
 use App\Models\User;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
@@ -11,6 +12,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
@@ -246,6 +248,123 @@ class AktivitasTable
                         })
                         ->deselectRecordsAfterCompletion(),
 
+                    BulkAction::make('pindahKategori')
+                        ->label('Pindah Kategori / Rencana Aksi')
+                        ->icon('heroicon-o-arrows-right-left')
+                        ->color('warning')
+                        ->modalHeading('Pindah Kategori Bank Aktivitas')
+                        ->modalDescription('Pindahkan aktivitas yang dipilih ke kategori Umum/Global, Bidang/Pegawai, atau Tim Kreatif.')
+                        ->modalWidth('xl')
+                        ->form([
+                            Radio::make('target_kategori')
+                                ->label('Kategori Tujuan')
+                                ->options([
+                                    'global' => 'Umum / Global (Semua Pegawai)',
+                                    'bidang' => 'Per Bidang / Pegawai',
+                                    'tim_kreatif' => 'Tim Kreatif (Tugas Tambahan)',
+                                ])
+                                ->default('bidang')
+                                ->inline()
+                                ->live()
+                                ->required(),
+
+                            Select::make('bidang_id')
+                                ->label('Bidang Tujuan (Opsional)')
+                                ->options(fn () => Bidang::orderBy('nama')->pluck('nama', 'id')->all())
+                                ->placeholder('Pertahankan bidang saat ini')
+                                ->searchable()
+                                ->live()
+                                ->visible(fn (Get $get): bool => $get('target_kategori') === 'bidang'),
+
+                            Select::make('user_id')
+                                ->label('Pegawai Pemilik (Opsional)')
+                                ->options(function (Get $get): array {
+                                    $kategori = $get('target_kategori');
+                                    $bidangId = $get('bidang_id');
+
+                                    return User::query()
+                                        ->where('aktif', true)
+                                        ->when($kategori === 'tim_kreatif', fn ($q) => $q->whereNotNull('jabatan_tim_kreatif'))
+                                        ->when($kategori === 'bidang' && $bidangId, fn ($q) => $q->where('bidang_id', (int) $bidangId))
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id')
+                                        ->all();
+                                })
+                                ->placeholder('Pertahankan pegawai saat ini')
+                                ->searchable()
+                                ->nullable()
+                                ->helperText('Kosongkan jika hanya ingin mengubah bidang atau Rencana Aksi tanpa mengganti pegawai.')
+                                ->visible(fn (Get $get): bool => in_array($get('target_kategori'), ['bidang', 'tim_kreatif'], true)),
+
+                            Select::make('rencana_aksi_id')
+                                ->label('Rencana Aksi / Sub Kegiatan')
+                                ->options(function (Get $get): array {
+                                    $kategori = $get('target_kategori');
+                                    $bidangId = $get('bidang_id');
+
+                                    return RencanaAksi::query()
+                                        ->when(
+                                            $kategori === 'tim_kreatif',
+                                            fn ($q) => $q->where('sasaran_sub_kegiatan', 'Tugas Tambahan'),
+                                            fn ($q) => $q->where('sasaran_sub_kegiatan', '!=', 'Tugas Tambahan')
+                                                ->when($bidangId, fn ($b) => $b->where('bidang_id', (int) $bidangId))
+                                        )
+                                        ->orderBy('sasaran_sub_kegiatan')
+                                        ->orderBy('rencana_aksi')
+                                        ->get(['id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
+                                        ->mapWithKeys(fn (RencanaAksi $ra): array => [
+                                            $ra->id => '[' . strtoupper((string) ($ra->level ?? '-')) . '] ' . ($ra->sasaran_sub_kegiatan ?: 'Umum') . ' — ' . $ra->rencana_aksi,
+                                        ])
+                                        ->all();
+                                })
+                                ->placeholder('Pilih Rencana Aksi tujuan (opsional)')
+                                ->searchable()
+                                ->nullable()
+                                ->visible(fn (Get $get): bool => in_array($get('target_kategori'), ['bidang', 'tim_kreatif'], true)),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            $kategori = $data['target_kategori'] ?? 'bidang';
+                            $pegawai = ! empty($data['user_id']) ? User::find((int) $data['user_id']) : null;
+                            $bidangId = ! empty($data['bidang_id']) ? (int) $data['bidang_id'] : null;
+                            $rencanaAksiId = ! empty($data['rencana_aksi_id']) ? (int) $data['rencana_aksi_id'] : null;
+
+                            foreach ($records as $record) {
+                                if ($kategori === 'global') {
+                                    $record->update([
+                                        'user_id' => null,
+                                        'jabatan_id' => null,
+                                        'bidang_id' => null,
+                                        'rencana_aksi_id' => null,
+                                    ]);
+                                    continue;
+                                }
+
+                                $updates = [];
+                                if ($pegawai) {
+                                    $updates['user_id'] = $pegawai->id;
+                                    $updates['jabatan_id'] = $pegawai->jabatan_id;
+                                    $updates['bidang_id'] = $pegawai->bidang_id;
+                                } elseif ($bidangId) {
+                                    $updates['bidang_id'] = $bidangId;
+                                }
+
+                                if ($rencanaAksiId) {
+                                    $updates['rencana_aksi_id'] = $rencanaAksiId;
+                                }
+
+                                if ($updates !== []) {
+                                    $record->update($updates);
+                                }
+                            }
+
+                            Notification::make()
+                                ->title('Kategori Aktivitas Diperbarui')
+                                ->body($records->count() . ' item Bank Aktivitas berhasil dipindahkan.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     BulkAction::make('jadikanGlobal')
                         ->label('Jadikan Global (Semua Pegawai)')
                         ->icon('heroicon-o-globe-alt')
@@ -259,6 +378,7 @@ class AktivitasTable
                                     'user_id' => null,
                                     'jabatan_id' => null,
                                     'bidang_id' => null,
+                                    'rencana_aksi_id' => null,
                                 ]);
                             }
 
