@@ -143,7 +143,6 @@ class Riwayat extends Component
         $cetakAll = ($this->cetakBulan === $this->bulan && $this->cetakTahun === $this->tahun)
             ? $allBulanIni
             : AbsensiHarian::where('user_id', $userId)
-                ->where('is_simulasi', false)
                 ->whereMonth('tanggal', $this->cetakBulan)
                 ->whereYear('tanggal', $this->cetakTahun)
                 ->orderBy('tanggal', 'asc')
@@ -156,10 +155,38 @@ class Riwayat extends Component
                 'terlambat' => $st === 'terlambat',
                 'dinas_luar' => in_array($st, ['dinas_luar', 'dl'], true),
                 'izin_sakit' => in_array($st, ['izin', 'sakit'], true),
+                'cuti' => $st === 'cuti',
                 'tidak_hadir' => in_array($st, ['tidak_hadir', 'alpa'], true),
                 default => true,
             };
         })->sortBy('tanggal')->values();
+
+        if ($this->cetakStatus === 'tidak_hadir') {
+            $existingDates = $cetakAll
+                ->map(fn (AbsensiHarian $a) => Carbon::parse($a->tanggal)->toDateString())
+                ->flip();
+
+            $start = Carbon::createFromDate($this->cetakTahun, $this->cetakBulan, 1)->startOfDay();
+            $end = $start->copy()->endOfMonth();
+            $today = Carbon::today();
+            if ($end->greaterThan($today)) {
+                $end = $today;
+            }
+
+            for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
+                $dateStr = $day->toDateString();
+                if (! $day->isWeekend() && ! \App\Models\HariLibur::isHariLibur($day) && ! $existingDates->has($dateStr)) {
+                    $cetakFiltered->push((object) [
+                        'tanggal' => $dateStr,
+                        'jam_masuk' => null,
+                        'jam_pulang' => null,
+                        'status' => 'alpa',
+                    ]);
+                }
+            }
+
+            $cetakFiltered = $cetakFiltered->sortBy('tanggal')->values();
+        }
 
         $cetakRekap = [
             'total' => $cetakAll->count(),
@@ -167,6 +194,7 @@ class Riwayat extends Component
             'terlambat' => $cetakAll->filter(fn ($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
             'dinas_luar' => $cetakAll->filter(fn ($a) => in_array($a->status?->value ?? $a->status, ['dinas_luar', 'dl'], true))->count(),
             'izin_sakit' => $cetakAll->filter(fn ($a) => in_array($a->status?->value ?? $a->status, ['izin', 'sakit'], true))->count(),
+            'cuti' => $cetakAll->filter(fn ($a) => ($a->status?->value ?? $a->status) === 'cuti')->count(),
             'alpa' => $cetakAll->filter(fn ($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa'], true))->count(),
         ];
 

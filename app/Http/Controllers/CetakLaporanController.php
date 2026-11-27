@@ -30,7 +30,6 @@ class CetakLaporanController extends Controller
         $status = $request->query('status', 'semua');
 
         $query = AbsensiHarian::where('user_id', $user->id)
-            ->where('is_simulasi', false)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun);
 
@@ -48,8 +47,38 @@ class CetakLaporanController extends Controller
 
         $riwayat = $query->orderBy('tanggal', 'asc')->get();
 
+        if ($status === 'tidak_hadir') {
+            $existingDates = AbsensiHarian::where('user_id', $user->id)
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
+                ->pluck('tanggal')
+                ->map(fn ($d) => Carbon::parse($d)->toDateString())
+                ->flip();
+
+            $start = Carbon::createFromDate((int) $tahun, (int) $bulan, 1)->startOfDay();
+            $end = $start->copy()->endOfMonth();
+            $today = Carbon::today();
+            if ($end->greaterThan($today)) {
+                $end = $today;
+            }
+
+            for ($day = $start->copy(); $day->lte($end); $day->addDay()) {
+                $dateStr = $day->toDateString();
+                if (! $day->isWeekend() && ! \App\Models\HariLibur::isHariLibur($day) && ! $existingDates->has($dateStr)) {
+                    $riwayat->push((object) [
+                        'tanggal' => $dateStr,
+                        'jam_masuk' => null,
+                        'jam_pulang' => null,
+                        'status' => 'alpa',
+                        'keterangan' => 'Tidak ada catatan absensi',
+                    ]);
+                }
+            }
+
+            $riwayat = $riwayat->sortBy('tanggal')->values();
+        }
+
         $allBulanIni = AbsensiHarian::where('user_id', $user->id)
-            ->where('is_simulasi', false)
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->get();
@@ -60,6 +89,7 @@ class CetakLaporanController extends Controller
             'terlambat' => $allBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
             'dinas_luar' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['dinas_luar', 'dl']))->count(),
             'izin_sakit' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['izin', 'sakit']))->count(),
+            'cuti' => $allBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'cuti')->count(),
             'alpa' => $allBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa']))->count(),
         ];
 
@@ -67,7 +97,14 @@ class CetakLaporanController extends Controller
         $pengaturan = PengaturanAplikasi::getPengaturan();
         $periode = Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
 
-        return view('cetak.riwayat-pdf', compact('user', 'riwayat', 'rekap', 'pengaturan', 'instansi', 'periode', 'status'));
+        if ($request->boolean('html')) {
+            return view('cetak.riwayat-pdf', compact('user', 'riwayat', 'rekap', 'pengaturan', 'instansi', 'periode', 'status'));
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.riwayat-absensi', compact('user', 'riwayat', 'rekap', 'pengaturan', 'instansi', 'periode', 'status'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream("rekap-absensi-{$tahun}-{$bulan}.pdf");
     }
 
     public function verifikasiIzin(Request $request, ?string $kode = null)

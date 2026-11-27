@@ -441,6 +441,7 @@
                         <option value="terlambat">Terlambat</option>
                         <option value="dinas_luar">Dinas Luar</option>
                         <option value="izin_sakit">Izin &amp; Sakit</option>
+                        <option value="cuti">Cuti</option>
                         <option value="tidak_hadir">Alpa</option>
                     </select>
                 </div>
@@ -463,7 +464,7 @@
                     </span>
                 </div>
 
-                <div class="grid grid-cols-5 gap-1.5 text-center">
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-center">
                     <div class="rounded-xl bg-emerald-50 dark:bg-emerald-500/10 py-1.5 px-1">
                         <div class="text-xs font-black text-emerald-700 dark:text-emerald-300">{{ $cetakPreview['rekap']['hadir'] }}</div>
                         <div class="text-[10px] font-bold text-emerald-600">Hadir</div>
@@ -479,6 +480,10 @@
                     <div class="rounded-xl bg-indigo-50 dark:bg-indigo-500/10 py-1.5 px-1">
                         <div class="text-xs font-black text-indigo-700 dark:text-indigo-300">{{ $cetakPreview['rekap']['izin_sakit'] }}</div>
                         <div class="text-[10px] font-bold text-indigo-600">Izin</div>
+                    </div>
+                    <div class="rounded-xl bg-purple-50 dark:bg-purple-500/10 py-1.5 px-1">
+                        <div class="text-xs font-black text-purple-700 dark:text-purple-300">{{ $cetakPreview['rekap']['cuti'] }}</div>
+                        <div class="text-[10px] font-bold text-purple-600">Cuti</div>
                     </div>
                     <div class="rounded-xl bg-rose-50 dark:bg-rose-500/10 py-1.5 px-1">
                         <div class="text-xs font-black text-rose-700 dark:text-rose-300">{{ $cetakPreview['rekap']['alpa'] }}</div>
@@ -532,7 +537,7 @@
                     class="py-2.5 px-3 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-slate-100 font-bold text-xs cursor-pointer transition">
                     Tutup
                 </button>
-                <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $cetakBulan, 'tahun' => $cetakTahun, 'status' => $cetakStatus], false) }}"
+                <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $cetakBulan, 'tahun' => $cetakTahun, 'status' => $cetakStatus, 'pdf' => 1], false) }}"
                     target="_blank"
                     class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
                     <i class="fa-solid fa-print"></i>
