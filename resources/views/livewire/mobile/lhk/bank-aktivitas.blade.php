@@ -1,100 +1,87 @@
-<div class="p-5 pb-28 relative min-h-screen" x-data="{
+<div class="p-4 sm:p-5 pb-28 relative min-h-screen" x-data="{
     formModalOpen: @entangle('showFormModal'),
-    bulkModalOpen: @entangle('showBulkModal'),
 }">
-    <div class="flex items-center justify-between gap-2 mb-5">
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-3 mb-4">
         <div class="flex items-center min-w-0">
             <a href="{{ route('mobile.lhk.index') }}" wire:navigate
                 class="mr-3 w-9 h-9 rounded-xl bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-sky-600 transition shrink-0">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
             </a>
             <div class="min-w-0">
-                <h1 class="text-lg md:text-2xl font-extrabold text-slate-800 dark:text-white tracking-tight truncate">
+                <h1 class="text-lg font-extrabold text-slate-800 dark:text-white tracking-tight truncate">
                     Bank Aktivitas Saya</h1>
-                <p class="text-[13px] md:text-sm text-slate-500 dark:text-slate-400 truncate">Daftar aktivitas pribadi
-                    untuk pengisian LHK</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">Daftar aktivitas untuk pengisian LHK</p>
             </div>
         </div>
-    </div>
-
-    <!-- Info Global vs Bidang / Tim Kreatif + Widget Jumlah -->
-    <div class="grid grid-cols-2 gap-2.5 mb-3">
-        <div
-            class="rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/30 p-3">
-            <div class="text-xs md:text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
-                Aktivitas Global</div>
-            <div class="text-lg md:text-2xl font-black text-indigo-900 dark:text-white mt-0.5">{{ $globalCount ?? 0 }}
-            </div>
-        </div>
-        <div
-            class="rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 p-3">
-            <div class="text-xs md:text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">
-                Bidang &amp; Tim Kreatif</div>
-            <div class="text-lg md:text-2xl font-black text-amber-900 dark:text-white mt-0.5">{{ $spesifikCount ?? 0 }}
-            </div>
-        </div>
-    </div>
-    <div
-        class="mb-4 rounded-2xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/70 dark:border-sky-500/30 px-3.5 py-2.5 text-[13px] md:text-sm text-sky-800 dark:text-sky-200 leading-relaxed">
-        <i class="fa-solid fa-circle-info mr-1 text-sky-600 dark:text-sky-400"></i>
-        Aktivitas <strong>Global</strong> dapat dipilih oleh seluruh pegawai. Aktivitas <strong>Bidang</strong> dan
-        <strong>Tim Kreatif</strong> diisi sesuai tugas masing-masing pegawai.
-    </div>
-
-    <!-- Action Bar: Tambah & Tempel Massal -->
-    <div class="grid grid-cols-2 gap-2.5 mb-4">
         <button type="button" x-on:click="formModalOpen = true; $wire.openCreate()"
-            class="py-2.5 px-3 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer">
-            <i class="fa-solid fa-plus"></i>
-            <span>Tambah Aktivitas</span>
-        </button>
-        <button type="button" x-on:click="bulkModalOpen = true; $wire.openBulk()"
-            class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer">
-            <i class="fa-solid fa-paste"></i>
-            <span>Tempel / Impor</span>
+            class="shrink-0 px-3.5 py-2 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer">
+            <i class="fa-solid fa-plus text-[11px]"></i>
+            <span>Tambah</span>
         </button>
     </div>
 
-    <!-- Search -->
-    <div class="mb-3 relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-        <input type="text" wire:model.live.debounce.250ms="search" placeholder="Cari uraian aktivitas..."
-            class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-xs text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500">
+    <!-- Ringkasan Jumlah -->
+    <div class="grid grid-cols-2 gap-2.5 mb-4">
+        <div class="rounded-2xl bg-indigo-50/90 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/30 px-3.5 py-2.5 flex items-center justify-between">
+            <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">Global</div>
+                <div class="text-xl font-black text-indigo-950 dark:text-white leading-tight mt-0.5">{{ $globalCount ?? 0 }}</div>
+            </div>
+            <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-500/25 text-indigo-600 dark:text-indigo-300 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-globe"></i>
+            </div>
+        </div>
+        <div class="rounded-2xl bg-amber-50/90 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 px-3.5 py-2.5 flex items-center justify-between">
+            <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Bidang &amp; Tim</div>
+                <div class="text-xl font-black text-amber-950 dark:text-white leading-tight mt-0.5">{{ $spesifikCount ?? 0 }}</div>
+            </div>
+            <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-500/25 text-amber-700 dark:text-amber-300 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+        </div>
     </div>
 
-    <!-- Tab Filter Sub Kegiatan -->
-    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 no-scrollbar">
-        <button type="button" wire:click="$set('filterSubKegiatan', 'semua')"
-            class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'semua' ? 'bg-sky-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-            Semua
-        </button>
-        <button type="button" wire:click="$set('filterSubKegiatan', 'global')"
-            class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'global' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-            Umum ({{ $globalCount ?? 0 }})
-        </button>
-        <button type="button" wire:click="$set('filterSubKegiatan', 'bidang')"
-            class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'bidang' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-            {{ $userBidangNama ?: 'Bidang' }} ({{ $bidangCount ?? 0 }})
-        </button>
-        @if ($isTimKreatif ?? false)
-            <button type="button" wire:click="$set('filterSubKegiatan', 'tim_kreatif')"
-                class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'tim_kreatif' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-                Tim Kreatif ({{ $timKreatifCount ?? 0 }})
+    <!-- Pencarian & Filter -->
+    <div class="space-y-2.5 mb-4">
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" wire:model.live.debounce.250ms="search" placeholder="Cari uraian aktivitas..."
+                class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-xs text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500">
+        </div>
+
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 no-scrollbar">
+            <button type="button" wire:click="$set('filterSubKegiatan', 'semua')"
+                class="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer {{ $filterSubKegiatan === 'semua' ? 'bg-sky-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+                Semua
             </button>
-        @endif
-    </div>
+            <button type="button" wire:click="$set('filterSubKegiatan', 'global')"
+                class="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer {{ $filterSubKegiatan === 'global' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+                Umum ({{ $globalCount ?? 0 }})
+            </button>
+            <button type="button" wire:click="$set('filterSubKegiatan', 'bidang')"
+                class="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer {{ $filterSubKegiatan === 'bidang' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+                {{ $userBidangNama ?: 'Bidang' }} ({{ $bidangCount ?? 0 }})
+            </button>
+            @if ($isTimKreatif ?? false)
+                <button type="button" wire:click="$set('filterSubKegiatan', 'tim_kreatif')"
+                    class="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer {{ $filterSubKegiatan === 'tim_kreatif' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+                    Tim Kreatif ({{ $timKreatifCount ?? 0 }})
+                </button>
+            @endif
+        </div>
 
-    @if ($subKegiatanList->isNotEmpty() && $filterSubKegiatan !== 'global')
-        <div class="mb-3">
+        @if ($subKegiatanList->isNotEmpty() && $filterSubKegiatan !== 'global')
             <select wire:model.live="selectedSubKegiatan"
-                class="w-full rounded-xl px-3 py-2 text-xs font-semibold bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500">
+                class="w-full rounded-xl px-3 py-2.5 text-xs font-semibold bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500">
                 <option value="">Semua Sub Kegiatan ({{ $bidangCount ?? 0 }})</option>
                 @foreach ($subKegiatanList as $subKeg => $subCount)
                     <option value="{{ $subKeg }}">{{ $subKeg }} ({{ $subCount }})</option>
                 @endforeach
             </select>
-        </div>
-    @endif
+        @endif
+    </div>
 
     @if ($myAktivitas->isEmpty())
         <div
@@ -334,38 +321,6 @@
                 class="w-full py-3 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
                 <i wire:loading wire:target="saveItem" class="fa-solid fa-spinner fa-spin"></i>
                 <span>Simpan Aktivitas</span>
-            </button>
-        </x-slot:footer>
-    </x-mobile.rhoe-modal>
-
-    <!-- MODAL TEMPEL / IMPOR MASSAL (Reusable Rhoe Modal) -->
-    <x-mobile.rhoe-modal model="bulkModalOpen" title="Tempel / Impor Bank Aktivitas"
-        subtitle="Copy-paste langsung dari tabel bankaktifitas.html atau Excel" maxWidth="max-w-[408px]">
-        <div class="space-y-4">
-            <div>
-                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi Default (jika
-                    tanpa angka menit)</label>
-                <input type="number" min="1" wire:model="bulkDefaultMenit"
-                    class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
-            </div>
-
-            <div>
-                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tempel Baris
-                    Aktivitas</label>
-                <textarea rows="7" wire:model="bulkRaw"
-                    placeholder="1&#9;Mengikuti Apel Pagi&#9;30&#10;2&#9;Memimpin rapat/FGD&#9;180"
-                    class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 font-mono"></textarea>
-                @error('bulkRaw')
-                    <span class="text-rose-500 text-xs">{{ $message }}</span>
-                @enderror
-            </div>
-        </div>
-
-        <x-slot:footer>
-            <button type="button" wire:click="importBulk" wire:loading.attr="disabled"
-                class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
-                <i wire:loading wire:target="importBulk" class="fa-solid fa-spinner fa-spin"></i>
-                <span>Proses & Simpan ke Bank Aktivitas Saya</span>
             </button>
         </x-slot:footer>
     </x-mobile.rhoe-modal>

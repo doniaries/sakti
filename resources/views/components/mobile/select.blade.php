@@ -42,7 +42,7 @@
     @keydown.escape.window="open = false"
     class="relative w-full">
     <button type="button"
-        @click="open = !open; if (open) { $nextTick(() => $refs.searchInput?.focus()); }"
+        @click="open = !open; if (open) { $nextTick(() => $refs.searchInput?.focus({ preventScroll: true })); }"
         class="w-full flex items-center justify-between gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#132338] px-3.5 py-3 text-left text-sm text-slate-800 dark:text-slate-100 shadow-2xs hover:border-sky-400 dark:hover:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 transition cursor-pointer">
         <span class="leading-snug line-clamp-2 {{ $currentVal === '' && ! $emptyLabel ? 'text-slate-400 dark:text-slate-500' : 'font-medium' }}">
             {{ $selectedLabel }}
@@ -96,7 +96,7 @@
             @endif
         </div>
 
-        <div class="max-h-64 overflow-y-auto divide-y divide-slate-100/70 dark:divide-slate-800/70">
+        <div class="max-h-52 overflow-y-auto overscroll-contain divide-y divide-slate-100/70 dark:divide-slate-800/70">
             @if ($emptyLabel)
                 <button type="button"
                     x-show="matches(@js($emptyLabel))"
