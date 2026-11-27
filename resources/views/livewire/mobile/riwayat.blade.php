@@ -164,6 +164,8 @@
                         $jumlahKegiatan = $lhkItem?->pekerjaans_count ?? 0;
                         $menitKerjaHarian = $item->hitungMenitKerjaEfektif();
                         $durasiKerjaHarian = \App\Models\AbsensiHarian::formatDurasiJamMenit($menitKerjaHarian);
+                        $isHariIni = $item->tanggal ? \Carbon\Carbon::parse($item->tanggal)->isToday() : false;
+                        $lupaAbsenPulang = ! $isHariIni && ! empty($item->jam_masuk) && empty($item->jam_pulang) && in_array($status, ['hadir', 'terlambat'], true);
                         $bisaIsiLhk =
                             $tglKey &&
                             (!empty($item->log_masuk_id) ||
@@ -251,12 +253,20 @@
                             <div
                                 class="flex items-center justify-between pt-2 border-t border-slate-100/80 dark:border-slate-700/60 gap-2">
                                 <div class="flex items-center flex-wrap gap-x-2.5 gap-y-1">
-                                    <span
-                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-bold {{ $menitKerjaHarian >= \App\Models\AbsensiHarian::TARGET_MENIT_HARIAN_ASN ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : ($menitKerjaHarian > 0 ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
-                                        <i class="fa-regular fa-clock text-[11px]"></i>
-                                        {{ $menitKerjaHarian > 0 ? $durasiKerjaHarian : (!empty($item->jam_masuk) && empty($item->jam_pulang) ? 'Berjalan' : '0j 00m') }}
-                                        / 7j 30m
-                                    </span>
+                                    @if ($lupaAbsenPulang)
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+                                            <i class="fa-solid fa-triangle-exclamation text-[11px]"></i>
+                                            Tidak Absen Pulang (0j 00m)
+                                        </span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-bold {{ $menitKerjaHarian >= \App\Models\AbsensiHarian::TARGET_MENIT_HARIAN_ASN ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : ($menitKerjaHarian > 0 ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
+                                            <i class="fa-regular fa-clock text-[11px]"></i>
+                                            {{ $menitKerjaHarian > 0 ? $durasiKerjaHarian : ($isHariIni && !empty($item->jam_masuk) && empty($item->jam_pulang) ? 'Berjalan' : '0j 00m') }}
+                                            / 7j 30m
+                                        </span>
+                                    @endif
                                     <span
                                         class="text-[13px] font-semibold {{ $jumlahKegiatan > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400' }}">
                                         <i class="fa-solid fa-file-lines mr-1"></i>
