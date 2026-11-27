@@ -156,7 +156,7 @@ class BezetingPegawaiSeeder extends Seeder
                 RiwayatGolongan::updateOrCreate(
                     ['user_id' => $user->id, 'jenis_sk' => $isPppk ? 'pppk' : 'cpns'],
                     [
-                        'golongan' => GolonganRuang::tryFrom($gol)?->value ?? '-',
+                        'golongan' => $isCpnsLatest ? (GolonganRuang::tryFrom($gol)?->value ?? '-') : '-',
                         'tmt_golongan' => $tmtCpns,
                         'is_golongan_terakhir' => $isCpnsLatest,
                         'masa_kerja_tahun' => $isCpnsLatest ? $mkThn : null,
@@ -169,7 +169,7 @@ class BezetingPegawaiSeeder extends Seeder
                 RiwayatGolongan::updateOrCreate(
                     ['user_id' => $user->id, 'jenis_sk' => 'pns'],
                     [
-                        'golongan' => GolonganRuang::tryFrom($gol)?->value ?? '-',
+                        'golongan' => '-',
                         'tmt_golongan' => $tmtPns,
                         'is_golongan_terakhir' => false,
                     ]
