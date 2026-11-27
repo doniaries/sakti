@@ -1,8 +1,7 @@
-<div class="p-5 pb-28 relative min-h-screen"
-    x-data="{
-        formModalOpen: @entangle('showFormModal'),
-        bulkModalOpen: @entangle('showBulkModal'),
-    }">
+<div class="p-5 pb-28 relative min-h-screen" x-data="{
+    formModalOpen: @entangle('showFormModal'),
+    bulkModalOpen: @entangle('showBulkModal'),
+}">
     <div class="flex items-center justify-between gap-2 mb-5">
         <div class="flex items-center min-w-0">
             <a href="{{ route('mobile.lhk.index') }}" wire:navigate
@@ -115,87 +114,95 @@
             @foreach ($groupedAktivitas as $groupTitle => $items)
                 <div class="space-y-2">
                     <div class="flex items-center justify-between gap-2 px-1">
-                        <h4 class="text-[13px] font-extrabold uppercase tracking-wide text-slate-600 dark:text-slate-300 leading-snug">
+                        <h4
+                            class="text-[13px] font-extrabold uppercase tracking-wide text-slate-600 dark:text-slate-300 leading-snug">
                             {{ $groupTitle }}
                         </h4>
-                        <span class="shrink-0 px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold">
+                        <span
+                            class="shrink-0 px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold">
                             {{ $items->count() }}
                         </span>
                     </div>
                     <div class="space-y-2">
                         @foreach ($items as $item)
-                <div wire:key="bank-akt-{{ $item->id }}"
-                    class="bg-white dark:bg-[#132338]/90 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-xs space-y-2">
-                    <div class="flex items-start justify-between gap-2">
-                        <div class="flex items-center gap-2">
-                            @php
-                                $menitInt = (int) $item->menit;
-                                $durasiText =
-                                    $menitInt >= 60
-                                        ? (intdiv($menitInt, 60) > 0 && $menitInt % 60 > 0
-                                            ? "{$menitInt} mnt (" . intdiv($menitInt, 60) . 'j ' . $menitInt % 60 . 'm)'
-                                            : "{$menitInt} mnt (" . intdiv($menitInt, 60) . ' jam)')
-                                        : "{$menitInt} mnt";
-                                $durasiBadge = match (true) {
-                                    $menitInt >= 240
-                                        => 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
-                                    $menitInt >= 120
-                                        => 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
-                                    $menitInt >= 60 => 'bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
-                                    default
-                                        => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
-                                };
-                            @endphp
-                            <span class="px-2 py-0.5 rounded-md text-xs font-bold {{ $durasiBadge }}">
-                                {{ $durasiText }}
-                            </span>
-                            @if (is_null($item->user_id) && is_null($item->jabatan_id))
-                                <span
-                                    class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 text-xs font-bold">Global</span>
-                            @elseif ($item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')
-                                <span
-                                    class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-xs font-bold">Tim
-                                    Kreatif</span>
-                            @else
-                                <span
-                                    class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-xs font-bold truncate max-w-[140px]">{{ $item->bidang?->nama ?? 'Per Pegawai' }}</span>
-                            @endif
-                            @if ($item->bidang?->nama && $item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')
-                                <span
-                                    class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold truncate max-w-[120px]">{{ $item->bidang->nama }}</span>
-                            @endif
-                        </div>
-                        @if (
-                            ((int) $item->user_id === (int) auth()->id() && ($item->status ?? 'pending') !== 'disetujui') ||
-                                auth()->user()
-                                    ?->hasAnyRole(['super_admin', 'superadmin', 'admin']))
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" wire:click="openEdit({{ $item->id }})"
-                                    class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-sky-600 flex items-center justify-center text-xs transition"
-                                    title="Ubah">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button type="button"
-                                    @click.prevent="$dispatch('sakti-confirm', { message: 'Hapus aktivitas ini dari Bank Aktivitas Anda?', wireId: '{{ $this->getId() }}', method: 'deleteItem', params: [{{ $item->id }}] })"
-                                    class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-500 hover:text-rose-700 flex items-center justify-center text-xs transition"
-                                    title="Hapus">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
+                            <div wire:key="bank-akt-{{ $item->id }}"
+                                class="bg-white dark:bg-[#132338]/90 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-xs space-y-2">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex items-center gap-2">
+                                        @php
+                                            $menitInt = (int) $item->menit;
+                                            $durasiText =
+                                                $menitInt >= 60
+                                                    ? (intdiv($menitInt, 60) > 0 && $menitInt % 60 > 0
+                                                        ? "{$menitInt} mnt (" .
+                                                            intdiv($menitInt, 60) .
+                                                            'j ' .
+                                                            $menitInt % 60 .
+                                                            'm)'
+                                                        : "{$menitInt} mnt (" . intdiv($menitInt, 60) . ' jam)')
+                                                    : "{$menitInt} mnt";
+                                            $durasiBadge = match (true) {
+                                                $menitInt >= 240
+                                                    => 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
+                                                $menitInt >= 120
+                                                    => 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+                                                $menitInt >= 60
+                                                    => 'bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
+                                                default
+                                                    => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+                                            };
+                                        @endphp
+                                        <span class="px-2 py-0.5 rounded-md text-xs font-bold {{ $durasiBadge }}">
+                                            {{ $durasiText }}
+                                        </span>
+                                        @if (is_null($item->user_id) && is_null($item->jabatan_id))
+                                            <span
+                                                class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 text-xs font-bold">Global</span>
+                                        @elseif ($item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')
+                                            <span
+                                                class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-xs font-bold">Tim
+                                                Kreatif</span>
+                                        @else
+                                            <span
+                                                class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-xs font-bold truncate max-w-[140px]">{{ $item->bidang?->nama ?? 'Per Pegawai' }}</span>
+                                        @endif
+                                        @if ($item->bidang?->nama && $item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')
+                                            <span
+                                                class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold truncate max-w-[120px]">{{ $item->bidang->nama }}</span>
+                                        @endif
+                                    </div>
+                                    @if (
+                                        ((int) $item->user_id === (int) auth()->id() && ($item->status ?? 'pending') !== 'disetujui') ||
+                                            auth()->user()
+                                                ?->hasAnyRole(['super_admin', 'superadmin', 'admin']))
+                                        <div class="flex items-center gap-1.5">
+                                            <button type="button" wire:click="openEdit({{ $item->id }})"
+                                                class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-sky-600 flex items-center justify-center text-xs transition"
+                                                title="Ubah">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
+                                            <button type="button"
+                                                @click.prevent="$dispatch('sakti-confirm', { message: 'Hapus aktivitas ini dari Bank Aktivitas Anda?', wireId: '{{ $this->getId() }}', method: 'deleteItem', params: [{{ $item->id }}] })"
+                                                class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-500 hover:text-rose-700 flex items-center justify-center text-xs transition"
+                                                title="Hapus">
+                                                <i class="fa-solid fa-trash-can"></i>
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                                <p
+                                    class="text-xs md:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
+                                    {{ $item->nama_aktivitas }}
+                                </p>
+                                @if ($item->rencanaAksi?->sasaran_sub_kegiatan)
+                                    <div
+                                        class="text-xs md:text-xs font-medium text-teal-700 dark:text-teal-300 bg-teal-50/70 dark:bg-teal-500/10 rounded-lg px-2 py-1 inline-block">
+                                        <i
+                                            class="fa-solid fa-diagram-project mr-1"></i>{{ $item->rencanaAksi->sasaran_sub_kegiatan }}
+                                    </div>
+                                @endif
                             </div>
-                        @endif
-                    </div>
-                    <p class="text-xs md:text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
-                        {{ $item->nama_aktivitas }}
-                    </p>
-                    @if ($item->rencanaAksi?->sasaran_sub_kegiatan)
-                        <div
-                            class="text-xs md:text-xs font-medium text-teal-700 dark:text-teal-300 bg-teal-50/70 dark:bg-teal-500/10 rounded-lg px-2 py-1 inline-block">
-                            <i
-                                class="fa-solid fa-diagram-project mr-1"></i>{{ $item->rencanaAksi->sasaran_sub_kegiatan }}
-                        </div>
-                    @endif
-                </div>
-            @endforeach
+                        @endforeach
                     </div>
                 </div>
             @endforeach
@@ -203,14 +210,17 @@
     @endif
 
     <!-- MODAL TAMBAH / EDIT AKTIVITAS (Reusable Rhoe Modal) -->
-    <x-mobile.rhoe-modal
-        model="formModalOpen"
-        :title="$editingId ? 'Ubah Aktivitas' : 'Tambah Aktivitas Baru'"
-        maxWidth="max-w-[408px]">
+    <x-mobile.rhoe-modal model="formModalOpen" :title="$editingId ? 'Ubah Aktivitas' : 'Tambah Aktivitas Baru'" maxWidth="max-w-[408px]">
         <div class="space-y-4">
             @php
-                $canAddUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
-                $formatBidangLabel = static fn (string $nama): string => (str_starts_with(mb_strtolower($nama), 'bidang') || str_starts_with(mb_strtolower($nama), 'sekretariat'))
+                $canAddUmum =
+                    auth()
+                        ->user()
+                        ?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
+                $formatBidangLabel = static fn(string $nama): string => str_starts_with(
+                    mb_strtolower($nama),
+                    'bidang',
+                ) || str_starts_with(mb_strtolower($nama), 'sekretariat')
                     ? $nama
                     : 'Bidang ' . $nama;
 
@@ -222,7 +232,10 @@
                         $tipeOptions[] = ['value' => 'bidang:' . $b->id, 'label' => $formatBidangLabel($b->nama)];
                     }
                 } else {
-                    $tipeOptions[] = ['value' => 'khusus', 'label' => auth()->user()?->jabatan?->nama ?: 'Lingkup Dinas'];
+                    $tipeOptions[] = [
+                        'value' => 'khusus',
+                        'label' => auth()->user()?->jabatan?->nama ?: 'Lingkup Dinas',
+                    ];
                 }
 
                 if ($canAddUmum) {
@@ -238,40 +251,42 @@
                 ];
             @endphp
             <div>
-                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe Aktivitas</label>
+                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
+                    Aktivitas</label>
                 @if ($canAddUmum)
-                    <x-mobile.select
-                        wire-model="tipe"
-                        :value="$tipe"
-                        search-placeholder="Cari tipe..."
+                    <x-mobile.select wire-model="tipe" :value="$tipe" search-placeholder="Cari tipe..."
                         :groups="$tipeGroups" />
                 @else
-                    <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center justify-between">
+                    <div
+                        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center justify-between">
                         <span>{{ $bidangOptionLabel }}</span>
                         <i class="fa-solid fa-lock text-slate-400 text-[11px]"></i>
                     </div>
                 @endif
             </div>
 
-            @if (! ($canAddUmum && $tipe === 'umum'))
+            @if (!($canAddUmum && $tipe === 'umum'))
                 <div>
-                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi <span class="text-rose-500">*</span></label>
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi
+                        <span class="text-rose-500">*</span></label>
                     @php
                         $modalRaGroups = [
                             [
                                 'label' => '',
-                                'options' => $rencanaAksiList->map(fn ($ra) => [
-                                    'value' => $ra->id,
-                                    'label' => $ra->rencana_aksi,
-                                ])->values()->all(),
+                                'options' => $rencanaAksiList
+                                    ->map(
+                                        fn($ra) => [
+                                            'value' => $ra->id,
+                                            'label' => $ra->rencana_aksi,
+                                        ],
+                                    )
+                                    ->values()
+                                    ->all(),
                             ],
                         ];
                     @endphp
-                    <x-mobile.select
-                        wire-model="rencana_aksi_id"
-                        :value="$rencana_aksi_id ?? ''"
-                        placeholder="— Pilih Nama Rencana Aksi —"
-                        search-placeholder="Cari nama rencana aksi..."
+                    <x-mobile.select wire-model="rencana_aksi_id" :value="$rencana_aksi_id ?? ''"
+                        placeholder="— Pilih Nama Rencana Aksi —" search-placeholder="Cari nama rencana aksi..."
                         :groups="$modalRaGroups" />
                     @error('rencana_aksi_id')
                         <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
@@ -279,19 +294,23 @@
                 </div>
 
                 <div>
-                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Sub Kegiatan</label>
-                    <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-h-[42px] flex items-center">
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Sub
+                        Kegiatan</label>
+                    <div
+                        class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-h-[42px] flex items-center">
                         @if (filled($selectedSubKegiatanNama))
                             <span>{{ $selectedSubKegiatanNama }}</span>
                         @else
-                            <span class="text-slate-400 dark:text-slate-500 font-normal">Otomatis terisi sesuai Rencana Aksi yang dipilih</span>
+                            <span class="text-slate-400 dark:text-slate-500 font-normal">Otomatis terisi sesuai Rencana
+                                Aksi yang dipilih</span>
                         @endif
                     </div>
                 </div>
             @endif
 
             <div>
-                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi (Menit)</label>
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi
+                    (Menit)</label>
                 <input type="number" min="1" wire:model="menit"
                     class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
                 @error('menit')
@@ -300,8 +319,9 @@
             </div>
 
             <div>
-                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Nama / Uraian Aktivitas</label>
-                <textarea rows="3" wire:model="nama_aktivitas" placeholder="Contoh: Mengikuti Apel Pagi"
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Nama / Uraian
+                    Aktivitas</label>
+                <textarea rows="3" wire:model="nama_aktivitas" placeholder="Mempersiapkan spj kegiatan"
                     class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700"></textarea>
                 @error('nama_aktivitas')
                     <span class="text-rose-500 text-xs">{{ $message }}</span>
@@ -319,20 +339,19 @@
     </x-mobile.rhoe-modal>
 
     <!-- MODAL TEMPEL / IMPOR MASSAL (Reusable Rhoe Modal) -->
-    <x-mobile.rhoe-modal
-        model="bulkModalOpen"
-        title="Tempel / Impor Bank Aktivitas"
-        subtitle="Copy-paste langsung dari tabel bankaktifitas.html atau Excel"
-        maxWidth="max-w-[408px]">
+    <x-mobile.rhoe-modal model="bulkModalOpen" title="Tempel / Impor Bank Aktivitas"
+        subtitle="Copy-paste langsung dari tabel bankaktifitas.html atau Excel" maxWidth="max-w-[408px]">
         <div class="space-y-4">
             <div>
-                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi Default (jika tanpa angka menit)</label>
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi Default (jika
+                    tanpa angka menit)</label>
                 <input type="number" min="1" wire:model="bulkDefaultMenit"
                     class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
             </div>
 
             <div>
-                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tempel Baris Aktivitas</label>
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tempel Baris
+                    Aktivitas</label>
                 <textarea rows="7" wire:model="bulkRaw"
                     placeholder="1&#9;Mengikuti Apel Pagi&#9;30&#10;2&#9;Memimpin rapat/FGD&#9;180"
                     class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 font-mono"></textarea>
