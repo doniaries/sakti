@@ -1,0 +1,141 @@
+<div class="pb-28">
+    <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800 px-4 py-3 flex items-center gap-3">
+        <a href="{{ route('mobile.agenda') }}" wire:navigate
+            class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200 active:scale-95 transition-transform">
+            <i class="fa-solid fa-arrow-left text-sm"></i>
+        </a>
+        <div class="min-w-0">
+            <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">Tambah Agenda Kegiatan</h1>
+            <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Lengkapi jadwal kegiatan &amp; disposisi pegawai</p>
+        </div>
+    </div>
+
+    <form wire:submit="simpanAgenda" class="p-4 space-y-4">
+        <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-4 shadow-xs">
+            <div class="flex items-center gap-2.5 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                <span class="w-6 h-6 rounded-full bg-sky-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
+                <div>
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Informasi Agenda</h2>
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Detail waktu, tempat, dan penyelenggara kegiatan</p>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Judul Agenda <span class="text-rose-500">*</span></label>
+                <input type="text" wire:model="judul" placeholder="Contoh: Rapat Koordinasi..."
+                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                @error('judul') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Tanggal <span class="text-rose-500">*</span></label>
+                    <input type="date" wire:model="tanggal"
+                        class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                </div>
+                <div class="grid grid-cols-2 sm:col-span-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Mulai <span class="text-rose-500">*</span></label>
+                        <input type="time" wire:model="jam_mulai"
+                            class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Selesai <span class="text-rose-500">*</span></label>
+                        <input type="time" wire:model="jam_selesai"
+                            class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none">
+                        @error('jam_selesai') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Tempat <span class="text-rose-500">*</span></label>
+                <input type="text" wire:model="tempat" placeholder="Lokasi kegiatan..."
+                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                @error('tempat') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Asal Undangan / Penyelenggara <span class="text-rose-500">*</span></label>
+                <input type="text" wire:model="asal_undangan" placeholder="Nama instansi / penyelenggara..."
+                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                @error('asal_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Keterangan <span class="text-rose-500">*</span></label>
+                <textarea wire:model="keterangan" rows="3" placeholder="Keterangan agenda..."
+                    class="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 p-3 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all"></textarea>
+                @error('keterangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 space-y-4 shadow-xs">
+            <div class="flex items-center gap-2.5 pb-2 border-b border-zinc-100 dark:border-zinc-800">
+                <span class="w-6 h-6 rounded-full bg-sky-600 text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>
+                <div>
+                    <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Disposisi &amp; Lampiran</h2>
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Pilih pegawai yang ditugaskan serta surat undangan</p>
+                </div>
+            </div>
+
+            <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Pegawai yang Diperintah (Disposisi) <span class="text-rose-500">*</span></label>
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300">
+                        {{ count($disposisi_user_ids) }} dipilih
+                    </span>
+                </div>
+                <button type="button" @click="open = !open"
+                    class="w-full min-h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 py-2.5 text-left flex items-center justify-between gap-2 text-sm cursor-pointer">
+                    <span class="text-zinc-500 truncate">
+                        {{ count($disposisi_user_ids) > 0 ? count($disposisi_user_ids) . ' pegawai dipilih' : 'Pilih pegawai yang ditugaskan...' }}
+                    </span>
+                    <i class="fa-solid fa-chevron-down text-zinc-400 text-xs transition-transform duration-150"
+                        :class="open ? 'rotate-180 text-sky-500' : ''"></i>
+                </button>
+                <div x-show="open" x-cloak
+                    class="mt-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 shadow-lg">
+                    <input type="search" x-model="q" placeholder="Cari nama atau jabatan..."
+                        class="w-full h-9 mb-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100">
+                    <div class="max-h-52 overflow-y-auto overscroll-contain space-y-1">
+                        @foreach ($pegawais as $p)
+                            <label x-show="!q || '{{ strtolower($p->name . ' ' . ($p->jabatan?->nama ?? '')) }}'.includes(q.toLowerCase())"
+                                class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/70 cursor-pointer">
+                                <input type="checkbox" wire:model.live="disposisi_user_ids" value="{{ $p->id }}"
+                                    class="rounded border-zinc-300 text-sky-600 focus:ring-sky-500">
+                                <div class="min-w-0">
+                                    <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $p->name }}</div>
+                                    @if ($p->jabatan?->nama)
+                                        <div class="text-xs text-zinc-400 truncate">{{ $p->jabatan->nama }}</div>
+                                    @endif
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+                @error('disposisi_user_ids') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Instruksi Disposisi</label>
+                <input type="text" wire:model="instruksi" placeholder="Contoh: Hadir mewakili Kadis..."
+                    class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Foto Surat / PDF (Maks. 5MB)</label>
+                <input type="file" wire:model="lampiran_file" accept="image/jpeg,image/png,image/webp,application/pdf"
+                    class="w-full text-xs text-zinc-600 dark:text-zinc-300 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
+                <div wire:loading wire:target="lampiran_file" class="text-xs text-sky-600 mt-1">Mengunggah lampiran...</div>
+                @error('lampiran_file') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <button type="submit" wire:loading.attr="disabled"
+            class="w-full h-12 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold shadow-md active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2">
+            <i wire:loading wire:target="simpanAgenda" class="fa-solid fa-spinner fa-spin"></i>
+            <span>Simpan Agenda</span>
+        </button>
+    </form>
+</div>

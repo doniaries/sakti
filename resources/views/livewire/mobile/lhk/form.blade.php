@@ -123,6 +123,49 @@
         @endif
     </section>
 
+    @if (!$absenHariIni && !$existingLhk)
+        @php
+            $randomVector = collect([
+                'images/vectors/kantor-1.png',
+                'images/vectors/kantor-2.jpg',
+                'images/vectors/perkampungan-adat.jpg',
+            ])->random();
+        @endphp
+        <section class="rounded-3xl bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 shadow-sm p-6 text-center space-y-4">
+            <div class="max-w-[260px] mx-auto rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-800/40 p-2">
+                <img src="{{ asset($randomVector) }}" alt="Ilustrasi Sijunjung" class="w-full h-auto rounded-xl object-contain">
+            </div>
+
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl {{ $isHariLibur ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-200/70' : 'bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-300 border border-rose-200/70' }} text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+
+            <div class="space-y-1.5 max-w-sm mx-auto">
+                <h3 class="text-sm md:text-base font-extrabold text-slate-800 dark:text-white">
+                    {{ $isHariLibur ? 'Tanggal Tidak Masuk Kerja Resmi' : 'Belum Ada Data Absensi Masuk' }}
+                </h3>
+                <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                    @if ($isHariLibur)
+                        Tanggal <strong>{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}</strong> merupakan
+                        <strong>{{ $alasanNonKerja }}</strong>. LHK tidak perlu diisi pada tanggal ini.
+                    @else
+                        Anda belum melakukan absen masuk pada tanggal
+                        <strong>{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}</strong>.
+                        Silakan ambil presensi masuk terlebih dahulu sebelum mengisi LHK.
+                    @endif
+                </p>
+            </div>
+
+            @if (!$isHariLibur)
+                <a href="{{ route('mobile.absensi') }}" wire:navigate
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white text-xs font-bold shadow-sm active:scale-95 transition">
+                    <i class="fa-solid fa-fingerprint"></i>
+                    <span>Ambil Presensi Sekarang</span>
+                </a>
+            @endif
+        </section>
+    @endif
+
     @if ($absenHariIni || $existingLhk)
         <!-- Rincian Pekerjaan -->
         <section class="space-y-4">
