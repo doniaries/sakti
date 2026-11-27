@@ -190,7 +190,7 @@ class CetakLaporanController extends Controller
             ->bukanSuperAdmin()
             ->with([
                 'bidang:id,nama',
-                'jabatan:id,nama,eselon',
+                'jabatan:id,nama',
                 'riwayatGolongan',
                 'riwayatJabatan',
                 'riwayatPendidikan',

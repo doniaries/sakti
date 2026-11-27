@@ -86,7 +86,7 @@
                     $statusPeg = $p->status_kepegawaian instanceof \BackedEnum
                         ? strtoupper($p->status_kepegawaian->value)
                         : strtoupper((string) ($p->status_kepegawaian ?? '-'));
-                    $eselon = $p->eselon ?: ($p->jabatan?->eselon ?: '-');
+                    $eselon = $p->eselon ?: '-';
                 @endphp
                 <tr>
                     <td class="center">{{ $idx + 1 }}</td>
