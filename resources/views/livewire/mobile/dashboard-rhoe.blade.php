@@ -235,19 +235,19 @@
                 @foreach ($layanan as $item)
                     @if (Route::has($item['route']) && (empty($item['module']) || \App\Models\PengaturanAplikasi::isModuleEnabled($item['module'])) && (empty($item['roles']) || $user->hasAnyRole($item['roles'])))
                         <a href="{{ route($item['route']) }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-                            <div class="w-11 h-11 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base md:text-2xl">
+                            <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-xl md:text-2xl">
                                 <i class="fa-solid {{ $item['icon'] }}"></i>
                             </div>
-                            <span class="text-xs md:text-xs font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
+                            <span class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
                         </a>
                     @endif
                 @endforeach
                 @if (Route::has('mobile.surat-tugas.index'))
                     <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-                        <div class="w-11 h-11 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base md:text-2xl">
+                        <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-xl md:text-2xl">
                             <i class="fa-solid fa-file-signature"></i>
                         </div>
-                        <span class="text-xs md:text-xs font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
+                        <span class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
                     </a>
                 @endif
             </div>

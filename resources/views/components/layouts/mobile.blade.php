@@ -150,6 +150,11 @@
     </script>
     
     <style>
+        @media (max-width: 767px) {
+            html {
+                font-size: 17.5px;
+            }
+        }
         * {
             -webkit-tap-highlight-color: transparent;
         }
