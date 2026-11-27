@@ -31,6 +31,28 @@ class Aktivitas extends Model
     }
 
     /**
+     * Cek apakah uraian aktivitas sudah ada pada cakupan Global atau milik pegawai tertentu (case-insensitive).
+     */
+    public static function sudahAdaDuplikat(string $nama, ?int $userId, ?int $ignoreId = null): bool
+    {
+        $normalized = mb_strtolower(trim($nama));
+        if ($normalized === '') {
+            return false;
+        }
+
+        return self::query()
+            ->when($ignoreId, fn (Builder $q) => $q->where('id', '!=', $ignoreId))
+            ->whereRaw('LOWER(TRIM(nama_aktivitas)) = ?', [$normalized])
+            ->where(function (Builder $q) use ($userId): void {
+                $q->where(fn (Builder $g) => $g->whereNull('user_id')->whereNull('jabatan_id'));
+                if ($userId) {
+                    $q->orWhere('user_id', $userId);
+                }
+            })
+            ->exists();
+    }
+
+    /**
      * Filter aktivitas milik pegawai tertentu (prioritas utama),
      * atau aktivitas master umum (user_id null) yang sesuai jabatan / global.
      */

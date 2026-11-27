@@ -109,6 +109,17 @@ class AktivitasForm
                             ->label('Nama / Uraian Aktivitas')
                             ->required()
                             ->rows(3)
+                            ->rule(function (Get $get, ?Aktivitas $record): \Closure {
+                                return function (string $attribute, mixed $value, \Closure $fail) use ($get, $record): void {
+                                    $targetUserId = $get('kategori_form') === 'global'
+                                        ? null
+                                        : ($get('user_id') ? (int) $get('user_id') : $record?->user_id);
+
+                                    if (Aktivitas::sudahAdaDuplikat((string) $value, $targetUserId, $record?->id)) {
+                                        $fail('Aktivitas dengan uraian yang sama sudah ada di Bank Aktivitas (Global atau milik pegawai ini).');
+                                    }
+                                };
+                            })
                             ->placeholder('Tuliskan uraian aktivitas kinerja harian pegawai...'),
 
                         TextInput::make('menit')

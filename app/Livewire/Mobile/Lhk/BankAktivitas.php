@@ -82,6 +82,12 @@ class BankAktivitas extends Component
 
         /** @var User $user */
         $user = Auth::user();
+        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'admin'])) ? null : $user->id;
+
+        if (Aktivitas::sudahAdaDuplikat($this->nama_aktivitas, $targetUserId, $this->editingId)) {
+            $this->addError('nama_aktivitas', 'Aktivitas dengan uraian yang sama sudah ada di Bank Aktivitas (Umum/Global atau milik Anda).');
+            return;
+        }
 
         if ($this->editingId) {
             $item = Aktivitas::where('user_id', $user->id)->find($this->editingId);
@@ -163,11 +169,17 @@ class BankAktivitas extends Component
 
         $nextKode = (int) Aktivitas::where('user_id', $user->id)->count();
         $added = 0;
+        $skipped = 0;
 
         foreach ($items as $row) {
+            if (Aktivitas::sudahAdaDuplikat($row['nama_aktivitas'], null)) {
+                $skipped++;
+                continue;
+            }
+
             $nextKode++;
             $existing = Aktivitas::where('user_id', $user->id)
-                ->where('nama_aktivitas', $row['nama_aktivitas'])
+                ->whereRaw('LOWER(TRIM(nama_aktivitas)) = ?', [mb_strtolower(trim($row['nama_aktivitas']))])
                 ->first();
 
             if ($existing) {
@@ -194,7 +206,7 @@ class BankAktivitas extends Component
         $this->dispatch('notify', [
             'type' => 'success',
             'title' => 'Impor Berhasil',
-            'message' => "{$added} aktivitas baru berhasil disimpan ke Bank Aktivitas Anda.",
+            'message' => "{$added} aktivitas baru berhasil disimpan" . ($skipped > 0 ? " ({$skipped} dilewati karena sudah ada di Umum/Global)." : ' ke Bank Aktivitas Anda.'),
         ]);
     }
 
