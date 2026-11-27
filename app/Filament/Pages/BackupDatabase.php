@@ -184,7 +184,6 @@ class BackupDatabase extends Page
                         ->disk('local')
                         ->directory('backups/uploads')
                         ->rules(['file', 'extensions:sql'])
-                        ->extraInputAttributes(['accept' => '.sql'])
                         ->maxSize(102400)
                         ->required(),
                 ])
