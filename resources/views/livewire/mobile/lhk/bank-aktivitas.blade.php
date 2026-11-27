@@ -313,9 +313,23 @@
                 </div>
             @endif
 
-            <div>
-                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi
-                    (Menit)</label>
+            <div x-data="{
+                formatJam(m) {
+                    const val = parseInt(m, 10);
+                    if (!val || val <= 0) return '';
+                    const jam = Math.floor(val / 60);
+                    const sisa = val % 60;
+                    if (jam > 0 && sisa > 0) return `${val} menit (${jam} jam ${sisa} menit)`;
+                    if (jam > 0) return `${val} menit (${jam} jam)`;
+                    return `${val} menit (${(val / 60).toFixed(2).replace(/\.?0+$/, '').replace('.', ',')} jam)`;
+                }
+            }">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400">Durasi (Menit)</label>
+                    <span x-show="parseInt($wire.menit, 10) > 0"
+                        x-text="formatJam($wire.menit)"
+                        class="px-2 py-0.5 rounded-md bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[11px] font-bold"></span>
+                </div>
                 <input type="number" min="1" wire:model="menit"
                     class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
                 @error('menit')
