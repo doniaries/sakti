@@ -240,8 +240,48 @@ class BankAktivitas extends Component
             ))
             ->values();
 
+        $jabatanNama = mb_strtolower((string) ($user->jabatan?->nama ?? ''));
+        $userLevel = match (true) {
+            $user->hasAnyRole(['kabid', 'kepala_bidang', 'pptk', 'sekretaris', 'pa'])
+                || str_contains($jabatanNama, 'kepala bidang')
+                || str_contains($jabatanNama, 'kabid')
+                || str_contains($jabatanNama, 'sekretaris')
+                || str_contains($jabatanNama, 'kepala dinas') => 'kabid',
+            $user->hasRole('jf')
+                || str_contains($jabatanNama, 'fungsional')
+                || str_contains($jabatanNama, 'analis')
+                || str_contains($jabatanNama, 'adya')
+                || str_contains($jabatanNama, 'muda')
+                || str_contains($jabatanNama, 'pertama') => 'jf',
+            default => 'staf',
+        };
+
         $rencanaAksiOptions = RencanaAksi::query()
-            ->select(['id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
+            ->select(['id', 'bidang_id', 'jabatan_id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
+            ->where(function ($q) use ($user, $userLevel): void {
+                $q->where(function ($bidangQ) use ($user, $userLevel): void {
+                    $bidangQ->where('sasaran_sub_kegiatan', '!=', 'Tugas Tambahan')
+                        ->where(function ($b) use ($user): void {
+                            $b->whereNull('bidang_id');
+                            if ($user->bidang_id) {
+                                $b->orWhere('bidang_id', $user->bidang_id);
+                            }
+                        })
+                        ->where(function ($lvl) use ($user, $userLevel): void {
+                            $lvl->where('level', $userLevel);
+                            if ($user->jabatan_id) {
+                                $lvl->orWhere('jabatan_id', $user->jabatan_id);
+                            }
+                        });
+                });
+
+                if ($user->jabatan_tim_kreatif) {
+                    $q->orWhere(function ($tkQ) use ($userLevel): void {
+                        $tkQ->where('sasaran_sub_kegiatan', 'Tugas Tambahan')
+                            ->where('level', $userLevel);
+                    });
+                }
+            })
             ->orderBy('sasaran_sub_kegiatan')
             ->orderBy('rencana_aksi')
             ->get()
