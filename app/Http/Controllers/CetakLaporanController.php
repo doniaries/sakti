@@ -151,14 +151,9 @@ class CetakLaporanController extends Controller
             : $pdf->stream($namaFile);
     }
 
-    public function cetakPegawaiBelumLengkap()
+    public static function getPegawaiBelumLengkapData(): \Illuminate\Support\Collection
     {
-        /** @var \App\Models\User|null $authUser */
-        $authUser = Auth::user();
-        abort_unless($authUser && $authUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']), 403);
-
-        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
-        $pegawais = \App\Models\User::query()
+        return \App\Models\User::query()
             ->bukanSuperAdmin()
             ->with(['bidang:id,nama', 'jabatan:id,nama', 'roles:id,name'])
             ->withCount(['riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])
@@ -167,22 +162,11 @@ class CetakLaporanController extends Controller
             ->get()
             ->filter(fn (\App\Models\User $p): bool => ! empty($p->missingKepegawaianFields()))
             ->values();
-
-        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pegawai-belum-lengkap', [
-            'pegawais' => $pegawais,
-            'pengaturan' => $pengaturan,
-            'dicetakOleh' => $authUser,
-        ])->setPaper('a4', 'portrait')->stream('laporan-pegawai-belum-lengkap.pdf');
     }
 
-    public function cetakBezetingPegawai()
+    public static function getBezetingPegawaiData(): \Illuminate\Support\Collection
     {
-        /** @var \App\Models\User|null $authUser */
-        $authUser = Auth::user();
-        abort_unless($authUser && $authUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']), 403);
-
-        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
-        $pegawais = \App\Models\User::query()
+        return \App\Models\User::query()
             ->bukanSuperAdmin()
             ->with([
                 'bidang:id,nama',
@@ -202,6 +186,32 @@ class CetakLaporanController extends Controller
             ->orderByRaw("FIELD(COALESCE(eselon, ''), 'II.a', 'II.b', 'III.a', 'III.b', 'IV.a', 'IV.b') ASC")
             ->orderBy('name')
             ->get();
+    }
+
+    public function cetakPegawaiBelumLengkap()
+    {
+        /** @var \App\Models\User|null $authUser */
+        $authUser = Auth::user();
+        abort_unless($authUser && $authUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']), 403);
+
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $pegawais = self::getPegawaiBelumLengkapData();
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.pegawai-belum-lengkap', [
+            'pegawais' => $pegawais,
+            'pengaturan' => $pengaturan,
+            'dicetakOleh' => $authUser,
+        ])->setPaper('a4', 'portrait')->stream('laporan-pegawai-belum-lengkap.pdf');
+    }
+
+    public function cetakBezetingPegawai()
+    {
+        /** @var \App\Models\User|null $authUser */
+        $authUser = Auth::user();
+        abort_unless($authUser && $authUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']), 403);
+
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $pegawais = self::getBezetingPegawaiData();
 
         $kepalaDinas = \App\Models\User::query()
             ->whereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kepala_dinas']))

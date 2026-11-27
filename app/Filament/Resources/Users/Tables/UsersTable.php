@@ -1098,7 +1098,8 @@ class UsersTable
                         icon: 'heroicon-o-document-text',
                         color: 'success',
                         routeName: 'pegawai.cetak-bezeting',
-                        subtitle: 'Daftar Nominatif / Bezeting Pegawai ASN (A4 Landscape)'
+                        subtitle: 'Daftar Nominatif / Bezeting Pegawai ASN (A4 Landscape)',
+                        mode: 'bezeting'
                     ),
                     self::printPreviewAction(
                         name: 'cetak_belum_lengkap',
@@ -1106,7 +1107,8 @@ class UsersTable
                         icon: 'heroicon-o-exclamation-triangle',
                         color: 'warning',
                         routeName: 'pegawai.cetak-belum-lengkap',
-                        subtitle: 'Daftar Pegawai Aktif yang Belum Melengkapi Data Kepegawaian (A4 Portrait)'
+                        subtitle: 'Daftar Pegawai Aktif yang Belum Melengkapi Data Kepegawaian (A4 Portrait)',
+                        mode: 'belum_lengkap'
                     ),
                 ])
                     ->label('Cetak & Laporan')
@@ -1186,7 +1188,7 @@ class UsersTable
     }
 
     /**
-     * Modal print preview PDF bergaya Tailwind sebelum mencetak laporan pegawai.
+     * Modal print preview instan berbasis Livewire/Tailwind sebelum mencetak PDF pegawai.
      */
     protected static function printPreviewAction(
         string $name,
@@ -1194,7 +1196,8 @@ class UsersTable
         string $icon,
         string $color,
         string $routeName,
-        string $subtitle
+        string $subtitle,
+        string $mode
     ): Action {
         return Action::make($name)
             ->label($label)
@@ -1208,6 +1211,10 @@ class UsersTable
                 'title' => $label,
                 'subtitle' => $subtitle,
                 'url' => route($routeName),
+                'mode' => $mode,
+                'pegawais' => $mode === 'bezeting'
+                    ? \App\Http\Controllers\CetakLaporanController::getBezetingPegawaiData()
+                    : \App\Http\Controllers\CetakLaporanController::getPegawaiBelumLengkapData(),
             ]));
     }
 }
