@@ -86,14 +86,22 @@ class BankAktivitas extends Component
         $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) ? null : $user->id;
 
         if (! is_null($targetUserId) && empty($this->rencana_aksi_id)) {
+            $includeTimKreatif = (bool) ($user->jabatan_tim_kreatif || $user->hasAnyRole(['super_admin', 'superadmin', 'admin']));
             $hasSubKegiatan = RencanaAksi::query()
-                ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+                ->where(function ($q) use ($bidangId, $includeTimKreatif): void {
+                    if ($bidangId) {
+                        $q->where('bidang_id', $bidangId);
+                    }
+                    if ($includeTimKreatif) {
+                        $q->orWhere('sasaran_sub_kegiatan', 'Tugas Tambahan');
+                    }
+                })
                 ->whereNotNull('sasaran_sub_kegiatan')
                 ->where('sasaran_sub_kegiatan', '!=', '')
                 ->exists();
 
             if ($hasSubKegiatan) {
-                $this->addError('rencana_aksi_id', 'Sub Kegiatan / Rencana Aksi di bidang wajib dipilih.');
+                $this->addError('rencana_aksi_id', 'Rencana Aksi / Sub Kegiatan wajib dipilih.');
                 return;
             }
         }
@@ -274,7 +282,7 @@ class BankAktivitas extends Component
                 fn(Aktivitas $a): bool => (! is_null($a->user_id) || ! is_null($a->jabatan_id))
                     && $a->rencanaAksi?->sasaran_sub_kegiatan !== 'Tugas Tambahan'
             ))
-            ->when($this->filterSubKegiatan === 'bidang' && $this->selectedSubKegiatan !== '', fn($col) => $col->filter(
+            ->when($this->selectedSubKegiatan !== '', fn($col) => $col->filter(
                 fn(Aktivitas $a): bool => ($a->rencanaAksi?->sasaran_sub_kegiatan ?? '') === $this->selectedSubKegiatan
             ))
             ->when($this->filterSubKegiatan === 'tim_kreatif', fn($col) => $col->filter(
@@ -302,11 +310,20 @@ class BankAktivitas extends Component
         $bidangNama = $user->bidang?->nama
             ?: ($bidangId ? \App\Models\Bidang::whereKey($bidangId)->value('nama') : null);
 
+        $includeTimKreatif = (bool) ($isTimKreatif || $user->hasAnyRole(['super_admin', 'superadmin', 'admin']));
         $rencanaAksiList = RencanaAksi::query()
             ->select(['id', 'bidang_id', 'jabatan_id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
-            ->when($bidangId, fn ($q) => $q->where('bidang_id', $bidangId))
+            ->where(function ($q) use ($bidangId, $includeTimKreatif): void {
+                if ($bidangId) {
+                    $q->where('bidang_id', $bidangId);
+                }
+                if ($includeTimKreatif) {
+                    $q->orWhere('sasaran_sub_kegiatan', 'Tugas Tambahan');
+                }
+            })
             ->whereNotNull('sasaran_sub_kegiatan')
             ->where('sasaran_sub_kegiatan', '!=', '')
+            ->orderByRaw("CASE WHEN sasaran_sub_kegiatan = 'Tugas Tambahan' THEN 1 ELSE 0 END")
             ->orderBy('rencana_aksi')
             ->get();
 

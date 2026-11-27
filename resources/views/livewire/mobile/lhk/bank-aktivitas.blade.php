@@ -69,17 +69,10 @@
             class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'global' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
             Umum ({{ $globalCount ?? 0 }})
         </button>
-        @forelse ($subKegiatanList as $subKeg => $subCount)
-            <button type="button" wire:click="$set('filterSubKegiatan', {{ \Illuminate\Support\Js::from($subKeg) }})"
-                class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === $subKeg ? 'bg-amber-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-                {{ $subKeg }} ({{ $subCount }})
-            </button>
-        @empty
-            <button type="button" wire:click="$set('filterSubKegiatan', 'bidang')"
-                class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'bidang' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-                Sub Kegiatan ({{ $bidangCount ?? 0 }})
-            </button>
-        @endforelse
+        <button type="button" wire:click="$set('filterSubKegiatan', 'bidang')"
+            class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'bidang' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+            {{ $userBidangNama ?: 'Bidang' }} ({{ $bidangCount ?? 0 }})
+        </button>
         @if ($isTimKreatif ?? false)
             <button type="button" wire:click="$set('filterSubKegiatan', 'tim_kreatif')"
                 class="shrink-0 px-3 py-1.5 rounded-full text-[13px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'tim_kreatif' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
@@ -87,6 +80,18 @@
             </button>
         @endif
     </div>
+
+    @if ($subKegiatanList->isNotEmpty() && $filterSubKegiatan !== 'global')
+        <div class="mb-3">
+            <select wire:model.live="selectedSubKegiatan"
+                class="w-full rounded-xl px-3 py-2 text-xs font-semibold bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500">
+                <option value="">Semua Sub Kegiatan ({{ $bidangCount ?? 0 }})</option>
+                @foreach ($subKegiatanList as $subKeg => $subCount)
+                    <option value="{{ $subKeg }}">{{ $subKeg }} ({{ $subCount }})</option>
+                @endforeach
+            </select>
+        </div>
+    @endif
 
     @if ($myAktivitas->isEmpty())
         <div
