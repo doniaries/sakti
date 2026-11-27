@@ -221,19 +221,20 @@ class AktivitasTable
                         ])
                         ->action(function (Collection $records, array $data): void {
                             $userIds = $data['user_ids'] ?? [];
-                            $users = User::whereIn('id', $userIds)->get();
+                            $users = User::query()->whereIn('id', $userIds)->get();
                             $copiedCount = 0;
 
                             foreach ($users as $pegawai) {
-                                $nextKode = (int) Aktivitas::where('user_id', $pegawai->id)->count();
+                                $nextKode = (int) Aktivitas::query()->where('user_id', $pegawai->id)->count();
                                 foreach ($records as $record) {
-                                    $exists = Aktivitas::where('user_id', $pegawai->id)
+                                    $exists = Aktivitas::query()
+                                        ->where('user_id', $pegawai->id)
                                         ->where('nama_aktivitas', $record->nama_aktivitas)
                                         ->exists();
 
                                     if (! $exists) {
                                         $nextKode++;
-                                        Aktivitas::create([
+                                        Aktivitas::query()->create([
                                             'user_id' => $pegawai->id,
                                             'jabatan_id' => $pegawai->jabatan_id,
                                             'bidang_id' => $pegawai->bidang_id,
