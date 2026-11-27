@@ -436,7 +436,7 @@
             </div>
         </div>
     @elseif (!$hariIni['sudah_masuk'])
-        @if ($hariIni['belum_buka_masuk'])
+        @if ($hariIni['belum_buka_masuk'] && !$modeSimulasi)
             <div aria-disabled="true"
                 class="rounded-2xl bg-slate-200/80 dark:bg-zinc-800/90 border border-slate-300/80 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 p-4 flex items-center gap-3 opacity-75 cursor-not-allowed select-none">
                 <div
