@@ -3,6 +3,7 @@
 namespace App\Livewire\Mobile;
 
 use App\Models\AgendaKegiatan;
+use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
