@@ -1,4 +1,8 @@
-<div class="p-5 pb-28 relative min-h-screen">
+<div class="p-5 pb-28 relative min-h-screen"
+    x-data="{
+        formModalOpen: @entangle('showFormModal'),
+        bulkModalOpen: @entangle('showBulkModal'),
+    }">
     <div class="flex items-center justify-between gap-2 mb-5">
         <div class="flex items-center min-w-0">
             <a href="{{ route('mobile.lhk.index') }}" wire:navigate
@@ -40,13 +44,13 @@
 
     <!-- Action Bar: Tambah & Tempel Massal -->
     <div class="grid grid-cols-2 gap-2.5 mb-4">
-        <button type="button" wire:click="openCreate"
-            class="py-2.5 px-3 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
+        <button type="button" x-on:click="formModalOpen = true; $wire.openCreate()"
+            class="py-2.5 px-3 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Aktivitas</span>
         </button>
-        <button type="button" wire:click="openBulk"
-            class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
+        <button type="button" x-on:click="bulkModalOpen = true; $wire.openBulk()"
+            class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer">
             <i class="fa-solid fa-paste"></i>
             <span>Tempel / Impor</span>
         </button>
@@ -198,168 +202,143 @@
         </div>
     @endif
 
-    <!-- MODAL TAMBAH / EDIT AKTIVITAS -->
-    @if ($showFormModal)
-        <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs"
-            x-data @keydown.escape.window="$wire.closeForm()">
-            <div
-                class="w-full max-w-[408px] bg-white dark:bg-[#132338] rounded-3xl p-5 shadow-2xl border border-slate-200/90 dark:border-slate-700/80 space-y-4">
-                <div
-                    class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-700/60">
-                    <h3 class="font-extrabold text-slate-800 dark:text-white text-sm">
-                        {{ $editingId ? 'Ubah Aktivitas' : 'Tambah Aktivitas Baru' }}
-                    </h3>
-                    <button type="button" wire:click="closeForm"
-                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
-                        <i class="fa-solid fa-xmark text-xs"></i>
-                    </button>
-                </div>
-
-                @php
-                    $canAddUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
-                    $bidangOptionLabel = filled($userBidangNama)
-                        ? (str_starts_with(mb_strtolower($userBidangNama), 'bidang') || str_starts_with(mb_strtolower($userBidangNama), 'sekretariat')
-                            ? $userBidangNama
-                            : 'Bidang ' . $userBidangNama)
-                        : 'Sesuai Bidang';
-                    $tipeOptions = [
-                        ['value' => 'khusus', 'label' => $bidangOptionLabel],
-                    ];
-                    if ($canAddUmum) {
-                        $tipeOptions[] = ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'];
-                    }
-                    $tipeGroups = [
-                        [
-                            'label' => '',
-                            'options' => $tipeOptions,
-                        ],
-                    ];
-                @endphp
-                <div>
-                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
-                        Aktivitas</label>
-                    @if ($canAddUmum)
-                        <x-mobile.select
-                            wire-model="tipe"
-                            :value="$tipe"
-                            search-placeholder="Cari tipe..."
-                            :groups="$tipeGroups" />
-                    @else
-                        <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center justify-between">
-                            <span>{{ $bidangOptionLabel }}</span>
-                            <i class="fa-solid fa-lock text-slate-400 text-[11px]"></i>
-                        </div>
-                    @endif
-                </div>
-
-                @if (! ($canAddUmum && $tipe === 'umum'))
-                    <div>
-                        <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi <span class="text-rose-500">*</span></label>
-                        @php
-                            $modalRaGroups = [
-                                [
-                                    'label' => '',
-                                    'options' => $rencanaAksiList->map(fn ($ra) => [
-                                        'value' => $ra->id,
-                                        'label' => $ra->rencana_aksi,
-                                    ])->values()->all(),
-                                ],
-                            ];
-                        @endphp
-                        <x-mobile.select
-                            wire-model="rencana_aksi_id"
-                            :value="$rencana_aksi_id ?? ''"
-                            placeholder="— Pilih Nama Rencana Aksi —"
-                            search-placeholder="Cari nama rencana aksi..."
-                            :groups="$modalRaGroups" />
-                        @error('rencana_aksi_id')
-                            <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Sub Kegiatan</label>
-                        <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-h-[42px] flex items-center">
-                            @if (filled($selectedSubKegiatanNama))
-                                <span>{{ $selectedSubKegiatanNama }}</span>
-                            @else
-                                <span class="text-slate-400 dark:text-slate-500 font-normal">Otomatis terisi sesuai Rencana Aksi yang dipilih</span>
-                            @endif
-                        </div>
+    <!-- MODAL TAMBAH / EDIT AKTIVITAS (Reusable Rhoe Modal) -->
+    <x-mobile.rhoe-modal
+        model="formModalOpen"
+        :title="$editingId ? 'Ubah Aktivitas' : 'Tambah Aktivitas Baru'"
+        maxWidth="max-w-[408px]">
+        <div class="space-y-4">
+            @php
+                $canAddUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
+                $bidangOptionLabel = filled($userBidangNama)
+                    ? (str_starts_with(mb_strtolower($userBidangNama), 'bidang') || str_starts_with(mb_strtolower($userBidangNama), 'sekretariat')
+                        ? $userBidangNama
+                        : 'Bidang ' . $userBidangNama)
+                    : 'Sesuai Bidang';
+                $tipeOptions = [
+                    ['value' => 'khusus', 'label' => $bidangOptionLabel],
+                ];
+                if ($canAddUmum) {
+                    $tipeOptions[] = ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'];
+                }
+                $tipeGroups = [
+                    [
+                        'label' => '',
+                        'options' => $tipeOptions,
+                    ],
+                ];
+            @endphp
+            <div>
+                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe Aktivitas</label>
+                @if ($canAddUmum)
+                    <x-mobile.select
+                        wire-model="tipe"
+                        :value="$tipe"
+                        search-placeholder="Cari tipe..."
+                        :groups="$tipeGroups" />
+                @else
+                    <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center justify-between">
+                        <span>{{ $bidangOptionLabel }}</span>
+                        <i class="fa-solid fa-lock text-slate-400 text-[11px]"></i>
                     </div>
                 @endif
-
-                <div>
-                    <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi
-                        (Menit)</label>
-                    <input type="number" min="1" wire:model="menit"
-                        class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
-                    @error('menit')
-                        <span class="text-rose-500 text-xs">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Nama / Uraian
-                        Aktivitas</label>
-                    <textarea rows="3" wire:model="nama_aktivitas" placeholder="Contoh: Mengikuti Apel Pagi"
-                        class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700"></textarea>
-                    @error('nama_aktivitas')
-                        <span class="text-rose-500 text-xs">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <button type="button" wire:click="saveItem" wire:loading.attr="disabled"
-                    class="w-full py-3 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white font-bold text-xs shadow-md transition">
-                    Simpan Aktivitas
-                </button>
             </div>
-        </div>
-    @endif
 
-    <!-- MODAL TEMPEL / IMPOR MASSAL -->
-    @if ($showBulkModal)
-        <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs"
-            x-data @keydown.escape.window="$wire.closeBulk()">
-            <div
-                class="w-full max-w-[408px] bg-white dark:bg-[#132338] rounded-3xl p-5 shadow-2xl border border-slate-200/90 dark:border-slate-700/80 max-h-[85vh] overflow-y-auto space-y-4">
-                <div
-                    class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-slate-700/60">
-                    <div>
-                        <h3 class="font-extrabold text-slate-800 dark:text-white text-sm">Tempel / Impor Bank Aktivitas
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Copy-paste langsung dari tabel
-                            bankaktifitas.html atau Excel</p>
+            @if (! ($canAddUmum && $tipe === 'umum'))
+                <div>
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi <span class="text-rose-500">*</span></label>
+                    @php
+                        $modalRaGroups = [
+                            [
+                                'label' => '',
+                                'options' => $rencanaAksiList->map(fn ($ra) => [
+                                    'value' => $ra->id,
+                                    'label' => $ra->rencana_aksi,
+                                ])->values()->all(),
+                            ],
+                        ];
+                    @endphp
+                    <x-mobile.select
+                        wire-model="rencana_aksi_id"
+                        :value="$rencana_aksi_id ?? ''"
+                        placeholder="— Pilih Nama Rencana Aksi —"
+                        search-placeholder="Cari nama rencana aksi..."
+                        :groups="$modalRaGroups" />
+                    @error('rencana_aksi_id')
+                        <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Sub Kegiatan</label>
+                    <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-h-[42px] flex items-center">
+                        @if (filled($selectedSubKegiatanNama))
+                            <span>{{ $selectedSubKegiatanNama }}</span>
+                        @else
+                            <span class="text-slate-400 dark:text-slate-500 font-normal">Otomatis terisi sesuai Rencana Aksi yang dipilih</span>
+                        @endif
                     </div>
-                    <button type="button" wire:click="closeBulk"
-                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
-                        <i class="fa-solid fa-xmark text-xs"></i>
-                    </button>
                 </div>
+            @endif
 
-                <div>
-                    <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi Default
-                        (jika tanpa angka menit)</label>
-                    <input type="number" min="1" wire:model="bulkDefaultMenit"
-                        class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
-                </div>
+            <div>
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi (Menit)</label>
+                <input type="number" min="1" wire:model="menit"
+                    class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
+                @error('menit')
+                    <span class="text-rose-500 text-xs">{{ $message }}</span>
+                @enderror
+            </div>
 
-                <div>
-                    <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tempel Baris
-                        Aktivitas</label>
-                    <textarea rows="7" wire:model="bulkRaw"
-                        placeholder="1&#9;Mengikuti Apel Pagi&#9;30&#10;2&#9;Memimpin rapat/FGD&#9;180"
-                        class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 font-mono"></textarea>
-                    @error('bulkRaw')
-                        <span class="text-rose-500 text-xs">{{ $message }}</span>
-                    @enderror
-                </div>
-
-                <button type="button" wire:click="importBulk" wire:loading.attr="disabled"
-                    class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition">
-                    Proses & Simpan ke Bank Aktivitas Saya
-                </button>
+            <div>
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Nama / Uraian Aktivitas</label>
+                <textarea rows="3" wire:model="nama_aktivitas" placeholder="Contoh: Mengikuti Apel Pagi"
+                    class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700"></textarea>
+                @error('nama_aktivitas')
+                    <span class="text-rose-500 text-xs">{{ $message }}</span>
+                @enderror
             </div>
         </div>
-    @endif
+
+        <x-slot:footer>
+            <button type="button" wire:click="saveItem" wire:loading.attr="disabled"
+                class="w-full py-3 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+                <i wire:loading wire:target="saveItem" class="fa-solid fa-spinner fa-spin"></i>
+                <span>Simpan Aktivitas</span>
+            </button>
+        </x-slot:footer>
+    </x-mobile.rhoe-modal>
+
+    <!-- MODAL TEMPEL / IMPOR MASSAL (Reusable Rhoe Modal) -->
+    <x-mobile.rhoe-modal
+        model="bulkModalOpen"
+        title="Tempel / Impor Bank Aktivitas"
+        subtitle="Copy-paste langsung dari tabel bankaktifitas.html atau Excel"
+        maxWidth="max-w-[408px]">
+        <div class="space-y-4">
+            <div>
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi Default (jika tanpa angka menit)</label>
+                <input type="number" min="1" wire:model="bulkDefaultMenit"
+                    class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
+            </div>
+
+            <div>
+                <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tempel Baris Aktivitas</label>
+                <textarea rows="7" wire:model="bulkRaw"
+                    placeholder="1&#9;Mengikuti Apel Pagi&#9;30&#10;2&#9;Memimpin rapat/FGD&#9;180"
+                    class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 font-mono"></textarea>
+                @error('bulkRaw')
+                    <span class="text-rose-500 text-xs">{{ $message }}</span>
+                @enderror
+            </div>
+        </div>
+
+        <x-slot:footer>
+            <button type="button" wire:click="importBulk" wire:loading.attr="disabled"
+                class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+                <i wire:loading wire:target="importBulk" class="fa-solid fa-spinner fa-spin"></i>
+                <span>Proses & Simpan ke Bank Aktivitas Saya</span>
+            </button>
+        </x-slot:footer>
+    </x-mobile.rhoe-modal>
 </div>

@@ -57,6 +57,7 @@ class BankAktivitas extends Component
 
         $this->resetValidation();
         $this->editingId = $item->id;
+        $this->rencana_aksi_id = $item->rencana_aksi_id;
         $this->kode = (string) ($item->kode ?? '');
         $this->nama_aktivitas = (string) $item->nama_aktivitas;
         $this->menit = (int) $item->menit;
