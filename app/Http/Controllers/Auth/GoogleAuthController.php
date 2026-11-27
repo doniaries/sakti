@@ -36,14 +36,42 @@ class GoogleAuthController extends Controller
     }
 
     /**
+     * Menghubungkan akun Google Drive pegawai untuk unggah bukti LHK otomatis.
+     */
+    public function redirectToGoogleDrive(Request $request): RedirectResponse
+    {
+        session([
+            'google_auth_origin' => 'drive_connect',
+            'google_drive_return_url' => (string) $request->query('return_url', route('mobile.lhk.create')),
+        ]);
+
+        /** @var \Laravel\Socialite\Two\GoogleProvider $provider */
+        $provider = Socialite::driver('google');
+
+        return $provider
+            ->redirectUrl(url('/auth/google/callback'))
+            ->scopes(['https://www.googleapis.com/auth/drive.file'])
+            ->with([
+                'access_type' => 'offline',
+                'prompt' => 'consent',
+            ])
+            ->redirect();
+    }
+
+    /**
      * Menangani callback autentikasi dari Google.
      */
     public function handleGoogleCallback(Request $request): RedirectResponse
     {
         $origin = session()->pull('google_auth_origin', 'admin');
+        $driveReturnUrl = (string) session()->pull('google_drive_return_url', route('mobile.lhk.create'));
         $flutterDeviceId = (string) session()->pull('google_auth_device_id', '');
         $flutterDeviceName = (string) session()->pull('google_auth_device_name', '');
-        $failRedirect = ($origin === 'mobile') ? route('mobile.login') : '/admin/login';
+        $failRedirect = match ($origin) {
+            'mobile' => route('mobile.login'),
+            'drive_connect' => $driveReturnUrl,
+            default => '/admin/login',
+        };
 
         $flutterErrorRedirect = function (string $message): RedirectResponse {
             return redirect()->away('saktimobile://auth/callback?error=' . urlencode($message));
@@ -78,6 +106,36 @@ class GoogleAuthController extends Controller
 
         $googleId = (string) $googleUser->getId();
         $googleEmail = strtolower((string) $googleUser->getEmail());
+
+        if ($origin === 'drive_connect') {
+            /** @var User|null $authUser */
+            $authUser = Auth::user();
+            if (! $authUser) {
+                return redirect()->route('mobile.login');
+            }
+
+            $expiresIn = max(60, (int) ($googleUser->expiresIn ?? 3500));
+            $updates = [
+                'google_drive_token' => $googleUser->token,
+                'google_drive_token_expires_at' => now()->addSeconds($expiresIn - 60),
+            ];
+            if (filled($googleUser->refreshToken)) {
+                $updates['google_drive_refresh_token'] = $googleUser->refreshToken;
+            }
+            if (blank($authUser->google_id)) {
+                $updates['google_id'] = $googleId;
+            }
+
+            $authUser->forceFill($updates)->save();
+
+            session()->flash('notify', [
+                'type' => 'success',
+                'title' => 'Google Drive Terhubung',
+                'message' => 'Kamera bukti LHK siap mengunggah foto otomatis ke Google Drive Anda.',
+            ]);
+
+            return redirect()->to($driveReturnUrl);
+        }
 
         if (empty($googleEmail)) {
             if ($origin === 'flutter') {

@@ -244,6 +244,8 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     protected $hidden = [
         'password',
         'remember_token',
+        'google_drive_token',
+        'google_drive_refresh_token',
     ];
 
     /**
@@ -256,6 +258,9 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'device_bound_at' => 'datetime',
+            'google_drive_token' => 'encrypted',
+            'google_drive_refresh_token' => 'encrypted',
+            'google_drive_token_expires_at' => 'datetime',
             'password' => 'hashed',
             'tanggal_lahir' => 'date',
             'tanggal_npwp' => 'date',
@@ -267,6 +272,11 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             'jabatan_tim_kreatif' => \App\Enums\JabatanTimKreatif::class,
             'is_pengelola_aset' => 'boolean',
         ];
+    }
+
+    public function hasGoogleDriveConnected(): bool
+    {
+        return filled($this->google_drive_refresh_token) || filled($this->google_drive_token);
     }
 
     public function logAbsensi(): HasMany

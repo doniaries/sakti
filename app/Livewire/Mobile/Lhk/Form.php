@@ -9,22 +9,27 @@ use App\Models\Lhk;
 use App\Models\LhkPekerjaan;
 use App\Models\RencanaAksi;
 use App\Rules\PublicGoogleDriveUrl;
+use App\Services\GoogleDriveEvidenceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.mobile')]
 #[Title('Buat LHK - Absensi LHK Mobile')]
 class Form extends Component
 {
+    use WithFileUploads;
+
     public $tanggal;
     public $absenHariIni;
     public ?Lhk $existingLhk = null;
 
     public $pekerjaans = [];
     public $aktivitasList = [];
+    public array $evidencePhotos = [];
 
     protected function rules(): array
     {
@@ -147,6 +152,50 @@ class Form extends Component
         }
 
         return $jamMasukResmi;
+    }
+
+    public function updatedEvidencePhotos($file, string $key): void
+    {
+        $index = (int) $key;
+        if (! isset($this->pekerjaans[$index]) || ! $file) {
+            return;
+        }
+
+        $this->validate([
+            "evidencePhotos.{$index}" => ['required', 'image', 'max:10240'],
+        ], [
+            "evidencePhotos.{$index}.image" => 'File bukti harus berupa gambar (JPG, PNG, WEBP).',
+            "evidencePhotos.{$index}.max" => 'Ukuran foto maksimal 10 MB.',
+        ]);
+
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        if (! $user) {
+            return;
+        }
+
+        $tanggalFolder = $this->tanggal ?: Carbon::today()->format('Y-m-d');
+
+        try {
+            $driveUrl = GoogleDriveEvidenceService::uploadEvidencePhoto($user, $file, $tanggalFolder);
+            $this->pekerjaans[$index]['bukti_url'] = $driveUrl;
+            $this->resetErrorBag("pekerjaans.{$index}.bukti_url");
+            unset($this->evidencePhotos[$index]);
+
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Foto Diunggah ke Drive',
+                'message' => "Tersimpan di folder sakti-lhk-evidence-{$tanggalFolder} & akses publik dibuka.",
+            ]);
+        } catch (\Throwable $e) {
+            unset($this->evidencePhotos[$index]);
+            $this->addError("pekerjaans.{$index}.bukti_url", $e->getMessage());
+            $this->dispatch('notify', [
+                'type' => 'error',
+                'title' => 'Gagal Unggah ke Drive',
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
 
     public function updatedPekerjaans($value, string $key): void

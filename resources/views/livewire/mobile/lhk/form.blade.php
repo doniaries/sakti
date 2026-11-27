@@ -322,11 +322,11 @@
                                 @enderror
                             </div>
 
-                            <!-- 4. Bukti Google Drive -->
-                            <div>
-                                <div class="flex items-center justify-between mb-1.5">
+                            <!-- 4. Bukti Google Drive (2 Cara: Kamera Langsung ke Drive / Tempel Link) -->
+                            <div class="space-y-2.5">
+                                <div class="flex items-center justify-between">
                                     <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                                        <span class="text-sky-600 dark:text-cyan-400">4.</span> Link Bukti Google Drive
+                                        <span class="text-sky-600 dark:text-cyan-400">4.</span> Bukti Kegiatan Google Drive
                                         (Opsional)
                                     </label>
                                     @if (
@@ -341,24 +341,87 @@
                                         </a>
                                     @endif
                                 </div>
-                                <input type="url"
-                                    wire:model.live.debounce.500ms="pekerjaans.{{ $index }}.bukti_url"
-                                    placeholder="https://drive.google.com/file/d/..."
-                                    class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs md:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition">
-                                <div wire:loading wire:target="pekerjaans.{{ $index }}.bukti_url"
-                                    class="text-[10px] text-sky-600 dark:text-cyan-400 mt-1 flex items-center gap-1 font-medium">
-                                    <i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa akses publik Google
-                                    Drive...
+
+                                <!-- Cara 1: Kamera HP -> Upload ke Google Drive Sendiri -->
+                                <div
+                                    class="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/70 dark:bg-[#0F1E33]/80 p-3 space-y-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span
+                                            class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                            Cara 1 • Kamera HP ke Google Drive
+                                        </span>
+                                        @if (auth()->user()?->hasGoogleDriveConnected())
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                                                <i class="fa-solid fa-link text-[9px]"></i> Drive Terhubung
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    @if (auth()->user()?->hasGoogleDriveConnected())
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <label
+                                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-2xs transition cursor-pointer">
+                                                <i class="fa-solid fa-camera"></i>
+                                                <span>Ambil Foto / Pilih Gambar</span>
+                                                <input type="file" accept="image/*" capture="environment"
+                                                    wire:model="evidencePhotos.{{ $index }}" class="hidden">
+                                            </label>
+                                            <a href="{{ route('auth.google.drive', ['return_url' => route('mobile.lhk.create', ['tanggal' => $tanggal])]) }}"
+                                                class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:text-sky-600 underline">
+                                                Ganti akun Drive
+                                            </a>
+                                        </div>
+                                        <div wire:loading wire:target="evidencePhotos.{{ $index }}"
+                                            class="text-[11px] text-sky-600 dark:text-cyan-400 flex items-center gap-1.5 font-semibold">
+                                            <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                            <span>Mengunggah foto ke folder
+                                                <strong>sakti-lhk-evidence-{{ $tanggal }}</strong> &amp; membuka akses
+                                                publik...</span>
+                                        </div>
+                                        @error('evidencePhotos.' . $index)
+                                            <span class="text-rose-500 text-[10px] font-semibold block">{{ $message }}</span>
+                                        @enderror
+                                    @else
+                                        <div class="flex flex-wrap items-center justify-between gap-2">
+                                            <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
+                                                Hubungkan Google Drive agar foto kamera otomatis tersimpan di folder
+                                                <strong class="font-mono">sakti-lhk-evidence-{{ $tanggal }}</strong>.
+                                            </p>
+                                            <a href="{{ route('auth.google.drive', ['return_url' => route('mobile.lhk.create', ['tanggal' => $tanggal])]) }}"
+                                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-sky-400 hover:text-sky-600 shadow-2xs transition">
+                                                <i class="fa-brands fa-google-drive text-sky-600"></i>
+                                                <span>Hubungkan Google Drive</span>
+                                            </a>
+                                        </div>
+                                    @endif
                                 </div>
-                                @error('pekerjaans.' . $index . '.bukti_url')
-                                    <span
-                                        class="text-rose-500 text-[10px] font-semibold block mt-1">{{ $message }}</span>
-                                @else
-                                    <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-                                        Pastikan akses berbagi Google Drive sudah diubah ke <strong>Siapa saja yang memiliki
-                                            link</strong>.
-                                    </p>
-                                @enderror
+
+                                <!-- Cara 2: Tempel Link Google Drive Manual -->
+                                <div>
+                                    <label
+                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                                        Cara 2 • Atau Tempel Link Google Drive
+                                    </label>
+                                    <input type="url"
+                                        wire:model.live.debounce.500ms="pekerjaans.{{ $index }}.bukti_url"
+                                        placeholder="https://drive.google.com/file/d/..."
+                                        class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs md:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition">
+                                    <div wire:loading wire:target="pekerjaans.{{ $index }}.bukti_url"
+                                        class="text-[10px] text-sky-600 dark:text-cyan-400 mt-1 flex items-center gap-1 font-medium">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa akses publik Google
+                                        Drive...
+                                    </div>
+                                    @error('pekerjaans.' . $index . '.bukti_url')
+                                        <span
+                                            class="text-rose-500 text-[10px] font-semibold block mt-1">{{ $message }}</span>
+                                    @else
+                                        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                                            Pastikan akses berbagi Google Drive sudah diubah ke <strong>Siapa saja yang
+                                                memiliki link</strong>.
+                                        </p>
+                                    @enderror
+                                </div>
 
                                 @php
                                     $previewUrl = $this->getGoogleDrivePreviewUrl($pekerjaan['bukti_url'] ?? null);
