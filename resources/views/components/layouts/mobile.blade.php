@@ -732,6 +732,17 @@
                 this.showUser = Boolean(detail.show_user || false);
                 this.open = true;
             },
+            formattedMessage() {
+                const esc = String(this.message || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                return esc
+                    .replace(/\(Tepat Waktu\)/g, '<strong class=\'font-extrabold text-emerald-700\'>(Tepat Waktu)</strong>')
+                    .replace(/\(Terlambat[^)]*\)/g, '<strong class=\'font-extrabold text-rose-600\'>$&</strong>')
+                    .replace(/\(Catatan:\s*Pulang Cepat\)/g, '<strong class=\'font-extrabold text-amber-600\'>(Pulang Cepat)</strong>')
+                    .replace(/\(Mode Simulasi\)/g, '<strong class=\'font-bold text-sky-700\'>(Mode Simulasi)</strong>');
+            },
             close() {
                 this.open = false;
             }
@@ -809,14 +820,14 @@
                          alt="{{ auth()->user()->name }}"
                          class="w-16 h-16 rounded-full object-cover ring-4 ring-emerald-200 shadow-md">
                     <span class="px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
-                        {{ auth()->user()->jabatan?->nama ?? 'Pegawai' }}
+                        {{ auth()->user()->isPegawaiWajibAbsen() ? (auth()->user()->jabatan?->nama ?? 'Pegawai') : 'Super Administrator' }}
                     </span>
                 </div>
                 @endauth
 
-                <p class="text-sm text-slate-500 mt-3 leading-relaxed font-medium" x-text="message"></p>
+                <p class="text-sm text-slate-600 mt-4 px-1 leading-7 font-medium tracking-wide" x-html="formattedMessage()"></p>
                 @auth
-                <p x-show="showUser || type === 'success'" class="text-sm font-black text-slate-950 mt-1.5">{{ auth()->user()->name }}</p>
+                <p x-show="showUser || type === 'success'" class="text-sm font-black text-slate-950 mt-3">{{ auth()->user()->name }}</p>
                 @endauth
 
                 <!-- Action Button -->
