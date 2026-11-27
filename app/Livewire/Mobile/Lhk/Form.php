@@ -4,6 +4,7 @@ namespace App\Livewire\Mobile\Lhk;
 
 use App\Models\AbsensiHarian;
 use App\Models\Aktivitas;
+use App\Models\HariLibur;
 use App\Models\JadwalKerja;
 use App\Models\Lhk;
 use App\Models\LhkPekerjaan;
@@ -337,6 +338,15 @@ class Form extends Component
     {
         $this->validate();
 
+        if ($this->tanggal && HariLibur::isHariLibur($this->tanggal) && ! $this->absenHariIni && ! $this->existingLhk) {
+            $this->dispatch('notify', [
+                'type' => 'info',
+                'title' => 'Bukan Hari Kerja Resmi',
+                'message' => 'LHK tidak perlu diisi pada hari libur, akhir pekan, atau cuti bersama.',
+            ]);
+            return;
+        }
+
         if (! $this->canFillLhk()) {
             $this->dispatch('notify', [
                 'type' => 'error',
@@ -419,8 +429,19 @@ class Form extends Component
             ->get()
             ->groupBy(fn (RencanaAksi $ra): string => $ra->sasaran_sub_kegiatan ?: 'Umum');
 
+        $isHariLibur = $this->tanggal ? HariLibur::isHariLibur($this->tanggal) : false;
+        $infoLibur = $this->tanggal ? HariLibur::getLibur($this->tanggal) : null;
+        $alasanNonKerja = null;
+        if ($isHariLibur) {
+            $alasanNonKerja = $infoLibur
+                ? trim(($infoLibur->jenis === 'cuti_bersama' ? 'Cuti Bersama: ' : 'Hari Libur: ') . $infoLibur->nama)
+                : 'Akhir Pekan (' . Carbon::parse($this->tanggal)->translatedFormat('l') . ')';
+        }
+
         return view('livewire.mobile.lhk.form', [
             'bisaIsiLhk' => $this->canFillLhk(),
+            'isHariLibur' => $isHariLibur,
+            'alasanNonKerja' => $alasanNonKerja,
             'waktuAwalKegiatan' => $this->getWaktuAwalKegiatan(),
             'rencanaAksiOptions' => $rencanaAksiOptions,
         ]);

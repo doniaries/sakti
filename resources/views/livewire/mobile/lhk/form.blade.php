@@ -87,7 +87,16 @@
             @endif
         </div>
 
-        @if (!$absenHariIni && !$existingLhk)
+        @if ($isHariLibur && !$absenHariIni && !$existingLhk)
+            <div
+                class="rounded-xl bg-sky-50 dark:bg-sky-500/10 text-sky-800 dark:text-sky-200 p-3.5 text-xs flex items-start gap-2.5 border border-sky-200 dark:border-sky-500/30 font-medium leading-relaxed">
+                <i class="fa-solid fa-calendar-xmark mt-0.5 text-sky-600 dark:text-sky-400 shrink-0"></i>
+                <span>
+                    <strong>LHK tidak perlu diisi.</strong> Tanggal ini bukan hari kerja resmi
+                    ({{ $alasanNonKerja }}).
+                </span>
+            </div>
+        @elseif (!$absenHariIni && !$existingLhk)
             <div
                 class="rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 p-3 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-500/30 font-semibold">
                 <i class="fa-solid fa-triangle-exclamation shrink-0"></i>
