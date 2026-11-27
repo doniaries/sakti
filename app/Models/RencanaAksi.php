@@ -94,9 +94,19 @@ class RencanaAksi extends Model
             });
 
             if ($user->jabatan_tim_kreatif) {
-                $q->orWhere(function (Builder $tkQ) use ($userLevel): void {
-                    $tkQ->where('sasaran_sub_kegiatan', 'Tugas Tambahan')
-                        ->where('level', $userLevel);
+                $timKreatifRaIds = Aktivitas::query()
+                    ->where('user_id', $user->id)
+                    ->whereNotNull('rencana_aksi_id')
+                    ->pluck('rencana_aksi_id')
+                    ->all();
+
+                $q->orWhere(function (Builder $tkQ) use ($userLevel, $timKreatifRaIds): void {
+                    $tkQ->where('sasaran_sub_kegiatan', 'Tugas Tambahan');
+                    if ($timKreatifRaIds !== []) {
+                        $tkQ->whereIn('id', $timKreatifRaIds);
+                    } else {
+                        $tkQ->where('level', $userLevel);
+                    }
                 });
             }
         });

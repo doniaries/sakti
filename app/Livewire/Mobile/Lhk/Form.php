@@ -162,6 +162,17 @@ class Form extends Component
             return;
         }
 
+        if ($field === 'rencana_aksi_id') {
+            $currentAktId = $this->pekerjaans[$index]['aktivitas_id'] ?? null;
+            if ($currentAktId && ! empty($value)) {
+                $akt = Aktivitas::find((int) $currentAktId);
+                if ($akt && (int) $akt->rencana_aksi_id !== (int) $value) {
+                    $this->pekerjaans[$index]['aktivitas_id'] = null;
+                }
+            }
+            return;
+        }
+
         if ($field === 'aktivitas_id') {
             $aktivitas = $value ? Aktivitas::find((int) $value) : null;
             if ($aktivitas) {

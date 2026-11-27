@@ -145,11 +145,11 @@
                                             return true;
                                         }
                                         if (empty($selectedRaId)) {
-                                            return true;
+                                            return is_null($a->rencana_aksi_id)
+                                                || (is_null($a->user_id) && is_null($a->jabatan_id));
                                         }
 
-                                        return (int) $a->rencana_aksi_id === (int) $selectedRaId
-                                            || (is_null($a->user_id) && is_null($a->jabatan_id));
+                                        return (int) $a->rencana_aksi_id === (int) $selectedRaId;
                                     });
                                     $groupedAktivitasRow = $filteredAktivitas->groupBy(function ($a) {
                                         if (is_null($a->user_id) && is_null($a->jabatan_id)) {
