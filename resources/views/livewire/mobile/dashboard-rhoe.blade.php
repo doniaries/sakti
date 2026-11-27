@@ -130,10 +130,11 @@
                         </button>
                     @endif
                     <a href="/admin" target="_blank" rel="noopener"
-                        class="h-9 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
-                        title="Buka Panel Admin SAKTI di tab baru">
+                        class="h-9 px-2.5 sm:px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                        title="Buka Panel Admin SAKTI di tab baru (untuk proses SPJ, proses absen, &amp; administrasi)">
                         <i class="fa-solid fa-shield-halved text-xs"></i>
-                        <span class="hidden sm:inline">Panel Admin</span>
+                        <span class="sm:hidden">Admin</span>
+                        <span class="hidden sm:inline">Panel Admin (SPJ &amp; Absen)</span>
                     </a>
                     <div x-data="{
                             isNative: !!window.SaktiNative,
