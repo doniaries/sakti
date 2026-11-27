@@ -105,11 +105,18 @@
 
         <!-- Baris 4: Admin Tools (Hanya Tampil Jika Role SuperAdmin / Admin Dinas) -->
         @if ($isAdmin)
-            <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[10px]">
+            <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-[10px] md:text-xs">
                 <span class="font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center">
                     <i class="fa-solid fa-screwdriver-wrench mr-1.5 text-xs"></i> Mode Admin
                 </span>
-                <div class="flex items-center space-x-1.5">
+                <div class="flex flex-wrap items-center gap-1.5">
+                    @if ($user->hasAnyRole(['super_admin', 'superadmin']))
+                        <button type="button" @click="simulasiModal = true"
+                            class="px-2.5 py-1 {{ $modeSimulasi ? 'bg-emerald-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white' }} font-extrabold rounded-lg shadow-md shadow-slate-900/5 transition-transform duration-150 ease-out active:scale-[0.96] flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-flask text-[10px]"></i>
+                            <span>{{ $modeSimulasi ? 'Simulasi ON' : 'Mode Simulasi' }}</span>
+                        </button>
+                    @endif
                     <a href="{{ route('mobile.pengaturan-lokasi') }}" wire:navigate
                         class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold rounded-lg shadow-md shadow-slate-900/5 transition-transform duration-150 ease-out active:scale-[0.96] flex items-center gap-1 cursor-pointer">
                         <i class="fa-solid fa-map-location-dot text-[10px]"></i>
@@ -273,8 +280,80 @@
     @endif
 
     <div class="flex flex-col items-center mt-auto pt-1 pb-16 text-slate-400 text-center">
-        <p class="text-[10px] text-slate-400">Akurasi GPS tinggi diwajibkan untuk presensi kedinasan.</p>
+        <p class="text-[10px] md:text-xs text-slate-400">Akurasi GPS tinggi diwajibkan untuk presensi kedinasan.</p>
     </div>
+
+    @if ($user->hasAnyRole(['super_admin', 'superadmin']))
+        <!-- POPUP MODAL MODE SIMULASI -->
+        <div x-show="simulasiModal" x-cloak @keydown.escape.window="simulasiModal = false"
+            class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs"
+            @click.self="simulasiModal = false">
+            <div class="w-full max-w-md bg-white dark:bg-zinc-900 rounded-3xl p-5 shadow-2xl border border-slate-200/90 dark:border-zinc-700/80 space-y-4">
+                <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 dark:border-zinc-800">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                            <i class="fa-solid fa-flask text-sm"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-slate-800 dark:text-white text-sm md:text-base">Mode Simulasi Presensi</h3>
+                            <p class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">Uji presensi tanpa batas lokasi dengan jam server simulasi</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="simulasiModal = false"
+                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 flex items-center justify-center cursor-pointer">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- Toggle Mode Simulasi Bebas Lokasi -->
+                <div class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-slate-50/70 dark:bg-zinc-800/50">
+                    <div>
+                        <div class="text-xs md:text-sm font-extrabold text-slate-800 dark:text-white">Mode Simulasi Bebas Lokasi</div>
+                        <div class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">Izinkan presensi tanpa batasan radius geofencing kantor.</div>
+                    </div>
+                    <button type="button" wire:click="toggleModeSimulasi"
+                        class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 {{ $modeSimulasi ? 'bg-sky-600' : 'bg-slate-300 dark:bg-zinc-600' }}">
+                        <span class="pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-sm transition duration-200 {{ $modeSimulasi ? 'translate-x-5' : 'translate-x-0' }}"></span>
+                    </button>
+                </div>
+
+                <!-- Simulasi Jam Aktif Server -->
+                <div class="p-3.5 rounded-2xl border border-amber-200 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/10 space-y-3 {{ $modeSimulasi ? '' : 'opacity-50 pointer-events-none' }}">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-xs md:text-sm font-extrabold text-amber-800 dark:text-amber-300">Simulasi Jam Aktif Server</div>
+                            <div class="text-[11px] md:text-xs text-amber-700/80 dark:text-amber-300/80">Kosongkan untuk memakai jam server asli.</div>
+                        </div>
+                        <input type="time" wire:model.live="simulasiJamAktif"
+                            class="rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold font-mono bg-white dark:bg-zinc-900 border border-amber-300 dark:border-amber-500/40 text-slate-800 dark:text-white">
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button type="button" wire:click="setSimulasiJam('07:25')"
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[11px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
+                            07:25 Masuk
+                        </button>
+                        <button type="button" wire:click="setSimulasiJam('08:05')"
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[11px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
+                            08:05 Terlambat
+                        </button>
+                        <button type="button" wire:click="setSimulasiJam('16:35')"
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[11px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
+                            16:35 Pulang
+                        </button>
+                        <button type="button" wire:click="setSimulasiJam(null)"
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 cursor-pointer">
+                            Reset Real-Time
+                        </button>
+                    </div>
+                </div>
+
+                <button type="button" @click="simulasiModal = false"
+                    class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 dark:bg-sky-600 dark:hover:bg-sky-700 text-white font-bold text-xs md:text-sm cursor-pointer transition">
+                    Selesai &amp; Terapkan
+                </button>
+            </div>
+        </div>
+    @endif
 
     @script
         <script>
@@ -283,6 +362,7 @@
                     loadingMasuk: false,
                     loadingPulang: false,
                     settingOffice: false,
+                    simulasiModal: false,
                     officeLat: {{ $officeLat }},
                     officeLng: {{ $officeLng }},
                     maxRadius: {{ $maxRadius }},
@@ -303,6 +383,10 @@
                     userMarker: null,
 
                     init() {
+                        this.$watch('$wire.modeSimulasi', (val) => {
+                            this.modeSimulasi = Boolean(val);
+                            this.isWithinRadius = this.modeSimulasi || this.isWfh || (this.currentDistance !== null && this.currentDistance <= this.maxRadius);
+                        });
                         this.$nextTick(() => {
                             this.initMap();
                             this.detectPosition();
