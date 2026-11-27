@@ -182,11 +182,6 @@
                         :class="gpsStatus === 'ok' ? 'bg-emerald-500' : (gpsStatus === 'blocked' ? 'bg-rose-500' : 'bg-zinc-400')"></span>
                     <span x-text="gpsStatus === 'ok' ? 'GPS OK' : (gpsStatus === 'blocked' ? 'GPS Nonaktif' : 'Mencari...')">GPS</span>
                 </span>
-                <button type="button" @click="detectPosition(true)"
-                    class="px-3 py-1.5 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-600 dark:text-cyan-300 border border-sky-400/30 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer">
-                    <i class="fa-solid fa-crosshairs text-xs"></i>
-                    <span>Perbarui GPS</span>
-                </button>
             </div>
         </div>
 

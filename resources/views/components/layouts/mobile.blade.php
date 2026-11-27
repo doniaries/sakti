@@ -152,7 +152,7 @@
     <style>
         @media (max-width: 767px) {
             html {
-                font-size: 17.5px;
+                font-size: 16.5px;
             }
         }
         * {
