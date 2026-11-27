@@ -286,11 +286,19 @@
                                     @endif
                                 </div>
                                 <input type="url"
-                                    wire:model.live.debounce.400ms="pekerjaans.{{ $index }}.bukti_url"
-                                    placeholder="https://drive.google.com/..."
+                                    wire:model.live.debounce.500ms="pekerjaans.{{ $index }}.bukti_url"
+                                    placeholder="https://drive.google.com/file/d/..."
                                     class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs md:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition">
+                                <div wire:loading wire:target="pekerjaans.{{ $index }}.bukti_url"
+                                    class="text-[10px] text-sky-600 dark:text-cyan-400 mt-1 flex items-center gap-1 font-medium">
+                                    <i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa akses publik Google Drive...
+                                </div>
                                 @error('pekerjaans.' . $index . '.bukti_url')
-                                    <span class="text-rose-500 text-[10px] block mt-1">{{ $message }}</span>
+                                    <span class="text-rose-500 text-[10px] font-semibold block mt-1">{{ $message }}</span>
+                                @else
+                                    <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                                        Pastikan akses berbagi Google Drive sudah diubah ke <strong>Siapa saja yang memiliki link</strong>.
+                                    </p>
                                 @enderror
 
                                 @php

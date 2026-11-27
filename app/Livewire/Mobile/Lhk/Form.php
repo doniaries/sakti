@@ -211,6 +211,14 @@ class Form extends Component
             return;
         }
 
+        if ($field === 'bukti_url') {
+            $this->resetErrorBag("pekerjaans.{$index}.bukti_url");
+            if (filled($value)) {
+                $this->validateOnly("pekerjaans.{$index}.bukti_url");
+            }
+            return;
+        }
+
         if ($field === 'jam_selesai' && ! empty($value) && ! empty($this->pekerjaans[$index]['jam_mulai'])) {
             try {
                 $mulai = Carbon::parse($this->pekerjaans[$index]['jam_mulai']);

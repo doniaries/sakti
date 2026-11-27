@@ -49,11 +49,15 @@ class PublicGoogleDriveUrl implements ValidationRule
             $status = $response->status();
             $effectiveUri = strtolower((string) $response->effectiveUri());
             $contentType = strtolower((string) $response->header('Content-Type'));
+            $bodyLower = str_starts_with($contentType, 'text/html') ? strtolower($response->body()) : '';
 
             if (
                 str_contains($effectiveUri, 'accounts.google.com')
                 || str_contains($effectiveUri, 'servicelogin')
                 || str_contains($effectiveUri, 'signin')
+                || str_contains($bodyLower, 'you need access')
+                || str_contains($bodyLower, 'request access')
+                || str_contains($bodyLower, 'servicelogin')
                 || in_array($status, [401, 403], true)
             ) {
                 $fail("Link Google Drive masih bersifat Privat. Ubah akses berbagi menjadi 'Siapa saja yang memiliki link' (Pelihat) agar gambar dapat diperiksa.");
