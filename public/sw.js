@@ -1,9 +1,11 @@
-const CACHE_NAME = 'sakti-pwa-v7';
+const CACHE_NAME = 'sakti-pwa-v8';
 const urlsToCache = [
   '/manifest.json',
   '/manifest-admin.json',
   '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  '/icons/pwa-192x192.png',
+  '/icons/pwa-512x512.png'
 ];
 
 self.addEventListener('install', function(event) {

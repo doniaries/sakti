@@ -110,10 +110,10 @@
 
             <!-- SAKTI Circle Logo -->
             @php
-                $loginLogoVer = @filemtime(public_path('icons/icon-192x192.png')) ?: time();
+                $loginLogoVer = @filemtime(public_path('icons/pwa-192x192.png')) ?: time();
             @endphp
             <div class="w-16 h-16 rounded-full bg-[#0A192F] border-2 border-white/30 shadow-xl overflow-hidden flex items-center justify-center mb-2.5" style="width:64px;height:64px">
-                <img src="{{ asset('icons/icon-192x192.png') }}?v={{ $loginLogoVer }}" alt="SAKTI" width="64" height="64" style="width:64px;height:64px" class="w-full h-full object-cover">
+                <img src="{{ asset('icons/pwa-192x192.png') }}?v={{ $loginLogoVer }}" alt="SAKTI Web" width="64" height="64" style="width:64px;height:64px" class="w-full h-full object-cover">
             </div>
 
             <div x-data="{ openUpdateModal: false }" class="inline-block">
