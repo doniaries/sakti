@@ -142,9 +142,10 @@
                             class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs text-zinc-900 dark:text-zinc-100">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Selesai</label>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Selesai *</label>
                         <input type="time" wire:model="jam_selesai"
                             class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs text-zinc-900 dark:text-zinc-100">
+                        @error('jam_selesai') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
@@ -156,20 +157,22 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Asal Undangan / Penyelenggara</label>
-                    <input type="text" wire:model="asal_undangan" placeholder="Opsional..."
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Asal Undangan / Penyelenggara *</label>
+                    <input type="text" wire:model="asal_undangan" placeholder="Nama instansi / penyelenggara..."
                         class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100">
+                    @error('asal_undangan') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Keterangan</label>
-                    <textarea wire:model="keterangan" rows="2" placeholder="Catatan tambahan (opsional)..."
+                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Keterangan *</label>
+                    <textarea wire:model="keterangan" rows="2" placeholder="Keterangan agenda..."
                         class="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 p-2.5 text-xs text-zinc-900 dark:text-zinc-100"></textarea>
+                    @error('keterangan') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
                     <div class="flex items-center justify-between mb-1">
-                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Pegawai yang Diperintah (Disposisi)</label>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Pegawai yang Diperintah (Disposisi) *</label>
                         <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300">
                             {{ count($disposisi_user_ids) }} dipilih
                         </span>
@@ -201,6 +204,7 @@
                             @endforeach
                         </div>
                     </div>
+                    @error('disposisi_user_ids') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
