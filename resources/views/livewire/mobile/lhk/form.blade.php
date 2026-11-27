@@ -147,18 +147,25 @@
                                     <span class="text-sky-600 dark:text-cyan-400">1.</span> Rencana Aksi
                                 </label>
                                 @php
+                                    $aktCountByRa = collect($aktivitasList)
+                                        ->whereNotNull('rencana_aksi_id')
+                                        ->countBy('rencana_aksi_id');
+                                    $umumAktCount = collect($aktivitasList)
+                                        ->filter(fn ($a) => is_null($a->rencana_aksi_id) || (is_null($a->user_id) && is_null($a->jabatan_id)))
+                                        ->count();
                                     $raGroups = $rencanaAksiOptions->map(fn ($raItems, $subKegGroup) => [
                                         'label' => $subKegGroup,
                                         'options' => $raItems->map(fn ($ra) => [
                                             'value' => $ra->id,
                                             'label' => $ra->rencana_aksi,
+                                            'badge' => ($aktCountByRa->get($ra->id, 0)) . ' aktivitas',
                                         ])->values()->all(),
                                     ])->values()->all();
                                 @endphp
                                 <x-mobile.select
                                     :wire-model="'pekerjaans.' . $index . '.rencana_aksi_id'"
                                     :value="$pekerjaan['rencana_aksi_id'] ?? ''"
-                                    empty-label="Umum"
+                                    :empty-label="'Umum (' . $umumAktCount . ' aktivitas)'"
                                     search-placeholder="Cari rencana aksi..."
                                     :groups="$raGroups" />
                             </div>

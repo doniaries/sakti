@@ -109,7 +109,10 @@
                                 <span class="leading-snug">{{ $optLabel }}</span>
                                 <span class="flex items-center gap-1.5 shrink-0 mt-0.5">
                                     @if ($optBadge)
-                                        <span class="px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                                        @php
+                                            $isZeroBadge = str_starts_with((string) $optBadge, '0 ');
+                                        @endphp
+                                        <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold {{ $isZeroBadge ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' : 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' }}">
                                             {{ $optBadge }}
                                         </span>
                                     @endif
