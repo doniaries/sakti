@@ -317,6 +317,18 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
+     * Cek apakah user adalah pegawai wajib absen (bukan akun sistem/operator non-pegawai).
+     */
+    public function isPegawaiWajibAbsen(): bool
+    {
+        if (in_array(strtolower((string) $this->email), ['superadmin@gmail.com', 'adminkeuangan@gmail.com', 'operator.sakti@sijunjung.go.id'], true)) {
+            return false;
+        }
+
+        return static::bukanSuperAdmin()->whereKey($this->id)->exists();
+    }
+
+    /**
      * Boot model events untuk pembersihan file avatar lama dan auto-extract gelar kepegawaian
      */
     protected static function booted(): void

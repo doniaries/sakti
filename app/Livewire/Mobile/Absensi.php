@@ -163,6 +163,7 @@ class Absensi extends Component
         }
 
         $todayStr = Carbon::today()->format('Y-m-d');
+        session()->forget("simulasi_absen_{$user->id}_{$todayStr}");
 
         \App\Models\LogAbsensi::where('user_id', $user->id)
             ->whereDate('waktu_absensi', $todayStr)
@@ -193,6 +194,7 @@ class Absensi extends Component
         }
 
         $todayStr = Carbon::today()->format('Y-m-d');
+        session()->forget("simulasi_absen_{$user->id}_{$todayStr}");
         $pengaturan = PengaturanAplikasi::getPengaturan();
         $lat = (float) ($pengaturan->latitude_kantor ?? -0.69752300);
         $lng = (float) ($pengaturan->longitude_kantor ?? 100.98547200);
@@ -288,7 +290,12 @@ class Absensi extends Component
             : Carbon::now()->format('H:i');
         $isJumat = Carbon::today()->dayOfWeekIso === 5;
 
-        $absenHarian = AbsensiHarian::where('user_id', $user->id)->where('tanggal', $today)->first();
+        $virtualData = (! $user->isPegawaiWajibAbsen() && $this->modeSimulasi)
+            ? session("simulasi_absen_{$user->id}_{$today}")
+            : null;
+        $absenHarian = $virtualData
+            ? new AbsensiHarian($virtualData)
+            : AbsensiHarian::where('user_id', $user->id)->where('tanggal', $today)->first();
         $hariLiburHariIni = \App\Models\HariLibur::where('tanggal', $today)->where('is_aktif', true)->first();
 
         $sudahMasuk = $absenHarian && !empty($absenHarian->jam_masuk);

@@ -229,10 +229,19 @@ class Dashboard extends Component
         $user = User::with(['jabatan', 'bidang', 'atasan', 'jadwalKerja'])->find(Auth::id()) ?? Auth::user();
         $today = Carbon::today();
         
+        $todayStr = $today->format('Y-m-d');
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $modeSimulasi = (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
+        $virtualData = (! $user->isPegawaiWajibAbsen() && $modeSimulasi)
+            ? session("simulasi_absen_{$user->id}_{$todayStr}")
+            : null;
+
         // Data hari ini
-        $absensiHariIni = AbsensiHarian::where('user_id', $user->id)
-            ->where('tanggal', $today->format('Y-m-d'))
-            ->first();
+        $absensiHariIni = $virtualData
+            ? new AbsensiHarian($virtualData)
+            : AbsensiHarian::where('user_id', $user->id)
+                ->where('tanggal', $todayStr)
+                ->first();
         $hariLiburHariIni = \App\Models\HariLibur::where('tanggal', $today->format('Y-m-d'))
             ->where('is_aktif', true)
             ->first();
