@@ -183,7 +183,8 @@ class BackupDatabase extends Page
                         ->label('Berkas Backup (.sql)')
                         ->disk('local')
                         ->directory('backups/uploads')
-                        ->acceptedFileTypes(['.sql', 'application/sql', 'text/plain', 'application/octet-stream'])
+                        ->rules(['file', 'extensions:sql'])
+                        ->extraInputAttributes(['accept' => '.sql'])
                         ->maxSize(102400)
                         ->required(),
                 ])
