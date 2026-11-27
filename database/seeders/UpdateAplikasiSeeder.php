@@ -14,8 +14,8 @@ class UpdateAplikasiSeeder extends Seeder
         $pengaturan = PengaturanAplikasi::getPengaturan();
 
         $pengaturan->update([
-            'app_version' => 'v1.2.0',
-            'update_notes' => '1. Notifikasi Web Push (VAPID) Android & geser hapus notif. 2. Peningkatan akurasi GPS (watchPosition) & preset lokasi simulasi. 3. Edit/hapus Surat Tugas, pilihan pejabat penandatangan, & cek kelengkapan pegawai via WhatsApp. 4. Desain baru halaman login PWA & menu Pengaturan Aplikasi.',
+            'app_version' => 'v1.3.0',
+            'update_notes' => '1. Notifikasi Android FCM real-time (ikon SAKTI, suara, getar, bangunkan layar, & klik langsung ke halaman). 2. Login cepat Google & Sidik Jari di Android + status izin GPS/Notifikasi. 3. Preview & ganti foto profil di Dashboard & Profil, tombol Perbarui GPS lebih mudah dijangkau, serta pull-to-refresh. 4. Filter, pengingat, & cetak PDF Pegawai Belum Lengkap di Admin, serta Mode Simulasi khusus Superadmin.',
         ]);
     }
 }
