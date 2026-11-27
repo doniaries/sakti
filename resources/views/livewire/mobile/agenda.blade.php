@@ -111,10 +111,10 @@
     </div>
 
     @if ($showForm)
-        <div class="fixed inset-0 z-[100] bg-slate-900/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-4"
+        <div class="fixed inset-0 z-[999] bg-slate-900/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-4 pb-24 sm:pb-4"
             wire:click.self="$set('showForm', false)">
             <form wire:submit="simpanAgenda"
-                class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl border border-slate-100 dark:border-zinc-800 space-y-3 max-h-[85vh] overflow-y-auto">
+                class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl border border-slate-100 dark:border-zinc-800 space-y-3 max-h-[82vh] overflow-y-auto overscroll-contain">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">Tambah Agenda Kegiatan</h3>
                     <button type="button" wire:click="$set('showForm', false)"
@@ -170,22 +170,42 @@
                     @error('keterangan') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
+                <div x-data="{
+                        open: false,
+                        q: '',
+                        dropUp: false,
+                        toggle() {
+                            if (!this.open) {
+                                const rect = this.$refs.trigger.getBoundingClientRect();
+                                const modalEl = this.$el.closest('form');
+                                const modalRect = modalEl ? modalEl.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+                                const spaceBelow = modalRect.bottom - rect.bottom;
+                                const spaceAbove = rect.top - modalRect.top;
+                                this.dropUp = spaceBelow < 230 && spaceAbove > spaceBelow;
+                            }
+                            this.open = !this.open;
+                        }
+                    }"
+                    @click.outside="open = false"
+                    @keydown.escape.window="open = false"
+                    class="relative">
                     <div class="flex items-center justify-between mb-1">
                         <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Pegawai yang Diperintah (Disposisi) *</label>
                         <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300">
                             {{ count($disposisi_user_ids) }} dipilih
                         </span>
                     </div>
-                    <button type="button" @click="open = !open"
-                        class="w-full min-h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-left flex items-center justify-between gap-2 text-xs">
+                    <button type="button" x-ref="trigger" @click="toggle()"
+                        class="w-full min-h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-left flex items-center justify-between gap-2 text-xs cursor-pointer">
                         <span class="text-zinc-500 truncate">
                             {{ count($disposisi_user_ids) > 0 ? count($disposisi_user_ids) . ' pegawai dipilih' : 'Pilih pegawai yang ditugaskan...' }}
                         </span>
-                        <i class="fa-solid fa-chevron-down text-zinc-400 text-xs"></i>
+                        <i class="fa-solid fa-chevron-down text-zinc-400 text-xs transition-transform duration-150"
+                            :class="open ? 'rotate-180 text-sky-500' : ''"></i>
                     </button>
                     <div x-show="open" x-cloak
-                        class="mt-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 shadow-lg">
+                        :class="dropUp ? 'bottom-full mb-1.5' : 'top-full mt-1.5'"
+                        class="absolute left-0 right-0 z-30 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 shadow-2xl">
                         <input type="search" x-model="q" placeholder="Cari nama atau jabatan..."
                             class="w-full h-8 mb-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs text-zinc-900 dark:text-zinc-100">
                         <div class="max-h-40 overflow-y-auto space-y-1">
