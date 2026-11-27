@@ -205,8 +205,13 @@ class BankAktivitas extends Component
             ->orderByRaw('CAST(kode AS UNSIGNED) ASC, kode ASC, id ASC')
             ->get();
 
+        $globalCount = $myAktivitas->filter(fn (Aktivitas $a): bool => is_null($a->user_id) && is_null($a->jabatan_id))->count();
+        $spesifikCount = $myAktivitas->count() - $globalCount;
+
         return view('livewire.mobile.lhk.bank-aktivitas', [
             'myAktivitas' => $myAktivitas,
+            'globalCount' => $globalCount,
+            'spesifikCount' => $spesifikCount,
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Aktivitas\Pages;
 
 use App\Filament\Resources\Aktivitas\AktivitasResource;
+use App\Filament\Resources\Aktivitas\Widgets\AktivitasStatsWidget;
 use App\Models\Aktivitas;
 use App\Models\User;
 use Filament\Actions\Action;
@@ -17,6 +18,13 @@ use Illuminate\Support\Facades\Auth;
 class ListAktivitas extends ListRecords
 {
     protected static string $resource = AktivitasResource::class;
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            AktivitasStatsWidget::class,
+        ];
+    }
 
     protected function getHeaderActions(): array
     {
