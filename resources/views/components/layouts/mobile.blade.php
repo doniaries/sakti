@@ -341,13 +341,13 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+            background: linear-gradient(135deg, #0284C7 0%, #1D4ED8 100%);
             color: #FFFFFF;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 25px -3px rgba(245, 158, 11, 0.45), 0 0 0 5px #F8FAFC;
+            box-shadow: 0 10px 25px -3px rgba(2, 132, 199, 0.45), 0 0 0 5px #F8FAFC;
             transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
             text-decoration: none;
         }
@@ -681,7 +681,7 @@
                 <div class="center-absen-btn-wrapper">
                     <a href="{{ route('mobile.absensi') }}" 
                        wire:navigate.hover
-                       class="center-absen-btn group ring-4 ring-amber-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-amber-400 shadow-amber-500/30' : '' }}"
+                       class="center-absen-btn group ring-4 ring-sky-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-sky-400 shadow-sky-500/40' : '' }}"
                        title="Halaman Presensi Kehadiran">
                         <i class="fa-solid fa-fingerprint"></i>
                         <span>PRESENSI</span>
