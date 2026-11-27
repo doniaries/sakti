@@ -236,7 +236,7 @@
             <div class="flex-1 min-w-0">
                 <div
                     class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-extrabold text-sky-200 uppercase tracking-wider mb-1">
-                    {{ $user->jabatan->nama ?? 'Pegawai' }}
+                    {{ $user->isPegawaiWajibAbsen() ? ($user->jabatan->nama ?? 'Pegawai') : 'Super Administrator Sistem' }}
                 </div>
                 @php
                     $namaLengkap = $user->name;
@@ -340,16 +340,18 @@
         </div>
 
         <!-- Ringkasan Unit Kerja & Atasan -->
-        <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-2 gap-2 text-[11px] relative z-10">
-            <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
-                <div class="text-sky-200/80 text-[10px]">Bidang Dinas</div>
-                <div class="font-bold text-white truncate">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</div>
+        @if ($user->isPegawaiWajibAbsen())
+            <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-2 gap-2 text-[11px] relative z-10">
+                <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
+                    <div class="text-sky-200/80 text-[10px]">Bidang Dinas</div>
+                    <div class="font-bold text-white truncate">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</div>
+                </div>
+                <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
+                    <div class="text-sky-200/80 text-[10px]">Atasan</div>
+                    <div class="font-bold text-white truncate">{{ $user->atasan->name ?? 'Pimpinan' }}</div>
+                </div>
             </div>
-            <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
-                <div class="text-sky-200/80 text-[10px]">Atasan</div>
-                <div class="font-bold text-white truncate">{{ $user->atasan->name ?? 'Pimpinan' }}</div>
-            </div>
-        </div>
+        @endif
 
         <!-- Status Izin Perangkat (Khusus Aplikasi Android) -->
         <div x-data="{
@@ -1716,16 +1718,18 @@
                         <span class="text-slate-400 font-medium">Jabatan Saat Ini</span>
                         <span class="font-bold text-slate-800 text-right">{{ $user->jabatan->nama ?? '-' }}</span>
                     </div>
-                    <div class="flex justify-between py-1 text-xs">
-                        <span class="text-slate-400 font-medium">Bidang Dinas</span>
-                        <span
-                            class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</span>
-                    </div>
-                    <div class="flex justify-between py-1 text-xs">
-                        <span class="text-slate-400 font-medium">Atasan Langsung</span>
-                        <span
-                            class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
-                    </div>
+                    @if ($user->isPegawaiWajibAbsen())
+                        <div class="flex justify-between py-1 text-xs">
+                            <span class="text-slate-400 font-medium">Bidang Dinas</span>
+                            <span
+                                class="font-bold text-slate-800 text-right">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</span>
+                        </div>
+                        <div class="flex justify-between py-1 text-xs">
+                            <span class="text-slate-400 font-medium">Atasan Langsung</span>
+                            <span
+                                class="font-bold text-slate-800 text-right">{{ $user->atasan->name ?? 'Pimpinan Tertinggi' }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endif
