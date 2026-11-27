@@ -222,6 +222,33 @@
                 </div>
             </div>
 
+            <!-- Row 1.5: Quick Utility Actions (Admin SPJ, Ingatkan Pegawai, Simulasi) -->
+            <div class="mt-3 flex flex-wrap items-center gap-2 relative z-10">
+                <a href="/admin" target="_blank" rel="noopener"
+                    class="h-8 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-extrabold inline-flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                    title="Buka Panel Admin SAKTI di tab baru (khusus proses SPJ)">
+                    <i class="fa-solid fa-shield-halved text-[11px]"></i>
+                    <span>Panel Admin (Proses SPJ)</span>
+                </a>
+                @if ($user->canRemindPegawai())
+                    <button type="button" wire:click="ingatkanPegawai"
+                        wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
+                        class="h-8 px-3 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-xs font-extrabold inline-flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                        title="Ingatkan Pegawai Lengkapi Data Kepegawaian">
+                        <i class="fa-solid fa-bullhorn text-[11px]"></i>
+                        <span>Ingatkan Pegawai</span>
+                    </button>
+                @endif
+                @if ($user->hasAnyRole(['super_admin', 'superadmin']))
+                    <button type="button" wire:click="toggleSimulasi"
+                        class="h-8 px-3 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} text-xs font-extrabold inline-flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                        title="Toggle Mode Simulasi Data (Khusus Superadmin)">
+                        <i class="fa-solid fa-flask text-[11px]"></i>
+                        <span>{{ $modeSimulasi ? 'Simulasi ON' : 'Simulasi' }}</span>
+                    </button>
+                @endif
+            </div>
+
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
             <div class="mt-5 flex items-center justify-between gap-3 relative z-10">
                 <div class="min-w-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:text-center">
