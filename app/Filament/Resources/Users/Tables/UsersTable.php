@@ -1142,9 +1142,10 @@ class UsersTable
                         \App\Services\PushNotificationService::sendToUsers(
                             $targets,
                             'Lengkapi Data Kepegawaian',
-                            'Mohon segera melengkapi profil kepegawaian Anda (NIP, NIK, No. HP, Bidang, Jabatan) di menu Profil.',
+                            'Mohon segera melengkapi profil kepegawaian Anda (NIP, NIK, No. HP, Bidang, Jabatan, dan riwayat) di menu Profil.',
                             ['url' => route('mobile.profil')],
-                            'warning'
+                            'warning',
+                            ignoreSimulasi: true
                         );
 
                         Notification::make()

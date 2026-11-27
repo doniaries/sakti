@@ -16,10 +16,10 @@ class PushNotificationService
      * @param  iterable<User>  $users
      * @param  array<string, string>  $data
      */
-    public static function sendToUsers(iterable $users, string $title, string $body, array $data = [], string $status = 'info'): void
+    public static function sendToUsers(iterable $users, string $title, string $body, array $data = [], string $status = 'info', bool $ignoreSimulasi = false): void
     {
         $recipients = collect($users)->filter(fn ($u) => $u instanceof User)->unique('id')->values();
-        if (\App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi) {
+        if (! $ignoreSimulasi && \App\Models\PengaturanAplikasi::getPengaturan()->mode_simulasi) {
             $recipients = $recipients->filter(
                 fn (User $u) => $u->hasAnyRole(['super_admin', 'superadmin'])
             )->values();
