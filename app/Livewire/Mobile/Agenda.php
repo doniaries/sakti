@@ -41,9 +41,17 @@ class Agenda extends Component
             ->limit(15)
             ->get();
 
+        $pastAgendas = (clone $baseQuery)
+            ->whereDate('tanggal', '<', $today)
+            ->orderByDesc('tanggal')
+            ->orderByDesc('jam_mulai')
+            ->limit(20)
+            ->get();
+
         return view('livewire.mobile.agenda', [
             'todayAgendas' => $todayAgendas,
             'upcomingAgendas' => $upcomingAgendas,
+            'pastAgendas' => $pastAgendas,
             'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('id')->get(['id', 'name', 'jabatan_id']),
         ]);
     }
