@@ -71,21 +71,21 @@
                     $skTgl = $jab?->tanggal_sk ? \Carbon\Carbon::parse($jab->tanggal_sk)->format('d/m/Y') : '-';
                     $skTmt = $jab?->tmt_jabatan ? \Carbon\Carbon::parse($jab->tmt_jabatan)->format('d/m/Y') : '-';
 
+                    $enumStr = fn (mixed $v): string => $v instanceof \BackedEnum ? (string) $v->value : (string) ($v ?? '');
                     $pendText = $pend
-                        ? trim(($pend->jenjang ?? '') . ' ' . ($pend->jurusan ?? '') . ($pend->tahun_lulus ? ' (' . $pend->tahun_lulus . ')' : ''))
-                        : trim(($p->jenjang_pendidikan ?? '') . ' ' . ($p->pendidikan ?? ''));
+                        ? trim($enumStr($pend->jenjang) . ' ' . ($pend->jurusan ?? '') . ($pend->tahun_lulus ? ' (' . $pend->tahun_lulus . ')' : ''))
+                        : trim($enumStr($p->jenjang_pendidikan) . ' ' . ($p->pendidikan ?? ''));
                     if ($pendText === '') {
                         $pendText = '-';
                     }
 
                     $tglLahir = $p->tanggal_lahir ? \Carbon\Carbon::parse($p->tanggal_lahir)->translatedFormat('d F Y') : '-';
                     $ttl = trim(($p->tempat_lahir ?: '-') . ', ' . $tglLahir, ', ');
-                    $jk = strtoupper((string) ($p->jenis_kelamin ?? ''));
+                    $jk = strtoupper($enumStr($p->jenis_kelamin));
                     $isL = in_array($jk, ['L', 'LAKI-LAKI', 'PRIA'], true);
                     $isP = in_array($jk, ['P', 'PEREMPUAN', 'WANITA'], true);
-                    $statusPeg = $p->status_kepegawaian instanceof \BackedEnum
-                        ? strtoupper($p->status_kepegawaian->value)
-                        : strtoupper((string) ($p->status_kepegawaian ?? '-'));
+                    $statusPeg = strtoupper($enumStr($p->status_kepegawaian) ?: '-');
+                    $agama = strtoupper($enumStr($p->agama) ?: 'ISLAM');
                     $eselon = $p->eselon ?: '-';
                 @endphp
                 <tr>
@@ -114,7 +114,7 @@
                     <td>{{ $pendText }}</td>
                     <td class="center">{{ $isL ? '✓' : '' }}</td>
                     <td class="center">{{ $isP ? '✓' : '' }}</td>
-                    <td class="center">{{ strtoupper((string) ($p->agama ?: 'ISLAM')) }}</td>
+                    <td class="center">{{ $agama }}</td>
                     <td class="center">{{ $eselon }}</td>
                 </tr>
             @endforeach
