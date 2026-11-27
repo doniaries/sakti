@@ -985,8 +985,9 @@
                     modal.classList.remove('flex');
                     return;
                 }
+                const isAbsensiPage = window.location.pathname.includes('/mobile/absensi');
                 const notifOk = !('Notification' in window) || Notification.permission === 'granted';
-                let gpsOk = !('geolocation' in navigator);
+                let gpsOk = !isAbsensiPage || !('geolocation' in navigator);
                 if (!gpsOk && navigator.permissions && navigator.permissions.query) {
                     try {
                         const geo = await navigator.permissions.query({ name: 'geolocation' });
@@ -997,6 +998,10 @@
                 }
                 const notifBadge = document.getElementById('sakti-perm-notif-status');
                 const gpsBadge = document.getElementById('sakti-perm-gps-status');
+                const gpsRow = gpsBadge ? gpsBadge.closest('div') : null;
+                if (gpsRow) {
+                    gpsRow.classList.toggle('hidden', !isAbsensiPage);
+                }
                 if (notifBadge) {
                     notifBadge.textContent = notifOk ? 'Aktif' : 'Belum';
                     notifBadge.className = notifOk

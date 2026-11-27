@@ -118,40 +118,11 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                    @if ($user->hasAnyRole(['super_admin', 'superadmin']))
-                        <button type="button" wire:click="toggleSimulasi"
-                            class="w-9 h-9 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
-                            title="{{ $modeSimulasi ? 'Mode Simulasi ON (klik untuk nonaktifkan)' : 'Aktifkan Mode Simulasi (Khusus Superadmin)' }}"
-                            aria-label="Toggle Mode Simulasi">
-                            <i class="fa-solid fa-flask text-sm"></i>
-                        </button>
-                    @endif
-                    @if ($user->canRemindPegawai())
-                        <button type="button" wire:click="ingatkanPegawai"
-                            wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
-                            class="w-9 h-9 rounded-full bg-rose-500 hover:bg-rose-400 text-white inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
-                            title="Ingatkan Pegawai Lengkapi Data Kepegawaian"
-                            aria-label="Ingatkan Pegawai Lengkapi Data Kepegawaian">
-                            <i class="fa-solid fa-bullhorn text-sm"></i>
-                        </button>
-                    @endif
-                    <a href="/admin" target="_blank" rel="noopener"
-                        class="w-9 h-9 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
-                        title="Panel Admin SAKTI (Proses SPJ)"
-                        aria-label="Panel Admin SAKTI (Proses SPJ)">
-                        <i class="fa-solid fa-shield-halved text-sm"></i>
-                    </a>
                     <div x-data="{
                         isNative: !!window.SaktiNative,
                         perms: window.__saktiPerms || { location: true, notification: true, battery: true }
                     }" @sakti-device-permissions.window="perms = $event.detail || perms"
-                        class="flex items-center gap-2 shrink-0">
-                        <button type="button" x-show="isNative && !perms.location" x-cloak
-                            @click="window.SaktiNative?.postMessage('open_app_settings')"
-                            class="w-9 h-9 rounded-full bg-rose-500/85 hover:bg-rose-500 text-white flex items-center justify-center transition cursor-pointer shrink-0 shadow-sm"
-                            title="Izin GPS belum aktif — ketuk untuk mengaktifkan">
-                            <i class="fa-solid fa-location-crosshairs text-sm"></i>
-                        </button>
+                        class="flex items-center gap-1.5 shrink-0">
                         <button type="button"
                             @click="(isNative && !perms.notification) ? window.SaktiNative?.postMessage('open_app_settings') : (notifSheet = true)"
                             class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0"
@@ -243,6 +214,33 @@
                         </style>
                     @endif
                 </div>
+            </div>
+
+            <!-- Row 1.5: Baris Ikon Aksi Cepat (agar tidak menghimpit nama user di Row 1) -->
+            <div class="mt-2.5 pl-[52px] flex items-center gap-2 relative z-10">
+                <a href="/admin" target="_blank" rel="noopener"
+                    class="w-8 h-8 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
+                    title="Panel Admin SAKTI (Proses SPJ)"
+                    aria-label="Panel Admin SAKTI (Proses SPJ)">
+                    <i class="fa-solid fa-shield-halved text-xs"></i>
+                </a>
+                @if ($user->canRemindPegawai())
+                    <button type="button" wire:click="ingatkanPegawai"
+                        wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
+                        class="w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-400 text-white inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
+                        title="Ingatkan Pegawai Lengkapi Data Kepegawaian"
+                        aria-label="Ingatkan Pegawai Lengkapi Data Kepegawaian">
+                        <i class="fa-solid fa-bullhorn text-xs"></i>
+                    </button>
+                @endif
+                @if ($user->hasAnyRole(['super_admin', 'superadmin']))
+                    <button type="button" wire:click="toggleSimulasi"
+                        class="w-8 h-8 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
+                        title="{{ $modeSimulasi ? 'Mode Simulasi ON (klik untuk nonaktifkan)' : 'Aktifkan Mode Simulasi (Khusus Superadmin)' }}"
+                        aria-label="Toggle Mode Simulasi">
+                        <i class="fa-solid fa-flask text-xs"></i>
+                    </button>
+                @endif
             </div>
 
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
