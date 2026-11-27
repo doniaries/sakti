@@ -89,28 +89,35 @@ class BankAktivitas extends Component
             return;
         }
 
+        $isGlobal = is_null($targetUserId);
+        $payload = [
+            'user_id' => $targetUserId,
+            'jabatan_id' => $isGlobal ? null : $user->jabatan_id,
+            'bidang_id' => $isGlobal ? null : $user->bidang_id,
+            'rencana_aksi_id' => $isGlobal ? null : ($this->rencana_aksi_id ?: null),
+            'nama_aktivitas' => trim($this->nama_aktivitas),
+            'menit' => $this->menit,
+        ];
+
         if ($this->editingId) {
-            $item = Aktivitas::where('user_id', $user->id)->find($this->editingId);
+            $itemQuery = Aktivitas::query();
+            if (! $user->hasAnyRole(['super_admin', 'admin'])) {
+                $itemQuery->where('user_id', $user->id);
+            }
+            $item = $itemQuery->find($this->editingId);
             if ($item) {
                 $item->update([
-                    'kode' => $this->kode ?: null,
-                    'nama_aktivitas' => trim($this->nama_aktivitas),
-                    'menit' => $this->menit,
-                    'jabatan_id' => $user->jabatan_id,
-                    'bidang_id' => $user->bidang_id,
+                    'kode' => $this->kode ?: $item->kode,
+                    ...$payload,
                 ]);
             }
             $msg = 'Aktivitas berhasil diperbarui.';
         } else {
             Aktivitas::create([
-                'user_id' => $user->id,
-                'jabatan_id' => $user->jabatan_id,
-                'bidang_id' => $user->bidang_id,
-                'kode' => $this->kode ?: (string) (Aktivitas::where('user_id', $user->id)->count() + 1),
-                'nama_aktivitas' => trim($this->nama_aktivitas),
-                'menit' => $this->menit,
+                'kode' => $this->kode ?: (string) (Aktivitas::where('user_id', $targetUserId)->count() + 1),
+                ...$payload,
             ]);
-            $msg = 'Aktivitas baru berhasil ditambahkan ke Bank Aktivitas Anda.';
+            $msg = 'Aktivitas baru berhasil ditambahkan ke Bank Aktivitas.';
         }
 
         $this->showFormModal = false;

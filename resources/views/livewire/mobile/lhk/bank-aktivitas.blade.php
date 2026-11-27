@@ -221,11 +221,14 @@
                         <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
                             Aktivitas</label>
                         @php
+                            $bidangOptionLabel = ($userBidangNama ?? 'Bidang') !== 'Bidang'
+                                ? 'Bidang ' . $userBidangNama
+                                : 'Per Pegawai / Jabatan';
                             $tipeGroups = [
                                 [
                                     'label' => '',
                                     'options' => [
-                                        ['value' => 'khusus', 'label' => 'Sesuai Jabatan / Bidang'],
+                                        ['value' => 'khusus', 'label' => $bidangOptionLabel],
                                         ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'],
                                     ],
                                 ],
