@@ -88,7 +88,7 @@
                                     </button>
                                     <a href="{{ route('mobile.profil') }}" wire:navigate @click="avatarPreview = false"
                                         class="h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center gap-1.5">
-                                        <i class="fa-solid fa-camera text-[11px]"></i>
+                                        <i class="fa-solid fa-camera text-[13px]"></i>
                                         <span>Ganti Foto</span>
                                     </a>
                                 </div>
@@ -96,7 +96,7 @@
                         </div>
                     </template>
                     <div class="min-w-0">
-                        <div class="text-[11px] text-sky-100 font-medium">{{ $sapaan }},</div>
+                        <div class="text-[13px] text-sky-100 font-medium">{{ $sapaan }},</div>
                         <h1 class="text-sm font-extrabold tracking-tight leading-snug">{{ $user->name }}</h1>
                         @php
                             $jabatanNama = $user->jabatan?->nama;
@@ -106,14 +106,14 @@
                                 : collect([$jabatanNama, $bidangNama])->filter()->implode(' | ');
                         @endphp
                         @if ($jabatanBidang)
-                            <div class="text-[10px] text-sky-100/90 font-medium leading-tight mt-0.5">{{ $jabatanBidang }}</div>
+                            <div class="text-xs text-sky-100/90 font-medium leading-tight mt-0.5">{{ $jabatanBidang }}</div>
                         @endif
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     @if ($user->hasAnyRole(['super_admin', 'superadmin']))
                         <button type="button" wire:click="toggleSimulasi"
-                            class="h-9 px-3 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            class="h-9 px-3 rounded-full {{ $modeSimulasi ? 'bg-emerald-400 text-slate-950' : 'bg-white/15 hover:bg-white/25 text-white' }} text-[13px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                             title="Toggle Mode Simulasi Data (Khusus Superadmin)">
                             <i class="fa-solid fa-flask text-xs"></i>
                             <span class="hidden sm:inline">{{ $modeSimulasi ? 'Simulasi ON' : 'Simulasi' }}</span>
@@ -123,14 +123,14 @@
                         <button type="button"
                             wire:click="ingatkanPegawai"
                             wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
-                            class="h-9 px-3 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            class="h-9 px-3 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-[13px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                             title="Ingatkan Pegawai Lengkapi Data Kepegawaian">
                             <i class="fa-solid fa-bell text-xs"></i>
                             <span class="hidden sm:inline">Ingatkan Pegawai</span>
                         </button>
                     @endif
                     <a href="/admin" target="_blank" rel="noopener"
-                        class="h-9 px-2.5 sm:px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                        class="h-9 px-2.5 sm:px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[13px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
                         title="Buka Panel Admin SAKTI di tab baru (khusus proses SPJ)">
                         <i class="fa-solid fa-shield-halved text-xs"></i>
                         <span class="sm:hidden">Admin</span>
@@ -195,21 +195,21 @@
             <!-- Row 2: Jam Live & Status Masuk/Pulang -->
             <div class="mt-5 flex items-center justify-between gap-3 relative z-10">
                 <div class="min-w-0 md:absolute md:left-1/2 md:-translate-x-1/2 md:text-center">
-                    <div class="text-[11px] text-sky-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
+                    <div class="text-[13px] text-sky-100 font-medium">{{ now()->translatedFormat('l, d M Y') }}</div>
                     <div class="flex items-baseline gap-1 font-mono mt-0.5 md:justify-center">
                         <span x-text="jam" class="text-3xl font-black tracking-tight">--:--</span>
                         <span x-text="':' + detik" class="text-sm font-bold text-sky-200"></span>
-                        <span class="text-[10px] font-bold text-sky-200 ml-0.5">WIB</span>
+                        <span class="text-xs font-bold text-sky-200 ml-0.5">WIB</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 pl-3.5 border-l border-white/25 text-right shrink-0">
                     <div>
-                        <div class="text-[11px] font-semibold text-sky-100">Masuk</div>
+                        <div class="text-[13px] font-semibold text-sky-100">Masuk</div>
                         <div class="text-base sm:text-lg font-black font-mono leading-tight">{{ $hariIni['jam_masuk'] ? \Carbon\Carbon::parse($hariIni['jam_masuk'])->format('H:i') : '--:--' }}</div>
                     </div>
                     <div class="w-px h-8 bg-white/20"></div>
                     <div>
-                        <div class="text-[11px] font-semibold text-sky-100">Pulang</div>
+                        <div class="text-[13px] font-semibold text-sky-100">Pulang</div>
                         <div class="text-base sm:text-lg font-black font-mono leading-tight">{{ $hariIni['jam_pulang'] ? \Carbon\Carbon::parse($hariIni['jam_pulang'])->format('H:i') : '--:--' }}</div>
                     </div>
                 </div>
@@ -238,7 +238,7 @@
                             <div class="w-11 h-11 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base md:text-2xl">
                                 <i class="fa-solid {{ $item['icon'] }}"></i>
                             </div>
-                            <span class="text-[10px] md:text-xs font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
+                            <span class="text-xs md:text-xs font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
                         </a>
                     @endif
                 @endforeach
@@ -247,7 +247,7 @@
                         <div class="w-11 h-11 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-base md:text-2xl">
                             <i class="fa-solid fa-file-signature"></i>
                         </div>
-                        <span class="text-[10px] md:text-xs font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
+                        <span class="text-xs md:text-xs font-semibold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat Tugas</span>
                     </a>
                 @endif
             </div>
@@ -258,13 +258,13 @@
     <section class="grid grid-cols-2 gap-3">
         <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-md shadow-slate-900/5">
             <div class="flex items-center justify-between mb-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Hari Ini</span>
-                <span class="text-[10px] font-extrabold text-sky-600 dark:text-sky-400">{{ $jamKerjaAsn['persen_harian'] }}%</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Hari Ini</span>
+                <span class="text-xs font-extrabold text-sky-600 dark:text-sky-400">{{ $jamKerjaAsn['persen_harian'] }}%</span>
             </div>
             <div class="text-base font-black font-mono text-zinc-900 dark:text-white leading-tight">
                 {{ $jamKerjaAsn['harian_format'] }}
             </div>
-            <div class="text-[10px] text-zinc-400 mt-0.5">Target {{ $jamKerjaAsn['target_harian_format'] }}</div>
+            <div class="text-xs text-zinc-400 mt-0.5">Target {{ $jamKerjaAsn['target_harian_format'] }}</div>
             <div class="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 mt-2.5 overflow-hidden">
                 <div class="h-full rounded-full bg-sky-500 transition-all duration-500" style="width: {{ $jamKerjaAsn['persen_harian'] }}%"></div>
             </div>
@@ -272,13 +272,13 @@
 
         <div class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-3.5 shadow-md shadow-slate-900/5">
             <div class="flex items-center justify-between mb-1.5">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Bulan Ini</span>
-                <span class="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400">{{ $jamKerjaAsn['persen_bulanan'] }}%</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Bulan Ini</span>
+                <span class="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">{{ $jamKerjaAsn['persen_bulanan'] }}%</span>
             </div>
             <div class="text-base font-black font-mono text-zinc-900 dark:text-white leading-tight">
                 {{ $jamKerjaAsn['bulanan_format'] }}
             </div>
-            <div class="text-[10px] text-zinc-400 mt-0.5">Target {{ $jamKerjaAsn['target_bulanan_format'] }}</div>
+            <div class="text-xs text-zinc-400 mt-0.5">Target {{ $jamKerjaAsn['target_bulanan_format'] }}</div>
             <div class="w-full h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800 mt-2.5 overflow-hidden">
                 <div class="h-full rounded-full bg-emerald-500 transition-all duration-500" style="width: {{ $jamKerjaAsn['persen_bulanan'] }}%"></div>
             </div>
@@ -293,7 +293,7 @@
             </div>
             <div class="min-w-0 flex-1">
                 <div class="text-sm font-extrabold text-rose-900 dark:text-rose-200">Hari Libur: {{ $hariLiburHariIni->nama ?? 'Libur' }}</div>
-                <div class="text-[11px] text-rose-700/90 dark:text-rose-300/80 font-medium truncate">Tidak ada kewajiban ambil absen hari ini</div>
+                <div class="text-[13px] text-rose-700/90 dark:text-rose-300/80 font-medium truncate">Tidak ada kewajiban ambil absen hari ini</div>
             </div>
         </div>
     @elseif (!$hariIni['sudah_masuk'])
@@ -304,7 +304,7 @@
             </div>
             <div class="min-w-0 flex-1">
                 <div class="text-sm font-extrabold">Anda Belum Ambil Absen Masuk</div>
-                <div class="text-[11px] text-amber-50 font-medium truncate">
+                <div class="text-[13px] text-amber-50 font-medium truncate">
                     @if ($hariIni['belum_buka_masuk'])
                         Absen masuk dibuka pukul {{ $hariIni['buka_masuk'] }} WIB
                     @elseif ($hariIni['lewat_batas_masuk'])
@@ -324,7 +324,7 @@
             </div>
             <div class="min-w-0 flex-1">
                 <div class="text-sm font-extrabold">Belum Ambil Absen Pulang</div>
-                <div class="text-[11px] text-sky-100 font-medium truncate">
+                <div class="text-[13px] text-sky-100 font-medium truncate">
                     Masuk {{ substr((string) $hariIni['jam_masuk'], 0, 5) }} WIB &bull; Jadwal pulang {{ $hariIni['jam_pulang_resmi'] }} WIB
                 </div>
             </div>
@@ -337,7 +337,7 @@
             </div>
             <div class="min-w-0 flex-1">
                 <div class="text-sm font-extrabold text-emerald-900 dark:text-emerald-200">Presensi Hari Ini Lengkap</div>
-                <div class="text-[11px] text-emerald-700/90 dark:text-emerald-300/80 font-medium truncate">
+                <div class="text-[13px] text-emerald-700/90 dark:text-emerald-300/80 font-medium truncate">
                     Masuk {{ substr((string) $hariIni['jam_masuk'], 0, 5) }} WIB &bull; Pulang {{ substr((string) $hariIni['jam_pulang'], 0, 5) }} WIB
                 </div>
             </div>
@@ -348,7 +348,7 @@
     <section class="rounded-2xl bg-white dark:bg-zinc-900/90 border border-zinc-200/90 dark:border-zinc-800 p-4 shadow-md shadow-slate-900/5">
         <div class="flex items-center justify-between mb-2">
             <h2 class="text-xs font-extrabold text-zinc-900 dark:text-white">Riwayat Absen</h2>
-            <a href="{{ route('mobile.riwayat') }}" wire:navigate class="text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
+            <a href="{{ route('mobile.riwayat') }}" wire:navigate class="text-[13px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
                 Lihat Semua &rarr;
             </a>
         </div>
@@ -372,15 +372,15 @@
                     <li class="py-2.5 flex items-center justify-between gap-3">
                         <div class="min-w-0">
                             <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $item['hari'] }}</div>
-                            <div class="text-[10px] text-zinc-400">{{ $item['tanggal'] }}</div>
+                            <div class="text-xs text-zinc-400">{{ $item['tanggal'] }}</div>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
-                            <span class="text-[11px] font-mono text-zinc-600 dark:text-zinc-300">
+                            <span class="text-[13px] font-mono text-zinc-600 dark:text-zinc-300">
                                 {{ $item['jam_masuk'] ? substr($item['jam_masuk'], 0, 5) : '--:--' }}
                                 <span class="text-zinc-300 dark:text-zinc-600">–</span>
                                 {{ $item['jam_pulang'] ? substr($item['jam_pulang'], 0, 5) : '--:--' }}
                             </span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $badgeClass }}">{{ $stLabel }}</span>
+                            <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ $badgeClass }}">{{ $stLabel }}</span>
                         </div>
                     </li>
                 @endforeach
@@ -411,9 +411,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h3 class="text-sm font-extrabold text-zinc-900 dark:text-white">Surat Tugas Tim Kreatif</h3>
-                    <p class="text-[11px] text-zinc-500">Konfirmasi kehadiran & kirim laporan kegiatan</p>
+                    <p class="text-[13px] text-zinc-500">Konfirmasi kehadiran & kirim laporan kegiatan</p>
                 </div>
-                <span class="px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 text-[11px] font-bold">
+                <span class="px-2.5 py-1 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 text-[13px] font-bold">
                     {{ $suratTugasSaya->count() }}
                 </span>
             </div>
@@ -429,13 +429,13 @@
                         <div class="flex items-start justify-between gap-2">
                             <div>
                                 <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $st->nama_kegiatan }}</div>
-                                <div class="text-[10px] text-zinc-500 mt-0.5">
+                                <div class="text-xs text-zinc-500 mt-0.5">
                                     {{ $st->tanggal_mulai?->translatedFormat('d M Y') }}
                                     @if (filled($st->jam_acara)) • {{ \Illuminate\Support\Carbon::parse($st->jam_acara)->format('H.i') }} WIB @endif
                                     @if (filled($st->lokasi)) • {{ $st->lokasi }} @endif
                                 </div>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 {{ $statusHadir === 'hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-600' }}">
+                            <span class="px-2 py-0.5 rounded-full text-xs font-semibold shrink-0 {{ $statusHadir === 'hadir' ? 'bg-emerald-100 text-emerald-700' : 'bg-zinc-200 text-zinc-600' }}">
                                 {{ $statusHadir === 'hadir' ? 'Siap Hadir' : 'Belum Konfirmasi' }}
                             </span>
                         </div>
@@ -444,36 +444,36 @@
                             @if ($statusHadir !== 'hadir')
                                 <button type="button"
                                     wire:click="konfirmasiSuratTugas({{ $st->id }}, 'hadir', '')"
-                                    class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold">
+                                    class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-[13px] font-semibold">
                                     Konfirmasi Hadir
                                 </button>
                             @endif
                             @if ($statusHadir === 'hadir')
                                 <button type="button"
                                     @click="openLapor = !openLapor"
-                                    class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-[11px] font-semibold">
+                                    class="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-[13px] font-semibold">
                                     {{ $st->laporans->isNotEmpty() ? 'Tambah Laporan' : 'Buat Laporan' }}
                                 </button>
                             @endif
                             <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $st->id]) }}" target="_blank" rel="noopener"
-                               class="px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                               class="px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[13px] font-semibold">
                                 Lihat
                             </a>
                             <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $st->id]) }}" target="_blank" rel="noopener"
-                               class="px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                               class="px-2.5 py-1.5 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[13px] font-semibold">
                                 Unduh / Print
                             </a>
                             <a href="https://wa.me/?text={{ urlencode("Surat Tugas: {$st->nama_kegiatan}\n" . route('surat-tugas.cetak-pdf', ['suratTugas' => $st->id])) }}" target="_blank" rel="noopener"
-                               class="px-2.5 py-1.5 rounded-lg bg-green-600 text-white text-[11px] font-semibold">
+                               class="px-2.5 py-1.5 rounded-lg bg-green-600 text-white text-[13px] font-semibold">
                                 Share WA
                             </a>
                             @if ($st->laporans->isNotEmpty())
                                 <a href="{{ route('surat-tugas.laporan-pdf', ['suratTugas' => $st->id]) }}" target="_blank" rel="noopener"
-                                   class="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-[11px] font-semibold">
+                                   class="px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white text-[13px] font-semibold">
                                     Laporan PDF
                                 </a>
                                 <a href="https://wa.me/?text={{ urlencode("Laporan Kegiatan: {$st->nama_kegiatan}\n" . route('surat-tugas.laporan-pdf', ['suratTugas' => $st->id])) }}" target="_blank" rel="noopener"
-                                   class="px-2.5 py-1.5 rounded-lg bg-green-700 text-white text-[11px] font-semibold">
+                                   class="px-2.5 py-1.5 rounded-lg bg-green-700 text-white text-[13px] font-semibold">
                                     Share Laporan WA
                                 </a>
                             @endif
@@ -553,17 +553,17 @@
                        class="block p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
                         <div class="flex items-center justify-between gap-2">
                             <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
-                            <i class="fa-solid {{ $isFilamentUrl ? 'fa-arrow-up-right-from-square' : 'fa-chevron-right' }} text-[10px] text-zinc-400"></i>
+                            <i class="fa-solid {{ $isFilamentUrl ? 'fa-arrow-up-right-from-square' : 'fa-chevron-right' }} text-xs text-zinc-400"></i>
                         </div>
-                        <p class="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
-                        <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
+                        <p class="text-[13px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
+                        <div class="text-[11px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
                     </a>
                 @else
                     <div wire:click="markNotificationAsRead('{{ $notif->id }}')"
                         class="p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
                         <div class="text-xs font-bold text-zinc-900 dark:text-white">{{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
-                        <p class="text-[11px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
-                        <div class="text-[9px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
+                        <p class="text-[13px] text-zinc-600 dark:text-zinc-400 mt-0.5">{{ $notif->data['body'] ?? ($notif->data['message'] ?? '') }}</p>
+                        <div class="text-[11px] text-zinc-400 mt-1">{{ $notif->created_at->diffForHumans() }}</div>
                         @php
                             $stId = $notif->data['surat_tugas_id'] ?? ($notif->data['viewData']['surat_tugas_id'] ?? null);
                             $sudahHadir = $stId
@@ -579,20 +579,20 @@
                                 @if (! $sudahHadir)
                                     <button type="button"
                                         @click.stop="$wire.konfirmasiSuratTugas({{ $stId }}, 'hadir', '{{ $notif->id }}')"
-                                        class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[11px] font-semibold hover:bg-emerald-700 cursor-pointer">
+                                        class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-[13px] font-semibold hover:bg-emerald-700 cursor-pointer">
                                         Konfirmasi Hadir
                                     </button>
                                 @else
-                                    <span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold">
+                                    <span class="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[13px] font-semibold">
                                         ✓ Sudah Konfirmasi Hadir
                                     </span>
                                 @endif
                                 <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $stId]) }}" target="_blank" rel="noopener"
-                                   class="px-2.5 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                                   class="px-2.5 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[13px] font-semibold">
                                     Lihat Surat
                                 </a>
                                 <a href="{{ route('surat-tugas.cetak-pdf', ['suratTugas' => $stId]) }}" target="_blank" rel="noopener"
-                                   class="px-2.5 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[11px] font-semibold">
+                                   class="px-2.5 py-1 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-[13px] font-semibold">
                                     Unduh / Print
                                 </a>
                             </div>

@@ -30,7 +30,7 @@
         @if ($absenHariIni || $existingLhk)
             <div
                 class="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200/80 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold">
-                <i class="fa-regular fa-clock text-[11px]"></i>
+                <i class="fa-regular fa-clock text-[13px]"></i>
                 <span>{{ count($pekerjaans) }} kegiatan</span>
                 <span class="text-sky-300 dark:text-sky-600">•</span>
                 <span class="font-mono">{{ $totalDurasiText }}</span>
@@ -51,8 +51,8 @@
             </div>
             @if ($bisaIsiLhk)
                 <span
-                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold border border-emerald-200/70 dark:border-emerald-500/30">
-                    <i class="fa-solid fa-circle-check text-[9px]"></i> Siap Diisi
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200/70 dark:border-emerald-500/30">
+                    <i class="fa-solid fa-circle-check text-[11px]"></i> Siap Diisi
                 </span>
             @endif
         </div>
@@ -60,7 +60,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             <div class="md:col-span-6">
                 <label
-                    class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal
+                    class="block text-[13px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal
                     LHK</label>
                 <x-mobile.date-picker wire:model.live="tanggal"
                     buttonClass="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500/30 transition" />
@@ -69,7 +69,7 @@
             @if ($absenHariIni || $existingLhk)
                 <div
                     class="md:col-span-3 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 px-3 py-2 flex md:flex-col items-center md:items-start justify-between">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Jam
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Jam
                         Masuk</span>
                     <span class="text-base md:text-lg font-extrabold font-mono text-amber-700 dark:text-amber-300">
                         {{ $absenHariIni?->jam_masuk ?? $existingLhk?->jam_masuk ? substr((string) ($absenHariIni?->jam_masuk ?? $existingLhk?->jam_masuk), 0, 5) : '-' }}
@@ -78,7 +78,7 @@
                 <div
                     class="md:col-span-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200/70 dark:border-emerald-500/25 px-3 py-2 flex md:flex-col items-center md:items-start justify-between">
                     <span
-                        class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Jam
+                        class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Jam
                         Pulang</span>
                     <span class="text-base md:text-lg font-extrabold font-mono text-emerald-700 dark:text-emerald-300">
                         {{ $absenHariIni?->jam_pulang ?? $existingLhk?->jam_pulang ? substr((string) ($absenHariIni?->jam_pulang ?? $existingLhk?->jam_pulang), 0, 5) : 'Belum' }}
@@ -101,7 +101,7 @@
             </div>
         @else
             <div
-                class="rounded-xl bg-sky-50/80 dark:bg-sky-500/10 text-sky-800 dark:text-cyan-200 px-3.5 py-2.5 text-[11px] flex items-start gap-2.5 border border-sky-200/80 dark:border-sky-500/30 leading-relaxed">
+                class="rounded-xl bg-sky-50/80 dark:bg-sky-500/10 text-sky-800 dark:text-cyan-200 px-3.5 py-2.5 text-[13px] flex items-start gap-2.5 border border-sky-200/80 dark:border-sky-500/30 leading-relaxed">
                 <i class="fa-solid fa-circle-info mt-0.5 text-sky-600 dark:text-cyan-400 shrink-0"></i>
                 <span>
                     Mulai pukul <strong class="font-mono">{{ $waktuAwalKegiatan }} WIB</strong>.
@@ -120,12 +120,12 @@
             <div class="flex items-center justify-between px-1">
                 <div>
                     <h2 class="text-sm font-extrabold text-slate-800 dark:text-white">Rincian Pekerjaan</h2>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Isi kegiatan harian sesuai Rencana Aksi
+                    <p class="text-[13px] text-slate-500 dark:text-slate-400">Isi kegiatan harian sesuai Rencana Aksi
                         atau Umum</p>
                 </div>
                 <button type="button" wire:click="addPekerjaan" wire:loading.attr="disabled" wire:target="addPekerjaan"
                     class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 active:scale-95 px-3.5 py-2 rounded-xl shadow-xs transition cursor-pointer">
-                    <i class="fa-solid fa-plus text-[11px]"></i>
+                    <i class="fa-solid fa-plus text-[13px]"></i>
                     <span>Tambah</span>
                 </button>
             </div>
@@ -138,7 +138,7 @@
                         <i class="fa-solid fa-clipboard-list"></i>
                     </div>
                     <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">Belum ada kegiatan.</p>
-                    <p class="text-[11px] text-slate-400 mt-1">Ketuk tombol <strong>Tambah</strong> untuk mencatat
+                    <p class="text-[13px] text-slate-400 mt-1">Ketuk tombol <strong>Tambah</strong> untuk mencatat
                         aktivitas.</p>
                 </div>
             @else
@@ -151,23 +151,23 @@
                                 class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                                 <div class="flex items-center gap-2">
                                     <span
-                                        class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-sky-600 text-white text-[11px] font-extrabold">
+                                        class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-sky-600 text-white text-[13px] font-extrabold">
                                         {{ $index + 1 }}
                                     </span>
                                     <span class="text-xs font-extrabold text-slate-800 dark:text-white">Kegiatan
                                         {{ $index + 1 }}</span>
                                 </div>
                                 <button type="button" wire:click="removePekerjaan({{ $index }})"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition cursor-pointer"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[13px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition cursor-pointer"
                                     title="Hapus kegiatan">
-                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
                                     <span class="hidden sm:inline">Hapus</span>
                                 </button>
                             </div>
 
                             <!-- 1. Rencana Aksi -->
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
                                     <span class="text-sky-600 dark:text-cyan-400">1.</span> Rencana Aksi
                                 </label>
                                 @php
@@ -206,13 +206,13 @@
                             <!-- 2. Aktivitas -->
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
-                                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300">
                                         <span class="text-sky-600 dark:text-cyan-400">2.</span> Pilih Aktivitas (Bank
                                         Aktivitas)
                                     </label>
                                     <a href="{{ route('mobile.lhk.bank-aktivitas') }}" wire:navigate
-                                        class="text-[11px] font-bold text-sky-600 dark:text-cyan-400 hover:underline inline-flex items-center gap-1">
-                                        <i class="fa-solid fa-sliders text-[10px]"></i> Kelola Bank Aktivitas
+                                        class="text-[13px] font-bold text-sky-600 dark:text-cyan-400 hover:underline inline-flex items-center gap-1">
+                                        <i class="fa-solid fa-sliders text-xs"></i> Kelola Bank Aktivitas
                                     </a>
                                 </div>
                                 @php
@@ -280,27 +280,27 @@
                             <div class="grid grid-cols-3 gap-2.5">
                                 <div>
                                     <label
-                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
+                                        class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
                                         Mulai</label>
                                     <input type="time" wire:model.live="pekerjaans.{{ $index }}.jam_mulai"
                                         class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
                                     @error('pekerjaans.' . $index . '.jam_mulai')
-                                        <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span>
+                                        <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
+                                        class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
                                         Selesai</label>
                                     <input type="time" wire:model.live="pekerjaans.{{ $index }}.jam_selesai"
                                         class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
                                     @error('pekerjaans.' . $index . '.jam_selesai')
-                                        <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span>
+                                        <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <div>
                                     <label
-                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Durasi</label>
+                                        class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Durasi</label>
                                     <div
                                         class="w-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200/80 dark:border-sky-500/30 rounded-xl px-2.5 py-2 text-xs font-mono font-extrabold text-sky-700 dark:text-cyan-300 text-center">
                                         {{ str_replace('.', ',', (string) (float) round(((int) ($pekerjaan['lama_menit'] ?? 0)) / 60, 2)) }}
@@ -311,21 +311,21 @@
 
                             <!-- 3. Hasil Pekerjaan -->
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
                                     <span class="text-sky-600 dark:text-cyan-400">3.</span> Hasil Pekerjaan
                                 </label>
                                 <textarea wire:model="pekerjaans.{{ $index }}.hasil_pekerjaan" rows="2"
                                     placeholder="Uraikan hasil pekerjaan yang dilaksanakan..."
                                     class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs md:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition"></textarea>
                                 @error('pekerjaans.' . $index . '.hasil_pekerjaan')
-                                    <span class="text-rose-500 text-[10px] mt-1 block">{{ $message }}</span>
+                                    <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                                 @enderror
                             </div>
 
                             <!-- 4. Bukti Google Drive (2 Cara: Kamera Langsung ke Drive / Tempel Link) -->
                             <div class="space-y-2.5">
                                 <div class="flex items-center justify-between">
-                                    <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">
+                                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300">
                                         <span class="text-sky-600 dark:text-cyan-400">4.</span> Bukti Kegiatan Google Drive
                                         (Opsional)
                                     </label>
@@ -336,7 +336,7 @@
                                                 true))
                                         <a href="{{ $pekerjaan['bukti_url'] }}" target="_blank"
                                             rel="noopener noreferrer"
-                                            class="text-[11px] font-bold text-sky-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                                            class="text-[13px] font-bold text-sky-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
                                             <i class="fa-brands fa-google-drive"></i> Buka Drive
                                         </a>
                                     @endif
@@ -347,13 +347,13 @@
                                     class="rounded-xl border border-slate-200/80 dark:border-slate-700/80 bg-slate-50/70 dark:bg-[#0F1E33]/80 p-3 space-y-2">
                                     <div class="flex items-center justify-between gap-2">
                                         <span
-                                            class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                            class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                                             Cara 1 • Kamera HP ke Google Drive
                                         </span>
                                         @if (auth()->user()?->hasGoogleDriveConnected())
                                             <span
-                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
-                                                <i class="fa-solid fa-link text-[9px]"></i> Drive Terhubung
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                                                <i class="fa-solid fa-link text-[11px]"></i> Drive Terhubung
                                             </span>
                                         @endif
                                     </div>
@@ -368,23 +368,23 @@
                                                     wire:model="evidencePhotos.{{ $index }}" class="hidden">
                                             </label>
                                             <a href="{{ route('auth.google.drive', ['return_url' => route('mobile.lhk.create', ['tanggal' => $tanggal])]) }}"
-                                                class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 hover:text-sky-600 underline">
+                                                class="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-sky-600 underline">
                                                 Ganti akun Drive
                                             </a>
                                         </div>
                                         <div wire:loading wire:target="evidencePhotos.{{ $index }}"
-                                            class="text-[11px] text-sky-600 dark:text-cyan-400 flex items-center gap-1.5 font-semibold">
+                                            class="text-[13px] text-sky-600 dark:text-cyan-400 flex items-center gap-1.5 font-semibold">
                                             <i class="fa-solid fa-circle-notch fa-spin"></i>
                                             <span>Mengunggah foto ke folder
                                                 <strong>sakti-lhk-evidence-{{ $tanggal }}</strong> &amp; membuka akses
                                                 publik...</span>
                                         </div>
                                         @error('evidencePhotos.' . $index)
-                                            <span class="text-rose-500 text-[10px] font-semibold block">{{ $message }}</span>
+                                            <span class="text-rose-500 text-xs font-semibold block">{{ $message }}</span>
                                         @enderror
                                     @else
                                         <div class="flex flex-wrap items-center justify-between gap-2">
-                                            <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
+                                            <p class="text-[13px] text-slate-600 dark:text-slate-300 leading-snug">
                                                 Hubungkan Google Drive agar foto kamera otomatis tersimpan di folder
                                                 <strong class="font-mono">sakti-lhk-evidence-{{ $tanggal }}</strong>.
                                             </p>
@@ -400,7 +400,7 @@
                                 <!-- Cara 2: Tempel Link Google Drive Manual -->
                                 <div>
                                     <label
-                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                                        class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                                         Cara 2 • Atau Tempel Link Google Drive
                                     </label>
                                     <input type="url"
@@ -408,15 +408,15 @@
                                         placeholder="https://drive.google.com/file/d/..."
                                         class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs md:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition">
                                     <div wire:loading wire:target="pekerjaans.{{ $index }}.bukti_url"
-                                        class="text-[10px] text-sky-600 dark:text-cyan-400 mt-1 flex items-center gap-1 font-medium">
+                                        class="text-xs text-sky-600 dark:text-cyan-400 mt-1 flex items-center gap-1 font-medium">
                                         <i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa akses publik Google
                                         Drive...
                                     </div>
                                     @error('pekerjaans.' . $index . '.bukti_url')
                                         <span
-                                            class="text-rose-500 text-[10px] font-semibold block mt-1">{{ $message }}</span>
+                                            class="text-rose-500 text-xs font-semibold block mt-1">{{ $message }}</span>
                                     @else
-                                        <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                                             Pastikan akses berbagi Google Drive sudah diubah ke <strong>Siapa saja yang
                                                 memiliki link</strong>.
                                         </p>
@@ -427,7 +427,7 @@
                                     $previewUrl = $this->getGoogleDrivePreviewUrl($pekerjaan['bukti_url'] ?? null);
                                 @endphp
                                 @if (!empty($pekerjaan['bukti_url']) && !$previewUrl)
-                                    <p class="text-[10px] text-rose-500 mt-1.5">
+                                    <p class="text-xs text-rose-500 mt-1.5">
                                         Link harus berupa tautan file/folder Google Drive (`drive.google.com` atau
                                         `docs.google.com`).
                                     </p>
@@ -437,7 +437,7 @@
                                         <iframe src="{{ $previewUrl }}" class="w-full h-48 border-0"
                                             loading="lazy" allowfullscreen></iframe>
                                         <div
-                                            class="px-3 py-2 bg-amber-50 dark:bg-amber-500/10 border-t border-amber-200 dark:border-amber-500/20 text-[10px] text-amber-800 dark:text-amber-300">
+                                            class="px-3 py-2 bg-amber-50 dark:bg-amber-500/10 border-t border-amber-200 dark:border-amber-500/20 text-xs text-amber-800 dark:text-amber-300">
                                             Jika preview tidak tampak, pastikan akses file/folder Google Drive diubah ke
                                             <strong>Siapa saja yang memiliki link</strong>.
                                         </div>
@@ -451,7 +451,7 @@
                 <button type="button" wire:click="addPekerjaan" wire:loading.attr="disabled"
                     wire:target="addPekerjaan"
                     class="w-full py-3 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-sky-400 hover:text-sky-600 dark:hover:text-cyan-300 transition flex items-center justify-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-plus text-[11px]"></i> Tambah Kegiatan Lain
+                    <i class="fa-solid fa-plus text-[13px]"></i> Tambah Kegiatan Lain
                 </button>
             @endif
         </section>

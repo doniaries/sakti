@@ -6,17 +6,17 @@
         </a>
         <div>
             <h1 class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">Kelengkapan Data Pegawai</h1>
-            <p class="text-[11px] text-slate-500 dark:text-zinc-400">Daftar pegawai yang belum melengkapi data kepegawaian</p>
+            <p class="text-[13px] text-slate-500 dark:text-zinc-400">Daftar pegawai yang belum melengkapi data kepegawaian</p>
         </div>
     </div>
 
     <div class="grid grid-cols-2 gap-3">
         <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-3.5">
-            <div class="text-[11px] text-slate-500 dark:text-zinc-400">Belum Lengkap</div>
+            <div class="text-[13px] text-slate-500 dark:text-zinc-400">Belum Lengkap</div>
             <div class="text-xl font-black text-rose-600 dark:text-rose-400 mt-0.5">{{ $belumLengkap->count() }} <span class="text-xs font-semibold">pegawai</span></div>
         </div>
         <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-3.5">
-            <div class="text-[11px] text-slate-500 dark:text-zinc-400">Total Pegawai Aktif</div>
+            <div class="text-[13px] text-slate-500 dark:text-zinc-400">Total Pegawai Aktif</div>
             <div class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{{ $totalPegawai }} <span class="text-xs font-semibold">pegawai</span></div>
         </div>
     </div>
@@ -43,12 +43,12 @@
                 <div>
                     <div class="text-sm font-bold text-slate-900 dark:text-white">{{ $item['name'] }}</div>
                     @if ($item['nip'])
-                        <div class="text-[11px] text-slate-400 font-mono">NIP. {{ $item['nip'] }}</div>
+                        <div class="text-[13px] text-slate-400 font-mono">NIP. {{ $item['nip'] }}</div>
                     @endif
                 </div>
                 <div class="flex flex-wrap gap-1.5">
                     @foreach ($item['kurang'] as $k)
-                        <span class="px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 text-[10px] font-bold">
+                        <span class="px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30 text-xs font-bold">
                             Belum: {{ $k }}
                         </span>
                     @endforeach

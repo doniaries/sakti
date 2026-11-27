@@ -7,7 +7,7 @@
             </a>
             <div>
                 <h1 class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">Persetujuan Cepat</h1>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400">Approve Izin, LHK, SPJ & Surat Tugas dari HP</p>
+                <p class="text-[13px] text-slate-500 dark:text-slate-400">Approve Izin, LHK, SPJ & Surat Tugas dari HP</p>
             </div>
         </div>
     </div>
@@ -25,37 +25,37 @@
     <div class="grid {{ $gridColsClass }} gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#132338] border border-slate-200 dark:border-slate-700/70 mb-4">
         @if ($izinEnabled ?? true)
         <button type="button" wire:click="setTab('izin')"
-            class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'izin' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
+            class="py-2 px-1.5 rounded-lg text-[13px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'izin' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>Izin</span>
             @if ($izinList->count() > 0)
-                <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $izinList->count() }}</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[11px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $izinList->count() }}</span>
             @endif
         </button>
         @endif
         @if ($lhkEnabled ?? true)
         <button type="button" wire:click="setTab('lhk')"
-            class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'lhk' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
+            class="py-2 px-1.5 rounded-lg text-[13px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'lhk' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>LHK</span>
             @if ($lhkList->count() > 0)
-                <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $lhkList->count() }}</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[11px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $lhkList->count() }}</span>
             @endif
         </button>
         @endif
         @if ($spjEnabled ?? true)
         <button type="button" wire:click="setTab('spj')"
-            class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'spj' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
+            class="py-2 px-1.5 rounded-lg text-[13px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'spj' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>SPJ</span>
             @if ($spjList->count() > 0)
-                <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $spjList->count() }}</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[11px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $spjList->count() }}</span>
             @endif
         </button>
         @endif
         @if ($stEnabled ?? true)
         <button type="button" wire:click="setTab('surat_tugas')"
-            class="py-2 px-1.5 rounded-lg text-[11px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'surat_tugas' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
+            class="py-2 px-1.5 rounded-lg text-[13px] font-bold transition flex items-center justify-center gap-1 {{ $tab === 'surat_tugas' ? 'bg-white dark:bg-[#1B6CA8] text-sky-700 dark:text-white shadow-xs' : 'text-slate-500 dark:text-slate-400' }}">
             <span>Tugas</span>
             @if ($suratTugasList->count() > 0)
-                <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $suratTugasList->count() }}</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[11px] bg-amber-500/20 text-amber-700 dark:text-amber-300">{{ $suratTugasList->count() }}</span>
             @endif
         </button>
         @endif
@@ -69,11 +69,11 @@
                     <div class="flex items-start justify-between gap-2 mb-1.5">
                         <div>
                             <p class="text-xs font-extrabold text-slate-900 dark:text-white">{{ $item->user?->name ?? 'Pegawai' }}</p>
-                            <p class="text-[11px] font-semibold text-sky-600 dark:text-cyan-400">
+                            <p class="text-[13px] font-semibold text-sky-600 dark:text-cyan-400">
                                 {{ $item->jenisIzin?->nama ?? 'Izin/Cuti' }} • {{ $item->jumlah_hari }} hari
                             </p>
                         </div>
-                        <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                        <span class="text-xs font-mono text-slate-500 dark:text-slate-400">
                             {{ $item->tanggal_mulai?->format('d/m/Y') }}
                         </span>
                     </div>
@@ -105,11 +105,11 @@
                 <div wire:key="lhk-{{ $item->id }}" class="p-3.5 rounded-2xl bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700/70 shadow-xs">
                     <div class="flex items-start justify-between gap-2 mb-1">
                         <p class="text-xs font-extrabold text-slate-900 dark:text-white">{{ $item->lhk?->user?->name ?? 'Pegawai' }}</p>
-                        <span class="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                        <span class="text-xs font-mono text-slate-500 dark:text-slate-400">
                             {{ $item->lhk?->tanggal ? \Carbon\Carbon::parse($item->lhk->tanggal)->format('d/m/Y') : '-' }}
                         </span>
                     </div>
-                    <p class="text-[11px] font-semibold text-sky-600 dark:text-cyan-400 mb-1">
+                    <p class="text-[13px] font-semibold text-sky-600 dark:text-cyan-400 mb-1">
                         {{ $item->aktivitas?->nama_aktivitas ?? 'Kegiatan Harian' }}
                     </p>
                     <p class="text-xs text-slate-600 dark:text-slate-300 mb-3">{{ $item->hasil_pekerjaan }}</p>
@@ -141,9 +141,9 @@
                     <div class="flex items-start justify-between gap-2 mb-1">
                         <div>
                             <p class="text-xs font-extrabold text-slate-900 dark:text-white">{{ $item->nomor_pengajuan }}</p>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ $item->user?->name ?? 'Pemohon' }} • {{ $item->bidang?->nama ?? '-' }}</p>
+                            <p class="text-[13px] text-slate-500 dark:text-slate-400">{{ $item->user?->name ?? 'Pemohon' }} • {{ $item->bidang?->nama ?? '-' }}</p>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300">
                             {{ $item->status_label }}
                         </span>
                     </div>
@@ -178,15 +178,15 @@
                     <div class="flex items-start justify-between gap-2 mb-1.5">
                         <div class="min-w-0">
                             <p class="text-xs font-extrabold text-slate-900 dark:text-white leading-snug">{{ $item->nama_kegiatan }}</p>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                            <p class="text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
                                 {{ $item->lokasi ?: 'Lokasi belum diisi' }} • {{ $item->pegawais->count() }} anggota tim
                             </p>
                         </div>
-                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 shrink-0">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-700 dark:text-amber-300 shrink-0">
                             Draft
                         </span>
                     </div>
-                    <p class="text-[11px] font-mono text-sky-700 dark:text-cyan-300 mb-3">
+                    <p class="text-[13px] font-mono text-sky-700 dark:text-cyan-300 mb-3">
                         <i class="fa-regular fa-calendar mr-1"></i>
                         {{ $item->tanggal_mulai?->format('d/m/Y') }}
                         @if ($item->tanggal_selesai && $item->tanggal_selesai->ne($item->tanggal_mulai))

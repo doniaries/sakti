@@ -134,7 +134,7 @@
 
                 <div class="grid grid-cols-7 gap-1 text-center">
                     <template x-for="d in days" :key="d">
-                        <div class="text-[10px] font-extrabold text-slate-400 uppercase py-1" x-text="d"></div>
+                        <div class="text-xs font-extrabold text-slate-400 uppercase py-1" x-text="d"></div>
                     </template>
 
                     <template x-for="(cell, idx) in calendarCells" :key="idx">

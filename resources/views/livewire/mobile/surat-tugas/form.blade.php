@@ -6,7 +6,7 @@
         </a>
         <div class="min-w-0">
             <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">Buat Surat Tugas</h1>
-            <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Lengkapi 3 langkah singkat di bawah ini</p>
+            <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Lengkapi 3 langkah singkat di bawah ini</p>
         </div>
     </div>
 
@@ -17,7 +17,7 @@
                 <span class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center shrink-0">1</span>
                 <div>
                     <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Informasi Kegiatan</h2>
-                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Detail acara yang akan diliput / dilaksanakan</p>
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Detail acara yang akan diliput / dilaksanakan</p>
                 </div>
             </div>
 
@@ -80,7 +80,7 @@
                     </div>
                     @if ($jam_acara)
                         <button type="button" wire:click="$set('jam_acara', '')" @click="open = false"
-                            class="mt-2 w-full py-1.5 rounded-lg text-[11px] font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">
+                            class="mt-2 w-full py-1.5 rounded-lg text-[13px] font-semibold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10">
                             Hapus Pilihan Jam
                         </button>
                     @endif
@@ -95,7 +95,7 @@
                 <span class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center shrink-0">2</span>
                 <div>
                     <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Dasar Surat Tugas</h2>
-                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Pilih apakah ada surat dasar atau perintah lisan pimpinan</p>
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Pilih apakah ada surat dasar atau perintah lisan pimpinan</p>
                 </div>
             </div>
 
@@ -144,7 +144,7 @@
                             <span class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                                 {{ $bukti_surat_undangan ? $bukti_surat_undangan->getClientOriginalName() : 'Ketuk untuk pilih file surat dasar' }}
                             </span>
-                            <span class="text-[10px] text-zinc-500">PDF, JPG, PNG, WEBP (Maks. 5 MB)</span>
+                            <span class="text-xs text-zinc-500">PDF, JPG, PNG, WEBP (Maks. 5 MB)</span>
                             <input type="file" wire:model="bukti_surat_undangan" accept=".pdf,.jpg,.jpeg,.png,.webp" class="hidden">
                         </label>
                         <div wire:loading wire:target="bukti_surat_undangan" class="text-xs text-teal-600 font-medium mt-1">
@@ -162,7 +162,7 @@
                 <span class="w-6 h-6 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center shrink-0">3</span>
                 <div>
                     <h2 class="text-sm font-bold text-zinc-900 dark:text-zinc-100">Tim yang Bertugas</h2>
-                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Pilih penanggung jawab & personil tim kreatif</p>
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Pilih penanggung jawab & personil tim kreatif</p>
                 </div>
             </div>
 
@@ -171,7 +171,7 @@
                     <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                         Penanggung Jawab Bidang <span class="text-rose-500">*</span>
                     </label>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300">
                         {{ count($penanggung_jawab_ids) }} dipilih
                     </span>
                 </div>
@@ -179,7 +179,7 @@
                     class="w-full min-h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-left flex items-center justify-between gap-2">
                     <div class="flex flex-wrap gap-1.5 min-w-0">
                         @forelse ($penanggungJawabs->whereIn('id', $penanggung_jawab_ids) as $selectedPj)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 text-[11px] font-semibold">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 text-[13px] font-semibold">
                                 {{ $selectedPj->name }}
                             </span>
                         @empty
@@ -203,7 +203,7 @@
                                 <div class="min-w-0">
                                     <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $pj->name }}</div>
                                     @if ($pj->jabatan?->nama)
-                                        <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{{ $pj->jabatan->nama }}</div>
+                                        <div class="text-xs text-zinc-500 dark:text-zinc-400 truncate">{{ $pj->jabatan->nama }}</div>
                                     @endif
                                 </div>
                             </label>
@@ -216,7 +216,7 @@
             <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
                 <div class="flex items-center justify-between mb-1.5">
                     <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Personil Tim Kreatif</label>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300">
                         {{ count($pegawai_ids) }} dipilih
                     </span>
                 </div>
@@ -224,7 +224,7 @@
                     class="w-full min-h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-left flex items-center justify-between gap-2">
                     <div class="flex flex-wrap gap-1.5 min-w-0">
                         @forelse ($timKreatif->whereIn('id', $pegawai_ids) as $selectedTim)
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 text-[11px] font-semibold">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-teal-50 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 text-[13px] font-semibold">
                                 {{ $selectedTim->name }}
                             </span>
                         @empty
@@ -245,7 +245,7 @@
                                     class="rounded border-zinc-300 text-teal-600 focus:ring-teal-500">
                                 <div class="min-w-0">
                                     <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $anggota->name }}</div>
-                                    <div class="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">{{ $anggota->jabatan_tim_kreatif?->value }}</div>
+                                    <div class="text-xs text-zinc-500 dark:text-zinc-400 truncate">{{ $anggota->jabatan_tim_kreatif?->value }}</div>
                                 </div>
                             </label>
                         @empty
@@ -276,7 +276,7 @@
                         @if ($selectedTtd)
                             <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $selectedTtd->name }}</div>
                             @if ($selectedTtd->jabatan?->nama)
-                                <div class="text-[10px] text-zinc-400 truncate">{{ $selectedTtd->jabatan->nama }}</div>
+                                <div class="text-xs text-zinc-400 truncate">{{ $selectedTtd->jabatan->nama }}</div>
                             @endif
                         @else
                             <span class="text-sm text-zinc-400">Otomatis Kepala Dinas (Default)</span>
@@ -308,7 +308,7 @@
                                 <div class="min-w-0">
                                     <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $ttd->name }}</div>
                                     @if ($ttd->jabatan?->nama)
-                                        <div class="text-[10px] text-zinc-400 truncate">{{ $ttd->jabatan->nama }}</div>
+                                        <div class="text-xs text-zinc-400 truncate">{{ $ttd->jabatan->nama }}</div>
                                     @endif
                                 </div>
                             </label>

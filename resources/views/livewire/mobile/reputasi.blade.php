@@ -31,7 +31,7 @@
             </div>
             <div class="text-right">
                 <span class="text-2xl font-black font-mono leading-none block">{{ $reputasiDiterima->count() }}</span>
-                <span class="text-[10px] text-amber-100 font-medium">Ulasan Diterima</span>
+                <span class="text-xs text-amber-100 font-medium">Ulasan Diterima</span>
             </div>
         </div>
     </div>
@@ -79,7 +79,7 @@
                         <i class="fa-solid fa-chevron-down text-xs"></i>
                     </div>
                 </div>
-                @error('user_id') <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
+                @error('user_id') <span class="text-[13px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Pilih Bintang (1 - 5) -->
@@ -102,7 +102,7 @@
                 <textarea wire:model="keterangan" rows="3"
                           placeholder="Berikan masukan positif, profesionalisme, atau kerja sama tim..."
                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all leading-relaxed"></textarea>
-                @error('keterangan') <span class="text-[11px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
+                @error('keterangan') <span class="text-[13px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
             </div>
 
             <!-- Tombol Submit -->
@@ -126,7 +126,7 @@
                             </div>
                             <div>
                                 <h4 class="text-xs font-bold text-slate-800">{{ $rep->penilai->name ?? 'Rekan Kerja' }}</h4>
-                                <span class="text-[10px] text-slate-400 font-medium">{{ $rep->penilai->jabatan->nama ?? 'Pegawai' }}</span>
+                                <span class="text-xs text-slate-400 font-medium">{{ $rep->penilai->jabatan->nama ?? 'Pegawai' }}</span>
                             </div>
                         </div>
                         <div class="flex text-amber-400 text-xs space-x-0.5">
@@ -138,7 +138,7 @@
                     <div class="bg-slate-50 rounded-2xl p-3 text-xs text-slate-700 italic border border-slate-100/80 leading-relaxed">
                         "{{ $rep->keterangan }}"
                     </div>
-                    <div class="text-[10px] text-slate-400 mt-2 text-right">
+                    <div class="text-xs text-slate-400 mt-2 text-right">
                         {{ \Carbon\Carbon::parse($rep->tanggal)->translatedFormat('d F Y') }}
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                         <i class="fa-regular fa-star"></i>
                     </div>
                     <h4 class="text-xs font-bold text-slate-700">Belum ada penilaian diterima</h4>
-                    <p class="text-[11px] text-slate-400 mt-1">Penilaian dan apresiasi dari rekan kerja Anda akan tampil di sini.</p>
+                    <p class="text-[13px] text-slate-400 mt-1">Penilaian dan apresiasi dari rekan kerja Anda akan tampil di sini.</p>
                 </div>
             @endforelse
         </div>
@@ -166,7 +166,7 @@
                             </div>
                             <div>
                                 <h4 class="text-xs font-bold text-slate-800">{{ $rep->user->name ?? 'Rekan Kerja' }}</h4>
-                                <span class="text-[10px] text-slate-400 font-medium">{{ $rep->user->jabatan->nama ?? 'Pegawai' }}</span>
+                                <span class="text-xs text-slate-400 font-medium">{{ $rep->user->jabatan->nama ?? 'Pegawai' }}</span>
                             </div>
                         </div>
                         <div class="flex text-amber-400 text-xs space-x-0.5">
@@ -178,7 +178,7 @@
                     <div class="bg-slate-50 rounded-2xl p-3 text-xs text-slate-700 border border-slate-100/80 leading-relaxed">
                         "{{ $rep->keterangan }}"
                     </div>
-                    <div class="text-[10px] text-slate-400 mt-2 text-right">
+                    <div class="text-xs text-slate-400 mt-2 text-right">
                         {{ \Carbon\Carbon::parse($rep->tanggal)->translatedFormat('d F Y') }}
                     </div>
                 </div>
@@ -188,7 +188,7 @@
                         <i class="fa-solid fa-pen-nib"></i>
                     </div>
                     <h4 class="text-xs font-bold text-slate-700">Belum ada penilaian diberikan</h4>
-                    <p class="text-[11px] text-slate-400 mt-1">Anda belum memberikan penilaian kepada rekan kerja.</p>
+                    <p class="text-[13px] text-slate-400 mt-1">Anda belum memberikan penilaian kepada rekan kerja.</p>
                 </div>
             @endforelse
         </div>

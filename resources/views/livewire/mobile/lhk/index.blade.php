@@ -6,7 +6,7 @@
                 absen pagi)</p>
         </div>
         <a href="{{ route('mobile.lhk.bank-aktivitas') }}" wire:navigate
-            class="px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-cyan-300 border border-sky-200 dark:border-sky-500/30 text-[11px] font-bold flex items-center gap-1.5 shrink-0 hover:bg-sky-100 transition active:scale-95">
+            class="px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-cyan-300 border border-sky-200 dark:border-sky-500/30 text-[13px] font-bold flex items-center gap-1.5 shrink-0 hover:bg-sky-100 transition active:scale-95">
             <i class="fa-solid fa-list-check text-xs"></i>
             <span>Bank Aktivitas</span>
         </a>
@@ -70,14 +70,14 @@
                                     {{ \Carbon\Carbon::parse($item['tanggal'])->translatedFormat('l, d M Y') }}
                                 </h4>
                                 <div
-                                    class="flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                    class="flex items-center flex-wrap gap-x-2.5 gap-y-0.5 text-[13px] text-slate-500 dark:text-slate-400 mt-0.5">
                                     <span class="inline-flex items-center font-mono font-semibold">
-                                        <i class="fa-solid fa-right-to-bracket text-emerald-500 mr-1 text-[10px]"></i>
+                                        <i class="fa-solid fa-right-to-bracket text-emerald-500 mr-1 text-xs"></i>
                                         {{ $item['jam_masuk'] ?? '--:--' }}
                                     </span>
                                     <span class="text-slate-300 dark:text-slate-600">•</span>
                                     <span class="inline-flex items-center font-mono font-semibold">
-                                        <i class="fa-solid fa-right-from-bracket text-sky-500 mr-1 text-[10px]"></i>
+                                        <i class="fa-solid fa-right-from-bracket text-sky-500 mr-1 text-xs"></i>
                                         {{ $item['jam_pulang'] ?? 'Belum Pulang' }}
                                     </span>
                                 </div>
@@ -85,7 +85,7 @@
                         </div>
 
                         <span
-                            class="px-2.5 py-1 rounded-full border {{ $color }} text-[10px] font-extrabold uppercase shrink-0 tracking-wide">
+                            class="px-2.5 py-1 rounded-full border {{ $color }} text-xs font-extrabold uppercase shrink-0 tracking-wide">
                             {{ $status }}
                         </span>
                     </div>
@@ -94,14 +94,14 @@
                         class="flex items-center justify-between pt-2.5 border-t border-slate-100 dark:border-slate-700/60 gap-2">
                         <div
                             class="flex items-center text-xs font-semibold {{ $item['sudah_ada_lhk'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400' }}">
-                            <i class="fa-solid fa-briefcase mr-1.5 text-[11px]"></i>
+                            <i class="fa-solid fa-briefcase mr-1.5 text-[13px]"></i>
                             <span>{{ $item['jumlah_kegiatan'] }} Kegiatan</span>
                         </div>
 
                         <a href="{{ route('mobile.lhk.create', ['tanggal' => $item['tanggal']]) }}" wire:navigate
                             class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition active:scale-95 shadow-xs {{ $item['sudah_ada_lhk'] ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30' : 'bg-[#1B6CA8] hover:bg-[#155685] text-white shadow-[#1B6CA8]/25' }}">
                             <i
-                                class="fa-solid {{ $item['sudah_ada_lhk'] ? 'fa-pen-to-square' : 'fa-plus' }} text-[11px]"></i>
+                                class="fa-solid {{ $item['sudah_ada_lhk'] ? 'fa-pen-to-square' : 'fa-plus' }} text-[13px]"></i>
                             <span>{{ $item['sudah_ada_lhk'] ? 'Edit LHK' : 'Buat LHK' }}</span>
                         </a>
                     </div>

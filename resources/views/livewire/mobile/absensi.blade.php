@@ -42,7 +42,7 @@
                     <span class="text-3xl md:text-4xl font-black leading-none tracking-tighter tabular-nums">{{ now()->format('d') }}</span>
                     <div class="leading-tight">
                         <div class="text-xs md:text-sm font-extrabold text-amber-300">{{ now()->translatedFormat('l') }}</div>
-                        <div class="text-[10px] md:text-xs font-semibold uppercase tracking-wider text-sky-100">{{ now()->translatedFormat('M Y') }}</div>
+                        <div class="text-xs md:text-xs font-semibold uppercase tracking-wider text-sky-100">{{ now()->translatedFormat('M Y') }}</div>
                     </div>
                 </div>
             </div>
@@ -63,7 +63,7 @@
         <!-- Row 1: Live Clock (Tengah & Besar), Jadwal Kerja & Jarak -->
         <div class="flex flex-col items-center text-center gap-2 py-1">
             @if ($modeSimulasi)
-                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300 text-[10px] md:text-xs font-extrabold">
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 border border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs md:text-xs font-extrabold">
                     <i class="fa-solid fa-flask"></i>
                     <span>{{ !empty($simulasiJamAktif) ? 'Jam Simulasi: ' . substr($simulasiJamAktif, 0, 5) . ' WIB' : 'Mode Simulasi (Jam Real-Time)' }}</span>
                 </div>
@@ -80,17 +80,17 @@
                 <span class="text-xs md:text-sm font-extrabold text-zinc-400 font-mono">WIB</span>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-2">
-                <p class="text-[11px] md:text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                <p class="text-[13px] md:text-sm text-zinc-500 dark:text-zinc-400 font-medium">
                     <i class="fa-regular fa-clock text-sky-500 mr-1"></i>Jadwal {{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
                 </p>
                 <button type="button" @click="detectPosition(true)" title="Ketuk untuk refresh GPS"
-                    class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-bold border cursor-pointer active:scale-95 transition"
+                    class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs md:text-xs font-bold border cursor-pointer active:scale-95 transition"
                     :class="(isWfh || modeSimulasi)
                         ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300'
                         : (isWithinRadius === false
                             ? 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/15 dark:border-rose-500/30 dark:text-rose-300'
                             : 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300')">
-                    <i class="fa-solid fa-location-dot text-[10px]"></i>
+                    <i class="fa-solid fa-location-dot text-xs"></i>
                     <span x-text="modeSimulasi ? ('Bebas Lokasi • ' + currentDistanceText) : (isWfh ? 'Bebas WFH' : (currentDistanceText + ' / {{ $maxRadius }}m'))">Cek GPS...</span>
                 </button>
             </div>
@@ -99,7 +99,7 @@
         <!-- Row 3: Ringkasan Status Absen Datang & Pulang -->
         <div class="grid grid-cols-2 gap-2.5">
             <div class="rounded-2xl border px-3 py-3 text-center {{ $sudahMasuk ? 'bg-emerald-50/90 dark:bg-emerald-500/15 border-emerald-200 dark:border-emerald-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
-                <span class="text-[10px] md:text-xs uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahMasuk ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }}">
+                <span class="text-xs md:text-xs uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahMasuk ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }}">
                     <i class="fa-solid {{ $sudahMasuk ? 'fa-circle-check text-emerald-600' : 'fa-clock text-amber-500' }}"></i>
                     <span>Datang</span>
                 </span>
@@ -108,7 +108,7 @@
                 </span>
             </div>
             <div class="rounded-2xl border px-3 py-3 text-center {{ $sudahPulang ? 'bg-sky-50/90 dark:bg-sky-500/15 border-sky-200 dark:border-sky-500/30' : 'bg-amber-50/80 dark:bg-amber-500/15 border-amber-200 dark:border-amber-500/30' }}">
-                <span class="text-[10px] md:text-xs uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahPulang ? 'text-sky-700 dark:text-sky-300' : 'text-amber-700 dark:text-amber-300' }}">
+                <span class="text-xs md:text-xs uppercase tracking-wider font-extrabold inline-flex items-center gap-1 {{ $sudahPulang ? 'text-sky-700 dark:text-sky-300' : 'text-amber-700 dark:text-amber-300' }}">
                     <i class="fa-solid {{ $sudahPulang ? 'fa-check-double text-sky-600' : 'fa-clock text-amber-500' }}"></i>
                     <span>Pulang</span>
                 </span>
@@ -120,7 +120,7 @@
 
         <!-- Warning GPS jika belum diizinkan -->
         <template x-if="gpsWarning">
-            <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-[11px] text-amber-800 dark:text-amber-300 flex items-center justify-between">
+            <div class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-[13px] text-amber-800 dark:text-amber-300 flex items-center justify-between">
                 <div class="flex items-center space-x-1.5">
                     <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
                     <span>Izin lokasi browser nonaktif.</span>
@@ -131,7 +131,7 @@
 
         <!-- Baris 4: Admin Tools (Hanya Tampil Jika Role SuperAdmin / Admin Dinas) -->
         @if ($isAdmin)
-            <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-[10px] md:text-xs">
+            <div class="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs md:text-xs">
                 <span class="font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center">
                     <i class="fa-solid fa-screwdriver-wrench mr-1.5 text-xs"></i> Mode Admin
                 </span>
@@ -139,13 +139,13 @@
                     @if ($user->hasAnyRole(['super_admin', 'superadmin']))
                         <button type="button" @click="simulasiModal = true"
                             class="px-2.5 py-1 {{ $modeSimulasi ? 'bg-emerald-500 text-white' : 'bg-indigo-600 hover:bg-indigo-700 text-white' }} font-extrabold rounded-lg shadow-md shadow-slate-900/5 transition-transform duration-150 ease-out active:scale-[0.96] flex items-center gap-1 cursor-pointer">
-                            <i class="fa-solid fa-flask text-[10px]"></i>
+                            <i class="fa-solid fa-flask text-xs"></i>
                             <span>{{ $modeSimulasi ? 'Simulasi ON' : 'Mode Simulasi' }}</span>
                         </button>
                     @endif
                     <a href="{{ route('mobile.pengaturan-lokasi') }}" wire:navigate
                         class="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold rounded-lg shadow-md shadow-slate-900/5 transition-transform duration-150 ease-out active:scale-[0.96] flex items-center gap-1 cursor-pointer">
-                        <i class="fa-solid fa-map-location-dot text-[10px]"></i>
+                        <i class="fa-solid fa-map-location-dot text-xs"></i>
                         <span>Atur Peta & Titik</span>
                     </a>
                     <button wire:click="simulasiResetMasuk"
@@ -168,11 +168,11 @@
                 </div>
                 <div class="min-w-0">
                     <span class="text-xs md:text-sm font-extrabold text-slate-800 block leading-tight">Peta & Lokasi (GPS)</span>
-                    <span class="text-[10px] md:text-xs font-mono text-slate-500 block truncate" x-text="userCoordsText ? userCoordsText : 'Mencari koordinat...'"></span>
+                    <span class="text-xs md:text-xs font-mono text-slate-500 block truncate" x-text="userCoordsText ? userCoordsText : 'Mencari koordinat...'"></span>
                 </div>
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
-                <span class="px-2 py-1 border rounded-lg text-[10px] font-bold flex items-center gap-1.5"
+                <span class="px-2 py-1 border rounded-lg text-xs font-bold flex items-center gap-1.5"
                     :class="gpsStatus === 'ok'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-400/30'
                         : (gpsStatus === 'blocked'
@@ -192,7 +192,7 @@
 
         <!-- Banner Status GPS Browser -->
         <template x-if="gpsStatus === 'blocked'">
-            <div class="mb-2 p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-700 dark:text-rose-200 text-[11px] flex items-center justify-between gap-2">
+            <div class="mb-2 p-2.5 rounded-xl bg-rose-500/15 border border-rose-400/40 text-rose-700 dark:text-rose-200 text-[13px] flex items-center justify-between gap-2">
                 <div class="flex items-start gap-2">
                     <i class="fa-solid fa-triangle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
                     <span><strong>GPS Browser belum aktif!</strong> Izinkan akses Lokasi pada browser (ikon gembok/setelan di address bar), lalu tekan <strong>Perbarui</strong>.</span>
@@ -200,7 +200,7 @@
             </div>
         </template>
         <template x-if="gpsStatus === 'ok' && !isWfh && isWithinRadius === false">
-            <div class="mb-2 px-2.5 py-2 rounded-xl bg-rose-500/10 border border-rose-400/35 text-rose-700 dark:text-rose-300 text-[10px] font-bold flex items-center justify-between gap-2">
+            <div class="mb-2 px-2.5 py-2 rounded-xl bg-rose-500/10 border border-rose-400/35 text-rose-700 dark:text-rose-300 text-xs font-bold flex items-center justify-between gap-2">
                 <span class="flex items-center gap-1.5">
                     <i class="fa-solid fa-location-crosshairs text-rose-500 shrink-0"></i>
                     <span>Di luar radius kantor (<span x-text="currentDistanceText"></span>) &bull; Mendekatlah ke kantor</span>
@@ -209,7 +209,7 @@
             </div>
         </template>
         <template x-if="gpsStatus === 'ok' && (isWfh || isWithinRadius !== false)">
-            <div class="mb-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold flex items-center justify-between">
+            <div class="mb-2 px-2.5 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-400/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-center justify-between">
                 <span class="flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-check text-emerald-500"></i>
                     <span x-text="isWfh ? 'Mode WFH Aktif &bull; Siap Presensi' : 'Dalam Radius Kantor &bull; Siap Presensi'"></span>
@@ -220,7 +220,7 @@
 
         <div wire:ignore id="absensi-map" class="w-full h-44 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/60 bg-slate-900 z-10"></div>
 
-        <div class="flex items-center justify-between mt-2 text-[10px]">
+        <div class="flex items-center justify-between mt-2 text-xs">
             <span class="text-slate-500 flex items-center gap-1">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
                 Batas Radius Kantor: <strong class="text-slate-700">{{ $maxRadius }} m</strong>
@@ -237,8 +237,8 @@
                     <i class="fa-solid fa-id-badge"></i>
                 </div>
                 <div class="min-w-0">
-                    <span class="text-[9px] md:text-xs uppercase tracking-wider text-slate-400 block font-bold leading-tight">Jabatan Pegawai</span>
-                    <span class="font-extrabold text-slate-800 truncate block text-[11px] md:text-sm mt-0.5">{{ $user->jabatan->nama ?? '-' }}</span>
+                    <span class="text-[11px] md:text-xs uppercase tracking-wider text-slate-400 block font-bold leading-tight">Jabatan Pegawai</span>
+                    <span class="font-extrabold text-slate-800 truncate block text-[13px] md:text-sm mt-0.5">{{ $user->jabatan->nama ?? '-' }}</span>
                 </div>
             </div>
         </div>
@@ -306,7 +306,7 @@
     @endif
 
     <div class="flex flex-col items-center mt-auto pt-1 pb-16 text-slate-400 text-center">
-        <p class="text-[10px] md:text-xs text-slate-400">Akurasi GPS tinggi diwajibkan untuk presensi kedinasan.</p>
+        <p class="text-xs md:text-xs text-slate-400">Akurasi GPS tinggi diwajibkan untuk presensi kedinasan.</p>
     </div>
 
     @if ($user->hasAnyRole(['super_admin', 'superadmin']))
@@ -322,7 +322,7 @@
                         </div>
                         <div>
                             <h3 class="font-extrabold text-slate-800 dark:text-white text-sm md:text-base">Mode Simulasi Presensi</h3>
-                            <p class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">Uji presensi tanpa batas lokasi dengan jam server simulasi</p>
+                            <p class="text-[13px] md:text-xs text-slate-500 dark:text-slate-400">Uji presensi tanpa batas lokasi dengan jam server simulasi</p>
                         </div>
                     </div>
                     <button type="button" @click="simulasiModal = false"
@@ -335,7 +335,7 @@
                 <div class="flex items-center justify-between gap-3 p-3.5 rounded-2xl border border-slate-200 dark:border-zinc-700 bg-slate-50/70 dark:bg-zinc-800/50">
                     <div>
                         <div class="text-xs md:text-sm font-extrabold text-slate-800 dark:text-white">Mode Simulasi Bebas Lokasi</div>
-                        <div class="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">Izinkan presensi tanpa batasan radius geofencing kantor.</div>
+                        <div class="text-[13px] md:text-xs text-slate-500 dark:text-slate-400">Izinkan presensi tanpa batasan radius geofencing kantor.</div>
                     </div>
                     <button type="button" wire:click="toggleModeSimulasi"
                         class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 {{ $modeSimulasi ? 'bg-sky-600' : 'bg-slate-300 dark:bg-zinc-600' }}">
@@ -348,26 +348,26 @@
                     <div class="flex items-center justify-between gap-3">
                         <div>
                             <div class="text-xs md:text-sm font-extrabold text-amber-800 dark:text-amber-300">Simulasi Jam Aktif Server</div>
-                            <div class="text-[11px] md:text-xs text-amber-700/80 dark:text-amber-300/80">Kosongkan untuk memakai jam server asli.</div>
+                            <div class="text-[13px] md:text-xs text-amber-700/80 dark:text-amber-300/80">Kosongkan untuk memakai jam server asli.</div>
                         </div>
                         <input type="time" wire:model.live="simulasiJamAktif"
                             class="rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold font-mono bg-white dark:bg-zinc-900 border border-amber-300 dark:border-amber-500/40 text-slate-800 dark:text-white">
                     </div>
                     <div class="flex flex-wrap gap-1.5">
                         <button type="button" wire:click="setSimulasiJam('07:25')"
-                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[11px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[13px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
                             07:25 Masuk
                         </button>
                         <button type="button" wire:click="setSimulasiJam('08:05')"
-                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[11px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[13px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
                             08:05 Terlambat
                         </button>
                         <button type="button" wire:click="setSimulasiJam('16:35')"
-                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[11px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-amber-300/80 dark:border-amber-500/30 text-[13px] md:text-xs font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 cursor-pointer">
                             16:35 Pulang
                         </button>
                         <button type="button" wire:click="setSimulasiJam(null)"
-                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-[11px] md:text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 cursor-pointer">
+                            class="px-2.5 py-1.5 rounded-xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-700 text-[13px] md:text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 cursor-pointer">
                             Reset Real-Time
                         </button>
                     </div>

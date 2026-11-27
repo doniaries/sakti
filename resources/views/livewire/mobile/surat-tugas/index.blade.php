@@ -8,7 +8,7 @@
             </a>
             <div>
                 <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100">Surat Tugas</h1>
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Daftar Penugasan Tim Kreatif</p>
+                <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Daftar Penugasan Tim Kreatif</p>
             </div>
         </div>
 
@@ -31,10 +31,10 @@
                     <i class="fa-solid fa-file-circle-check text-sm"></i>
                 </div>
                 <div class="min-w-0">
-                    <div class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                         Tugas Saya</div>
                     <div class="text-base font-extrabold text-zinc-900 dark:text-zinc-100 leading-tight">
-                        {{ $myTotalTerbit }} <span class="text-[11px] font-medium text-zinc-500">kali</span></div>
+                        {{ $myTotalTerbit }} <span class="text-[13px] font-medium text-zinc-500">kali</span></div>
                 </div>
             </div>
             <div
@@ -44,10 +44,10 @@
                     <i class="fa-solid fa-calendar-week text-sm"></i>
                 </div>
                 <div class="min-w-0">
-                    <div class="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    <div class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                         Bulan Ini</div>
                     <div class="text-base font-extrabold text-zinc-900 dark:text-zinc-100 leading-tight">
-                        {{ $myBulanIni }} <span class="text-[11px] font-medium text-zinc-500">kali</span></div>
+                        {{ $myBulanIni }} <span class="text-[13px] font-medium text-zinc-500">kali</span></div>
                 </div>
             </div>
         </div>
@@ -64,13 +64,13 @@
                 class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 space-y-2.5 shadow-xs">
                 <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0">
-                        <div class="text-[11px] font-mono text-zinc-500 dark:text-zinc-400">
+                        <div class="text-[13px] font-mono text-zinc-500 dark:text-zinc-400">
                             {{ $surat->nomor_surat ?? 'Draft' }}</div>
                         <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-snug mt-0.5">
                             {{ $surat->nama_kegiatan }}</h3>
                     </div>
                     <span
-                        class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $surat->status === 'terbit' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' }}">
+                        class="shrink-0 px-2 py-0.5 rounded-full text-xs font-bold uppercase {{ $surat->status === 'terbit' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' }}">
                         {{ $surat->status ?? 'draft' }}
                     </span>
                 </div>
@@ -86,7 +86,7 @@
                     @endif
                 </div>
                 @if ($surat->created_at)
-                    <div class="text-[11px] text-zinc-400 dark:text-zinc-500">
+                    <div class="text-[13px] text-zinc-400 dark:text-zinc-500">
                         <i class="fa-regular fa-paper-plane mr-1"></i>Dibuat:
                         {{ $surat->created_at->format('d/m/Y H:i') }} WIB
                     </div>
@@ -148,7 +148,7 @@
                         </div>
                     @endif
 
-                    <div class="flex flex-wrap items-center gap-2 text-[11px]">
+                    <div class="flex flex-wrap items-center gap-2 text-[13px]">
                         <span
                             class="px-2.5 py-0.5 rounded-full font-bold uppercase {{ $selectedSurat->status === 'terbit' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' }}">
                             {{ $selectedSurat->status ?? 'draft' }}

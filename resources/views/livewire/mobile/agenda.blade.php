@@ -7,7 +7,7 @@
             </a>
             <div>
                 <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100">Agenda Kegiatan</h1>
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Jadwal kegiatan &amp; disposisi Anda</p>
+                <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Jadwal kegiatan &amp; disposisi Anda</p>
             </div>
         </div>
         <button type="button" wire:click="openCreate"
@@ -39,7 +39,7 @@
                 @endphp
                 <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-2 shadow-sm">
                     <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                        <span class="px-2 py-0.5 rounded-md text-xs font-extrabold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                             HARI INI
                         </span>
                         <span class="text-xs font-extrabold text-slate-900 dark:text-white">
@@ -54,7 +54,7 @@
                         @endif
                     </div>
                     @if ($disposisi?->instruksi)
-                        <div class="rounded-lg bg-amber-50 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 px-3 py-1.5 text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                        <div class="rounded-lg bg-amber-50 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 px-3 py-1.5 text-[13px] font-bold text-amber-800 dark:text-amber-300">
                             Disposisi: {{ $disposisi->instruksi }}
                         </div>
                     @endif
@@ -63,7 +63,7 @@
                     @endif
                     @if ($item->lampiran_file)
                         <a href="{{ \Illuminate\Support\Facades\Storage::url($item->lampiran_file) }}" target="_blank" rel="noopener"
-                            class="inline-flex items-center gap-1.5 text-[11px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
+                            class="inline-flex items-center gap-1.5 text-[13px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
                             <i class="fa-solid fa-paperclip"></i>
                             <span>Lihat Lampiran Surat</span>
                         </a>
@@ -85,7 +85,7 @@
                 @endphp
                 <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-2 shadow-sm">
                     <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400">
+                        <span class="px-2 py-0.5 rounded-md text-xs font-extrabold bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400">
                             MENDATANG
                         </span>
                         <span class="text-xs font-extrabold text-slate-900 dark:text-white">
@@ -100,7 +100,7 @@
                         @endif
                     </div>
                     @if ($disposisi?->instruksi)
-                        <div class="rounded-lg bg-amber-50 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 px-3 py-1.5 text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                        <div class="rounded-lg bg-amber-50 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 px-3 py-1.5 text-[13px] font-bold text-amber-800 dark:text-amber-300">
                             Disposisi: {{ $disposisi->instruksi }}
                         </div>
                     @endif
@@ -127,7 +127,7 @@
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Judul Agenda *</label>
                     <input type="text" wire:model="judul" placeholder="Contoh: Rapat Koordinasi..."
                         class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100">
-                    @error('judul') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    @error('judul') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="grid grid-cols-3 gap-2">
@@ -145,7 +145,7 @@
                         <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Selesai *</label>
                         <input type="time" wire:model="jam_selesai"
                             class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs text-zinc-900 dark:text-zinc-100">
-                        @error('jam_selesai') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                        @error('jam_selesai') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
@@ -153,27 +153,27 @@
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Tempat *</label>
                     <input type="text" wire:model="tempat" placeholder="Lokasi kegiatan..."
                         class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100">
-                    @error('tempat') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    @error('tempat') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Asal Undangan / Penyelenggara *</label>
                     <input type="text" wire:model="asal_undangan" placeholder="Nama instansi / penyelenggara..."
                         class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100">
-                    @error('asal_undangan') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    @error('asal_undangan') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Keterangan *</label>
                     <textarea wire:model="keterangan" rows="2" placeholder="Keterangan agenda..."
                         class="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 p-2.5 text-xs text-zinc-900 dark:text-zinc-100"></textarea>
-                    @error('keterangan') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    @error('keterangan') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
                     <div class="flex items-center justify-between mb-1">
                         <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Pegawai yang Diperintah (Disposisi) *</label>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300">
+                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300">
                             {{ count($disposisi_user_ids) }} dipilih
                         </span>
                     </div>
@@ -182,7 +182,7 @@
                         <span class="text-zinc-500 truncate">
                             {{ count($disposisi_user_ids) > 0 ? count($disposisi_user_ids) . ' pegawai dipilih' : 'Pilih pegawai yang ditugaskan...' }}
                         </span>
-                        <i class="fa-solid fa-chevron-down text-zinc-400 text-[10px]"></i>
+                        <i class="fa-solid fa-chevron-down text-zinc-400 text-xs"></i>
                     </button>
                     <div x-show="open" x-cloak
                         class="mt-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 shadow-lg">
@@ -197,14 +197,14 @@
                                     <div class="min-w-0">
                                         <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $p->name }}</div>
                                         @if ($p->jabatan?->nama)
-                                            <div class="text-[10px] text-zinc-400 truncate">{{ $p->jabatan->nama }}</div>
+                                            <div class="text-xs text-zinc-400 truncate">{{ $p->jabatan->nama }}</div>
                                         @endif
                                     </div>
                                 </label>
                             @endforeach
                         </div>
                     </div>
-                    @error('disposisi_user_ids') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    @error('disposisi_user_ids') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -217,8 +217,8 @@
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Foto Surat / PDF (Maks. 5MB)</label>
                     <input type="file" wire:model="lampiran_file" accept="image/jpeg,image/png,image/webp,application/pdf"
                         class="w-full text-xs text-zinc-600 dark:text-zinc-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
-                    <div wire:loading wire:target="lampiran_file" class="text-[11px] text-sky-600 mt-1">Mengunggah lampiran...</div>
-                    @error('lampiran_file') <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p> @enderror
+                    <div wire:loading wire:target="lampiran_file" class="text-[13px] text-sky-600 mt-1">Mengunggah lampiran...</div>
+                    @error('lampiran_file') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <button type="submit" wire:loading.attr="disabled"

@@ -12,16 +12,16 @@
         <div class="relative z-10 -mt-10 flex rounded-2xl bg-white p-1.5 mb-5 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 border border-slate-200/80">
             <button type="button" wire:click="setTab('saya')"
                 class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 {{ $activeTab === 'saya' ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
-                <i class="fa-solid fa-user text-[11px]"></i>
+                <i class="fa-solid fa-user text-[13px]"></i>
                 <span>Pengajuan Saya</span>
             </button>
             <button type="button" wire:click="setTab('verifikasi')"
                 class="flex-1 py-2 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 {{ $activeTab === 'verifikasi' ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-sm' : 'text-slate-600 hover:text-slate-900' }}">
-                <i class="fa-solid fa-clipboard-check text-[11px]"></i>
+                <i class="fa-solid fa-clipboard-check text-[13px]"></i>
                 <span>Verifikasi Bawahan</span>
                 @if ($countMenungguBawahan > 0)
                     <span
-                        class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold {{ $activeTab === 'verifikasi' ? 'bg-white text-sky-700' : 'bg-rose-500 text-white animate-pulse' }}">
+                        class="px-1.5 py-0.2 rounded-full text-xs font-extrabold {{ $activeTab === 'verifikasi' ? 'bg-white text-sky-700' : 'bg-rose-500 text-white animate-pulse' }}">
                         {{ $countMenungguBawahan }}
                     </span>
                 @endif
@@ -39,7 +39,7 @@
                     <i class="fa-solid fa-envelope-open-text"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700">Izin</span>
-                <span class="text-[9px] text-slate-400 font-medium">Pribadi</span>
+                <span class="text-[11px] text-slate-400 font-medium">Pribadi</span>
             </a>
 
             <a href="{{ route('mobile.izin.create', ['kategori' => 'sakit']) }}" wire:navigate
@@ -49,7 +49,7 @@
                     <i class="fa-solid fa-notes-medical"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700">Sakit</span>
-                <span class="text-[9px] text-slate-400 font-medium">Dokter/Non</span>
+                <span class="text-[11px] text-slate-400 font-medium">Dokter/Non</span>
             </a>
 
             <a href="{{ route('mobile.izin.create', ['kategori' => 'cuti']) }}" wire:navigate
@@ -59,7 +59,7 @@
                     <i class="fa-solid fa-umbrella-beach"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700">Cuti</span>
-                <span class="text-[9px] text-slate-400 font-medium">Tahunan/dll</span>
+                <span class="text-[11px] text-slate-400 font-medium">Tahunan/dll</span>
             </a>
         </div>
     @endif
@@ -72,15 +72,15 @@
         </button>
         <button wire:click="setFilter('menunggu')"
             class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $statusFilter === 'menunggu' ? 'bg-amber-500 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
-            <i class="fa-solid fa-hourglass-half mr-1 text-[10px]"></i> Menunggu
+            <i class="fa-solid fa-hourglass-half mr-1 text-xs"></i> Menunggu
         </button>
         <button wire:click="setFilter('disetujui')"
             class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $statusFilter === 'disetujui' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
-            <i class="fa-solid fa-circle-check mr-1 text-[10px]"></i> Disetujui
+            <i class="fa-solid fa-circle-check mr-1 text-xs"></i> Disetujui
         </button>
         <button wire:click="setFilter('ditolak')"
             class="px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all shadow-md shadow-slate-900/5 {{ $statusFilter === 'ditolak' ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 border border-slate-200' }}">
-            <i class="fa-solid fa-circle-xmark mr-1 text-[10px]"></i> Ditolak
+            <i class="fa-solid fa-circle-xmark mr-1 text-xs"></i> Ditolak
         </button>
     </div>
 
@@ -127,19 +127,19 @@
                             @if ($activeTab === 'verifikasi')
                                 <h3 class="text-xs font-extrabold text-slate-800 truncate">
                                     {{ $item->user->name ?? 'Pegawai' }}</h3>
-                                <p class="text-[10px] text-slate-400 font-semibold truncate">
+                                <p class="text-xs text-slate-400 font-semibold truncate">
                                     {{ $item->jenisIzin->nama ?? 'Izin' }} •
                                     {{ $item->user->jabatan->nama ?? 'Staf' }}</p>
                             @else
                                 <h3 class="text-xs font-bold text-slate-800">{{ $item->jenisIzin->nama ?? 'Izin' }}
                                 </h3>
-                                <span class="text-[10px] text-slate-400 font-medium">Diajukan:
+                                <span class="text-xs text-slate-400 font-medium">Diajukan:
                                     {{ $item->created_at->format('d/m/Y H:i') }}</span>
                             @endif
                         </div>
                     </div>
                     <span
-                        class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider border {{ $statusColor }} flex items-center space-x-1 shrink-0">
+                        class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border {{ $statusColor }} flex items-center space-x-1 shrink-0">
                         <i class="fa-solid {{ $statusIcon }}"></i>
                         <span>{{ ucfirst($item->status) }}</span>
                     </span>
@@ -157,7 +157,7 @@
                             @endif
                         </span>
                     </div>
-                    <span class="px-2 py-0.5 rounded-lg bg-sky-100 text-sky-800 font-extrabold text-[10px]">
+                    <span class="px-2 py-0.5 rounded-lg bg-sky-100 text-sky-800 font-extrabold text-xs">
                         {{ $item->jumlah_hari }} Hari Kerja
                     </span>
                 </div>
@@ -168,7 +168,7 @@
                 </div>
 
                 <!-- Lampiran & Detail Status -->
-                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[11px]">
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-[13px]">
                     <a href="{{ route('pengajuan-izin.cetak-pdf', ['pengajuanIzin' => $item, 'preview' => 1]) }}"
                         target="_blank"
                         @click.stop
@@ -190,7 +190,7 @@
 
                     <div class="flex items-center space-x-2">
                         @if ($item->catatan_atasan)
-                            <div class="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/60 max-w-[140px] truncate"
+                            <div class="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/60 max-w-[140px] truncate"
                                 title="{{ $item->catatan_atasan }}">
                                 <i class="fa-solid fa-comment-dots mr-1"></i>{{ $item->catatan_atasan }}
                             </div>
@@ -230,8 +230,8 @@
                     <div class="mt-3 pt-2 border-t border-slate-100 flex justify-end">
                         <button type="button"
                             @click.stop.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin membatalkan dan menghapus pengajuan izin ini?', wireId: '{{ $this->getId() }}', method: 'batalkanPengajuan', params: [{{ $item->id }}] })"
-                            class="text-[11px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1 transition">
-                            <i class="fa-solid fa-trash-can text-[10px]"></i> Batalkan Pengajuan
+                            class="text-[13px] font-bold text-rose-600 hover:text-rose-800 flex items-center gap-1 transition">
+                            <i class="fa-solid fa-trash-can text-xs"></i> Batalkan Pengajuan
                         </button>
                     </div>
                 @endif
@@ -274,7 +274,7 @@
                         </div>
                         <div>
                             <h3 class="font-extrabold text-slate-800 text-sm">Rincian Pengajuan</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">ID #{{ $selectedPengajuan->id }} •
+                            <p class="text-[13px] text-slate-400 font-medium">ID #{{ $selectedPengajuan->id }} •
                                 {{ $selectedPengajuan->created_at->format('d/m/Y H:i') }}</p>
                         </div>
                     </div>
@@ -293,7 +293,7 @@
                     <div>
                         <h4 class="font-extrabold text-slate-800 text-xs">{{ $selectedPengajuan->user->name ?? '-' }}
                         </h4>
-                        <p class="text-[10px] text-slate-500 font-medium">
+                        <p class="text-xs text-slate-500 font-medium">
                             {{ $selectedPengajuan->user->jabatan->nama ?? 'Pegawai' }} • NIP:
                             {{ $selectedPengajuan->user->nip ?? '-' }}</p>
                     </div>
@@ -301,14 +301,14 @@
 
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Jenis
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Jenis
                             Permohonan</span>
                         <span
                             class="font-black text-slate-800">{{ $selectedPengajuan->jenisIzin->nama ?? 'Izin' }}</span>
                     </div>
 
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Durasi
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Durasi
                             Hari</span>
                         <span class="font-black text-slate-800">{{ $selectedPengajuan->jumlah_hari }} Hari
                             Kerja</span>
@@ -316,7 +316,7 @@
                 </div>
 
                 <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Rentang
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Rentang
                         Tanggal</span>
                     <span class="font-bold text-slate-800">
                         {{ $selectedPengajuan->tanggal_mulai ? $selectedPengajuan->tanggal_mulai->translatedFormat('l, d F Y') : '-' }}
@@ -326,7 +326,7 @@
                 </div>
 
                 <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Alasan
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Alasan
                         Permohonan</span>
                     <p class="text-slate-700 leading-relaxed">{{ $selectedPengajuan->alasan }}</p>
                 </div>
@@ -338,7 +338,7 @@
                             <i class="fa-solid fa-paperclip"></i> Dokumen Bukti Pendukung
                         </span>
                         <a href="{{ asset('storage/' . $selectedPengajuan->lampiran) }}" target="_blank"
-                            class="px-3 py-1 rounded-xl bg-sky-600 text-white font-extrabold text-[11px] shadow-md shadow-slate-900/5 hover:bg-sky-700">
+                            class="px-3 py-1 rounded-xl bg-sky-600 text-white font-extrabold text-[13px] shadow-md shadow-slate-900/5 hover:bg-sky-700">
                             Buka Berkas
                         </a>
                     </div>
@@ -348,7 +348,7 @@
                     <div
                         class="p-3.5 rounded-2xl {{ $selectedPengajuan->status === 'disetujui' ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} text-xs">
                         <span
-                            class="text-[10px] font-bold {{ $selectedPengajuan->status === 'disetujui' ? 'text-emerald-700' : 'text-rose-700' }} uppercase tracking-wider block mb-1">
+                            class="text-xs font-bold {{ $selectedPengajuan->status === 'disetujui' ? 'text-emerald-700' : 'text-rose-700' }} uppercase tracking-wider block mb-1">
                             Status: {{ ucfirst($selectedPengajuan->status) }}
                         </span>
                         <p class="text-slate-700 font-medium">
@@ -405,7 +405,7 @@
                         <h3 class="font-extrabold text-slate-800 text-sm">
                             {{ $tipeAksi === 'setujui' ? 'Setujui Pengajuan Izin?' : 'Tolak Pengajuan Izin?' }}
                         </h3>
-                        <p class="text-[11px] text-slate-400">
+                        <p class="text-[13px] text-slate-400">
                             {{ $tipeAksi === 'setujui' ? 'Data presensi pegawai otomatis dicatat sesuai jadwal.' : 'Berikan alasan penolakan jika diperlukan.' }}
                         </p>
                     </div>

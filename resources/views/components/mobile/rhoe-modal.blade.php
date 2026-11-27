@@ -40,7 +40,7 @@
                     {{ $title }}
                 </h3>
                 @if ($subtitle)
-                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <p class="text-[13px] text-zinc-500 dark:text-zinc-400 mt-0.5">
                         {{ $subtitle }}
                     </p>
                 @endif

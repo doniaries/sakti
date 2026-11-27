@@ -51,27 +51,27 @@
         <div class="grid grid-cols-3 gap-1.5 text-center">
             <button type="button" wire:click="$set('filterStatus', 'hadir')" class="bg-emerald-50/70 rounded-xl py-1.5 px-1 border border-emerald-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-emerald-600 block leading-tight">{{ $rekap['hadir'] }}</span>
-                <span class="text-[9px] font-bold text-emerald-700 uppercase tracking-tight">Hadir</span>
+                <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-tight">Hadir</span>
             </button>
             <button type="button" wire:click="$set('filterStatus', 'terlambat')" class="bg-amber-50/70 rounded-xl py-1.5 px-1 border border-amber-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-amber-600 block leading-tight">{{ $rekap['terlambat'] }}</span>
-                <span class="text-[9px] font-bold text-amber-700 uppercase tracking-tight">Telat</span>
+                <span class="text-[11px] font-bold text-amber-700 uppercase tracking-tight">Telat</span>
             </button>
             <button type="button" wire:click="$set('filterStatus', 'dinas_luar')" class="bg-sky-50/70 rounded-xl py-1.5 px-1 border border-sky-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-sky-600 block leading-tight">{{ $rekap['dinas_luar'] }}</span>
-                <span class="text-[9px] font-bold text-sky-700 uppercase tracking-tight">DL</span>
+                <span class="text-[11px] font-bold text-sky-700 uppercase tracking-tight">DL</span>
             </button>
             <a href="{{ route('mobile.izin.index') }}" wire:navigate class="bg-indigo-50/70 rounded-xl py-1.5 px-1 border border-indigo-200/60 cursor-pointer active:scale-95 transition text-center block">
                 <span class="text-base font-black text-indigo-600 block leading-tight">{{ $rekap['izin_sakit'] }}</span>
-                <span class="text-[9px] font-bold text-indigo-700 uppercase tracking-tight">Izin</span>
+                <span class="text-[11px] font-bold text-indigo-700 uppercase tracking-tight">Izin</span>
             </a>
             <a href="{{ route('mobile.izin.index') }}" wire:navigate class="bg-violet-50/70 rounded-xl py-1.5 px-1 border border-violet-200/60 cursor-pointer active:scale-95 transition text-center block">
                 <span class="text-base font-black text-violet-600 block leading-tight">{{ $rekap['cuti'] }}</span>
-                <span class="text-[9px] font-bold text-violet-700 uppercase tracking-tight">Cuti</span>
+                <span class="text-[11px] font-bold text-violet-700 uppercase tracking-tight">Cuti</span>
             </a>
             <button type="button" wire:click="$set('filterStatus', 'tidak_hadir')" class="bg-rose-50/70 rounded-xl py-1.5 px-1 border border-rose-200/60 cursor-pointer active:scale-95 transition text-center w-full">
                 <span class="text-base font-black text-rose-600 block leading-tight">{{ $rekap['alpa'] }}</span>
-                <span class="text-[9px] font-bold text-rose-700 uppercase tracking-tight">Alpa</span>
+                <span class="text-[11px] font-bold text-rose-700 uppercase tracking-tight">Alpa</span>
             </button>
         </div>
 
@@ -84,7 +84,7 @@
                 </span>
                 <span class="font-mono font-extrabold text-slate-900">
                     {{ $jamKerjaBulanan['total_format'] }}
-                    <span class="text-[10px] font-normal text-slate-400">/ {{ $jamKerjaBulanan['target_format'] }}
+                    <span class="text-xs font-normal text-slate-400">/ {{ $jamKerjaBulanan['target_format'] }}
                         ({{ $jamKerjaBulanan['persen'] }}%)</span>
                 </span>
             </div>
@@ -92,7 +92,7 @@
                 <div class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-500"
                     style="width: {{ $jamKerjaBulanan['persen'] }}%"></div>
             </div>
-            <p class="text-[10px] text-slate-400">
+            <p class="text-xs text-slate-400">
                 Ketentuan ASN: {{ $jamKerjaBulanan['target_harian_format'] }}/hari &bull;
                 {{ $jamKerjaBulanan['target_mingguan_format'] }}/minggu ({{ $jamKerjaBulanan['hari_kerja'] }} hari
                 kerja, non-istirahat)
@@ -207,10 +207,10 @@
                                             <i class="fa-solid fa-circle text-amber-500 text-[6px] mr-1.5"></i>
                                             {{ $item->jam_masuk ? substr($item->jam_masuk, 0, 8) : '--:--' }}
                                             @if ($item->logMasuk?->perangkat === 'mesin')
-                                                <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1"
+                                                <i class="fa-solid fa-fingerprint text-xs text-sky-500 ml-1"
                                                     title="Mesin Fingerprint"></i>
                                             @elseif($item->logMasuk?->perangkat === 'mobile')
-                                                <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1"
+                                                <i class="fa-solid fa-mobile-screen text-xs text-emerald-500 ml-1"
                                                     title="Aplikasi Mobile"></i>
                                             @endif
                                         </span>
@@ -220,16 +220,16 @@
                                             <i class="fa-solid fa-circle text-emerald-500 text-[6px] mr-1.5"></i>
                                             {{ $item->jam_pulang ? substr($item->jam_pulang, 0, 8) : '--:--' }}
                                             @if ($item->logPulang?->perangkat === 'mesin')
-                                                <i class="fa-solid fa-fingerprint text-[10px] text-sky-500 ml-1"
+                                                <i class="fa-solid fa-fingerprint text-xs text-sky-500 ml-1"
                                                     title="Mesin Fingerprint"></i>
                                             @elseif($item->logPulang?->perangkat === 'mobile')
-                                                <i class="fa-solid fa-mobile-screen text-[10px] text-emerald-500 ml-1"
+                                                <i class="fa-solid fa-mobile-screen text-xs text-emerald-500 ml-1"
                                                     title="Aplikasi Mobile"></i>
                                             @endif
                                         </span>
                                     </div>
                                     @if (!empty($item->keterangan))
-                                        <p class="text-[10px] text-slate-400 mt-1 italic line-clamp-1">
+                                        <p class="text-xs text-slate-400 mt-1 italic line-clamp-1">
                                             {{ $item->keterangan }}</p>
                                     @endif
                                 </div>
@@ -237,10 +237,10 @@
 
                             <div class="flex flex-col items-end space-y-1.5 shrink-0 ml-2">
                                 <span
-                                    class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
+                                    class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase border {{ $badgeStyle }} tracking-wider">
                                     {{ str_replace('_', ' ', $status) }}
                                 </span>
-                                <div class="flex items-center text-[10px] text-slate-400">
+                                <div class="flex items-center text-xs text-slate-400">
                                     <span>Detail</span>
                                     <i class="fa-solid fa-chevron-right text-[8px] ml-1"></i>
                                 </div>
@@ -252,22 +252,22 @@
                                 class="flex items-center justify-between pt-2 border-t border-slate-100/80 dark:border-slate-700/60 gap-2">
                                 <div class="flex items-center flex-wrap gap-x-2.5 gap-y-1">
                                     <span
-                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold {{ $menitKerjaHarian >= \App\Models\AbsensiHarian::TARGET_MENIT_HARIAN_ASN ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : ($menitKerjaHarian > 0 ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
-                                        <i class="fa-regular fa-clock text-[9px]"></i>
+                                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-mono font-bold {{ $menitKerjaHarian >= \App\Models\AbsensiHarian::TARGET_MENIT_HARIAN_ASN ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300' : ($menitKerjaHarian > 0 ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
+                                        <i class="fa-regular fa-clock text-[11px]"></i>
                                         {{ $menitKerjaHarian > 0 ? $durasiKerjaHarian : (!empty($item->jam_masuk) && empty($item->jam_pulang) ? 'Berjalan' : '0j 00m') }}
                                         / 7j 30m
                                     </span>
                                     <span
-                                        class="text-[11px] font-semibold {{ $jumlahKegiatan > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400' }}">
+                                        class="text-[13px] font-semibold {{ $jumlahKegiatan > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400' }}">
                                         <i class="fa-solid fa-file-lines mr-1"></i>
                                         {{ $jumlahKegiatan > 0 ? "{$jumlahKegiatan} Keg." : 'LHK Kosong' }}
                                     </span>
                                 </div>
                                 <a href="{{ route('mobile.lhk.create', ['tanggal' => $tglKey]) }}" wire:navigate
                                     @click.stop
-                                    class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold transition active:scale-95 shrink-0 {{ $jumlahKegiatan > 0 ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30' : 'bg-[#1B6CA8] hover:bg-[#155685] text-white shadow-md shadow-slate-900/5' }}">
+                                    class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[13px] font-bold transition active:scale-95 shrink-0 {{ $jumlahKegiatan > 0 ? 'bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 dark:bg-sky-500/15 dark:text-sky-300 dark:border-sky-500/30' : 'bg-[#1B6CA8] hover:bg-[#155685] text-white shadow-md shadow-slate-900/5' }}">
                                     <i
-                                        class="fa-solid {{ $jumlahKegiatan > 0 ? 'fa-pen-to-square' : 'fa-plus' }} text-[10px]"></i>
+                                        class="fa-solid {{ $jumlahKegiatan > 0 ? 'fa-pen-to-square' : 'fa-plus' }} text-xs"></i>
                                     <span>{{ $jumlahKegiatan > 0 ? 'Edit LHK' : 'Buat LHK' }}</span>
                                 </a>
                             </div>
@@ -292,7 +292,7 @@
                         </div>
                         <div>
                             <h3 class="font-extrabold text-slate-800 text-sm">Detail Presensi Kehadiran</h3>
-                            <p class="text-[11px] text-slate-400 font-medium">
+                            <p class="text-[13px] text-slate-400 font-medium">
                                 {{ \Carbon\Carbon::parse($selectedAbsensi->tanggal)->translatedFormat('l, d F Y') }}
                             </p>
                         </div>
@@ -306,7 +306,7 @@
                 <!-- Info Grid -->
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Status
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Status
                             Kehadiran</span>
                         <span class="font-black text-slate-800 uppercase tracking-tight text-sm">
                             {{ str_replace('_', ' ', $selectedAbsensi->status?->value ?? $selectedAbsensi->status) }}
@@ -314,7 +314,7 @@
                     </div>
 
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tipe
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Tipe
                             Kerja</span>
                         <span class="font-black text-slate-800 uppercase tracking-tight text-sm">
                             {{ $selectedAbsensi->user?->status_kerja === 'wfh' ? 'WFH (Fleksibel)' : 'WFO (Kantor)' }}
@@ -330,9 +330,9 @@
                     class="p-3.5 rounded-2xl bg-sky-50/70 dark:bg-sky-500/10 border border-sky-200/80 dark:border-sky-500/30 flex items-center justify-between text-xs">
                     <div>
                         <span
-                            class="text-[10px] font-bold text-sky-700 dark:text-cyan-300 uppercase tracking-wider block">Jam
+                            class="text-xs font-bold text-sky-700 dark:text-cyan-300 uppercase tracking-wider block">Jam
                             Kerja Efektif Harian</span>
-                        <span class="text-[10px] text-slate-500 dark:text-slate-400">Standar ASN: 7j 30m/hari (di luar
+                        <span class="text-xs text-slate-500 dark:text-slate-400">Standar ASN: 7j 30m/hari (di luar
                             jam istirahat)</span>
                     </div>
                     <span
@@ -345,36 +345,36 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="p-3.5 rounded-2xl bg-emerald-50/60 border border-emerald-100">
                         <span
-                            class="text-[10px] font-extrabold text-emerald-700 uppercase tracking-wider block mb-1">Absen
+                            class="text-xs font-extrabold text-emerald-700 uppercase tracking-wider block mb-1">Absen
                             Masuk</span>
                         <div class="font-mono font-black text-lg text-emerald-800">
                             {{ $selectedAbsensi->jam_masuk ? substr($selectedAbsensi->jam_masuk, 0, 8) : '--:--' }}
                         </div>
-                        <span class="text-[10px] text-emerald-600 font-medium mt-1 block">
+                        <span class="text-xs text-emerald-600 font-medium mt-1 block">
                             {{ $selectedAbsensi->logMasuk?->perangkat ? 'Perangkat: ' . ucfirst($selectedAbsensi->logMasuk->perangkat) : 'Presensi Resmi' }}
                         </span>
                         @if ($selectedAbsensi->latitude_masuk && $selectedAbsensi->longitude_masuk)
                             <a href="https://maps.google.com/?q={{ $selectedAbsensi->latitude_masuk }},{{ $selectedAbsensi->longitude_masuk }}"
                                 target="_blank"
-                                class="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-emerald-700 underline">
+                                class="inline-flex items-center gap-1 mt-2 text-xs font-bold text-emerald-700 underline">
                                 <i class="fa-solid fa-location-dot"></i> Peta Masuk
                             </a>
                         @endif
                     </div>
 
                     <div class="p-3.5 rounded-2xl bg-sky-50/60 border border-sky-100">
-                        <span class="text-[10px] font-extrabold text-sky-700 uppercase tracking-wider block mb-1">Absen
+                        <span class="text-xs font-extrabold text-sky-700 uppercase tracking-wider block mb-1">Absen
                             Pulang</span>
                         <div class="font-mono font-black text-lg text-sky-800">
                             {{ $selectedAbsensi->jam_pulang ? substr($selectedAbsensi->jam_pulang, 0, 8) : '--:--' }}
                         </div>
-                        <span class="text-[10px] text-sky-600 font-medium mt-1 block">
+                        <span class="text-xs text-sky-600 font-medium mt-1 block">
                             {{ $selectedAbsensi->logPulang?->perangkat ? 'Perangkat: ' . ucfirst($selectedAbsensi->logPulang->perangkat) : 'Presensi Resmi' }}
                         </span>
                         @if ($selectedAbsensi->latitude_pulang && $selectedAbsensi->longitude_pulang)
                             <a href="https://maps.google.com/?q={{ $selectedAbsensi->latitude_pulang }},{{ $selectedAbsensi->longitude_pulang }}"
                                 target="_blank"
-                                class="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-sky-700 underline">
+                                class="inline-flex items-center gap-1 mt-2 text-xs font-bold text-sky-700 underline">
                                 <i class="fa-solid fa-location-dot"></i> Peta Pulang
                             </a>
                         @endif
@@ -383,7 +383,7 @@
 
                 @if (!empty($selectedAbsensi->keterangan))
                     <div class="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-100 text-xs">
-                        <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block mb-1">Catatan
+                        <span class="text-xs font-bold text-amber-800 uppercase tracking-wider block mb-1">Catatan
                             / Keterangan</span>
                         <p class="text-slate-700">{{ $selectedAbsensi->keterangan }}</p>
                     </div>

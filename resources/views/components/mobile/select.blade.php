@@ -43,11 +43,11 @@
     class="relative w-full">
     <button type="button"
         @click="open = !open; if (open) { $nextTick(() => $refs.searchInput?.focus()); }"
-        class="w-full flex items-center justify-between gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#132338] px-3 py-2.5 text-left text-xs md:text-sm text-slate-800 dark:text-slate-100 shadow-2xs hover:border-sky-400 dark:hover:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 transition cursor-pointer">
+        class="w-full flex items-center justify-between gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#132338] px-3.5 py-3 text-left text-sm text-slate-800 dark:text-slate-100 shadow-2xs hover:border-sky-400 dark:hover:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/30 transition cursor-pointer">
         <span class="leading-snug line-clamp-2 {{ $currentVal === '' && ! $emptyLabel ? 'text-slate-400 dark:text-slate-500' : 'font-medium' }}">
             {{ $selectedLabel }}
         </span>
-        <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0 transition-transform duration-150"
+        <i class="fa-solid fa-chevron-down text-xs text-slate-400 shrink-0 transition-transform duration-150"
             :class="open ? 'rotate-180 text-sky-500' : ''"></i>
     </button>
 
@@ -63,12 +63,12 @@
         class="absolute left-0 right-0 z-[60] mt-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F1E33] shadow-xl overflow-hidden">
         <div class="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#132338] space-y-1.5">
             <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
                 <input x-ref="searchInput"
                     x-model="search"
                     type="text"
                     placeholder="{{ $searchPlaceholder }}"
-                    class="w-full pl-7 pr-2.5 py-1.5 rounded-lg bg-white dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500">
+                    class="w-full pl-8 pr-3 py-2 rounded-lg bg-white dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500">
             </div>
             @if (count($groups) > 1)
                 @php
@@ -78,7 +78,7 @@
                     <button type="button"
                         @click="activeGroup = 'all'"
                         :class="activeGroup === 'all' ? 'bg-sky-600 text-white' : 'bg-white dark:bg-[#0F1E33] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'"
-                        class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer">
+                        class="shrink-0 px-2 py-0.5 rounded-full text-xs font-bold transition cursor-pointer">
                         Semua ({{ $totalGroupOptions }})
                     </button>
                     @foreach ($groups as $g)
@@ -86,7 +86,7 @@
                             <button type="button"
                                 @click="activeGroup = @js($g['label'])"
                                 :class="activeGroup === @js($g['label']) ? 'bg-sky-600 text-white' : 'bg-white dark:bg-[#0F1E33] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'"
-                                class="shrink-0 max-w-[180px] truncate px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer"
+                                class="shrink-0 max-w-[180px] truncate px-2 py-0.5 rounded-full text-xs font-bold transition cursor-pointer"
                                 title="{{ $g['label'] }}">
                                 {{ \Illuminate\Support\Str::limit($g['label'], 20) }} ({{ count($g['options'] ?? []) }})
                             </button>
@@ -101,10 +101,10 @@
                 <button type="button"
                     x-show="matches(@js($emptyLabel))"
                     @click="selectOption('')"
-                    class="w-full px-3 py-2.5 text-left text-xs flex items-center justify-between gap-2 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition cursor-pointer {{ $currentVal === '' ? 'bg-sky-50/80 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium' }}">
+                    class="w-full px-3.5 py-3 text-left text-sm flex items-center justify-between gap-2 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition cursor-pointer {{ $currentVal === '' ? 'bg-sky-50/80 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 font-bold' : 'text-slate-700 dark:text-slate-200 font-medium' }}">
                     <span>{{ $emptyLabel }}</span>
                     @if ($currentVal === '')
-                        <i class="fa-solid fa-check text-[10px] text-sky-600 dark:text-sky-400 shrink-0"></i>
+                        <i class="fa-solid fa-check text-xs text-sky-600 dark:text-sky-400 shrink-0"></i>
                     @endif
                 </button>
             @endif
@@ -118,9 +118,9 @@
                 @if (count($groupOptions) > 0)
                     <div x-show="matches(@js($groupLabel . ' ' . $groupText), @js($groupLabel))">
                         @if ($groupLabel !== '')
-                            <div class="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-500/10 border-y border-sky-100/80 dark:border-sky-500/20 flex items-center justify-between gap-2">
+                            <div class="px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-500/10 border-y border-sky-100/80 dark:border-sky-500/20 flex items-center justify-between gap-2">
                                 <span class="truncate">{{ $groupLabel }}</span>
-                                <span class="shrink-0 px-1.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/20 text-[9px]">{{ count($groupOptions) }}</span>
+                                <span class="shrink-0 px-1.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-500/20 text-[11px]">{{ count($groupOptions) }}</span>
                             </div>
                         @endif
                         @foreach ($groupOptions as $opt)
@@ -133,19 +133,19 @@
                             <button type="button"
                                 x-show="matches(@js($groupLabel . ' ' . $optLabel))"
                                 @click="selectOption(@js($opt['value']))"
-                                class="w-full px-3 py-2.5 text-left text-xs flex items-start justify-between gap-2 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition cursor-pointer {{ $isSelected ? 'bg-sky-50/80 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 font-semibold' : 'text-slate-700 dark:text-slate-200' }}">
+                                class="w-full px-3.5 py-3 text-left text-sm flex items-start justify-between gap-2 hover:bg-sky-50 dark:hover:bg-sky-500/10 transition cursor-pointer {{ $isSelected ? 'bg-sky-50/80 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 font-semibold' : 'text-slate-700 dark:text-slate-200' }}">
                                 <span class="leading-snug">{{ $optLabel }}</span>
                                 <span class="flex items-center gap-1.5 shrink-0 mt-0.5">
                                     @if ($optBadge)
                                         @php
                                             $isZeroBadge = str_starts_with((string) $optBadge, '0 ');
                                         @endphp
-                                        <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold {{ $isZeroBadge ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' : 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' }}">
+                                        <span class="px-1.5 py-0.5 rounded-md text-xs font-bold {{ $isZeroBadge ? 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' : 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' }}">
                                             {{ $optBadge }}
                                         </span>
                                     @endif
                                     @if ($isSelected)
-                                        <i class="fa-solid fa-check text-[10px] text-sky-600 dark:text-sky-400"></i>
+                                        <i class="fa-solid fa-check text-xs text-sky-600 dark:text-sky-400"></i>
                                     @endif
                                 </span>
                             </button>

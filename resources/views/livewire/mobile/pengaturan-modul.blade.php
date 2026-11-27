@@ -16,7 +16,7 @@
         </a>
         <div>
             <h1 class="text-base font-extrabold text-slate-900 dark:text-white leading-tight">Pengaturan Modul Sistem</h1>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">Khusus Super Admin • Web, Mobile & Android</p>
+            <p class="text-[13px] text-slate-500 dark:text-slate-400">Khusus Super Admin • Web, Mobile & Android</p>
         </div>
     </div>
 
@@ -26,7 +26,7 @@
             <div wire:key="mod-{{ $modKey }}" class="flex items-center justify-between gap-3 py-3 border-b border-slate-100 dark:border-slate-700/60 last:border-b-0">
                 <div class="min-w-0">
                     <p class="text-xs font-bold text-slate-800 dark:text-white">{{ $modMeta['label'] }}</p>
-                    <p class="text-[11px] text-slate-400 leading-snug mt-0.5">{{ $modMeta['desc'] }}</p>
+                    <p class="text-[13px] text-slate-400 leading-snug mt-0.5">{{ $modMeta['desc'] }}</p>
                 </div>
                 <button type="button" wire:click="toggleModul('{{ $modKey }}')"
                     class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out {{ $enabled ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-600' }}"

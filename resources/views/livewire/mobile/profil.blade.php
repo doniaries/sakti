@@ -144,7 +144,7 @@
             <button type="button" @click="previewOpen = true" class="relative block cursor-pointer group shrink-0" title="Lihat atau ubah foto profil (Maks. 2MB)">
                 <img src="{{ $user->avatar_image_url }}" alt="Avatar Pegawai"
                     class="w-16 h-16 rounded-full object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20 group-hover:brightness-90 group-active:scale-95 transition">
-                <span class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-sky-500 text-white border-2 border-white flex items-center justify-center text-[10px] shadow">
+                <span class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-sky-500 text-white border-2 border-white flex items-center justify-center text-xs shadow">
                     <i class="fa-solid fa-camera"></i>
                 </span>
             </button>
@@ -170,7 +170,7 @@
                             </button>
                             <button type="button" @click="previewOpen = false; $refs.avatarInput.click()"
                                 class="h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center gap-1.5">
-                                <i class="fa-solid fa-camera text-[11px]"></i>
+                                <i class="fa-solid fa-camera text-[13px]"></i>
                                 <span>Ganti Foto</span>
                             </button>
                         </div>
@@ -186,7 +186,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <h3 class="text-sm font-extrabold text-slate-800">Edit &amp; Crop Foto Profil</h3>
-                                <p class="text-[11px] text-slate-500">Geser foto atau atur zoom agar pas di tengah</p>
+                                <p class="text-[13px] text-slate-500">Geser foto atau atur zoom agar pas di tengah</p>
                             </div>
                             <button type="button" @click="cropOpen = false"
                                 class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center cursor-pointer">
@@ -235,7 +235,7 @@
 
             <div class="flex-1 min-w-0">
                 <div
-                    class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-[10px] font-extrabold text-sky-200 uppercase tracking-wider mb-1">
+                    class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-extrabold text-sky-200 uppercase tracking-wider mb-1">
                     {{ $user->isPegawaiWajibAbsen() ? ($user->jabatan->nama ?? 'Pegawai') : 'Super Administrator Sistem' }}
                 </div>
                 @php
@@ -257,20 +257,20 @@
                     @if ($user->nip)
                         <button type="button"
                             @click="navigator.clipboard?.writeText('{{ $user->nip }}'); copiedNip = true; setTimeout(() => copiedNip = false, 1500)"
-                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-xs text-white transition cursor-pointer shrink-0"
                             title="Salin NIP">
                             <i class="fa-regular"
                                 :class="copiedNip ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
                         </button>
                     @endif
                 </div>
-                <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5"
+                <div class="flex items-center gap-1.5 text-[13px] text-sky-100/90 font-mono mt-0.5"
                     x-data="{ copiedEmail: false }">
-                    <i class="fa-solid fa-envelope text-sky-300 text-[10px]"></i>
+                    <i class="fa-solid fa-envelope text-sky-300 text-xs"></i>
                     <span class="truncate">{{ $user->email }}</span>
                     <button type="button"
                         @click="navigator.clipboard?.writeText('{{ $user->email }}'); copiedEmail = true; setTimeout(() => copiedEmail = false, 1500)"
-                        class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                        class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-xs text-white transition cursor-pointer shrink-0"
                         title="Salin Email">
                         <i class="fa-regular"
                             :class="copiedEmail ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
@@ -289,13 +289,13 @@
                         : null;
                 @endphp
                 @if ($heroNik)
-                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5"
+                    <div class="flex items-center gap-1.5 text-[13px] text-sky-100/90 font-mono mt-0.5"
                         x-data="{ copiedHeroNik: false }">
-                        <i class="fa-solid fa-id-card text-sky-300 text-[10px]"></i>
+                        <i class="fa-solid fa-id-card text-sky-300 text-xs"></i>
                         <span class="truncate">NIK: {{ $heroNik }}</span>
                         <button type="button"
                             @click="navigator.clipboard?.writeText('{{ $heroNik }}'); copiedHeroNik = true; setTimeout(() => copiedHeroNik = false, 1500)"
-                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-xs text-white transition cursor-pointer shrink-0"
                             title="Salin NIK">
                             <i class="fa-regular"
                                 :class="copiedHeroNik ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
@@ -303,13 +303,13 @@
                     </div>
                 @endif
                 @if ($heroKk)
-                    <div class="flex items-center gap-1.5 text-[11px] text-sky-100/90 font-mono mt-0.5"
+                    <div class="flex items-center gap-1.5 text-[13px] text-sky-100/90 font-mono mt-0.5"
                         x-data="{ copiedHeroKk: false }">
-                        <i class="fa-solid fa-house-user text-sky-300 text-[10px]"></i>
+                        <i class="fa-solid fa-house-user text-sky-300 text-xs"></i>
                         <span class="truncate">KK: {{ $heroKk }}</span>
                         <button type="button"
                             @click="navigator.clipboard?.writeText('{{ $heroKk }}'); copiedHeroKk = true; setTimeout(() => copiedHeroKk = false, 1500)"
-                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-[10px] text-white transition cursor-pointer shrink-0"
+                            class="px-1.5 py-0.5 rounded-md bg-white/15 hover:bg-white/25 text-xs text-white transition cursor-pointer shrink-0"
                             title="Salin No. KK">
                             <i class="fa-regular"
                                 :class="copiedHeroKk ? 'fa-circle-check text-emerald-300' : 'fa-copy'"></i>
@@ -324,15 +324,15 @@
                 <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
                     @if ($golHero)
                         <span
-                            class="px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/30 text-[10px] font-bold text-amber-200">
+                            class="px-2 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/30 text-xs font-bold text-amber-200">
                             {{ $golHero->golongan?->value ?? $golHero->golongan }}{{ $golHero->nama_pangkat ? ' • ' . $golHero->nama_pangkat : '' }}
                         </span>
                     @endif
                     <span
-                        class="px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-bold uppercase text-emerald-200">
+                        class="px-2 py-0.5 rounded-full bg-white/15 text-xs font-bold uppercase text-emerald-200">
                         {{ $user->status_kerja ?? 'WFO' }}
                     </span>
-                    <span class="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-medium text-sky-100">
+                    <span class="px-2 py-0.5 rounded-full bg-white/10 text-xs font-medium text-sky-100">
                         {{ $user->jadwalKerja->nama ?? 'Jadwal Reguler' }}
                     </span>
                 </div>
@@ -341,13 +341,13 @@
 
         <!-- Ringkasan Unit Kerja & Atasan -->
         @if ($user->isPegawaiWajibAbsen())
-            <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-2 gap-2 text-[11px] relative z-10">
+            <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-2 gap-2 text-[13px] relative z-10">
                 <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
-                    <div class="text-sky-200/80 text-[10px]">Bidang Dinas</div>
+                    <div class="text-sky-200/80 text-xs">Bidang Dinas</div>
                     <div class="font-bold text-white truncate">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</div>
                 </div>
                 <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
-                    <div class="text-sky-200/80 text-[10px]">Atasan</div>
+                    <div class="text-sky-200/80 text-xs">Atasan</div>
                     <div class="font-bold text-white truncate">{{ $user->atasan->name ?? 'Pimpinan' }}</div>
                 </div>
             </div>
@@ -363,13 +363,13 @@
             @sakti-device-permissions.window="perms = $event.detail || perms"
             class="mt-3 pt-3 border-t border-white/15 relative z-10">
             <div class="flex items-center justify-between mb-2">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-sky-100">Status Izin Perangkat</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-sky-100">Status Izin Perangkat</span>
                 <button type="button" @click="window.SaktiNative?.postMessage('open_app_settings')"
-                    class="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white text-[10px] font-bold cursor-pointer">
+                    class="px-2.5 py-1 rounded-full bg-white/15 hover:bg-white/25 text-white text-xs font-bold cursor-pointer">
                     <i class="fa-solid fa-gear mr-1"></i>Pengaturan
                 </button>
             </div>
-            <div class="grid grid-cols-3 gap-1.5 text-[10px]">
+            <div class="grid grid-cols-3 gap-1.5 text-xs">
                 <div class="rounded-xl px-2 py-1.5 text-center font-bold"
                     :class="perms.location ? 'bg-emerald-500/25 text-emerald-100' : 'bg-rose-500/30 text-rose-100'">
                     <i class="fa-solid fa-location-dot block mb-0.5"></i>
@@ -387,7 +387,7 @@
                 </div>
             </div>
             <div x-show="perms.biometricSupported !== false"
-                class="mt-2 rounded-xl bg-white/10 px-3 py-2 flex items-center justify-between gap-2 text-[11px]">
+                class="mt-2 rounded-xl bg-white/10 px-3 py-2 flex items-center justify-between gap-2 text-[13px]">
                 <div class="flex items-center gap-2 text-white font-semibold">
                     <i class="fa-solid fa-fingerprint text-sky-200"></i>
                     <span>Masuk Sidik Jari</span>
@@ -408,7 +408,7 @@
                 class="bg-black/40 backdrop-blur-md rounded-2xl p-2.5 border border-white/15 flex items-center space-x-2.5 text-xs text-amber-200">
                 <i class="fa-solid fa-spinner fa-spin text-sm text-amber-300"></i>
                 <div class="flex-1">
-                    <div class="flex justify-between text-[11px] font-bold mb-1">
+                    <div class="flex justify-between text-[13px] font-bold mb-1">
                         <span>Mengunggah foto...</span>
                         <span>Maks. 2MB</span>
                     </div>
@@ -420,7 +420,7 @@
         </div>
         @error('new_avatar')
             <div
-                class="mt-2 text-[11px] font-bold text-rose-300 bg-rose-950/40 px-3 py-1.5 rounded-xl border border-rose-500/30">
+                class="mt-2 text-[13px] font-bold text-rose-300 bg-rose-950/40 px-3 py-1.5 rounded-xl border border-rose-500/30">
                 <i class="fa-solid fa-circle-exclamation mr-1"></i>{{ $message }}
             </div>
         @enderror
@@ -447,7 +447,7 @@
                         <div>
                             <div class="text-xs font-extrabold text-slate-800 leading-tight">{{ $card['label'] }}
                             </div>
-                            <div class="text-[10px] text-slate-400 mt-0.5">{{ $card['desc'] }}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">{{ $card['desc'] }}</div>
                         </div>
                     </button>
                 @endforeach
@@ -496,7 +496,7 @@
                             </div>
                             <div>
                                 <div class="text-xs font-extrabold text-slate-800 leading-tight">Pengaturan</div>
-                                <div class="text-[10px] text-slate-400 mt-0.5">Role, Modul &amp; Notif</div>
+                                <div class="text-xs text-slate-400 mt-0.5">Role, Modul &amp; Notif</div>
                             </div>
                         </button>
 
@@ -527,7 +527,7 @@
                                         <span class="text-xs font-bold text-slate-800"><i
                                                 class="fa-solid fa-user-shield text-teal-600 mr-2"></i>Peran &amp;
                                             Akses</span>
-                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
                                     </button>
                                 @endif
                                 @if (auth()->user()
@@ -538,7 +538,7 @@
                                         <span class="text-xs font-bold text-slate-800"><i
                                                 class="fa-solid fa-gears text-slate-600 mr-2"></i>Pengaturan
                                             Modul</span>
-                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
                                     </button>
                                     <button type="button"
                                         @click="pengaturanOpen = false; appSettingsOpen = true; checkGps()"
@@ -546,13 +546,13 @@
                                         <span class="text-xs font-bold text-slate-800"><i
                                                 class="fa-solid fa-mobile-screen text-indigo-600 mr-2"></i>Pengaturan
                                             Aplikasi</span>
-                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
                                     </button>
                                     <button type="button" wire:click="tesKirimNotif" @click="pengaturanOpen = false"
                                         class="w-full px-3.5 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left cursor-pointer">
                                         <span class="text-xs font-bold text-slate-800"><i
                                                 class="fa-solid fa-bell text-sky-600 mr-2"></i>Tes Kirim Notif</span>
-                                        <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
                                     </button>
                                 @endif
                             </div>
@@ -586,7 +586,7 @@
                                 <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
                                     <div>
                                         <div class="text-xs font-bold text-slate-800">Mode Tema</div>
-                                        <div class="text-[10px] text-slate-400"
+                                        <div class="text-xs text-slate-400"
                                             x-text="isDark ? 'Mode Gelap aktif' : 'Mode Terang aktif'"></div>
                                     </div>
                                     <button type="button" @click="toggleTheme()"
@@ -598,7 +598,7 @@
                                 <div class="p-3 rounded-xl bg-slate-50 flex items-center justify-between">
                                     <div>
                                         <div class="text-xs font-bold text-slate-800">Izin Notifikasi Perangkat</div>
-                                        <div class="text-[10px]"
+                                        <div class="text-xs"
                                             :class="notifOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
                                             x-text="notifOk ? 'Sudah Diizinkan' : 'Belum Diizinkan'"></div>
                                     </div>
@@ -613,7 +613,7 @@
                                     <div>
                                         <div class="text-xs font-bold text-slate-800 dark:text-white">Izin GPS / Lokasi
                                             Perangkat</div>
-                                        <div class="text-[10px]"
+                                        <div class="text-xs"
                                             :class="gpsOk ? 'text-emerald-600 font-bold' : 'text-amber-600 font-bold'"
                                             x-text="gpsOk ? 'Sudah Diizinkan' : 'Belum Diizinkan'"></div>
                                     </div>
@@ -630,7 +630,7 @@
                                         <div>
                                             <div class="text-xs font-bold text-slate-800 dark:text-white">Pembatasan
                                                 Device (Binding)</div>
-                                            <div class="text-[10px] text-slate-400">Sinkron dengan Admin Filament</div>
+                                            <div class="text-xs text-slate-400">Sinkron dengan Admin Filament</div>
                                         </div>
                                         <button type="button" wire:click="toggleDeviceBinding"
                                             class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer {{ $appCfg->device_binding_enabled ?? false ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-zinc-600' }}">
@@ -644,13 +644,13 @@
                                     class="p-3.5 rounded-xl bg-sky-50/70 dark:bg-zinc-800/90 border border-sky-100 dark:border-zinc-700 space-y-1 text-xs">
                                     <div class="font-extrabold text-slate-900 dark:text-white">
                                         {{ $appCfg->nama_aplikasi ?? 'SAKTI' }}</div>
-                                    <div class="text-[11px] text-slate-600 dark:text-zinc-300">
+                                    <div class="text-[13px] text-slate-600 dark:text-zinc-300">
                                         {{ $appCfg->sub_nama ?? 'Sistem Administrasi Kinerja Terintegrasi' }}</div>
-                                    <div class="text-[11px] text-sky-700 dark:text-sky-400 font-bold pt-1">
+                                    <div class="text-[13px] text-sky-700 dark:text-sky-400 font-bold pt-1">
                                         Versi: {{ $appCfg->app_version ?? ($appCfg->versi_aplikasi ?? '1.0.0') }}
                                     </div>
                                     @if (!empty($appCfg->update_notes ?? $appCfg->catatan_rilis))
-                                        <div class="text-[11px] text-slate-500 dark:text-zinc-400 pt-0.5">
+                                        <div class="text-[13px] text-slate-500 dark:text-zinc-400 pt-0.5">
                                             {{ $appCfg->update_notes ?? $appCfg->catatan_rilis }}
                                         </div>
                                     @endif
@@ -669,13 +669,13 @@
                     <div class="flex items-center justify-between">
                         <span class="font-extrabold text-slate-800 dark:text-white flex items-center gap-1.5">
                             <span>{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</span>
-                            <i class="fa-solid fa-circle-info text-sky-500 text-[11px]"></i>
+                            <i class="fa-solid fa-circle-info text-sky-500 text-[13px]"></i>
                         </span>
-                        <span class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold">
+                        <span class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs font-bold">
                             {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
                         </span>
                     </div>
-                    <p class="text-[11px] text-slate-400 dark:text-zinc-500">Ketuk untuk melihat catatan pembaruan aplikasi</p>
+                    <p class="text-[13px] text-slate-400 dark:text-zinc-500">Ketuk untuk melihat catatan pembaruan aplikasi</p>
                 </button>
 
                 <template x-teleport="body">
@@ -690,7 +690,7 @@
                                     </div>
                                     <div>
                                         <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</h3>
-                                        <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400">
+                                        <span class="text-xs font-bold text-sky-600 dark:text-sky-400">
                                             Versi {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
                                         </span>
                                     </div>
@@ -713,7 +713,7 @@
             <div class="flex items-center justify-between mb-3">
                 <button type="button" wire:click="setTab('menu')"
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-2xs active:scale-95 transition cursor-pointer">
-                    <i class="fa-solid fa-arrow-left text-[11px]"></i>
+                    <i class="fa-solid fa-arrow-left text-[13px]"></i>
                     <span>Kembali ke Menu Profil</span>
                 </button>
             </div>
@@ -739,7 +739,7 @@
         <div class="flex justify-end mb-3">
             <button type="button" wire:click="toggleEdit(true)"
                 class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 text-xs font-bold flex items-center gap-1.5 border border-sky-200/70 transition active:scale-95 cursor-pointer">
-                <i class="fa-solid fa-pen-to-square text-[11px]"></i>
+                <i class="fa-solid fa-pen-to-square text-[13px]"></i>
                 <span>{{ match ($activeTab) {
                     'administrasi' => 'Ubah Data Administrasi',
                     'golongan' => 'Ubah Pangkat / Golongan',
@@ -841,11 +841,11 @@
                             </div>
                         </div>
                         <div class="flex items-center justify-between gap-2">
-                            <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat
+                            <span class="text-[13px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat
                                 Pangkat &amp; Golongan</span>
                             <button type="button" wire:click="newGolongan" @click="golModalOpen = true"
-                                class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">
-                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                class="px-3 py-1.5 rounded-xl text-[13px] font-bold flex items-center gap-1.5 cursor-pointer transition bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs">
+                                <i class="fa-solid fa-plus text-xs"></i>
                                 <span>Tambah Baru</span>
                             </button>
                         </div>
@@ -864,18 +864,18 @@
                                             @endif
                                             @if ($rg->is_golongan_terakhir)
                                                 <span
-                                                    class="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase">Terakhir</span>
+                                                    class="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold uppercase">Terakhir</span>
                                             @endif
                                         </div>
-                                        <div class="text-[10px] text-slate-500 mt-0.5">
+                                        <div class="text-xs text-slate-500 mt-0.5">
                                             SK: {{ $rg->nomor_sk ?: '-' }} • TMT:
                                             {{ $rg->tmt_golongan ? \Carbon\Carbon::parse($rg->tmt_golongan)->format('d/m/Y') : '-' }}
                                         </div>
                                     </div>
                                     <button type="button" wire:click="editGolongan({{ $rg->id }})"
                                         @click="golModalOpen = true"
-                                        class="shrink-0 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-sky-600 text-[11px] font-bold hover:bg-sky-50 cursor-pointer">
-                                        <i class="fa-solid fa-pen text-[10px]"></i>
+                                        class="shrink-0 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 text-sky-600 text-[13px] font-bold hover:bg-sky-50 cursor-pointer">
+                                        <i class="fa-solid fa-pen text-xs"></i>
                                     </button>
                                 </div>
                             @empty
@@ -933,18 +933,18 @@
                                     <label
                                         class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
                                         <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
-                                        <span class="text-[11px] font-semibold text-slate-700">
+                                        <span class="text-[13px] font-semibold text-slate-700">
                                             {{ $gol_file_sk ? $gol_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
                                         </span>
                                         <input type="file" wire:model="gol_file_sk" accept="application/pdf,.pdf"
                                             class="hidden">
                                     </label>
                                     <div wire:loading wire:target="gol_file_sk"
-                                        class="text-[11px] text-sky-600 font-medium mt-1">
+                                        class="text-[13px] text-sky-600 font-medium mt-1">
                                         <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
                                     </div>
                                     @error('gol_file_sk')
-                                        <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p>
+                                        <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p>
                                     @enderror
                                 </div>
                             </div>
@@ -1023,11 +1023,11 @@
 
                     <div class="pt-3 border-t border-slate-100 space-y-3">
                         <div class="flex items-center justify-between gap-2">
-                            <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat
+                            <span class="text-[13px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat
                                 Jabatan</span>
                             <button type="button" wire:click="newJabatan"
-                                class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingJabatanId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
-                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                class="px-3 py-1.5 rounded-xl text-[13px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingJabatanId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
+                                <i class="fa-solid fa-plus text-xs"></i>
                                 <span>Tambah Baru</span>
                             </button>
                         </div>
@@ -1035,15 +1035,15 @@
                             <div class="flex gap-1.5 overflow-x-auto pb-1">
                                 @foreach ($user->riwayatJabatan as $rj)
                                     <button type="button" wire:click="editJabatan({{ $rj->id }})"
-                                        class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingJabatanId === $rj->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
-                                        <i class="fa-solid fa-pen text-[9px]"></i>
+                                        class="px-2.5 py-1.5 rounded-xl text-[13px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingJabatanId === $rj->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                        <i class="fa-solid fa-pen text-[11px]"></i>
                                         <span>{{ \Illuminate\Support\Str::limit($rj->nama_jabatan, 24) }}</span>
                                     </button>
                                 @endforeach
                             </div>
                         @endif
                         <div
-                            class="px-3 py-2 rounded-xl text-[11px] font-semibold {{ $editingJabatanId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
+                            class="px-3 py-2 rounded-xl text-[13px] font-semibold {{ $editingJabatanId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
                             {{ $editingJabatanId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
                         </div>
                         <div>
@@ -1094,11 +1094,11 @@
                     </div>
                 @elseif ($activeTab === 'pendidikan')
                     <div class="flex items-center justify-between gap-2">
-                        <span class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat
+                        <span class="text-[13px] font-extrabold text-sky-700 uppercase tracking-wider">Riwayat
                             Pendidikan Formal</span>
                         <button type="button" wire:click="newPendidikan"
-                            class="px-3 py-1.5 rounded-xl text-[11px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingPendidikanId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
-                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            class="px-3 py-1.5 rounded-xl text-[13px] font-bold flex items-center gap-1.5 cursor-pointer transition border {{ $editingPendidikanId === null ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200' }}">
+                            <i class="fa-solid fa-plus text-xs"></i>
                             <span>Tambah Baru</span>
                         </button>
                     </div>
@@ -1106,8 +1106,8 @@
                         <div class="flex gap-1.5 overflow-x-auto pb-1">
                             @foreach ($user->riwayatPendidikan as $rp)
                                 <button type="button" wire:click="editPendidikan({{ $rp->id }})"
-                                    class="px-2.5 py-1.5 rounded-xl text-[11px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingPendidikanId === $rp->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
-                                    <i class="fa-solid fa-pen text-[9px]"></i>
+                                    class="px-2.5 py-1.5 rounded-xl text-[13px] font-bold whitespace-nowrap cursor-pointer border flex items-center gap-1 {{ $editingPendidikanId === $rp->id ? 'bg-sky-600 text-white border-sky-600' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                    <i class="fa-solid fa-pen text-[11px]"></i>
                                     <span>{{ $rp->jenjang?->value ?? (string) $rp->jenjang }} -
                                         {{ \Illuminate\Support\Str::limit($rp->jurusan ?: $rp->nama_institusi, 18) }}</span>
                                 </button>
@@ -1115,7 +1115,7 @@
                         </div>
                     @endif
                     <div
-                        class="px-3 py-2 rounded-xl text-[11px] font-semibold {{ $editingPendidikanId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
+                        class="px-3 py-2 rounded-xl text-[13px] font-semibold {{ $editingPendidikanId === null ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-sky-50 text-sky-700 border border-sky-200' }}">
                         {{ $editingPendidikanId === null ? 'Mode Tambah Data Baru — isi form di bawah lalu tekan Simpan Perubahan.' : 'Mode Edit Data Terpilih — atau tekan + Tambah Baru untuk menambah riwayat.' }}
                     </div>
                     <div class="grid grid-cols-2 gap-3">
@@ -1228,14 +1228,14 @@
                             <div class="flex items-center justify-between mb-1.5">
                                 <label class="block text-xs font-bold text-slate-700">Nama Anak</label>
                                 <button type="button" @click="anakList.push('')"
-                                    class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 text-[11px] font-bold border border-emerald-200 cursor-pointer">
-                                    <i class="fa-solid fa-plus text-[9px] mr-0.5"></i> Tambah Anak
+                                    class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 text-[13px] font-bold border border-emerald-200 cursor-pointer">
+                                    <i class="fa-solid fa-plus text-[11px] mr-0.5"></i> Tambah Anak
                                 </button>
                             </div>
                             <div class="space-y-2">
                                 <template x-for="(anak, idx) in anakList" :key="idx">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-[11px] font-bold text-slate-400 w-5 shrink-0"
+                                        <span class="text-[13px] font-bold text-slate-400 w-5 shrink-0"
                                             x-text="(idx + 1) + '.'"></span>
                                         <input type="text" x-model="anakList[idx]" @input="syncAnak()"
                                             :placeholder="'Nama anak ke-' + (idx + 1) + '...'"
@@ -1243,7 +1243,7 @@
                                         <button type="button" x-show="anakList.length > 1"
                                             @click="anakList.splice(idx, 1); syncAnak()"
                                             class="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 cursor-pointer">
-                                            <i class="fa-solid fa-trash text-[10px]"></i>
+                                            <i class="fa-solid fa-trash text-xs"></i>
                                         </button>
                                     </div>
                                 </template>
@@ -1261,7 +1261,7 @@
                                 <i class="fa-solid fa-circle-exclamation mr-1.5 text-sm"></i>
                                 <span>Mohon periksa isian berikut:</span>
                             </div>
-                            <ul class="list-disc list-inside text-[11px] font-medium text-rose-600 pl-1">
+                            <ul class="list-disc list-inside text-[13px] font-medium text-rose-600 pl-1">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -1276,7 +1276,7 @@
                             <input type="text" wire:model="name"
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                             @error('name')
-                                <span class="text-[11px] text-rose-500">{{ $message }}</span>
+                                <span class="text-[13px] text-rose-500">{{ $message }}</span>
                             @enderror
                         </div>
 
@@ -1346,9 +1346,9 @@
                                 @input="$el.value = $el.value.replace(/[^0-9]/g, '')"
                                 placeholder="Contoh: 081234567890"
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none font-mono">
-                            <p class="text-[10px] text-slate-400 mt-1">Format: 08xxxxxxxxxx</p>
+                            <p class="text-xs text-slate-400 mt-1">Format: 08xxxxxxxxxx</p>
                             @error('no_hp')
-                                <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
+                                <span class="text-[13px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
@@ -1366,7 +1366,7 @@
                                 <i class="fa-solid fa-envelope mr-1 text-sky-600"></i>
                                 Email Login
                             </span>
-                            <span class="text-[10px] text-amber-600 font-bold">*Wajib</span>
+                            <span class="text-xs text-amber-600 font-bold">*Wajib</span>
                         </label>
                         <div class="flex items-center gap-2">
                             <input type="email" wire:model="email" placeholder="email@dinas.go.id"
@@ -1378,10 +1378,10 @@
                                     :class="copied ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
                             </button>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-1"
+                        <p class="text-xs text-slate-400 mt-1"
                             x-text="copied ? 'Email disalin!' : 'Akun login di database'"></p>
                         @error('email')
-                            <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
+                            <span class="text-[13px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -1393,7 +1393,7 @@
 
                     <div class="pt-3 border-t border-slate-100 space-y-3">
                         <span
-                            class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider block">Administrasi
+                            class="text-[13px] font-extrabold text-sky-700 uppercase tracking-wider block">Administrasi
                             &amp; Jaminan</span>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">NPWP</label>
@@ -1459,17 +1459,17 @@
                                 <span class="flex items-center text-slate-800">
                                     <i class="fa-solid fa-lock text-sky-600 mr-1.5"></i> Password Baru
                                 </span>
-                                <span class="text-[10px] text-slate-400 font-normal">Abaikan jika tidak merubah</span>
+                                <span class="text-xs text-slate-400 font-normal">Abaikan jika tidak merubah</span>
                             </label>
                             <input type="password" wire:model="password" readonly
                                 onfocus="this.removeAttribute('readonly');" autocomplete="new-password"
                                 placeholder="Kosongkan jika tidak ingin merubah..."
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
-                            <p class="text-[10px] text-slate-400 mt-1">Kosongkan jika password pegawai tidak ingin
+                            <p class="text-xs text-slate-400 mt-1">Kosongkan jika password pegawai tidak ingin
                                 dirubah.
                             </p>
                             @error('password')
-                                <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
+                                <span class="text-[13px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
                             @enderror
                         </div>
 
@@ -1480,7 +1480,7 @@
                                 placeholder="Ketik ulang password baru jika ingin merubah..."
                                 class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none">
                             @error('password_confirmation')
-                                <span class="text-[11px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
+                                <span class="text-[13px] font-bold text-rose-500 block mt-1">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
@@ -1504,7 +1504,7 @@
                     class="flex justify-between items-center bg-white p-3.5 rounded-3xl border border-slate-100 shadow-xs">
                     <div>
                         <h3 class="text-xs font-extrabold text-slate-800 tracking-tight uppercase">Rekap Bulan</h3>
-                        <p class="text-[11px] text-slate-500">Statistik kehadiran bulanan Anda</p>
+                        <p class="text-[13px] text-slate-500">Statistik kehadiran bulanan Anda</p>
                     </div>
                     <!-- Month & Year Navigator -->
                     <div
@@ -1512,7 +1512,7 @@
                         <button wire:click="prevMonth"
                             class="w-6 h-6 rounded-lg bg-white hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90"
                             title="Bulan Sebelumnya">
-                            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
                         </button>
                         <span class="text-xs font-extrabold text-sky-700 px-1 select-none font-sans">
                             {{ $bulanNama }}
@@ -1520,7 +1520,7 @@
                         <button wire:click="nextMonth"
                             class="w-6 h-6 rounded-lg bg-white hover:bg-sky-50 text-slate-500 hover:text-sky-600 flex items-center justify-center transition-colors active:scale-90"
                             title="Bulan Berikutnya">
-                            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
                         </button>
                     </div>
                 </div>
@@ -1536,7 +1536,7 @@
                             <i class="fa-solid fa-circle-check"></i>
                         </div>
                         <span class="text-lg font-black text-slate-800">{{ $statistik['hadir'] }}</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Hadir</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Hadir</span>
                     </a>
 
                     <!-- 2. Terlambat -->
@@ -1548,7 +1548,7 @@
                             <i class="fa-solid fa-clock"></i>
                         </div>
                         <span class="text-lg font-black text-slate-800">{{ $statistik['terlambat'] }}</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Terlambat</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Terlambat</span>
                     </a>
 
                     <!-- 3. Dinas Luar -->
@@ -1560,7 +1560,7 @@
                             <i class="fa-solid fa-briefcase"></i>
                         </div>
                         <span class="text-lg font-black text-slate-800">{{ $statistik['dinas_luar'] }}</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Dinas Luar</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Dinas Luar</span>
                     </a>
 
                     <!-- 4. Pulang Cepat -->
@@ -1572,7 +1572,7 @@
                             <i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i>
                         </div>
                         <span class="text-lg font-black text-slate-800">{{ $statistik['pulang_cepat'] }}</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Plg Cepat</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Plg Cepat</span>
                     </a>
 
                     <!-- 5. Izin -->
@@ -1584,7 +1584,7 @@
                             <i class="fa-solid fa-calendar-check"></i>
                         </div>
                         <span class="text-lg font-black text-slate-800">{{ $statistik['izin'] }}</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Izin</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Izin</span>
                     </a>
 
                     <!-- 6. Sakit -->
@@ -1596,7 +1596,7 @@
                             <i class="fa-solid fa-notes-medical"></i>
                         </div>
                         <span class="text-lg font-black text-slate-800">{{ $statistik['sakit'] }}</span>
-                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wide">Sakit</span>
+                        <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Sakit</span>
                     </a>
 
                     <!-- 7. Tanpa Keterangan / Alpa -->
@@ -1608,7 +1608,7 @@
                             <i class="fa-solid fa-user-xmark"></i>
                         </div>
                         <span class="text-lg font-black text-rose-600">{{ $statistik['tanpa_keterangan'] }}</span>
-                        <span class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Alpa</span>
+                        <span class="text-[11px] text-rose-500 font-bold uppercase tracking-wide">Alpa</span>
                     </a>
 
                     <!-- 8. LHK Dibuat -->
@@ -1620,7 +1620,7 @@
                                 <i class="fa-solid fa-file-signature"></i>
                             </div>
                             <span class="text-lg font-black text-teal-700">{{ $statistik['lhk_dibuat'] }}</span>
-                            <span class="text-[9px] text-teal-600 font-bold uppercase tracking-wide">LHK</span>
+                            <span class="text-[11px] text-teal-600 font-bold uppercase tracking-wide">LHK</span>
                         </a>
                     @endif
                 </div>
@@ -1635,13 +1635,13 @@
                         </div>
                         <div>
                             <h4 class="text-xs font-bold text-slate-800">Cetak Rekap Presensi</h4>
-                            <p class="text-[10px] text-slate-500">Unduh PDF riwayat bulan {{ $bulanNama }}</p>
+                            <p class="text-xs text-slate-500">Unduh PDF riwayat bulan {{ $bulanNama }}</p>
                         </div>
                     </div>
                     <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
                         target="_blank"
                         class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-xs active:scale-95 transition-all flex items-center space-x-1.5">
-                        <i class="fa-solid fa-download text-[11px]"></i>
+                        <i class="fa-solid fa-download text-[13px]"></i>
                         <span>Unduh PDF</span>
                     </a>
                 </div>
@@ -1660,7 +1660,7 @@
                         class="inline-flex items-center gap-1.5 font-bold font-mono text-slate-800 hover:text-amber-600 cursor-pointer">
                         <span>{{ $user->nip ?? '-' }}</span>
                         @if ($user->nip)
-                            <i class="fa-regular text-[10px]"
+                            <i class="fa-regular text-xs"
                                 :class="copied ? 'fa-circle-check text-emerald-500' : 'fa-copy text-slate-400'"></i>
                         @endif
                     </button>
@@ -1686,7 +1686,7 @@
                         class="inline-flex items-center gap-1.5 font-bold text-sky-600 hover:text-amber-600 cursor-pointer">
                         <span>{{ $user->no_hp ?? '-' }}</span>
                         @if ($user->no_hp)
-                            <i class="fa-regular text-[10px]"
+                            <i class="fa-regular text-xs"
                                 :class="copied ? 'fa-circle-check text-emerald-500' : 'fa-copy text-slate-400'"></i>
                         @endif
                     </button>
@@ -1697,7 +1697,7 @@
                         @click="navigator.clipboard.writeText('{{ $user->email }}').then(() => { copied = true; setTimeout(() => copied = false, 1500) })"
                         class="inline-flex items-center gap-1.5 font-bold text-slate-800 hover:text-amber-600 cursor-pointer max-w-[210px]">
                         <span class="truncate">{{ $user->email }}</span>
-                        <i class="fa-regular text-[10px] shrink-0"
+                        <i class="fa-regular text-xs shrink-0"
                             :class="copied ? 'fa-circle-check text-emerald-500' : 'fa-copy text-slate-400'"></i>
                     </button>
                 </div>
@@ -1707,7 +1707,7 @@
                 </div>
 
                 <div class="pt-3 border-t border-slate-100 space-y-2">
-                    <h4 class="text-[11px] font-extrabold text-sky-700 uppercase tracking-wider">Unit Kerja &amp;
+                    <h4 class="text-[13px] font-extrabold text-sky-700 uppercase tracking-wider">Unit Kerja &amp;
                         Atasan</h4>
                     <div class="flex justify-between py-1 text-xs">
                         <span class="text-slate-400 font-medium">Status Kepegawaian</span>
@@ -1768,7 +1768,7 @@
                     <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-user-shield"></i> Daftar Peran &amp; Hak Akses
                     </h3>
-                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                    <span class="text-[13px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                         {{ $rolesList->count() }} Peran
                     </span>
                 </div>
@@ -1781,15 +1781,15 @@
                                 <button type="button" wire:click="editRoleUsers({{ $role->id }})"
                                     class="w-6 h-6 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 cursor-pointer"
                                     title="Edit User Peran">
-                                    <i class="fa-solid fa-pen text-[9px]"></i>
+                                    <i class="fa-solid fa-pen text-[11px]"></i>
                                 </button>
                             </div>
                             <div class="flex items-center gap-1">
                                 <span
-                                    class="px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">{{ $role->users_count }}
+                                    class="px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 text-xs font-bold">{{ $role->users_count }}
                                     User</span>
                                 <span
-                                    class="px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-[10px] font-bold">{{ $role->permissions_count }}
+                                    class="px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-xs font-bold">{{ $role->permissions_count }}
                                     Izin</span>
                             </div>
                         </div>
@@ -1812,7 +1812,7 @@
                                         <div class="text-xs font-semibold text-slate-800 truncate">
                                             {{ $u->name }}</div>
                                         @if ($u->nip)
-                                            <div class="text-[10px] font-mono text-slate-400 truncate">
+                                            <div class="text-xs font-mono text-slate-400 truncate">
                                                 {{ $u->nip }}</div>
                                         @endif
                                     </div>
@@ -1851,13 +1851,13 @@
                     </h3>
                     <div class="flex items-center gap-1.5">
                         <button type="button" wire:click="openAppConfigModal"
-                            class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer">
-                            <i class="fa-solid fa-pen text-[9px]"></i> Edit
+                            class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-bold flex items-center gap-1 cursor-pointer">
+                            <i class="fa-solid fa-pen text-[11px]"></i> Edit
                         </button>
                         @if (Route::has('mobile.pengaturan-modul'))
                             <a href="{{ route('mobile.pengaturan-modul') }}" wire:navigate
-                                class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[11px] font-bold border border-sky-200">
-                                Atur Modul <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                                class="px-2.5 py-1 rounded-xl bg-sky-50 text-sky-700 text-[13px] font-bold border border-sky-200">
+                                Atur Modul <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
                             </a>
                         @endif
                     </div>
@@ -2029,12 +2029,12 @@
                 <i class="fa-solid fa-shield-halved"></i> Riwayat Pangkat & Golongan Ruang
             </h3>
             <div class="flex items-center gap-2">
-                <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                <span class="text-[13px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                     {{ $user->riwayatGolongan->count() }} Pangkat
                 </span>
                 <button type="button" wire:click="newGolongan"
-                    class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
-                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i>
                     <span>Tambah</span>
                 </button>
             </div>
@@ -2047,12 +2047,12 @@
                     <div>
                         <div class="flex items-center gap-1.5 mb-1">
                             <span
-                                class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-sky-50 text-sky-700 border border-sky-200">
+                                class="px-2 py-0.5 rounded-md text-xs font-extrabold tracking-wide uppercase bg-sky-50 text-sky-700 border border-sky-200">
                                 {{ $item->golongan?->value ?? (string) $item->golongan }}
                             </span>
                             @if ($item->is_golongan_terakhir)
                                 <span
-                                    class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                    class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
                                     Pangkat Terakhir
                                 </span>
                             @endif
@@ -2061,19 +2061,19 @@
                             {{ $item->golongan?->value ?? (string) $item->golongan }} -
                             {{ $item->nama_pangkat }}
                         </h4>
-                        <p class="text-[11px] font-mono text-slate-500 mt-0.5">
+                        <p class="text-[13px] font-mono text-slate-500 mt-0.5">
                             {{ $item->nomor_sk ?: '-' }}
                         </p>
                     </div>
                     @if ($item->tmt_golongan)
                         <span
-                            class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
+                            class="text-[13px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
                             {{ \Carbon\Carbon::parse($item->tmt_golongan)->translatedFormat('d F Y') }}
                         </span>
                     @endif
                 </div>
 
-                <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[13px]">
                     <span class="text-slate-400">
                         TMT: <strong
                             class="text-slate-700">{{ $item->tmt_golongan ? \Carbon\Carbon::parse($item->tmt_golongan)->format('d/m/Y') : '-' }}</strong>
@@ -2087,12 +2087,12 @@
                                 <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
                             </a>
                         @else
-                            <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                            <span class="text-slate-300 italic text-xs">SK belum diunggah</span>
                         @endif
                         <button type="button" wire:click="editGolongan({{ $item->id }})"
                             class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
                             title="Edit Pangkat">
-                            <i class="fa-solid fa-pen text-[10px]"></i>
+                            <i class="fa-solid fa-pen text-xs"></i>
                         </button>
                     </div>
                 </div>
@@ -2151,17 +2151,17 @@
                     <label
                         class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
                         <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
-                        <span class="text-[11px] font-semibold text-slate-700">
+                        <span class="text-[13px] font-semibold text-slate-700">
                             {{ $gol_file_sk ? $gol_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
                         </span>
                         <input type="file" wire:model="gol_file_sk" accept="application/pdf,.pdf"
                             class="hidden">
                     </label>
-                    <div wire:loading wire:target="gol_file_sk" class="text-[11px] text-sky-600 font-medium mt-1">
+                    <div wire:loading wire:target="gol_file_sk" class="text-[13px] text-sky-600 font-medium mt-1">
                         <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
                     </div>
                     @error('gol_file_sk')
-                        <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p>
+                        <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
             </div>
@@ -2203,12 +2203,12 @@
                     <i class="fa-solid fa-briefcase"></i> Riwayat Jabatan
                 </h3>
                 <div class="flex items-center gap-2">
-                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                    <span class="text-[13px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                         {{ $user->riwayatJabatan->count() }} Jabatan
                     </span>
                     <button type="button" wire:click="newJabatan"
-                        class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
-                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                        <i class="fa-solid fa-plus text-xs"></i>
                         <span>Tambah</span>
                     </button>
                 </div>
@@ -2221,12 +2221,12 @@
                         <div>
                             <div class="flex items-center gap-1.5 mb-1">
                                 <span
-                                    class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    class="px-2 py-0.5 rounded-md text-xs font-extrabold tracking-wide uppercase bg-emerald-50 text-emerald-700 border border-emerald-200">
                                     {{ $item->jenis_jabatan }}
                                 </span>
                                 @if ($item->is_jabatan_sekarang)
                                     <span
-                                        class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
+                                        class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
                                         Sekarang
                                     </span>
                                 @endif
@@ -2235,20 +2235,20 @@
                                 {{ $item->nama_jabatan }}
                             </h4>
                             @if ($item->unit_kerja)
-                                <p class="text-[11px] font-medium text-slate-500 mt-0.5">
+                                <p class="text-[13px] font-medium text-slate-500 mt-0.5">
                                     {{ $item->unit_kerja }}
                                 </p>
                             @endif
                         </div>
                         @if ($item->tmt_jabatan)
                             <span
-                                class="text-[11px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
+                                class="text-[13px] font-bold text-slate-600 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100 shrink-0">
                                 {{ \Carbon\Carbon::parse($item->tmt_jabatan)->translatedFormat('d F Y') }}
                             </span>
                         @endif
                     </div>
 
-                    <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                    <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[13px]">
                         <span class="text-slate-400">
                             SK: <strong class="text-slate-700">{{ $item->nomor_sk ?: '-' }}</strong>
                         </span>
@@ -2261,19 +2261,19 @@
                                     <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh SK
                                 </a>
                             @else
-                                <span class="text-slate-300 italic text-[10px]">SK belum diunggah</span>
+                                <span class="text-slate-300 italic text-xs">SK belum diunggah</span>
                             @endif
                             <button type="button" wire:click="editJabatan({{ $item->id }})"
                                 class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-sky-50 text-sky-600 flex items-center justify-center transition-colors cursor-pointer"
                                 title="Edit Jabatan">
-                                <i class="fa-solid fa-pen text-[10px]"></i>
+                                <i class="fa-solid fa-pen text-xs"></i>
                             </button>
                             <button type="button" wire:click="deleteJabatan({{ $item->id }})"
                                 wire:confirm="Yakin ingin menghapus riwayat jabatan ini?" <button type="button"
                                 @click.prevent="$dispatch('sakti-confirm', { message: 'Yakin ingin menghapus riwayat jabatan ini?', wireId: '{{ $this->getId() }}', method: 'deleteJabatan', params: [{{ $item->id }}] })"
                                 class="w-7 h-7 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-500 flex items-center justify-center transition-colors cursor-pointer"
                                 title="Hapus Jabatan">
-                                <i class="fa-solid fa-trash text-[10px]"></i>
+                                <i class="fa-solid fa-trash text-xs"></i>
                             </button>
                         </div>
                     </div>
@@ -2331,18 +2331,18 @@
                         <label
                             class="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/70 px-3 py-3 text-center cursor-pointer hover:border-sky-500 transition-colors">
                             <i class="fa-solid fa-file-pdf text-lg text-rose-500"></i>
-                            <span class="text-[11px] font-semibold text-slate-700">
+                            <span class="text-[13px] font-semibold text-slate-700">
                                 {{ $jab_file_sk ? $jab_file_sk->getClientOriginalName() : 'Ketuk untuk pilih file SK (PDF)' }}
                             </span>
                             <input type="file" wire:model="jab_file_sk" accept="application/pdf,.pdf"
                                 class="hidden">
                         </label>
                         <div wire:loading wire:target="jab_file_sk"
-                            class="text-[11px] text-sky-600 font-medium mt-1">
+                            class="text-[13px] text-sky-600 font-medium mt-1">
                             <i class="fa-solid fa-spinner fa-spin mr-1"></i> Mengunggah SK...
                         </div>
                         @error('jab_file_sk')
-                            <p class="text-[11px] text-rose-500 mt-1">{{ $message }}</p>
+                            <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
                 </div>
@@ -2371,12 +2371,12 @@
                 <i class="fa-solid fa-graduation-cap"></i> Riwayat Pendidikan Formal
             </h3>
             <div class="flex items-center gap-2">
-                <span class="text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                <span class="text-[13px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
                     {{ $user->riwayatPendidikan->count() }} Jenjang
                 </span>
                 <button type="button" wire:click="newPendidikan"
-                    class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
-                    <i class="fa-solid fa-plus text-[10px]"></i>
+                    class="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-[13px] font-bold flex items-center gap-1 shadow-xs cursor-pointer">
+                    <i class="fa-solid fa-plus text-xs"></i>
                     <span>Tambah</span>
                 </button>
             </div>
@@ -2389,7 +2389,7 @@
                     <div>
                         <div class="flex items-center gap-1.5 mb-1">
                             <span
-                                class="px-2 py-0.5 rounded-md text-[10px] font-extrabold tracking-wide uppercase {{ match ($item->jenjang?->value ?? (string) $item->jenjang) {
+                                class="px-2 py-0.5 rounded-md text-xs font-extrabold tracking-wide uppercase {{ match ($item->jenjang?->value ?? (string) $item->jenjang) {
                                     'S3', 'S2' => 'bg-amber-50 text-amber-700 border border-amber-200',
                                     'S1', 'D4' => 'bg-emerald-50 text-emerald-700 border border-emerald-200',
                                     'D3', 'D2', 'D1' => 'bg-sky-50 text-sky-700 border border-sky-200',
@@ -2400,7 +2400,7 @@
                             </span>
                             @if ($item->is_pendidikan_terakhir)
                                 <span
-                                    class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
+                                    class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-primary-50 text-primary-600 border border-primary-200">
                                     Terakhir
                                 </span>
                             @endif
@@ -2408,7 +2408,7 @@
                         <h4 class="text-xs font-black text-slate-900 uppercase tracking-tight">
                             {{ $item->jurusan ?: $item->nama_institusi }}
                         </h4>
-                        <p class="text-[11px] font-medium text-slate-500 mt-0.5">
+                        <p class="text-[13px] font-medium text-slate-500 mt-0.5">
                             {{ $item->nama_institusi }}
                         </p>
                     </div>
@@ -2420,7 +2420,7 @@
                     @endif
                 </div>
 
-                <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[11px]">
+                <div class="pt-2 border-t border-slate-50 flex items-center justify-between text-[13px]">
                     <span class="text-slate-400">
                         No. Ijazah: <strong class="text-slate-700">{{ $item->nomor_ijazah ?: '-' }}</strong>
                     </span>
@@ -2432,7 +2432,7 @@
                             <i class="fa-solid fa-file-pdf text-red-500"></i> Unduh Ijazah
                         </a>
                     @else
-                        <span class="text-slate-300 italic text-[10px]">Ijazah belum diunggah</span>
+                        <span class="text-slate-300 italic text-xs">Ijazah belum diunggah</span>
                     @endif
                 </div>
             </div>
@@ -2539,7 +2539,7 @@
                 @if ($kkDisplay)
                     <button type="button"
                         @click="navigator.clipboard?.writeText('{{ $kkDisplay }}'); copiedKk = true; setTimeout(() => copiedKk = false, 1500)"
-                        class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer"
+                        class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs cursor-pointer"
                         title="Salin No. KK">
                         <i class="fa-regular" :class="copiedKk ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
                     </button>
@@ -2554,7 +2554,7 @@
                 @if ($nikDisplay)
                     <button type="button"
                         @click="navigator.clipboard?.writeText('{{ $nikDisplay }}'); copiedNik = true; setTimeout(() => copiedNik = false, 1500)"
-                        class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] cursor-pointer"
+                        class="px-1.5 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs cursor-pointer"
                         title="Salin NIK">
                         <i class="fa-regular"
                             :class="copiedNik ? 'fa-circle-check text-emerald-600' : 'fa-copy'"></i>
@@ -2591,7 +2591,7 @@
 @endif
 @endif
 
-{{-- <p class="text-center text-[10px] text-slate-400 mt-6">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p> --}}
+{{-- <p class="text-center text-xs text-slate-400 mt-6">SAKTI Mobile v1.0 &bull; Kabupaten Sijunjung</p> --}}
 
 @if ($showImpersonateModal)
     <div
@@ -2613,9 +2613,9 @@
                         class="w-full py-2.5 px-2 text-left hover:bg-amber-50 rounded-xl transition flex items-center justify-between cursor-pointer">
                         <div class="min-w-0">
                             <div class="text-xs font-bold text-slate-800 truncate">{{ $cand->name }}</div>
-                            <div class="text-[10px] font-mono text-slate-400">{{ $cand->nip ?? '-' }}</div>
+                            <div class="text-xs font-mono text-slate-400">{{ $cand->nip ?? '-' }}</div>
                         </div>
-                        <i class="fa-solid fa-arrow-right text-[10px] text-amber-500"></i>
+                        <i class="fa-solid fa-arrow-right text-xs text-amber-500"></i>
                     </button>
                 @empty
                     <p class="py-6 text-center text-xs text-slate-400">Pegawai tidak ditemukan.</p>

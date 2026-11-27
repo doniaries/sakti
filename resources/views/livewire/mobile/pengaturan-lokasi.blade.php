@@ -196,11 +196,11 @@
     <div class="flex items-center justify-between mb-3.5 pt-1">
         <a href="{{ route('mobile.absensi') }}" wire:navigate
             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-slate-700 border border-slate-200/90 shadow-xs text-xs font-bold transition-transform duration-150 ease-out active:scale-[0.96]">
-            <i class="fa-solid fa-arrow-left text-[11px] text-sky-600"></i>
+            <i class="fa-solid fa-arrow-left text-[13px] text-sky-600"></i>
             <span>Kembali ke Presensi</span>
         </a>
         <span
-            class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 shadow-xs flex items-center">
+            class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300 shadow-xs flex items-center">
             <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i>
             <span>Khusus Admin</span>
         </span>
@@ -242,14 +242,14 @@
         </div>
 
         <!-- Coordinates & Live Status Strip -->
-        <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+        <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[13px]">
             <div class="flex items-center space-x-1.5 text-slate-600 min-w-0 pr-2">
                 <i class="fa-solid fa-map-pin text-rose-500 text-xs shrink-0"></i>
                 <span class="font-bold text-slate-700 font-mono truncate"
                     x-text="currentCoordsText">{{ $latitude_kantor }}, {{ $longitude_kantor }}</span>
             </div>
             <div class="flex items-center space-x-1 text-sky-700 font-bold shrink-0">
-                <i class="fa-solid fa-circle-dot text-[10px] text-sky-500"></i>
+                <i class="fa-solid fa-circle-dot text-xs text-sky-500"></i>
                 <span>Radius <span x-text="radiusValue">{{ $radius_meter }}</span> m</span>
             </div>
         </div>
@@ -288,7 +288,7 @@
                     <input type="number" min="1" max="5000" x-model.number="radiusValue"
                         @input="onRadiusSliderChange()"
                         class="w-16 px-2 py-1 text-xs font-bold font-mono text-center bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-sky-500">
-                    <span class="text-[11px] font-bold text-slate-500">m</span>
+                    <span class="text-[13px] font-bold text-slate-500">m</span>
                 </div>
             </div>
         </div>
@@ -303,7 +303,7 @@
                 class="w-full px-3 py-2 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-500/10 transition"
                 placeholder="Gedung Bersama Lt. III, Jl. Prof. M. Yamin...">
             @error('alamat_kantor')
-                <span class="text-rose-500 text-[10px] mt-1 block font-semibold">{{ $message }}</span>
+                <span class="text-rose-500 text-xs mt-1 block font-semibold">{{ $message }}</span>
             @enderror
         </div>
 
@@ -314,7 +314,7 @@
                     <i class="fa-solid fa-bookmark text-sky-600"></i>
                     <span>Lokasi Tersimpan (Preset)</span>
                 </span>
-                <span class="text-[10px] font-bold text-slate-400" x-text="savedPresets.length + ' lokasi'"></span>
+                <span class="text-xs font-bold text-slate-400" x-text="savedPresets.length + ' lokasi'"></span>
             </div>
             <div class="flex items-center gap-2">
                 <input type="text" x-model="presetName" placeholder="Nama lokasi (mis. Kantor / Rumah)..."
@@ -330,15 +330,15 @@
                         <div class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-xl bg-white border border-slate-200/80 text-xs">
                             <div class="min-w-0">
                                 <div class="font-bold text-slate-800 truncate" x-text="p.name"></div>
-                                <div class="text-[10px] text-slate-400 font-mono truncate" x-text="`${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)} (${p.radius}m)`"></div>
+                                <div class="text-xs text-slate-400 font-mono truncate" x-text="`${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)} (${p.radius}m)`"></div>
                             </div>
                             <div class="flex items-center gap-1.5 shrink-0">
                                 <button type="button" @click="applyPreset(p)"
-                                    class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-[11px] hover:bg-emerald-100 cursor-pointer">
+                                    class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold text-[13px] hover:bg-emerald-100 cursor-pointer">
                                     Pakai
                                 </button>
                                 <button type="button" @click="deletePreset(idx)" title="Hapus"
-                                    class="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-[10px] hover:bg-rose-100 cursor-pointer">
+                                    class="w-6 h-6 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-xs hover:bg-rose-100 cursor-pointer">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
@@ -352,7 +352,7 @@
         <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/90 flex items-center justify-between">
             <div class="pr-3">
                 <span class="text-xs font-extrabold text-slate-800 block">Mode Simulasi Bebas Lokasi</span>
-                <span class="text-[10px] text-slate-500 block leading-tight mt-0.5">Izinkan presensi tanpa batasan
+                <span class="text-xs text-slate-500 block leading-tight mt-0.5">Izinkan presensi tanpa batasan
                     radius geofencing kantor saat uji coba admin.</span>
             </div>
             <button type="button" wire:click="toggleSimulasi"
@@ -367,16 +367,16 @@
                 <div class="flex items-center justify-between gap-2">
                     <div>
                         <div class="text-xs font-extrabold text-amber-800">Simulasi Jam Aktif Server</div>
-                        <div class="text-[10px] text-amber-700/80">Kosongkan untuk memakai jam server asli.</div>
+                        <div class="text-xs text-amber-700/80">Kosongkan untuk memakai jam server asli.</div>
                     </div>
                     <input type="time" wire:model="simulasi_jam_aktif"
                         class="rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-mono font-bold text-slate-800">
                 </div>
                 <div class="flex flex-wrap gap-1.5">
-                    <button type="button" wire:click="$set('simulasi_jam_aktif', '07:25')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[10px] font-bold text-amber-800 hover:bg-amber-100">07:25 Masuk</button>
-                    <button type="button" wire:click="$set('simulasi_jam_aktif', '08:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[10px] font-bold text-amber-800 hover:bg-amber-100">08:05 Terlambat</button>
-                    <button type="button" wire:click="$set('simulasi_jam_aktif', '16:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-[10px] font-bold text-amber-800 hover:bg-amber-100">16:05 Pulang</button>
-                    <button type="button" wire:click="$set('simulasi_jam_aktif', null)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-[10px] font-bold text-slate-600 hover:bg-slate-100">Reset Real-Time</button>
+                    <button type="button" wire:click="$set('simulasi_jam_aktif', '07:25')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-800 hover:bg-amber-100">07:25 Masuk</button>
+                    <button type="button" wire:click="$set('simulasi_jam_aktif', '08:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-800 hover:bg-amber-100">08:05 Terlambat</button>
+                    <button type="button" wire:click="$set('simulasi_jam_aktif', '16:05')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-800 hover:bg-amber-100">16:05 Pulang</button>
+                    <button type="button" wire:click="$set('simulasi_jam_aktif', null)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-xs font-bold text-slate-600 hover:bg-slate-100">Reset Real-Time</button>
                 </div>
             </div>
         @endif

@@ -91,7 +91,7 @@
         <div class="flex items-center justify-between mb-4">
             <a href="{{ route('portal') }}"
                 class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-white text-xs font-semibold backdrop-blur-md">
-                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                <i class="fa-solid fa-arrow-left text-xs"></i>
                 <span>Portal</span>
             </a>
             <button type="button" @click="helpSheet = true" title="Bantuan Login"
@@ -118,7 +118,7 @@
 
             <div x-data="{ openUpdateModal: false }" class="inline-block">
                 <button type="button" @click="openUpdateModal = true"
-                    class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-sky-100 text-[10px] font-extrabold uppercase tracking-wider mb-1 cursor-pointer transition">
+                    class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-sky-100 text-xs font-extrabold uppercase tracking-wider mb-1 cursor-pointer transition">
                     <span>SAKTI MOBILE</span>
                     <span class="opacity-80">{{ $pengaturan->app_version ?? '' }}</span>
                 </button>
@@ -130,7 +130,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">{{ $pengaturan->nama_aplikasi ?? 'SAKTI Mobile' }}</h3>
-                                    <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400">
+                                    <span class="text-xs font-bold text-sky-600 dark:text-sky-400">
                                         Versi {{ $pengaturan->app_version ?? ($pengaturan->versi_aplikasi ?? 'v1.0.0') }}
                                     </span>
                                 </div>
@@ -148,7 +148,7 @@
                     </div>
                 </template>
             </div>
-            <p class="text-[11px] text-sky-100/90 font-semibold mb-2">Sistem Administrasi Kinerja Terintegrasi</p>
+            <p class="text-[13px] text-sky-100/90 font-semibold mb-2">Sistem Administrasi Kinerja Terintegrasi</p>
 
             <p class="text-xs text-sky-100/90 mb-0.5">{{ $pengaturan->nama_dinas ?? $pengaturan->nama_instansi ?? 'Disparpora Kabupaten Sijunjung' }}</p>
             @php
@@ -167,9 +167,9 @@
                 <div class="flex items-baseline justify-center gap-1 font-black tracking-tight">
                     <span class="text-3xl" x-text="jam"></span>
                     <span class="text-sm text-sky-200" x-text="':' + detik"></span>
-                    <span class="text-[11px] font-bold text-sky-300 ml-1">WIB</span>
+                    <span class="text-[13px] font-bold text-sky-300 ml-1">WIB</span>
                 </div>
-                <div class="text-[11px] text-sky-100/90 font-medium mt-0.5" x-text="tanggal"></div>
+                <div class="text-[13px] text-sky-100/90 font-medium mt-0.5" x-text="tanggal"></div>
             </div>
         </div>
     </div>
@@ -188,7 +188,7 @@
                     <div class="text-xs font-semibold text-slate-600 dark:text-zinc-300" x-text="tanggal"></div>
                 </div>
 
-                <span class="inline-block px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-wider">
+                <span class="inline-block px-3 py-1 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-extrabold uppercase tracking-wider">
                     {{ \Carbon\Carbon::parse($holidayItem->tanggal)->translatedFormat('l, d F Y') }}
                 </span>
                 <h2 class="text-base font-black text-slate-900 dark:text-white mt-2">{{ $holidayItem->nama }}</h2>
@@ -243,7 +243,7 @@
                 @endphp
                 <div class="mb-3 p-3 rounded-xl border text-xs {{ $isWarning ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-rose-50 border-rose-200 text-rose-800' }}">
                     <div class="font-bold">{{ $notify['title'] ?? 'Peringatan Login' }}</div>
-                    <p class="text-[11px]">{{ $notify['message'] ?? '' }}</p>
+                    <p class="text-[13px]">{{ $notify['message'] ?? '' }}</p>
                 </div>
             @endif
 
@@ -283,7 +283,7 @@
             </form>
 
             @if (Route::has('auth.google'))
-                <div class="my-3 flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase">
+                <div class="my-3 flex items-center gap-2 text-xs font-bold text-slate-400 uppercase">
                     <span class="flex-1 h-px bg-slate-200 dark:bg-zinc-800"></span>
                     <span>ATAU</span>
                     <span class="flex-1 h-px bg-slate-200 dark:bg-zinc-800"></span>

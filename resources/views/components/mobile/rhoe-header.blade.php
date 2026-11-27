@@ -37,7 +37,7 @@
             </div>
             <div class="min-w-0">
                 <div class="text-xs font-black tracking-tight text-white truncate">SAKTI PARPORA</div>
-                <div class="text-[10px] text-sky-100 dark:text-sky-300 font-bold uppercase tracking-wider truncate">
+                <div class="text-xs text-sky-100 dark:text-sky-300 font-bold uppercase tracking-wider truncate">
                     Presensi &amp; Kinerja
                 </div>
             </div>
@@ -50,7 +50,7 @@
                 class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 dark:bg-white/10 dark:hover:bg-white/15 border border-white/20 text-white flex items-center justify-center active:scale-90 transition-all cursor-pointer backdrop-blur-md">
                 <i class="fa-regular fa-bell text-xs"></i>
                 <span x-show="unreadCount > 0" x-cloak x-text="unreadCount > 9 ? '9+' : unreadCount"
-                    class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[9px] font-extrabold flex items-center justify-center shadow">
+                    class="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-rose-500 text-white text-[11px] font-extrabold flex items-center justify-center shadow">
                 </span>
             </button>
 
