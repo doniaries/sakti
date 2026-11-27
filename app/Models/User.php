@@ -75,7 +75,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
             ->withCount(['riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])
             ->where('aktif', true)
             ->get()
-            ->filter(fn (self $u): bool => ! empty($u->missingKepegawaianFields()))
+            ->filter(fn(self $u): bool => ! empty($u->missingKepegawaianFields()))
             ->values();
 
         if ($targets->isEmpty()) {
@@ -85,7 +85,7 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
         \App\Services\PushNotificationService::sendToUsers(
             $targets,
             'Lengkapi Data Kepegawaian',
-            'Mohon segera melengkapi profil kepegawaian Anda (NIP, NIK, No. HP, Bidang, Jabatan, dan riwayat) di menu Profil.',
+            'Mohon segera lengkapi data kepegawaian Anda di Profil untuk mendukung kelancaran administrasi.',
             ['url' => route('mobile.profil')],
             'warning',
             ignoreSimulasi: true
