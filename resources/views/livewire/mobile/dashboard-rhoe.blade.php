@@ -436,26 +436,41 @@
             </div>
         </div>
     @elseif (!$hariIni['sudah_masuk'])
-        <a href="{{ route('mobile.absensi') }}" wire:navigate
-            class="rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white p-4 flex items-center gap-3 shadow-md shadow-amber-900/15 active:scale-[0.98] transition-transform">
-            <div
-                class="w-11 h-11 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-lg shrink-0 text-white">
-                <i class="fa-solid fa-fingerprint"></i>
-            </div>
-            <div class="min-w-0 flex-1">
-                <div class="text-sm font-extrabold">Anda Belum Ambil Absen Masuk</div>
-                <div class="text-[13px] text-amber-50 font-medium truncate">
-                    @if ($hariIni['belum_buka_masuk'])
-                        Absen masuk dibuka pukul {{ $hariIni['buka_masuk'] }} WIB
-                    @elseif ($hariIni['lewat_batas_masuk'])
-                        Batas absen ({{ $hariIni['tutup_masuk'] }} WIB) terlewat &bull; Ketuk untuk presensi
-                    @else
-                        Ketuk untuk ambil absen sebelum {{ $hariIni['tutup_masuk'] }} WIB
-                    @endif
+        @if ($hariIni['belum_buka_masuk'])
+            <div aria-disabled="true"
+                class="rounded-2xl bg-slate-200/80 dark:bg-zinc-800/90 border border-slate-300/80 dark:border-zinc-700 text-slate-500 dark:text-zinc-400 p-4 flex items-center gap-3 opacity-75 cursor-not-allowed select-none">
+                <div
+                    class="w-11 h-11 rounded-xl bg-slate-300/60 dark:bg-zinc-700/70 flex items-center justify-center text-lg shrink-0 text-slate-500 dark:text-zinc-400">
+                    <i class="fa-solid fa-clock"></i>
                 </div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-sm font-extrabold">Absen Masuk Belum Dibuka</div>
+                    <div class="text-[13px] font-medium truncate">
+                        Dibuka pukul {{ $hariIni['buka_masuk'] }} WIB
+                    </div>
+                </div>
+                <i class="fa-solid fa-lock text-xs opacity-60"></i>
             </div>
-            <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
-        </a>
+        @else
+            <a href="{{ route('mobile.absensi') }}" wire:navigate
+                class="rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white p-4 flex items-center gap-3 shadow-md shadow-amber-900/15 active:scale-[0.98] transition-transform">
+                <div
+                    class="w-11 h-11 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center text-lg shrink-0 text-white">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-sm font-extrabold">Anda Belum Ambil Absen Masuk</div>
+                    <div class="text-[13px] text-amber-50 font-medium truncate">
+                        @if ($hariIni['lewat_batas_masuk'])
+                            Batas absen ({{ $hariIni['tutup_masuk'] }} WIB) terlewat &bull; Ketuk untuk presensi
+                        @else
+                            Ketuk untuk ambil absen sebelum {{ $hariIni['tutup_masuk'] }} WIB
+                        @endif
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-white/80"></i>
+            </a>
+        @endif
     @elseif (!$hariIni['sudah_pulang'])
         <a href="{{ route('mobile.absensi') }}" wire:navigate
             class="rounded-2xl bg-gradient-to-r from-[#0F172A] via-[#0369A1] to-[#0284C7] text-white p-4 flex items-center gap-3 shadow-md shadow-sky-900/15 active:scale-[0.98] transition-transform">
