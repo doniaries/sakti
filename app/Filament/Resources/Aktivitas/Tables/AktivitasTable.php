@@ -17,7 +17,9 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 
 class AktivitasTable
@@ -25,7 +27,17 @@ class AktivitasTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
+                'user:id,name',
+                'jabatan:id,nama',
+                'bidang:id,nama',
+            ]))
             ->columns([
+                TextColumn::make('kategori')
+                    ->label('Kategori')
+                    ->badge()
+                    ->state(fn (Aktivitas $record): string => is_null($record->user_id) && is_null($record->jabatan_id) ? 'Global' : 'Spesifik')
+                    ->color(fn (string $state): string => $state === 'Global' ? 'info' : 'warning'),
                 TextColumn::make('user.name')
                     ->label('Pegawai')
                     ->placeholder('Umum / Global')
@@ -56,9 +68,17 @@ class AktivitasTable
                     ->wrap()
                     ->searchable(),
                 TextColumn::make('menit')
-                    ->label('Menit')
+                    ->label('Durasi')
                     ->numeric()
-                    ->suffix(' mnt')
+                    ->formatStateUsing(function ($state): string {
+                        $menit = (int) $state;
+                        if ($menit >= 60) {
+                            $jam = intdiv($menit, 60);
+                            $sisa = $menit % 60;
+                            return $sisa > 0 ? "{$menit} mnt ({$jam}j {$sisa}m)" : "{$menit} mnt ({$jam} jam)";
+                        }
+                        return "{$menit} mnt";
+                    })
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
@@ -70,6 +90,15 @@ class AktivitasTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                TernaryFilter::make('kategori_global')
+                    ->label('Kategori')
+                    ->placeholder('Semua Aktivitas')
+                    ->trueLabel('Global (Semua Pegawai)')
+                    ->falseLabel('Spesifik (Per Pegawai / Jabatan)')
+                    ->queries(
+                        true: fn (Builder $q): Builder => $q->whereNull('user_id')->whereNull('jabatan_id'),
+                        false: fn (Builder $q): Builder => $q->where(fn (Builder $sub) => $sub->whereNotNull('user_id')->orWhereNotNull('jabatan_id')),
+                    ),
                 SelectFilter::make('user_id')
                     ->label('Pegawai')
                     ->relationship('user', 'name')
