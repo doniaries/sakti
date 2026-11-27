@@ -67,13 +67,6 @@
             class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'tim_kreatif' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
             Tim Kreatif ({{ $timKreatifCount ?? 0 }})
         </button>
-        @foreach ($subKegiatanList as $subKeg => $subCount)
-            <button type="button" wire:click="$set('filterSubKegiatan', '{{ addslashes($subKeg) }}')"
-                class="shrink-0 max-w-[220px] truncate px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === $subKeg ? 'bg-teal-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"
-                title="{{ $subKeg }}">
-                {{ \Illuminate\Support\Str::limit($subKeg, 26) }} ({{ $subCount }})
-            </button>
-        @endforeach
     </div>
 
     @if ($myAktivitas->isEmpty())
