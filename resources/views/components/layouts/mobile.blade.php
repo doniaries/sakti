@@ -856,9 +856,9 @@
     <div id="pwa-install-banner"
          class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-[90] w-[calc(100%-2rem)] max-w-md bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md border border-sky-200 dark:border-zinc-700 rounded-2xl shadow-2xl p-3.5 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
-            <img src="{{ asset('icons/icon-192x192.png') }}?v=2" alt="SAKTI" class="w-10 h-10 rounded-xl shrink-0 shadow-sm">
+            <img src="{{ asset('icons/pwa-192x192.png') }}?v={{ $pwaIconVer }}" alt="SAKTI Web" class="w-10 h-10 rounded-xl shrink-0 shadow-sm">
             <div class="min-w-0">
-                <p class="text-xs font-extrabold text-slate-800 dark:text-white truncate">Pasang SAKTI Mobile</p>
+                <p class="text-xs font-extrabold text-slate-800 dark:text-white truncate">Pasang SAKTI Web</p>
                 <p id="pwa-install-desc" class="text-[11px] text-slate-500 dark:text-zinc-400 truncate">Akses cepat langsung dari layar utama</p>
             </div>
         </div>
@@ -876,7 +876,8 @@
 
     <script>
         (function () {
-            const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+            const isStandalone = !!window.SaktiNative
+                || window.matchMedia('(display-mode: standalone)').matches
                 || window.matchMedia('(display-mode: minimal-ui)').matches
                 || window.matchMedia('(display-mode: fullscreen)').matches
                 || window.matchMedia('(display-mode: window-controls-overlay)').matches
@@ -889,17 +890,24 @@
             const descEl = document.getElementById('pwa-install-desc');
             if (!banner || !installBtn || !closeBtn) return;
 
-            const showBanner = () => {
+            const showBanner = async () => {
                 if (localStorage.getItem('sakti_pwa_installed') === '1') return;
                 if (sessionStorage.getItem('sakti_pwa_dismissed') === '1') return;
+                if (typeof navigator.getInstalledRelatedApps === 'function') {
+                    try {
+                        const relatedApps = await navigator.getInstalledRelatedApps();
+                        if (relatedApps && relatedApps.length > 0) {
+                            localStorage.setItem('sakti_pwa_installed', '1');
+                            return;
+                        }
+                    } catch (err) {}
+                }
                 banner.classList.remove('hidden');
             };
 
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 window.__saktiInstallPrompt = e;
-                localStorage.removeItem('sakti_pwa_installed');
-                sessionStorage.removeItem('sakti_pwa_dismissed');
                 showBanner();
             });
 
@@ -914,6 +922,7 @@
                     const { outcome } = await promptEvent.userChoice;
                     window.__saktiInstallPrompt = null;
                     if (outcome === 'accepted') {
+                        localStorage.setItem('sakti_pwa_installed', '1');
                         banner.classList.add('hidden');
                     }
                 } else if (descEl) {
