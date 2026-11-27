@@ -325,6 +325,8 @@ class UsersTable
                     })
                     ->searchable()
                     ->sortable(),
+                self::roleToggleColumn('akses_kepegawaian', 'Kelola Absensi & Kepegawaian', 'admin_kepegawaian'),
+                self::roleToggleColumn('akses_keuangan', 'Kelola Keuangan', 'admin_keuangan'),
                 \Filament\Tables\Columns\TextColumn::make('kuota_cuti')
                     ->label('Cuti Tahunan')
                     ->badge()
@@ -1138,5 +1140,32 @@ class UsersTable
                     ->color('primary')
                     ->url(\App\Filament\Resources\Users\UserResource::getUrl('create')),
             ]);
+    }
+
+    /**
+     * Toggle langsung di tabel pegawai untuk mendelegasikan akses admin bantu
+     * (Absensi & Kepegawaian / Keuangan) tanpa menghapus role pegawai.
+     */
+    protected static function roleToggleColumn(string $name, string $label, string $roleName): \Filament\Tables\Columns\ToggleColumn
+    {
+        return \Filament\Tables\Columns\ToggleColumn::make($name)
+            ->label($label)
+            ->onColor('success')
+            ->offColor('gray')
+            ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false)
+            ->getStateUsing(fn (\App\Models\User $record): bool => $record->hasRole($roleName))
+            ->updateStateUsing(function (\App\Models\User $record, bool $state) use ($roleName, $label): void {
+                if ($state) {
+                    $record->assignRole($roleName);
+                } else {
+                    $record->removeRole($roleName);
+                }
+
+                Notification::make()
+                    ->title(($state ? 'Akses diaktifkan: ' : 'Akses dicabut: ') . $label)
+                    ->body($record->name)
+                    ->success()
+                    ->send();
+            });
     }
 }
