@@ -24,6 +24,11 @@ class BankAktivitas extends Component
     public string $tipe = 'khusus';
 
     public bool $showFormModal = false;
+    public bool $showMoveModal = false;
+    public ?int $movingId = null;
+    public string $movingNamaAktivitas = '';
+    public string $movingCurrentSubKegiatan = '';
+    public ?int $moveRencanaAksiId = null;
     public bool $showBulkModal = false;
     public string $bulkRaw = '';
     public int $bulkDefaultMenit = 30;
@@ -78,6 +83,62 @@ class BankAktivitas extends Component
     public function closeForm(): void
     {
         $this->showFormModal = false;
+    }
+
+    public function openMove(int $id): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        $canManageAll = $user && $user->hasAnyRole(['super_admin', 'superadmin', 'admin']);
+        $item = $canManageAll
+            ? Aktivitas::with('rencanaAksi:id,sasaran_sub_kegiatan')->find($id)
+            : Aktivitas::with('rencanaAksi:id,sasaran_sub_kegiatan')->where('user_id', Auth::id())->find($id);
+
+        if (! $item) {
+            return;
+        }
+
+        $this->resetValidation();
+        $this->movingId = $item->id;
+        $this->movingNamaAktivitas = (string) $item->nama_aktivitas;
+        $this->movingCurrentSubKegiatan = (string) ($item->rencanaAksi?->sasaran_sub_kegiatan ?: (is_null($item->user_id) ? 'Umum (Global)' : 'Belum ada Sub Kegiatan'));
+        $this->moveRencanaAksiId = $item->rencana_aksi_id;
+        $this->showMoveModal = true;
+    }
+
+    public function moveSubKegiatan(): void
+    {
+        $this->validate([
+            'moveRencanaAksiId' => 'required|integer|exists:rencana_aksis,id',
+        ], [
+            'moveRencanaAksiId.required' => 'Pilih Rencana Aksi / Sub Kegiatan tujuan terlebih dahulu.',
+        ]);
+
+        /** @var User|null $user */
+        $user = Auth::user();
+        $canManageAll = $user && $user->hasAnyRole(['super_admin', 'superadmin', 'admin']);
+        $item = $canManageAll
+            ? Aktivitas::find($this->movingId)
+            : Aktivitas::where('user_id', Auth::id())->find($this->movingId);
+
+        $targetRa = RencanaAksi::find($this->moveRencanaAksiId);
+        if (! $item || ! $targetRa) {
+            return;
+        }
+
+        $item->update([
+            'rencana_aksi_id' => $targetRa->id,
+            'bidang_id' => $targetRa->bidang_id ?: ($item->bidang_id ?? $user?->bidang_id),
+            'user_id' => $item->user_id ?? $user?->id,
+            'jabatan_id' => $item->jabatan_id ?? $user?->jabatan_id,
+        ]);
+
+        $this->showMoveModal = false;
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Berhasil Dipindahkan',
+            'message' => 'Aktivitas dipindahkan ke sub kegiatan ' . ($targetRa->sasaran_sub_kegiatan ?: 'terpilih') . '.',
+        ]);
     }
 
     public function saveItem(): void
@@ -351,6 +412,9 @@ class BankAktivitas extends Component
         $selectedSubKegiatanNama = $this->rencana_aksi_id
             ? $rencanaAksiList->firstWhere('id', (int) $this->rencana_aksi_id)?->sasaran_sub_kegiatan
             : null;
+        $moveSelectedSubKegiatanNama = $this->moveRencanaAksiId
+            ? $rencanaAksiList->firstWhere('id', (int) $this->moveRencanaAksiId)?->sasaran_sub_kegiatan
+            : null;
 
         return view('livewire.mobile.lhk.bank-aktivitas', [
             'myAktivitas' => $myAktivitas,
@@ -365,6 +429,7 @@ class BankAktivitas extends Component
             'subKegiatanList' => $subKegiatanList,
             'rencanaAksiList' => $rencanaAksiList,
             'selectedSubKegiatanNama' => $selectedSubKegiatanNama,
+            'moveSelectedSubKegiatanNama' => $moveSelectedSubKegiatanNama,
         ]);
     }
 }

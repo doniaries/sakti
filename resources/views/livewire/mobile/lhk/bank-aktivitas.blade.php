@@ -1,5 +1,6 @@
 <div class="p-4 sm:p-5 pb-28 relative min-h-screen" x-data="{
     formModalOpen: @entangle('showFormModal'),
+    moveModalOpen: @entangle('showMoveModal'),
 }">
     <!-- Header -->
     <div class="flex items-center justify-between gap-3 mb-4">
@@ -158,22 +159,30 @@
                                                 class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold truncate max-w-[120px]">{{ $item->bidang->nama }}</span>
                                         @endif
                                     </div>
-                                    @if (
-                                        ((int) $item->user_id === (int) auth()->id() && ($item->status ?? 'pending') !== 'disetujui') ||
-                                            auth()->user()
-                                                ?->hasAnyRole(['super_admin', 'superadmin', 'admin']))
+                                    @php
+                                        $canManageAll = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
+                                        $isOwner = (int) $item->user_id === (int) auth()->id();
+                                    @endphp
+                                    @if ($isOwner || $canManageAll)
                                         <div class="flex items-center gap-1.5">
-                                            <button type="button" wire:click="openEdit({{ $item->id }})"
-                                                class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-sky-600 flex items-center justify-center text-xs transition"
-                                                title="Ubah">
-                                                <i class="fa-solid fa-pen"></i>
+                                            <button type="button" x-on:click="moveModalOpen = true; $wire.openMove({{ $item->id }})"
+                                                class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-300 hover:bg-amber-100 flex items-center justify-center text-xs transition cursor-pointer"
+                                                title="Pindah Sub Kegiatan">
+                                                <i class="fa-solid fa-arrows-left-right"></i>
                                             </button>
-                                            <button type="button"
-                                                @click.prevent="$dispatch('sakti-confirm', { message: 'Hapus aktivitas ini dari Bank Aktivitas Anda?', wireId: '{{ $this->getId() }}', method: 'deleteItem', params: [{{ $item->id }}] })"
-                                                class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-500 hover:text-rose-700 flex items-center justify-center text-xs transition"
-                                                title="Hapus">
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </button>
+                                            @if ($canManageAll || ($isOwner && ($item->status ?? 'pending') !== 'disetujui'))
+                                                <button type="button" wire:click="openEdit({{ $item->id }})"
+                                                    class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-sky-600 flex items-center justify-center text-xs transition cursor-pointer"
+                                                    title="Ubah">
+                                                    <i class="fa-solid fa-pen"></i>
+                                                </button>
+                                                <button type="button"
+                                                    @click.prevent="$dispatch('sakti-confirm', { message: 'Hapus aktivitas ini dari Bank Aktivitas Anda?', wireId: '{{ $this->getId() }}', method: 'deleteItem', params: [{{ $item->id }}] })"
+                                                    class="w-7 h-7 rounded-lg bg-rose-50 dark:bg-rose-500/15 text-rose-500 hover:text-rose-700 flex items-center justify-center text-xs transition cursor-pointer"
+                                                    title="Hapus">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
@@ -321,6 +330,67 @@
                 class="w-full py-3 rounded-xl bg-[#1B6CA8] hover:bg-[#155685] text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
                 <i wire:loading wire:target="saveItem" class="fa-solid fa-spinner fa-spin"></i>
                 <span>Simpan Aktivitas</span>
+            </button>
+        </x-slot:footer>
+    </x-mobile.rhoe-modal>
+
+    <!-- MODAL PINDAH SUB KEGIATAN -->
+    <x-mobile.rhoe-modal model="moveModalOpen" title="Pindah Sub Kegiatan" maxWidth="max-w-[408px]">
+        <div class="space-y-4">
+            <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 p-3 space-y-1.5">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Aktivitas</div>
+                <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-snug">
+                    {{ $movingNamaAktivitas ?: '-' }}
+                </p>
+                @if ($movingCurrentSubKegiatan)
+                    <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 text-[11px] font-semibold">
+                        <i class="fa-solid fa-diagram-project"></i>
+                        <span>Saat ini: {{ $movingCurrentSubKegiatan }}</span>
+                    </div>
+                @endif
+            </div>
+
+            <div>
+                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi Tujuan <span class="text-rose-500">*</span></label>
+                @php
+                    $moveRaGroups = [
+                        [
+                            'label' => '',
+                            'options' => $rencanaAksiList->map(fn ($ra) => [
+                                'value' => $ra->id,
+                                'label' => $ra->rencana_aksi,
+                            ])->values()->all(),
+                        ],
+                    ];
+                @endphp
+                <x-mobile.select
+                    wire-model="moveRencanaAksiId"
+                    :value="$moveRencanaAksiId ?? ''"
+                    placeholder="— Pilih Rencana Aksi Tujuan —"
+                    search-placeholder="Cari nama rencana aksi..."
+                    :groups="$moveRaGroups" />
+                @error('moveRencanaAksiId')
+                    <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Sub Kegiatan Tujuan</label>
+                <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-h-[42px] flex items-center">
+                    @if (filled($moveSelectedSubKegiatanNama))
+                        <span>{{ $moveSelectedSubKegiatanNama }}</span>
+                    @else
+                        <span class="text-slate-400 dark:text-slate-500 font-normal">Otomatis terisi sesuai Rencana Aksi yang dipilih</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <x-slot:footer>
+            <button type="button" wire:click="moveSubKegiatan" wire:loading.attr="disabled"
+                class="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+                <i wire:loading wire:target="moveSubKegiatan" class="fa-solid fa-spinner fa-spin"></i>
+                <span>Pindahkan Sekarang</span>
             </button>
         </x-slot:footer>
     </x-mobile.rhoe-modal>
