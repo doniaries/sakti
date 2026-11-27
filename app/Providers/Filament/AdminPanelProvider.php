@@ -81,14 +81,14 @@ class AdminPanelProvider extends PanelProvider
                     ->sort(2),
             ])
             ->navigationGroups([
-                'Laporan',
-                'Tim Kreatif',
                 'Absensi',
+                'LHK',
+                'Kepegawaian',
+                'Laporan',
                 'Aset & Inventaris',
                 'Master Keuangan',
                 'Keuangan',
-                'Kepegawaian',
-                'LHK',
+                'Tim Kreatif',
                 'Pengaturan',
             ])
             /* ->navigationGroups([
