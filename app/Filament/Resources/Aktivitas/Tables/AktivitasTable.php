@@ -76,11 +76,23 @@ class AktivitasTable
                     ->sortable()
                     ->searchable()
                     ->toggleable(),
-                /* TextColumn::make('kode')
-                    ->label('Kode')
-                    ->sortable()
-                    ->searchable(), */
-
+                TextColumn::make('nama_aktivitas')
+                    ->label('Nama Aktivitas')
+                    ->wrap()
+                    ->searchable(),
+                TextColumn::make('menit')
+                    ->label('Durasi')
+                    ->numeric()
+                    ->formatStateUsing(function ($state): string {
+                        $menit = (int) $state;
+                        if ($menit >= 60) {
+                            $jam = intdiv($menit, 60);
+                            $sisa = $menit % 60;
+                            return $sisa > 0 ? "{$menit} mnt ({$jam}j {$sisa}m)" : "{$menit} mnt ({$jam} jam)";
+                        }
+                        return "{$menit} mnt";
+                    })
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
