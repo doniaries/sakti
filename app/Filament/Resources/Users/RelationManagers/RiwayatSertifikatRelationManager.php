@@ -69,8 +69,14 @@ class RiwayatSertifikatRelationManager extends RelationManager
                     ->maxLength(100),
 
                 DatePicker::make('tanggal_terbit')
-                    ->label('Tanggal / Tahun Lulus')
+                    ->label('Tanggal Sertifikat (Opsional)')
                     ->displayFormat('d/m/Y'),
+
+                TextInput::make('tahun')
+                    ->label('Tahun Lulus / Diklat')
+                    ->numeric()
+                    ->minValue(1980)
+                    ->maxValue(2100),
 
                 TextInput::make('jumlah_jam')
                     ->label('Jumlah Jam (JP)')
@@ -110,9 +116,9 @@ class RiwayatSertifikatRelationManager extends RelationManager
                     })
                     ->color(fn (?string $state): string => $state === 'pnjj' ? 'info' : 'gray'),
 
-                TextColumn::make('tanggal_terbit')
-                    ->label('Tahun / Tanggal')
-                    ->date('d/m/Y')
+                TextColumn::make('tahun')
+                    ->label('Tahun')
+                    ->formatStateUsing(fn ($record): string => (string) ($record->tahun ?: ($record->tanggal_terbit?->format('Y') ?? '-')))
                     ->placeholder('-'),
 
                 TextColumn::make('jumlah_jam')

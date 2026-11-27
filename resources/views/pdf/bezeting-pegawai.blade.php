@@ -90,8 +90,9 @@
                         $pendText = '-';
                     }
 
+                    $pnjjTahun = $pnjj?->tahun ?: ($pnjj?->tanggal_terbit ? \Carbon\Carbon::parse($pnjj->tanggal_terbit)->format('Y') : null);
                     $pnjjNama = $pnjj
-                        ? trim(($pnjj->nama_sertifikat ?? '') . ($pnjj->tanggal_terbit ? ' (' . \Carbon\Carbon::parse($pnjj->tanggal_terbit)->format('Y') . ')' : ''))
+                        ? trim(($pnjj->nama_sertifikat ?? '') . ($pnjjTahun ? ' (' . $pnjjTahun . ')' : ''))
                         : '-';
                     $pnjjJam = $pnjj?->jumlah_jam ?? '-';
 

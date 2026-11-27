@@ -24,6 +24,7 @@ class RiwayatSertifikat extends Model
         'penyelenggara',
         'nomor_sertifikat',
         'tanggal_terbit',
+        'tahun',
         'jumlah_jam',
         'file_sertifikat',
     ];
