@@ -234,7 +234,7 @@
                     ];
                 }
 
-                if ($isTimKreatif || $canAddUmum) {
+                if ($isTimKreatif ?? false) {
                     $tipeOptions[] = ['value' => 'tim_kreatif', 'label' => 'Tim Kreatif (Tugas Tambahan)'];
                 }
 
@@ -370,8 +370,10 @@
                         : 'Bidang';
                     $moveKatOptions = [
                         ['value' => 'bidang', 'label' => $moveBidangLabel],
-                        ['value' => 'tim_kreatif', 'label' => 'Tim Kreatif (Tugas Tambahan)'],
                     ];
+                    if ($isTimKreatif ?? false) {
+                        $moveKatOptions[] = ['value' => 'tim_kreatif', 'label' => 'Tim Kreatif (Tugas Tambahan)'];
+                    }
                     if ($canMoveUmum) {
                         $moveKatOptions[] = ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'];
                     }
