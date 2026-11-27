@@ -13,6 +13,7 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\Width;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
@@ -1091,16 +1092,22 @@ class UsersTable
             ])
             ->headerActions([
                 ActionGroup::make([
-                    Action::make('cetak_bezeting')
-                        ->label('Cetak Bezeting Pegawai')
-                        ->icon('heroicon-o-document-text')
-                        ->color('success')
-                        ->url(route('pegawai.cetak-bezeting'), shouldOpenInNewTab: true),
-                    Action::make('cetak_belum_lengkap')
-                        ->label('Laporan Belum Lengkap')
-                        ->icon('heroicon-o-exclamation-triangle')
-                        ->color('warning')
-                        ->url(route('pegawai.cetak-belum-lengkap'), shouldOpenInNewTab: true),
+                    self::printPreviewAction(
+                        name: 'cetak_bezeting',
+                        label: 'Cetak Bezeting Pegawai',
+                        icon: 'heroicon-o-document-text',
+                        color: 'success',
+                        routeName: 'pegawai.cetak-bezeting',
+                        subtitle: 'Daftar Nominatif / Bezeting Pegawai ASN (A4 Landscape)'
+                    ),
+                    self::printPreviewAction(
+                        name: 'cetak_belum_lengkap',
+                        label: 'Laporan Belum Lengkap',
+                        icon: 'heroicon-o-exclamation-triangle',
+                        color: 'warning',
+                        routeName: 'pegawai.cetak-belum-lengkap',
+                        subtitle: 'Daftar Pegawai Aktif yang Belum Melengkapi Data Kepegawaian (A4 Portrait)'
+                    ),
                 ])
                     ->label('Cetak & Laporan')
                     ->icon('heroicon-o-printer')
@@ -1176,5 +1183,31 @@ class UsersTable
                     ->success()
                     ->send();
             });
+    }
+
+    /**
+     * Modal print preview PDF bergaya Tailwind sebelum mencetak laporan pegawai.
+     */
+    protected static function printPreviewAction(
+        string $name,
+        string $label,
+        string $icon,
+        string $color,
+        string $routeName,
+        string $subtitle
+    ): Action {
+        return Action::make($name)
+            ->label($label)
+            ->icon($icon)
+            ->color($color)
+            ->modalHeading('Print Preview — ' . $label)
+            ->modalWidth(Width::SevenExtraLarge)
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel('Tutup')
+            ->modalContent(fn (): \Illuminate\Contracts\View\View => view('filament.components.pdf-preview-modal', [
+                'title' => $label,
+                'subtitle' => $subtitle,
+                'url' => route($routeName),
+            ]));
     }
 }
