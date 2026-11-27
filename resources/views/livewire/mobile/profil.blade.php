@@ -698,9 +698,7 @@
                                     <i class="fa-solid fa-xmark text-xs"></i>
                                 </button>
                             </div>
-                            <div class="rounded-2xl bg-slate-50 dark:bg-zinc-950 p-3.5 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">
-                                {{ $appInfo->update_notes ?? ($appInfo->catatan_rilis ?? 'Belum ada catatan pembaruan.') }}
-                            </div>
+                            <div class="rounded-2xl bg-slate-50 dark:bg-zinc-950 p-3.5 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">{{ trim($appInfo->update_notes ?? ($appInfo->catatan_rilis ?? 'Belum ada catatan pembaruan.')) }}</div>
                             <button type="button" @click="openUpdateModal = false"
                                 class="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
                                 Tutup
