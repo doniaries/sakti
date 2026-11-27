@@ -207,12 +207,17 @@ class BankAktivitas extends Component
 
         $subKegiatanList = $allUserAktivitas
             ->pluck('rencanaAksi.sasaran_sub_kegiatan')
-            ->filter()
+            ->filter(fn (?string $sub): bool => filled($sub) && $sub !== 'Tugas Tambahan')
             ->countBy()
             ->sortKeys();
 
         $globalCount = $allUserAktivitas->filter(fn (Aktivitas $a): bool => is_null($a->user_id) && is_null($a->jabatan_id))->count();
-        $spesifikCount = $allUserAktivitas->count() - $globalCount;
+        $timKreatifCount = $allUserAktivitas->filter(fn (Aktivitas $a): bool => $a->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')->count();
+        $bidangCount = $allUserAktivitas->filter(
+            fn (Aktivitas $a): bool => (! is_null($a->user_id) || ! is_null($a->jabatan_id))
+                && $a->rencanaAksi?->sasaran_sub_kegiatan !== 'Tugas Tambahan'
+        )->count();
+        $spesifikCount = $bidangCount + $timKreatifCount;
 
         $searchTerm = mb_strtolower(trim($this->search));
         $myAktivitas = $allUserAktivitas
@@ -223,7 +228,14 @@ class BankAktivitas extends Component
             ->when($this->filterSubKegiatan === 'global', fn ($col) => $col->filter(
                 fn (Aktivitas $a): bool => is_null($a->user_id) && is_null($a->jabatan_id)
             ))
-            ->when(! in_array($this->filterSubKegiatan, ['semua', 'global'], true), fn ($col) => $col->filter(
+            ->when($this->filterSubKegiatan === 'bidang', fn ($col) => $col->filter(
+                fn (Aktivitas $a): bool => (! is_null($a->user_id) || ! is_null($a->jabatan_id))
+                    && $a->rencanaAksi?->sasaran_sub_kegiatan !== 'Tugas Tambahan'
+            ))
+            ->when($this->filterSubKegiatan === 'tim_kreatif', fn ($col) => $col->filter(
+                fn (Aktivitas $a): bool => $a->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan'
+            ))
+            ->when(! in_array($this->filterSubKegiatan, ['semua', 'global', 'bidang', 'tim_kreatif'], true), fn ($col) => $col->filter(
                 fn (Aktivitas $a): bool => ($a->rencanaAksi?->sasaran_sub_kegiatan ?? '') === $this->filterSubKegiatan
             ))
             ->values();
@@ -238,6 +250,8 @@ class BankAktivitas extends Component
         return view('livewire.mobile.lhk.bank-aktivitas', [
             'myAktivitas' => $myAktivitas,
             'globalCount' => $globalCount,
+            'bidangCount' => $bidangCount,
+            'timKreatifCount' => $timKreatifCount,
             'spesifikCount' => $spesifikCount,
             'subKegiatanList' => $subKegiatanList,
             'rencanaAksiOptions' => $rencanaAksiOptions,

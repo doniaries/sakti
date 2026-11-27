@@ -57,7 +57,15 @@
         </button>
         <button type="button" wire:click="$set('filterSubKegiatan', 'global')"
             class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'global' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-            Global
+            Umum ({{ $globalCount ?? 0 }})
+        </button>
+        <button type="button" wire:click="$set('filterSubKegiatan', 'bidang')"
+            class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'bidang' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+            Bidang ({{ $bidangCount ?? 0 }})
+        </button>
+        <button type="button" wire:click="$set('filterSubKegiatan', 'tim_kreatif')"
+            class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'tim_kreatif' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+            Tim Kreatif ({{ $timKreatifCount ?? 0 }})
         </button>
         @foreach ($subKegiatanList as $subKeg => $subCount)
             <button type="button" wire:click="$set('filterSubKegiatan', '{{ addslashes($subKeg) }}')"
@@ -111,9 +119,6 @@
                             @endif
                             @if ($item->bidang?->nama && $item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')
                                 <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold truncate max-w-[120px]">{{ $item->bidang->nama }}</span>
-                            @endif
-                            @if (($item->status ?? 'pending') === 'disetujui')
-                                <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">Disetujui</span>
                             @endif
                         </div>
                         @if (((int) $item->user_id === (int) auth()->id() && ($item->status ?? 'pending') !== 'disetujui') || auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']))
