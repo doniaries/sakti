@@ -117,7 +117,7 @@
                                     Rencana Aksi</label>
                                 <select wire:model.live="pekerjaans.{{ $index }}.rencana_aksi_id"
                                     class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
-                                    <option value="">— Umum / Di Luar Sasaran Kinerja —</option>
+                                    <option value="">Umum</option>
                                     @foreach ($rencanaAksiOptions as $subKegGroup => $raItems)
                                         <optgroup label="{{ $subKegGroup }}">
                                             @foreach ($raItems as $ra)
