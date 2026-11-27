@@ -218,30 +218,45 @@
                 @if (auth()->user()
                         ?->hasAnyRole(['super_admin', 'admin']))
                     <div>
-                        <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tipe
+                        <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
                             Aktivitas</label>
-                        <select wire:model="tipe"
-                            class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
-                            <option value="khusus">Sesuai Jabatan / Bidang</option>
-                            <option value="umum">Umum (Semua Pegawai)</option>
-                        </select>
+                        @php
+                            $tipeGroups = [
+                                [
+                                    'label' => '',
+                                    'options' => [
+                                        ['value' => 'khusus', 'label' => 'Sesuai Jabatan / Bidang'],
+                                        ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'],
+                                    ],
+                                ],
+                            ];
+                        @endphp
+                        <x-mobile.select
+                            wire-model="tipe"
+                            :value="$tipe"
+                            search-placeholder="Cari tipe..."
+                            :groups="$tipeGroups" />
                     </div>
                 @endif
 
                 <div>
-                    <label class="block text-[13px] font-bold text-slate-500 dark:text-slate-400 mb-1">Rencana Aksi /
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi /
                         Sub Kegiatan (Opsional)</label>
-                    <select wire:model="rencana_aksi_id"
-                        class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
-                        <option value="">— Umum / Global —</option>
-                        @foreach ($rencanaAksiOptions as $subKegGroup => $items)
-                            <optgroup label="{{ $subKegGroup }}">
-                                @foreach ($items as $ra)
-                                    <option value="{{ $ra->id }}">{{ $ra->rencana_aksi }}</option>
-                                @endforeach
-                            </optgroup>
-                        @endforeach
-                    </select>
+                    @php
+                        $modalRaGroups = $rencanaAksiOptions->map(fn ($items, $subKegGroup) => [
+                            'label' => $subKegGroup,
+                            'options' => $items->map(fn ($ra) => [
+                                'value' => $ra->id,
+                                'label' => $ra->rencana_aksi,
+                            ])->values()->all(),
+                        ])->values()->all();
+                    @endphp
+                    <x-mobile.select
+                        wire-model="rencana_aksi_id"
+                        :value="$rencana_aksi_id ?? ''"
+                        empty-label="Umum"
+                        search-placeholder="Cari rencana aksi..."
+                        :groups="$modalRaGroups" />
                 </div>
 
                 <div>
