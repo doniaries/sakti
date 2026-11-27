@@ -40,7 +40,17 @@ class BankAktivitas extends Component
         $this->rencana_aksi_id = null;
         $this->nama_aktivitas = '';
         $this->menit = 30;
-        $this->tipe = 'khusus';
+
+        /** @var User|null $user */
+        $user = Auth::user();
+        $hasBidang = (bool) ($user?->bidang_id ?: ($user ? \App\Models\Bidang::where('kepala_id', $user->id)->value('id') : null));
+        if (! $hasBidang && $user?->hasAnyRole(['super_admin', 'superadmin', 'admin'])) {
+            $firstBidangId = \App\Models\Bidang::query()->orderBy('id')->value('id');
+            $this->tipe = $firstBidangId ? 'bidang:' . $firstBidangId : 'khusus';
+        } else {
+            $this->tipe = 'khusus';
+        }
+
         $this->showFormModal = true;
     }
 
@@ -83,15 +93,19 @@ class BankAktivitas extends Component
 
         /** @var User $user */
         $user = Auth::user();
-        $bidangId = $user->bidang_id ?: \App\Models\Bidang::where('kepala_id', $user->id)->value('id');
-        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) ? null : $user->id;
+        $canAddUmum = $user->hasAnyRole(['super_admin', 'superadmin', 'admin']);
+        $userBidangId = $user->bidang_id ?: \App\Models\Bidang::where('kepala_id', $user->id)->value('id');
+        $effectiveBidangId = ($canAddUmum && str_starts_with($this->tipe, 'bidang:'))
+            ? (int) substr($this->tipe, 7)
+            : $userBidangId;
+        $targetUserId = ($this->tipe === 'umum' && $canAddUmum) ? null : $user->id;
 
         if (! is_null($targetUserId) && empty($this->rencana_aksi_id)) {
-            $includeTimKreatif = (bool) ($user->jabatan_tim_kreatif || $user->hasAnyRole(['super_admin', 'superadmin', 'admin']));
+            $includeTimKreatif = (bool) ($user->jabatan_tim_kreatif || $canAddUmum);
             $hasSubKegiatan = RencanaAksi::query()
-                ->where(function ($q) use ($bidangId, $includeTimKreatif): void {
-                    if ($bidangId) {
-                        $q->where('bidang_id', $bidangId);
+                ->where(function ($q) use ($effectiveBidangId, $includeTimKreatif): void {
+                    if ($effectiveBidangId) {
+                        $q->where('bidang_id', $effectiveBidangId);
                     }
                     if ($includeTimKreatif) {
                         $q->orWhere('sasaran_sub_kegiatan', 'Tugas Tambahan');
@@ -116,7 +130,7 @@ class BankAktivitas extends Component
         $payload = [
             'user_id' => $targetUserId,
             'jabatan_id' => $isGlobal ? null : $user->jabatan_id,
-            'bidang_id' => $isGlobal ? null : $bidangId,
+            'bidang_id' => $isGlobal ? null : $effectiveBidangId,
             'rencana_aksi_id' => $isGlobal ? null : ($this->rencana_aksi_id ?: null),
             'nama_aktivitas' => trim($this->nama_aktivitas),
             'menit' => $this->menit,
@@ -310,13 +324,19 @@ class BankAktivitas extends Component
         $bidangId = $user->bidang_id ?: \App\Models\Bidang::where('kepala_id', $user->id)->value('id');
         $bidangNama = $user->bidang?->nama
             ?: ($bidangId ? \App\Models\Bidang::whereKey($bidangId)->value('nama') : null);
+        $bidangList = (! $bidangId && $user->hasAnyRole(['super_admin', 'superadmin', 'admin']))
+            ? \App\Models\Bidang::query()->orderBy('id')->get(['id', 'nama'])
+            : collect();
+        $effectiveBidangId = str_starts_with($this->tipe, 'bidang:')
+            ? (int) substr($this->tipe, 7)
+            : $bidangId;
 
         $includeTimKreatif = (bool) ($isTimKreatif || $user->hasAnyRole(['super_admin', 'superadmin', 'admin']));
         $rencanaAksiList = RencanaAksi::query()
             ->select(['id', 'bidang_id', 'jabatan_id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
-            ->where(function ($q) use ($bidangId, $includeTimKreatif): void {
-                if ($bidangId) {
-                    $q->where('bidang_id', $bidangId);
+            ->where(function ($q) use ($effectiveBidangId, $includeTimKreatif): void {
+                if ($effectiveBidangId) {
+                    $q->where('bidang_id', $effectiveBidangId);
                 }
                 if ($includeTimKreatif) {
                     $q->orWhere('sasaran_sub_kegiatan', 'Tugas Tambahan');
@@ -341,6 +361,7 @@ class BankAktivitas extends Component
             'spesifikCount' => $spesifikCount,
             'isTimKreatif' => $isTimKreatif,
             'userBidangNama' => $bidangNama,
+            'bidangList' => $bidangList,
             'subKegiatanList' => $subKegiatanList,
             'rencanaAksiList' => $rencanaAksiList,
             'selectedSubKegiatanNama' => $selectedSubKegiatanNama,

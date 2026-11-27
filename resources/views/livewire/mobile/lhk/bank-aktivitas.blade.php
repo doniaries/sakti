@@ -210,17 +210,26 @@
         <div class="space-y-4">
             @php
                 $canAddUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
-                $bidangOptionLabel = filled($userBidangNama)
-                    ? (str_starts_with(mb_strtolower($userBidangNama), 'bidang') || str_starts_with(mb_strtolower($userBidangNama), 'sekretariat')
-                        ? $userBidangNama
-                        : 'Bidang ' . $userBidangNama)
-                    : 'Sesuai Bidang';
-                $tipeOptions = [
-                    ['value' => 'khusus', 'label' => $bidangOptionLabel],
-                ];
+                $formatBidangLabel = static fn (string $nama): string => (str_starts_with(mb_strtolower($nama), 'bidang') || str_starts_with(mb_strtolower($nama), 'sekretariat'))
+                    ? $nama
+                    : 'Bidang ' . $nama;
+
+                $tipeOptions = [];
+                if (filled($userBidangNama)) {
+                    $tipeOptions[] = ['value' => 'khusus', 'label' => $formatBidangLabel($userBidangNama)];
+                } elseif ($bidangList->isNotEmpty()) {
+                    foreach ($bidangList as $b) {
+                        $tipeOptions[] = ['value' => 'bidang:' . $b->id, 'label' => $formatBidangLabel($b->nama)];
+                    }
+                } else {
+                    $tipeOptions[] = ['value' => 'khusus', 'label' => auth()->user()?->jabatan?->nama ?: 'Lingkup Dinas'];
+                }
+
                 if ($canAddUmum) {
                     $tipeOptions[] = ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'];
                 }
+
+                $bidangOptionLabel = $tipeOptions[0]['label'];
                 $tipeGroups = [
                     [
                         'label' => '',
