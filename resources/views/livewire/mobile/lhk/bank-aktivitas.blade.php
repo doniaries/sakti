@@ -215,32 +215,33 @@
                     </button>
                 </div>
 
-                @if (auth()->user()
-                        ?->hasAnyRole(['super_admin', 'superadmin']))
-                    <div>
-                        <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
-                            Aktivitas</label>
-                        @php
-                            $bidangOptionLabel = ($userBidangNama ?? 'Bidang') !== 'Bidang'
-                                ? 'Bidang ' . $userBidangNama
-                                : 'Per Pegawai / Jabatan';
-                            $tipeGroups = [
-                                [
-                                    'label' => '',
-                                    'options' => [
-                                        ['value' => 'khusus', 'label' => $bidangOptionLabel],
-                                        ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'],
-                                    ],
-                                ],
-                            ];
-                        @endphp
-                        <x-mobile.select
-                            wire-model="tipe"
-                            :value="$tipe"
-                            search-placeholder="Cari tipe..."
-                            :groups="$tipeGroups" />
-                    </div>
-                @endif
+                @php
+                    $canAddUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
+                    $bidangOptionLabel = ($userBidangNama ?? 'Bidang') !== 'Bidang'
+                        ? 'Bidang ' . $userBidangNama
+                        : 'Per Pegawai / Jabatan';
+                    $tipeOptions = [
+                        ['value' => 'khusus', 'label' => $bidangOptionLabel],
+                    ];
+                    if ($canAddUmum) {
+                        $tipeOptions[] = ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'];
+                    }
+                    $tipeGroups = [
+                        [
+                            'label' => '',
+                            'options' => $tipeOptions,
+                        ],
+                    ];
+                @endphp
+                <div>
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
+                        Aktivitas</label>
+                    <x-mobile.select
+                        wire-model="tipe"
+                        :value="$tipe"
+                        search-placeholder="Cari tipe..."
+                        :groups="$tipeGroups" />
+                </div>
 
                 <div>
                     <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi /

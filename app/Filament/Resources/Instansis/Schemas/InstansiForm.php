@@ -66,7 +66,7 @@ class InstansiForm
                     ->schema([
                         Select::make('kepala_id')
                             ->label('Akun Kepala Dinas (Kadis)')
-                            ->relationship('kepala', 'name', fn ($query) => $query->orderBy('id'))
+                            ->relationship('kepala', 'name', fn($query) => $query->orderBy('id'))
                             ->searchable()
                             ->preload()
                             ->live()
@@ -94,7 +94,7 @@ class InstansiForm
                             ->label('Nama Lengkap & Gelar Sekda')
                             ->placeholder('Contoh: JAHERI, S.SOS., M.SI.')
                             ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                            ->dehydrateStateUsing(fn (?string $state): ?string => $state ? mb_strtoupper($state, 'UTF-8') : null),
+                            ->dehydrateStateUsing(fn(?string $state): ?string => $state ? mb_strtoupper($state, 'UTF-8') : null),
 
                         TextInput::make('nip_sekda')
                             ->label('NIP Sekretaris Daerah')

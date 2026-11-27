@@ -51,7 +51,7 @@ class UserForm
                                     ->imageResizeTargetWidth('600')
                                     ->imageResizeTargetHeight('600')
                                     ->disk('public')
-                                    ->directory(fn ($record): string => $record?->id ? "dokumen_pegawai/{$record->id}/avatars" : 'avatars')
+                                    ->directory(fn($record): string => $record?->id ? "dokumen_pegawai/{$record->id}/avatars" : 'avatars')
                                     ->maxSize(1024)
                                     ->preserveFilenames(false)
                                     ->openable()
@@ -72,7 +72,7 @@ class UserForm
                                                 ->label('Nama Lengkap')
                                                 ->placeholder('Contoh: AHMAD FAUZI, S.KOM')
                                                 ->extraInputAttributes(['style' => 'text-transform: uppercase'])
-                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
+                                                ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? mb_strtoupper($state, 'UTF-8') : null)
                                                 ->required()
                                                 ->maxLength(255),
 
@@ -80,7 +80,7 @@ class UserForm
                                                 ->label('NIP')
                                                 ->mask('99999999 999999 9 999')
                                                 ->placeholder('Contoh: 19720407 199202 1 002')
-                                                ->hidden(fn (Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles')))
+                                                ->hidden(fn(Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles')))
                                                 ->maxLength(30),
 
                                             TextInput::make('gelar_depan')
@@ -108,25 +108,25 @@ class UserForm
                                                 ->copyable()
                                                 ->placeholder('Contoh: doniaries@sijunjung.go.id')
                                                 ->unique(User::class, 'email_resmi', ignoreRecord: true)
-                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? strtolower(trim($state)) : null)
+                                                ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? strtolower(trim($state)) : null)
                                                 ->maxLength(255),
 
                                             TextInput::make('password')
                                                 ->label('Password Login')
                                                 ->password()
                                                 ->revealable()
-                                                ->placeholder(fn (string $operation): string => $operation === 'create' ? 'Minimal 6 karakter...' : 'Kosongkan jika tidak diubah...')
-                                                ->formatStateUsing(fn () => '')
+                                                ->placeholder(fn(string $operation): string => $operation === 'create' ? 'Minimal 6 karakter...' : 'Kosongkan jika tidak diubah...')
+                                                ->formatStateUsing(fn() => '')
                                                 ->autocomplete('new-password')
                                                 ->extraInputAttributes([
                                                     'autocomplete' => 'new-password',
                                                     'data-lpignore' => 'true',
                                                 ])
-                                                ->required(fn (string $operation): bool => $operation === 'create')
+                                                ->required(fn(string $operation): bool => $operation === 'create')
                                                 ->minLength(6)
                                                 ->maxLength(255)
-                                                ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) ? Hash::make($state) : null)
-                                                ->dehydrated(fn (?string $state): bool => filled($state)),
+                                                ->dehydrateStateUsing(fn(?string $state): ?string => filled($state) ? Hash::make($state) : null)
+                                                ->dehydrated(fn(?string $state): bool => filled($state)),
 
                                             Select::make('roles')
                                                 ->label('Role / Hak Akses')
@@ -150,7 +150,7 @@ class UserForm
 
                                                     return $user?->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']) ?? false;
                                                 })
-                                                ->getOptionLabelFromRecordUsing(fn ($record) => match ($record->name) {
+                                                ->getOptionLabelFromRecordUsing(fn($record) => match ($record->name) {
                                                     'super_admin' => 'Super Admin (Sistem Penuh)',
                                                     'admin' => 'Admin Dinas (Kasubag Umum / Kepegawaian)',
                                                     'pa' => 'PA (Kepala Dinas / Pengguna Anggaran)',
@@ -326,9 +326,9 @@ class UserForm
                                     ->options(StatusKepegawaian::class)
                                     ->default(StatusKepegawaian::PNS)
                                     ->live()
-                                    ->disabled(fn (Get $get): bool => self::isKontrak(null, $get('roles')))
+                                    ->disabled(fn(Get $get): bool => self::isKontrak(null, $get('roles')))
                                     ->dehydrated()
-                                    ->required(fn (Get $get): bool => ! self::isKontrak(null, $get('roles'))),
+                                    ->required(fn(Get $get): bool => ! self::isKontrak(null, $get('roles'))),
 
                                 Select::make('bidang_id')
                                     ->label('Bidang')
@@ -347,14 +347,14 @@ class UserForm
                                     ->label('Eselon Jabatan')
                                     ->options(Eselon::class)
                                     ->placeholder('Non Eselon')
-                                    ->hidden(fn (Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles'))),
+                                    ->hidden(fn(Get $get): bool => self::isKontrak($get('status_kepegawaian'), $get('roles'))),
 
                                 Select::make('atasan_id')
                                     ->label('Atasan Langsung')
-                                    ->relationship('atasan', 'name', fn ($query) => $query->bukanSuperAdmin()->orderBy('id'))
-                                    ->default(fn () => User::query()
-                                        ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
-                                        ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
+                                    ->relationship('atasan', 'name', fn($query) => $query->bukanSuperAdmin()->orderBy('id'))
+                                    ->default(fn() => User::query()
+                                        ->whereHas('jabatan', fn($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
+                                        ->orWhereHas('roles', fn($q) => $q->whereIn('name', ['pa', 'kadis']))
                                         ->value('id'))
                                     ->afterStateHydrated(function (Select $component, $state, ?User $record): void {
                                         if (filled($state)) {
@@ -371,8 +371,8 @@ class UserForm
                                         }
 
                                         $kadisId = User::query()
-                                            ->whereHas('jabatan', fn ($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
-                                            ->orWhereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kadis']))
+                                            ->whereHas('jabatan', fn($q) => $q->where('nama', 'like', '%Kepala Dinas%'))
+                                            ->orWhereHas('roles', fn($q) => $q->whereIn('name', ['pa', 'kadis']))
                                             ->value('id');
 
                                         if ($kadisId && $kadisId !== $record?->id) {

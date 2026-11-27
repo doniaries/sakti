@@ -51,7 +51,7 @@ class AktivitasTable
                     ->label('Durasi')
                     ->badge()
                     ->numeric()
-                    ->color(fn ($state): string => match (true) {
+                    ->color(fn($state): string => match (true) {
                         (int) $state >= 240 => 'danger',
                         (int) $state >= 120 => 'warning',
                         (int) $state >= 60 => 'info',
@@ -80,7 +80,7 @@ class AktivitasTable
 
                         return $record->bidang?->nama ?? 'Per Pegawai / Jabatan';
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'Global' => 'info',
                         'Tim Kreatif' => 'warning',
                         'Per Pegawai / Jabatan' => 'gray',
@@ -125,16 +125,16 @@ class AktivitasTable
                         'tim_kreatif' => 'Tim Kreatif',
                         'bidang' => 'Per Bidang / Pegawai',
                     ])
-                    ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
+                    ->query(fn(Builder $query, array $data): Builder => match ($data['value'] ?? null) {
                         'global' => $query->whereNull('user_id')->whereNull('jabatan_id'),
-                        'tim_kreatif' => $query->whereHas('rencanaAksi', fn (Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan')),
-                        'bidang' => $query->where(fn (Builder $sub) => $sub->whereNotNull('user_id')->orWhereNotNull('jabatan_id'))
-                            ->whereDoesntHave('rencanaAksi', fn (Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan')),
+                        'tim_kreatif' => $query->whereHas('rencanaAksi', fn(Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan')),
+                        'bidang' => $query->where(fn(Builder $sub) => $sub->whereNotNull('user_id')->orWhereNotNull('jabatan_id'))
+                            ->whereDoesntHave('rencanaAksi', fn(Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan')),
                         default => $query,
                     }),
                 SelectFilter::make('user_id')
                     ->label('Pegawai')
-                    ->relationship('user', 'name', fn (Builder $query): Builder => $query->orderBy('id'))
+                    ->relationship('user', 'name', fn(Builder $query): Builder => $query->orderBy('id'))
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('bidang_id')
@@ -149,8 +149,8 @@ class AktivitasTable
                         'jf' => 'Jabatan Fungsional (JF)',
                         'staf' => 'Staf / Pelaksana',
                     ])
-                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
-                        ? $query->whereHas('rencanaAksi', fn (Builder $ra) => $ra->where('level', $data['value']))
+                    ->query(fn(Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                        ? $query->whereHas('rencanaAksi', fn(Builder $ra) => $ra->where('level', $data['value']))
                         : $query),
             ])
             ->defaultSort('created_at', 'desc')
@@ -280,11 +280,11 @@ class AktivitasTable
 
                             Select::make('bidang_id')
                                 ->label('Bidang Tujuan (Opsional)')
-                                ->options(fn () => Bidang::orderBy('nama')->pluck('nama', 'id')->all())
+                                ->options(fn() => Bidang::orderBy('nama')->pluck('nama', 'id')->all())
                                 ->placeholder('Pertahankan bidang saat ini')
                                 ->searchable()
                                 ->live()
-                                ->visible(fn (Get $get): bool => $get('target_kategori') === 'bidang'),
+                                ->visible(fn(Get $get): bool => $get('target_kategori') === 'bidang'),
 
                             Select::make('user_id')
                                 ->label('Pegawai Pemilik (Opsional)')
@@ -294,8 +294,8 @@ class AktivitasTable
 
                                     return User::query()
                                         ->where('aktif', true)
-                                        ->when($kategori === 'tim_kreatif', fn ($q) => $q->whereNotNull('jabatan_tim_kreatif'))
-                                        ->when($kategori === 'bidang' && $bidangId, fn ($q) => $q->where('bidang_id', (int) $bidangId))
+                                        ->when($kategori === 'tim_kreatif', fn($q) => $q->whereNotNull('jabatan_tim_kreatif'))
+                                        ->when($kategori === 'bidang' && $bidangId, fn($q) => $q->where('bidang_id', (int) $bidangId))
                                         ->orderBy('id')
                                         ->pluck('name', 'id')
                                         ->all();
@@ -304,7 +304,7 @@ class AktivitasTable
                                 ->searchable()
                                 ->nullable()
                                 ->helperText('Kosongkan jika hanya ingin mengubah bidang atau Rencana Aksi tanpa mengganti pegawai.')
-                                ->visible(fn (Get $get): bool => in_array($get('target_kategori'), ['bidang', 'tim_kreatif'], true)),
+                                ->visible(fn(Get $get): bool => in_array($get('target_kategori'), ['bidang', 'tim_kreatif'], true)),
 
                             Select::make('rencana_aksi_id')
                                 ->label('Rencana Aksi / Sub Kegiatan')
@@ -315,14 +315,14 @@ class AktivitasTable
                                     return RencanaAksi::query()
                                         ->when(
                                             $kategori === 'tim_kreatif',
-                                            fn ($q) => $q->where('sasaran_sub_kegiatan', 'Tugas Tambahan'),
-                                            fn ($q) => $q->where('sasaran_sub_kegiatan', '!=', 'Tugas Tambahan')
-                                                ->when($bidangId, fn ($b) => $b->where('bidang_id', (int) $bidangId))
+                                            fn($q) => $q->where('sasaran_sub_kegiatan', 'Tugas Tambahan'),
+                                            fn($q) => $q->where('sasaran_sub_kegiatan', '!=', 'Tugas Tambahan')
+                                                ->when($bidangId, fn($b) => $b->where('bidang_id', (int) $bidangId))
                                         )
                                         ->orderBy('sasaran_sub_kegiatan')
                                         ->orderBy('rencana_aksi')
                                         ->get(['id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
-                                        ->mapWithKeys(fn (RencanaAksi $ra): array => [
+                                        ->mapWithKeys(fn(RencanaAksi $ra): array => [
                                             $ra->id => '[' . strtoupper((string) ($ra->level ?? '-')) . '] ' . ($ra->sasaran_sub_kegiatan ?: 'Umum') . ' — ' . $ra->rencana_aksi,
                                         ])
                                         ->all();
@@ -330,7 +330,7 @@ class AktivitasTable
                                 ->placeholder('Pilih Rencana Aksi tujuan (opsional)')
                                 ->searchable()
                                 ->nullable()
-                                ->visible(fn (Get $get): bool => in_array($get('target_kategori'), ['bidang', 'tim_kreatif'], true)),
+                                ->visible(fn(Get $get): bool => in_array($get('target_kategori'), ['bidang', 'tim_kreatif'], true)),
                         ])
                         ->action(function (Collection $records, array $data): void {
                             /** @var \App\Models\User|null $user */

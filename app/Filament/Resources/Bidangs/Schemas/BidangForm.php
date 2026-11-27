@@ -20,7 +20,7 @@ class BidangForm
                     ->helperText('Masukkan nama bidang dinas tanpa awalan kata "Bidang".')
                     ->required()
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn (callable $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
+                    ->afterStateUpdated(fn(callable $set, ?string $state) => $set('slug', Str::slug($state ?? ''))),
 
                 TextInput::make('singkatan')
                     ->label('Singkatan Bidang')

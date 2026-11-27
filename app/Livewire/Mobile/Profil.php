@@ -553,7 +553,7 @@ class Profil extends Component
 
         if ($this->gol_is_terakhir) {
             RiwayatGolongan::where('user_id', $freshUser->id)
-                ->when($this->editingGolonganId, fn ($q) => $q->where('id', '!=', $this->editingGolonganId))
+                ->when($this->editingGolonganId, fn($q) => $q->where('id', '!=', $this->editingGolonganId))
                 ->update(['is_golongan_terakhir' => false]);
         }
 
@@ -611,7 +611,7 @@ class Profil extends Component
 
         if ($this->jab_is_sekarang) {
             RiwayatJabatan::where('user_id', $freshUser->id)
-                ->when($this->editingJabatanId, fn ($q) => $q->where('id', '!=', $this->editingJabatanId))
+                ->when($this->editingJabatanId, fn($q) => $q->where('id', '!=', $this->editingJabatanId))
                 ->update(['is_jabatan_sekarang' => false]);
         }
 
@@ -646,7 +646,7 @@ class Profil extends Component
         if ($this->pend_jenjang !== '' && trim($this->pend_nama_institusi) !== '') {
             if ($this->pend_is_terakhir) {
                 RiwayatPendidikan::where('user_id', $freshUser->id)
-                    ->when($this->editingPendidikanId, fn ($q) => $q->where('id', '!=', $this->editingPendidikanId))
+                    ->when($this->editingPendidikanId, fn($q) => $q->where('id', '!=', $this->editingPendidikanId))
                     ->update(['is_pendidikan_terakhir' => false]);
             }
 
@@ -860,8 +860,14 @@ class Profil extends Component
         // Statistik Bulan dan Tahun Terpilih (hanya query saat tab statistik aktif)
         $selectedDate = Carbon::createFromDate($this->tahun, $this->bulan, 1);
         $statistik = [
-            'hadir' => 0, 'terlambat' => 0, 'dinas_luar' => 0, 'pulang_cepat' => 0,
-            'tanpa_keterangan' => 0, 'izin' => 0, 'sakit' => 0, 'lhk_dibuat' => 0,
+            'hadir' => 0,
+            'terlambat' => 0,
+            'dinas_luar' => 0,
+            'pulang_cepat' => 0,
+            'tanpa_keterangan' => 0,
+            'izin' => 0,
+            'sakit' => 0,
+            'lhk_dibuat' => 0,
         ];
 
         if ($this->activeTab === 'statistik') {
@@ -878,7 +884,7 @@ class Profil extends Component
                 'hadir' => $absensiBulanIni->filter(fn($a) => in_array($a->status?->value ?? $a->status, ['hadir', 'terlambat']))->count(),
                 'terlambat' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
                 'dinas_luar' => $absensiBulanIni->filter(fn($a) => ($a->status?->value ?? $a->status) === 'dinas_luar' || ($a->jenis_kehadiran?->value ?? $a->jenis_kehadiran) === 'dinas_luar')->count(),
-                'pulang_cepat' => $absensiBulanIni->filter(function($a) use ($jadwalDefault) {
+                'pulang_cepat' => $absensiBulanIni->filter(function ($a) use ($jadwalDefault) {
                     if (empty($a->jam_pulang)) return false;
                     $jamPulangResmi = $jadwalDefault ? $jadwalDefault->getJamPulangHari($a->tanggal) : '16:00';
                     return $a->jam_pulang < $jamPulangResmi;
@@ -894,12 +900,12 @@ class Profil extends Component
 
         $impersonateCandidates = ($this->showImpersonateModal && $user->hasRole('super_admin'))
             ? User::query()
-                ->where('id', '!=', $user->id)
-                ->when($this->impersonateSearch, fn ($q) => $q->where(fn ($sub) => $sub
-                    ->where('name', 'like', '%' . $this->impersonateSearch . '%')
-                    ->orWhere('nip', 'like', '%' . $this->impersonateSearch . '%')))
-                ->orderBy('id')
-                ->get(['id', 'name', 'nip'])
+            ->where('id', '!=', $user->id)
+            ->when($this->impersonateSearch, fn($q) => $q->where(fn($sub) => $sub
+                ->where('name', 'like', '%' . $this->impersonateSearch . '%')
+                ->orWhere('nip', 'like', '%' . $this->impersonateSearch . '%')))
+            ->orderBy('id')
+            ->get(['id', 'name', 'nip'])
             : collect();
 
         return view('livewire.mobile.profil', [

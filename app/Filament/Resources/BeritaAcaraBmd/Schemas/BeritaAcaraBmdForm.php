@@ -41,7 +41,7 @@ class BeritaAcaraBmdForm
                                 TextInput::make('nomor_surat')
                                     ->label('Nomor Surat')
                                     ->placeholder('Contoh: 030/03/Parpora-2026')
-                                    ->default(fn (): string => '030/   /Parpora-' . date('Y'))
+                                    ->default(fn(): string => '030/   /Parpora-' . date('Y'))
                                     ->required()
                                     ->maxLength(100),
 
@@ -81,8 +81,8 @@ class BeritaAcaraBmdForm
                                     ->schema([
                                         Select::make('pihak_pertama_id')
                                             ->label('Pilih Pegawai (Opsional)')
-                                            ->relationship('pihakPertama', 'name', fn ($query) => $query->orderBy('id'))
-                                            ->default(fn () => User::query()->where('name', 'like', '%IMELDA%')->value('id'))
+                                            ->relationship('pihakPertama', 'name', fn($query) => $query->orderBy('id'))
+                                            ->default(fn() => User::query()->where('name', 'like', '%IMELDA%')->value('id'))
                                             ->searchable()
                                             ->preload()
                                             ->live()
@@ -99,20 +99,20 @@ class BeritaAcaraBmdForm
                                             }),
                                         TextInput::make('pihak_pertama_nama')
                                             ->label('Nama Lengkap')
-                                            ->default(fn () => User::query()->where('name', 'like', '%IMELDA%')->value('name') ?? 'IMELDA SANGGETA, A.Md')
+                                            ->default(fn() => User::query()->where('name', 'like', '%IMELDA%')->value('name') ?? 'IMELDA SANGGETA, A.Md')
                                             ->required(),
                                         Grid::make(2)
                                             ->schema([
                                                 TextInput::make('pihak_pertama_nip')
                                                     ->label('NIP')
-                                                    ->default(fn () => User::query()->where('name', 'like', '%IMELDA%')->value('nip') ?? '19751009 200501 2 002'),
+                                                    ->default(fn() => User::query()->where('name', 'like', '%IMELDA%')->value('nip') ?? '19751009 200501 2 002'),
                                                 TextInput::make('pihak_pertama_pangkat')
                                                     ->label('Pangkat / Golongan')
                                                     ->placeholder('Contoh: Penata III/c'),
                                             ]),
                                         TextInput::make('pihak_pertama_jabatan')
                                             ->label('Jabatan')
-                                            ->default(fn () => User::query()->with('jabatan')->where('name', 'like', '%IMELDA%')->first()?->jabatan?->nama ?? 'Pengurus Barang'),
+                                            ->default(fn() => User::query()->with('jabatan')->where('name', 'like', '%IMELDA%')->first()?->jabatan?->nama ?? 'Pengurus Barang'),
                                         TextInput::make('pihak_pertama_instansi')
                                             ->label('Instansi')
                                             ->default('Dinas Pariwisata Pemuda dan Olahraga'),
@@ -122,7 +122,7 @@ class BeritaAcaraBmdForm
                                     ->schema([
                                         Select::make('pihak_kedua_id')
                                             ->label('Pilih Pegawai Dinas')
-                                            ->relationship('pihakKedua', 'name', fn ($query) => $query->orderBy('id'))
+                                            ->relationship('pihakKedua', 'name', fn($query) => $query->orderBy('id'))
                                             ->searchable()
                                             ->preload()
                                             ->live()
@@ -166,22 +166,22 @@ class BeritaAcaraBmdForm
                             ->schema([
                                 Select::make('buku_inventaris_id')
                                     ->label('Ambil dari Buku Inventaris (Opsional)')
-                                    ->options(fn (): array => BukuInventaris::query()
+                                    ->options(fn(): array => BukuInventaris::query()
                                         ->orderBy('nama_barang')
                                         ->limit(200)
                                         ->get()
-                                        ->mapWithKeys(fn (BukuInventaris $item): array => [
+                                        ->mapWithKeys(fn(BukuInventaris $item): array => [
                                             $item->id => "{$item->nama_barang} ({$item->kode_barang} - {$item->tahun_pembelian})",
                                         ])
                                         ->all())
                                     ->searchable()
-                                    ->getSearchResultsUsing(fn (string $search): array => BukuInventaris::query()
+                                    ->getSearchResultsUsing(fn(string $search): array => BukuInventaris::query()
                                         ->where('nama_barang', 'like', "%{$search}%")
                                         ->orWhere('kode_barang', 'like', "%{$search}%")
                                         ->orWhere('merk_type', 'like', "%{$search}%")
                                         ->limit(50)
                                         ->get()
-                                        ->mapWithKeys(fn (BukuInventaris $item): array => [
+                                        ->mapWithKeys(fn(BukuInventaris $item): array => [
                                             $item->id => "{$item->nama_barang} ({$item->kode_barang} - {$item->tahun_pembelian})",
                                         ])
                                         ->all())

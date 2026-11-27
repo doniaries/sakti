@@ -61,14 +61,14 @@ class AktivitasForm
 
                         Select::make('user_id')
                             ->label('Pegawai (Pemilik Aktivitas)')
-                            ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
+                            ->relationship('user', 'name', fn($query) => $query->orderBy('id'))
                             ->default($isAdmin ? null : $currentUser?->id)
                             ->disabled(! $isAdmin)
                             ->dehydrated()
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik')
+                            ->visible(fn(Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik')
                             ->afterStateUpdated(function ($state, Set $set): void {
                                 if ($state && ($pegawai = User::find((int) $state))) {
                                     $set('jabatan_id', $pegawai->jabatan_id);
@@ -83,7 +83,7 @@ class AktivitasForm
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
+                            ->visible(fn(Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
 
                         Select::make('bidang_id')
                             ->label('Bidang')
@@ -92,7 +92,7 @@ class AktivitasForm
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
+                            ->visible(fn(Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
 
                         Select::make('rencana_aksi_id')
                             ->label('Rencana Aksi Terkait')
@@ -101,7 +101,7 @@ class AktivitasForm
                             ->preload()
                             ->nullable()
                             ->columnSpanFull()
-                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
+                            ->visible(fn(Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
                     ])
                     ->columnSpanFull(),
 

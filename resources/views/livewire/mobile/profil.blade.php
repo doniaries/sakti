@@ -141,10 +141,12 @@
             },
             previewOpen: false
         }">
-            <button type="button" @click="previewOpen = true" class="relative block cursor-pointer group shrink-0" title="Lihat atau ubah foto profil (Maks. 2MB)">
+            <button type="button" @click="previewOpen = true" class="relative block cursor-pointer group shrink-0"
+                title="Lihat atau ubah foto profil (Maks. 2MB)">
                 <img src="{{ $user->avatar_image_url }}" alt="Avatar Pegawai"
                     class="w-16 h-16 rounded-full object-cover aspect-square border-2 border-white/40 shadow-lg shadow-black/20 group-hover:brightness-90 group-active:scale-95 transition">
-                <span class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-sky-500 text-white border-2 border-white flex items-center justify-center text-xs shadow">
+                <span
+                    class="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-sky-500 text-white border-2 border-white flex items-center justify-center text-xs shadow">
                     <i class="fa-solid fa-camera"></i>
                 </span>
             </button>
@@ -154,10 +156,12 @@
                 <div x-show="previewOpen" x-cloak @keydown.escape.window="previewOpen = false"
                     class="fixed inset-0 z-[100] bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4"
                     @click.self="previewOpen = false">
-                    <div class="w-full max-w-xs rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-2xl space-y-4 text-center">
+                    <div
+                        class="w-full max-w-xs rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-2xl space-y-4 text-center">
                         <div class="flex items-center justify-between">
                             <h3 class="text-sm font-extrabold text-slate-800 dark:text-slate-100">Foto Profil</h3>
-                            <button type="button" @click="previewOpen = false" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
+                            <button type="button" @click="previewOpen = false"
+                                class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
                                 <i class="fa-solid fa-xmark text-xs"></i>
                             </button>
                         </div>
@@ -236,7 +240,7 @@
             <div class="flex-1 min-w-0">
                 <div
                     class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-extrabold text-sky-200 uppercase tracking-wider mb-1">
-                    {{ $user->isPegawaiWajibAbsen() ? ($user->jabatan->nama ?? 'Pegawai') : 'Super Administrator Sistem' }}
+                    {{ $user->isPegawaiWajibAbsen() ? $user->jabatan->nama ?? 'Pegawai' : 'Super Administrator Sistem' }}
                 </div>
                 @php
                     $namaLengkap = $user->name;
@@ -328,8 +332,7 @@
                             {{ $golHero->golongan?->value ?? $golHero->golongan }}{{ $golHero->nama_pangkat ? ' • ' . $golHero->nama_pangkat : '' }}
                         </span>
                     @endif
-                    <span
-                        class="px-2 py-0.5 rounded-full bg-white/15 text-xs font-bold uppercase text-emerald-200">
+                    <span class="px-2 py-0.5 rounded-full bg-white/15 text-xs font-bold uppercase text-emerald-200">
                         {{ $user->status_kerja ?? 'WFO' }}
                     </span>
                     <span class="px-2 py-0.5 rounded-full bg-white/10 text-xs font-medium text-sky-100">
@@ -355,11 +358,9 @@
 
         <!-- Status Izin Perangkat (Khusus Aplikasi Android) -->
         <div x-data="{
-                isNative: !!window.SaktiNative,
-                perms: window.__saktiPerms || { location: false, notification: false, battery: false, biometricEnabled: true, biometricSupported: true }
-            }"
-            x-show="isNative"
-            x-cloak
+            isNative: !!window.SaktiNative,
+            perms: window.__saktiPerms || { location: false, notification: false, battery: false, biometricEnabled: true, biometricSupported: true }
+        }" x-show="isNative" x-cloak
             @sakti-device-permissions.window="perms = $event.detail || perms"
             class="mt-3 pt-3 border-t border-white/15 relative z-10">
             <div class="flex items-center justify-between mb-2">
@@ -396,7 +397,8 @@
                     @click="const next = !(perms.biometricEnrolled && perms.biometricEnabled); window.SaktiNative?.postMessage(JSON.stringify({ action: 'set_biometric', enabled: next }))"
                     class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full transition-colors duration-200"
                     :class="(perms.biometricEnrolled && perms.biometricEnabled) ? 'bg-emerald-400' : 'bg-white/25'">
-                    <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 mt-0.5"
+                    <span
+                        class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 mt-0.5"
                         :class="(perms.biometricEnrolled && perms.biometricEnabled) ? 'translate-x-4 ml-0.5' : 'translate-x-0.5'"></span>
                 </button>
             </div>
@@ -671,25 +673,30 @@
                             <span>{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</span>
                             <i class="fa-solid fa-circle-info text-sky-500 text-[13px]"></i>
                         </span>
-                        <span class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs font-bold">
+                        <span
+                            class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-xs font-bold">
                             {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
                         </span>
                     </div>
-                    <p class="text-[13px] text-slate-400 dark:text-zinc-500">Ketuk untuk melihat catatan pembaruan aplikasi</p>
+                    <p class="text-[13px] text-slate-400 dark:text-zinc-500">Ketuk untuk melihat catatan pembaruan
+                        aplikasi</p>
                 </button>
 
                 <template x-teleport="body">
                     <div x-show="openUpdateModal" x-cloak @keydown.escape.window="openUpdateModal = false"
                         class="fixed inset-0 z-[100] bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4"
                         @click.self="openUpdateModal = false">
-                        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl border border-slate-100 dark:border-zinc-800 space-y-3">
+                        <div
+                            class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl border border-slate-100 dark:border-zinc-800 space-y-3">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <div class="w-9 h-9 rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                                    <div
+                                        class="w-9 h-9 rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
                                         <i class="fa-solid fa-sparkles"></i>
                                     </div>
                                     <div>
-                                        <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</h3>
+                                        <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">
+                                            {{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</h3>
                                         <span class="text-xs font-bold text-sky-600 dark:text-sky-400">
                                             Versi {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
                                         </span>
@@ -700,7 +707,10 @@
                                     <i class="fa-solid fa-xmark text-xs"></i>
                                 </button>
                             </div>
-                            <div class="rounded-2xl bg-slate-50 dark:bg-zinc-950 p-3.5 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">{{ trim($appInfo->update_notes ?? ($appInfo->catatan_rilis ?? 'Belum ada catatan pembaruan.')) }}</div>
+                            <div
+                                class="rounded-2xl bg-slate-50 dark:bg-zinc-950 p-3.5 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">
+                                {{ trim($appInfo->update_notes ?? ($appInfo->catatan_rilis ?? 'Belum ada catatan pembaruan.')) }}
+                            </div>
                             <button type="button" @click="openUpdateModal = false"
                                 class="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
                                 Tutup
@@ -1846,7 +1856,8 @@
             <div class="space-y-3" x-data="{ appCfgModalOpen: false }"
                 x-on:open-app-config-modal.window="appCfgModalOpen = true">
                 <div class="flex items-center justify-between px-1">
-                    <h3 class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <h3
+                        class="text-xs font-extrabold text-sky-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-gears"></i> Konfigurasi Sistem
                     </h3>
                     <div class="flex items-center gap-1.5">

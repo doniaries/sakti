@@ -66,7 +66,7 @@ class SuratTugasForm
                                         'default' => 1,
                                         'md' => 3,
                                     ])
-                                        ->visible(fn (Get $get): bool => $get('jenis_dasar_surat') === 'ada_surat')
+                                        ->visible(fn(Get $get): bool => $get('jenis_dasar_surat') === 'ada_surat')
                                         ->schema([
                                             TextInput::make('dasar_surat_undangan')
                                                 ->label('Nomor Surat Dasar')
@@ -116,9 +116,22 @@ class SuratTugasForm
                                                 ->mask('99:99')
                                                 ->placeholder('08:30')
                                                 ->datalist([
-                                                    '07:30', '08:00', '08:30', '09:00', '09:30',
-                                                    '10:00', '10:30', '11:00', '13:00', '13:30',
-                                                    '14:00', '14:30', '15:00', '16:00', '19:00', '20:00',
+                                                    '07:30',
+                                                    '08:00',
+                                                    '08:30',
+                                                    '09:00',
+                                                    '09:30',
+                                                    '10:00',
+                                                    '10:30',
+                                                    '11:00',
+                                                    '13:00',
+                                                    '13:30',
+                                                    '14:00',
+                                                    '14:30',
+                                                    '15:00',
+                                                    '16:00',
+                                                    '19:00',
+                                                    '20:00',
                                                 ])
                                                 ->maxLength(20),
                                         ]),
@@ -159,26 +172,27 @@ class SuratTugasForm
                                 ->schema([
                                     Select::make('penanggung_jawab_ids')
                                         ->label('Penanggung Jawab Kegiatan Bidang')
-                                        ->options(fn (): array => User::query()
-                                            ->bukanSuperAdmin()
-                                            ->where('aktif', true)
-                                            ->whereIn('eselon', [
-                                                Eselon::II_A->value,
-                                                Eselon::II_B->value,
-                                                Eselon::III_A->value,
-                                                Eselon::III_B->value,
-                                                Eselon::IV_A->value,
-                                                Eselon::IV_B->value,
-                                            ])
-                                            ->with('jabatan')
-                                            ->orderBy('id')
-                                            ->get()
-                                            ->mapWithKeys(fn (User $record): array => [
-                                                $record->id => $record->jabatan?->nama
-                                                    ? "{$record->name} — {$record->jabatan->nama}"
-                                                    : $record->name,
-                                            ])
-                                            ->all()
+                                        ->options(
+                                            fn(): array => User::query()
+                                                ->bukanSuperAdmin()
+                                                ->where('aktif', true)
+                                                ->whereIn('eselon', [
+                                                    Eselon::II_A->value,
+                                                    Eselon::II_B->value,
+                                                    Eselon::III_A->value,
+                                                    Eselon::III_B->value,
+                                                    Eselon::IV_A->value,
+                                                    Eselon::IV_B->value,
+                                                ])
+                                                ->with('jabatan')
+                                                ->orderBy('id')
+                                                ->get()
+                                                ->mapWithKeys(fn(User $record): array => [
+                                                    $record->id => $record->jabatan?->nama
+                                                        ? "{$record->name} — {$record->jabatan->nama}"
+                                                        : $record->name,
+                                                ])
+                                                ->all()
                                         )
                                         ->multiple()
                                         ->searchable()
@@ -189,32 +203,33 @@ class SuratTugasForm
 
                                     Select::make('koordinator_acara_ids')
                                         ->label('Koordinator Acara (JF)')
-                                        ->options(fn (): array => User::query()
-                                            ->bukanSuperAdmin()
-                                            ->where('aktif', true)
-                                            ->whereIn('eselon', [
-                                                Eselon::II_A->value,
-                                                Eselon::II_B->value,
-                                                Eselon::III_A->value,
-                                                Eselon::III_B->value,
-                                                Eselon::IV_A->value,
-                                                Eselon::IV_B->value,
-                                            ])
-                                            ->where(function (Builder $q): void {
-                                                $q->whereHas('roles', fn (Builder $r): Builder => $r->where('name', 'jf'))
-                                                    ->orWhereHas('jabatan', fn (Builder $j): Builder => $j
-                                                        ->where('nama', 'like', '%fungsional%')
-                                                        ->orWhere('nama', 'like', '%ahli %'));
-                                            })
-                                            ->with('jabatan')
-                                            ->orderBy('id')
-                                            ->get()
-                                            ->mapWithKeys(fn (User $record): array => [
-                                                $record->id => $record->jabatan?->nama
-                                                    ? "{$record->name} — {$record->jabatan->nama}"
-                                                    : $record->name,
-                                            ])
-                                            ->all()
+                                        ->options(
+                                            fn(): array => User::query()
+                                                ->bukanSuperAdmin()
+                                                ->where('aktif', true)
+                                                ->whereIn('eselon', [
+                                                    Eselon::II_A->value,
+                                                    Eselon::II_B->value,
+                                                    Eselon::III_A->value,
+                                                    Eselon::III_B->value,
+                                                    Eselon::IV_A->value,
+                                                    Eselon::IV_B->value,
+                                                ])
+                                                ->where(function (Builder $q): void {
+                                                    $q->whereHas('roles', fn(Builder $r): Builder => $r->where('name', 'jf'))
+                                                        ->orWhereHas('jabatan', fn(Builder $j): Builder => $j
+                                                            ->where('nama', 'like', '%fungsional%')
+                                                            ->orWhere('nama', 'like', '%ahli %'));
+                                                })
+                                                ->with('jabatan')
+                                                ->orderBy('id')
+                                                ->get()
+                                                ->mapWithKeys(fn(User $record): array => [
+                                                    $record->id => $record->jabatan?->nama
+                                                        ? "{$record->name} — {$record->jabatan->nama}"
+                                                        : $record->name,
+                                                ])
+                                                ->all()
                                         )
                                         ->multiple()
                                         ->searchable()
@@ -227,7 +242,7 @@ class SuratTugasForm
                                         ->relationship(
                                             name: 'pegawais',
                                             titleAttribute: 'name',
-                                            modifyQueryUsing: fn (Builder $query): Builder => $query
+                                            modifyQueryUsing: fn(Builder $query): Builder => $query
                                                 ->bukanSuperAdmin()
                                                 ->where('aktif', true)
                                                 ->where(function (Builder $q): void {
@@ -265,8 +280,8 @@ class SuratTugasForm
                                 ->schema([
                                     TextInput::make('nomor_surat')
                                         ->label('Nomor Surat Tugas')
-                                        ->default(fn (): string => \App\Models\SuratTugas::generateNomorSurat())
-                                        ->formatStateUsing(fn (?string $state): string => filled($state) ? $state : \App\Models\SuratTugas::generateNomorSurat())
+                                        ->default(fn(): string => \App\Models\SuratTugas::generateNomorSurat())
+                                        ->formatStateUsing(fn(?string $state): string => filled($state) ? $state : \App\Models\SuratTugas::generateNomorSurat())
                                         ->required()
                                         ->maxLength(100)
                                         ->helperText('Nomor surat dibuat otomatis oleh sistem, namun dapat diubah manual jika perlu perbaikan.'),
