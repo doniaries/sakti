@@ -3,6 +3,7 @@
 @endphp
 
 <div wire:poll.10s x-data="{
+    avatarPreview: false,
     notifSheet: false,
     suratTugasSheet: false,
     konfirmasiSuccessModal: false,
@@ -63,42 +64,15 @@
 
             <!-- Row 1: Avatar + Sapaan + Bell -->
             <div class="flex items-center justify-between gap-3 relative z-10">
-                <div class="flex items-center gap-3 min-w-0" x-data="{ avatarPreview: false }">
+                <div class="flex items-center gap-3 min-w-0">
                     <button type="button" @click="avatarPreview = true" class="relative shrink-0 cursor-pointer group"
                         title="Lihat atau ganti foto profil">
                         <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
                             class="w-10 h-10 rounded-full object-cover ring-2 ring-white/50 group-active:scale-95 transition">
+                        <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-sky-500 border border-white text-white flex items-center justify-center shadow-xs">
+                            <i class="fa-solid fa-camera text-[8px]"></i>
+                        </span>
                     </button>
-                    <template x-teleport="body">
-                        <div x-show="avatarPreview" x-cloak @keydown.escape.window="avatarPreview = false"
-                            class="fixed inset-0 z-[100] bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-4"
-                            @click.self="avatarPreview = false">
-                            <div
-                                class="w-full max-w-xs rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-2xl space-y-4 text-center">
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-sm font-extrabold text-slate-800 dark:text-slate-100">Foto Profil
-                                    </h3>
-                                    <button type="button" @click="avatarPreview = false"
-                                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center">
-                                        <i class="fa-solid fa-xmark text-xs"></i>
-                                    </button>
-                                </div>
-                                <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
-                                    class="w-52 h-52 mx-auto rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-md">
-                                <div class="grid grid-cols-2 gap-2.5">
-                                    <button type="button" @click="avatarPreview = false"
-                                        class="h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold">
-                                        Tutup
-                                    </button>
-                                    <a href="{{ route('mobile.profil') }}" wire:navigate @click="avatarPreview = false"
-                                        class="h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center gap-1.5">
-                                        <i class="fa-solid fa-camera text-[13px]"></i>
-                                        <span>Ganti Foto</span>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
                     <div class="min-w-0">
                         <div class="text-[13px] text-sky-100 font-medium">{{ $sapaan }},</div>
                         <h1 class="text-sm font-extrabold tracking-tight leading-snug">{{ $user->name }}</h1>
@@ -778,6 +752,39 @@
     </x-mobile.rhoe-modal>
 
     <!-- Rhoe UI Modal: Notifikasi -->
+    <x-mobile.rhoe-modal model="avatarPreview" title="Foto Profil" maxWidth="max-w-xs">
+        <div class="space-y-4 text-center">
+            <div class="relative w-52 h-52 mx-auto">
+                <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
+                    class="w-52 h-52 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-md">
+                <div wire:loading.flex wire:target="new_avatar"
+                    class="absolute inset-0 rounded-2xl bg-slate-900/60 backdrop-blur-xs flex-col items-center justify-center gap-2 text-white">
+                    <i class="fa-solid fa-spinner fa-spin text-xl"></i>
+                    <span class="text-xs font-bold">Mengunggah foto...</span>
+                </div>
+            </div>
+            @error('new_avatar')
+                <p class="text-xs font-semibold text-rose-500">{{ $message }}</p>
+            @enderror
+            <p class="text-[11px] text-slate-400">Format JPG, PNG, atau WEBP (maks. 2MB)</p>
+        </div>
+
+        <x-slot:footer>
+            <div class="grid grid-cols-2 gap-2.5 w-full">
+                <button type="button" @click="avatarPreview = false"
+                    class="h-10 rounded-xl bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold cursor-pointer active:scale-95 transition">
+                    Tutup
+                </button>
+                <label
+                    class="h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition shadow-sm">
+                    <input type="file" wire:model="new_avatar" accept="image/jpeg,image/png,image/webp" class="sr-only">
+                    <i class="fa-solid fa-camera text-[13px]"></i>
+                    <span>Ganti Foto</span>
+                </label>
+            </div>
+        </x-slot:footer>
+    </x-mobile.rhoe-modal>
+
     <x-mobile.rhoe-modal model="notifSheet" title="Notifikasi ({{ $unreadNotifCount }})"
         subtitle="Pemberitahuan terbaru terkait presensi, izin, dan kinerja">
         <div class="space-y-2">
