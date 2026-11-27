@@ -1,11 +1,16 @@
 <div class="p-4 md:p-6 pb-28 max-w-3xl mx-auto space-y-5">
     @php
-        $totalMenitLhk = collect($pekerjaans)->sum(fn ($p) => (int) ($p['lama_menit'] ?? 0));
+        $totalMenitLhk = collect($pekerjaans)->sum(fn($p) => (int) ($p['lama_menit'] ?? 0));
         $totalJamLhk = intdiv($totalMenitLhk, 60);
         $sisaMenitLhk = $totalMenitLhk % 60;
-        $totalDurasiText = $totalMenitLhk > 0
-            ? ($totalJamLhk > 0 && $sisaMenitLhk > 0 ? "{$totalJamLhk}j {$sisaMenitLhk}m" : ($totalJamLhk > 0 ? "{$totalJamLhk} jam" : "{$sisaMenitLhk} mnt"))
-            : '0 jam';
+        $totalDurasiText =
+            $totalMenitLhk > 0
+                ? ($totalJamLhk > 0 && $sisaMenitLhk > 0
+                    ? "{$totalJamLhk}j {$sisaMenitLhk}m"
+                    : ($totalJamLhk > 0
+                        ? "{$totalJamLhk} jam"
+                        : "{$sisaMenitLhk} mnt"))
+                : '0 jam';
     @endphp
 
     <!-- Header -->
@@ -23,7 +28,8 @@
             </div>
         </div>
         @if ($absenHariIni || $existingLhk)
-            <div class="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200/80 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold">
+            <div
+                class="shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200/80 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 text-xs font-bold">
                 <i class="fa-regular fa-clock text-[11px]"></i>
                 <span>{{ count($pekerjaans) }} kegiatan</span>
                 <span class="text-sky-300 dark:text-sky-600">•</span>
@@ -33,16 +39,19 @@
     </div>
 
     <!-- Informasi Kehadiran -->
-    <section class="bg-white dark:bg-[#132338]/95 rounded-2xl p-4 md:p-5 shadow-xs border border-slate-200/80 dark:border-slate-700/70 space-y-4">
+    <section
+        class="bg-white dark:bg-[#132338]/95 rounded-2xl p-4 md:p-5 shadow-xs border border-slate-200/80 dark:border-slate-700/70 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
             <div class="flex items-center gap-2">
-                <span class="w-7 h-7 rounded-lg bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xs">
+                <span
+                    class="w-7 h-7 rounded-lg bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xs">
                     <i class="fa-regular fa-calendar-check"></i>
                 </span>
                 <h2 class="text-sm font-bold text-slate-800 dark:text-white">Informasi Kehadiran</h2>
             </div>
             @if ($bisaIsiLhk)
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold border border-emerald-200/70 dark:border-emerald-500/30">
+                <span
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold border border-emerald-200/70 dark:border-emerald-500/30">
                     <i class="fa-solid fa-circle-check text-[9px]"></i> Siap Diisi
                 </span>
             @endif
@@ -50,22 +59,27 @@
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
             <div class="md:col-span-6">
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal LHK</label>
-                <x-mobile.date-picker
-                    wire:model.live="tanggal"
-                    buttonClass="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500/30 transition"
-                />
+                <label
+                    class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Tanggal
+                    LHK</label>
+                <x-mobile.date-picker wire:model.live="tanggal"
+                    buttonClass="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500/30 transition" />
             </div>
 
             @if ($absenHariIni || $existingLhk)
-                <div class="md:col-span-3 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 px-3 py-2 flex md:flex-col items-center md:items-start justify-between">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Jam Masuk</span>
+                <div
+                    class="md:col-span-3 rounded-xl bg-amber-50/70 dark:bg-amber-500/10 border border-amber-200/70 dark:border-amber-500/25 px-3 py-2 flex md:flex-col items-center md:items-start justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Jam
+                        Masuk</span>
                     <span class="text-base md:text-lg font-extrabold font-mono text-amber-700 dark:text-amber-300">
                         {{ $absenHariIni?->jam_masuk ?? $existingLhk?->jam_masuk ? substr((string) ($absenHariIni?->jam_masuk ?? $existingLhk?->jam_masuk), 0, 5) : '-' }}
                     </span>
                 </div>
-                <div class="md:col-span-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200/70 dark:border-emerald-500/25 px-3 py-2 flex md:flex-col items-center md:items-start justify-between">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Jam Pulang</span>
+                <div
+                    class="md:col-span-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200/70 dark:border-emerald-500/25 px-3 py-2 flex md:flex-col items-center md:items-start justify-between">
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Jam
+                        Pulang</span>
                     <span class="text-base md:text-lg font-extrabold font-mono text-emerald-700 dark:text-emerald-300">
                         {{ $absenHariIni?->jam_pulang ?? $existingLhk?->jam_pulang ? substr((string) ($absenHariIni?->jam_pulang ?? $existingLhk?->jam_pulang), 0, 5) : 'Belum' }}
                     </span>
@@ -74,17 +88,20 @@
         </div>
 
         @if (!$absenHariIni && !$existingLhk)
-            <div class="rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 p-3 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-500/30 font-semibold">
+            <div
+                class="rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 p-3 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-500/30 font-semibold">
                 <i class="fa-solid fa-triangle-exclamation shrink-0"></i>
                 <span>Belum ada data absensi masuk (pagi) pada tanggal ini.</span>
             </div>
         @elseif (!$bisaIsiLhk)
-            <div class="rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 p-3 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-500/30 font-semibold">
+            <div
+                class="rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 p-3 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-500/30 font-semibold">
                 <i class="fa-solid fa-triangle-exclamation shrink-0"></i>
                 <span>Anda harus melakukan absen masuk (pagi) terlebih dahulu untuk mengisi LHK.</span>
             </div>
         @else
-            <div class="rounded-xl bg-sky-50/80 dark:bg-sky-500/10 text-sky-800 dark:text-cyan-200 px-3.5 py-2.5 text-[11px] flex items-start gap-2.5 border border-sky-200/80 dark:border-sky-500/30 leading-relaxed">
+            <div
+                class="rounded-xl bg-sky-50/80 dark:bg-sky-500/10 text-sky-800 dark:text-cyan-200 px-3.5 py-2.5 text-[11px] flex items-start gap-2.5 border border-sky-200/80 dark:border-sky-500/30 leading-relaxed">
                 <i class="fa-solid fa-circle-info mt-0.5 text-sky-600 dark:text-cyan-400 shrink-0"></i>
                 <span>
                     Mulai pukul <strong class="font-mono">{{ $waktuAwalKegiatan }} WIB</strong>.
@@ -103,7 +120,8 @@
             <div class="flex items-center justify-between px-1">
                 <div>
                     <h2 class="text-sm font-extrabold text-slate-800 dark:text-white">Rincian Pekerjaan</h2>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Isi kegiatan harian sesuai Rencana Aksi atau Umum</p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Isi kegiatan harian sesuai Rencana Aksi
+                        atau Umum</p>
                 </div>
                 <button type="button" wire:click="addPekerjaan" wire:loading.attr="disabled" wire:target="addPekerjaan"
                     class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 active:scale-95 px-3.5 py-2 rounded-xl shadow-xs transition cursor-pointer">
@@ -113,12 +131,15 @@
             </div>
 
             @if (empty($pekerjaans))
-                <div class="bg-white dark:bg-[#132338]/95 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center">
-                    <div class="w-12 h-12 mx-auto rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-cyan-300 flex items-center justify-center text-lg mb-3">
+                <div
+                    class="bg-white dark:bg-[#132338]/95 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-8 text-center">
+                    <div
+                        class="w-12 h-12 mx-auto rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-cyan-300 flex items-center justify-center text-lg mb-3">
                         <i class="fa-solid fa-clipboard-list"></i>
                     </div>
                     <p class="text-xs font-semibold text-slate-600 dark:text-slate-300">Belum ada kegiatan.</p>
-                    <p class="text-[11px] text-slate-400 mt-1">Ketuk tombol <strong>Tambah</strong> untuk mencatat aktivitas.</p>
+                    <p class="text-[11px] text-slate-400 mt-1">Ketuk tombol <strong>Tambah</strong> untuk mencatat
+                        aktivitas.</p>
                 </div>
             @else
                 <div class="space-y-4">
@@ -126,12 +147,15 @@
                         <div wire:key="pekerjaan-{{ $index }}"
                             class="bg-white dark:bg-[#132338]/95 rounded-2xl p-4 md:p-5 shadow-xs border border-slate-200/85 dark:border-slate-700/75 space-y-4">
                             <!-- Card Header -->
-                            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                            <div
+                                class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-sky-600 text-white text-[11px] font-extrabold">
+                                    <span
+                                        class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-sky-600 text-white text-[11px] font-extrabold">
                                         {{ $index + 1 }}
                                     </span>
-                                    <span class="text-xs font-extrabold text-slate-800 dark:text-white">Kegiatan {{ $index + 1 }}</span>
+                                    <span class="text-xs font-extrabold text-slate-800 dark:text-white">Kegiatan
+                                        {{ $index + 1 }}</span>
                                 </div>
                                 <button type="button" wire:click="removePekerjaan({{ $index }})"
                                     class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 transition cursor-pointer"
@@ -151,30 +175,40 @@
                                         ->whereNotNull('rencana_aksi_id')
                                         ->countBy('rencana_aksi_id');
                                     $umumAktCount = collect($aktivitasList)
-                                        ->filter(fn ($a) => is_null($a->rencana_aksi_id) || (is_null($a->user_id) && is_null($a->jabatan_id)))
+                                        ->filter(
+                                            fn($a) => is_null($a->rencana_aksi_id) ||
+                                                (is_null($a->user_id) && is_null($a->jabatan_id)),
+                                        )
                                         ->count();
-                                    $raGroups = $rencanaAksiOptions->map(fn ($raItems, $subKegGroup) => [
-                                        'label' => $subKegGroup,
-                                        'options' => $raItems->map(fn ($ra) => [
-                                            'value' => $ra->id,
-                                            'label' => $ra->rencana_aksi,
-                                            'badge' => ($aktCountByRa->get($ra->id, 0)) . ' aktivitas',
-                                        ])->values()->all(),
-                                    ])->values()->all();
+                                    $raGroups = $rencanaAksiOptions
+                                        ->map(
+                                            fn($raItems, $subKegGroup) => [
+                                                'label' => $subKegGroup,
+                                                'options' => $raItems
+                                                    ->map(
+                                                        fn($ra) => [
+                                                            'value' => $ra->id,
+                                                            'label' => $ra->rencana_aksi,
+                                                            'badge' => $aktCountByRa->get($ra->id, 0) . ' aktivitas',
+                                                        ],
+                                                    )
+                                                    ->values()
+                                                    ->all(),
+                                            ],
+                                        )
+                                        ->values()
+                                        ->all();
                                 @endphp
-                                <x-mobile.select
-                                    :wire-model="'pekerjaans.' . $index . '.rencana_aksi_id'"
-                                    :value="$pekerjaan['rencana_aksi_id'] ?? ''"
-                                    :empty-label="'Umum (' . $umumAktCount . ' aktivitas)'"
-                                    search-placeholder="Cari rencana aksi..."
-                                    :groups="$raGroups" />
+                                <x-mobile.select :wire-model="'pekerjaans.' . $index . '.rencana_aksi_id'" :value="$pekerjaan['rencana_aksi_id'] ?? ''" empty-label="Umum"
+                                    :empty-label="'Umum (' . $umumAktCount . ' aktivitas)'" search-placeholder="Cari rencana aksi..." :groups="$raGroups" />
                             </div>
 
                             <!-- 2. Aktivitas -->
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
                                     <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                                        <span class="text-sky-600 dark:text-cyan-400">2.</span> Pilih Aktivitas (Bank Aktivitas)
+                                        <span class="text-sky-600 dark:text-cyan-400">2.</span> Pilih Aktivitas (Bank
+                                        Aktivitas)
                                     </label>
                                     <a href="{{ route('mobile.lhk.bank-aktivitas') }}" wire:navigate
                                         class="text-[11px] font-bold text-sky-600 dark:text-cyan-400 hover:underline inline-flex items-center gap-1">
@@ -184,54 +218,70 @@
                                 @php
                                     $selectedRaId = $pekerjaan['rencana_aksi_id'] ?? null;
                                     $selectedAktId = $pekerjaan['aktivitas_id'] ?? null;
-                                    $filteredAktivitas = collect($aktivitasList)->filter(function ($a) use ($selectedRaId, $selectedAktId) {
+                                    $filteredAktivitas = collect($aktivitasList)->filter(function ($a) use (
+                                        $selectedRaId,
+                                        $selectedAktId,
+                                    ) {
                                         if ($selectedAktId && (int) $a->id === (int) $selectedAktId) {
                                             return true;
                                         }
                                         if (empty($selectedRaId)) {
-                                            return is_null($a->rencana_aksi_id)
-                                                || (is_null($a->user_id) && is_null($a->jabatan_id));
+                                            return true;
                                         }
 
                                         return (int) $a->rencana_aksi_id === (int) $selectedRaId;
                                     });
-                                    $aktGroups = $filteredAktivitas->groupBy(function ($a) {
-                                        if (is_null($a->user_id) && is_null($a->jabatan_id)) {
-                                            return 'Umum (Semua Pegawai)';
-                                        }
-                                        if ($a->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan') {
-                                            return 'Tim Kreatif';
-                                        }
+                                    $aktGroups = $filteredAktivitas
+                                        ->groupBy(function ($a) {
+                                            if (is_null($a->user_id) && is_null($a->jabatan_id)) {
+                                                return 'Umum (Semua Pegawai)';
+                                            }
+                                            if ($a->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan') {
+                                                return 'Tim Kreatif';
+                                            }
 
-                                        return $a->rencanaAksi?->sasaran_sub_kegiatan ?: ($a->bidang?->nama ?: 'Aktivitas Pegawai');
-                                    })->map(fn ($aktItems, $aktGroup) => [
-                                        'label' => $aktGroup,
-                                        'options' => $aktItems->map(function ($a) {
-                                            $jamLabel = $a->menit
-                                                ? str_replace('.', ',', (string) (float) round($a->menit / 60, 2)) . ' jam'
-                                                : null;
+                                            return $a->rencanaAksi?->sasaran_sub_kegiatan ?:
+                                                ($a->bidang?->nama ?:
+                                                    'Aktivitas Pegawai');
+                                        })
+                                        ->map(
+                                            fn($aktItems, $aktGroup) => [
+                                                'label' => $aktGroup,
+                                                'options' => $aktItems
+                                                    ->map(function ($a) {
+                                                        $jamLabel = $a->menit
+                                                            ? str_replace(
+                                                                    '.',
+                                                                    ',',
+                                                                    (string) (float) round($a->menit / 60, 2),
+                                                                ) . ' jam'
+                                                            : null;
 
-                                            return [
-                                                'value' => $a->id,
-                                                'label' => $a->nama_aktivitas ?? $a->nama,
-                                                'badge' => $jamLabel,
-                                            ];
-                                        })->values()->all(),
-                                    ])->values()->all();
+                                                        return [
+                                                            'value' => $a->id,
+                                                            'label' => $a->nama_aktivitas ?? $a->nama,
+                                                            'badge' => $jamLabel,
+                                                        ];
+                                                    })
+                                                    ->values()
+                                                    ->all(),
+                                            ],
+                                        )
+                                        ->values()
+                                        ->all();
                                 @endphp
-                                <x-mobile.select
-                                    :wire-model="'pekerjaans.' . $index . '.aktivitas_id'"
-                                    :value="$pekerjaan['aktivitas_id'] ?? ''"
+                                <x-mobile.select :wire-model="'pekerjaans.' . $index . '.aktivitas_id'" :value="$pekerjaan['aktivitas_id'] ?? ''"
                                     placeholder="- Pilih Aktivitas (Jam Terisi Otomatis) -"
                                     empty-label="- Pilih Aktivitas (Jam Terisi Otomatis) -"
-                                    search-placeholder="Cari aktivitas..."
-                                    :groups="$aktGroups" />
+                                    search-placeholder="Cari aktivitas..." :groups="$aktGroups" />
                             </div>
 
                             <!-- Jam Mulai, Jam Selesai, Lama -->
                             <div class="grid grid-cols-3 gap-2.5">
                                 <div>
-                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam Mulai</label>
+                                    <label
+                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
+                                        Mulai</label>
                                     <input type="time" wire:model.live="pekerjaans.{{ $index }}.jam_mulai"
                                         class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
                                     @error('pekerjaans.' . $index . '.jam_mulai')
@@ -239,7 +289,9 @@
                                     @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam Selesai</label>
+                                    <label
+                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
+                                        Selesai</label>
                                     <input type="time" wire:model.live="pekerjaans.{{ $index }}.jam_selesai"
                                         class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
                                     @error('pekerjaans.' . $index . '.jam_selesai')
@@ -247,9 +299,12 @@
                                     @enderror
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Durasi</label>
-                                    <div class="w-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200/80 dark:border-sky-500/30 rounded-xl px-2.5 py-2 text-xs font-mono font-extrabold text-sky-700 dark:text-cyan-300 text-center">
-                                        {{ str_replace('.', ',', (string) (float) round(((int) ($pekerjaan['lama_menit'] ?? 0)) / 60, 2)) }} jam
+                                    <label
+                                        class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Durasi</label>
+                                    <div
+                                        class="w-full bg-sky-50 dark:bg-sky-500/15 border border-sky-200/80 dark:border-sky-500/30 rounded-xl px-2.5 py-2 text-xs font-mono font-extrabold text-sky-700 dark:text-cyan-300 text-center">
+                                        {{ str_replace('.', ',', (string) (float) round(((int) ($pekerjaan['lama_menit'] ?? 0)) / 60, 2)) }}
+                                        jam
                                     </div>
                                 </div>
                             </div>
@@ -271,7 +326,8 @@
                             <div>
                                 <div class="flex items-center justify-between mb-1.5">
                                     <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-300">
-                                        <span class="text-sky-600 dark:text-cyan-400">4.</span> Link Bukti Google Drive (Opsional)
+                                        <span class="text-sky-600 dark:text-cyan-400">4.</span> Link Bukti Google Drive
+                                        (Opsional)
                                     </label>
                                     @if (
                                         !empty($pekerjaan['bukti_url']) &&
@@ -291,13 +347,16 @@
                                     class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs md:text-sm text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition">
                                 <div wire:loading wire:target="pekerjaans.{{ $index }}.bukti_url"
                                     class="text-[10px] text-sky-600 dark:text-cyan-400 mt-1 flex items-center gap-1 font-medium">
-                                    <i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa akses publik Google Drive...
+                                    <i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa akses publik Google
+                                    Drive...
                                 </div>
                                 @error('pekerjaans.' . $index . '.bukti_url')
-                                    <span class="text-rose-500 text-[10px] font-semibold block mt-1">{{ $message }}</span>
+                                    <span
+                                        class="text-rose-500 text-[10px] font-semibold block mt-1">{{ $message }}</span>
                                 @else
                                     <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-                                        Pastikan akses berbagi Google Drive sudah diubah ke <strong>Siapa saja yang memiliki link</strong>.
+                                        Pastikan akses berbagi Google Drive sudah diubah ke <strong>Siapa saja yang memiliki
+                                            link</strong>.
                                     </p>
                                 @enderror
 
@@ -306,13 +365,18 @@
                                 @endphp
                                 @if (!empty($pekerjaan['bukti_url']) && !$previewUrl)
                                     <p class="text-[10px] text-rose-500 mt-1.5">
-                                        Link harus berupa tautan file/folder Google Drive (`drive.google.com` atau `docs.google.com`).
+                                        Link harus berupa tautan file/folder Google Drive (`drive.google.com` atau
+                                        `docs.google.com`).
                                     </p>
                                 @elseif ($previewUrl)
-                                    <div class="mt-2.5 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#132338]">
-                                        <iframe src="{{ $previewUrl }}" class="w-full h-48 border-0" loading="lazy" allowfullscreen></iframe>
-                                        <div class="px-3 py-2 bg-amber-50 dark:bg-amber-500/10 border-t border-amber-200 dark:border-amber-500/20 text-[10px] text-amber-800 dark:text-amber-300">
-                                            Jika preview tidak tampak, pastikan akses file/folder Google Drive diubah ke <strong>Siapa saja yang memiliki link</strong>.
+                                    <div
+                                        class="mt-2.5 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#132338]">
+                                        <iframe src="{{ $previewUrl }}" class="w-full h-48 border-0"
+                                            loading="lazy" allowfullscreen></iframe>
+                                        <div
+                                            class="px-3 py-2 bg-amber-50 dark:bg-amber-500/10 border-t border-amber-200 dark:border-amber-500/20 text-[10px] text-amber-800 dark:text-amber-300">
+                                            Jika preview tidak tampak, pastikan akses file/folder Google Drive diubah ke
+                                            <strong>Siapa saja yang memiliki link</strong>.
                                         </div>
                                     </div>
                                 @endif
@@ -321,7 +385,8 @@
                     @endforeach
                 </div>
 
-                <button type="button" wire:click="addPekerjaan" wire:loading.attr="disabled" wire:target="addPekerjaan"
+                <button type="button" wire:click="addPekerjaan" wire:loading.attr="disabled"
+                    wire:target="addPekerjaan"
                     class="w-full py-3 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:border-sky-400 hover:text-sky-600 dark:hover:text-cyan-300 transition flex items-center justify-center gap-1.5 cursor-pointer">
                     <i class="fa-solid fa-plus text-[11px]"></i> Tambah Kegiatan Lain
                 </button>
@@ -329,10 +394,13 @@
         </section>
 
         <!-- Simpan -->
-        <button type="button" wire:click="save" wire:loading.attr="disabled" wire:target="save" @disabled(!$bisaIsiLhk)
+        <button type="button" wire:click="save" wire:loading.attr="disabled" wire:target="save"
+            @disabled(!$bisaIsiLhk)
             class="w-full bg-gradient-to-r from-[#1B6CA8] to-sky-600 hover:from-[#155685] hover:to-sky-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold text-sm py-4 rounded-2xl shadow-lg shadow-sky-600/20 active:scale-[0.99] transition flex justify-center items-center gap-2 cursor-pointer">
-            <span wire:loading.remove wire:target="save"><i class="fa-solid fa-floppy-disk mr-1"></i> Simpan LHK</span>
-            <span wire:loading wire:target="save"><i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> Menyimpan...</span>
+            <span wire:loading.remove wire:target="save"><i class="fa-solid fa-floppy-disk mr-1"></i> Simpan
+                LHK</span>
+            <span wire:loading wire:target="save"><i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i>
+                Menyimpan...</span>
         </button>
     @endif
 </div>

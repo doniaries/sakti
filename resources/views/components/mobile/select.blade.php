@@ -23,15 +23,18 @@
 <div x-data="{
         open: false,
         search: '',
+        activeGroup: 'all',
         model: @js($wireModel),
         current: @js($currentVal),
         selectOption(val) {
             this.current = String(val);
             this.open = false;
             this.search = '';
+            this.activeGroup = 'all';
             $wire.set(this.model, val === '' ? null : val);
         },
-        matches(text) {
+        matches(text, group = null) {
+            if (group !== null && this.activeGroup !== 'all' && this.activeGroup !== group) return false;
             if (!this.search.trim()) return true;
             return text.toLowerCase().includes(this.search.trim().toLowerCase());
         }
@@ -57,8 +60,8 @@
         x-transition:leave-start="opacity-100 translate-y-0"
         x-transition:leave-end="opacity-0 -translate-y-1"
         @click.outside="open = false"
-        class="absolute left-0 right-0 z-50 mt-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F1E33] shadow-xl overflow-hidden">
-        <div class="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#132338]">
+        class="absolute left-0 right-0 z-[60] mt-1.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0F1E33] shadow-xl overflow-hidden">
+        <div class="p-2 border-b border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-[#132338] space-y-1.5">
             <div class="relative">
                 <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400"></i>
                 <input x-ref="searchInput"
@@ -67,6 +70,27 @@
                     placeholder="{{ $searchPlaceholder }}"
                     class="w-full pl-7 pr-2.5 py-1.5 rounded-lg bg-white dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-sky-500">
             </div>
+            @if (count($groups) > 1)
+                <div class="flex items-center gap-1 overflow-x-auto no-scrollbar pb-0.5">
+                    <button type="button"
+                        @click="activeGroup = 'all'"
+                        :class="activeGroup === 'all' ? 'bg-sky-600 text-white' : 'bg-white dark:bg-[#0F1E33] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'"
+                        class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer">
+                        Semua
+                    </button>
+                    @foreach ($groups as $g)
+                        @if (! empty($g['label']))
+                            <button type="button"
+                                @click="activeGroup = @js($g['label'])"
+                                :class="activeGroup === @js($g['label']) ? 'bg-sky-600 text-white' : 'bg-white dark:bg-[#0F1E33] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'"
+                                class="shrink-0 max-w-[160px] truncate px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer"
+                                title="{{ $g['label'] }}">
+                                {{ \Illuminate\Support\Str::limit($g['label'], 22) }}
+                            </button>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         <div class="max-h-64 overflow-y-auto divide-y divide-slate-100/70 dark:divide-slate-800/70">
@@ -89,7 +113,7 @@
                     $groupText = collect($groupOptions)->pluck('label')->implode(' ');
                 @endphp
                 @if (count($groupOptions) > 0)
-                    <div x-show="matches(@js($groupLabel . ' ' . $groupText))">
+                    <div x-show="matches(@js($groupLabel . ' ' . $groupText), @js($groupLabel))">
                         @if ($groupLabel !== '')
                             <div class="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-sky-700 dark:text-sky-300 bg-sky-50/80 dark:bg-sky-500/10 border-y border-sky-100/80 dark:border-sky-500/20">
                                 {{ $groupLabel }}
