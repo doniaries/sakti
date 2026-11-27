@@ -246,10 +246,10 @@
 
     <!-- TOMBOL ABSEN MELAYANG (SAMAR & NONAKTIF DI LUAR RADIUS, JELAS & AKTIF DI DALAM RADIUS) -->
     @if ((!$hariLiburHariIni || $modeSimulasi) && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
-        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
-            <div class="pointer-events-auto max-w-[440px] w-full flex items-center gap-2">
+        <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <div class="pointer-events-auto max-w-[440px] w-full flex items-center gap-3">
                 <button type="button" @click="detectPosition(true)"
-                    class="shrink-0 py-3 px-4 rounded-full bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-extrabold text-xs shadow-xl shadow-sky-600/30 border border-white/25 flex items-center justify-center gap-1.5 transition cursor-pointer"
+                    class="shrink-0 py-3 px-4 rounded-full bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-extrabold text-xs md:text-sm shadow-xl shadow-sky-600/30 border border-white/25 flex items-center justify-center gap-1.5 transition cursor-pointer"
                     title="Perbarui Lokasi GPS Sekarang">
                     <i class="fa-solid fa-crosshairs text-sm"></i>
                     <span>Perbarui GPS</span>
@@ -259,7 +259,7 @@
                     :class="(!isWfh && !modeSimulasi && isWithinRadius !== true)
                         ? 'opacity-40 grayscale cursor-not-allowed'
                         : 'opacity-100 cursor-pointer active:scale-95 hover:from-emerald-500 hover:to-teal-400'"
-                    class="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-extrabold text-xs shadow-xl shadow-emerald-600/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
+                    class="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-extrabold text-xs md:text-sm shadow-xl shadow-emerald-600/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
                     <i x-show="!loadingMasuk" class="fa-solid fa-fingerprint text-sm"></i>
                     <i x-show="loadingMasuk" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
                     <span x-text="loadingMasuk ? 'Memproses Absen Datang...' : ((!isWfh && !modeSimulasi && isWithinRadius !== true) ? 'Di Luar Radius' : 'Tap Absen Datang')"></span>
@@ -267,16 +267,16 @@
             </div>
         </div>
     @elseif (!$hariLiburHariIni && !$modeSimulasi && !$sudahMasuk && ($lewatBatasMasuk || $belumBukaMasuk))
-        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+        <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <button type="button" disabled
-                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-slate-500 text-white font-extrabold text-xs shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-50 grayscale cursor-not-allowed">
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-slate-500 text-white font-extrabold text-xs md:text-sm shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-50 grayscale cursor-not-allowed">
                 <i class="fa-solid fa-clock text-sm"></i>
                 <span>{{ $belumBukaMasuk ? 'Absen Datang (Belum Buka)' : 'Absen Datang (Di Luar Jam)' }}</span>
             </button>
         </div>
     @elseif ($sudahMasuk && !$sudahPulang && !$belumJamPulang && !$lewatBatasPulang)
-        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
-            <div class="pointer-events-auto max-w-[440px] w-full flex items-center gap-2">
+        <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <div class="pointer-events-auto max-w-[440px] w-full flex items-center gap-3">
                 <button type="button" @click="detectPosition(true)"
                     class="shrink-0 py-3 px-4 rounded-full bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-extrabold text-xs shadow-xl shadow-sky-600/30 border border-white/25 flex items-center justify-center gap-1.5 transition cursor-pointer"
                     title="Perbarui Lokasi GPS Sekarang">
@@ -296,7 +296,7 @@
             </div>
         </div>
     @elseif ($sudahMasuk && !$sudahPulang && ($belumJamPulang || $lewatBatasPulang))
-        <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+        <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <button type="button" disabled
                 class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-slate-500 text-white font-extrabold text-xs md:text-sm shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-60 grayscale cursor-not-allowed">
                 <i class="fa-solid fa-clock text-sm"></i>
