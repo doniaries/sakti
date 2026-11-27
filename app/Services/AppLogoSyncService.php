@@ -36,6 +36,7 @@ class AppLogoSyncService
                 public_path('favicon.png') => 64,
                 public_path('icons/icon-192x192.png') => 192,
                 public_path('icons/icon-512x512.png') => 512,
+                public_path('images/logo-instansi.png') => 512,
             ];
 
             $androidResDir = base_path('../sakti_mobile/android/app/src/main/res');
