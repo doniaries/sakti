@@ -65,7 +65,7 @@
                             ? 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/15 dark:border-rose-500/30 dark:text-rose-300'
                             : 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300')">
                     <i class="fa-solid fa-location-dot text-[10px]"></i>
-                    <span x-text="modeSimulasi ? ('Bebas Lokasi (Simulasi ' + currentDistanceText + ')') : (isWfh ? 'Bebas WFH' : (currentDistanceText + ' / {{ $maxRadius }}m'))">Cek GPS...</span>
+                    <span x-text="modeSimulasi ? ('Bebas Lokasi • ' + currentDistanceText) : (isWfh ? 'Bebas WFH' : (currentDistanceText + ' / {{ $maxRadius }}m'))">Cek GPS...</span>
                 </button>
             </div>
         </div>
@@ -406,9 +406,7 @@
                             this.userCoordsText = `${uLat.toFixed(5)}, ${uLng.toFixed(5)}`;
                             const d = this.calcDistance(this.officeLat, this.officeLng, uLat, uLng);
                             this.currentDistance = Math.round(d);
-                            this.currentDistanceText = this.modeSimulasi
-                                ? `${this.currentDistance} meter (Simulasi)`
-                                : `${this.currentDistance} meter`;
+                            this.currentDistanceText = `${this.currentDistance} meter`;
                             this.isWithinRadius = this.modeSimulasi || this.isWfh || (this.currentDistance <= this.maxRadius);
                             this.updateUserMarker(uLat, uLng);
 

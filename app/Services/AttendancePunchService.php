@@ -44,7 +44,8 @@ class AttendancePunchService
 
         $isSuperAdmin = $user->hasAnyRole(['super_admin', 'superadmin']);
         $isSimulasi = $isSuperAdmin && (bool) ($pengaturan->mode_simulasi || session('mode_simulasi_absensi', false));
-        $bypass = ($isSuperAdmin && $force) || $isSimulasi;
+        $bypassRadius = $isSimulasi || ($isSuperAdmin && $force);
+        $bypassTime = $isSuperAdmin && $force;
 
         $today = Carbon::today()->format('Y-m-d');
         $now = ($isSimulasi && ! empty($pengaturan->simulasi_jam_aktif))
@@ -62,7 +63,7 @@ class AttendancePunchService
         $isWfh = ($user->status_kerja === 'wfh');
         $distance = self::calculateDistance($officeLat, $officeLng, $lat, $lng);
 
-        if (!$isWfh && !$bypass && $distance > $maxRadius) {
+        if (!$isWfh && !$bypassRadius && $distance > $maxRadius) {
             $distMeters = round($distance);
             return [
                 'success' => false,
@@ -72,7 +73,7 @@ class AttendancePunchService
             ];
         }
 
-        $statusLokasi = ($isWfh || $bypass) ? 'wfh' : 'dalam_radius';
+        $statusLokasi = ($isWfh || $bypassRadius) ? 'wfh' : 'dalam_radius';
 
         // 2. Ambil Jadwal Kerja
         $jadwal = $user->getJadwalKerja() ?? JadwalKerja::getDefault();
@@ -110,7 +111,7 @@ class AttendancePunchService
                 ];
             }
 
-            if (!$bypass) {
+            if (!$bypassTime) {
                 // Belum jam buka masuk
                 if ($nowTime < $bukaMasuk) {
                     return [
@@ -146,9 +147,9 @@ class AttendancePunchService
 
             // Hitung toleransi keterlambatan
             $batasTepatWaktu = Carbon::parse("$today $jamMasukResmi:00")->addMinutes($toleransi)->format('H:i:s');
-            $status = ($bypass || $now <= $batasTepatWaktu) ? 'hadir' : 'terlambat';
+            $status = ($bypassTime || $now <= $batasTepatWaktu) ? 'hadir' : 'terlambat';
 
-            DB::transaction(function () use ($user, $nomorAbsensi, $lat, $lng, $statusLokasi, $bypass, $today, $status, $isWfh, $now, $jadwal): void {
+            DB::transaction(function () use ($user, $nomorAbsensi, $lat, $lng, $statusLokasi, $isSimulasi, $today, $status, $isWfh, $now, $jadwal): void {
                 $log = LogAbsensi::create([
                     'user_id' => $user->id,
                     'nomor_absensi' => $nomorAbsensi,
@@ -160,7 +161,7 @@ class AttendancePunchService
                         'latitude' => $lat,
                         'longitude' => $lng,
                         'status_lokasi' => $statusLokasi,
-                        'is_simulasi' => $bypass,
+                        'is_simulasi' => $isSimulasi,
                     ],
                 ]);
 
@@ -187,7 +188,7 @@ class AttendancePunchService
                 ? max(1, (int) Carbon::parse("$today $jamMasukResmi:00")->diffInMinutes(Carbon::parse("$today $now")))
                 : 0;
             $labelStatus = ($status === 'hadir') ? 'Tepat Waktu' : "Terlambat {$menitTerlambat} menit";
-            $extraMsg = $bypass ? ' (Mode Simulasi)' : '';
+            $extraMsg = $isSimulasi ? ' (Mode Simulasi)' : '';
 
             return [
                 'success' => true,
@@ -222,7 +223,7 @@ class AttendancePunchService
             }
 
             // Validasi jam buka & tutup pulang (baru aktif jika sudah masuk jam pulang)
-            if (!$bypass && $nowTime < $jamPulangResmi) {
+            if (!$bypassTime && $nowTime < $jamPulangResmi) {
                 return [
                     'success' => false,
                     'type' => 'warning',
@@ -231,7 +232,7 @@ class AttendancePunchService
                 ];
             }
 
-            if (!$bypass && $nowTime > $tutupPulang) {
+            if (!$bypassTime && $nowTime > $tutupPulang) {
                 return [
                     'success' => false,
                     'type' => 'error',
@@ -242,7 +243,7 @@ class AttendancePunchService
 
             $isPulangCepat = ($nowTime < $jamPulangResmi);
 
-            DB::transaction(function () use ($user, $nomorAbsensi, $lat, $lng, $statusLokasi, $bypass, $isPulangCepat, $isWfh, $extraKet, $now, $absenHarian): void {
+            DB::transaction(function () use ($user, $nomorAbsensi, $lat, $lng, $statusLokasi, $isSimulasi, $isPulangCepat, $isWfh, $extraKet, $now, $absenHarian): void {
                 $log = LogAbsensi::create([
                     'user_id' => $user->id,
                     'nomor_absensi' => $nomorAbsensi,
@@ -254,7 +255,7 @@ class AttendancePunchService
                         'latitude' => $lat,
                         'longitude' => $lng,
                         'status_lokasi' => $statusLokasi,
-                        'is_simulasi' => $bypass,
+                        'is_simulasi' => $isSimulasi,
                         'is_pulang_cepat' => $isPulangCepat,
                     ],
                 ]);
@@ -281,7 +282,7 @@ class AttendancePunchService
             });
 
             $noteMsg = $isPulangCepat ? ' (Catatan: Pulang Cepat)' : '';
-            $extraMsg = $bypass ? ' (Mode Simulasi)' : '';
+            $extraMsg = $isSimulasi ? ' (Mode Simulasi)' : '';
 
             return [
                 'success' => true,
