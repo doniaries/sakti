@@ -1,4 +1,4 @@
-<div class="pb-24">
+<div class="pb-24" x-data="{ formModalOpen: @entangle('showForm') }">
     <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
             <a href="{{ route('mobile.dashboard') }}" wire:navigate
@@ -10,7 +10,7 @@
                 <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Jadwal kegiatan &amp; disposisi Anda</p>
             </div>
         </div>
-        <button type="button" wire:click="openCreate"
+        <button type="button" x-on:click="formModalOpen = true; $wire.openCreate()"
             class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Agenda</span>
@@ -110,18 +110,8 @@
     @endif
     </div>
 
-    @if ($showForm)
-        <div class="fixed inset-0 z-[999] bg-slate-900/65 backdrop-blur-xs flex items-end sm:items-center justify-center p-4 pb-24 sm:pb-4"
-            wire:click.self="$set('showForm', false)">
-            <form wire:submit="simpanAgenda"
-                class="w-full max-w-md rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl border border-slate-100 dark:border-zinc-800 space-y-3 max-h-[82vh] overflow-y-auto overscroll-contain">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">Tambah Agenda Kegiatan</h3>
-                    <button type="button" wire:click="$set('showForm', false)"
-                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 flex items-center justify-center cursor-pointer">
-                        <i class="fa-solid fa-xmark text-xs"></i>
-                    </button>
-                </div>
+    <x-mobile.rhoe-modal model="formModalOpen" title="Tambah Agenda Kegiatan" maxWidth="max-w-md">
+        <form id="form-tambah-agenda" wire:submit="simpanAgenda" class="space-y-3">
 
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Judul Agenda *</label>
@@ -177,7 +167,7 @@
                         toggle() {
                             if (!this.open) {
                                 const rect = this.$refs.trigger.getBoundingClientRect();
-                                const modalEl = this.$el.closest('form');
+                                const modalEl = this.$el.closest('.overflow-y-auto') || this.$el.closest('form');
                                 const modalRect = modalEl ? modalEl.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
                                 const spaceBelow = modalRect.bottom - rect.bottom;
                                 const spaceAbove = rect.top - modalRect.top;
@@ -241,11 +231,14 @@
                     @error('lampiran_file') <p class="text-[13px] text-rose-500 mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <button type="submit" wire:loading.attr="disabled"
-                    class="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
-                    Simpan Agenda
-                </button>
-            </form>
-        </div>
-    @endif
+        </form>
+
+        <x-slot:footer>
+            <button type="submit" form="form-tambah-agenda" wire:loading.attr="disabled"
+                class="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer active:scale-95 transition flex items-center justify-center gap-2">
+                <i wire:loading wire:target="simpanAgenda" class="fa-solid fa-spinner fa-spin"></i>
+                <span>Simpan Agenda</span>
+            </button>
+        </x-slot:footer>
+    </x-mobile.rhoe-modal>
 </div>
