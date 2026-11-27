@@ -59,11 +59,11 @@
             class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'global' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
             Global
         </button>
-        @foreach ($subKegiatanList as $subKeg)
+        @foreach ($subKegiatanList as $subKeg => $subCount)
             <button type="button" wire:click="$set('filterSubKegiatan', '{{ addslashes($subKeg) }}')"
-                class="shrink-0 max-w-[200px] truncate px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === $subKeg ? 'bg-teal-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"
+                class="shrink-0 max-w-[220px] truncate px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === $subKeg ? 'bg-teal-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"
                 title="{{ $subKeg }}">
-                {{ \Illuminate\Support\Str::limit($subKeg, 28) }}
+                {{ \Illuminate\Support\Str::limit($subKeg, 26) }} ({{ $subCount }})
             </button>
         @endforeach
     </div>
@@ -86,20 +86,29 @@
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-2">
                             @php
+                                $menitInt = (int) $item->menit;
+                                $durasiText = $menitInt >= 60
+                                    ? (intdiv($menitInt, 60) > 0 && $menitInt % 60 > 0
+                                        ? "{$menitInt} mnt (" . intdiv($menitInt, 60) . 'j ' . ($menitInt % 60) . 'm)'
+                                        : "{$menitInt} mnt (" . intdiv($menitInt, 60) . ' jam)')
+                                    : "{$menitInt} mnt";
                                 $durasiBadge = match (true) {
-                                    (int) $item->menit >= 240 => 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
-                                    (int) $item->menit >= 120 => 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
-                                    (int) $item->menit >= 60 => 'bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
+                                    $menitInt >= 240 => 'bg-rose-50 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
+                                    $menitInt >= 120 => 'bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+                                    $menitInt >= 60 => 'bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
                                     default => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
                                 };
                             @endphp
                             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold {{ $durasiBadge }}">
-                                {{ $item->menit }} Menit
+                                {{ $durasiText }}
                             </span>
                             @if (is_null($item->user_id) && is_null($item->jabatan_id))
                                 <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 text-[10px] font-bold">Global</span>
                             @else
                                 <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-[10px] font-bold">Spesifik</span>
+                            @endif
+                            @if ($item->bidang?->nama)
+                                <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold truncate max-w-[120px]">{{ $item->bidang->nama }}</span>
                             @endif
                             @if (($item->status ?? 'pending') === 'disetujui')
                                 <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 text-[10px] font-bold">Disetujui</span>
@@ -155,6 +164,20 @@
                     </select>
                 </div>
                 @endif
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Rencana Aksi / Sub Kegiatan (Opsional)</label>
+                    <select wire:model="rencana_aksi_id" class="w-full rounded-xl p-2.5 text-xs bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700">
+                        <option value="">— Umum / Global —</option>
+                        @foreach ($rencanaAksiOptions as $subKegGroup => $items)
+                            <optgroup label="{{ $subKegGroup }}">
+                                @foreach ($items as $ra)
+                                    <option value="{{ $ra->id }}">{{ $ra->rencana_aksi }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
+                </div>
 
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">Durasi (Menit)</label>

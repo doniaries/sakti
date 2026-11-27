@@ -8,6 +8,7 @@ use App\Models\LogAbsensi;
 use App\Models\PengaturanAplikasi;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AttendancePunchService
 {
@@ -61,7 +62,7 @@ class AttendancePunchService
         $isWfh = ($user->status_kerja === 'wfh');
         $distance = self::calculateDistance($officeLat, $officeLng, $lat, $lng);
 
-        if (!$isWfh && !$force && $distance > $maxRadius) {
+        if (!$isWfh && !$bypass && $distance > $maxRadius) {
             $distMeters = round($distance);
             return [
                 'success' => false,
@@ -147,40 +148,40 @@ class AttendancePunchService
             $batasTepatWaktu = Carbon::parse("$today $jamMasukResmi:00")->addMinutes($toleransi)->format('H:i:s');
             $status = ($bypass || $now <= $batasTepatWaktu) ? 'hadir' : 'terlambat';
 
-            $log = LogAbsensi::create([
-                'user_id' => $user->id,
-                'nomor_absensi' => $nomorAbsensi,
-                'waktu_absensi' => Carbon::now(),
-                'perangkat' => 'mobile',
-                'metode_verifikasi' => 'gps',
-                'jenis' => 'masuk',
-                'data_asli' => [
-                    'latitude' => $lat,
-                    'longitude' => $lng,
-                    'status_lokasi' => $statusLokasi,
-                    'is_simulasi' => $bypass,
-                ],
-            ]);
+            DB::transaction(function () use ($user, $nomorAbsensi, $lat, $lng, $statusLokasi, $bypass, $today, $status, $isWfh, $now, $jadwal): void {
+                $log = LogAbsensi::create([
+                    'user_id' => $user->id,
+                    'nomor_absensi' => $nomorAbsensi,
+                    'waktu_absensi' => Carbon::now(),
+                    'perangkat' => 'mobile',
+                    'metode_verifikasi' => 'gps',
+                    'jenis' => 'masuk',
+                    'data_asli' => [
+                        'latitude' => $lat,
+                        'longitude' => $lng,
+                        'status_lokasi' => $statusLokasi,
+                        'is_simulasi' => $bypass,
+                    ],
+                ]);
 
-            $absenHarian = AbsensiHarian::upsertSafe(
-                ['user_id' => $user->id, 'tanggal' => $today],
-                ['status' => $status]
-            );
-
-            $absenHarian->update([
-                'status' => $status,
-                'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
-                'log_masuk_id' => $log->id,
-                'jam_masuk' => $now,
-                'latitude_masuk' => $lat,
-                'longitude_masuk' => $lng,
-                'log_pulang_id' => null,
-                'jam_pulang' => null,
-                'latitude_pulang' => null,
-                'longitude_pulang' => null,
-                'is_absen_mobile' => true,
-                'jadwal_kerja_id' => $jadwal?->id,
-            ]);
+                AbsensiHarian::upsertSafe(
+                    ['user_id' => $user->id, 'tanggal' => $today],
+                    [
+                        'status' => $status,
+                        'jenis_kehadiran' => $isWfh ? 'wfh' : 'wfo',
+                        'log_masuk_id' => $log->id,
+                        'jam_masuk' => $now,
+                        'latitude_masuk' => $lat,
+                        'longitude_masuk' => $lng,
+                        'log_pulang_id' => null,
+                        'jam_pulang' => null,
+                        'latitude_pulang' => null,
+                        'longitude_pulang' => null,
+                        'is_absen_mobile' => true,
+                        'jadwal_kerja_id' => $jadwal?->id,
+                    ]
+                );
+            });
 
             $menitTerlambat = ($status === 'terlambat')
                 ? max(1, (int) Carbon::parse("$today $jamMasukResmi:00")->diffInMinutes(Carbon::parse("$today $now")))
@@ -241,41 +242,43 @@ class AttendancePunchService
 
             $isPulangCepat = ($nowTime < $jamPulangResmi);
 
-            $log = LogAbsensi::create([
-                'user_id' => $user->id,
-                'nomor_absensi' => $nomorAbsensi,
-                'waktu_absensi' => Carbon::now(),
-                'perangkat' => 'mobile',
-                'metode_verifikasi' => 'gps',
-                'jenis' => 'pulang',
-                'data_asli' => [
-                    'latitude' => $lat,
-                    'longitude' => $lng,
-                    'status_lokasi' => $statusLokasi,
-                    'is_simulasi' => $bypass,
-                    'is_pulang_cepat' => $isPulangCepat,
-                ],
-            ]);
+            DB::transaction(function () use ($user, $nomorAbsensi, $lat, $lng, $statusLokasi, $bypass, $isPulangCepat, $isWfh, $extraKet, $now, $absenHarian): void {
+                $log = LogAbsensi::create([
+                    'user_id' => $user->id,
+                    'nomor_absensi' => $nomorAbsensi,
+                    'waktu_absensi' => Carbon::now(),
+                    'perangkat' => 'mobile',
+                    'metode_verifikasi' => 'gps',
+                    'jenis' => 'pulang',
+                    'data_asli' => [
+                        'latitude' => $lat,
+                        'longitude' => $lng,
+                        'status_lokasi' => $statusLokasi,
+                        'is_simulasi' => $bypass,
+                        'is_pulang_cepat' => $isPulangCepat,
+                    ],
+                ]);
 
-            $updateData = [
-                'log_pulang_id' => $log->id,
-                'jam_pulang' => $now,
-                'latitude_pulang' => $lat,
-                'longitude_pulang' => $lng,
-                'is_absen_mobile' => true,
-            ];
+                $updateData = [
+                    'log_pulang_id' => $log->id,
+                    'jam_pulang' => $now,
+                    'latitude_pulang' => $lat,
+                    'longitude_pulang' => $lng,
+                    'is_absen_mobile' => true,
+                ];
 
-            if ($isWfh) {
-                $updateData['jenis_kehadiran'] = 'wfh';
-            }
+                if ($isWfh) {
+                    $updateData['jenis_kehadiran'] = 'wfh';
+                }
 
-            $extraKet = $extraKet ?? ($isPulangCepat ? 'Pulang Cepat' : null);
+                $extraKet = $extraKet ?? ($isPulangCepat ? 'Pulang Cepat' : null);
 
-            if (!empty($extraKet) && empty($absenHarian->keterangan)) {
-                $updateData['keterangan'] = $extraKet;
-            }
+                if (!empty($extraKet) && empty($absenHarian->keterangan)) {
+                    $updateData['keterangan'] = $extraKet;
+                }
 
-            $absenHarian->update($updateData);
+                $absenHarian->update($updateData);
+            });
 
             $noteMsg = $isPulangCepat ? ' (Catatan: Pulang Cepat)' : '';
             $extraMsg = $bypass ? ' (Mode Simulasi)' : '';

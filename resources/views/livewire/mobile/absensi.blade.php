@@ -43,31 +43,31 @@
                 </div>
             @endif
 
-        <!-- Row 1: Live Clock, Jadwal Kerja & Jarak (Tanpa duplikasi info pegawai) -->
-        <div class="flex items-center justify-between gap-2">
-            <div>
-                <div class="flex items-baseline gap-1">
-                    @if ($modeSimulasi && !empty($simulasiJamAktif))
-                        <span class="text-2xl font-black font-mono tracking-tight text-amber-600 dark:text-amber-400 leading-none">{{ $simulasiJamAktif }}:00</span>
-                    @else
-                        <span class="text-2xl font-black font-mono tracking-tight text-zinc-900 dark:text-white leading-none" x-text="time">--:--:--</span>
-                    @endif
-                    <span class="text-[10px] font-bold text-zinc-400 font-mono">WIB</span>
-                </div>
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium mt-1">
+        <!-- Row 1: Live Clock (Tengah & Besar), Jadwal Kerja & Jarak -->
+        <div class="flex flex-col items-center text-center gap-2 py-1">
+            <div class="flex items-baseline justify-center gap-1.5">
+                @if ($modeSimulasi && !empty($simulasiJamAktif))
+                    <span class="text-4xl font-black font-mono tracking-tight text-amber-600 dark:text-amber-400 leading-none">{{ $simulasiJamAktif }}:00</span>
+                @else
+                    <span class="text-4xl font-black font-mono tracking-tight text-zinc-900 dark:text-white leading-none" x-text="time">--:--:--</span>
+                @endif
+                <span class="text-xs font-extrabold text-zinc-400 font-mono">WIB</span>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
                     <i class="fa-regular fa-clock text-sky-500 mr-1"></i>Jadwal {{ $jamMasukResmi }} - {{ $jamPulangResmi }} WIB
                 </p>
+                <button type="button" @click="detectPosition(true)" title="Ketuk untuk refresh GPS"
+                    class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer active:scale-95 transition"
+                    :class="(isWfh || modeSimulasi)
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300'
+                        : (isWithinRadius === false
+                            ? 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/15 dark:border-rose-500/30 dark:text-rose-300'
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300')">
+                    <i class="fa-solid fa-location-dot text-[10px]"></i>
+                    <span x-text="modeSimulasi ? ('Bebas Lokasi (Simulasi ' + currentDistanceText + ')') : (isWfh ? 'Bebas WFH' : (currentDistanceText + ' / {{ $maxRadius }}m'))">Cek GPS...</span>
+                </button>
             </div>
-            <button type="button" @click="detectPosition(true)" title="Ketuk untuk refresh GPS"
-                class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border cursor-pointer active:scale-95 transition"
-                :class="isWfh
-                    ? 'bg-amber-50 border-amber-200 text-amber-700 dark:bg-amber-500/15 dark:border-amber-500/30 dark:text-amber-300'
-                    : (isWithinRadius === false
-                        ? 'bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-500/15 dark:border-rose-500/30 dark:text-rose-300'
-                        : 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:border-emerald-500/30 dark:text-emerald-300')">
-                <i class="fa-solid fa-location-dot text-[10px]"></i>
-                <span x-text="isWfh ? 'Bebas WFH' : (currentDistanceText + ' / {{ $maxRadius }}m')">Cek GPS...</span>
-            </button>
         </div>
 
         <!-- Row 3: Ringkasan Status Absen Datang & Pulang -->
@@ -212,7 +212,7 @@
     @endif
 
     <!-- TOMBOL ABSEN MELAYANG (SAMAR & NONAKTIF DI LUAR RADIUS, JELAS & AKTIF DI DALAM RADIUS) -->
-    @if (!$hariLiburHariIni && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
+    @if ((!$hariLiburHariIni || $modeSimulasi) && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
         <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <div class="pointer-events-auto max-w-[440px] w-full flex items-center gap-2">
                 <button type="button" @click="detectPosition(true)"
@@ -222,18 +222,18 @@
                     <span>Perbarui GPS</span>
                 </button>
                 <button type="button" @click="doPunch('masuk')"
-                    :disabled="loadingMasuk || (!isWfh && isWithinRadius !== true)"
-                    :class="(!isWfh && isWithinRadius !== true)
+                    :disabled="loadingMasuk || (!isWfh && !modeSimulasi && isWithinRadius !== true)"
+                    :class="(!isWfh && !modeSimulasi && isWithinRadius !== true)
                         ? 'opacity-40 grayscale cursor-not-allowed'
                         : 'opacity-100 cursor-pointer active:scale-95 hover:from-emerald-500 hover:to-teal-400'"
                     class="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-extrabold text-xs shadow-xl shadow-emerald-600/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
                     <i x-show="!loadingMasuk" class="fa-solid fa-fingerprint text-sm"></i>
                     <i x-show="loadingMasuk" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
-                    <span x-text="loadingMasuk ? 'Memproses Absen Datang...' : ((!isWfh && isWithinRadius !== true) ? 'Di Luar Radius' : 'Tap Absen Datang')"></span>
+                    <span x-text="loadingMasuk ? 'Memproses Absen Datang...' : ((!isWfh && !modeSimulasi && isWithinRadius !== true) ? 'Di Luar Radius' : 'Tap Absen Datang')"></span>
                 </button>
             </div>
         </div>
-    @elseif (!$hariLiburHariIni && !$sudahMasuk && ($lewatBatasMasuk || $belumBukaMasuk))
+    @elseif (!$hariLiburHariIni && !$modeSimulasi && !$sudahMasuk && ($lewatBatasMasuk || $belumBukaMasuk))
         <div class="fixed bottom-[90px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <button type="button" disabled
                 class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-slate-500 text-white font-extrabold text-xs shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-50 grayscale cursor-not-allowed">
@@ -251,14 +251,14 @@
                     <span>Perbarui GPS</span>
                 </button>
                 <button type="button" @click="doPunch('pulang')"
-                    :disabled="loadingPulang || (!isWfh && isWithinRadius !== true)"
-                    :class="(!isWfh && isWithinRadius !== true)
+                    :disabled="loadingPulang || (!isWfh && !modeSimulasi && isWithinRadius !== true)"
+                    :class="(!isWfh && !modeSimulasi && isWithinRadius !== true)
                         ? 'opacity-40 grayscale cursor-not-allowed'
                         : 'opacity-100 cursor-pointer active:scale-95 hover:from-amber-400 hover:to-orange-400'"
                     class="flex-1 py-3 px-4 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-extrabold text-xs shadow-xl shadow-amber-500/35 border border-white/25 flex items-center justify-center gap-2 transition-all duration-300">
                     <i x-show="!loadingPulang" class="fa-solid fa-fingerprint text-sm"></i>
                     <i x-show="loadingPulang" x-cloak class="fa-solid fa-circle-notch fa-spin text-sm"></i>
-                    <span x-text="loadingPulang ? 'Memproses Absen Pulang...' : ((!isWfh && isWithinRadius !== true) ? 'Di Luar Radius' : 'Tap Absen Pulang')"></span>
+                    <span x-text="loadingPulang ? 'Memproses Absen Pulang...' : ((!isWfh && !modeSimulasi && isWithinRadius !== true) ? 'Di Luar Radius' : 'Tap Absen Pulang')"></span>
                 </button>
             </div>
         </div>
@@ -283,6 +283,9 @@
                     currentDistance: null,
                     currentDistanceText: 'Mendeteksi...',
                     userCoordsText: '',
+                    lastLat: null,
+                    lastLng: null,
+                    lastCoordsAt: 0,
                     isWithinRadius: null,
                     gpsWarning: false,
                     gpsStatus: 'checking',
@@ -389,6 +392,9 @@
                             this.gpsAccuracy = pos.coords.accuracy ? Math.round(pos.coords.accuracy) : null;
                             const uLat = pos.coords.latitude;
                             const uLng = pos.coords.longitude;
+                            this.lastLat = uLat;
+                            this.lastLng = uLng;
+                            this.lastCoordsAt = Date.now();
                             this.userCoordsText = `${uLat.toFixed(5)}, ${uLng.toFixed(5)}`;
                             const d = this.calcDistance(this.officeLat, this.officeLng, uLat, uLng);
                             this.currentDistance = Math.round(d);
@@ -515,23 +521,28 @@
                             });
                         };
 
-                        if (!navigator.geolocation) {
-                            executeCall(this.officeLat, this.officeLng);
+                        const hasFreshCoords = this.lastLat !== null && this.lastLng !== null && (Date.now() - this.lastCoordsAt) < 120000;
+
+                        if (this.modeSimulasi || hasFreshCoords || !navigator.geolocation) {
+                            executeCall(this.lastLat ?? this.officeLat, this.lastLng ?? this.officeLng);
                             return;
                         }
 
                         navigator.geolocation.getCurrentPosition(
                             (pos) => {
+                                this.lastLat = pos.coords.latitude;
+                                this.lastLng = pos.coords.longitude;
+                                this.lastCoordsAt = Date.now();
                                 executeCall(pos.coords.latitude, pos.coords.longitude);
                             },
                             (err) => {
                                 console.warn('[ABSEN] GPS error fallback:', err);
-                                executeCall(this.officeLat, this.officeLng);
+                                executeCall(this.lastLat ?? this.officeLat, this.lastLng ?? this.officeLng);
                             },
                             {
-                                enableHighAccuracy: true,
-                                timeout: 15000,
-                                maximumAge: 0
+                                enableHighAccuracy: false,
+                                timeout: 4000,
+                                maximumAge: 30000
                             }
                         );
                     }

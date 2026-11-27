@@ -293,8 +293,6 @@ class Absensi extends Component
         $sudahPulang = $absenHarian && !empty($absenHarian->jam_pulang);
         $selesai = $sudahMasuk && $sudahPulang;
 
-        $pengaturan = PengaturanAplikasi::getPengaturan();
-
         // Parameter Jam Kerja
         $jadwal = $user->getJadwalKerja() ?? \App\Models\JadwalKerja::getDefault();
         $bukaMasuk = $jadwal ? substr($jadwal->buka_absen_masuk, 0, 5) : '06:00';

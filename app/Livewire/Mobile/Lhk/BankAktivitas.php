@@ -3,6 +3,7 @@
 namespace App\Livewire\Mobile\Lhk;
 
 use App\Models\Aktivitas;
+use App\Models\RencanaAksi;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
@@ -16,7 +17,7 @@ class BankAktivitas extends Component
     public string $search = '';
     public string $filterSubKegiatan = 'semua';
     public ?int $editingId = null;
-    public string $kode = '';
+    public ?int $rencana_aksi_id = null;
     public string $nama_aktivitas = '';
     public int $menit = 30;
     public string $tipe = 'khusus';
@@ -30,9 +31,10 @@ class BankAktivitas extends Component
     {
         $this->resetValidation();
         $this->editingId = null;
-        $this->kode = (string) (Aktivitas::where('user_id', Auth::id())->count() + 1);
+        $this->rencana_aksi_id = null;
         $this->nama_aktivitas = '';
         $this->menit = 30;
+        $this->tipe = 'khusus';
         $this->showFormModal = true;
     }
 
@@ -195,36 +197,50 @@ class BankAktivitas extends Component
         /** @var User $user */
         $user = Auth::user();
 
-        $myAktivitas = Aktivitas::untukUser($user)
-            ->with('rencanaAksi:id,sasaran_sub_kegiatan,level')
-            ->when($this->search !== '', function ($q) {
-                $term = '%' . trim($this->search) . '%';
-                $q->where(function ($sub) use ($term) {
-                    $sub->where('nama_aktivitas', 'like', $term)
-                        ->orWhere('kode', 'like', $term);
-                });
-            })
-            ->when($this->filterSubKegiatan === 'global', fn ($q) => $q->whereNull('user_id')->whereNull('jabatan_id'))
-            ->when(! in_array($this->filterSubKegiatan, ['semua', 'global'], true), function ($q) {
-                $q->whereHas('rencanaAksi', fn ($ra) => $ra->where('sasaran_sub_kegiatan', $this->filterSubKegiatan));
-            })
-            ->orderByRaw('CAST(kode AS UNSIGNED) ASC, kode ASC, id ASC')
+        $allUserAktivitas = Aktivitas::untukUser($user)
+            ->with([
+                'rencanaAksi:id,sasaran_sub_kegiatan,rencana_aksi,level',
+                'bidang:id,nama',
+                'jabatan:id,nama',
+            ])
             ->get();
 
-        $subKegiatanList = $myAktivitas
+        $subKegiatanList = $allUserAktivitas
             ->pluck('rencanaAksi.sasaran_sub_kegiatan')
             ->filter()
-            ->unique()
+            ->countBy()
+            ->sortKeys();
+
+        $globalCount = $allUserAktivitas->filter(fn (Aktivitas $a): bool => is_null($a->user_id) && is_null($a->jabatan_id))->count();
+        $spesifikCount = $allUserAktivitas->count() - $globalCount;
+
+        $searchTerm = mb_strtolower(trim($this->search));
+        $myAktivitas = $allUserAktivitas
+            ->when($searchTerm !== '', fn ($col) => $col->filter(
+                fn (Aktivitas $a): bool => str_contains(mb_strtolower((string) $a->nama_aktivitas), $searchTerm)
+                    || str_contains(mb_strtolower((string) ($a->rencanaAksi?->sasaran_sub_kegiatan ?? '')), $searchTerm)
+            ))
+            ->when($this->filterSubKegiatan === 'global', fn ($col) => $col->filter(
+                fn (Aktivitas $a): bool => is_null($a->user_id) && is_null($a->jabatan_id)
+            ))
+            ->when(! in_array($this->filterSubKegiatan, ['semua', 'global'], true), fn ($col) => $col->filter(
+                fn (Aktivitas $a): bool => ($a->rencanaAksi?->sasaran_sub_kegiatan ?? '') === $this->filterSubKegiatan
+            ))
             ->values();
 
-        $globalCount = $myAktivitas->filter(fn (Aktivitas $a): bool => is_null($a->user_id) && is_null($a->jabatan_id))->count();
-        $spesifikCount = $myAktivitas->count() - $globalCount;
+        $rencanaAksiOptions = RencanaAksi::query()
+            ->select(['id', 'sasaran_sub_kegiatan', 'rencana_aksi', 'level'])
+            ->orderBy('sasaran_sub_kegiatan')
+            ->orderBy('rencana_aksi')
+            ->get()
+            ->groupBy(fn (RencanaAksi $ra): string => $ra->sasaran_sub_kegiatan ?: 'Umum');
 
         return view('livewire.mobile.lhk.bank-aktivitas', [
             'myAktivitas' => $myAktivitas,
             'globalCount' => $globalCount,
             'spesifikCount' => $spesifikCount,
             'subKegiatanList' => $subKegiatanList,
+            'rencanaAksiOptions' => $rencanaAksiOptions,
         ]);
     }
 }
