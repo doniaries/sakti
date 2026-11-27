@@ -1089,6 +1089,12 @@ class UsersTable
                 ]),
             ])
             ->headerActions([
+                Action::make('cetak_bezeting')
+                    ->label('Cetak Bezeting Pegawai')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->url(route('pegawai.cetak-bezeting'), shouldOpenInNewTab: true)
+                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']) ?? false),
                 Action::make('cetak_belum_lengkap')
                     ->label('Laporan Belum Lengkap')
                     ->icon('heroicon-o-printer')

@@ -112,6 +112,7 @@ Route::prefix('mobile')->group(function () {
         });
         Route::get('/pengajuan-izin/{pengajuanIzin}/cetak-pdf', [\App\Http\Controllers\CetakLaporanController::class, 'cetakIzinCuti'])->name('pengajuan-izin.cetak-pdf');
         Route::get('/admin/pegawai/cetak-belum-lengkap', [\App\Http\Controllers\CetakLaporanController::class, 'cetakPegawaiBelumLengkap'])->name('pegawai.cetak-belum-lengkap');
+        Route::get('/admin/pegawai/cetak-bezeting', [\App\Http\Controllers\CetakLaporanController::class, 'cetakBezetingPegawai'])->name('pegawai.cetak-bezeting');
         Route::get('/persetujuan', \App\Livewire\Mobile\Persetujuan::class)->name('mobile.persetujuan');
         Route::get('/wfh', \App\Livewire\Mobile\Wfh\Index::class)->middleware('module:wfh')->name('mobile.wfh.index');
         Route::get('/hari-libur', \App\Livewire\Mobile\HariLibur::class)->name('mobile.hari-libur');

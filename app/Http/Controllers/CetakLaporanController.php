@@ -178,4 +178,43 @@ class CetakLaporanController extends Controller
             'dicetakOleh' => $authUser,
         ])->setPaper('a4', 'portrait')->stream('laporan-pegawai-belum-lengkap.pdf');
     }
+
+    public function cetakBezetingPegawai()
+    {
+        /** @var \App\Models\User|null $authUser */
+        $authUser = Auth::user();
+        abort_unless($authUser && $authUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian', 'sekretaris', 'kepala_dinas']), 403);
+
+        $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
+        $pegawais = \App\Models\User::query()
+            ->bukanSuperAdmin()
+            ->with([
+                'bidang:id,nama',
+                'jabatan:id,nama,eselon',
+                'riwayatGolongan',
+                'riwayatJabatan',
+                'riwayatPendidikan',
+            ])
+            ->where('aktif', true)
+            ->orderByRaw("CASE
+                WHEN eselon IS NOT NULL AND eselon != '' AND eselon != '-' THEN 0
+                WHEN status_kepegawaian = 'pns' THEN 1
+                WHEN status_kepegawaian = 'pppk' THEN 2
+                ELSE 3
+            END")
+            ->orderByRaw("FIELD(COALESCE(eselon, ''), 'II.a', 'II.b', 'III.a', 'III.b', 'IV.a', 'IV.b') ASC")
+            ->orderBy('name')
+            ->get();
+
+        $kepalaDinas = \App\Models\User::query()
+            ->whereHas('roles', fn ($q) => $q->whereIn('name', ['pa', 'kepala_dinas']))
+            ->first(['id', 'name', 'nip']);
+
+        return \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bezeting-pegawai', [
+            'pegawais' => $pegawais,
+            'pengaturan' => $pengaturan,
+            'kepalaDinas' => $kepalaDinas,
+            'dicetakOleh' => $authUser,
+        ])->setPaper('a4', 'landscape')->stream('daftar-bezeting-pegawai.pdf');
+    }
 }
