@@ -29,6 +29,7 @@ class BankAktivitas extends Component
     public ?int $movingId = null;
     public string $movingNamaAktivitas = '';
     public string $movingCurrentSubKegiatan = '';
+    public string $moveKategori = 'bidang';
     public ?int $moveRencanaAksiId = null;
     public bool $showBulkModal = false;
     public string $bulkRaw = '';
@@ -77,8 +78,30 @@ class BankAktivitas extends Component
         $this->kode = (string) ($item->kode ?? '');
         $this->nama_aktivitas = (string) $item->nama_aktivitas;
         $this->menit = (int) $item->menit;
-        $this->tipe = is_null($item->user_id) && is_null($item->bidang_id) ? 'umum' : 'khusus';
+        $this->tipe = match (true) {
+            is_null($item->user_id) && is_null($item->bidang_id) => 'umum',
+            $item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan' => 'tim_kreatif',
+            default => 'khusus',
+        };
         $this->showFormModal = true;
+    }
+
+    public function updatedTipe(string $value): void
+    {
+        if ($value === 'tim_kreatif') {
+            $firstTimRaId = RencanaAksi::query()
+                ->where('sasaran_sub_kegiatan', 'Tugas Tambahan')
+                ->orderBy('rencana_aksi')
+                ->value('id');
+            $this->rencana_aksi_id = $firstTimRaId ? (int) $firstTimRaId : null;
+        } elseif ($value === 'umum') {
+            $this->rencana_aksi_id = null;
+        } else {
+            $currentRa = $this->rencana_aksi_id ? RencanaAksi::find($this->rencana_aksi_id) : null;
+            if ($currentRa && $currentRa->sasaran_sub_kegiatan === 'Tugas Tambahan') {
+                $this->rencana_aksi_id = null;
+            }
+        }
     }
 
     public function closeForm(): void
@@ -102,19 +125,41 @@ class BankAktivitas extends Component
         $this->resetValidation();
         $this->movingId = $item->id;
         $this->movingNamaAktivitas = (string) $item->nama_aktivitas;
-        $this->movingCurrentSubKegiatan = (string) ($item->rencanaAksi?->sasaran_sub_kegiatan ?: (is_null($item->user_id) ? 'Umum (Global)' : 'Belum ada Sub Kegiatan'));
+        $currentSub = $item->rencanaAksi?->sasaran_sub_kegiatan;
+        $this->moveKategori = match (true) {
+            is_null($item->user_id) && is_null($item->bidang_id) => 'umum',
+            $currentSub === 'Tugas Tambahan' => 'tim_kreatif',
+            default => 'bidang',
+        };
+        $this->movingCurrentSubKegiatan = match ($this->moveKategori) {
+            'umum' => 'Umum (Semua Pegawai)',
+            'tim_kreatif' => 'Tim Kreatif — Tugas Tambahan',
+            default => (string) ($currentSub ?: 'Bidang'),
+        };
         $this->moveRencanaAksiId = $item->rencana_aksi_id;
         $this->showMoveModal = true;
     }
 
+    public function updatedMoveKategori(string $value): void
+    {
+        if ($value === 'tim_kreatif') {
+            $firstTimRaId = RencanaAksi::query()
+                ->where('sasaran_sub_kegiatan', 'Tugas Tambahan')
+                ->orderBy('rencana_aksi')
+                ->value('id');
+            $this->moveRencanaAksiId = $firstTimRaId ? (int) $firstTimRaId : null;
+        } elseif ($value === 'umum') {
+            $this->moveRencanaAksiId = null;
+        } else {
+            $currentRa = $this->moveRencanaAksiId ? RencanaAksi::find($this->moveRencanaAksiId) : null;
+            if ($currentRa && $currentRa->sasaran_sub_kegiatan === 'Tugas Tambahan') {
+                $this->moveRencanaAksiId = null;
+            }
+        }
+    }
+
     public function moveSubKegiatan(): void
     {
-        $this->validate([
-            'moveRencanaAksiId' => 'required|integer|exists:rencana_aksis,id',
-        ], [
-            'moveRencanaAksiId.required' => 'Pilih Rencana Aksi / Sub Kegiatan tujuan terlebih dahulu.',
-        ]);
-
         /** @var User|null $user */
         $user = Auth::user();
         $canManageAll = $user && $user->hasAnyRole(['super_admin', 'superadmin', 'admin']);
@@ -122,8 +167,41 @@ class BankAktivitas extends Component
             ? Aktivitas::find($this->movingId)
             : Aktivitas::where('user_id', Auth::id())->find($this->movingId);
 
+        if (! $item) {
+            return;
+        }
+
+        if ($this->moveKategori === 'umum') {
+            if (! $canManageAll) {
+                $this->addError('moveKategori', 'Kategori Umum hanya dapat diatur oleh Super Admin atau Admin.');
+                return;
+            }
+
+            $item->update([
+                'user_id' => null,
+                'jabatan_id' => null,
+                'bidang_id' => null,
+                'rencana_aksi_id' => null,
+            ]);
+
+            $this->showMoveModal = false;
+            $this->dispatch('notify', [
+                'type' => 'success',
+                'title' => 'Berhasil Dipindahkan',
+                'message' => 'Aktivitas dipindahkan ke kategori Umum (Global).',
+            ]);
+
+            return;
+        }
+
+        $this->validate([
+            'moveRencanaAksiId' => 'required|integer|exists:rencana_aksis,id',
+        ], [
+            'moveRencanaAksiId.required' => 'Pilih Rencana Aksi tujuan terlebih dahulu.',
+        ]);
+
         $targetRa = RencanaAksi::find($this->moveRencanaAksiId);
-        if (! $item || ! $targetRa) {
+        if (! $targetRa) {
             return;
         }
 
@@ -134,11 +212,15 @@ class BankAktivitas extends Component
             'jabatan_id' => $item->jabatan_id ?? $user?->jabatan_id,
         ]);
 
+        $kategoriLabel = $this->moveKategori === 'tim_kreatif'
+            ? 'Tim Kreatif'
+            : ($targetRa->sasaran_sub_kegiatan ?: 'Bidang');
+
         $this->showMoveModal = false;
         $this->dispatch('notify', [
             'type' => 'success',
             'title' => 'Berhasil Dipindahkan',
-            'message' => 'Aktivitas dipindahkan ke sub kegiatan ' . ($targetRa->sasaran_sub_kegiatan ?: 'terpilih') . '.',
+            'message' => "Aktivitas berhasil dipindahkan ke kategori {$kategoriLabel}.",
         ]);
     }
 

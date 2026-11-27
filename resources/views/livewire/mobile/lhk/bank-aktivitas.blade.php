@@ -234,6 +234,10 @@
                     ];
                 }
 
+                if ($isTimKreatif || $canAddUmum) {
+                    $tipeOptions[] = ['value' => 'tim_kreatif', 'label' => 'Tim Kreatif (Tugas Tambahan)'];
+                }
+
                 if ($canAddUmum) {
                     $tipeOptions[] = ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'];
                 }
@@ -249,7 +253,7 @@
             <div>
                 <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
                     Aktivitas</label>
-                @if ($canAddUmum)
+                @if (count($tipeOptions) > 1)
                     <x-mobile.select wire-model="tipe" :value="$tipe" :searchable="false" :inline="true"
                         :groups="$tipeGroups" />
                 @else
@@ -263,13 +267,18 @@
 
             @if (!($canAddUmum && $tipe === 'umum'))
                 <div>
-                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi
-                        <span class="text-rose-500">*</span></label>
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                        {{ $tipe === 'tim_kreatif' ? 'Rencana Aksi Tim Kreatif' : 'Rencana Aksi' }}
+                        <span class="text-rose-500">*</span>
+                    </label>
                     @php
+                        $filteredFormRa = $rencanaAksiList->filter(fn ($ra) => $tipe === 'tim_kreatif'
+                            ? $ra->sasaran_sub_kegiatan === 'Tugas Tambahan'
+                            : $ra->sasaran_sub_kegiatan !== 'Tugas Tambahan');
                         $modalRaGroups = [
                             [
                                 'label' => '',
-                                'options' => $rencanaAksiList
+                                'options' => $filteredFormRa
                                     ->map(
                                         fn($ra) => [
                                             'value' => $ra->id,
@@ -334,8 +343,8 @@
         </x-slot:footer>
     </x-mobile.rhoe-modal>
 
-    <!-- MODAL PINDAH SUB KEGIATAN -->
-    <x-mobile.rhoe-modal model="moveModalOpen" title="Pindah Sub Kegiatan" maxWidth="max-w-[408px]">
+    <!-- MODAL PINDAH KATEGORI AKTIVITAS -->
+    <x-mobile.rhoe-modal model="moveModalOpen" title="Pindah Kategori Aktivitas" maxWidth="max-w-[408px]">
         <div class="space-y-4">
             <div class="rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700 p-3 space-y-1.5">
                 <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Aktivitas</div>
@@ -344,47 +353,84 @@
                 </p>
                 @if ($movingCurrentSubKegiatan)
                     <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-50 dark:bg-teal-500/15 text-teal-700 dark:text-teal-300 text-[11px] font-semibold">
-                        <i class="fa-solid fa-diagram-project"></i>
+                        <i class="fa-solid fa-layer-group"></i>
                         <span>Saat ini: {{ $movingCurrentSubKegiatan }}</span>
                     </div>
                 @endif
             </div>
 
             <div>
-                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Rencana Aksi Tujuan <span class="text-rose-500">*</span></label>
+                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Kategori Tujuan <span class="text-rose-500">*</span></label>
                 @php
-                    $moveRaGroups = [
-                        [
-                            'label' => '',
-                            'options' => $rencanaAksiList->map(fn ($ra) => [
-                                'value' => $ra->id,
-                                'label' => $ra->rencana_aksi,
-                            ])->values()->all(),
-                        ],
+                    $canMoveUmum = auth()->user()?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
+                    $moveBidangLabel = filled($userBidangNama)
+                        ? ((str_starts_with(mb_strtolower($userBidangNama), 'bidang') || str_starts_with(mb_strtolower($userBidangNama), 'sekretariat'))
+                            ? $userBidangNama
+                            : 'Bidang ' . $userBidangNama)
+                        : 'Bidang';
+                    $moveKatOptions = [
+                        ['value' => 'bidang', 'label' => $moveBidangLabel],
+                        ['value' => 'tim_kreatif', 'label' => 'Tim Kreatif (Tugas Tambahan)'],
                     ];
+                    if ($canMoveUmum) {
+                        $moveKatOptions[] = ['value' => 'umum', 'label' => 'Umum (Semua Pegawai)'];
+                    }
+                    $moveKatGroups = [['label' => '', 'options' => $moveKatOptions]];
                 @endphp
                 <x-mobile.select
-                    wire-model="moveRencanaAksiId"
-                    :value="$moveRencanaAksiId ?? ''"
-                    placeholder="— Pilih Rencana Aksi Tujuan —"
+                    wire-model="moveKategori"
+                    :value="$moveKategori"
                     :searchable="false"
                     :inline="true"
-                    :groups="$moveRaGroups" />
-                @error('moveRencanaAksiId')
+                    :groups="$moveKatGroups" />
+                @error('moveKategori')
                     <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div>
-                <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Sub Kegiatan Tujuan</label>
-                <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-h-[42px] flex items-center">
-                    @if (filled($moveSelectedSubKegiatanNama))
-                        <span>{{ $moveSelectedSubKegiatanNama }}</span>
-                    @else
-                        <span class="text-slate-400 dark:text-slate-500 font-normal">Otomatis terisi sesuai Rencana Aksi yang dipilih</span>
-                    @endif
+            @if ($moveKategori !== 'umum')
+                <div>
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
+                        {{ $moveKategori === 'tim_kreatif' ? 'Rencana Aksi Tim Kreatif' : 'Rencana Aksi Bidang' }}
+                        <span class="text-rose-500">*</span>
+                    </label>
+                    @php
+                        $filteredMoveRa = $rencanaAksiList->filter(fn ($ra) => $moveKategori === 'tim_kreatif'
+                            ? $ra->sasaran_sub_kegiatan === 'Tugas Tambahan'
+                            : $ra->sasaran_sub_kegiatan !== 'Tugas Tambahan');
+                        $moveRaGroups = [
+                            [
+                                'label' => '',
+                                'options' => $filteredMoveRa->map(fn ($ra) => [
+                                    'value' => $ra->id,
+                                    'label' => $ra->rencana_aksi,
+                                ])->values()->all(),
+                            ],
+                        ];
+                    @endphp
+                    <x-mobile.select
+                        wire-model="moveRencanaAksiId"
+                        :value="$moveRencanaAksiId ?? ''"
+                        placeholder="— Pilih Rencana Aksi Tujuan —"
+                        :searchable="false"
+                        :inline="true"
+                        :groups="$moveRaGroups" />
+                    @error('moveRencanaAksiId')
+                        <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
-            </div>
+
+                <div>
+                    <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Sub Kegiatan Tujuan</label>
+                    <div class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 min-h-[42px] flex items-center">
+                        @if (filled($moveSelectedSubKegiatanNama))
+                            <span>{{ $moveSelectedSubKegiatanNama }}</span>
+                        @else
+                            <span class="text-slate-400 dark:text-slate-500 font-normal">Otomatis terisi sesuai Rencana Aksi yang dipilih</span>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
 
         <x-slot:footer>
