@@ -7,6 +7,7 @@ use App\Models\Aktivitas;
 use App\Models\JadwalKerja;
 use App\Models\Lhk;
 use App\Models\LhkPekerjaan;
+use App\Models\RencanaAksi;
 use App\Rules\PublicGoogleDriveUrl;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -31,7 +32,7 @@ class Form extends Component
             'tanggal' => 'required|date',
             'pekerjaans.*.jam_mulai' => 'required',
             'pekerjaans.*.jam_selesai' => 'required',
-            'pekerjaans.*.rencana_aksi_id' => 'required',
+            'pekerjaans.*.rencana_aksi_id' => 'nullable|integer|exists:rencana_aksis,id',
             'pekerjaans.*.hasil_pekerjaan' => 'required',
             'pekerjaans.*.bukti_url' => [
                 'nullable',
@@ -86,7 +87,9 @@ class Form extends Component
 
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        $this->aktivitasList = Aktivitas::untukUser($user)->get();
+        $this->aktivitasList = Aktivitas::untukUser($user)
+            ->with(['rencanaAksi:id,sasaran_sub_kegiatan,rencana_aksi', 'bidang:id,nama'])
+            ->get();
         $this->loadAbsen();
     }
 
@@ -112,7 +115,7 @@ class Form extends Component
                     'jam_mulai' => $p->jam_mulai ? substr((string) $p->jam_mulai, 0, 5) : '',
                     'jam_selesai' => $p->jam_selesai ? substr((string) $p->jam_selesai, 0, 5) : '',
                     'lama_menit' => (int) ($p->lama_menit ?? 0),
-                    'rencana_aksi_id' => $p->rencana_aksi_id ?? 1,
+                    'rencana_aksi_id' => $p->rencana_aksi_id ?? '',
                     'aktivitas_id' => $p->aktivitas_id,
                     'hasil_pekerjaan' => $p->hasil_pekerjaan ?? '',
                     'bukti_url' => $p->bukti_url ?? '',
@@ -169,6 +172,9 @@ class Form extends Component
                 $this->pekerjaans[$index]['jam_mulai'] = $jamMulai;
                 $this->pekerjaans[$index]['jam_selesai'] = $jamSelesai;
                 $this->pekerjaans[$index]['lama_menit'] = $menit;
+                if ($aktivitas->rencana_aksi_id && empty($this->pekerjaans[$index]['rencana_aksi_id'])) {
+                    $this->pekerjaans[$index]['rencana_aksi_id'] = $aktivitas->rencana_aksi_id;
+                }
             }
             return;
         }
@@ -246,7 +252,7 @@ class Form extends Component
             'jam_mulai' => $defaultMulai,
             'jam_selesai' => '',
             'lama_menit' => 0,
-            'rencana_aksi_id' => 1,
+            'rencana_aksi_id' => '',
             'aktivitas_id' => null,
             'hasil_pekerjaan' => '',
             'bukti_url' => '',
@@ -321,7 +327,7 @@ class Form extends Component
                 'jam_mulai' => $p['jam_mulai'],
                 'jam_selesai' => $p['jam_selesai'],
                 'lama_menit' => $lamaMenit,
-                'rencana_aksi_id' => $p['rencana_aksi_id'],
+                'rencana_aksi_id' => ! empty($p['rencana_aksi_id']) ? (int) $p['rencana_aksi_id'] : null,
                 'aktivitas_id' => $p['aktivitas_id'] ?: null,
                 'hasil_pekerjaan' => $p['hasil_pekerjaan'],
                 'bukti_url' => $p['bukti_url'] ?: null,
@@ -339,9 +345,16 @@ class Form extends Component
 
     public function render()
     {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        $rencanaAksiOptions = RencanaAksi::untukUser($user)
+            ->get()
+            ->groupBy(fn (RencanaAksi $ra): string => $ra->sasaran_sub_kegiatan ?: 'Umum');
+
         return view('livewire.mobile.lhk.form', [
             'bisaIsiLhk' => $this->canFillLhk(),
             'waktuAwalKegiatan' => $this->getWaktuAwalKegiatan(),
+            'rencanaAksiOptions' => $rencanaAksiOptions,
         ]);
     }
 }

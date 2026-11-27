@@ -73,11 +73,25 @@
             class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'bidang' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
             {{ $userBidangNama ?? 'Bidang' }} ({{ $bidangCount ?? 0 }})
         </button>
-        <button type="button" wire:click="$set('filterSubKegiatan', 'tim_kreatif')"
-            class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'tim_kreatif' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
-            Tim Kreatif ({{ $timKreatifCount ?? 0 }})
-        </button>
+        @if ($isTimKreatif ?? false)
+            <button type="button" wire:click="$set('filterSubKegiatan', 'tim_kreatif')"
+                class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'tim_kreatif' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+                Tim Kreatif ({{ $timKreatifCount ?? 0 }})
+            </button>
+        @endif
     </div>
+
+    @if ($filterSubKegiatan === 'bidang' && $subKegiatanList->isNotEmpty())
+        <div class="mb-3">
+            <select wire:model.live="selectedSubKegiatan"
+                class="w-full rounded-xl px-3 py-2 text-xs font-semibold bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500">
+                <option value="">Semua Sub Kegiatan — {{ $userBidangNama ?? 'Bidang' }} ({{ $bidangCount ?? 0 }})</option>
+                @foreach ($subKegiatanList as $subKeg => $subCount)
+                    <option value="{{ $subKeg }}">{{ $subKeg }} ({{ $subCount }})</option>
+                @endforeach
+            </select>
+        </div>
+    @endif
 
     @if ($myAktivitas->isEmpty())
         <div
@@ -93,8 +107,19 @@
             </p>
         </div>
     @else
-        <div class="space-y-2.5">
-            @foreach ($myAktivitas as $item)
+        <div class="space-y-4">
+            @foreach ($groupedAktivitas as $groupTitle => $items)
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between gap-2 px-1">
+                        <h4 class="text-[11px] font-extrabold uppercase tracking-wide text-slate-600 dark:text-slate-300 leading-snug">
+                            {{ $groupTitle }}
+                        </h4>
+                        <span class="shrink-0 px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold">
+                            {{ $items->count() }}
+                        </span>
+                    </div>
+                    <div class="space-y-2">
+                        @foreach ($items as $item)
                 <div wire:key="bank-akt-{{ $item->id }}"
                     class="bg-white dark:bg-[#132338]/90 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-xs space-y-2">
                     <div class="flex items-start justify-between gap-2">
@@ -165,6 +190,9 @@
                                 class="fa-solid fa-diagram-project mr-1"></i>{{ $item->rencanaAksi->sasaran_sub_kegiatan }}
                         </div>
                     @endif
+                </div>
+            @endforeach
+                    </div>
                 </div>
             @endforeach
         </div>

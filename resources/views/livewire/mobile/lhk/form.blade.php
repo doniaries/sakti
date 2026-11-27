@@ -115,10 +115,16 @@
                                 <label
                                     class="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1">1.
                                     Rencana Aksi</label>
-                                <select wire:model="pekerjaans.{{ $index }}.rencana_aksi_id"
+                                <select wire:model.live="pekerjaans.{{ $index }}.rencana_aksi_id"
                                     class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
-                                    <option value="1">Diluar Sasaran Kinerja</option>
-                                    <option value="2">Melaksanakan Tugas Lain yang diberikan Pimpinan</option>
+                                    <option value="">— Umum / Di Luar Sasaran Kinerja —</option>
+                                    @foreach ($rencanaAksiOptions as $subKegGroup => $raItems)
+                                        <optgroup label="{{ $subKegGroup }}">
+                                            @foreach ($raItems as $ra)
+                                                <option value="{{ $ra->id }}">{{ $ra->rencana_aksi }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -131,19 +137,48 @@
                                         + Kelola Bank Aktivitas
                                     </a>
                                 </div>
+                                @php
+                                    $selectedRaId = $pekerjaan['rencana_aksi_id'] ?? null;
+                                    $selectedAktId = $pekerjaan['aktivitas_id'] ?? null;
+                                    $filteredAktivitas = collect($aktivitasList)->filter(function ($a) use ($selectedRaId, $selectedAktId) {
+                                        if ($selectedAktId && (int) $a->id === (int) $selectedAktId) {
+                                            return true;
+                                        }
+                                        if (empty($selectedRaId)) {
+                                            return true;
+                                        }
+
+                                        return (int) $a->rencana_aksi_id === (int) $selectedRaId
+                                            || (is_null($a->user_id) && is_null($a->jabatan_id));
+                                    });
+                                    $groupedAktivitasRow = $filteredAktivitas->groupBy(function ($a) {
+                                        if (is_null($a->user_id) && is_null($a->jabatan_id)) {
+                                            return 'Umum (Semua Pegawai)';
+                                        }
+                                        if ($a->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan') {
+                                            return 'Tim Kreatif';
+                                        }
+
+                                        return $a->rencanaAksi?->sasaran_sub_kegiatan ?: ($a->bidang?->nama ?: 'Aktivitas Pegawai');
+                                    });
+                                @endphp
                                 <select wire:model.live="pekerjaans.{{ $index }}.aktivitas_id"
                                     class="w-full bg-white dark:bg-[#132338] border border-slate-200 dark:border-slate-700 rounded-lg p-2 text-sm focus:ring-1 focus:ring-[#1B6CA8]">
                                     <option value="">- Pilih Aktivitas (Jam Terisi Otomatis) -</option>
-                                    @foreach ($aktivitasList as $a)
-                                        @php
-                                            $jamLabel = $a->menit
-                                                ? str_replace('.', ',', (string) (float) round($a->menit / 60, 2)) .
-                                                    ' jam'
-                                                : null;
-                                        @endphp
-                                        <option value="{{ $a->id }}">
-                                            {{ $a->nama_aktivitas ?? $a->nama }}{{ $jamLabel ? ' (' . $jamLabel . ')' : '' }}
-                                        </option>
+                                    @foreach ($groupedAktivitasRow as $aktGroup => $aktItems)
+                                        <optgroup label="{{ $aktGroup }}">
+                                            @foreach ($aktItems as $a)
+                                                @php
+                                                    $jamLabel = $a->menit
+                                                        ? str_replace('.', ',', (string) (float) round($a->menit / 60, 2)) .
+                                                            ' jam'
+                                                        : null;
+                                                @endphp
+                                                <option value="{{ $a->id }}">
+                                                    {{ $a->nama_aktivitas ?? $a->nama }}{{ $jamLabel ? ' (' . $jamLabel . ')' : '' }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
                                     @endforeach
                                 </select>
                             </div>
