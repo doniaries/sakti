@@ -250,7 +250,7 @@
                 <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
                     Aktivitas</label>
                 @if ($canAddUmum)
-                    <x-mobile.select wire-model="tipe" :value="$tipe" search-placeholder="Cari tipe..."
+                    <x-mobile.select wire-model="tipe" :value="$tipe" :searchable="false" :inline="true"
                         :groups="$tipeGroups" />
                 @else
                     <div
@@ -282,7 +282,7 @@
                         ];
                     @endphp
                     <x-mobile.select wire-model="rencana_aksi_id" :value="$rencana_aksi_id ?? ''"
-                        placeholder="— Pilih Nama Rencana Aksi —" search-placeholder="Cari nama rencana aksi..."
+                        placeholder="— Pilih Nama Rencana Aksi —" :searchable="false" :inline="true"
                         :groups="$modalRaGroups" />
                     @error('rencana_aksi_id')
                         <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
@@ -367,7 +367,8 @@
                     wire-model="moveRencanaAksiId"
                     :value="$moveRencanaAksiId ?? ''"
                     placeholder="— Pilih Rencana Aksi Tujuan —"
-                    search-placeholder="Cari nama rencana aksi..."
+                    :searchable="false"
+                    :inline="true"
                     :groups="$moveRaGroups" />
                 @error('moveRencanaAksiId')
                     <p class="text-[12px] text-rose-500 mt-1">{{ $message }}</p>
