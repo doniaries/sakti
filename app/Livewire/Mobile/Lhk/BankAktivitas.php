@@ -82,7 +82,7 @@ class BankAktivitas extends Component
 
         /** @var User $user */
         $user = Auth::user();
-        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'admin'])) ? null : $user->id;
+        $targetUserId = ($this->tipe === 'umum' && $user->hasAnyRole(['super_admin', 'superadmin'])) ? null : $user->id;
 
         if (Aktivitas::sudahAdaDuplikat($this->nama_aktivitas, $targetUserId, $this->editingId)) {
             $this->addError('nama_aktivitas', 'Aktivitas dengan uraian yang sama sudah ada di Bank Aktivitas (Umum/Global atau milik Anda).');
@@ -101,7 +101,7 @@ class BankAktivitas extends Component
 
         if ($this->editingId) {
             $itemQuery = Aktivitas::query();
-            if (! $user->hasAnyRole(['super_admin', 'admin'])) {
+            if (! $user->hasAnyRole(['super_admin', 'superadmin'])) {
                 $itemQuery->where('user_id', $user->id);
             }
             $item = $itemQuery->find($this->editingId);

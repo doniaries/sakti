@@ -21,11 +21,14 @@ class AktivitasForm
         /** @var User|null $currentUser */
         $currentUser = Auth::user();
         $isAdmin = $currentUser && $currentUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian']);
+        $isSuperAdmin = $currentUser && $currentUser->hasAnyRole(['super_admin', 'superadmin']);
 
         return $schema
             ->components([
                 Section::make('Cakupan & Pemilik Aktivitas')
-                    ->description('Pilih Global jika aktivitas dapat digunakan oleh seluruh pegawai, atau Per Bidang / Pegawai untuk bidang/pegawai tertentu.')
+                    ->description($isSuperAdmin
+                        ? 'Pilih Global jika aktivitas dapat digunakan oleh seluruh pegawai, atau Per Bidang / Pegawai untuk bidang/pegawai tertentu.'
+                        : 'Isi aktivitas untuk Per Bidang / Pegawai tertentu.')
                     ->columns(3)
                     ->schema([
                         Radio::make('kategori_form')
@@ -34,18 +37,18 @@ class AktivitasForm
                                 'global' => 'Global (Semua Pegawai)',
                                 'spesifik' => 'Per Bidang / Pegawai / Jabatan',
                             ])
-                            ->default($isAdmin ? 'global' : 'spesifik')
+                            ->default($isSuperAdmin ? 'global' : 'spesifik')
                             ->inline()
                             ->live()
                             ->dehydrated(false)
-                            ->visible($isAdmin)
-                            ->afterStateHydrated(function (Radio $component, ?Aktivitas $record) use ($isAdmin): void {
+                            ->visible($isSuperAdmin)
+                            ->afterStateHydrated(function (Radio $component, ?Aktivitas $record) use ($isSuperAdmin): void {
                                 if (! $record) {
-                                    $component->state($isAdmin ? 'global' : 'spesifik');
+                                    $component->state($isSuperAdmin ? 'global' : 'spesifik');
                                     return;
                                 }
                                 $isGlobal = is_null($record->user_id) && is_null($record->jabatan_id);
-                                $component->state($isGlobal ? 'global' : 'spesifik');
+                                $component->state($isGlobal && $isSuperAdmin ? 'global' : 'spesifik');
                             })
                             ->afterStateUpdated(function (?string $state, Set $set): void {
                                 if ($state === 'global') {
@@ -65,7 +68,7 @@ class AktivitasForm
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik')
+                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik')
                             ->afterStateUpdated(function ($state, Set $set): void {
                                 if ($state && ($pegawai = User::find((int) $state))) {
                                     $set('jabatan_id', $pegawai->jabatan_id);
@@ -80,7 +83,7 @@ class AktivitasForm
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik'),
+                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
 
                         Select::make('bidang_id')
                             ->label('Bidang')
@@ -89,7 +92,7 @@ class AktivitasForm
                             ->searchable()
                             ->preload()
                             ->nullable()
-                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik'),
+                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
 
                         Select::make('rencana_aksi_id')
                             ->label('Rencana Aksi Terkait')
@@ -98,7 +101,7 @@ class AktivitasForm
                             ->preload()
                             ->nullable()
                             ->columnSpanFull()
-                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik'),
+                            ->visible(fn (Get $get): bool => ! $isSuperAdmin || $get('kategori_form') === 'spesifik'),
                     ])
                     ->columnSpanFull(),
 

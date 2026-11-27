@@ -216,7 +216,7 @@
                 </div>
 
                 @if (auth()->user()
-                        ?->hasAnyRole(['super_admin', 'admin']))
+                        ?->hasAnyRole(['super_admin', 'superadmin']))
                     <div>
                         <label class="block text-[13px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">Tipe
                             Aktivitas</label>
