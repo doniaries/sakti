@@ -41,14 +41,14 @@ class AktivitasSeeder extends Seeder
             );
         }
 
-        // 2. Aktivitas Spesifik Bidang Pariwisata (disebar ke pegawai Bidang Pariwisata sesuai jabatan)
+        // 2. Aktivitas Bidang Pariwisata (disebar ke pegawai Bidang Pariwisata sesuai jabatan)
         $bidangPariwisata = Bidang::where('nama', 'like', '%Pariwisata%')->first();
         if (! $bidangPariwisata) {
             return;
         }
 
         $bankAktivitasKabid = [
-            ['nama_aktivitas' => 'Memimpin rapat/FGD/kegiatan/sosialisasi/bimtek/pelatihan/workshop', 'menit' => 180],
+            ['nama_aktivitas' => 'Memimpin rapat/FGD/sosialisasi/bimtek/workshop bidang pariwisata', 'menit' => 180],
             ['nama_aktivitas' => 'Memimpin rapat persiapan dan evaluasi pelaksanaan sub kegiatan bidang', 'menit' => 120],
             ['nama_aktivitas' => 'Melakukan koordinasi dengan perangkat daerah terkait program destinasi pariwisata', 'menit' => 180],
             ['nama_aktivitas' => 'Melakukan koordinasi dan konsultasi dengan Kab/Kota/Provinsi lain terkait pengembangan destinasi', 'menit' => 300],

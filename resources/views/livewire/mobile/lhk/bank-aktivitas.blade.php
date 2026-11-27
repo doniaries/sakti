@@ -12,20 +12,20 @@
         </div>
     </div>
 
-    <!-- Info Global vs Spesifik + Widget Jumlah -->
+    <!-- Info Global vs Bidang / Tim Kreatif + Widget Jumlah -->
     <div class="grid grid-cols-2 gap-2.5 mb-3">
         <div class="rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-200/70 dark:border-indigo-500/30 p-3">
             <div class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">Aktivitas Global</div>
             <div class="text-lg md:text-2xl font-black text-indigo-900 dark:text-white mt-0.5">{{ $globalCount ?? 0 }}</div>
         </div>
         <div class="rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200/70 dark:border-amber-500/30 p-3">
-            <div class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Aktivitas Spesifik</div>
+            <div class="text-[10px] md:text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Bidang &amp; Tim Kreatif</div>
             <div class="text-lg md:text-2xl font-black text-amber-900 dark:text-white mt-0.5">{{ $spesifikCount ?? 0 }}</div>
         </div>
     </div>
     <div class="mb-4 rounded-2xl bg-sky-50 dark:bg-sky-500/10 border border-sky-200/70 dark:border-sky-500/30 px-3.5 py-2.5 text-[11px] md:text-sm text-sky-800 dark:text-sky-200 leading-relaxed">
         <i class="fa-solid fa-circle-info mr-1 text-sky-600 dark:text-sky-400"></i>
-        Aktivitas <strong>Global</strong> dapat dipilih oleh seluruh pegawai. Untuk aktivitas <strong>Spesifik</strong>, silakan diisi masing-masing oleh pegawai di bidangnya.
+        Aktivitas <strong>Global</strong> dapat dipilih oleh seluruh pegawai. Aktivitas <strong>Bidang</strong> dan <strong>Tim Kreatif</strong> diisi sesuai tugas masing-masing pegawai.
     </div>
 
     <!-- Action Bar: Tambah & Tempel Massal -->
@@ -104,10 +104,12 @@
                             </span>
                             @if (is_null($item->user_id) && is_null($item->jabatan_id))
                                 <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300 text-[10px] font-bold">Global</span>
+                            @elseif ($item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')
+                                <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-[10px] font-bold">Tim Kreatif</span>
                             @else
-                                <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-[10px] font-bold">Spesifik</span>
+                                <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300 text-[10px] font-bold truncate max-w-[140px]">{{ $item->bidang?->nama ?? 'Per Pegawai' }}</span>
                             @endif
-                            @if ($item->bidang?->nama)
+                            @if ($item->bidang?->nama && $item->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan')
                                 <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold truncate max-w-[120px]">{{ $item->bidang->nama }}</span>
                             @endif
                             @if (($item->status ?? 'pending') === 'disetujui')

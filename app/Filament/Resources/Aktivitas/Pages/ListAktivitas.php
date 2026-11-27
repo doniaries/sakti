@@ -38,10 +38,14 @@ class ListAktivitas extends ListRecords
             'global' => Tab::make('Global')
                 ->badge(Aktivitas::whereNull('user_id')->whereNull('jabatan_id')->count())
                 ->modifyQueryUsing(fn (Builder $q): Builder => $q->whereNull('user_id')->whereNull('jabatan_id')),
+            'tim_kreatif' => Tab::make('Tim Kreatif')
+                ->badge(Aktivitas::whereHas('rencanaAksi', fn (Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan'))->count())
+                ->modifyQueryUsing(fn (Builder $q): Builder => $q->whereHas('rencanaAksi', fn (Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan'))),
         ];
 
         $subKegiatans = RencanaAksi::query()
             ->whereNotNull('sasaran_sub_kegiatan')
+            ->where('sasaran_sub_kegiatan', '!=', 'Tugas Tambahan')
             ->distinct()
             ->orderBy('sasaran_sub_kegiatan')
             ->pluck('sasaran_sub_kegiatan');

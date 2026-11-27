@@ -178,6 +178,24 @@ class Dashboard extends Component
         $this->dispatch('toast', message: 'Laporan kegiatan berhasil dikirim.');
     }
 
+    public function ingatkanPegawai(): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user || ! $user->canRemindPegawai()) {
+            return;
+        }
+
+        $count = User::ingatkanPegawaiBelumLengkap();
+
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'message' => $count > 0
+                ? "Pengingat dikirim ke {$count} pegawai."
+                : 'Semua pegawai sudah melengkapi data.',
+        ]);
+    }
+
     public function markAllNotificationsAsRead(): void
     {
         /** @var User|null $user */

@@ -31,6 +31,7 @@ class AktivitasTable
                 'user:id,name',
                 'jabatan:id,nama',
                 'bidang:id,nama',
+                'rencanaAksi:id,sasaran_sub_kegiatan',
             ]))
             ->columns([
                 TextColumn::make('rencanaAksi.sasaran_sub_kegiatan')
@@ -66,8 +67,22 @@ class AktivitasTable
                 TextColumn::make('kategori')
                     ->label('Kategori')
                     ->badge()
-                    ->state(fn(Aktivitas $record): string => is_null($record->user_id) && is_null($record->jabatan_id) ? 'Global' : 'Spesifik')
-                    ->color(fn(string $state): string => $state === 'Global' ? 'info' : 'warning'),
+                    ->state(function (Aktivitas $record): string {
+                        if (is_null($record->user_id) && is_null($record->jabatan_id)) {
+                            return 'Global';
+                        }
+                        if ($record->rencanaAksi?->sasaran_sub_kegiatan === 'Tugas Tambahan') {
+                            return 'Tim Kreatif';
+                        }
+
+                        return $record->bidang?->nama ?? 'Per Pegawai / Jabatan';
+                    })
+                    ->color(fn (string $state): string => match ($state) {
+                        'Global' => 'info',
+                        'Tim Kreatif' => 'warning',
+                        'Per Pegawai / Jabatan' => 'gray',
+                        default => Bidang::badgeColor($state),
+                    }),
                 TextColumn::make('user.name')
                     ->label('Pegawai')
                     ->placeholder('Umum / Global')
@@ -99,15 +114,21 @@ class AktivitasTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                TernaryFilter::make('kategori_global')
+                SelectFilter::make('kategori_aktivitas')
                     ->label('Kategori')
                     ->placeholder('Semua Aktivitas')
-                    ->trueLabel('Global (Semua Pegawai)')
-                    ->falseLabel('Spesifik (Per Pegawai / Jabatan)')
-                    ->queries(
-                        true: fn(Builder $q): Builder => $q->whereNull('user_id')->whereNull('jabatan_id'),
-                        false: fn(Builder $q): Builder => $q->where(fn(Builder $sub) => $sub->whereNotNull('user_id')->orWhereNotNull('jabatan_id')),
-                    ),
+                    ->options([
+                        'global' => 'Global (Semua Pegawai)',
+                        'tim_kreatif' => 'Tim Kreatif',
+                        'bidang' => 'Per Bidang / Pegawai',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
+                        'global' => $query->whereNull('user_id')->whereNull('jabatan_id'),
+                        'tim_kreatif' => $query->whereHas('rencanaAksi', fn (Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan')),
+                        'bidang' => $query->where(fn (Builder $sub) => $sub->whereNotNull('user_id')->orWhereNotNull('jabatan_id'))
+                            ->whereDoesntHave('rencanaAksi', fn (Builder $ra) => $ra->where('sasaran_sub_kegiatan', 'Tugas Tambahan')),
+                        default => $query,
+                    }),
                 SelectFilter::make('user_id')
                     ->label('Pegawai')
                     ->relationship('user', 'name')

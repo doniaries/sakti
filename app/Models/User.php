@@ -52,6 +52,49 @@ class User extends Authenticatable implements HasAvatar, HasName, FilamentUser
     }
 
     /**
+     * Apakah user berhak mengirim pengingat kelengkapan data kepegawaian.
+     * Hanya untuk Sekretaris, Admin Kepegawaian, Kepala Dinas (PA), dan Super Admin.
+     */
+    public function canRemindPegawai(): bool
+    {
+        if ($this->hasAnyRole(['super_admin', 'superadmin', 'admin_kepegawaian', 'sekretaris', 'pa', 'kepala_dinas'])) {
+            return true;
+        }
+
+        return strcasecmp((string) ($this->jabatan?->nama ?? ''), 'Sekretaris') === 0;
+    }
+
+    /**
+     * Kirim notifikasi pengingat kelengkapan data kepegawaian ke semua pegawai aktif yang belum lengkap.
+     */
+    public static function ingatkanPegawaiBelumLengkap(): int
+    {
+        $targets = self::query()
+            ->bukanSuperAdmin()
+            ->with(['roles:id,name'])
+            ->withCount(['riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])
+            ->where('aktif', true)
+            ->get()
+            ->filter(fn (self $u): bool => ! empty($u->missingKepegawaianFields()))
+            ->values();
+
+        if ($targets->isEmpty()) {
+            return 0;
+        }
+
+        \App\Services\PushNotificationService::sendToUsers(
+            $targets,
+            'Lengkapi Data Kepegawaian',
+            'Mohon segera melengkapi profil kepegawaian Anda (NIP, NIK, No. HP, Bidang, Jabatan, dan riwayat) di menu Profil.',
+            ['url' => route('mobile.profil')],
+            'warning',
+            ignoreSimulasi: true
+        );
+
+        return $targets->count();
+    }
+
+    /**
      * Daftar field kepegawaian pokok yang belum diisi oleh pegawai.
      *
      * @return array<int, string>

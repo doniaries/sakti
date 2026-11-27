@@ -25,14 +25,14 @@ class AktivitasForm
         return $schema
             ->components([
                 Section::make('Cakupan & Pemilik Aktivitas')
-                    ->description('Pilih Global jika aktivitas dapat digunakan oleh seluruh pegawai, atau Spesifik untuk pegawai/bidang tertentu.')
+                    ->description('Pilih Global jika aktivitas dapat digunakan oleh seluruh pegawai, atau Per Bidang / Pegawai untuk bidang/pegawai tertentu.')
                     ->columns(3)
                     ->schema([
                         Radio::make('kategori_form')
                             ->label('Kategori Aktivitas')
                             ->options([
                                 'global' => 'Global (Semua Pegawai)',
-                                'spesifik' => 'Spesifik (Per Pegawai / Jabatan / Bidang)',
+                                'spesifik' => 'Per Bidang / Pegawai / Jabatan',
                             ])
                             ->default($isAdmin ? 'global' : 'spesifik')
                             ->inline()

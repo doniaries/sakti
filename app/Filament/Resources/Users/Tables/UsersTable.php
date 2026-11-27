@@ -1123,33 +1123,17 @@ class UsersTable
                     ->requiresConfirmation()
                     ->modalHeading('Kirim Pengingat Data Kepegawaian')
                     ->modalDescription('Kirim notifikasi ke semua pegawai aktif yang data kepegawaiannya belum lengkap?')
-                    ->visible(fn (): bool => Auth::user()?->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian']) ?? false)
+                    ->visible(fn (): bool => Auth::user()?->canRemindPegawai() ?? false)
                     ->action(function (): void {
-                        $targets = \App\Models\User::query()
-                            ->bukanSuperAdmin()
-                            ->with(['roles:id,name'])
-                            ->withCount(['riwayatGolongan', 'riwayatJabatan', 'riwayatPendidikan'])
-                            ->where('aktif', true)
-                            ->get()
-                            ->filter(fn (\App\Models\User $u): bool => ! empty($u->missingKepegawaianFields()))
-                            ->values();
+                        $count = \App\Models\User::ingatkanPegawaiBelumLengkap();
 
-                        if ($targets->isEmpty()) {
+                        if ($count === 0) {
                             Notification::make()->title('Semua pegawai sudah melengkapi data.')->success()->send();
                             return;
                         }
 
-                        \App\Services\PushNotificationService::sendToUsers(
-                            $targets,
-                            'Lengkapi Data Kepegawaian',
-                            'Mohon segera melengkapi profil kepegawaian Anda (NIP, NIK, No. HP, Bidang, Jabatan, dan riwayat) di menu Profil.',
-                            ['url' => route('mobile.profil')],
-                            'warning',
-                            ignoreSimulasi: true
-                        );
-
                         Notification::make()
-                            ->title("Pengingat dikirim ke {$targets->count()} pegawai.")
+                            ->title("Pengingat dikirim ke {$count} pegawai.")
                             ->success()
                             ->send();
                     }),

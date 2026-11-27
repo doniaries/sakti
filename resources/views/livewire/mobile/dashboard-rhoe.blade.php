@@ -119,6 +119,16 @@
                             <span class="hidden sm:inline">{{ $modeSimulasi ? 'Simulasi ON' : 'Simulasi' }}</span>
                         </button>
                     @endif
+                    @if ($user->canRemindPegawai())
+                        <button type="button"
+                            wire:click="ingatkanPegawai"
+                            wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
+                            class="h-9 px-3 rounded-full bg-rose-500 hover:bg-rose-400 text-white text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+                            title="Ingatkan Pegawai Lengkapi Data Kepegawaian">
+                            <i class="fa-solid fa-bell text-xs"></i>
+                            <span class="hidden sm:inline">Ingatkan Pegawai</span>
+                        </button>
+                    @endif
                     @if ($user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'pptk', 'ppk', 'pa']))
                         <a href="/admin" target="_blank" rel="noopener"
                             class="h-9 px-3 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-extrabold flex items-center gap-1.5 shadow-sm transition cursor-pointer"
