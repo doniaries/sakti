@@ -320,8 +320,8 @@
                                     <label
                                         class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
                                         Mulai</label>
-                                    <input type="time" wire:model.live="pekerjaans.{{ $index }}.jam_mulai"
-                                        class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
+                                    <x-mobile.time-picker wire:model.live="pekerjaans.{{ $index }}.jam_mulai"
+                                        buttonClass="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
                                     @error('pekerjaans.' . $index . '.jam_mulai')
                                         <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                                     @enderror
@@ -330,8 +330,8 @@
                                     <label
                                         class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">Jam
                                         Selesai</label>
-                                    <input type="time" wire:model.live="pekerjaans.{{ $index }}.jam_selesai"
-                                        class="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
+                                    <x-mobile.time-picker wire:model.live="pekerjaans.{{ $index }}.jam_selesai"
+                                        buttonClass="w-full bg-slate-50 dark:bg-[#0F1E33] border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-2 text-xs font-mono font-semibold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500" />
                                     @error('pekerjaans.' . $index . '.jam_selesai')
                                         <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                                     @enderror

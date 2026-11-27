@@ -385,8 +385,10 @@
                             <div class="text-[13px] md:text-xs text-amber-700/80 dark:text-amber-300/80">Kosongkan
                                 untuk memakai jam server asli.</div>
                         </div>
-                        <input type="time" wire:model.live="simulasiJamAktif"
-                            class="rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold font-mono bg-white dark:bg-zinc-900 border border-amber-300 dark:border-amber-500/40 text-slate-800 dark:text-white">
+                        <div class="w-28 shrink-0">
+                            <x-mobile.time-picker wire:model.live="simulasiJamAktif"
+                                buttonClass="w-full rounded-xl px-3 py-1.5 text-xs md:text-sm font-bold font-mono bg-white dark:bg-zinc-900 border border-amber-300 dark:border-amber-500/40 text-slate-800 dark:text-white" />
+                        </div>
                     </div>
                     <div class="flex flex-wrap gap-1.5">
                         <button type="button" wire:click="setSimulasiJam('07:25')"

@@ -369,8 +369,10 @@
                         <div class="text-xs font-extrabold text-amber-800">Simulasi Jam Aktif Server</div>
                         <div class="text-xs text-amber-700/80">Kosongkan untuk memakai jam server asli.</div>
                     </div>
-                    <input type="time" wire:model="simulasi_jam_aktif"
-                        class="rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-mono font-bold text-slate-800">
+                    <div class="w-28 shrink-0">
+                        <x-mobile.time-picker wire:model="simulasi_jam_aktif"
+                            buttonClass="w-full rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-mono font-bold text-slate-800" />
+                    </div>
                 </div>
                 <div class="flex flex-wrap gap-1.5">
                     <button type="button" wire:click="$set('simulasi_jam_aktif', '07:25')" class="px-2.5 py-1 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-800 hover:bg-amber-100">07:25 Masuk</button>
