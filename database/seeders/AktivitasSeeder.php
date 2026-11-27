@@ -20,10 +20,18 @@ class AktivitasSeeder extends Seeder
             ['nama_aktivitas' => 'Mengikuti Apel Pagi', 'menit' => 30],
             ['nama_aktivitas' => 'Melakukan koordinasi di lingkup internal bidang/dinas', 'menit' => 120],
             ['nama_aktivitas' => 'Melakukan koordinasi dan konsultasi dengan perangkat daerah', 'menit' => 180],
+            ['nama_aktivitas' => 'Melakukan koordinasi dengan perangkat daerah terkait program kerja kegiatan pemerintah daerah', 'menit' => 240],
+            ['nama_aktivitas' => 'Melakukan koordinasi dan konsultasi dengan Kab/Kota/Provinsi Lain', 'menit' => 300],
             ['nama_aktivitas' => 'Mengikuti sosialisasi/bimtek/rapat/pelatihan/diklat secara daring (zoom/google meet)', 'menit' => 180],
             ['nama_aktivitas' => 'Mengikuti sosialisasi/bimtek/rapat/pelatihan/diklat secara luring', 'menit' => 300],
+            ['nama_aktivitas' => 'Memimpin rapat/FGD/kegiatan/sosialisasi/bimtek/pelatihan/workshop', 'menit' => 180],
+            ['nama_aktivitas' => 'Menjadi narasumber pada sosialisasi/bimtek/workshop/kegiatan/rapat/pelatihan/diklat', 'menit' => 180],
             ['nama_aktivitas' => 'Menghadiri kegiatan massal/seremoni di lingkungan Pemerintah Daerah', 'menit' => 120],
             ['nama_aktivitas' => 'Menghadiri undangan dari Nagari, instansi, sekolah, dan lembaga terkait', 'menit' => 120],
+            ['nama_aktivitas' => 'Menghadiri undangan dari Nagari, instansi, sekolah, lembaga keagamaan, dan Rumah Ibadah', 'menit' => 120],
+            ['nama_aktivitas' => 'Menghadiri Musrenbang Perubahan RPJM', 'menit' => 300],
+            ['nama_aktivitas' => 'Menghadiri sosialisasi di kabupaten', 'menit' => 90],
+            ['nama_aktivitas' => 'Menghadiri lanjutan sosialisasi', 'menit' => 60],
             ['nama_aktivitas' => 'Lanjutan menghadiri rapat/FGD/kegiatan/sosialisasi/bimtek/pelatihan/workshop', 'menit' => 60],
         ];
 
