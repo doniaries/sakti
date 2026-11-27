@@ -113,9 +113,40 @@
                 <img src="{{ asset('icons/icon-192x192.png') }}?v=2" alt="SAKTI" width="64" height="64" style="width:64px;height:64px" class="w-full h-full object-cover">
             </div>
 
-            <span class="inline-block px-3 py-0.5 rounded-full bg-white/15 border border-white/25 text-sky-100 text-[10px] font-extrabold uppercase tracking-wider mb-1">
-                SAKTI MOBILE
-            </span>
+            <div x-data="{ openUpdateModal: false }" class="inline-block">
+                <button type="button" @click="openUpdateModal = true"
+                    class="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-white/15 hover:bg-white/25 border border-white/25 text-sky-100 text-[10px] font-extrabold uppercase tracking-wider mb-1 cursor-pointer transition">
+                    <span>SAKTI MOBILE</span>
+                    <span class="opacity-80">{{ $pengaturan->app_version ?? '' }}</span>
+                </button>
+                <template x-teleport="body">
+                    <div x-show="openUpdateModal" x-cloak @keydown.escape.window="openUpdateModal = false"
+                        class="fixed inset-0 z-[100] bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4 text-left"
+                        @click.self="openUpdateModal = false">
+                        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl border border-slate-100 dark:border-zinc-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">{{ $pengaturan->nama_aplikasi ?? 'SAKTI Mobile' }}</h3>
+                                    <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400">
+                                        Versi {{ $pengaturan->app_version ?? ($pengaturan->versi_aplikasi ?? 'v1.0.0') }}
+                                    </span>
+                                </div>
+                                <button type="button" @click="openUpdateModal = false"
+                                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 flex items-center justify-center cursor-pointer">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </div>
+                            <div class="rounded-2xl bg-slate-50 dark:bg-zinc-950 p-3.5 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">
+                                {{ $pengaturan->update_notes ?? ($pengaturan->catatan_rilis ?? 'Belum ada catatan pembaruan.') }}
+                            </div>
+                            <button type="button" @click="openUpdateModal = false"
+                                class="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
             <p class="text-[11px] text-sky-100/90 font-semibold mb-2">Sistem Administrasi Kinerja Terintegrasi</p>
 
             <p class="text-xs text-sky-100/90 mb-0.5">{{ $pengaturan->nama_dinas ?? $pengaturan->nama_instansi ?? 'Disparpora Kabupaten Sijunjung' }}</p>

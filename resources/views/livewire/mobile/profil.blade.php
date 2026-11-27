@@ -661,21 +661,53 @@
             @php
                 $appInfo = \App\Models\PengaturanAplikasi::getPengaturan();
             @endphp
-            <div
-                class="mt-3 p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 shadow-xs space-y-1 text-xs">
-                <div class="flex items-center justify-between">
-                    <span
-                        class="font-extrabold text-slate-800 dark:text-white">{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</span>
-                    <span
-                        class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold">
-                        {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
-                    </span>
-                </div>
-                @if (!empty($appInfo->update_notes ?? $appInfo->catatan_rilis))
-                    <p class="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed whitespace-pre-line">
-                        {{ $appInfo->update_notes ?? $appInfo->catatan_rilis }}
-                    </p>
-                @endif
+            <div x-data="{ openUpdateModal: false }">
+                <button type="button" @click="openUpdateModal = true"
+                    class="w-full text-left mt-3 p-3.5 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 shadow-xs space-y-1 text-xs hover:border-sky-200 dark:hover:border-sky-800 active:scale-[0.99] transition cursor-pointer">
+                    <div class="flex items-center justify-between">
+                        <span class="font-extrabold text-slate-800 dark:text-white flex items-center gap-1.5">
+                            <span>{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</span>
+                            <i class="fa-solid fa-circle-info text-sky-500 text-[11px]"></i>
+                        </span>
+                        <span class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[10px] font-bold">
+                            {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
+                        </span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 dark:text-zinc-500">Ketuk untuk melihat catatan pembaruan aplikasi</p>
+                </button>
+
+                <template x-teleport="body">
+                    <div x-show="openUpdateModal" x-cloak @keydown.escape.window="openUpdateModal = false"
+                        class="fixed inset-0 z-[100] bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4"
+                        @click.self="openUpdateModal = false">
+                        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl border border-slate-100 dark:border-zinc-800 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-9 h-9 rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center">
+                                        <i class="fa-solid fa-sparkles"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-extrabold text-slate-800 dark:text-white">{{ $appInfo->nama_aplikasi ?? 'SAKTI' }}</h3>
+                                        <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400">
+                                            Versi {{ $appInfo->app_version ?? ($appInfo->versi_aplikasi ?? 'v1.0.0') }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <button type="button" @click="openUpdateModal = false"
+                                    class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 flex items-center justify-center cursor-pointer">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </div>
+                            <div class="rounded-2xl bg-slate-50 dark:bg-zinc-950 p-3.5 text-xs text-slate-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line max-h-64 overflow-y-auto">
+                                {{ $appInfo->update_notes ?? ($appInfo->catatan_rilis ?? 'Belum ada catatan pembaruan.') }}
+                            </div>
+                            <button type="button" @click="openUpdateModal = false"
+                                class="w-full h-10 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold cursor-pointer">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </template>
             </div>
         @else
             <div class="flex items-center justify-between mb-3">
