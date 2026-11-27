@@ -25,6 +25,18 @@ class Riwayat extends Component
 
     public ?AbsensiHarian $selectedAbsensi = null;
     public bool $showDetailModal = false;
+    public bool $showCetakModal = false;
+    public int $cetakBulan = 1;
+    public int $cetakTahun = 2026;
+    public string $cetakStatus = 'semua';
+
+    public function openCetak(): void
+    {
+        $this->cetakBulan = $this->bulan;
+        $this->cetakTahun = $this->tahun;
+        $this->cetakStatus = $this->filterStatus ?: 'semua';
+        $this->showCetakModal = true;
+    }
 
     public function bukaDetail(int $id): void
     {
@@ -46,6 +58,10 @@ class Riwayat extends Component
         if (request()->has('status')) {
             $this->filterStatus = request()->query('status');
         }
+
+        $this->cetakBulan = $this->bulan;
+        $this->cetakTahun = $this->tahun;
+        $this->cetakStatus = $this->filterStatus ?: 'semua';
     }
 
     public function prevMonth()
@@ -124,10 +140,46 @@ class Riwayat extends Component
             ? min(100, (int) round(($totalMenitBulanIni / $targetBulananAsn['target_menit']) * 100))
             : 0;
 
+        $cetakAll = ($this->cetakBulan === $this->bulan && $this->cetakTahun === $this->tahun)
+            ? $allBulanIni
+            : AbsensiHarian::where('user_id', $userId)
+                ->where('is_simulasi', false)
+                ->whereMonth('tanggal', $this->cetakBulan)
+                ->whereYear('tanggal', $this->cetakTahun)
+                ->orderBy('tanggal', 'asc')
+                ->get();
+
+        $cetakFiltered = $cetakAll->filter(function (AbsensiHarian $a): bool {
+            $st = $a->status?->value ?? (string) $a->status;
+            return match ($this->cetakStatus) {
+                'hadir' => in_array($st, ['hadir', 'terlambat'], true),
+                'terlambat' => $st === 'terlambat',
+                'dinas_luar' => in_array($st, ['dinas_luar', 'dl'], true),
+                'izin_sakit' => in_array($st, ['izin', 'sakit'], true),
+                'tidak_hadir' => in_array($st, ['tidak_hadir', 'alpa'], true),
+                default => true,
+            };
+        })->sortBy('tanggal')->values();
+
+        $cetakRekap = [
+            'total' => $cetakAll->count(),
+            'hadir' => $cetakAll->filter(fn ($a) => in_array($a->status?->value ?? $a->status, ['hadir', 'terlambat'], true))->count(),
+            'terlambat' => $cetakAll->filter(fn ($a) => ($a->status?->value ?? $a->status) === 'terlambat')->count(),
+            'dinas_luar' => $cetakAll->filter(fn ($a) => in_array($a->status?->value ?? $a->status, ['dinas_luar', 'dl'], true))->count(),
+            'izin_sakit' => $cetakAll->filter(fn ($a) => in_array($a->status?->value ?? $a->status, ['izin', 'sakit'], true))->count(),
+            'alpa' => $cetakAll->filter(fn ($a) => in_array($a->status?->value ?? $a->status, ['tidak_hadir', 'alpa'], true))->count(),
+        ];
+
         return view('livewire.mobile.riwayat', [
             'riwayat' => $riwayat,
             'lhkByTanggal' => $lhkByTanggal,
             'rekap' => $rekap,
+            'cetakPreview' => [
+                'periode' => Carbon::createFromDate($this->cetakTahun, $this->cetakBulan, 1)->translatedFormat('F Y'),
+                'rekap' => $cetakRekap,
+                'items' => $cetakFiltered,
+                'user' => Auth::user(),
+            ],
             'jamKerjaBulanan' => [
                 'total_menit' => $totalMenitBulanIni,
                 'total_format' => AbsensiHarian::formatDurasiJamMenit($totalMenitBulanIni),

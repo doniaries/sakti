@@ -1,23 +1,5 @@
 <div class="p-5 pb-24" x-data="{
-    cetakModalOpen: false,
-    cetakBulan: {{ (int) $bulan }},
-    cetakTahun: {{ (int) $tahun }},
-    cetakStatus: @js($filterStatus ?: 'semua'),
-    get cetakPreviewUrl() {
-        const base = @js(route('mobile.riwayat.cetak-pdf'));
-        const params = new URLSearchParams({
-            bulan: String(this.cetakBulan),
-            tahun: String(this.cetakTahun),
-            status: this.cetakStatus || 'semua',
-        });
-        return `${base}?${params.toString()}`;
-    },
-    openCetakModal() {
-        this.cetakBulan = {{ (int) $bulan }};
-        this.cetakTahun = {{ (int) $tahun }};
-        this.cetakStatus = @js($filterStatus ?: 'semua');
-        this.cetakModalOpen = true;
-    }
+    cetakModalOpen: @entangle('showCetakModal'),
 }">
     <!-- Hero Biru Gradient Melengkung + Month Navigator Mengambang -->
     <section class="-mx-5 -mt-5 mb-4">
@@ -28,7 +10,7 @@
                     <h1 class="text-xl font-extrabold tracking-tight">Riwayat Absensi</h1>
                     <p class="text-xs text-sky-100 font-medium">Rekapitulasi kehadiran pegawai</p>
                 </div>
-                <button type="button" x-on:click="openCetakModal()"
+                <button type="button" x-on:click="cetakModalOpen = true; $wire.openCetak()"
                     class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs flex items-center shadow-md shadow-red-500/25 active:scale-95 transition-all cursor-pointer">
                     <i class="fa-solid fa-file-pdf mr-1.5 text-sm"></i>
                     <span>Cetak PDF</span>
@@ -429,12 +411,12 @@
     @endif
 
     <!-- MODAL PREVIEW & FILTER CETAK PDF -->
-    <x-mobile.rhoe-modal model="cetakModalOpen" title="Preview &amp; Cetak Rekap Absensi" subtitle="Pilih bulan, tahun, dan status sebelum mencetak" maxWidth="max-w-xl">
+    <x-mobile.rhoe-modal model="cetakModalOpen" title="Preview & Cetak Rekap Absensi" subtitle="Pilih bulan, tahun, dan status sebelum mencetak" maxWidth="max-w-xl">
         <div class="space-y-3">
             <div class="grid grid-cols-3 gap-2">
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Bulan</label>
-                    <select x-model="cetakBulan"
+                    <select wire:model.live="cetakBulan"
                         class="w-full h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-zinc-900 px-2 text-xs font-semibold text-slate-800 dark:text-slate-100">
                         @foreach ([1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'] as $mNum => $mLabel)
                             <option value="{{ $mNum }}">{{ $mLabel }}</option>
@@ -443,7 +425,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Tahun</label>
-                    <select x-model="cetakTahun"
+                    <select wire:model.live="cetakTahun"
                         class="w-full h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-zinc-900 px-2 text-xs font-semibold text-slate-800 dark:text-slate-100">
                         @for ($y = now()->year - 1; $y <= now()->year + 1; $y++)
                             <option value="{{ $y }}">{{ $y }}</option>
@@ -452,7 +434,7 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-1">Status</label>
-                    <select x-model="cetakStatus"
+                    <select wire:model.live="cetakStatus"
                         class="w-full h-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-zinc-900 px-2 text-xs font-semibold text-slate-800 dark:text-slate-100">
                         <option value="semua">Semua</option>
                         <option value="hadir">Hadir</option>
@@ -464,24 +446,98 @@
                 </div>
             </div>
 
-            <div class="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-zinc-950 h-[48vh]">
-                <iframe x-ref="cetakFrame" x-bind:src="cetakModalOpen ? cetakPreviewUrl : 'about:blank'"
-                    class="w-full h-full border-0 bg-white" title="Preview Cetak Rekap Absensi"></iframe>
+            <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-zinc-950 p-3.5 space-y-3 relative">
+                <div wire:loading.flex wire:target="cetakBulan,cetakTahun,cetakStatus"
+                    class="absolute inset-0 z-10 rounded-2xl bg-white/75 dark:bg-zinc-950/75 backdrop-blur-[1px] items-center justify-center gap-2 text-xs font-bold text-sky-600">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                    <span>Memuat preview...</span>
+                </div>
+
+                <div class="flex items-start justify-between gap-2 pb-2 border-b border-slate-100 dark:border-zinc-800">
+                    <div>
+                        <div class="text-xs font-extrabold text-slate-800 dark:text-white uppercase">Rekap Kehadiran — {{ $cetakPreview['periode'] }}</div>
+                        <div class="text-[11px] text-slate-500">{{ $cetakPreview['user']?->name }}</div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300 text-[11px] font-bold shrink-0">
+                        {{ $cetakPreview['items']->count() }} Data
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-5 gap-1.5 text-center">
+                    <div class="rounded-xl bg-emerald-50 dark:bg-emerald-500/10 py-1.5 px-1">
+                        <div class="text-xs font-black text-emerald-700 dark:text-emerald-300">{{ $cetakPreview['rekap']['hadir'] }}</div>
+                        <div class="text-[10px] font-bold text-emerald-600">Hadir</div>
+                    </div>
+                    <div class="rounded-xl bg-amber-50 dark:bg-amber-500/10 py-1.5 px-1">
+                        <div class="text-xs font-black text-amber-700 dark:text-amber-300">{{ $cetakPreview['rekap']['terlambat'] }}</div>
+                        <div class="text-[10px] font-bold text-amber-600">Telat</div>
+                    </div>
+                    <div class="rounded-xl bg-sky-50 dark:bg-sky-500/10 py-1.5 px-1">
+                        <div class="text-xs font-black text-sky-700 dark:text-sky-300">{{ $cetakPreview['rekap']['dinas_luar'] }}</div>
+                        <div class="text-[10px] font-bold text-sky-600">DL</div>
+                    </div>
+                    <div class="rounded-xl bg-indigo-50 dark:bg-indigo-500/10 py-1.5 px-1">
+                        <div class="text-xs font-black text-indigo-700 dark:text-indigo-300">{{ $cetakPreview['rekap']['izin_sakit'] }}</div>
+                        <div class="text-[10px] font-bold text-indigo-600">Izin</div>
+                    </div>
+                    <div class="rounded-xl bg-rose-50 dark:bg-rose-500/10 py-1.5 px-1">
+                        <div class="text-xs font-black text-rose-700 dark:text-rose-300">{{ $cetakPreview['rekap']['alpa'] }}</div>
+                        <div class="text-[10px] font-bold text-rose-600">Alpa</div>
+                    </div>
+                </div>
+
+                <div class="max-h-56 overflow-y-auto rounded-xl border border-slate-100 dark:border-zinc-800">
+                    @if ($cetakPreview['items']->isEmpty())
+                        <div class="py-6 text-center text-xs text-slate-400">Tidak ada data absensi pada filter ini.</div>
+                    @else
+                        <table class="w-full text-[11px] text-left">
+                            <thead class="bg-slate-50 dark:bg-zinc-900 text-slate-500 font-bold uppercase sticky top-0">
+                                <tr>
+                                    <th class="px-2.5 py-2">Tanggal</th>
+                                    <th class="px-2 py-2 text-center">Masuk</th>
+                                    <th class="px-2 py-2 text-center">Pulang</th>
+                                    <th class="px-2.5 py-2 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-zinc-800">
+                                @foreach ($cetakPreview['items'] as $row)
+                                    @php
+                                        $stVal = $row->status?->value ?? (string) $row->status;
+                                    @endphp
+                                    <tr>
+                                        <td class="px-2.5 py-2 font-semibold text-slate-700 dark:text-slate-200">
+                                            {{ \Carbon\Carbon::parse($row->tanggal)->translatedFormat('D, d M') }}
+                                        </td>
+                                        <td class="px-2 py-2 text-center font-mono text-slate-600 dark:text-slate-300">
+                                            {{ $row->jam_masuk ? substr((string) $row->jam_masuk, 0, 5) : '--:--' }}
+                                        </td>
+                                        <td class="px-2 py-2 text-center font-mono text-slate-600 dark:text-slate-300">
+                                            {{ $row->jam_pulang ? substr((string) $row->jam_pulang, 0, 5) : '--:--' }}
+                                        </td>
+                                        <td class="px-2.5 py-2 text-right font-bold uppercase text-sky-700 dark:text-sky-300">
+                                            {{ str_replace('_', ' ', $stVal) }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
             </div>
         </div>
 
         <x-slot:footer>
             <div class="grid grid-cols-2 gap-2 w-full">
-                <a x-bind:href="cetakPreviewUrl" target="_blank"
-                    class="py-2.5 px-3 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-slate-100 font-bold text-xs flex items-center justify-center gap-1.5 transition">
-                    <i class="fa-solid fa-up-right-from-square"></i>
-                    <span>Buka Penuh</span>
-                </a>
-                <button type="button" x-on:click="$refs.cetakFrame?.contentWindow?.focus(); $refs.cetakFrame?.contentWindow?.print()"
-                    class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer">
+                <button type="button" @click="cetakModalOpen = false"
+                    class="py-2.5 px-3 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-800 dark:text-slate-100 font-bold text-xs cursor-pointer transition">
+                    Tutup
+                </button>
+                <a href="{{ route('mobile.riwayat.cetak-pdf', ['bulan' => $cetakBulan, 'tahun' => $cetakTahun, 'status' => $cetakStatus], false) }}"
+                    target="_blank"
+                    class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition">
                     <i class="fa-solid fa-print"></i>
                     <span>Cetak / PDF</span>
-                </button>
+                </a>
             </div>
         </x-slot:footer>
     </x-mobile.rhoe-modal>

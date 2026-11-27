@@ -49,6 +49,7 @@ class Dashboard extends Component
         $freshUser->update(['avatar_url' => $path]);
         $this->new_avatar = null;
 
+        $this->dispatch('avatar-updated');
         $this->dispatch('notify', [
             'type' => 'success',
             'title' => 'Foto Profil Berhasil Diganti!',

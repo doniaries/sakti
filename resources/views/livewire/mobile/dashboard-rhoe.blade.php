@@ -34,6 +34,7 @@
         }
     }
 }" @open-notif-sheet.window="notifSheet = true"
+    @avatar-updated.window="avatarPreview = false"
     @konfirmasi-hadir-sukses.window="notifSheet = false; konfirmasiSuccessModal = true"
     class="pb-28 px-4 pt-4 space-y-4 text-zinc-900 dark:text-zinc-100">
 
