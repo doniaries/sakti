@@ -146,6 +146,7 @@ class TugasTambahanTimKreatifSeeder extends Seeder
             'desain_grafis' => [
                 'level' => 'staf',
                 'roles' => [JabatanTimKreatif::DESAIN_GRAFIS->value],
+                'extra_names' => ['AGUSMEDI ARIF', 'ROSY WITRIN', 'FITRI AMELIA'],
                 'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Desainer Grafis Tim Kreatif Disparpora',
                 'aktivitas' => [
                     ['nama_aktivitas' => 'Merancang dan memproduksi materi visual promosi (infografis, poster, banner, spanduk, dan desain feed media sosial)', 'menit' => 180],
@@ -158,6 +159,7 @@ class TugasTambahanTimKreatifSeeder extends Seeder
             'fotografer' => [
                 'level' => 'staf',
                 'roles' => [JabatanTimKreatif::DOKUMENTASI->value],
+                'extra_names' => ['JENI ZULMARLY KAMIL', 'ANDRA PEBTALIYUS', 'NAZHIRUL RIFQI ALNEV', 'PRADIUTAMA JULIYANSA', 'FARHANUL HUDA'],
                 'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Fotografer Tim Kreatif Disparpora',
                 'aktivitas' => [
                     ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk dokumentasi kegiatan (mengambil gambar atau video)', 'menit' => 300],
@@ -171,6 +173,7 @@ class TugasTambahanTimKreatifSeeder extends Seeder
             'videografer' => [
                 'level' => 'staf',
                 'roles' => [JabatanTimKreatif::DOKUMENTASI->value],
+                'extra_names' => ['JENI ZULMARLY KAMIL', 'ANDRA PEBTALIYUS', 'NAZHIRUL RIFQI ALNEV', 'PRADIUTAMA JULIYANSA', 'FARHANUL HUDA'],
                 'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Videografer Tim Kreatif Disparpora',
                 'aktivitas' => [
                     ['nama_aktivitas' => 'Turun langsung ke lokasi kegiatan untuk merekam gambar bergerak (video) dan audio dari seluruh rangkaian acara', 'menit' => 300],
@@ -184,6 +187,7 @@ class TugasTambahanTimKreatifSeeder extends Seeder
             'penerjemah' => [
                 'level' => 'staf',
                 'roles' => [JabatanTimKreatif::PENERJEMAH->value],
+                'extra_names' => ['SIZIAH JUANDRI'],
                 'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Penerjemah Tim Kreatif Disparpora',
                 'aktivitas' => [
                     ['nama_aktivitas' => 'Menerjemahkan isi berita dan konten lainnya di website dan media sosial', 'menit' => 120],
@@ -207,23 +211,53 @@ class TugasTambahanTimKreatifSeeder extends Seeder
                     ['nama_aktivitas' => 'Melaksanakan instruksi teknis lain dari pimpinan terkait dokumentasi, publikasi, dan promosi', 'menit' => 120],
                 ],
             ],
-            // (k) Pengelola Geopark
-            'pengelola_geopark' => [
+            // (k.1) Pengelola Geopark — Dokumentasi
+            'pengelola_geopark_dokumentasi' => [
                 'level' => 'staf',
-                'roles' => [JabatanTimKreatif::PENGELOLA_GEOPARK->value],
-                'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Pengelola Geopark Tim Kreatif Disparpora',
+                'roles' => [],
+                'extra_names' => ['AFRINAL'],
+                'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Pengelola Geopark (Dokumentasi) Tim Kreatif Disparpora',
                 'aktivitas' => [
-                    ['nama_aktivitas' => 'Mengelola konten, melakukan peliputan dokumentasi, dan mendesain publikasi khusus untuk website dan media sosial Geopark', 'menit' => 300],
+                    ['nama_aktivitas' => 'Melakukan peliputan dokumentasi (foto dan video) kegiatan serta objek wisata untuk kebutuhan website dan media sosial Geopark', 'menit' => 300],
+                    ['nama_aktivitas' => 'Mengumpulkan bahan dokumentasi dan narasi awal kegiatan Geopark untuk publikasi', 'menit' => 120],
+                    ['nama_aktivitas' => 'Berkoordinasi secara teknis dengan Penanggung Jawab Kegiatan Bidang dan Koordinator Teknis terkait standar publikasi Geopark', 'menit' => 60],
+                    ['nama_aktivitas' => 'Melaksanakan tugas teknis lain yang diberikan pimpinan terkait publikasi Geopark', 'menit' => 120],
+                ],
+            ],
+            // (k.2) Pengelola Geopark — Penerjemah
+            'pengelola_geopark_penerjemah' => [
+                'level' => 'staf',
+                'roles' => [],
+                'extra_names' => ['MELGA SARI'],
+                'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Pengelola Geopark (Penerjemah) Tim Kreatif Disparpora',
+                'aktivitas' => [
+                    ['nama_aktivitas' => 'Menerjemahkan isi berita, narasi, dan konten publikasi untuk website dan media sosial Geopark', 'menit' => 120],
+                    ['nama_aktivitas' => 'Membantu menerjemahkan bahasa asing ketika wisatawan asing berkunjung ke kawasan Geopark', 'menit' => 120],
+                    ['nama_aktivitas' => 'Berkoordinasi secara teknis dengan Penanggung Jawab Kegiatan Bidang dan Koordinator Teknis terkait standar publikasi Geopark', 'menit' => 60],
+                    ['nama_aktivitas' => 'Melaksanakan tugas teknis lain yang diberikan pimpinan terkait publikasi Geopark', 'menit' => 120],
+                ],
+            ],
+            // (k.3) Pengelola Geopark — Pengelola Website & Media Sosial Geopark
+            'pengelola_geopark_website_medsos' => [
+                'level' => 'staf',
+                'roles' => [],
+                'extra_names' => ['SALSABILA MUKHSIS', 'RAHMAD'],
+                'nama_rencana_aksi' => 'Terlaksananya tugas tambahan sebagai Pengelola Website dan Media Sosial Geopark Tim Kreatif Disparpora',
+                'aktivitas' => [
+                    ['nama_aktivitas' => 'Mengelola konten, menyusun jadwal tayang, dan mendesain publikasi khusus untuk website dan media sosial Geopark', 'menit' => 180],
+                    ['nama_aktivitas' => 'Mengunggah materi publikasi dan merespons interaksi pada website serta media sosial Geopark', 'menit' => 60],
                     ['nama_aktivitas' => 'Berkoordinasi secara teknis dengan Penanggung Jawab Kegiatan Bidang dan Koordinator Teknis terkait standar publikasi Geopark', 'menit' => 60],
                     ['nama_aktivitas' => 'Melaksanakan tugas teknis lain yang diberikan pimpinan terkait publikasi Geopark', 'menit' => 120],
                 ],
             ],
         ];
 
-        $anggotaByRole = User::query()
+        $allTimKreatifUsers = User::query()
             ->whereNotNull('jabatan_tim_kreatif')
-            ->get(['id', 'jabatan_id', 'bidang_id', 'jabatan_tim_kreatif'])
-            ->groupBy(fn (User $u): string => $u->jabatan_tim_kreatif?->value ?? '');
+            ->get(['id', 'name', 'jabatan_id', 'bidang_id', 'jabatan_tim_kreatif']);
+
+        $anggotaByRole = $allTimKreatifUsers->groupBy(fn (User $u): string => $u->jabatan_tim_kreatif?->value ?? '');
+        $normalize = static fn (string $text): string => (string) preg_replace('/[^a-z]/', '', strtolower($text));
 
         $rencanaCount = 0;
         $aktivitasCount = 0;
@@ -245,8 +279,21 @@ class TugasTambahanTimKreatifSeeder extends Seeder
             );
             $rencanaCount++;
 
+            $extraUsers = collect($paket['extra_names'] ?? [])
+                ->map(function (string $nama) use ($allTimKreatifUsers, $normalize): ?User {
+                    $needle = $normalize($nama);
+
+                    return $allTimKreatifUsers->first(function (User $u) use ($needle, $normalize): bool {
+                        $baseName = strstr($u->name, ',', true) ?: $u->name;
+
+                        return $normalize($baseName) === $needle;
+                    });
+                })
+                ->filter();
+
             $targetUsers = collect($paket['roles'])
                 ->flatMap(fn (string $role) => $anggotaByRole->get($role, collect()))
+                ->merge($extraUsers)
                 ->unique('id');
 
             foreach ($targetUsers as $pegawai) {
