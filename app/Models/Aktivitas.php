@@ -8,7 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Aktivitas extends Model
 {
-    protected $fillable = ['user_id', 'jabatan_id', 'bidang_id', 'kode', 'nama_aktivitas', 'menit', 'status', 'approved_by', 'approved_at'];
+    protected $fillable = ['user_id', 'jabatan_id', 'bidang_id', 'rencana_aksi_id', 'kode', 'nama_aktivitas', 'menit', 'status', 'approved_by', 'approved_at'];
+
+    public function rencanaAksi(): BelongsTo
+    {
+        return $this->belongsTo(RencanaAksi::class);
+    }
 
     public function user(): BelongsTo
     {

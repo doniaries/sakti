@@ -25,6 +25,7 @@ class RencanaAksiSeeder extends Seeder
 
         $kelompok = [
             [
+                'level' => 'kabid',
                 'jabatan_id' => $jabatanKabid?->id,
                 'items' => [
                     ['nama_rencana_aksi' => 'Terlaksananya perencanaan kawasan strategis pariwisata kabupaten/kota', 'jenis' => 'non_trajectory', 'satuan' => 'kegiatan', 'sub_kegiatan' => 'Perencanaan Kawasan Strategis Pariwisata Kabupaten/Kota'],
@@ -43,6 +44,7 @@ class RencanaAksiSeeder extends Seeder
                 ],
             ],
             [
+                'level' => 'jf',
                 'jabatan_id' => $jabatanJF?->id,
                 'items' => [
                     ['nama_rencana_aksi' => 'Tersusunnya dokumen perencanaan kawasan strategis pariwisata', 'jenis' => 'trajectory', 'satuan' => 'dokumen', 'sub_kegiatan' => 'Perencanaan Kawasan Strategis Pariwisata Kabupaten/Kota'],
@@ -76,6 +78,7 @@ class RencanaAksiSeeder extends Seeder
                 ],
             ],
             [
+                'level' => 'staf',
                 'jabatan_id' => $jabatanStaf?->id,
                 'items' => [
                     ['nama_rencana_aksi' => 'Terkumpulnya data dan bahan perencanaan kawasan strategis pariwisata', 'jenis' => 'trajectory', 'satuan' => 'data', 'sub_kegiatan' => 'Perencanaan Kawasan Strategis Pariwisata Kabupaten/Kota'],
@@ -112,6 +115,7 @@ class RencanaAksiSeeder extends Seeder
                     [
                         'bidang_id' => $bidangPariwisata->id,
                         'jabatan_id' => $grup['jabatan_id'],
+                        'level' => $grup['level'],
                         'tahun' => $tahun,
                         'rencana_aksi' => $item['nama_rencana_aksi'],
                     ],
@@ -119,6 +123,8 @@ class RencanaAksiSeeder extends Seeder
                         'sasaran_program' => $sasaranProgram,
                         'sasaran_sub_kegiatan' => $item['sub_kegiatan'],
                         'indikator' => ucfirst($item['jenis']) . ' (' . $item['satuan'] . ')',
+                        'jenis' => $item['jenis'],
+                        'satuan' => $item['satuan'],
                     ]
                 );
             }

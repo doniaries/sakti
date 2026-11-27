@@ -90,6 +90,15 @@ class AktivitasForm
                             ->preload()
                             ->nullable()
                             ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik'),
+
+                        Select::make('rencana_aksi_id')
+                            ->label('Rencana Aksi Terkait')
+                            ->relationship('rencanaAksi', 'rencana_aksi')
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->columnSpanFull()
+                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik'),
                     ])
                     ->columnSpanFull(),
 

@@ -10,6 +10,7 @@ class RencanaAksi extends Model
     protected $fillable = [
         'jabatan_id',
         'bidang_id',
+        'level',
         'tahun',
         'sasaran_opd',
         'sasaran_program',
@@ -18,6 +19,8 @@ class RencanaAksi extends Model
         'sasaran_teknis',
         'indikator',
         'rencana_aksi',
+        'jenis',
+        'satuan',
         'target_jan',
         'target_feb',
         'target_mar',

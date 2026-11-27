@@ -136,6 +136,16 @@ class AktivitasTable
                     ->relationship('bidang', 'nama')
                     ->searchable()
                     ->preload(),
+                SelectFilter::make('level_rencana_aksi')
+                    ->label('Level Jabatan (Rencana Aksi)')
+                    ->options([
+                        'kabid' => 'Kabid',
+                        'jf' => 'Jabatan Fungsional (JF)',
+                        'staf' => 'Staf / Pelaksana',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                        ? $query->whereHas('rencanaAksi', fn (Builder $ra) => $ra->where('level', $data['value']))
+                        : $query),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
