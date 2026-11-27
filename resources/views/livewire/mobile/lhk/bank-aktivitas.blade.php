@@ -43,10 +43,29 @@
     </div>
 
     <!-- Search -->
-    <div class="mb-4 relative">
+    <div class="mb-3 relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
         <input type="text" wire:model.live.debounce.250ms="search" placeholder="Cari uraian aktivitas..."
             class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-xs text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500">
+    </div>
+
+    <!-- Tab Filter Sub Kegiatan -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-2 mb-3 no-scrollbar">
+        <button type="button" wire:click="$set('filterSubKegiatan', 'semua')"
+            class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'semua' ? 'bg-sky-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+            Semua
+        </button>
+        <button type="button" wire:click="$set('filterSubKegiatan', 'global')"
+            class="shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === 'global' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}">
+            Global
+        </button>
+        @foreach ($subKegiatanList as $subKeg)
+            <button type="button" wire:click="$set('filterSubKegiatan', '{{ addslashes($subKeg) }}')"
+                class="shrink-0 max-w-[200px] truncate px-3 py-1.5 rounded-full text-[11px] font-bold transition cursor-pointer {{ $filterSubKegiatan === $subKeg ? 'bg-teal-600 text-white shadow-xs' : 'bg-white dark:bg-[#132338] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700' }}"
+                title="{{ $subKeg }}">
+                {{ \Illuminate\Support\Str::limit($subKeg, 28) }}
+            </button>
+        @endforeach
     </div>
 
     @if ($myAktivitas->isEmpty())
@@ -103,6 +122,11 @@
                     <p class="text-xs font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
                         {{ $item->nama_aktivitas }}
                     </p>
+                    @if ($item->rencanaAksi?->sasaran_sub_kegiatan)
+                        <div class="text-[10px] font-medium text-teal-700 dark:text-teal-300 bg-teal-50/70 dark:bg-teal-500/10 rounded-lg px-2 py-1 inline-block">
+                            <i class="fa-solid fa-diagram-project mr-1"></i>{{ $item->rencanaAksi->sasaran_sub_kegiatan }}
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>

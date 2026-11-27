@@ -33,6 +33,12 @@ class AktivitasTable
                 'bidang:id,nama',
             ]))
             ->columns([
+                TextColumn::make('rencanaAksi.sasaran_sub_kegiatan')
+                    ->label('Sub Kegiatan')
+                    ->placeholder('Umum / Global')
+                    ->wrap()
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('nama_aktivitas')
                     ->label('Nama Aktivitas')
                     ->wrap()
@@ -81,6 +87,12 @@ class AktivitasTable
                     ->badge()
                     ->color(fn(?string $state): string => $state ? \App\Models\Bidang::badgeColor($state) : 'gray')
                     ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('rencanaAksi.sasaran_sub_kegiatan')
+                    ->label('Sub Kegiatan')
+                    ->placeholder('Umum / Global')
+                    ->wrap()
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('nama_aktivitas')

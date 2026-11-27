@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Aktivitas\Pages;
 use App\Filament\Resources\Aktivitas\AktivitasResource;
 use App\Filament\Resources\Aktivitas\Widgets\AktivitasStatsWidget;
 use App\Models\Aktivitas;
+use App\Models\RencanaAksi;
 use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -13,7 +14,10 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class ListAktivitas extends ListRecords
 {
@@ -24,6 +28,30 @@ class ListAktivitas extends ListRecords
         return [
             AktivitasStatsWidget::class,
         ];
+    }
+
+    public function getTabs(): array
+    {
+        $tabs = [
+            'semua' => Tab::make('Semua')
+                ->badge(Aktivitas::count()),
+            'global' => Tab::make('Global')
+                ->badge(Aktivitas::whereNull('user_id')->whereNull('jabatan_id')->count())
+                ->modifyQueryUsing(fn (Builder $q): Builder => $q->whereNull('user_id')->whereNull('jabatan_id')),
+        ];
+
+        $subKegiatans = RencanaAksi::query()
+            ->whereNotNull('sasaran_sub_kegiatan')
+            ->distinct()
+            ->orderBy('sasaran_sub_kegiatan')
+            ->pluck('sasaran_sub_kegiatan');
+
+        foreach ($subKegiatans as $sub) {
+            $tabs['sub_' . md5($sub)] = Tab::make(Str::limit($sub, 28))
+                ->modifyQueryUsing(fn (Builder $q): Builder => $q->whereHas('rencanaAksi', fn (Builder $ra) => $ra->where('sasaran_sub_kegiatan', $sub)));
+        }
+
+        return $tabs;
     }
 
     protected function getHeaderActions(): array

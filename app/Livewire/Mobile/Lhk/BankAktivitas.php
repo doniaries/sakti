@@ -14,6 +14,7 @@ use Livewire\Component;
 class BankAktivitas extends Component
 {
     public string $search = '';
+    public string $filterSubKegiatan = 'semua';
     public ?int $editingId = null;
     public string $kode = '';
     public string $nama_aktivitas = '';
@@ -195,6 +196,7 @@ class BankAktivitas extends Component
         $user = Auth::user();
 
         $myAktivitas = Aktivitas::untukUser($user)
+            ->with('rencanaAksi:id,sasaran_sub_kegiatan,level')
             ->when($this->search !== '', function ($q) {
                 $term = '%' . trim($this->search) . '%';
                 $q->where(function ($sub) use ($term) {
@@ -202,8 +204,18 @@ class BankAktivitas extends Component
                         ->orWhere('kode', 'like', $term);
                 });
             })
+            ->when($this->filterSubKegiatan === 'global', fn ($q) => $q->whereNull('user_id')->whereNull('jabatan_id'))
+            ->when(! in_array($this->filterSubKegiatan, ['semua', 'global'], true), function ($q) {
+                $q->whereHas('rencanaAksi', fn ($ra) => $ra->where('sasaran_sub_kegiatan', $this->filterSubKegiatan));
+            })
             ->orderByRaw('CAST(kode AS UNSIGNED) ASC, kode ASC, id ASC')
             ->get();
+
+        $subKegiatanList = $myAktivitas
+            ->pluck('rencanaAksi.sasaran_sub_kegiatan')
+            ->filter()
+            ->unique()
+            ->values();
 
         $globalCount = $myAktivitas->filter(fn (Aktivitas $a): bool => is_null($a->user_id) && is_null($a->jabatan_id))->count();
         $spesifikCount = $myAktivitas->count() - $globalCount;
@@ -212,6 +224,7 @@ class BankAktivitas extends Component
             'myAktivitas' => $myAktivitas,
             'globalCount' => $globalCount,
             'spesifikCount' => $spesifikCount,
+            'subKegiatanList' => $subKegiatanList,
         ]);
     }
 }

@@ -6,22 +6,66 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class RencanaAksisTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
+                'jabatan:id,nama',
+                'bidang:id,nama',
+            ]))
             ->columns([
-                TextColumn::make('jabatan.nama')
+                TextColumn::make('level')
+                    ->label('Level')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => match ($state) {
+                        'kabid' => 'Kabid',
+                        'jf' => 'JF',
+                        'staf' => 'Staf',
+                        default => '-',
+                    })
+                    ->color(fn (?string $state): string => match ($state) {
+                        'kabid' => 'primary',
+                        'jf' => 'info',
+                        'staf' => 'success',
+                        default => 'gray',
+                    })
                     ->sortable(),
+                TextColumn::make('sasaran_sub_kegiatan')
+                    ->label('Sub Kegiatan')
+                    ->wrap()
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('rencana_aksi')
+                    ->label('Rencana Aksi')
+                    ->wrap()
+                    ->searchable(),
+                TextColumn::make('jenis')
+                    ->label('Jenis')
+                    ->badge()
+                    ->formatStateUsing(fn (?string $state): string => $state === 'trajectory' ? 'Trajectory' : 'Non-Trajectory')
+                    ->color(fn (?string $state): string => $state === 'trajectory' ? 'warning' : 'gray'),
+                TextColumn::make('satuan')
+                    ->label('Satuan')
+                    ->badge()
+                    ->color('gray'),
+                TextColumn::make('jabatan.nama')
+                    ->label('Jabatan')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('bidang.nama')
                     ->label('Bidang')
                     ->badge()
                     ->color(fn (?string $state): string => \App\Models\Bidang::badgeColor($state))
-                    ->sortable(),
-                TextColumn::make('tahun'),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('tahun')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('target_jan')
                     ->numeric()
                     ->sortable(),
@@ -68,7 +112,22 @@ class RencanaAksisTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('level')
+                    ->label('Level Jabatan')
+                    ->options([
+                        'kabid' => 'Kabid',
+                        'jf' => 'Jabatan Fungsional (JF)',
+                        'staf' => 'Staf / Pelaksana',
+                    ]),
+                SelectFilter::make('sasaran_sub_kegiatan')
+                    ->label('Sub Kegiatan')
+                    ->options(fn (): array => \App\Models\RencanaAksi::query()
+                        ->whereNotNull('sasaran_sub_kegiatan')
+                        ->distinct()
+                        ->orderBy('sasaran_sub_kegiatan')
+                        ->pluck('sasaran_sub_kegiatan', 'sasaran_sub_kegiatan')
+                        ->all())
+                    ->searchable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
