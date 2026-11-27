@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\Aktivitas\Schemas;
 
+use App\Models\Aktivitas;
 use App\Models\User;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
@@ -17,13 +20,42 @@ class AktivitasForm
     {
         /** @var User|null $currentUser */
         $currentUser = Auth::user();
-        $isAdmin = $currentUser && $currentUser->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian']);
+        $isAdmin = $currentUser && $currentUser->hasAnyRole(['super_admin', 'superadmin', 'admin', 'admin_kepegawaian']);
 
         return $schema
             ->components([
-                Section::make('Informasi Pegawai & Unit Kerja')
+                Section::make('Cakupan & Pemilik Aktivitas')
+                    ->description('Pilih Global jika aktivitas dapat digunakan oleh seluruh pegawai, atau Spesifik untuk pegawai/bidang tertentu.')
                     ->columns(3)
                     ->schema([
+                        Radio::make('kategori_form')
+                            ->label('Kategori Aktivitas')
+                            ->options([
+                                'global' => 'Global (Semua Pegawai)',
+                                'spesifik' => 'Spesifik (Per Pegawai / Jabatan / Bidang)',
+                            ])
+                            ->default($isAdmin ? 'global' : 'spesifik')
+                            ->inline()
+                            ->live()
+                            ->dehydrated(false)
+                            ->visible($isAdmin)
+                            ->afterStateHydrated(function (Radio $component, ?Aktivitas $record) use ($isAdmin): void {
+                                if (! $record) {
+                                    $component->state($isAdmin ? 'global' : 'spesifik');
+                                    return;
+                                }
+                                $isGlobal = is_null($record->user_id) && is_null($record->jabatan_id);
+                                $component->state($isGlobal ? 'global' : 'spesifik');
+                            })
+                            ->afterStateUpdated(function (?string $state, Set $set): void {
+                                if ($state === 'global') {
+                                    $set('user_id', null);
+                                    $set('jabatan_id', null);
+                                    $set('bidang_id', null);
+                                }
+                            })
+                            ->columnSpanFull(),
+
                         Select::make('user_id')
                             ->label('Pegawai (Pemilik Aktivitas)')
                             ->relationship('user', 'name')
@@ -33,13 +65,13 @@ class AktivitasForm
                             ->searchable()
                             ->preload()
                             ->live()
+                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik')
                             ->afterStateUpdated(function ($state, Set $set): void {
                                 if ($state && ($pegawai = User::find((int) $state))) {
                                     $set('jabatan_id', $pegawai->jabatan_id);
                                     $set('bidang_id', $pegawai->bidang_id);
                                 }
-                            })
-                            ->helperText('Setiap pegawai dapat memiliki daftar aktivitas yang berbeda. Kosongkan jika berlaku umum.'),
+                            }),
 
                         Select::make('jabatan_id')
                             ->label('Jabatan')
@@ -47,7 +79,8 @@ class AktivitasForm
                             ->default($isAdmin ? null : $currentUser?->jabatan_id)
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->nullable()
+                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik'),
 
                         Select::make('bidang_id')
                             ->label('Bidang')
@@ -55,18 +88,19 @@ class AktivitasForm
                             ->default($isAdmin ? null : $currentUser?->bidang_id)
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->nullable()
+                            ->visible(fn (Get $get): bool => ! $isAdmin || $get('kategori_form') === 'spesifik'),
                     ])
                     ->columnSpanFull(),
 
                 Section::make('Detail Aktivitas LHK')
-                    ->columns(3)
+                    ->columns(1)
                     ->schema([
-                        TextInput::make('kode')
-                            ->label('Kode Aktivitas')
-                            ->placeholder('Contoh: 1 atau AKT-01')
-                            ->maxLength(50)
-                            ->columnSpan(1),
+                        Textarea::make('nama_aktivitas')
+                            ->label('Nama / Uraian Aktivitas')
+                            ->required()
+                            ->rows(3)
+                            ->placeholder('Tuliskan uraian aktivitas kinerja harian pegawai...'),
 
                         TextInput::make('menit')
                             ->label('Standar Durasi')
@@ -75,14 +109,7 @@ class AktivitasForm
                             ->minValue(1)
                             ->default(30)
                             ->suffix('menit')
-                            ->columnSpan(2),
-
-                        Textarea::make('nama_aktivitas')
-                            ->label('Nama / Uraian Aktivitas')
-                            ->required()
-                            ->rows(3)
-                            ->placeholder('Tuliskan uraian aktivitas kinerja harian pegawai...')
-                            ->columnSpanFull(),
+                            ->helperText('Contoh: 30, 60 (1 jam), 120 (2 jam), 180 (3 jam).'),
                     ])
                     ->columnSpanFull(),
             ]);

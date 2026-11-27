@@ -45,7 +45,7 @@
     <!-- Search -->
     <div class="mb-4 relative">
         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-        <input type="text" wire:model.live.debounce.250ms="search" placeholder="Cari kode atau uraian aktivitas..."
+        <input type="text" wire:model.live.debounce.250ms="search" placeholder="Cari uraian aktivitas..."
             class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-xs text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-sky-500">
     </div>
 
@@ -66,9 +66,6 @@
                     class="bg-white dark:bg-[#132338]/90 p-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 shadow-xs space-y-2">
                     <div class="flex items-start justify-between gap-2">
                         <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 dark:bg-cyan-500/15 dark:text-cyan-300 font-mono text-[10px] font-extrabold">
-                                #{{ $item->kode ?? $item->id }}
-                            </span>
                             <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300 text-[10px] font-bold">
                                 {{ $item->menit }} Menit
                             </span>

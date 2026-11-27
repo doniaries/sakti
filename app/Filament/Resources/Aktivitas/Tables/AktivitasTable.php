@@ -27,42 +27,12 @@ class AktivitasTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
+            ->modifyQueryUsing(fn(Builder $query): Builder => $query->with([
                 'user:id,name',
                 'jabatan:id,nama',
                 'bidang:id,nama',
             ]))
             ->columns([
-                TextColumn::make('kategori')
-                    ->label('Kategori')
-                    ->badge()
-                    ->state(fn (Aktivitas $record): string => is_null($record->user_id) && is_null($record->jabatan_id) ? 'Global' : 'Spesifik')
-                    ->color(fn (string $state): string => $state === 'Global' ? 'info' : 'warning'),
-                TextColumn::make('user.name')
-                    ->label('Pegawai')
-                    ->placeholder('Umum / Global')
-                    ->badge()
-                    ->color(fn (?string $state): string => $state ? 'info' : 'gray')
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('jabatan.nama')
-                    ->label('Jabatan')
-                    ->placeholder('-')
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('bidang.nama')
-                    ->label('Bidang')
-                    ->placeholder('-')
-                    ->badge()
-                    ->color(fn (?string $state): string => $state ? \App\Models\Bidang::badgeColor($state) : 'gray')
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('kode')
-                    ->label('Kode')
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('nama_aktivitas')
                     ->label('Nama Aktivitas')
                     ->wrap()
@@ -80,6 +50,37 @@ class AktivitasTable
                         return "{$menit} mnt";
                     })
                     ->sortable(),
+                TextColumn::make('kategori')
+                    ->label('Kategori')
+                    ->badge()
+                    ->state(fn(Aktivitas $record): string => is_null($record->user_id) && is_null($record->jabatan_id) ? 'Global' : 'Spesifik')
+                    ->color(fn(string $state): string => $state === 'Global' ? 'info' : 'warning'),
+                TextColumn::make('user.name')
+                    ->label('Pegawai')
+                    ->placeholder('Umum / Global')
+                    ->badge()
+                    ->color(fn(?string $state): string => $state ? 'info' : 'gray')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('jabatan.nama')
+                    ->label('Jabatan')
+                    ->placeholder('-')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('bidang.nama')
+                    ->label('Bidang')
+                    ->placeholder('-')
+                    ->badge()
+                    ->color(fn(?string $state): string => $state ? \App\Models\Bidang::badgeColor($state) : 'gray')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
+                /* TextColumn::make('kode')
+                    ->label('Kode')
+                    ->sortable()
+                    ->searchable(), */
+
                 TextColumn::make('created_at')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
@@ -96,8 +97,8 @@ class AktivitasTable
                     ->trueLabel('Global (Semua Pegawai)')
                     ->falseLabel('Spesifik (Per Pegawai / Jabatan)')
                     ->queries(
-                        true: fn (Builder $q): Builder => $q->whereNull('user_id')->whereNull('jabatan_id'),
-                        false: fn (Builder $q): Builder => $q->where(fn (Builder $sub) => $sub->whereNotNull('user_id')->orWhereNotNull('jabatan_id')),
+                        true: fn(Builder $q): Builder => $q->whereNull('user_id')->whereNull('jabatan_id'),
+                        false: fn(Builder $q): Builder => $q->where(fn(Builder $sub) => $sub->whereNotNull('user_id')->orWhereNotNull('jabatan_id')),
                     ),
                 SelectFilter::make('user_id')
                     ->label('Pegawai')
@@ -127,7 +128,7 @@ class AktivitasTable
                         ->form([
                             Select::make('bidang_id')
                                 ->label('Filter Bidang (Otomatis Pilih Pegawai Bidang)')
-                                ->options(fn () => Bidang::orderBy('nama')->pluck('nama', 'id')->all())
+                                ->options(fn() => Bidang::orderBy('nama')->pluck('nama', 'id')->all())
                                 ->placeholder('Semua Bidang')
                                 ->searchable()
                                 ->live()
@@ -137,7 +138,7 @@ class AktivitasTable
                                             ->where('bidang_id', (int) $state)
                                             ->orderBy('name')
                                             ->pluck('id')
-                                            ->map(fn ($id) => (string) $id)
+                                            ->map(fn($id) => (string) $id)
                                             ->all();
                                         $set('user_ids', $ids);
                                     } else {
@@ -152,7 +153,7 @@ class AktivitasTable
 
                                     return User::with(['bidang', 'jabatan'])
                                         ->where('aktif', true)
-                                        ->when($bidangId, fn ($q) => $q->where('bidang_id', (int) $bidangId))
+                                        ->when($bidangId, fn($q) => $q->where('bidang_id', (int) $bidangId))
                                         ->orderBy('name')
                                         ->get()
                                         ->mapWithKeys(function (User $u): array {
