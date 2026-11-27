@@ -7,6 +7,7 @@
     suratTugasSheet: false,
     konfirmasiSuccessModal: false,
     logoutConfirmModal: false,
+    remindConfirmModal: false,
     jam: '--:--',
     detik: '--',
     punching: false,
@@ -269,13 +270,45 @@
                     <i class="fa-solid fa-shield-halved text-xs"></i>
                 </a>
                 @if ($user->canRemindPegawai())
-                    <button type="button" wire:click="ingatkanPegawai"
-                        wire:confirm="Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?"
+                    <button type="button" @click="remindConfirmModal = true"
                         class="w-8 h-8 rounded-full bg-rose-500 hover:bg-rose-400 text-white inline-flex items-center justify-center shadow-sm transition cursor-pointer shrink-0"
                         title="Ingatkan Pegawai Lengkapi Data Kepegawaian"
                         aria-label="Ingatkan Pegawai Lengkapi Data Kepegawaian">
                         <i class="fa-solid fa-bullhorn text-xs"></i>
                     </button>
+                    <template x-teleport="body">
+                        <div x-show="remindConfirmModal" x-cloak
+                            @keydown.escape.window="remindConfirmModal = false"
+                            x-transition.opacity.duration.150ms
+                            class="fixed inset-0 z-[120] bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-5"
+                            @click.self="remindConfirmModal = false">
+                            <div x-show="remindConfirmModal"
+                                x-transition:enter="transition ease-out duration-150"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                class="w-full max-w-xs rounded-[28px] bg-white dark:bg-zinc-900 p-6 shadow-2xl border border-slate-200/70 dark:border-zinc-800 space-y-4">
+                                <div class="w-12 h-12 mx-auto rounded-2xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl">
+                                    <i class="fa-solid fa-bullhorn"></i>
+                                </div>
+                                <div class="text-center space-y-1.5">
+                                    <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Ingatkan Pegawai?</h3>
+                                    <p class="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed">
+                                        Kirim notifikasi pengingat ke semua pegawai aktif yang data kepegawaiannya belum lengkap?
+                                    </p>
+                                </div>
+                                <div class="flex items-center justify-end gap-2 pt-2">
+                                    <button type="button" @click="remindConfirmModal = false"
+                                        class="px-4 py-2.5 rounded-full text-xs font-bold text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer">
+                                        Batal
+                                    </button>
+                                    <button type="button" @click="remindConfirmModal = false; $wire.ingatkanPegawai()"
+                                        class="px-5 py-2.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow-md shadow-rose-600/25 active:scale-95 transition cursor-pointer">
+                                        Ya, Kirim
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                 @endif
                 @if ($user->hasAnyRole(['super_admin', 'superadmin']))
                     <button type="button" wire:click="toggleSimulasi"
