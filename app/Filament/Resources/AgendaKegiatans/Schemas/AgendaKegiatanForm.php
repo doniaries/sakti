@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\AgendaKegiatans\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -68,26 +68,25 @@ class AgendaKegiatanForm
                             ->default(fn () => Auth::id()),
                     ]),
                 Section::make('Disposisi (Orang yang Diperintahkan)')
-                    ->description('Pilih pegawai atau pejabat yang ditugaskan agar menerima notifikasi jadwal.')
+                    ->description('Pilih satu atau banyak pegawai/pejabat yang ditugaskan dengan satu instruksi bersama.')
                     ->schema([
-                        Repeater::make('disposisis')
-                            ->relationship()
-                            ->label('Daftar Penerima Disposisi')
-                            ->schema([
-                                Select::make('user_id')
-                                    ->label('Pegawai / Pejabat')
-                                    ->relationship('user', 'name', fn ($query) => $query->orderBy('id'))
-                                    ->searchable()
-                                    ->preload()
-                                    ->required(),
-                                TextInput::make('instruksi')
-                                    ->label('Instruksi / Arahan')
-                                    ->placeholder('Contoh: Hadir, bawa 1 org admin')
-                                    ->maxLength(255),
-                            ])
-                            ->columns(2)
-                            ->defaultItems(1)
-                            ->addActionLabel('Tambah Penerima Disposisi')
+                        Select::make('disposisi_user_ids')
+                            ->label('Pegawai / Pejabat yang Ditugaskan')
+                            ->options(fn (): array => User::query()
+                                ->where('aktif', true)
+                                ->orderBy('id')
+                                ->pluck('name', 'id')
+                                ->all())
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->columnSpanFull(),
+                        TextInput::make('disposisi_instruksi')
+                            ->label('Instruksi / Arahan')
+                            ->placeholder('Contoh: Hadir, bawa 1 org admin')
+                            ->helperText('Berlaku untuk seluruh pegawai/pejabat yang dipilih di atas.')
+                            ->maxLength(255)
                             ->columnSpanFull(),
                     ]),
             ]);

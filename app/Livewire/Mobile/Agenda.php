@@ -21,7 +21,7 @@ class Agenda extends Component
         $isKadisOrAdmin = $user && $user->hasAnyRole(['super_admin', 'superadmin', 'admin', 'pa', 'kadis']);
 
         $baseQuery = AgendaKegiatan::query()
-            ->with(['disposisis' => fn ($q) => $q->where('user_id', $user?->id)])
+            ->with(['disposisis.user:id,name'])
             ->when(! $isKadisOrAdmin && $user, function ($query) use ($user) {
                 $query->where(function ($q) use ($user) {
                     $q->whereHas('disposisis', fn ($d) => $d->where('user_id', $user->id))
