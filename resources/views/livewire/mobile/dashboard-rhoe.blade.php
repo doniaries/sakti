@@ -821,12 +821,12 @@
         subtitle="Pemberitahuan terbaru terkait presensi, izin, dan kinerja">
         <div class="space-y-2">
             @forelse ($recentNotifications as $notif)
-                <div wire:key="notif-{{ $notif->id }}" x-data="{ startX: 0, dx: 0, swiping: false, canSwipe: {{ is_null($notif->read_at) ? 'false' : 'true' }} }"
-                    @touchstart="if (canSwipe) { startX = $event.touches[0].clientX; swiping = true; }"
-                    @touchmove="if (swiping && canSwipe) { dx = $event.touches[0].clientX - startX; }"
-                    @touchend="if (swiping && canSwipe && Math.abs(dx) > 90) { $wire.deleteNotification('{{ $notif->id }}'); } dx = 0; swiping = false;"
+                <div wire:key="notif-{{ $notif->id }}" x-data="{ startX: 0, dx: 0, swiping: false }"
+                    @touchstart="startX = $event.touches[0].clientX; swiping = true;"
+                    @touchmove="if (swiping) { dx = $event.touches[0].clientX - startX; }"
+                    @touchend="if (swiping && Math.abs(dx) > 90) { $wire.deleteNotification('{{ $notif->id }}'); } dx = 0; swiping = false;"
                     :style="dx ? 'transform: translateX(' + dx + 'px); opacity: ' + Math.max(0.25, 1 - Math.abs(dx) / 160) : ''"
-                    class="transition-all duration-150">
+                    class="relative group transition-all duration-150">
                     @php
                         $notifUrl = $notif->data['url'] ?? ($notif->data['actions'][0]['url'] ?? null);
                         $notifTitleLower = strtolower($notif->data['title'] ?? '');
@@ -859,7 +859,7 @@
                         <a href="{{ $notifUrl }}"
                             @if ($isFilamentUrl) target="_blank" rel="noopener" @else wire:navigate @endif
                             wire:click="markNotificationAsRead('{{ $notif->id }}')" @click="notifSheet = false"
-                            class="block p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
+                            class="block p-3 pr-10 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="text-xs font-bold text-zinc-900 dark:text-white">
                                     {{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
@@ -873,7 +873,7 @@
                         </a>
                     @else
                         <div wire:click="markNotificationAsRead('{{ $notif->id }}')"
-                            class="p-3 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
+                            class="p-3 pr-10 rounded-2xl border cursor-pointer transition-colors {{ is_null($notif->read_at) ? 'bg-sky-50/80 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/30' : 'bg-zinc-50 dark:bg-zinc-950/60 border-zinc-200/70 dark:border-zinc-800' }}">
                             <div class="text-xs font-bold text-zinc-900 dark:text-white">
                                 {{ $notif->data['title'] ?? 'Pemberitahuan' }}</div>
                             <p class="text-[13px] text-zinc-600 dark:text-zinc-400 mt-0.5">
@@ -920,6 +920,12 @@
                             @endif
                         </div>
                     @endif
+                    <button type="button" @click.stop.prevent="$wire.deleteNotification('{{ $notif->id }}')"
+                        title="Hapus notifikasi"
+                        aria-label="Hapus notifikasi"
+                        class="absolute top-2.5 right-2.5 w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/15 transition-colors cursor-pointer">
+                        <i class="fa-regular fa-trash-can text-xs"></i>
+                    </button>
                 </div>
             @empty
                 <div class="py-8 text-center text-xs text-zinc-400">

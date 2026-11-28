@@ -658,10 +658,55 @@ class UsersTable
                             Notification::make()->title('Gagal mengirim ke mesin: ' . $e->getMessage())->danger()->send();
                         }
                     }) */
+                Action::make('hapus_notifikasi')
+                    ->label('Hapus Notif')
+                    ->icon('heroicon-o-bell-slash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Semua Notifikasi User')
+                    ->modalDescription(fn (\App\Models\User $record): string => "Hapus seluruh notifikasi di akun {$record->name}?")
+                    ->visible(function (\App\Models\User $record): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return ($user?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false)
+                            && $record->notifications()->exists();
+                    })
+                    ->action(function (\App\Models\User $record): void {
+                        $deleted = $record->notifications()->delete();
+
+                        Notification::make()
+                            ->title("{$deleted} notifikasi milik {$record->name} berhasil dihapus.")
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
+                    BulkAction::make('hapus_notifikasi_massal')
+                        ->label('Hapus Notifikasi User')
+                        ->icon('heroicon-o-bell-slash')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Hapus Notifikasi Pegawai Terpilih')
+                        ->modalDescription('Semua notifikasi pada akun user yang dipilih akan dihapus permanen.')
+                        ->visible(function (): bool {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            return $user?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
+                        })
+                        ->action(function (Collection $records): void {
+                            $totalDeleted = 0;
+                            foreach ($records as $record) {
+                                $totalDeleted += $record->notifications()->delete();
+                            }
+
+                            Notification::make()
+                                ->title("{$totalDeleted} notifikasi dari {$records->count()} user berhasil dihapus.")
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
 
                     BulkAction::make('ubah_role_massal')
                         ->label('Ubah Role Massal')
