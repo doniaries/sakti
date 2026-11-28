@@ -948,6 +948,13 @@
                     Bersihkan
                 </button>
             @endif
+            @if ($user->hasAnyRole(['super_admin', 'superadmin', 'admin']))
+                <button type="button" wire:click="clearGlobalNotifications"
+                    wire:confirm="Hapus seluruh notifikasi untuk SEMUA akun user di server? Data asli tetap aman."
+                    class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer">
+                    Hapus Semua User
+                </button>
+            @endif
             <button type="button" @click="notifSheet = false"
                 class="px-3.5 py-2 rounded-xl bg-zinc-200/80 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 text-xs font-bold cursor-pointer">
                 Tutup

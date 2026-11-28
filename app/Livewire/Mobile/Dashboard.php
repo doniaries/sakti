@@ -222,6 +222,25 @@ class Dashboard extends Component
         $this->dispatch('notif-count-updated', count: 0);
     }
 
+    public function clearGlobalNotifications(): void
+    {
+        /** @var User|null $user */
+        $user = Auth::user();
+        if (! $user || ! $user->hasAnyRole(['super_admin', 'superadmin', 'admin'])) {
+            return;
+        }
+
+        $deleted = \Illuminate\Notifications\DatabaseNotification::query()->delete();
+        $this->dispatch('notif-count-updated', count: 0);
+        $this->dispatch('notify', [
+            'type' => 'success',
+            'title' => 'Notifikasi Global Dihapus',
+            'message' => $deleted > 0
+                ? "{$deleted} notifikasi seluruh user berhasil dihapus dari server."
+                : 'Tidak ada notifikasi tersimpan di server.',
+        ]);
+    }
+
     public function toggleSimulasi(): void
     {
         /** @var User|null $user */
