@@ -94,9 +94,14 @@
                 @endforeach
             </div>
             @if ($hasMore)
-                <button type="button" wire:click="loadMore"
-                    class="w-full py-2.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 transition cursor-pointer">
-                    Muat Lebih Banyak ({{ $totalFiltered - $pegawais->count() }} lagi)
+                <button type="button" wire:click="loadMore" wire:loading.attr="disabled" wire:target="loadMore"
+                    class="w-full py-2.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 transition cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60">
+                    <span wire:loading.remove wire:target="loadMore">Muat Lebih Banyak ({{ $totalFiltered - $pegawais->count() }} lagi)</span>
+                    <span wire:loading wire:target="loadMore" class="inline-flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-sky-600 android-wave-dot" style="animation-delay: 0ms"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-sky-600 android-wave-dot" style="animation-delay: 160ms"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-sky-600 android-wave-dot" style="animation-delay: 320ms"></span>
+                    </span>
                 </button>
             @endif
         @endif

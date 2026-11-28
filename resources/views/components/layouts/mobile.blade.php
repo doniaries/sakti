@@ -539,7 +539,7 @@
                 startNav() {
                     clearTimeout(this.timer);
                     clearTimeout(this.failSafeTimer);
-                    this.timer = setTimeout(() => { this.navigating = true; }, 180);
+                    this.timer = setTimeout(() => { this.navigating = true; }, 350);
                     this.failSafeTimer = setTimeout(() => { this.endNav(); }, 3000);
                 },
                 endNav() {
