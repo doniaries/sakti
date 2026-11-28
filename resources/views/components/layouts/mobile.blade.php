@@ -23,7 +23,11 @@
     <link rel="apple-touch-icon" sizes="512x512" href="{{ asset('icons/pwa-512x512.png') }}?v={{ $pwaIconVer }}">
     
     <!-- Fonts & CSS -->
-    @if (file_exists(public_path('build/manifest.json')) || (app()->environment('local') && file_exists(public_path('hot'))))
+    @php
+        $manifestPath = public_path('build/manifest.json');
+        $hasViteAppCss = is_file($manifestPath) && str_contains((string) @file_get_contents($manifestPath), 'resources/css/app.css');
+    @endphp
+    @if ($hasViteAppCss || (app()->environment('local') && file_exists(public_path('hot'))))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     @else
         <script src="https://cdn.tailwindcss.com"></script>
