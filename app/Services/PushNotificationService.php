@@ -74,8 +74,10 @@ class PushNotificationService
             ->where(function ($q) {
                 $q->where('data->title', 'like', '%Tes Notifikasi%')
                     ->orWhere('data->title', 'like', '%Test Notif%')
+                    ->orWhere('data->title', 'like', '%Lengkapi Data Kepegawaian%')
                     ->orWhere('data->body', 'like', '%Notifikasi Web Push berhasil dikirim%')
                     ->orWhere('data->body', 'like', '%Notifikasi Push Android berhasil dikirim%')
+                    ->orWhere('data->body', 'like', '%melengkapi profil kepegawaian Anda%')
                     ->orWhere('data->message', 'like', '%Notifikasi Web Push berhasil dikirim%');
             })
             ->delete();
