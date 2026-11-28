@@ -48,9 +48,10 @@
     </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Leaflet Map CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @if (request()->routeIs('mobile.absensi', 'mobile.pengaturan-lokasi'))
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    @endif
     
     <script>
         if ('serviceWorker' in navigator) {
@@ -518,8 +519,8 @@
                         : (url.includes('/surat-tugas') ? 'surat_tugas' : 'dashboard')))));
                     clearTimeout(this.timer);
                     clearTimeout(this.failSafeTimer);
-                    this.timer = setTimeout(() => { this.navigating = true; }, 120);
-                    this.failSafeTimer = setTimeout(() => { this.endNav(); }, 6000);
+                    this.timer = setTimeout(() => { this.navigating = true; }, 300);
+                    this.failSafeTimer = setTimeout(() => { this.endNav(); }, 3000);
                 },
                 endNav() {
                     clearTimeout(this.timer);

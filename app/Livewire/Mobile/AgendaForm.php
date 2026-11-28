@@ -7,6 +7,7 @@ use App\Models\AgendaKegiatan;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -111,7 +112,11 @@ class AgendaForm extends Component
     public function render()
     {
         return view('livewire.mobile.agenda-form', [
-            'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('id')->get(['id', 'name', 'jabatan_id']),
+            'pegawais' => Cache::remember('mobile.agenda.pegawais_aktif', 300, fn () => User::query()
+                ->where('aktif', true)
+                ->with('jabatan:id,nama')
+                ->orderBy('id')
+                ->get(['id', 'name', 'jabatan_id'])),
             'riwayatTempat' => AgendaKegiatan::query()
                 ->whereNotNull('tempat')
                 ->where('tempat', '!=', '')
