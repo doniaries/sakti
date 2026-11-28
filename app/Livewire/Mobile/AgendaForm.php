@@ -26,7 +26,6 @@ class AgendaForm extends Component
     public string $jam_selesai = '';
     public string $tempat = '';
     public string $asal_undangan = '';
-    public string $keterangan = '';
     /** @var array<int, int|string> */
     public array $disposisi_user_ids = [];
     public string $instruksi = '';
@@ -35,6 +34,14 @@ class AgendaForm extends Component
     public function mount(): void
     {
         $this->tanggal = Carbon::today()->toDateString();
+    }
+
+    public function toggleSemuaPegawai(): void
+    {
+        $allIds = User::where('aktif', true)->orderBy('id')->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $selectedIds = collect($this->disposisi_user_ids)->map(fn ($id) => (int) $id)->filter()->unique()->values()->all();
+
+        $this->disposisi_user_ids = count($selectedIds) >= count($allIds) ? [] : $allIds;
     }
 
     public function simpanAgenda(): mixed
@@ -46,7 +53,6 @@ class AgendaForm extends Component
             'jam_selesai' => ['required', 'string'],
             'tempat' => ['required', 'string', 'max:255'],
             'asal_undangan' => ['required', 'string', 'max:255'],
-            'keterangan' => ['required', 'string'],
             'disposisi_user_ids' => ['required', 'array', 'min:1'],
             'disposisi_user_ids.*' => ['integer', 'exists:users,id'],
             'instruksi' => ['nullable', 'string', 'max:500'],
@@ -65,7 +71,7 @@ class AgendaForm extends Component
                 'jam_selesai' => $validated['jam_selesai'] ?: null,
                 'tempat' => $validated['tempat'],
                 'asal_undangan' => $validated['asal_undangan'] ?: null,
-                'keterangan' => $validated['keterangan'] ?: null,
+                'keterangan' => null,
                 'lampiran_file' => $lampiranPath,
                 'created_by' => Auth::id(),
             ]);
@@ -111,6 +117,24 @@ class AgendaForm extends Component
     {
         return view('livewire.mobile.agenda-form', [
             'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('id')->get(['id', 'name', 'jabatan_id']),
+            'riwayatTempat' => AgendaKegiatan::query()
+                ->whereNotNull('tempat')
+                ->where('tempat', '!=', '')
+                ->orderByDesc('id')
+                ->limit(50)
+                ->pluck('tempat')
+                ->unique()
+                ->take(8)
+                ->values(),
+            'riwayatInstruksi' => AgendaDisposisi::query()
+                ->whereNotNull('instruksi')
+                ->where('instruksi', '!=', '')
+                ->orderByDesc('id')
+                ->limit(50)
+                ->pluck('instruksi')
+                ->unique()
+                ->take(8)
+                ->values(),
         ]);
     }
 }
