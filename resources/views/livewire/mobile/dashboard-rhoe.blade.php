@@ -92,6 +92,9 @@
                             <div class="text-xs text-sky-100/90 font-medium leading-tight mt-0.5">{{ $jabatanBidang }}
                             </div>
                         @endif
+                        <div class="text-[11px] text-sky-200/85 font-medium leading-tight mt-0.5 truncate">
+                            {{ $pengaturan->nama_dinas ?? 'Dinas Pariwisata, Pemuda dan Olah Raga' }}
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
@@ -378,6 +381,12 @@
                     'icon' => 'fa-calendar-check',
                     'label' => 'Agenda',
                     'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400',
+                ],
+                [
+                    'route' => 'mobile.pegawai',
+                    'icon' => 'fa-users',
+                    'label' => 'Pegawai',
+                    'color' => 'bg-cyan-50 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400',
                 ],
                 [
                     'route' => 'mobile.persetujuan',
