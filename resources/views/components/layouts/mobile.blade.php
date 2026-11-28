@@ -29,6 +29,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0..1,0" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' };
@@ -305,9 +306,22 @@
         html.dark .nav-item {
             color: #94A3B8;
         }
-        .nav-item i { 
-            font-size: 19px; 
-            margin-bottom: 3px;
+        .material-symbols-rounded {
+            font-family: 'Material Symbols Rounded';
+            font-weight: normal;
+            font-style: normal;
+            line-height: 1;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+        }
+        .nav-item i,
+        .nav-item .material-symbols-rounded { 
+            font-size: 22px; 
+            margin-bottom: 2px;
             transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         .nav-item.active { 
@@ -317,9 +331,11 @@
         html.dark .nav-item.active {
             color: #38BDF8;
         }
-        .nav-item.active i { 
+        .nav-item.active i,
+        .nav-item.active .material-symbols-rounded { 
             transform: translateY(-2px);
             color: #0284C7; 
+            font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
         }
         html.dark .nav-item.active i {
             color: #38BDF8;
@@ -677,13 +693,13 @@
             <nav class="bottom-nav">
                 <!-- 1. Beranda (Halaman Awal) -->
                 <a href="{{ route('mobile.dashboard') }}" class="nav-item {{ request()->routeIs('mobile.dashboard') ? 'active' : '' }}" wire:navigate.hover>
-                    <i class="fa-solid fa-house"></i>
+                    <span class="material-symbols-rounded">home</span>
                     <span>Beranda</span>
                 </a>
 
                 <!-- 2. Riwayat & Izin -->
                 <a href="{{ route('mobile.riwayat') }}" class="nav-item {{ request()->routeIs('mobile.riwayat') || request()->routeIs('mobile.izin.*') ? 'active' : '' }}" wire:navigate.hover>
-                    <i class="fa-solid fa-calendar-days"></i>
+                    <span class="material-symbols-rounded">calendar_month</span>
                     <span>Riwayat</span>
                 </a>
 
@@ -693,7 +709,7 @@
                        wire:navigate.hover
                        class="center-absen-btn group ring-4 ring-sky-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-sky-400 shadow-sky-500/40' : '' }}"
                        title="Halaman Presensi Kehadiran">
-                        <i class="fa-solid fa-fingerprint"></i>
+                        <span class="material-symbols-rounded text-[26px]">fingerprint</span>
                         <span>PRESENSI</span>
                     </a>
                 </div>
@@ -701,19 +717,19 @@
                 <!-- 4. Persetujuan (Atasan/Admin) atau LHK (Pegawai) -->
                 @if (auth()->user()?->hasAnyRole(['super_admin', 'admin', 'pimpinan', 'kepala_dinas', 'kabid', 'atasan']))
                     <a href="{{ route('mobile.persetujuan') }}" class="nav-item {{ request()->routeIs('mobile.persetujuan') ? 'active' : '' }}" wire:navigate.hover>
-                        <i class="fa-solid fa-clipboard-check"></i>
+                        <span class="material-symbols-rounded">fact_check</span>
                         <span>Persetujuan</span>
                     </a>
                 @else
                     <a href="{{ route('mobile.lhk.index') }}" class="nav-item {{ request()->routeIs('mobile.lhk.*') ? 'active' : '' }}" wire:navigate.hover>
-                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span class="material-symbols-rounded">assignment</span>
                         <span>LHK</span>
                     </a>
                 @endif
 
                 <!-- 5. Profil (Halaman sama dengan data pegawai Filament & bisa diedit) -->
                 <a href="{{ route('mobile.profil') }}" class="nav-item {{ request()->routeIs('mobile.profil') ? 'active' : '' }}" wire:navigate.hover>
-                    <i class="fa-solid fa-circle-user"></i>
+                    <span class="material-symbols-rounded">account_circle</span>
                     <span>Profil</span>
                 </a>
             </nav>

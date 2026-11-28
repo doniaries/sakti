@@ -2,7 +2,7 @@
     <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800 px-4 py-3 flex items-center gap-3">
         <a href="{{ route('mobile.agenda') }}" wire:navigate
             class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200 active:scale-95 transition-transform">
-            <i class="fa-solid fa-arrow-left text-sm"></i>
+            <span class="material-symbols-rounded text-[20px]">arrow_back</span>
         </a>
         <div class="min-w-0">
             <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">{{ $agendaId ? 'Ubah Agenda Kegiatan' : 'Tambah Agenda Kegiatan' }}</h1>
