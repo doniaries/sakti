@@ -69,13 +69,28 @@
                         $jam = substr((string) $item->jam_mulai, 0, 5) . ($item->jam_selesai ? ' - ' . substr((string) $item->jam_selesai, 0, 5) : ' - Selesai');
                     @endphp
                     <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-2 shadow-sm {{ $section['cardClass'] }}">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md text-xs font-extrabold {{ $section['badgeClass'] }}">
-                                {{ $section['badge'] }}
-                            </span>
-                            <span class="text-xs font-extrabold text-slate-900 dark:text-white">
-                                {{ $item->tanggal?->translatedFormat('d M Y') }} • {{ $jam }}
-                            </span>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <span class="px-2 py-0.5 rounded-md text-xs font-extrabold {{ $section['badgeClass'] }}">
+                                    {{ $section['badge'] }}
+                                </span>
+                                <span class="text-xs font-extrabold text-slate-900 dark:text-white truncate">
+                                    {{ $item->tanggal?->translatedFormat('d M Y') }} • {{ $jam }}
+                                </span>
+                            </div>
+                            @if ($isKadisOrAdmin || (int) $item->created_by === (int) auth()->id())
+                                <div class="flex items-center gap-1 shrink-0">
+                                    <a href="{{ route('mobile.agenda.edit', $item->id) }}" wire:navigate.hover title="Ubah Agenda"
+                                        class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-sky-50 text-slate-600 dark:text-zinc-300 hover:text-sky-600 flex items-center justify-center transition">
+                                        <i class="fa-solid fa-pen-to-square text-xs"></i>
+                                    </a>
+                                    <button type="button" title="Hapus Agenda"
+                                        @click="$dispatch('sakti-confirm', { title: 'Hapus Agenda?', message: 'Agenda kegiatan beserta daftar disposisinya akan dihapus.', wireId: '{{ $this->getId() }}', method: 'hapusAgenda', params: [{{ $item->id }}] })"
+                                        class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-rose-50 text-slate-600 dark:text-zinc-300 hover:text-rose-600 flex items-center justify-center transition cursor-pointer">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                    </button>
+                                </div>
+                            @endif
                         </div>
                         <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">{{ $item->judul }}</h3>
                         @if ($item->keterangan)

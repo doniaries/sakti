@@ -5,7 +5,7 @@
             <i class="fa-solid fa-arrow-left text-sm"></i>
         </a>
         <div class="min-w-0">
-            <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">Tambah Agenda Kegiatan</h1>
+            <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">{{ $agendaId ? 'Ubah Agenda Kegiatan' : 'Tambah Agenda Kegiatan' }}</h1>
             <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Lengkapi jadwal kegiatan &amp; disposisi pegawai</p>
         </div>
     </div>
@@ -95,6 +95,15 @@
 
             <div>
                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Foto Surat / PDF (Maks. 5MB)</label>
+                @if ($existingLampiran)
+                    <div class="mb-2">
+                        <a href="{{ \Illuminate\Support\Facades\Storage::url($existingLampiran) }}" target="_blank" rel="noopener"
+                            class="inline-flex items-center gap-1.5 text-xs font-bold text-sky-600 hover:underline">
+                            <i class="fa-solid fa-paperclip"></i>
+                            <span>Lihat Lampiran Saat Ini</span>
+                        </a>
+                    </div>
+                @endif
                 <input type="file" wire:model="lampiran_file" accept="image/jpeg,image/png,image/webp,application/pdf"
                     class="w-full text-xs text-zinc-600 dark:text-zinc-300 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100">
                 <div wire:loading wire:target="lampiran_file" class="text-xs text-sky-600 mt-1">Mengunggah lampiran...</div>
@@ -105,7 +114,7 @@
         <button type="submit" wire:loading.attr="disabled"
             class="w-full h-12 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold shadow-md active:scale-[0.98] transition cursor-pointer flex items-center justify-center gap-2">
             <i wire:loading wire:target="simpanAgenda" class="fa-solid fa-spinner fa-spin"></i>
-            <span>Simpan Agenda</span>
+            <span>{{ $agendaId ? 'Simpan Perubahan' : 'Simpan Agenda' }}</span>
         </button>
     </form>
 </div>

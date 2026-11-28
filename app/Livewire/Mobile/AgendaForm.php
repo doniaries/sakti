@@ -20,6 +20,8 @@ class AgendaForm extends Component
 {
     use WithFileUploads;
 
+    public ?int $agendaId = null;
+    public ?string $existingLampiran = null;
     public string $judul = '';
     public string $tanggal = '';
     public string $jam_mulai = '08:00';
@@ -32,8 +34,29 @@ class AgendaForm extends Component
     /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|string|null */
     public mixed $lampiran_file = null;
 
-    public function mount(): void
+    public function mount(?AgendaKegiatan $agenda = null): void
     {
+        if ($agenda && $agenda->exists) {
+            /** @var \App\Models\User|null $user */
+            $user = Auth::user();
+            $canManage = $user && ((int) $agenda->created_by === (int) $user->id
+                || $user->hasAnyRole(['super_admin', 'superadmin', 'admin', 'pa', 'kadis']));
+            abort_unless($canManage, 403);
+
+            $agenda->load('disposisis');
+            $this->agendaId = $agenda->id;
+            $this->judul = $agenda->judul;
+            $this->tanggal = $agenda->tanggal?->toDateString() ?? Carbon::today()->toDateString();
+            $this->jam_mulai = substr((string) $agenda->jam_mulai, 0, 5);
+            $this->jam_selesai = $agenda->jam_selesai ? substr((string) $agenda->jam_selesai, 0, 5) : '';
+            $this->tempat = $agenda->tempat;
+            $this->asal_undangan = (string) ($agenda->asal_undangan ?? '');
+            $this->existingLampiran = $agenda->lampiran_file;
+            $this->disposisi_user_ids = $agenda->disposisis->pluck('user_id')->map(fn ($id): string => (string) $id)->all();
+            $this->instruksi = (string) ($agenda->disposisis->pluck('instruksi')->filter()->first() ?? '');
+            return;
+        }
+
         $this->tanggal = Carbon::today()->toDateString();
     }
 
@@ -54,7 +77,37 @@ class AgendaForm extends Component
 
         $lampiranPath = $this->lampiran_file
             ? $this->lampiran_file->store('agenda-lampiran', 'public')
-            : null;
+            : $this->existingLampiran;
+
+        if ($this->agendaId) {
+            $agenda = AgendaKegiatan::findOrFail($this->agendaId);
+            /** @var \App\Models\User|null $user */
+            $user = Auth::user();
+            $canManage = $user && ((int) $agenda->created_by === (int) $user->id
+                || $user->hasAnyRole(['super_admin', 'superadmin', 'admin', 'pa', 'kadis']));
+            abort_unless($canManage, 403);
+
+            DB::transaction(function () use ($agenda, $validated, $lampiranPath): void {
+                $agenda->update([
+                    'judul' => $validated['judul'],
+                    'tanggal' => $validated['tanggal'],
+                    'jam_mulai' => $validated['jam_mulai'],
+                    'jam_selesai' => $validated['jam_selesai'] ?: null,
+                    'tempat' => $validated['tempat'],
+                    'asal_undangan' => $validated['asal_undangan'] ?: null,
+                    'lampiran_file' => $lampiranPath,
+                ]);
+
+                $agenda->syncDisposisis(
+                    $validated['disposisi_user_ids'] ?? [],
+                    $validated['instruksi'] ?: 'Hadir mewakili / menindaklanjuti'
+                );
+            });
+
+            $this->dispatch('notify', type: 'success', title: 'Agenda Diperbarui', message: 'Perubahan agenda kegiatan berhasil disimpan.');
+            $this->redirect(route('mobile.agenda'), navigate: true);
+            return;
+        }
 
         $now = now();
         $agenda = DB::transaction(function () use ($validated, $lampiranPath, $now): AgendaKegiatan {

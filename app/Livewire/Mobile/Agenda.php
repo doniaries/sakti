@@ -12,6 +12,24 @@ use Livewire\Component;
 #[Layout('components.layouts.mobile')]
 class Agenda extends Component
 {
+    public function hapusAgenda(int $id): void
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        $agenda = AgendaKegiatan::find($id);
+        if (! $agenda) {
+            return;
+        }
+
+        $isKadisOrAdmin = $user && $user->hasAnyRole(['super_admin', 'superadmin', 'admin', 'pa', 'kadis']);
+        $canManage = $user && ($isKadisOrAdmin || (int) $agenda->created_by === (int) $user->id);
+        abort_unless($canManage, 403);
+
+        $agenda->delete();
+
+        $this->dispatch('notify', type: 'success', title: 'Agenda Dihapus', message: 'Agenda kegiatan berhasil dihapus.');
+    }
+
     public function render()
     {
         /** @var \App\Models\User|null $user */
@@ -52,6 +70,7 @@ class Agenda extends Component
             'todayAgendas' => $todayAgendas,
             'upcomingAgendas' => $upcomingAgendas,
             'pastAgendas' => $pastAgendas,
+            'isKadisOrAdmin' => $isKadisOrAdmin,
             'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('id')->get(['id', 'name', 'jabatan_id']),
         ]);
     }

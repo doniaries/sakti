@@ -83,6 +83,7 @@ Route::prefix('mobile')->group(function () {
         Route::get('/kelengkapan-pegawai', \App\Livewire\Mobile\KelengkapanPegawai::class)->name('mobile.kelengkapan-pegawai');
         Route::get('/agenda', \App\Livewire\Mobile\Agenda::class)->name('mobile.agenda');
         Route::get('/agenda/buat', \App\Livewire\Mobile\AgendaForm::class)->name('mobile.agenda.create');
+        Route::get('/agenda/{agenda}/ubah', \App\Livewire\Mobile\AgendaForm::class)->name('mobile.agenda.edit');
         Route::get('/surat-tugas', \App\Livewire\Mobile\SuratTugas\Index::class)->name('mobile.surat-tugas.index');
         Route::get('/surat-tugas/buat', \App\Livewire\Mobile\SuratTugas\Form::class)->name('mobile.surat-tugas.create');
         Route::get('/surat-tugas/{suratTugas}/edit', \App\Livewire\Mobile\SuratTugas\Form::class)->name('mobile.surat-tugas.edit');
