@@ -928,9 +928,11 @@
                     </button>
                 </div>
             @empty
-                <div class="py-8 text-center text-xs text-zinc-400">
-                    <i class="fa-regular fa-bell-slash text-2xl mb-2 block opacity-50"></i>
-                    Belum ada notifikasi.
+                <div class="py-10 flex flex-col items-center justify-center gap-2 text-center text-xs text-zinc-400">
+                    <div class="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 flex items-center justify-center text-zinc-400">
+                        <i class="fa-regular fa-bell-slash text-xl"></i>
+                    </div>
+                    <span class="font-medium">Belum ada notifikasi.</span>
                 </div>
             @endforelse
         </div>
