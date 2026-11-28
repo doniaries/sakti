@@ -43,16 +43,12 @@
         toggleAll() {
             this.selectedIds = this.isAllSelected ? [] : [...this.allIds];
         },
-        normalizeSelected() {
+        init() {
             if (!Array.isArray(this.selectedIds)) {
                 this.selectedIds = [];
-                return;
+            } else if (this.selectedIds.some(v => typeof v !== 'string')) {
+                this.selectedIds = this.selectedIds.map(v => String(v));
             }
-            this.selectedIds = this.selectedIds.map(v => String(v));
-        },
-        init() {
-            this.normalizeSelected();
-            this.$watch('selectedIds', () => this.normalizeSelected());
         }
     }"
     x-modelable="selectedIds"
