@@ -946,15 +946,18 @@
     </script>
 
     @auth
-    <!-- Modal Paksa Aktifkan Izin Notifikasi & GPS -->
-    <div id="sakti-perm-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
-        <div class="w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl text-center">
+    <div id="sakti-perm-modal" class="hidden fixed inset-0 z-[110] items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs">
+        <div class="relative w-full max-w-sm rounded-3xl bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 p-6 shadow-2xl text-center">
+            <button type="button" id="sakti-perm-close" aria-label="Tutup"
+                class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 hover:text-slate-700 dark:text-zinc-400 flex items-center justify-center cursor-pointer">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
             <div class="mx-auto w-14 h-14 rounded-2xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center text-2xl mb-4">
                 <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Aktifkan Izin Notifikasi &amp; GPS</h3>
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white">Izin Notifikasi &amp; GPS</h3>
             <p id="sakti-perm-desc" class="text-xs text-slate-500 dark:text-zinc-400 mt-1.5 leading-relaxed">
-                SAKTI Mobile memerlukan izin <strong>Notifikasi</strong> dan <strong>Lokasi (GPS)</strong> agar presensi dan pemberitahuan surat tugas berjalan normal.
+                SAKTI Mobile memerlukan izin <strong>Notifikasi</strong> dan <strong>Lokasi (GPS)</strong> agar presensi dan pemberitahuan agenda berjalan normal.
             </p>
             <div class="mt-3.5 grid grid-cols-2 gap-2 text-[11px] font-bold">
                 <div class="px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-zinc-800/80 border border-slate-200 dark:border-zinc-700 flex items-center justify-between">
@@ -966,81 +969,115 @@
                     <span id="sakti-perm-gps-status" class="px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700">Belum</span>
                 </div>
             </div>
-            <button type="button" id="sakti-perm-btn"
-                class="mt-5 w-full py-3 px-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-lg shadow-sky-600/25 active:scale-95 transition cursor-pointer">
-                Aktifkan Sekarang
-            </button>
+            <div class="mt-5 flex items-center gap-2">
+                <button type="button" id="sakti-perm-later"
+                    class="w-1/3 py-3 px-3 rounded-2xl bg-slate-100 hover:bg-slate-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 text-xs font-bold transition cursor-pointer">
+                    Tutup
+                </button>
+                <button type="button" id="sakti-perm-btn"
+                    class="flex-1 py-3 px-4 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-lg shadow-sky-600/25 active:scale-95 transition cursor-pointer">
+                    Aktifkan Sekarang
+                </button>
+            </div>
         </div>
     </div>
     <script>
         (function () {
             const modal = document.getElementById('sakti-perm-modal');
             const btn = document.getElementById('sakti-perm-btn');
+            const closeBtn = document.getElementById('sakti-perm-close');
+            const laterBtn = document.getElementById('sakti-perm-later');
             const desc = document.getElementById('sakti-perm-desc');
             if (!modal || !btn) return;
 
-            const checkPermissions = async () => {
-                if (window.SaktiNative) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    return;
-                }
-                const isAbsensiPage = window.location.pathname.includes('/mobile/absensi');
-                const notifOk = !('Notification' in window) || Notification.permission === 'granted';
-                let gpsOk = !isAbsensiPage || !('geolocation' in navigator);
-                if (!gpsOk && navigator.permissions && navigator.permissions.query) {
-                    try {
-                        const geo = await navigator.permissions.query({ name: 'geolocation' });
-                        gpsOk = geo.state === 'granted';
-                    } catch (e) {
-                        gpsOk = true;
-                    }
-                }
-                const notifBadge = document.getElementById('sakti-perm-notif-status');
-                const gpsBadge = document.getElementById('sakti-perm-gps-status');
-                const gpsRow = gpsBadge ? gpsBadge.closest('div') : null;
-                if (gpsRow) {
-                    gpsRow.classList.toggle('hidden', !isAbsensiPage);
-                }
-                if (notifBadge) {
-                    notifBadge.textContent = notifOk ? 'Aktif' : 'Belum';
-                    notifBadge.className = notifOk
-                        ? 'px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700'
-                        : 'px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700';
-                }
-                if (gpsBadge) {
-                    gpsBadge.textContent = gpsOk ? 'Aktif' : 'Belum';
-                    gpsBadge.className = gpsOk
-                        ? 'px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700'
-                        : 'px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700';
-                }
-                if (!notifOk || !gpsOk) {
-                    modal.classList.remove('hidden');
+            const setOpen = (show) => {
+                modal.classList.toggle('hidden', !show);
+                modal.classList.toggle('flex', show);
+            };
+
+            const applyBadge = (el, state) => {
+                if (!el) return;
+                if (state === 'granted') {
+                    el.textContent = 'Aktif';
+                    el.className = 'px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700';
+                } else if (state === 'denied') {
+                    el.textContent = 'Diblokir';
+                    el.className = 'px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-700';
                 } else {
-                    modal.classList.add('hidden');
+                    el.textContent = 'Belum';
+                    el.className = 'px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-700';
                 }
             };
 
+            const dismissModal = () => {
+                sessionStorage.setItem('sakti_perm_dismissed', '1');
+                setOpen(false);
+            };
+
+            const checkPermissions = async (forceCheck = false) => {
+                if (window.SaktiNative) {
+                    setOpen(false);
+                    return;
+                }
+
+                const notifState = !('Notification' in window) ? 'granted' : Notification.permission;
+                let gpsState = !('geolocation' in navigator) ? 'granted' : 'prompt';
+                if (gpsState !== 'granted' && navigator.permissions && navigator.permissions.query) {
+                    try {
+                        const geo = await navigator.permissions.query({ name: 'geolocation' });
+                        gpsState = geo.state;
+                    } catch (e) {
+                        gpsState = 'prompt';
+                    }
+                }
+
+                applyBadge(document.getElementById('sakti-perm-notif-status'), notifState);
+                applyBadge(document.getElementById('sakti-perm-gps-status'), gpsState);
+
+                const isAbsensiPage = window.location.pathname.includes('/mobile/absensi');
+                const needsGps = isAbsensiPage && gpsState !== 'granted';
+                const needsNotif = notifState !== 'granted';
+
+                if (!needsNotif && !needsGps) {
+                    setOpen(false);
+                    return;
+                }
+
+                if (desc && (notifState === 'denied' || (isAbsensiPage && gpsState === 'denied'))) {
+                    desc.innerHTML = 'Izin diblokir oleh browser. Klik ikon <strong>Pengaturan Situs (gembok/tune di address bar)</strong> lalu aktifkan <strong>Notifikasi</strong> dan <strong>Lokasi</strong>, kemudian muat ulang halaman.';
+                }
+
+                if (!forceCheck && sessionStorage.getItem('sakti_perm_dismissed') === '1') {
+                    setOpen(false);
+                    return;
+                }
+
+                setOpen(true);
+            };
+
+            [closeBtn, laterBtn].forEach((el) => {
+                if (el) el.addEventListener('click', dismissModal);
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) dismissModal();
+            });
+
             btn.addEventListener('click', async () => {
-                if ('Notification' in window && Notification.permission !== 'granted') {
+                if ('Notification' in window && Notification.permission === 'default') {
                     try { await Notification.requestPermission(); } catch (e) {}
                 }
                 if ('geolocation' in navigator) {
                     navigator.geolocation.getCurrentPosition(
-                        () => checkPermissions(),
-                        () => {
-                            if (desc) {
-                                desc.innerHTML = 'Izin diblokir oleh browser. Buka <strong>Pengaturan Situs (ikon gembok di address bar)</strong> lalu aktifkan <strong>Notifikasi</strong> dan <strong>Lokasi</strong>, kemudian muat ulang halaman.';
-                            }
-                        },
+                        () => checkPermissions(true),
+                        () => checkPermissions(true),
                         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
                     );
                 }
-                await checkPermissions();
+                await checkPermissions(true);
             });
 
-            window.addEventListener('load', checkPermissions);
-            document.addEventListener('livewire:navigated', checkPermissions);
+            window.addEventListener('load', () => checkPermissions(false));
+            document.addEventListener('livewire:navigated', () => checkPermissions(false));
         })();
     </script>
     @endauth
