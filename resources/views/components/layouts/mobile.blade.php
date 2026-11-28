@@ -337,7 +337,8 @@
             color: #0284C7; 
             font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
         }
-        html.dark .nav-item.active i {
+        html.dark .nav-item.active i,
+        html.dark .nav-item.active .material-symbols-rounded {
             color: #38BDF8;
         }
         .nav-item.active::after {
@@ -385,9 +386,10 @@
         .center-absen-btn:active {
             transform: scale(0.92) translateY(2px);
         }
-        .center-absen-btn i {
-            font-size: 23px;
-            margin-bottom: 0px;
+        .center-absen-btn i,
+        .center-absen-btn .material-symbols-rounded {
+            font-size: 26px;
+            margin-bottom: 1px;
         }
         .center-absen-btn span {
             font-size: 8.5px;
