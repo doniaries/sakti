@@ -949,8 +949,8 @@
                 </button>
             @endif
             @if ($user->hasAnyRole(['super_admin', 'superadmin', 'admin']))
-                <button type="button" wire:click="clearGlobalNotifications"
-                    wire:confirm="Hapus seluruh notifikasi TES (uji coba) di server untuk semua user? Notifikasi transaksi data tetap aman."
+                <button type="button"
+                    @click.prevent="$dispatch('sakti-confirm', { title: 'Hapus Tes Notifikasi', message: 'Hapus seluruh notifikasi TES (uji coba) di server untuk semua user? Notifikasi transaksi data tetap aman.', wireId: '{{ $this->getId() }}', method: 'clearGlobalNotifications', params: [] })"
                     class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer">
                     Hapus Tes Notif
                 </button>

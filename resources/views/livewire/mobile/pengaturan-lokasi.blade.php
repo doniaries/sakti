@@ -162,7 +162,7 @@
 
     detectMyGps() {
         if (!navigator.geolocation) {
-            alert('Browser Anda tidak mendukung deteksi lokasi Geolocation.');
+            window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'warning', title: 'GPS Tidak Didukung', message: 'Browser Anda tidak mendukung deteksi lokasi Geolocation.' } }));
             return;
         }
 
@@ -178,7 +178,7 @@
             },
             (err) => {
                 this.detectingGps = false;
-                alert('Gagal mendeteksi GPS perangkat: ' + err.message);
+                window.dispatchEvent(new CustomEvent('notify', { detail: { type: 'error', title: 'Gagal Mendeteksi GPS', message: 'Gagal mendeteksi GPS perangkat: ' + err.message } }));
             }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     },
