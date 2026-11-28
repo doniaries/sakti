@@ -1043,8 +1043,18 @@
                     return;
                 }
 
-                if (desc && (notifState === 'denied' || (isAbsensiPage && gpsState === 'denied'))) {
-                    desc.innerHTML = 'Izin diblokir oleh browser. Klik ikon <strong>Pengaturan Situs (gembok/tune di address bar)</strong> lalu aktifkan <strong>Notifikasi</strong> dan <strong>Lokasi</strong>, kemudian muat ulang halaman.';
+                const isBlocked = notifState === 'denied' || (isAbsensiPage && gpsState === 'denied');
+                if (isBlocked) {
+                    if (desc) {
+                        desc.innerHTML = !window.isSecureContext
+                            ? 'Browser memblokir Notifikasi &amp; GPS pada koneksi HTTP non-aman. Gunakan <strong>HTTPS</strong> (atau <code>127.0.0.1</code>) lalu muat ulang halaman.'
+                            : 'Izin diblokir oleh browser. Klik ikon <strong>Pengaturan Situs (gembok/tune di address bar)</strong> lalu aktifkan <strong>Notifikasi</strong> &amp; <strong>Lokasi</strong>, kemudian klik <strong>Muat Ulang Halaman</strong>.';
+                    }
+                    btn.dataset.mode = 'reload';
+                    btn.textContent = 'Muat Ulang Halaman';
+                } else {
+                    btn.dataset.mode = 'request';
+                    btn.textContent = 'Aktifkan Sekarang';
                 }
 
                 if (!forceCheck && sessionStorage.getItem('sakti_perm_dismissed') === '1') {
@@ -1063,6 +1073,10 @@
             });
 
             btn.addEventListener('click', async () => {
+                if (btn.dataset.mode === 'reload') {
+                    window.location.reload();
+                    return;
+                }
                 if ('Notification' in window && Notification.permission === 'default') {
                     try { await Notification.requestPermission(); } catch (e) {}
                 }
