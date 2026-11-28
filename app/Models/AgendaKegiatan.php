@@ -102,7 +102,7 @@ class AgendaKegiatan extends Model
         $agendaUrl = route('mobile.agenda');
 
         dispatch(function () use ($recipientIds, $judul, $waktu, $tempat, $instruksiTeks, $agendaUrl): void {
-            $recipients = User::whereIn('id', $recipientIds)->where('aktif', true)->get();
+            $recipients = User::query()->whereIn('id', $recipientIds)->where('aktif', true)->get();
             if ($recipients->isEmpty()) {
                 return;
             }

@@ -28,14 +28,15 @@ class AgendaForm extends Component
     /** @var array<int, int|string> */
     public array $disposisi_user_ids = [];
     public string $instruksi = '';
-    public $lampiran_file;
+    /** @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|string|null */
+    public mixed $lampiran_file = null;
 
     public function mount(): void
     {
         $this->tanggal = Carbon::today()->toDateString();
     }
 
-    public function simpanAgenda(): mixed
+    public function simpanAgenda(): void
     {
         $validated = $this->validate([
             'judul' => ['required', 'string', 'max:255'],
@@ -104,7 +105,7 @@ class AgendaForm extends Component
 
         $this->dispatch('notify', type: 'success', title: 'Agenda Ditambahkan', message: 'Agenda kegiatan & disposisi berhasil disimpan.');
 
-        return $this->redirect(route('mobile.agenda'), navigate: true);
+        $this->redirect(route('mobile.agenda'), navigate: true);
     }
 
     public function render()

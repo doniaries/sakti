@@ -10,7 +10,7 @@
                 <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Jadwal kegiatan &amp; disposisi Anda</p>
             </div>
         </div>
-        <a href="{{ route('mobile.agenda.create') }}" wire:navigate
+        <a href="{{ route('mobile.agenda.create') }}" wire:navigate.hover
             class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer">
             <i class="fa-solid fa-plus"></i>
             <span>Tambah Agenda</span>
