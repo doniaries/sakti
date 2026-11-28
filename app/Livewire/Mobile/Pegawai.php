@@ -163,23 +163,27 @@ class Pegawai extends Component
 
         $totalFiltered = (clone $baseQuery)->count();
 
+        $columns = [
+            'id',
+            'name',
+            'gelar_depan',
+            'gelar_belakang',
+            'nip',
+            'avatar_url',
+            'jabatan_id',
+            'bidang_id',
+            'atasan_id',
+            'status_kerja',
+            'aktif',
+        ];
+        if ($canManage) {
+            $columns[] = 'email';
+        }
+
         $pegawais = (clone $baseQuery)
             ->orderBy('id')
             ->limit($this->perPage)
-            ->get([
-                'id',
-                'name',
-                'gelar_depan',
-                'gelar_belakang',
-                'nip',
-                'email',
-                'avatar_url',
-                'jabatan_id',
-                'bidang_id',
-                'atasan_id',
-                'status_kerja',
-                'aktif',
-            ]);
+            ->get($columns);
 
         return view('livewire.mobile.pegawai', [
             'pegawais' => $pegawais,

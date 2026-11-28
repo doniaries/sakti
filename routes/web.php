@@ -43,7 +43,10 @@ Route::get('/mobile/google-native', function (\Illuminate\Http\Request $request)
         return redirect()->route('mobile.login');
     }
     $res = \Illuminate\Support\Facades\Http::get('https://oauth2.googleapis.com/tokeninfo', ['id_token' => $idToken]);
-    if (! $res->ok()) {
+    $expectedAud = (string) config('services.google.client_id', '');
+    $audValid = $expectedAud === '' || $res->json('aud') === $expectedAud;
+    $emailVerified = filter_var($res->json('email_verified'), FILTER_VALIDATE_BOOLEAN);
+    if (! $res->ok() || ! $audValid || ! $emailVerified) {
         return redirect()->route('mobile.login')->with('notify', ['type' => 'error', 'title' => 'Gagal Masuk', 'message' => 'Token Google tidak valid.']);
     }
     $email = strtolower((string) ($res->json('email') ?? ''));
