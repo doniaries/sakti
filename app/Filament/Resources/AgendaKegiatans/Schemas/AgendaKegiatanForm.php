@@ -28,6 +28,16 @@ class AgendaKegiatanForm
                     ->schema([
                         TextInput::make('judul')
                             ->label('Judul / Perihal Kegiatan')
+                            ->datalist(fn (): array => AgendaKegiatan::query()
+                                ->whereNotNull('judul')
+                                ->where('judul', '!=', '')
+                                ->orderByDesc('id')
+                                ->limit(30)
+                                ->pluck('judul')
+                                ->unique()
+                                ->take(10)
+                                ->values()
+                                ->all())
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),

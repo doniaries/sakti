@@ -29,7 +29,7 @@ class AgendaKegiatanSeeder extends Seeder
                 'jam_mulai' => $soonStart,
                 'jam_selesai' => null,
                 'tempat' => 'Balairung Lansek Manih',
-                'asal_undangan' => 'Kominfo / Bupati Sijunjung',
+                'asal_undangan' => 'Bupati Sijunjung',
                 'keterangan' => 'Monitoring dan evaluasi pengelolaan media sosial OPD.',
                 'instruksi' => 'Hadir, bawa 1 org admin',
             ],

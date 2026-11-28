@@ -112,13 +112,13 @@ class AgendaForm extends Component
     /**
      * @return \Illuminate\Support\Collection<int, string>
      */
-    private function recentDistinctValues(string $modelClass, string $column, int $limit = 8): \Illuminate\Support\Collection
+    private function recentDistinctValues(string $modelClass, string $column, int $limit = 5): \Illuminate\Support\Collection
     {
         return $modelClass::query()
             ->whereNotNull($column)
             ->where($column, '!=', '')
             ->orderByDesc('id')
-            ->limit(50)
+            ->limit(30)
             ->pluck($column)
             ->unique()
             ->take($limit)
@@ -133,6 +133,7 @@ class AgendaForm extends Component
                 ->with('jabatan:id,nama')
                 ->orderBy('id')
                 ->get(['id', 'name', 'jabatan_id'])),
+            'riwayatJudul' => $this->recentDistinctValues(AgendaKegiatan::class, 'judul'),
             'riwayatTempat' => $this->recentDistinctValues(AgendaKegiatan::class, 'tempat'),
             'riwayatAsalUndangan' => $this->recentDistinctValues(AgendaKegiatan::class, 'asal_undangan'),
             'riwayatInstruksi' => $this->recentDistinctValues(AgendaDisposisi::class, 'instruksi'),
