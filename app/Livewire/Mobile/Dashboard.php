@@ -232,7 +232,9 @@ class Dashboard extends Component
         $pengaturan = \App\Models\PengaturanAplikasi::getPengaturan();
         $next = ! (bool) ($pengaturan->mode_simulasi ?? false);
         \App\Models\PengaturanAplikasi::first()?->update(['mode_simulasi' => $next]);
+        session(['mode_simulasi_absensi' => $next]);
 
+        $this->dispatch('mode-simulasi-updated', active: $next);
         $this->dispatch('notify', [
             'type' => $next ? 'success' : 'info',
             'title' => 'Mode Simulasi ' . ($next ? 'Aktif' : 'Nonaktif'),
@@ -333,7 +335,7 @@ class Dashboard extends Component
 
         return view('livewire.mobile.dashboard-rhoe', [
             'user' => $user,
-            'modeSimulasi' => (bool) ($pengaturan->mode_simulasi ?? false),
+            'modeSimulasi' => $modeSimulasi,
             'hariLiburHariIni' => $hariLiburHariIni,
             'infoLiburHariIni' => $infoLiburHariIni,
             'unreadNotifCount' => $unreadNotifCount,

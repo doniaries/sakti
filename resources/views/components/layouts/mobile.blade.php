@@ -592,23 +592,26 @@
                 </a>
 
                 <!-- 3. TOMBOL NAVIGASI PRESENSI TENGAH -->
-                <div class="center-absen-btn-wrapper">
-                    @if ($disablePresensiNav)
-                        <button type="button" disabled aria-disabled="true"
-                           class="center-absen-btn !bg-slate-400 dark:!bg-zinc-700 !shadow-none ring-4 ring-slate-200 dark:ring-zinc-700 opacity-60 grayscale cursor-not-allowed"
-                           title="{{ $infoLiburNav['label'] ?? 'Bukan Jadwal Kerja' }}">
-                            <span class="material-symbols-rounded text-[26px]">fingerprint</span>
-                            <span>PRESENSI</span>
-                        </button>
-                    @else
-                        <a href="{{ route('mobile.absensi') }}" 
-                           wire:navigate.hover
-                           class="center-absen-btn group ring-4 ring-sky-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-sky-400 shadow-sky-500/40' : '' }}"
-                           title="Halaman Presensi Kehadiran">
-                            <span class="material-symbols-rounded text-[26px]">fingerprint</span>
-                            <span>PRESENSI</span>
-                        </a>
-                    @endif
+                <div class="center-absen-btn-wrapper"
+                    x-data="{ simAktif: {{ $isSimulasiAktif ? 'true' : 'false' }}, isLibur: {{ $infoLiburNav['is_libur'] ? 'true' : 'false' }} }"
+                    @mode-simulasi-updated.window="simAktif = Boolean($event.detail?.active ?? $event.detail?.[0]?.active ?? false)">
+                    <button type="button" disabled aria-disabled="true"
+                       x-show="isLibur && !simAktif"
+                       @if (!$disablePresensiNav) x-cloak @endif
+                       class="center-absen-btn !bg-slate-400 dark:!bg-zinc-700 !shadow-none ring-4 ring-slate-200 dark:ring-zinc-700 opacity-60 grayscale cursor-not-allowed"
+                       title="{{ $infoLiburNav['label'] ?? 'Bukan Jadwal Kerja' }}">
+                        <span class="material-symbols-rounded text-[26px]">fingerprint</span>
+                        <span>PRESENSI</span>
+                    </button>
+                    <a href="{{ route('mobile.absensi') }}" 
+                       wire:navigate.hover
+                       x-show="!isLibur || simAktif"
+                       @if ($disablePresensiNav) x-cloak @endif
+                       class="center-absen-btn group ring-4 ring-sky-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-sky-400 shadow-sky-500/40' : '' }}"
+                       title="Halaman Presensi Kehadiran">
+                        <span class="material-symbols-rounded text-[26px]">fingerprint</span>
+                        <span>PRESENSI</span>
+                    </a>
                 </div>
 
                 <!-- 4. Persetujuan (Atasan/Admin) atau LHK (Pegawai) -->

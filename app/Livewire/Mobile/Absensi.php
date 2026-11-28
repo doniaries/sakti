@@ -143,6 +143,7 @@ class Absensi extends Component
         PengaturanAplikasi::first()?->update(['mode_simulasi' => $this->modeSimulasi]);
         session(['mode_simulasi_absensi' => $this->modeSimulasi]);
 
+        $this->dispatch('mode-simulasi-updated', active: $this->modeSimulasi);
         $statusStr = $this->modeSimulasi ? 'DIAKTIFKAN (Bebas Lokasi, Jam Normal)' : 'DINONAKTIFKAN (Ikuti Lokasi & Jam Asli)';
         $this->dispatch('notify', [
             'type' => 'info',
