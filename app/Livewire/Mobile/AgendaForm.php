@@ -66,7 +66,7 @@ class AgendaForm extends Component
             'judul' => ['required', 'string', 'max:255'],
             'tanggal' => ['required', 'date'],
             'jam_mulai' => ['required', 'string'],
-            'jam_selesai' => ['required', 'string'],
+            'jam_selesai' => ['nullable', 'string'],
             'tempat' => ['required', 'string', 'max:255'],
             'asal_undangan' => ['required', 'string', 'max:255'],
             'disposisi_user_ids' => ['required', 'array', 'min:1'],

@@ -41,8 +41,9 @@
                             buttonClass="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none" />
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Selesai <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Selesai <span class="text-zinc-400 font-normal">(Opsional)</span></label>
                         <x-mobile.time-picker wire:model="jam_selesai"
+                            placeholder="Selesai"
                             buttonClass="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none" />
                         @error('jam_selesai') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
                     </div>
