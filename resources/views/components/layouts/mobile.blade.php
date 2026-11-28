@@ -487,6 +487,13 @@
             0% { opacity: 0; transform: translateY(28px) scale(0.94); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
         }
+        @keyframes androidWaveDot {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.45; }
+            40% { transform: translateY(-6px); opacity: 1; }
+        }
+        .android-wave-dot {
+            animation: androidWaveDot 1.1s ease-in-out infinite;
+        }
         .android-modal-anim {
             animation: androidPopIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
@@ -524,23 +531,15 @@
         @endif
 
 
-        <!-- Global Navigation Skeleton Overlay (Muncul otomatis saat pindah menu wire:navigate > 120ms) -->
+        <!-- Indikator Loading Titik Bergelombang ala Android saat navigasi > 180ms -->
         <div x-data="{
                 navigating: false,
-                target: 'dashboard',
                 timer: null,
                 failSafeTimer: null,
-                startNav(e) {
-                    const url = e?.detail?.url?.pathname || '';
-                    this.target = url.includes('/absensi') ? 'absensi'
-                        : (url.includes('/riwayat') ? 'riwayat'
-                        : (url.includes('/izin') ? 'izin'
-                        : (url.includes('/profil') ? 'profil'
-                        : ((url.includes('/surat-tugas/buat') || url.includes('/agenda/buat') || url.includes('/ubah')) ? 'surat_tugas_form'
-                        : ((url.includes('/surat-tugas') || url.includes('/agenda') || url.includes('/pegawai')) ? 'surat_tugas' : 'dashboard')))));
+                startNav() {
                     clearTimeout(this.timer);
                     clearTimeout(this.failSafeTimer);
-                    this.timer = setTimeout(() => { this.navigating = true; }, 300);
+                    this.timer = setTimeout(() => { this.navigating = true; }, 180);
                     this.failSafeTimer = setTimeout(() => { this.endNav(); }, 3000);
                 },
                 endNav() {
@@ -550,141 +549,19 @@
                 }
             }"
             x-init="
-                document.addEventListener('livewire:navigate', (e) => startNav(e));
+                document.addEventListener('livewire:navigate', () => startNav());
                 document.addEventListener('livewire:navigated', () => endNav());
                 document.addEventListener('livewire:navigate-failed', () => endNav());
             "
             x-show="navigating"
             x-cloak
             x-transition.opacity.duration.150ms
-            class="fixed inset-0 z-40 w-full max-w-[440px] sm:max-w-[640px] md:max-w-[768px] lg:max-w-[960px] mx-auto bg-slate-50 dark:bg-[#09090b] pb-24 space-y-4 pointer-events-none">
-            <!-- 1. Skeleton Beranda -->
-            <template x-if="target === 'dashboard'">
-                <div class="space-y-4 animate-pulse">
-                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 space-y-5">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-slate-300 dark:bg-zinc-700 shrink-0"></div>
-                                <div class="space-y-1.5">
-                                    <div class="h-2.5 w-20 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                                    <div class="h-3.5 w-36 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                                </div>
-                            </div>
-                            <div class="w-9 h-9 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                        </div>
-                        <div class="flex items-end justify-between">
-                            <div class="h-7 w-32 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                            <div class="h-8 w-24 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
-                        </div>
-                    </div>
-                    <div class="-mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5">
-                        <div class="grid grid-cols-4 gap-3">
-                            @for ($i = 0; $i < 8; $i++)
-                                <div class="flex flex-col items-center gap-1.5">
-                                    <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
-                                    <div class="h-2 w-10 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                                </div>
-                            @endfor
-                        </div>
-                    </div>
-                    <div class="px-4 grid grid-cols-2 gap-3">
-                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5"></div>
-                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-3.5"></div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- 2. Skeleton Presensi -->
-            <template x-if="target === 'absensi'">
-                <div class="space-y-4 animate-pulse">
-                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 flex items-center justify-between">
-                        <div class="h-5 w-40 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                        <div class="h-9 w-20 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
-                    </div>
-                    <div class="-mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 space-y-3">
-                        <div class="h-7 w-32 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                        <div class="grid grid-cols-2 gap-2.5">
-                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
-                            <div class="h-14 rounded-2xl bg-slate-100 dark:bg-zinc-800"></div>
-                        </div>
-                    </div>
-                    <div class="mx-4 h-56 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                </div>
-            </template>
-
-            <!-- 3. Skeleton Riwayat -->
-            <template x-if="target === 'riwayat'">
-                <div class="space-y-4 animate-pulse">
-                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-12 flex items-center justify-between">
-                        <div class="h-5 w-36 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                        <div class="h-8 w-24 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
-                    </div>
-                    <div class="-mt-8 mx-4 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                    <div class="mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800 p-4 grid grid-cols-3 gap-2">
-                        @for ($i = 0; $i < 6; $i++)
-                            <div class="h-12 rounded-xl bg-slate-100 dark:bg-zinc-800"></div>
-                        @endfor
-                    </div>
-                    <div class="mx-4 space-y-2.5">
-                        <div class="h-20 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                        <div class="h-20 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- 4. Skeleton Izin & Profil -->
-            <template x-if="target === 'izin' || target === 'profil'">
-                <div class="space-y-4 animate-pulse">
-                    <div class="rounded-b-[28px] bg-slate-200 dark:bg-zinc-800 px-5 pt-5 pb-10 flex items-center justify-between">
-                        <div class="h-5 w-40 rounded-full bg-slate-300 dark:bg-zinc-700"></div>
-                        <div class="h-8 w-24 rounded-xl bg-slate-300 dark:bg-zinc-700"></div>
-                    </div>
-                    <div class="mx-4 h-12 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                    <div class="mx-4 space-y-3">
-                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                        <div class="h-24 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- 5. Skeleton Surat Tugas List -->
-            <template x-if="target === 'surat_tugas'">
-                <div class="space-y-4 animate-pulse">
-                    <div class="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-zinc-800"></div>
-                            <div class="space-y-1.5">
-                                <div class="h-3.5 w-24 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                                <div class="h-2.5 w-36 rounded-full bg-slate-100 dark:bg-zinc-800"></div>
-                            </div>
-                        </div>
-                        <div class="h-8 w-28 rounded-xl bg-slate-200 dark:bg-zinc-800"></div>
-                    </div>
-                    <div class="px-4 space-y-3">
-                        <div class="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                        <div class="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                        <div class="h-32 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- 6. Skeleton Form Buat Surat Tugas -->
-            <template x-if="target === 'surat_tugas_form'">
-                <div class="space-y-4 animate-pulse">
-                    <div class="bg-white dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl bg-slate-200 dark:bg-zinc-800"></div>
-                        <div class="space-y-1.5">
-                            <div class="h-3.5 w-28 rounded-full bg-slate-200 dark:bg-zinc-800"></div>
-                            <div class="h-2.5 w-40 rounded-full bg-slate-100 dark:bg-zinc-800"></div>
-                        </div>
-                    </div>
-                    <div class="px-4 space-y-4">
-                        <div class="h-56 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                        <div class="h-28 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                        <div class="h-44 rounded-2xl bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-800"></div>
-                    </div>
-                </div>
-            </template>
+            class="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/15 backdrop-blur-[1px] pointer-events-none">
+            <div class="px-5 py-3 rounded-full bg-white/95 dark:bg-zinc-900/95 border border-slate-200/90 dark:border-zinc-800 shadow-xl flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-600 dark:bg-sky-400 android-wave-dot" style="animation-delay: 0ms"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-600 dark:bg-sky-400 android-wave-dot" style="animation-delay: 160ms"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-sky-600 dark:bg-sky-400 android-wave-dot" style="animation-delay: 320ms"></span>
+            </div>
         </div>
 
         <!-- Content -->
