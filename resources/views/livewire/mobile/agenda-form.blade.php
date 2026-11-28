@@ -82,47 +82,14 @@
                 </div>
             </div>
 
-            <div x-data="{ open: false, q: '' }" @click.outside="open = false" class="relative">
-                <div class="flex items-center justify-between gap-2 mb-1.5">
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Pegawai yang Diperintah (Disposisi) <span class="text-rose-500">*</span></label>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <button type="button" wire:click="toggleSemuaPegawai"
-                            class="text-xs font-bold px-2.5 py-0.5 rounded-full border transition cursor-pointer {{ count($disposisi_user_ids) >= $pegawais->count() && $pegawais->isNotEmpty() ? 'bg-sky-600 border-sky-600 text-white' : 'bg-white dark:bg-zinc-900 border-sky-300 dark:border-sky-500/40 text-sky-700 dark:text-sky-300 hover:bg-sky-50' }}">
-                            {{ count($disposisi_user_ids) >= $pegawais->count() && $pegawais->isNotEmpty() ? 'Batal Semua' : 'Semua Pegawai' }}
-                        </button>
-                        <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300">
-                            {{ count($disposisi_user_ids) }} dipilih
-                        </span>
-                    </div>
-                </div>
-                <button type="button" @click="open = !open"
-                    class="w-full min-h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 py-2.5 text-left flex items-center justify-between gap-2 text-sm cursor-pointer">
-                    <span class="text-zinc-500 truncate">
-                        {{ count($disposisi_user_ids) > 0 ? count($disposisi_user_ids) . ' pegawai dipilih' : 'Pilih pegawai yang ditugaskan...' }}
-                    </span>
-                    <i class="fa-solid fa-chevron-down text-zinc-400 text-xs transition-transform duration-150"
-                        :class="open ? 'rotate-180 text-sky-500' : ''"></i>
-                </button>
-                <div x-show="open" x-cloak
-                    class="mt-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-2 shadow-lg">
-                    <input type="search" x-model="q" placeholder="Cari nama atau jabatan..."
-                        class="w-full h-9 mb-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-xs text-zinc-900 dark:text-zinc-100">
-                    <div class="max-h-52 overflow-y-auto overscroll-contain space-y-1">
-                        @foreach ($pegawais as $p)
-                            <label x-show="!q || '{{ strtolower($p->name . ' ' . ($p->jabatan?->nama ?? '')) }}'.includes(q.toLowerCase())"
-                                class="flex items-center gap-2.5 p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/70 cursor-pointer">
-                                <input type="checkbox" wire:model.live="disposisi_user_ids" value="{{ $p->id }}"
-                                    class="rounded border-zinc-300 text-sky-600 focus:ring-sky-500">
-                                <div class="min-w-0">
-                                    <div class="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">{{ $p->name }}</div>
-                                    @if ($p->jabatan?->nama)
-                                        <div class="text-xs text-zinc-400 truncate">{{ $p->jabatan->nama }}</div>
-                                    @endif
-                                </div>
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
+            <div>
+                <x-mobile.multi-select
+                    wire:model="disposisi_user_ids"
+                    label="Pegawai yang Diperintah (Disposisi)"
+                    :required="true"
+                    :items="$pegawais"
+                    searchPlaceholder="Ketik nama atau jabatan untuk mencari..."
+                />
                 @error('disposisi_user_ids') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
 

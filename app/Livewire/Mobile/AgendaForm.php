@@ -36,14 +36,6 @@ class AgendaForm extends Component
         $this->tanggal = Carbon::today()->toDateString();
     }
 
-    public function toggleSemuaPegawai(): void
-    {
-        $allIds = User::where('aktif', true)->orderBy('id')->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $selectedIds = collect($this->disposisi_user_ids)->map(fn ($id) => (int) $id)->filter()->unique()->values()->all();
-
-        $this->disposisi_user_ids = count($selectedIds) >= count($allIds) ? [] : $allIds;
-    }
-
     public function simpanAgenda(): mixed
     {
         $validated = $this->validate([
