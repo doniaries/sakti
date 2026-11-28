@@ -58,6 +58,19 @@ class AttendancePunchService
         }
 
         $today = Carbon::today()->format('Y-m-d');
+
+        if (! $bypassTime) {
+            $infoLibur = \App\Models\HariLibur::getInfoHariLibur($today);
+            if ($infoLibur['is_libur']) {
+                return [
+                    'success' => false,
+                    'type' => 'warning',
+                    'title' => 'Bukan Jadwal Kerja',
+                    'message' => $infoLibur['keterangan'],
+                ];
+            }
+        }
+
         $now = ($isSimulasi && ! empty($pengaturan->simulasi_jam_aktif))
             ? substr($pengaturan->simulasi_jam_aktif, 0, 5) . ':00'
             : Carbon::now()->format('H:i:s');

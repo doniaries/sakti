@@ -261,9 +261,8 @@ class Dashboard extends Component
             : AbsensiHarian::where('user_id', $user->id)
             ->where('tanggal', $todayStr)
             ->first();
-        $hariLiburHariIni = \App\Models\HariLibur::where('tanggal', $today->format('Y-m-d'))
-            ->where('is_aktif', true)
-            ->first();
+        $infoLiburHariIni = \App\Models\HariLibur::getInfoHariLibur($today->format('Y-m-d'));
+        $hariLiburHariIni = $infoLiburHariIni['record'];
 
         $sudahMasuk = $absensiHariIni && !empty($absensiHariIni->jam_masuk);
         $sudahPulang = $absensiHariIni && !empty($absensiHariIni->jam_pulang);
@@ -336,6 +335,7 @@ class Dashboard extends Component
             'user' => $user,
             'modeSimulasi' => (bool) ($pengaturan->mode_simulasi ?? false),
             'hariLiburHariIni' => $hariLiburHariIni,
+            'infoLiburHariIni' => $infoLiburHariIni,
             'unreadNotifCount' => $unreadNotifCount,
             'recentNotifications' => $recentNotifications,
             'jamKerjaAsn' => [

@@ -296,7 +296,9 @@ class Absensi extends Component
         $absenHarian = $virtualData
             ? new AbsensiHarian($virtualData)
             : AbsensiHarian::where('user_id', $user->id)->where('tanggal', $today)->first();
-        $hariLiburHariIni = \App\Models\HariLibur::where('tanggal', $today)->where('is_aktif', true)->first();
+        $infoLiburHariIni = \App\Models\HariLibur::getInfoHariLibur($today);
+        $hariLiburHariIni = $infoLiburHariIni['record'];
+        $isBukanJadwalKerja = $infoLiburHariIni['is_libur'];
 
         $sudahMasuk = $absenHarian && !empty($absenHarian->jam_masuk);
         $sudahPulang = $absenHarian && !empty($absenHarian->jam_pulang);
@@ -350,6 +352,8 @@ class Absensi extends Component
             'belumJamPulang' => $belumJamPulang,
             'lewatBatasPulang' => $lewatBatasPulang,
             'hariLiburHariIni' => $hariLiburHariIni,
+            'infoLiburHariIni' => $infoLiburHariIni,
+            'isBukanJadwalKerja' => $isBukanJadwalKerja,
         ]);
     }
 }

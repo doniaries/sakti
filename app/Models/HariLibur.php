@@ -60,6 +60,49 @@ class HariLibur extends Model
     }
 
     /**
+     * Dapatkan informasi status non-hari-kerja (Sabtu, Minggu, Tanggal Merah, atau Cuti Bersama)
+     *
+     * @return array{is_libur: bool, jenis: string|null, label: string|null, keterangan: string|null, record: self|null}
+     */
+    public static function getInfoHariLibur(Carbon|string $tanggal): array
+    {
+        $date = $tanggal instanceof Carbon ? $tanggal->copy() : Carbon::parse($tanggal);
+        $record = static::getLibur($date);
+
+        if ($record) {
+            $jenisLabel = $record->jenis === 'cuti_bersama' ? 'Cuti Bersama' : 'Hari Libur Nasional';
+
+            return [
+                'is_libur' => true,
+                'jenis' => $record->jenis,
+                'label' => "{$jenisLabel}: {$record->nama}",
+                'keterangan' => "Hari ini adalah {$jenisLabel} ({$record->nama}). Bukan jadwal kerja.",
+                'record' => $record,
+            ];
+        }
+
+        if ($date->isWeekend()) {
+            $hariNama = $date->copy()->locale('id')->translatedFormat('l');
+
+            return [
+                'is_libur' => true,
+                'jenis' => 'akhir_pekan',
+                'label' => "Bukan Jadwal Kerja ({$hariNama})",
+                'keterangan' => "Hari {$hariNama} merupakan akhir pekan (bukan jadwal kerja). Presensi hanya dibuka pada hari kerja Senin - Jumat.",
+                'record' => null,
+            ];
+        }
+
+        return [
+            'is_libur' => false,
+            'jenis' => null,
+            'label' => null,
+            'keterangan' => null,
+            'record' => null,
+        ];
+    }
+
+    /**
      * Sinkronkan data hari libur nasional & cuti bersama otomatis dari API SKB
      */
     public static function syncFromApi(int $year): int

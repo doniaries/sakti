@@ -38,12 +38,12 @@
     @konfirmasi-hadir-sukses.window="notifSheet = false; konfirmasiSuccessModal = true"
     class="pb-28 px-4 pt-4 space-y-4 text-zinc-900 dark:text-zinc-100">
 
-    <!-- Holiday Notice (Hanya tampil saat hari libur) -->
-    @if ($hariLiburHariIni)
+    <!-- Holiday Notice (Hanya tampil saat hari libur / akhir pekan) -->
+    @if ($infoLiburHariIni['is_libur'])
         <div
             class="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 px-3.5 py-2.5 flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-300">
             <i class="fa-solid fa-calendar-day text-amber-500"></i>
-            <span class="font-bold truncate">Hari Libur: {{ $hariLiburHariIni->nama }}</span>
+            <span class="font-bold truncate">{{ $infoLiburHariIni['label'] }}</span>
         </div>
     @endif
 
@@ -497,7 +497,7 @@
     </section>
 
     <!-- 3. STATUS PRESENSI HARI INI -->
-    @if ($hariLiburHariIni && !$hariIni['sudah_masuk'])
+    @if ($infoLiburHariIni['is_libur'] && !$hariIni['sudah_masuk'] && !$modeSimulasi)
         <div
             class="rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200/80 dark:border-rose-800/60 p-4 flex items-center gap-3 shadow-sm">
             <div
@@ -505,10 +505,9 @@
                 <i class="fa-solid fa-calendar-xmark"></i>
             </div>
             <div class="min-w-0 flex-1">
-                <div class="text-sm font-extrabold text-rose-900 dark:text-rose-200">Hari Libur:
-                    {{ $hariLiburHariIni->nama ?? 'Libur' }}</div>
-                <div class="text-[13px] text-rose-700/90 dark:text-rose-300/80 font-medium truncate">Tidak ada
-                    kewajiban ambil absen hari ini</div>
+                <div class="text-sm font-extrabold text-rose-900 dark:text-rose-200">{{ $infoLiburHariIni['label'] }}</div>
+                <div class="text-[13px] text-rose-700/90 dark:text-rose-300/80 font-medium">
+                    {{ $infoLiburHariIni['keterangan'] }}</div>
             </div>
         </div>
     @elseif (!$hariIni['sudah_masuk'])

@@ -54,11 +54,16 @@
 
         <div
             class="relative z-10 -mt-8 mx-4 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4 shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 space-y-3.5">
-            <!-- Status Hari Libur / Selesai -->
-            @if ($hariLiburHariIni)
+            <!-- Status Hari Libur / Bukan Jadwal Kerja / Selesai -->
+            @if ($isBukanJadwalKerja)
                 <div
-                    class="p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs md:text-sm font-bold text-center">
-                    <i class="fa-solid fa-calendar-xmark mr-1"></i> Hari Libur: {{ $hariLiburHariIni->nama }}
+                    class="p-3 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs md:text-sm text-center space-y-0.5">
+                    <div class="font-extrabold">
+                        <i class="fa-solid fa-calendar-xmark mr-1"></i> {{ $infoLiburHariIni['label'] }}
+                    </div>
+                    <p class="text-[11px] md:text-xs font-medium opacity-90">
+                        {{ $infoLiburHariIni['keterangan'] }}
+                    </p>
                 </div>
             @elseif ($sudahMasuk && $sudahPulang)
                 <div
@@ -267,7 +272,15 @@
     </div>
 
     <!-- TOMBOL ABSEN MELAYANG (SAMAR & NONAKTIF DI LUAR RADIUS, JELAS & AKTIF DI DALAM RADIUS) -->
-    @if ((!$hariLiburHariIni || $modeSimulasi) && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
+    @if ($isBukanJadwalKerja && !$modeSimulasi)
+        <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
+            <button type="button" disabled
+                class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-rose-600/85 text-white font-extrabold text-xs md:text-sm shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-85 cursor-not-allowed">
+                <i class="fa-solid fa-calendar-xmark text-sm"></i>
+                <span>{{ $infoLiburHariIni['label'] ?? 'Bukan Jadwal Kerja' }}</span>
+            </button>
+        </div>
+    @elseif ((!$isBukanJadwalKerja || $modeSimulasi) && !$sudahMasuk && !$lewatBatasMasuk && !$belumBukaMasuk)
         <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <div class="pointer-events-auto max-w-[440px] w-full flex items-center gap-3">
                 <button type="button" @click="detectPosition(true)"
@@ -289,7 +302,7 @@
                 </button>
             </div>
         </div>
-    @elseif (!$hariLiburHariIni && !$modeSimulasi && !$sudahMasuk && ($lewatBatasMasuk || $belumBukaMasuk))
+    @elseif (!$isBukanJadwalKerja && !$modeSimulasi && !$sudahMasuk && ($lewatBatasMasuk || $belumBukaMasuk))
         <div class="fixed bottom-[116px] inset-x-0 z-30 flex justify-center pointer-events-none px-4">
             <button type="button" disabled
                 class="pointer-events-auto max-w-[360px] w-full py-3 px-5 rounded-full bg-slate-500 text-white font-extrabold text-xs md:text-sm shadow-lg border border-white/25 flex items-center justify-center gap-2 opacity-50 grayscale cursor-not-allowed">
