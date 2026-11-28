@@ -1,23 +1,15 @@
 <div class="pb-24">
-    <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
-            <a href="{{ route('mobile.dashboard') }}" wire:navigate
-                class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200 shrink-0">
-                <span class="material-symbols-rounded text-[20px]">arrow_back</span>
-            </a>
-            <div class="min-w-0">
-                <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">Data Pegawai</h1>
-                <p class="text-[13px] text-zinc-500 dark:text-zinc-400 truncate">Total {{ $totalAktif }} pegawai aktif</p>
-            </div>
-        </div>
+    <x-mobile.page-header title="Data Pegawai" subtitle="Total {{ $totalAktif }} pegawai aktif">
         @if ($canManage)
-            <button type="button" wire:click="openCreate"
-                class="shrink-0 whitespace-nowrap inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm active:scale-95 transition cursor-pointer">
-                <span class="material-symbols-rounded text-[16px]">person_add</span>
-                <span>Tambah</span>
-            </button>
+            <x-slot:actions>
+                <button type="button" wire:click="openCreate"
+                    class="shrink-0 whitespace-nowrap inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm active:scale-95 transition cursor-pointer">
+                    <span class="material-symbols-rounded text-[16px]">person_add</span>
+                    <span>Tambah</span>
+                </button>
+            </x-slot:actions>
         @endif
-    </div>
+    </x-mobile.page-header>
 
     <div class="p-4 space-y-3.5">
         <div class="relative">

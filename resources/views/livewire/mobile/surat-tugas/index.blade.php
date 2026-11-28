@@ -1,25 +1,15 @@
 <div class="pb-24">
-    <div
-        class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <a href="{{ route('mobile.dashboard') }}" wire:navigate
-                class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200">
-                <i class="fa-solid fa-arrow-left text-sm"></i>
-            </a>
-            <div>
-                <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100">Surat Tugas</h1>
-                <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Daftar Penugasan Tim Kreatif</p>
-            </div>
-        </div>
-
+    <x-mobile.page-header title="Surat Tugas" subtitle="Daftar Penugasan Tim Kreatif">
         @if ($canCreate)
-            <a href="{{ route('mobile.surat-tugas.create') }}" wire:navigate
-                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all">
-                <i class="fa-solid fa-plus"></i>
-                <span>Buat Surat Tugas</span>
-            </a>
+            <x-slot:actions>
+                <a href="{{ route('mobile.surat-tugas.create') }}" wire:navigate.hover
+                    class="shrink-0 whitespace-nowrap inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all">
+                    <span class="material-symbols-rounded text-[16px]">add</span>
+                    <span>Buat Surat Tugas</span>
+                </a>
+            </x-slot:actions>
         @endif
-    </div>
+    </x-mobile.page-header>
 
     <div class="p-4 space-y-3">
         {{-- Ringkasan Penugasan Pribadi --}}
@@ -28,7 +18,7 @@
                 class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3 flex items-center gap-3 shadow-xs">
                 <div
                     class="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-file-circle-check text-sm"></i>
+                    <span class="material-symbols-rounded text-[20px]">task</span>
                 </div>
                 <div class="min-w-0">
                     <div class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
@@ -41,7 +31,7 @@
                 class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-3 flex items-center gap-3 shadow-xs">
                 <div
                     class="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-calendar-week text-sm"></i>
+                    <span class="material-symbols-rounded text-[20px]">calendar_month</span>
                 </div>
                 <div class="min-w-0">
                     <div class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">

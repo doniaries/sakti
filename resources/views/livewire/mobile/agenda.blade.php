@@ -1,21 +1,13 @@
 <div class="pb-24">
-    <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <a href="{{ route('mobile.dashboard') }}" wire:navigate
-                class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200 shrink-0">
-                <span class="material-symbols-rounded text-[20px]">arrow_back</span>
+    <x-mobile.page-header title="Agenda Kegiatan" subtitle="Jadwal kegiatan &amp; disposisi Anda">
+        <x-slot:actions>
+            <a href="{{ route('mobile.agenda.create') }}" wire:navigate.hover
+                class="shrink-0 whitespace-nowrap inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer">
+                <span class="material-symbols-rounded text-[16px]">add</span>
+                <span>Tambah Agenda</span>
             </a>
-            <div class="min-w-0">
-                <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">Agenda Kegiatan</h1>
-                <p class="text-[13px] text-zinc-500 dark:text-zinc-400 truncate">Jadwal kegiatan &amp; disposisi Anda</p>
-            </div>
-        </div>
-        <a href="{{ route('mobile.agenda.create') }}" wire:navigate.hover
-            class="shrink-0 whitespace-nowrap inline-flex items-center gap-1 px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-sm active:scale-95 transition-all cursor-pointer">
-            <span class="material-symbols-rounded text-[16px]">add</span>
-            <span>Tambah Agenda</span>
-        </a>
-    </div>
+        </x-slot:actions>
+    </x-mobile.page-header>
 
     <div class="p-4 space-y-4">
 
