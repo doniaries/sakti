@@ -39,7 +39,8 @@
             </div>
         </div>
 
-        <div class="flex items-center space-x-4 relative z-10" x-data="{
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center space-x-4 min-w-0 flex-1" x-data="{
             cropOpen: false,
             imgSrc: '',
             imgEl: null,
@@ -238,10 +239,6 @@
             </template>
 
             <div class="flex-1 min-w-0">
-                <div
-                    class="inline-block px-2.5 py-0.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-extrabold text-sky-200 uppercase tracking-wider mb-1">
-                    {{ $user->isPegawaiWajibAbsen() ? $user->jabatan->nama ?? 'Pegawai' : 'Super Administrator Sistem' }}
-                </div>
                 @php
                     $namaLengkap = $user->name;
                     if ($user->gelar_depan && stripos($namaLengkap, $user->gelar_depan) === false) {
@@ -254,6 +251,9 @@
                 <h2 class="text-base font-extrabold truncate tracking-tight text-white drop-shadow-xs">
                     {{ trim($namaLengkap) }}
                 </h2>
+                <div class="text-xs font-semibold text-sky-200 mt-0.5 truncate">
+                    {{ $user->isPegawaiWajibAbsen() ? $user->jabatan->nama ?? 'Pegawai' : 'Super Administrator Sistem' }}
+                </div>
                 <div class="flex items-center gap-1.5 text-xs text-sky-100 font-mono mt-1 font-medium"
                     x-data="{ copiedNip: false }">
                     <span class="text-amber-300 font-bold">#</span>
@@ -342,19 +342,19 @@
             </div>
         </div>
 
-        <!-- Ringkasan Unit Kerja & Atasan -->
         @if ($user->isPegawaiWajibAbsen())
-            <div class="mt-4 pt-3 border-t border-white/15 grid grid-cols-2 gap-2 text-[13px] relative z-10">
-                <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
+            <div class="pt-3 border-t border-white/15 md:pt-0 md:border-t-0 md:border-l md:border-white/20 md:pl-5 grid grid-cols-2 md:grid-cols-1 gap-2 md:w-64 shrink-0 text-[13px]">
+                <div class="bg-white/10 rounded-xl px-3 py-2 border border-white/10">
                     <div class="text-sky-200/80 text-xs">Bidang Dinas</div>
                     <div class="font-bold text-white truncate">{{ $user->bidang->nama ?? 'Kepala Dinas' }}</div>
                 </div>
-                <div class="bg-white/10 rounded-xl px-2.5 py-2 border border-white/10">
+                <div class="bg-white/10 rounded-xl px-3 py-2 border border-white/10">
                     <div class="text-sky-200/80 text-xs">Atasan</div>
                     <div class="font-bold text-white truncate">{{ $user->atasan->name ?? 'Pimpinan' }}</div>
                 </div>
             </div>
         @endif
+        </div>
 
         <!-- Status Izin Perangkat (Khusus Aplikasi Android) -->
         <div x-data="{
