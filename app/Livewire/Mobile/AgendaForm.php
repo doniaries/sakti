@@ -55,7 +55,8 @@ class AgendaForm extends Component
             ? $this->lampiran_file->store('agenda-lampiran', 'public')
             : null;
 
-        $agenda = DB::transaction(function () use ($validated, $lampiranPath): AgendaKegiatan {
+        $now = now();
+        $agenda = DB::transaction(function () use ($validated, $lampiranPath, $now): AgendaKegiatan {
             $agenda = AgendaKegiatan::create([
                 'judul' => $validated['judul'],
                 'tanggal' => $validated['tanggal'],
@@ -68,36 +69,58 @@ class AgendaForm extends Component
                 'created_by' => Auth::id(),
             ]);
 
-            $userIds = collect($validated['disposisi_user_ids'] ?? [])
-                ->map(fn ($id) => (int) $id)
-                ->filter(fn (int $id) => $id > 0)
+            $instruksi = $validated['instruksi'] ?: 'Hadir mewakili / menindaklanjuti';
+            $rows = collect($validated['disposisi_user_ids'] ?? [])
+                ->map(fn ($id): int => (int) $id)
+                ->filter(fn (int $id): bool => $id > 0)
                 ->unique()
-                ->values();
-
-            foreach ($userIds as $uid) {
-                AgendaDisposisi::create([
+                ->values()
+                ->map(fn (int $uid): array => [
                     'agenda_kegiatan_id' => $agenda->id,
                     'user_id' => $uid,
-                    'instruksi' => $validated['instruksi'] ?: 'Hadir mewakili / menindaklanjuti',
-                    'notified_at' => now(),
-                ]);
+                    'instruksi' => $instruksi,
+                    'notified_at' => $now,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ])
+                ->all();
+
+            if ($rows !== []) {
+                AgendaDisposisi::insert($rows);
             }
 
             return $agenda;
         });
 
-        $recipientIds = collect($validated['disposisi_user_ids'] ?? [])->map(fn ($id) => (int) $id)->filter()->unique()->all();
+        $recipientIds = collect($validated['disposisi_user_ids'] ?? [])
+            ->map(fn ($id): int => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
         if ($recipientIds !== []) {
-            $recipients = User::whereIn('id', $recipientIds)->where('aktif', true)->get();
+            $judul = $agenda->judul;
+            $tempat = $agenda->tempat;
             $waktu = Carbon::parse($agenda->tanggal)->translatedFormat('d M Y') . ' ' . substr((string) $agenda->jam_mulai, 0, 5);
             $instruksiTeks = $validated['instruksi'] ?: 'Hadir mewakili / menindaklanjuti';
-            PushNotificationService::sendToUsers(
-                $recipients,
-                'Perintah Menghadiri Agenda',
-                "{$agenda->judul} ({$waktu} di {$agenda->tempat}) — {$instruksiTeks}",
-                ['url' => route('mobile.agenda')],
-                'info'
-            );
+            $agendaUrl = route('mobile.agenda');
+
+            // Jalankan setelah response dikirim agar tombol Simpan langsung merespons tanpa menunggu FCM/WebPush.
+            dispatch(function () use ($recipientIds, $judul, $waktu, $tempat, $instruksiTeks, $agendaUrl): void {
+                $recipients = User::whereIn('id', $recipientIds)->where('aktif', true)->get();
+                if ($recipients->isEmpty()) {
+                    return;
+                }
+
+                PushNotificationService::sendToUsers(
+                    $recipients,
+                    'Perintah Menghadiri Agenda',
+                    "{$judul} ({$waktu} di {$tempat}) — {$instruksiTeks}",
+                    ['url' => $agendaUrl],
+                    'info'
+                );
+            })->afterResponse();
         }
 
         $this->dispatch('notify', type: 'success', title: 'Agenda Ditambahkan', message: 'Agenda kegiatan & disposisi berhasil disimpan.');
