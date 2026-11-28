@@ -129,10 +129,11 @@ class Form extends Component
             abort_if($suratTugas->status === 'terbit', 403);
             $suratTugas->update($payload);
             $suratTugas->pegawais()->sync($validated['pegawai_ids'] ?? []);
-            if ($suratTugas->penandatangan_id) {
-                $suratTugas->kirimNotifikasiPengajuan();
-            }
-            session()->flash('success', 'Surat Tugas berhasil diperbarui.');
+            session()->flash('notify', [
+                'type' => 'success',
+                'title' => 'Surat Tugas Diperbarui',
+                'message' => 'Perubahan Surat Tugas berhasil disimpan.',
+            ]);
         } else {
             $suratTugas = SuratTugas::create($payload + [
                 'status' => 'draft',
@@ -144,7 +145,11 @@ class Form extends Component
                 $suratTugas->pegawais()->sync($validated['pegawai_ids']);
             }
             $suratTugas->kirimNotifikasiPengajuan();
-            session()->flash('success', 'Surat Tugas berhasil dibuat.');
+            session()->flash('notify', [
+                'type' => 'success',
+                'title' => 'Surat Tugas Dibuat',
+                'message' => 'Surat Tugas berhasil dibuat dan diajukan.',
+            ]);
         }
 
         $this->redirectRoute('mobile.surat-tugas.index');
