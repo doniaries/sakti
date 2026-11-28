@@ -383,7 +383,7 @@ class Dashboard extends Component
                     ->count(),
                 'pegawai' => \Illuminate\Support\Facades\Cache::remember('mobile.dashboard.pegawai_count', 300, fn () => User::query()->bukanSuperAdmin()->where('aktif', true)->count()),
                 'persetujuan' => $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'kabid', 'pptk', 'ppk', 'pa'])
-                    ? \App\Models\PengajuanIzin::where('status', 'pending')->count()
+                    ? Persetujuan::countPendingForUser($user)
                     : 0,
                 'surat_tugas' => \App\Models\SuratTugas::query()
                     ->when(! $user->canManageSuratTugas(), fn ($q) => $q->where(fn ($sub) => $sub->whereHas('pegawais', fn ($p) => $p->where('users.id', $user->id))->orWhereJsonContains('penanggung_jawab_ids', $user->id)->orWhereJsonContains('koordinator_acara_ids', $user->id)->orWhere('penanggung_jawab_id', $user->id)))

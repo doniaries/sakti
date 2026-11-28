@@ -425,7 +425,7 @@
                                 class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
                                 <span class="material-symbols-rounded text-[24px] md:text-[28px]">{{ $item['icon'] }}</span>
                                 @if (($item['count'] ?? 0) > 0)
-                                    <span class="absolute -top-2 -right-2 min-w-[24px] h-6 px-1.5 rounded-full bg-rose-600 text-white text-xs font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-sm">
+                                    <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] leading-none font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-xs">
                                         {{ $item['count'] > 99 ? '99+' : $item['count'] }}
                                     </span>
                                 @endif
@@ -443,7 +443,7 @@
                             class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
                             <span class="material-symbols-rounded text-[24px] md:text-[28px]">assignment</span>
                             @if ($stCount > 0)
-                                <span class="absolute -top-2 -right-2 min-w-[24px] h-6 px-1.5 rounded-full bg-rose-600 text-white text-xs font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-sm">
+                                <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] leading-none font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-xs">
                                     {{ $stCount > 99 ? '99+' : $stCount }}
                                 </span>
                             @endif

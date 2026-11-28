@@ -21,6 +21,59 @@ class Persetujuan extends Component
     public string $tab = 'izin';
     public bool $hasExplicitTab = false;
 
+    public static function countPendingForUser(User $user): int
+    {
+        $isGlobalApprover = $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'pa']);
+
+        $count = 0;
+
+        if (PengaturanAplikasi::isModuleEnabled('izin')) {
+            $count += PengajuanIzin::query()
+                ->where('status', 'menunggu')
+                ->when(! $isGlobalApprover, fn ($q) => $q->whereHas('user', fn ($u) => $u->where('atasan_id', $user->id)))
+                ->count();
+        }
+
+        if (PengaturanAplikasi::isModuleEnabled('lhk')) {
+            $count += LhkPekerjaan::query()
+                ->where('status_verifikasi', 'menunggu')
+                ->when(! $isGlobalApprover, fn ($q) => $q->whereHas('lhk.user', fn ($u) => $u->where('atasan_id', $user->id)))
+                ->count();
+        }
+
+        if (PengaturanAplikasi::isModuleEnabled('spj')) {
+            $spjStatuses = $user->hasRole('super_admin')
+                ? ['diajukan', 'menunggu_verifikasi_pptk', 'menunggu_verifikasi_ppk', 'menunggu_persetujuan_pa', 'menunggu_verifikasi_bendahara']
+                : array_values(array_unique(array_merge(
+                    $user->hasRole('pptk') ? ['diajukan', 'menunggu_verifikasi_pptk'] : [],
+                    $user->hasRole('ppk') ? ['menunggu_verifikasi_ppk'] : [],
+                    $user->hasRole('pa') ? ['menunggu_persetujuan_pa'] : [],
+                    $user->hasRole('bendahara') ? ['menunggu_verifikasi_bendahara'] : []
+                )));
+
+            if ($spjStatuses !== []) {
+                $count += PengajuanSpj::query()->whereIn('status', $spjStatuses)->count();
+            }
+        }
+
+        if (PengaturanAplikasi::isModuleEnabled('surat_tugas')) {
+            $count += SuratTugas::query()
+                ->where('status', 'draft')
+                ->when(
+                    ! $user->hasAnyRole(['super_admin', 'admin', 'pa']),
+                    fn ($q) => $q->where(function ($sub) use ($user): void {
+                        $sub->where('penandatangan_id', $user->id);
+                        if ($user->canSignSuratTugas() || $user->isKepalaBidang()) {
+                            $sub->orWhereNull('penandatangan_id');
+                        }
+                    })
+                )
+                ->count();
+        }
+
+        return $count;
+    }
+
     public function mount(): void
     {
         $requestedTab = (string) request()->query('tab', '');
