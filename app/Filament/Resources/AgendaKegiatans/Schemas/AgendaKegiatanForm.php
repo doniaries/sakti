@@ -65,6 +65,16 @@ class AgendaKegiatanForm
                                 TextInput::make('asal_undangan')
                                     ->label('Asal Undangan')
                                     ->placeholder('Contoh: Kominfo / Bupati Sijunjung')
+                                    ->datalist(fn (): array => AgendaKegiatan::query()
+                                        ->whereNotNull('asal_undangan')
+                                        ->where('asal_undangan', '!=', '')
+                                        ->orderByDesc('id')
+                                        ->limit(50)
+                                        ->pluck('asal_undangan')
+                                        ->unique()
+                                        ->take(15)
+                                        ->values()
+                                        ->all())
                                     ->maxLength(255),
                             ]),
                         FileUpload::make('lampiran_file')

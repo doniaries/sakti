@@ -109,6 +109,22 @@ class AgendaForm extends Component
         $this->redirect(route('mobile.agenda'), navigate: true);
     }
 
+    /**
+     * @return \Illuminate\Support\Collection<int, string>
+     */
+    private function recentDistinctValues(string $modelClass, string $column, int $limit = 8): \Illuminate\Support\Collection
+    {
+        return $modelClass::query()
+            ->whereNotNull($column)
+            ->where($column, '!=', '')
+            ->orderByDesc('id')
+            ->limit(50)
+            ->pluck($column)
+            ->unique()
+            ->take($limit)
+            ->values();
+    }
+
     public function render()
     {
         return view('livewire.mobile.agenda-form', [
@@ -117,24 +133,9 @@ class AgendaForm extends Component
                 ->with('jabatan:id,nama')
                 ->orderBy('id')
                 ->get(['id', 'name', 'jabatan_id'])),
-            'riwayatTempat' => AgendaKegiatan::query()
-                ->whereNotNull('tempat')
-                ->where('tempat', '!=', '')
-                ->orderByDesc('id')
-                ->limit(50)
-                ->pluck('tempat')
-                ->unique()
-                ->take(8)
-                ->values(),
-            'riwayatInstruksi' => AgendaDisposisi::query()
-                ->whereNotNull('instruksi')
-                ->where('instruksi', '!=', '')
-                ->orderByDesc('id')
-                ->limit(50)
-                ->pluck('instruksi')
-                ->unique()
-                ->take(8)
-                ->values(),
+            'riwayatTempat' => $this->recentDistinctValues(AgendaKegiatan::class, 'tempat'),
+            'riwayatAsalUndangan' => $this->recentDistinctValues(AgendaKegiatan::class, 'asal_undangan'),
+            'riwayatInstruksi' => $this->recentDistinctValues(AgendaDisposisi::class, 'instruksi'),
         ]);
     }
 }

@@ -52,16 +52,7 @@
                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Tempat <span class="text-rose-500">*</span></label>
                 <input type="text" wire:model="tempat" placeholder="Lokasi kegiatan..."
                     class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
-                @if ($riwayatTempat->isNotEmpty())
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        @foreach ($riwayatTempat as $lokasiItem)
-                            <button type="button" wire:click="$set('tempat', {{ \Illuminate\Support\Js::from($lokasiItem) }})"
-                                class="px-2.5 py-1 rounded-lg border text-xs font-medium transition cursor-pointer {{ $tempat === $lokasiItem ? 'bg-sky-50 dark:bg-sky-500/15 border-sky-300 dark:border-sky-500/40 text-sky-700 dark:text-sky-300' : 'bg-zinc-50 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100' }}">
-                                {{ $lokasiItem }}
-                            </button>
-                        @endforeach
-                    </div>
-                @endif
+                <x-mobile.quick-chips field="tempat" :items="$riwayatTempat" :current="$tempat" />
                 @error('tempat') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
@@ -69,6 +60,7 @@
                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Asal Undangan / Penyelenggara <span class="text-rose-500">*</span></label>
                 <input type="text" wire:model="asal_undangan" placeholder="Nama instansi / penyelenggara..."
                     class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
+                <x-mobile.quick-chips field="asal_undangan" :items="$riwayatAsalUndangan" :current="$asal_undangan" />
                 @error('asal_undangan') <p class="text-xs text-rose-500 mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
@@ -97,16 +89,7 @@
                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Instruksi Disposisi</label>
                 <input type="text" wire:model="instruksi" placeholder="Contoh: Hadir mewakili Kadis..."
                     class="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-950 px-3.5 text-sm text-zinc-900 dark:text-zinc-100 focus:bg-white dark:focus:bg-zinc-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all">
-                @if ($riwayatInstruksi->isNotEmpty())
-                    <div class="mt-2 flex flex-wrap gap-1.5">
-                        @foreach ($riwayatInstruksi as $instruksiItem)
-                            <button type="button" wire:click="$set('instruksi', {{ \Illuminate\Support\Js::from($instruksiItem) }})"
-                                class="px-2.5 py-1 rounded-lg border text-xs font-medium transition cursor-pointer {{ $instruksi === $instruksiItem ? 'bg-sky-50 dark:bg-sky-500/15 border-sky-300 dark:border-sky-500/40 text-sky-700 dark:text-sky-300' : 'bg-zinc-50 dark:bg-zinc-800/70 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100' }}">
-                                {{ $instruksiItem }}
-                            </button>
-                        @endforeach
-                    </div>
-                @endif
+                <x-mobile.quick-chips field="instruksi" :items="$riwayatInstruksi" :current="$instruksi" />
             </div>
 
             <div>
