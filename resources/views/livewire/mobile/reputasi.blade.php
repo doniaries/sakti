@@ -67,18 +67,14 @@
             <!-- Pilih Rekan Kerja -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Rekan Kerja <span class="text-rose-500">*</span></label>
-                <div class="relative">
-                    <select wire:model="user_id" 
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all appearance-none">
-                        <option value="">-- Pilih Pegawai --</option>
-                        @foreach($rekanKerjas as $rk)
-                            <option value="{{ $rk->id }}">{{ $rk->name }} ({{ $rk->jabatan->nama ?? 'Pegawai' }})</option>
-                        @endforeach
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                    </div>
-                </div>
+                <x-mobile.select
+                    wire:model="user_id"
+                    :value="$user_id"
+                    title="Pilih Rekan Kerja"
+                    emptyLabel="-- Pilih Pegawai --"
+                    :options="$rekanKerjas->mapWithKeys(fn ($rk) => [(string) $rk->id => $rk->name . ' (' . ($rk->jabatan->nama ?? 'Pegawai') . ')'])->all()"
+                    buttonClass="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                />
                 @error('user_id') <span class="text-[13px] text-rose-500 mt-1 block">{{ $message }}</span> @enderror
             </div>
 

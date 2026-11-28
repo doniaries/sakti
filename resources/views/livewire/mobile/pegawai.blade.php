@@ -121,10 +121,14 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Status Kerja</label>
-                                <select wire:model="status_kerja" class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-sm">
-                                    <option value="wfo">WFO</option>
-                                    <option value="wfh">WFH</option>
-                                </select>
+                                <x-mobile.select
+                                    wire:model="status_kerja"
+                                    :value="$status_kerja"
+                                    title="Pilih Status Kerja"
+                                    :searchable="false"
+                                    :options="['wfo' => 'WFO', 'wfh' => 'WFH']"
+                                    buttonClass="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-100"
+                                />
                             </div>
                         </div>
 
@@ -137,32 +141,38 @@
                         <div class="grid grid-cols-2 gap-2.5">
                             <div>
                                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Jabatan</label>
-                                <select wire:model="jabatan_id" class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs">
-                                    <option value="">-- Pilih Jabatan --</option>
-                                    @foreach ($jabatans as $j)
-                                        <option value="{{ $j->id }}">{{ $j->nama }}</option>
-                                    @endforeach
-                                </select>
+                                <x-mobile.select
+                                    wire:model="jabatan_id"
+                                    :value="$jabatan_id"
+                                    title="Pilih Jabatan"
+                                    emptyLabel="-- Pilih Jabatan --"
+                                    :options="$jabatans->pluck('nama', 'id')->all()"
+                                    buttonClass="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs text-zinc-900 dark:text-zinc-100"
+                                />
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Bidang</label>
-                                <select wire:model="bidang_id" class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs">
-                                    <option value="">-- Pilih Bidang --</option>
-                                    @foreach ($bidangs as $b)
-                                        <option value="{{ $b->id }}">{{ $b->nama }}</option>
-                                    @endforeach
-                                </select>
+                                <x-mobile.select
+                                    wire:model="bidang_id"
+                                    :value="$bidang_id"
+                                    title="Pilih Bidang"
+                                    emptyLabel="-- Pilih Bidang --"
+                                    :options="$bidangs->pluck('nama', 'id')->all()"
+                                    buttonClass="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs text-zinc-900 dark:text-zinc-100"
+                                />
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Atasan Langsung</label>
-                            <select wire:model="atasan_id" class="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs">
-                                <option value="">-- Tanpa Atasan --</option>
-                                @foreach ($atasans as $at)
-                                    <option value="{{ $at->id }}">{{ $at->name }}</option>
-                                @endforeach
-                            </select>
+                            <x-mobile.select
+                                wire:model="atasan_id"
+                                :value="$atasan_id"
+                                title="Pilih Atasan Langsung"
+                                emptyLabel="-- Tanpa Atasan --"
+                                :options="$atasans->pluck('name', 'id')->all()"
+                                buttonClass="w-full h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950 px-2.5 text-xs text-zinc-900 dark:text-zinc-100"
+                            />
                         </div>
 
                         <div>

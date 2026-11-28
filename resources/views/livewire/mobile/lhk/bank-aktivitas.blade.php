@@ -74,13 +74,14 @@
         </div>
 
         @if ($subKegiatanList->isNotEmpty() && $filterSubKegiatan !== 'global')
-            <select wire:model.live="selectedSubKegiatan"
-                class="w-full rounded-xl px-3 py-2.5 text-xs font-semibold bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500">
-                <option value="">Semua Sub Kegiatan ({{ $bidangCount ?? 0 }})</option>
-                @foreach ($subKegiatanList as $subKeg => $subCount)
-                    <option value="{{ $subKeg }}">{{ $subKeg }} ({{ $subCount }})</option>
-                @endforeach
-            </select>
+            <x-mobile.select
+                wire:model.live="selectedSubKegiatan"
+                :value="$selectedSubKegiatan"
+                title="Filter Sub Kegiatan"
+                emptyLabel="Semua Sub Kegiatan ({{ $bidangCount ?? 0 }})"
+                :options="$subKegiatanList->mapWithKeys(fn ($subCount, $subKeg) => [(string) $subKeg => $subKeg . ' (' . $subCount . ')'])->all()"
+                buttonClass="w-full rounded-xl px-3 py-2.5 text-xs font-semibold bg-white dark:bg-[#132338]/90 border border-slate-200/80 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-amber-500"
+            />
         @endif
     </div>
 

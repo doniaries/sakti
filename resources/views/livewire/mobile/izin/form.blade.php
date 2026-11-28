@@ -198,21 +198,15 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1.5">
                     Jenis Permohonan <span class="text-rose-500">*</span>
                 </label>
-                <div class="relative">
-                    <select wire:model.live="jenis_izin_id"
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all appearance-none">
-                        <option value="">-- Pilih Jenis --</option>
-                        @foreach ($jenisIzins as $ji)
-                            <option value="{{ $ji->id }}">
-                                {{ $ji->nama }}
-                                ({{ ucfirst($ji->kategori) }}{{ $ji->kuota_hari ? ' - Max ' . $ji->kuota_hari . ' Hari' : '' }})
-                            </option>
-                        @endforeach
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
-                        <i class="fa-solid fa-chevron-down text-xs"></i>
-                    </div>
-                </div>
+                <x-mobile.select
+                    wire:model.live="jenis_izin_id"
+                    :value="$jenis_izin_id"
+                    title="Pilih Jenis Permohonan"
+                    emptyLabel="-- Pilih Jenis --"
+                    :searchable="false"
+                    :options="$jenisIzins->mapWithKeys(fn ($ji) => [(string) $ji->id => $ji->nama . ' (' . ucfirst($ji->kategori) . ($ji->kuota_hari ? ' - Max ' . $ji->kuota_hari . ' Hari' : '') . ')'])->all()"
+                    buttonClass="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-800 bg-slate-50/50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-all"
+                />
                 @if ($selectedJenis)
                     <div class="mt-1.5 flex items-center justify-between text-[13px] text-slate-500">
                         <span>
