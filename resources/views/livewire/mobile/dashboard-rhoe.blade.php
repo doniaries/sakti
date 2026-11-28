@@ -38,15 +38,6 @@
     @konfirmasi-hadir-sukses.window="notifSheet = false; konfirmasiSuccessModal = true"
     class="pb-28 px-4 pt-4 space-y-4 text-zinc-900 dark:text-zinc-100">
 
-    <!-- Holiday Notice (Hanya tampil saat hari libur / akhir pekan) -->
-    @if ($infoLiburHariIni['is_libur'])
-        <div
-            class="rounded-2xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 px-3.5 py-2.5 flex items-center gap-2.5 text-xs text-amber-800 dark:text-amber-300">
-            <i class="fa-solid fa-calendar-day text-amber-500"></i>
-            <span class="font-bold truncate">{{ $infoLiburHariIni['label'] }}</span>
-        </div>
-    @endif
-
     <!-- 1. HERO HIJAU EMERALD + KARTU AKSI MENGAMBANG (Referensi) -->
     @php
         $hour = (int) now()->format('H');
@@ -419,20 +410,35 @@
                     @if (Route::has($item['route']) &&
                             (empty($item['module']) || \App\Models\PengaturanAplikasi::isModuleEnabled($item['module'])) &&
                             (empty($item['roles']) || $user->hasAnyRole($item['roles'])))
-                        <a href="{{ route($item['route']) }}" wire:navigate.hover
-                            class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
-                            <div
-                                class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
-                                <span class="material-symbols-rounded text-[24px] md:text-[28px]">{{ $item['icon'] }}</span>
-                                @if (($item['count'] ?? 0) > 0)
-                                    <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] leading-none font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-xs">
-                                        {{ $item['count'] > 99 ? '99+' : $item['count'] }}
-                                    </span>
-                                @endif
+                        @php
+                            $isDisabledPresensi = $item['route'] === 'mobile.absensi' && $infoLiburHariIni['is_libur'] && !$modeSimulasi;
+                        @endphp
+                        @if ($isDisabledPresensi)
+                            <div aria-disabled="true" title="{{ $infoLiburHariIni['label'] ?? 'Bukan Jadwal Kerja' }}"
+                                class="flex flex-col items-center gap-1.5 opacity-45 grayscale cursor-not-allowed select-none">
+                                <div
+                                    class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
+                                    <span class="material-symbols-rounded text-[24px] md:text-[28px]">{{ $item['icon'] }}</span>
+                                </div>
+                                <span
+                                    class="text-[13px] md:text-sm font-bold text-zinc-500 dark:text-zinc-500 text-center leading-tight">{{ $item['label'] }}</span>
                             </div>
-                            <span
-                                class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
-                        </a>
+                        @else
+                            <a href="{{ route($item['route']) }}" wire:navigate.hover
+                                class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
+                                <div
+                                    class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
+                                    <span class="material-symbols-rounded text-[24px] md:text-[28px]">{{ $item['icon'] }}</span>
+                                    @if (($item['count'] ?? 0) > 0)
+                                        <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-600 text-white text-[10px] leading-none font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-xs">
+                                            {{ $item['count'] > 99 ? '99+' : $item['count'] }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <span
+                                    class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
+                            </a>
+                        @endif
                     @endif
                 @endforeach
                 @if (Route::has('mobile.surat-tugas.index'))

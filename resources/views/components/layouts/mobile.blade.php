@@ -518,6 +518,8 @@
             $pengaturanMobile = \App\Models\PengaturanAplikasi::getPengaturan();
             $isSimulasiAktif = (bool) ($pengaturanMobile->mode_simulasi || session('mode_simulasi_absensi', false));
             $isRhoeMobile = request()->query('tema', $pengaturanMobile->portal_theme ?? 'default') === 'rhoe';
+            $infoLiburNav = \App\Models\HariLibur::getInfoHariLibur(now()->format('Y-m-d'));
+            $disablePresensiNav = $infoLiburNav['is_libur'] && !$isSimulasiAktif;
         @endphp
         @if ($isSimulasiAktif)
             <!-- Sticky Warning Mode Simulasi Aktif untuk Seluruh Pegawai -->
@@ -591,13 +593,22 @@
 
                 <!-- 3. TOMBOL NAVIGASI PRESENSI TENGAH -->
                 <div class="center-absen-btn-wrapper">
-                    <a href="{{ route('mobile.absensi') }}" 
-                       wire:navigate.hover
-                       class="center-absen-btn group ring-4 ring-sky-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-sky-400 shadow-sky-500/40' : '' }}"
-                       title="Halaman Presensi Kehadiran">
-                        <span class="material-symbols-rounded text-[26px]">fingerprint</span>
-                        <span>PRESENSI</span>
-                    </a>
+                    @if ($disablePresensiNav)
+                        <button type="button" disabled aria-disabled="true"
+                           class="center-absen-btn !bg-slate-400 dark:!bg-zinc-700 !shadow-none ring-4 ring-slate-200 dark:ring-zinc-700 opacity-60 grayscale cursor-not-allowed"
+                           title="{{ $infoLiburNav['label'] ?? 'Bukan Jadwal Kerja' }}">
+                            <span class="material-symbols-rounded text-[26px]">fingerprint</span>
+                            <span>PRESENSI</span>
+                        </button>
+                    @else
+                        <a href="{{ route('mobile.absensi') }}" 
+                           wire:navigate.hover
+                           class="center-absen-btn group ring-4 ring-sky-200 transition-all duration-300 active:scale-95 cursor-pointer {{ request()->routeIs('mobile.absensi') ? 'ring-sky-400 shadow-sky-500/40' : '' }}"
+                           title="Halaman Presensi Kehadiran">
+                            <span class="material-symbols-rounded text-[26px]">fingerprint</span>
+                            <span>PRESENSI</span>
+                        </a>
+                    @endif
                 </div>
 
                 <!-- 4. Persetujuan (Atasan/Admin) atau LHK (Pegawai) -->
