@@ -207,13 +207,11 @@ class SuratTugas extends Model
                 ])
                 ->sendToDatabase($this->penandatangan);
 
-            if (config('webpush.vapid.public_key') && $this->penandatangan->pushSubscriptions()->exists()) {
-                $this->penandatangan->notify(new \App\Notifications\WebPushNotification(
-                    'Permohonan Persetujuan Surat Tugas',
-                    "Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}",
-                    route('mobile.persetujuan', ['tab' => 'surat_tugas'])
-                ));
-            }
+            $this->penandatangan->sendWebPush(
+                'Permohonan Persetujuan Surat Tugas',
+                "Mohon persetujuan & penerbitan Surat Tugas: {$this->nama_kegiatan}",
+                route('mobile.persetujuan', ['tab' => 'surat_tugas'])
+            );
         } else {
             $approvers = User::role(['super_admin', 'admin', 'pa'])->get();
             foreach ($approvers as $approver) {
