@@ -103,20 +103,9 @@
     </div>
 
     @if ($canManage && $showFormModal)
-        <template x-teleport="body">
-            <div class="fixed inset-0 z-[105] bg-slate-950/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4"
-                wire:click.self="$set('showFormModal', false)">
-                <div class="w-full max-w-md max-h-[90dvh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-white dark:bg-zinc-900 p-5 shadow-2xl space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-base font-extrabold text-slate-900 dark:text-white">
-                            {{ $editingId ? 'Ubah Data Utama Pegawai' : 'Tambah Pegawai Baru' }}
-                        </h2>
-                        <button type="button" wire:click="$set('showFormModal', false)"
-                            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-500 flex items-center justify-center cursor-pointer">
-                            <span class="material-symbols-rounded text-[18px]">close</span>
-                        </button>
-                    </div>
-
+        <div x-data="{ open: @entangle('showFormModal').live }">
+            <template x-teleport="body">
+                <x-mobile.rhoe-modal model="open" :title="$editingId ? 'Ubah Data Utama Pegawai' : 'Tambah Pegawai Baru'" maxWidth="max-w-md">
                     <form wire:submit="savePegawai" class="space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Nama Lengkap <span class="text-rose-500">*</span></label>
@@ -200,8 +189,8 @@
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </template>
+                </x-mobile.rhoe-modal>
+            </template>
+        </div>
     @endif
 </div>

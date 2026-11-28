@@ -1,14 +1,9 @@
 <div class="pb-28">
-    <div class="sticky top-0 z-20 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md border-b border-zinc-200/80 dark:border-zinc-800 px-4 py-3 flex items-center gap-3">
-        <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate
-            class="w-9 h-9 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-200 active:scale-95 transition-transform">
-            <i class="fa-solid fa-arrow-left text-sm"></i>
-        </a>
-        <div class="min-w-0">
-            <h1 class="text-base font-bold text-zinc-900 dark:text-zinc-100 truncate">Buat Surat Tugas</h1>
-            <p class="text-[13px] text-zinc-500 dark:text-zinc-400">Lengkapi 3 langkah singkat di bawah ini</p>
-        </div>
-    </div>
+    <x-mobile.page-header
+        :title="$suratTugasId ? 'Ubah Surat Tugas' : 'Buat Surat Tugas'"
+        subtitle="Lengkapi 3 langkah singkat di bawah ini"
+        :backUrl="route('mobile.surat-tugas.index')"
+    />
 
     <form wire:submit="save" class="p-4 space-y-4">
         {{-- Langkah 1: Informasi Utama Kegiatan --}}

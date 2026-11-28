@@ -46,8 +46,8 @@
                 @endif
             </div>
             <button type="button" @click="{{ $model }} = false" aria-label="Tutup"
-                class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-300 flex items-center justify-center text-xs transition-colors cursor-pointer shrink-0">
-                <i class="fa-solid fa-xmark"></i>
+                class="w-7 h-7 rounded-full bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-300 flex items-center justify-center transition-colors cursor-pointer shrink-0">
+                <span class="material-symbols-rounded text-[18px]">close</span>
             </button>
         </div>
 
