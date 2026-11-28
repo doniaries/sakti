@@ -1182,6 +1182,28 @@ class UsersTable
                             ->success()
                             ->send();
                     }),
+                Action::make('hapus_notifikasi_global')
+                    ->label('Hapus Semua Notif')
+                    ->icon('heroicon-o-bell-slash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Hapus Seluruh Notifikasi Semua User')
+                    ->modalDescription('Tindakan ini akan menghapus seluruh notifikasi yang tersimpan di server untuk SEMUA akun user sekaligus. Data asli (Surat Tugas, Izin, Presensi, LHK) tetap aman.')
+                    ->visible(function (): bool {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return $user?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
+                    })
+                    ->action(function (): void {
+                        $deleted = \Illuminate\Notifications\DatabaseNotification::query()->delete();
+
+                        Notification::make()
+                            ->title($deleted > 0
+                                ? "{$deleted} notifikasi seluruh user berhasil dihapus dari server."
+                                : 'Tidak ada notifikasi tersimpan di server.')
+                            ->success()
+                            ->send();
+                    }),
                 CreateAction::make()
                     ->label('Tambah Pegawai')
                     ->icon('heroicon-o-user-plus')
