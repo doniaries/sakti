@@ -96,10 +96,22 @@
                         @if ($item->keterangan)
                             <p class="text-xs text-slate-500 dark:text-slate-400">{{ $item->keterangan }}</p>
                         @endif
-                        <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                            <div><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> {{ $item->tempat }}</div>
-                            @if ($item->asal_undangan)
-                                <div><i class="fa-solid fa-building w-4 text-slate-400"></i> {{ $item->asal_undangan }}</div>
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1 min-w-0">
+                                <div><i class="fa-solid fa-location-dot w-4 text-slate-400"></i> {{ $item->tempat }}</div>
+                                @if ($item->asal_undangan)
+                                    <div><i class="fa-solid fa-building w-4 text-slate-400"></i> {{ $item->asal_undangan }}</div>
+                                @endif
+                            </div>
+                            @if ($item->lampiran_file)
+                                @php
+                                    $suratUrl = url('/media-file/' . ltrim((string) $item->lampiran_file, '/'));
+                                @endphp
+                                <a href="{{ $suratUrl }}" download target="_blank" rel="noopener"
+                                    class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-500/15 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 hover:bg-sky-100 text-xs font-bold transition">
+                                    <i class="fa-solid fa-file-arrow-down"></i>
+                                    <span>Surat Undangan</span>
+                                </a>
                             @endif
                         </div>
                         @if ($sharedInstruksi)
@@ -121,13 +133,6 @@
                                     @endforeach
                                 </div>
                             </div>
-                        @endif
-                        @if ($item->lampiran_file)
-                            <a href="{{ \Illuminate\Support\Facades\Storage::url($item->lampiran_file) }}" target="_blank" rel="noopener"
-                                class="inline-flex items-center gap-1.5 text-[13px] font-bold text-sky-600 dark:text-sky-400 hover:underline">
-                                <i class="fa-solid fa-paperclip"></i>
-                                <span>Lihat Lampiran Surat</span>
-                            </a>
                         @endif
                     </div>
                 @endforeach
