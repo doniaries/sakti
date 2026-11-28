@@ -19,6 +19,7 @@ class Pegawai extends Component
 {
     public string $search = '';
     public string $bidangFilter = '';
+    public int $perPage = 25;
 
     public bool $showFormModal = false;
     public ?int $editingId = null;
@@ -31,6 +32,11 @@ class Pegawai extends Component
     public string $status_kerja = 'wfo';
     public bool $aktif = true;
     public string $password = '';
+
+    public function loadMore(): void
+    {
+        $this->perPage += 25;
+    }
 
     private function canManage(): bool
     {
@@ -140,7 +146,7 @@ class Pegawai extends Component
 
         $totalAktif = User::query()->bukanSuperAdmin()->where('aktif', true)->count();
 
-        $pegawais = User::query()
+        $baseQuery = User::query()
             ->bukanSuperAdmin()
             ->with(['jabatan:id,nama', 'bidang:id,nama', 'atasan:id,name'])
             ->when(! $canManage, fn ($q) => $q->where('aktif', true))
@@ -153,8 +159,13 @@ class Pegawai extends Component
                         ->orWhereHas('jabatan', fn ($j) => $j->where('nama', 'like', $term))
                         ->orWhereHas('bidang', fn ($b) => $b->where('nama', 'like', $term));
                 });
-            })
+            });
+
+        $totalFiltered = (clone $baseQuery)->count();
+
+        $pegawais = (clone $baseQuery)
             ->orderBy('id')
+            ->limit($this->perPage)
             ->get([
                 'id',
                 'name',
@@ -172,11 +183,13 @@ class Pegawai extends Component
 
         return view('livewire.mobile.pegawai', [
             'pegawais' => $pegawais,
+            'totalFiltered' => $totalFiltered,
+            'hasMore' => $totalFiltered > $pegawais->count(),
             'bidangs' => $bidangs,
             'totalAktif' => $totalAktif,
             'canManage' => $canManage,
-            'jabatans' => $canManage ? Jabatan::query()->orderBy('nama')->get(['id', 'nama']) : collect(),
-            'atasans' => $canManage ? User::query()->bukanSuperAdmin()->where('aktif', true)->orderBy('name')->get(['id', 'name']) : collect(),
+            'jabatans' => ($canManage && $this->showFormModal) ? Jabatan::query()->orderBy('nama')->get(['id', 'nama']) : collect(),
+            'atasans' => ($canManage && $this->showFormModal) ? User::query()->bukanSuperAdmin()->where('aktif', true)->orderBy('name')->get(['id', 'name']) : collect(),
         ]);
     }
 }

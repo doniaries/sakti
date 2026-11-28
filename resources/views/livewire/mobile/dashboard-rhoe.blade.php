@@ -71,7 +71,7 @@
                         <img src="{{ $user->avatar_image_url }}" alt="{{ $user->name }}"
                             class="w-10 h-10 rounded-full object-cover ring-2 ring-white/50 group-active:scale-95 transition">
                         <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-sky-500 border border-white text-white flex items-center justify-center shadow-xs">
-                            <i class="fa-solid fa-camera text-[8px]"></i>
+                            <span class="material-symbols-rounded text-[10px]">photo_camera</span>
                         </span>
                     </button>
                     <div class="min-w-0">
@@ -108,9 +108,9 @@
                             class="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition cursor-pointer shrink-0"
                             :title="(isNative && !perms.notification) ?
                             'Izin Notifikasi belum aktif — ketuk untuk mengaktifkan' : 'Notifikasi'">
-                            <i class="fa-solid text-sm"
-                                :class="(isNative && !perms.notification) ? 'fa-bell-slash text-rose-300' :
-                                'fa-bell {{ $unreadNotifCount > 0 ? 'text-amber-300 notif-bell-ring' : '' }}'"></i>
+                            <span class="material-symbols-rounded text-[20px]"
+                                :class="(isNative && !perms.notification) ? 'text-rose-300' : '{{ $unreadNotifCount > 0 ? 'text-amber-300 notif-bell-ring' : '' }}'"
+                                x-text="(isNative && !perms.notification) ? 'notifications_off' : 'notifications'"></span>
                             @if ($unreadNotifCount > 0)
                                 <span x-show="!isNative || perms.notification"
                                     class="absolute top-0.5 right-0.5 flex h-2.5 w-2.5 notif-dot-move">
@@ -128,7 +128,7 @@
                             class="w-9 h-9 rounded-full bg-white/15 hover:bg-rose-500/80 text-white flex items-center justify-center transition cursor-pointer shrink-0"
                             title="Keluar"
                             aria-label="Keluar">
-                            <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                            <span class="material-symbols-rounded text-[20px]">logout</span>
                         </button>
                         <template x-teleport="body">
                             <div x-show="logoutConfirmModal" x-cloak
@@ -331,60 +331,60 @@
             $layanan = [
                 [
                     'route' => 'mobile.absensi',
-                    'icon' => 'fa-fingerprint',
+                    'icon' => 'fingerprint',
                     'label' => 'Presensi',
                     'color' => 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
                 ],
                 [
                     'route' => 'mobile.lhk.create',
                     'module' => 'lhk',
-                    'icon' => 'fa-pen-to-square',
+                    'icon' => 'edit_note',
                     'label' => 'Isi LHK',
                     'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400',
                 ],
                 [
                     'route' => 'mobile.izin.index',
                     'module' => 'izin',
-                    'icon' => 'fa-envelope-open-text',
+                    'icon' => 'mark_email_read',
                     'label' => 'Izin & Cuti',
                     'color' => 'bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400',
                 ],
                 [
                     'route' => 'mobile.riwayat',
-                    'icon' => 'fa-clock-rotate-left',
+                    'icon' => 'history',
                     'label' => 'Riwayat',
                     'color' => 'bg-violet-50 dark:bg-violet-500/15 text-violet-600 dark:text-violet-400',
                 ],
                 [
                     'route' => 'mobile.hari-libur',
-                    'icon' => 'fa-calendar-day',
+                    'icon' => 'event_busy',
                     'label' => 'Hari Libur',
                     'color' => 'bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-400',
                 ],
                 [
                     'route' => 'mobile.lhk.bank-aktivitas',
                     'module' => 'lhk',
-                    'icon' => 'fa-box-archive',
+                    'icon' => 'inventory_2',
                     'label' => 'Bank Aktivitas',
                     'color' => 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',
                 ],
                 [
                     'route' => 'mobile.reputasi',
                     'module' => 'reputasi',
-                    'icon' => 'fa-medal',
+                    'icon' => 'military_tech',
                     'label' => 'Reputasi',
                     'color' => 'bg-yellow-50 dark:bg-yellow-500/15 text-yellow-600 dark:text-yellow-400',
                 ],
                 [
                     'route' => 'mobile.agenda',
                     'module' => 'agenda',
-                    'icon' => 'fa-calendar-check',
+                    'icon' => 'event_available',
                     'label' => 'Agenda',
                     'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400',
                 ],
                 [
                     'route' => 'mobile.pegawai',
-                    'icon' => 'fa-users',
+                    'icon' => 'groups',
                     'label' => 'Pegawai',
                     'color' => 'bg-cyan-50 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400',
                 ],
@@ -400,7 +400,7 @@
                         'ppk',
                         'pa',
                     ],
-                    'icon' => 'fa-file-signature',
+                    'icon' => 'fact_check',
                     'label' => 'Persetujuan',
                     'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400',
                 ],
@@ -413,11 +413,11 @@
                     @if (Route::has($item['route']) &&
                             (empty($item['module']) || \App\Models\PengaturanAplikasi::isModuleEnabled($item['module'])) &&
                             (empty($item['roles']) || $user->hasAnyRole($item['roles'])))
-                        <a href="{{ route($item['route']) }}" wire:navigate
+                        <a href="{{ route($item['route']) }}" wire:navigate.hover
                             class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                             <div
-                                class="w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-xl md:text-2xl">
-                                <i class="fa-solid {{ $item['icon'] }}"></i>
+                                class="w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
+                                <span class="material-symbols-rounded text-[24px] md:text-[28px]">{{ $item['icon'] }}</span>
                             </div>
                             <span
                                 class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
@@ -425,11 +425,11 @@
                     @endif
                 @endforeach
                 @if (Route::has('mobile.surat-tugas.index'))
-                    <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate
+                    <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate.hover
                         class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                         <div
-                            class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center text-xl md:text-2xl">
-                            <i class="fa-solid fa-file-signature"></i>
+                            class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
+                            <span class="material-symbols-rounded text-[24px] md:text-[28px]">assignment</span>
                         </div>
                         <span
                             class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat

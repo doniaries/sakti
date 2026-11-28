@@ -23,16 +23,19 @@
     <link rel="apple-touch-icon" sizes="512x512" href="{{ asset('icons/pwa-512x512.png') }}?v={{ $pwaIconVer }}">
     
     <!-- Fonts & CSS -->
-    @if (app()->environment('local') && file_exists(public_path('hot')))
-        @vite(['resources/js/app.js'])
+    @if (file_exists(public_path('build/manifest.json')) || (app()->environment('local') && file_exists(public_path('hot'))))
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @else
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = { darkMode: 'class' };
+        </script>
     @endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0..1,0" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { darkMode: 'class' };
         (function () {
             const apply = () => {
                 const saved = localStorage.getItem('sakti_mobile_theme') || 'light';
@@ -533,8 +536,8 @@
                         : (url.includes('/riwayat') ? 'riwayat'
                         : (url.includes('/izin') ? 'izin'
                         : (url.includes('/profil') ? 'profil'
-                        : (url.includes('/surat-tugas/buat') ? 'surat_tugas_form'
-                        : (url.includes('/surat-tugas') ? 'surat_tugas' : 'dashboard')))));
+                        : ((url.includes('/surat-tugas/buat') || url.includes('/agenda/buat') || url.includes('/ubah')) ? 'surat_tugas_form'
+                        : ((url.includes('/surat-tugas') || url.includes('/agenda') || url.includes('/pegawai')) ? 'surat_tugas' : 'dashboard')))));
                     clearTimeout(this.timer);
                     clearTimeout(this.failSafeTimer);
                     this.timer = setTimeout(() => { this.navigating = true; }, 300);

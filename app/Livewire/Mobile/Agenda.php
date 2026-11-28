@@ -71,7 +71,6 @@ class Agenda extends Component
             'upcomingAgendas' => $upcomingAgendas,
             'pastAgendas' => $pastAgendas,
             'isKadisOrAdmin' => $isKadisOrAdmin,
-            'pegawais' => User::where('aktif', true)->with('jabatan:id,nama')->orderBy('id')->get(['id', 'name', 'jabatan_id']),
         ]);
     }
 }

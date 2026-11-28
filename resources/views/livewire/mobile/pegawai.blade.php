@@ -40,7 +40,7 @@
         </div>
 
         <div class="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 px-1">
-            <span>Menampilkan <strong class="text-zinc-800 dark:text-zinc-200">{{ $pegawais->count() }}</strong> pegawai</span>
+            <span>Menampilkan <strong class="text-zinc-800 dark:text-zinc-200">{{ $pegawais->count() }}</strong> dari {{ $totalFiltered }} pegawai</span>
         </div>
 
         @if ($pegawais->isEmpty())
@@ -101,6 +101,12 @@
                     </div>
                 @endforeach
             </div>
+            @if ($hasMore)
+                <button type="button" wire:click="loadMore"
+                    class="w-full py-2.5 rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-xs font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-50 transition cursor-pointer">
+                    Muat Lebih Banyak ({{ $totalFiltered - $pegawais->count() }} lagi)
+                </button>
+            @endif
         @endif
     </div>
 
