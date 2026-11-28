@@ -367,6 +367,28 @@ class Dashboard extends Component
                 'is_admin' => $isAdmin,
             ],
             'riwayat7Hari' => $riwayat7Hari,
+            'menuCounts' => [
+                'izin' => \App\Models\PengajuanIzin::where('user_id', $user->id)->count(),
+                'bank_aktivitas' => \App\Models\Aktivitas::query()
+                    ->where(function ($q) use ($user): void {
+                        $q->where('user_id', $user->id)
+                            ->orWhereNull('user_id');
+                        if ($user->bidang_id) {
+                            $q->orWhere('bidang_id', $user->bidang_id);
+                        }
+                    })
+                    ->count(),
+                'agenda' => \App\Models\AgendaKegiatan::query()
+                    ->when(! $user->hasAnyRole(['super_admin', 'superadmin', 'admin', 'pa', 'kadis']), fn ($q) => $q->where(fn ($sub) => $sub->whereHas('disposisis', fn ($d) => $d->where('user_id', $user->id))->orWhere('created_by', $user->id)))
+                    ->count(),
+                'pegawai' => \Illuminate\Support\Facades\Cache::remember('mobile.dashboard.pegawai_count', 300, fn () => User::query()->bukanSuperAdmin()->where('aktif', true)->count()),
+                'persetujuan' => $user->hasAnyRole(['super_admin', 'admin', 'admin_kepegawaian', 'admin_keuangan', 'kabid', 'pptk', 'ppk', 'pa'])
+                    ? \App\Models\PengajuanIzin::where('status', 'pending')->count()
+                    : 0,
+                'surat_tugas' => \App\Models\SuratTugas::query()
+                    ->when(! $user->canManageSuratTugas(), fn ($q) => $q->where(fn ($sub) => $sub->whereHas('pegawais', fn ($p) => $p->where('users.id', $user->id))->orWhereJsonContains('penanggung_jawab_ids', $user->id)->orWhereJsonContains('koordinator_acara_ids', $user->id)->orWhere('penanggung_jawab_id', $user->id)))
+                    ->count(),
+            ],
         ]);
     }
 }

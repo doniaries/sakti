@@ -347,6 +347,7 @@
                     'module' => 'izin',
                     'icon' => 'mark_email_read',
                     'label' => 'Izin & Cuti',
+                    'count' => $menuCounts['izin'] ?? 0,
                     'color' => 'bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400',
                 ],
                 [
@@ -366,6 +367,7 @@
                     'module' => 'lhk',
                     'icon' => 'inventory_2',
                     'label' => 'Bank Aktivitas',
+                    'count' => $menuCounts['bank_aktivitas'] ?? 0,
                     'color' => 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',
                 ],
                 [
@@ -380,12 +382,14 @@
                     'module' => 'agenda',
                     'icon' => 'event_available',
                     'label' => 'Agenda',
+                    'count' => $menuCounts['agenda'] ?? 0,
                     'color' => 'bg-sky-50 dark:bg-sky-500/15 text-sky-600 dark:text-sky-400',
                 ],
                 [
                     'route' => 'mobile.pegawai',
                     'icon' => 'groups',
                     'label' => 'Pegawai',
+                    'count' => $menuCounts['pegawai'] ?? 0,
                     'color' => 'bg-cyan-50 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400',
                 ],
                 [
@@ -402,6 +406,8 @@
                     ],
                     'icon' => 'fact_check',
                     'label' => 'Persetujuan',
+                    'count' => $menuCounts['persetujuan'] ?? 0,
+                    'badgeColor' => 'bg-rose-500',
                     'color' => 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400',
                 ],
             ];
@@ -416,8 +422,13 @@
                         <a href="{{ route($item['route']) }}" wire:navigate.hover
                             class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                             <div
-                                class="w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
+                                class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl {{ $item['color'] }} border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
                                 <span class="material-symbols-rounded text-[24px] md:text-[28px]">{{ $item['icon'] }}</span>
+                                @if (($item['count'] ?? 0) > 0)
+                                    <span class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full {{ $item['badgeColor'] ?? 'bg-sky-600' }} text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-xs">
+                                        {{ $item['count'] > 99 ? '99+' : $item['count'] }}
+                                    </span>
+                                @endif
                             </div>
                             <span
                                 class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">{{ $item['label'] }}</span>
@@ -425,11 +436,17 @@
                     @endif
                 @endforeach
                 @if (Route::has('mobile.surat-tugas.index'))
+                    @php $stCount = $menuCounts['surat_tugas'] ?? 0; @endphp
                     <a href="{{ route('mobile.surat-tugas.index') }}" wire:navigate.hover
                         class="flex flex-col items-center gap-1.5 active:scale-95 transition-transform">
                         <div
-                            class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
+                            class="relative w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-slate-200/80 dark:border-zinc-700/70 flex items-center justify-center">
                             <span class="material-symbols-rounded text-[24px] md:text-[28px]">assignment</span>
+                            @if ($stCount > 0)
+                                <span class="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-sky-600 text-white text-[10px] font-extrabold flex items-center justify-center ring-2 ring-white dark:ring-zinc-900 shadow-xs">
+                                    {{ $stCount > 99 ? '99+' : $stCount }}
+                                </span>
+                            @endif
                         </div>
                         <span
                             class="text-[13px] md:text-sm font-bold text-zinc-700 dark:text-zinc-300 text-center leading-tight">Surat
