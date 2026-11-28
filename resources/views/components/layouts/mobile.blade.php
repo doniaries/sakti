@@ -1281,6 +1281,18 @@
                 deltaY = 0;
             }, { passive: true });
         })();
+
+        // Reload otomatis saat CSRF token berubah (misalnya setelah pindah/switch akun di tab lain)
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('request', ({ fail }) => {
+                fail(({ status, preventDefault }) => {
+                    if (status === 419) {
+                        preventDefault();
+                        window.location.reload();
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
