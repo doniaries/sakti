@@ -72,13 +72,13 @@ class PushNotificationService
     {
         return \Illuminate\Notifications\DatabaseNotification::query()
             ->where(function ($q) {
-                $q->where('data->title', 'like', '%Tes Notifikasi%')
-                    ->orWhere('data->title', 'like', '%Test Notif%')
-                    ->orWhere('data->title', 'like', '%Lengkapi Data Kepegawaian%')
-                    ->orWhere('data->body', 'like', '%Notifikasi Web Push berhasil dikirim%')
-                    ->orWhere('data->body', 'like', '%Notifikasi Push Android berhasil dikirim%')
-                    ->orWhere('data->body', 'like', '%melengkapi profil kepegawaian Anda%')
-                    ->orWhere('data->message', 'like', '%Notifikasi Web Push berhasil dikirim%');
+                $q->where('data', 'like', '%Tes Notifikasi%')
+                    ->orWhere('data', 'like', '%Test Notif%')
+                    ->orWhere('data', 'like', '%Lengkapi Data Kepegawaian%')
+                    ->orWhere('data', 'like', '%Notifikasi Web Push berhasil dikirim%')
+                    ->orWhere('data', 'like', '%Notifikasi Push Android berhasil dikirim%')
+                    ->orWhere('data', 'like', '%melengkapi profil kepegawaian Anda%')
+                    ->orWhere('data', 'like', '%lengkapi data kepegawaian Anda%');
             })
             ->delete();
     }
