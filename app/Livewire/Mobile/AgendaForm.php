@@ -5,7 +5,6 @@ namespace App\Livewire\Mobile;
 use App\Models\AgendaDisposisi;
 use App\Models\AgendaKegiatan;
 use App\Models\User;
-use App\Services\PushNotificationService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -100,27 +99,7 @@ class AgendaForm extends Component
             ->all();
 
         if ($recipientIds !== []) {
-            $judul = $agenda->judul;
-            $tempat = $agenda->tempat;
-            $waktu = Carbon::parse($agenda->tanggal)->translatedFormat('d M Y') . ' ' . substr((string) $agenda->jam_mulai, 0, 5);
-            $instruksiTeks = $validated['instruksi'] ?: 'Hadir mewakili / menindaklanjuti';
-            $agendaUrl = route('mobile.agenda');
-
-            // Jalankan setelah response dikirim agar tombol Simpan langsung merespons tanpa menunggu FCM/WebPush.
-            dispatch(function () use ($recipientIds, $judul, $waktu, $tempat, $instruksiTeks, $agendaUrl): void {
-                $recipients = User::whereIn('id', $recipientIds)->where('aktif', true)->get();
-                if ($recipients->isEmpty()) {
-                    return;
-                }
-
-                PushNotificationService::sendToUsers(
-                    $recipients,
-                    'Perintah Menghadiri Agenda',
-                    "{$judul} ({$waktu} di {$tempat}) — {$instruksiTeks}",
-                    ['url' => $agendaUrl],
-                    'info'
-                );
-            })->afterResponse();
+            $agenda->notifyDisposisiRecipients($recipientIds, $validated['instruksi'] ?? null);
         }
 
         $this->dispatch('notify', type: 'success', title: 'Agenda Ditambahkan', message: 'Agenda kegiatan & disposisi berhasil disimpan.');

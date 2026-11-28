@@ -68,3 +68,52 @@ Artisan::command('inspire', function () {
 
 \Illuminate\Support\Facades\Schedule::command('presensi:pengingat masuk')->weekdays()->at('07:15')->timezone('Asia/Jakarta');
 \Illuminate\Support\Facades\Schedule::command('presensi:pengingat pulang')->weekdays()->at('16:25')->timezone('Asia/Jakarta');
+
+\Illuminate\Support\Facades\Artisan::command('agenda:pengingat', function () {
+    $now = now('Asia/Jakarta');
+    $windowEnd = $now->copy()->addMinutes(30);
+
+    $agendas = \App\Models\AgendaKegiatan::query()
+        ->whereNull('reminder_sent_at')
+        ->whereDate('tanggal', '>=', $now->toDateString())
+        ->whereDate('tanggal', '<=', $windowEnd->toDateString())
+        ->with(['disposisis.user' => fn ($q) => $q->where('aktif', true)])
+        ->get();
+
+    $sentCount = 0;
+
+    foreach ($agendas as $agenda) {
+        $jamMulai = substr((string) $agenda->jam_mulai, 0, 5);
+        $startAt = \Illuminate\Support\Carbon::parse(
+            $agenda->tanggal->toDateString() . ' ' . $jamMulai,
+            'Asia/Jakarta'
+        );
+
+        if ($startAt->lt($now) || $startAt->gt($windowEnd)) {
+            continue;
+        }
+
+        $recipients = $agenda->disposisis
+            ->pluck('user')
+            ->filter()
+            ->unique('id')
+            ->values();
+
+        if ($recipients->isNotEmpty()) {
+            \App\Services\PushNotificationService::sendToUsers(
+                $recipients,
+                'Pengingat Agenda (30 Menit Lagi)',
+                "{$agenda->judul} pukul {$jamMulai} WIB di {$agenda->tempat}",
+                ['url' => route('mobile.agenda')],
+                'warning'
+            );
+            $sentCount++;
+        }
+
+        $agenda->update(['reminder_sent_at' => now()]);
+    }
+
+    $this->info("Pengingat agenda terkirim untuk {$sentCount} kegiatan.");
+})->purpose('Kirim pengingat agenda 30 menit sebelum acara dimulai');
+
+\Illuminate\Support\Facades\Schedule::command('agenda:pengingat')->everyMinute()->timezone('Asia/Jakarta')->withoutOverlapping();

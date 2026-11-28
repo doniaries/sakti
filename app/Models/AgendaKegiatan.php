@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Services\PushNotificationService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 class AgendaKegiatan extends Model
 {
@@ -17,6 +19,7 @@ class AgendaKegiatan extends Model
         'asal_undangan',
         'keterangan',
         'lampiran_file',
+        'reminder_sent_at',
         'created_by',
     ];
 
@@ -24,6 +27,7 @@ class AgendaKegiatan extends Model
     {
         return [
             'tanggal' => 'date',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 
@@ -63,11 +67,53 @@ class AgendaKegiatan extends Model
                 ->update(['instruksi' => $cleanInstruksi]);
         }
 
-        foreach ($ids->diff($existingIds) as $newUserId) {
-            $this->disposisis()->create([
-                'user_id' => $newUserId,
+        $newIds = $ids->diff($existingIds)->values();
+        if ($newIds->isNotEmpty()) {
+            $now = now();
+            $rows = $newIds->map(fn (int $uid): array => [
+                'agenda_kegiatan_id' => $this->id,
+                'user_id' => $uid,
                 'instruksi' => $cleanInstruksi,
-            ]);
+                'notified_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ])->all();
+
+            AgendaDisposisi::insert($rows);
+            $this->notifyDisposisiRecipients($newIds->all(), $cleanInstruksi);
         }
+    }
+
+    /**
+     * Kirim notifikasi (Database, FCM, WebPush) setelah response agar UI tetap responsif.
+     *
+     * @param  array<int, int>  $recipientIds
+     */
+    public function notifyDisposisiRecipients(array $recipientIds, ?string $instruksi = null): void
+    {
+        if ($recipientIds === []) {
+            return;
+        }
+
+        $judul = $this->judul;
+        $tempat = $this->tempat;
+        $waktu = Carbon::parse($this->tanggal)->translatedFormat('d M Y') . ' ' . substr((string) $this->jam_mulai, 0, 5);
+        $instruksiTeks = filled($instruksi) ? trim((string) $instruksi) : 'Hadir mewakili / menindaklanjuti';
+        $agendaUrl = route('mobile.agenda');
+
+        dispatch(function () use ($recipientIds, $judul, $waktu, $tempat, $instruksiTeks, $agendaUrl): void {
+            $recipients = User::whereIn('id', $recipientIds)->where('aktif', true)->get();
+            if ($recipients->isEmpty()) {
+                return;
+            }
+
+            PushNotificationService::sendToUsers(
+                $recipients,
+                'Perintah Menghadiri Agenda',
+                "{$judul} ({$waktu} di {$tempat}) — {$instruksiTeks}",
+                ['url' => $agendaUrl],
+                'info'
+            );
+        })->afterResponse();
     }
 }
