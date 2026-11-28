@@ -66,6 +66,22 @@ class PushNotificationService
     }
 
     /**
+     * Hapus hanya notifikasi uji coba/tes dari tabel notifications tanpa menyentuh notifikasi transaksi data.
+     */
+    public static function deleteTestNotifications(): int
+    {
+        return \Illuminate\Notifications\DatabaseNotification::query()
+            ->where(function ($q) {
+                $q->where('data->title', 'like', '%Tes Notifikasi%')
+                    ->orWhere('data->title', 'like', '%Test Notif%')
+                    ->orWhere('data->body', 'like', '%Notifikasi Web Push berhasil dikirim%')
+                    ->orWhere('data->body', 'like', '%Notifikasi Push Android berhasil dikirim%')
+                    ->orWhere('data->message', 'like', '%Notifikasi Web Push berhasil dikirim%');
+            })
+            ->delete();
+    }
+
+    /**
      * Kirim Push Notification via FCM HTTP v1 API tanpa library eksternal.
      *
      * @param  array<int, User>  $recipients

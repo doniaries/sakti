@@ -950,9 +950,9 @@
             @endif
             @if ($user->hasAnyRole(['super_admin', 'superadmin', 'admin']))
                 <button type="button" wire:click="clearGlobalNotifications"
-                    wire:confirm="Hapus seluruh notifikasi untuk SEMUA akun user di server? Akun user dan data asli tetap aman."
+                    wire:confirm="Hapus seluruh notifikasi TES (uji coba) di server untuk semua user? Notifikasi transaksi data tetap aman."
                     class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer">
-                    Hapus Notif Semua User
+                    Hapus Tes Notif
                 </button>
             @endif
             <button type="button" @click="notifSheet = false"

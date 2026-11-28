@@ -230,14 +230,14 @@ class Dashboard extends Component
             return;
         }
 
-        $deleted = \Illuminate\Notifications\DatabaseNotification::query()->delete();
-        $this->dispatch('notif-count-updated', count: 0);
+        $deleted = \App\Services\PushNotificationService::deleteTestNotifications();
+        $this->dispatch('notif-count-updated', count: $user->unreadNotifications()->count());
         $this->dispatch('notify', [
             'type' => 'success',
-            'title' => 'Notifikasi Global Dihapus',
+            'title' => 'Tes Notifikasi Dihapus',
             'message' => $deleted > 0
-                ? "{$deleted} notifikasi seluruh user berhasil dihapus dari server."
-                : 'Tidak ada notifikasi tersimpan di server.',
+                ? "{$deleted} notifikasi tes berhasil dihapus dari server. Notifikasi transaksi tetap aman."
+                : 'Tidak ada notifikasi tes tersimpan di server.',
         ]);
     }
 

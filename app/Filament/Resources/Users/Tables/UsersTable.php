@@ -1183,24 +1183,24 @@ class UsersTable
                             ->send();
                     }),
                 Action::make('hapus_notifikasi_global')
-                    ->label('Hapus Semua Notif')
+                    ->label('Hapus Tes Notif')
                     ->icon('heroicon-o-bell-slash')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalHeading('Hapus Seluruh Notifikasi Semua User')
-                    ->modalDescription('Tindakan ini akan menghapus seluruh notifikasi yang tersimpan di server untuk SEMUA akun user sekaligus. Data asli (Surat Tugas, Izin, Presensi, LHK) tetap aman.')
+                    ->modalHeading('Hapus Semua Tes Notifikasi')
+                    ->modalDescription('Tindakan ini hanya menghapus notifikasi TES (uji coba) di server untuk semua akun user. Notifikasi transaksi data (Surat Tugas, Izin, Presensi, LHK) tetap aman.')
                     ->visible(function (): bool {
                         /** @var \App\Models\User|null $user */
                         $user = Auth::user();
                         return $user?->hasAnyRole(['super_admin', 'superadmin', 'admin']) ?? false;
                     })
                     ->action(function (): void {
-                        $deleted = \Illuminate\Notifications\DatabaseNotification::query()->delete();
+                        $deleted = \App\Services\PushNotificationService::deleteTestNotifications();
 
                         Notification::make()
                             ->title($deleted > 0
-                                ? "{$deleted} notifikasi seluruh user berhasil dihapus dari server."
-                                : 'Tidak ada notifikasi tersimpan di server.')
+                                ? "{$deleted} notifikasi tes berhasil dihapus dari server."
+                                : 'Tidak ada notifikasi tes tersimpan di server.')
                             ->success()
                             ->send();
                     }),
